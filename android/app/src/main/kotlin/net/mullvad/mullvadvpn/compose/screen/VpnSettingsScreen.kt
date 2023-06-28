@@ -54,7 +54,7 @@ import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
-import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
+import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfoDialog
@@ -214,7 +214,7 @@ fun VpnSettingsScreen(
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
 
-    CollapsableAwareToolbarScaffold(
+    CollapsingToolbarScaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize(),
         state = state,
