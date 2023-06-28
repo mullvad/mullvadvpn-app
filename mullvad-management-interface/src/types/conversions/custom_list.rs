@@ -110,7 +110,7 @@ impl From<mullvad_types::custom_list::CustomList> for proto::CustomList {
             .map(proto::RelayLocation::from)
             .collect();
         Self {
-            id: custom_list.id.0.to_string(),
+            id: custom_list.id.to_string(),
             name: custom_list.name,
             locations,
         }
