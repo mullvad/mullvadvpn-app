@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 
 class RelayList {
     val countries: List<RelayCountry>
@@ -41,7 +41,7 @@ class RelayList {
     }
 
     fun findItemForLocation(
-        constraint: Constraint<LocationConstraint>,
+        constraint: Constraint<GeographicLocationConstraint>,
         expand: Boolean = false
     ): RelayItem? {
         when (constraint) {
@@ -50,10 +50,10 @@ class RelayList {
                 val location = constraint.value
 
                 when (location) {
-                    is LocationConstraint.Country -> {
+                    is GeographicLocationConstraint.Country -> {
                         return countries.find { country -> country.code == location.countryCode }
                     }
-                    is LocationConstraint.City -> {
+                    is GeographicLocationConstraint.City -> {
                         val country =
                             countries.find { country -> country.code == location.countryCode }
 
@@ -63,7 +63,7 @@ class RelayList {
 
                         return country?.cities?.find { city -> city.code == location.cityCode }
                     }
-                    is LocationConstraint.Hostname -> {
+                    is GeographicLocationConstraint.Hostname -> {
                         val country =
                             countries.find { country -> country.code == location.countryCode }
 
