@@ -1,5 +1,5 @@
 use clap::Parser;
-use mullvad_api::{self, proxy::ApiConnectionMode};
+use mullvad_api::{self, proxy::ApiConnectionMode, DEVICE_NOT_FOUND};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process, str::FromStr, time::Duration};
@@ -171,7 +171,8 @@ async fn remove_device() -> Result<(), Error> {
                 )
                 .await,
         );
-        retry_future_n(
+
+        let device_removal = retry_future_n(
             move || proxy.remove(device.account_token.clone(), device.device.id.clone()),
             move |result| match result {
                 Err(error) => error.is_network_error(),
@@ -180,8 +181,16 @@ async fn remove_device() -> Result<(), Error> {
             constant_interval(KEY_RETRY_INTERVAL),
             KEY_RETRY_MAX_RETRIES,
         )
-        .await
-        .map_err(Error::RemoveDeviceError)?;
+        .await;
+
+        // `DEVICE_NOT_FOUND` is not considered to be an error in this context.
+        match device_removal {
+            Ok(_) => Ok(()),
+            Err(mullvad_api::rest::Error::ApiError(_status, code)) if code == DEVICE_NOT_FOUND => {
+                Ok(())
+            }
+            Err(e) => Err(Error::RemoveDeviceError(e)),
+        }?;
 
         cacher
             .remove()
