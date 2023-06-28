@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.cell
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,12 +19,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.MullvadHelmetYellow
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
 private fun PreviewDnsCell() {
-    DnsCell(address = "0.0.0.0", isUnreachableLocalDnsWarningVisible = true, onClick = {})
+    AppTheme {
+        DnsCell(address = "0.0.0.0", isUnreachableLocalDnsWarningVisible = true, onClick = {})
+    }
 }
 
 @Composable
@@ -43,7 +46,7 @@ fun DnsCell(
                 Icon(
                     painter = painterResource(id = R.drawable.icon_alert),
                     contentDescription = stringResource(id = R.string.confirm_local_dns),
-                    tint = MullvadHelmetYellow
+                    tint = MaterialTheme.colorScheme.errorContainer
                 )
             }
         },
