@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.QuantumResistantState
+import net.mullvad.mullvadvpn.model.WireguardConstraints
 
 // Requests that the service can handle
 sealed class Request : Message.RequestMessage() {
@@ -85,6 +86,9 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize data class SetDnsOptions(val dnsOptions: DnsOptions) : Request()
 
     @Parcelize data class SetObfuscationSettings(val settings: ObfuscationSettings?) : Request()
+
+    @Parcelize
+    data class SetWireguardConstraints(val wireguardConstraints: WireguardConstraints?) : Request()
 
     @Parcelize
     data class SetWireGuardQuantumResistant(val quantumResistant: QuantumResistantState) :
