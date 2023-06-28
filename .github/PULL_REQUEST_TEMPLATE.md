@@ -1,3 +1,4 @@
+<!--
 PR checklist (just intended as a reminder for the PR author. No need to fill it in):
 
 * [ ] The change is added to `CHANGELOG.md` under the `[Unreleased]` header.
