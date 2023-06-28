@@ -9,6 +9,7 @@ export interface StartAppResponse {
 export interface TestUtils {
   currentRoute: () => Promise<string>;
   waitForNavigation: (initiateNavigation?: () => Promise<void> | void) =>  Promise<string>;
+  waitForNoTransition: () => Promise<void>;
 }
 
 interface History {
@@ -31,6 +32,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
   const util: TestUtils = {
     currentRoute: currentRouteFactory(app),
     waitForNavigation: waitForNavigationFactory(app, page),
+    waitForNoTransition: () => waitForNoTransition(page),
   };
 
   return { app, page, util };
