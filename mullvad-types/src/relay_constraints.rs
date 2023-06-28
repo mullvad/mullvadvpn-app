@@ -235,27 +235,19 @@ impl RelaySettings {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum LocationConstraint {
-    Location {
-        location: GeographicLocationConstraint,
-    },
-    CustomList {
-        list_id: Id,
-    },
+    Location(GeographicLocationConstraint),
+    CustomList { list_id: Id },
 }
 
 #[derive(Debug, Clone)]
 pub enum ResolvedLocationConstraint {
-    Location {
-        location: GeographicLocationConstraint,
-    },
-    Locations {
-        locations: Vec<GeographicLocationConstraint>,
-    },
+    Location(GeographicLocationConstraint),
+    Locations(Vec<GeographicLocationConstraint>),
 }
 
 impl ResolvedLocationConstraint {
@@ -265,18 +257,14 @@ impl ResolvedLocationConstraint {
     ) -> Constraint<ResolvedLocationConstraint> {
         match location {
             Constraint::Any => Constraint::Any,
-            Constraint::Only(LocationConstraint::Location { location }) => {
-                Constraint::Only(Self::Location { location })
+            Constraint::Only(LocationConstraint::Location(location)) => {
+                Constraint::Only(Self::Location(location))
             }
             Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
                 .custom_lists
                 .iter()
                 .find(|custom_list| custom_list.id == list_id)
-                .map(|custom_list| {
-                    Constraint::Only(Self::Locations {
-                        locations: custom_list.locations.clone(),
-                    })
-                })
+                .map(|custom_list| Constraint::Only(Self::Locations(custom_list.locations.clone())))
                 .unwrap_or(Constraint::Any),
         }
     }
@@ -284,7 +272,7 @@ impl ResolvedLocationConstraint {
 
 impl From<GeographicLocationConstraint> for LocationConstraint {
     fn from(location: GeographicLocationConstraint) -> Self {
-        Self::Location { location }
+        Self::Location(location)
     }
 }
 
@@ -292,27 +280,23 @@ impl Set<Constraint<ResolvedLocationConstraint>> for Constraint<ResolvedLocation
     fn is_subset(&self, other: &Self) -> bool {
         match self {
             Constraint::Any => other.is_any(),
-            Constraint::Only(ResolvedLocationConstraint::Location { location }) => match other {
+            Constraint::Only(ResolvedLocationConstraint::Location(location)) => match other {
                 Constraint::Any => true,
-                Constraint::Only(ResolvedLocationConstraint::Location {
-                    location: other_location,
-                }) => location.is_subset(other_location),
-                Constraint::Only(ResolvedLocationConstraint::Locations {
-                    locations: other_locations,
-                }) => other_locations
-                    .iter()
-                    .any(|other_location| location.is_subset(other_location)),
+                Constraint::Only(ResolvedLocationConstraint::Location(other_location)) => {
+                    location.is_subset(other_location)
+                }
+                Constraint::Only(ResolvedLocationConstraint::Locations(other_locations)) => {
+                    other_locations
+                        .iter()
+                        .any(|other_location| location.is_subset(other_location))
+                }
             },
-            Constraint::Only(ResolvedLocationConstraint::Locations { locations }) => match other {
+            Constraint::Only(ResolvedLocationConstraint::Locations(locations)) => match other {
                 Constraint::Any => true,
-                Constraint::Only(ResolvedLocationConstraint::Location {
-                    location: other_location,
-                }) => locations
+                Constraint::Only(ResolvedLocationConstraint::Location(other_location)) => locations
                     .iter()
                     .all(|location| location.is_subset(other_location)),
-                Constraint::Only(ResolvedLocationConstraint::Locations {
-                    locations: other_locations,
-                }) => {
+                Constraint::Only(ResolvedLocationConstraint::Locations(other_locations)) => {
                     for location in locations {
                         if !other_locations
                             .iter()
@@ -332,10 +316,10 @@ impl Constraint<ResolvedLocationConstraint> {
     pub fn matches_with_opts(&self, relay: &Relay, ignore_include_in_country: bool) -> bool {
         match self {
             Constraint::Any => true,
-            Constraint::Only(ResolvedLocationConstraint::Location { location }) => {
+            Constraint::Only(ResolvedLocationConstraint::Location(location)) => {
                 location.matches_with_opts(relay, ignore_include_in_country)
             }
-            Constraint::Only(ResolvedLocationConstraint::Locations { locations }) => locations
+            Constraint::Only(ResolvedLocationConstraint::Locations(locations)) => locations
                 .iter()
                 .any(|loc| loc.matches_with_opts(relay, ignore_include_in_country)),
         }
@@ -345,7 +329,7 @@ impl Constraint<ResolvedLocationConstraint> {
 impl LocationConstraint {
     fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self {
-            Self::Location { location } => writeln!(f, "location - {location}"),
+            Self::Location(location) => writeln!(f, "location - {location}"),
             Self::CustomList { list_id } => match custom_lists
                 .custom_lists
                 .iter()

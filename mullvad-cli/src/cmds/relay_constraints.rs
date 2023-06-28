@@ -49,6 +49,6 @@ impl From<LocationArgs> for Constraint<LocationConstraint> {
             }
             _ => unreachable!("invalid location arguments"),
         };
-        Constraint::Only(LocationConstraint::Location { location })
+        Constraint::Only(LocationConstraint::Location(location))
     }
 }

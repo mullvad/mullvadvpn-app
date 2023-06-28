@@ -21,7 +21,7 @@ mod dns;
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration
 /// being added to `mullvad-daemon`.
-pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V6;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V7;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
@@ -31,6 +31,7 @@ pub enum SettingsVersion {
     V4 = 4,
     V5 = 5,
     V6 = 6,
+    V7 = 7,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -44,6 +45,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V4 as u32 => Ok(SettingsVersion::V4),
             v if v == SettingsVersion::V5 as u32 => Ok(SettingsVersion::V5),
             v if v == SettingsVersion::V6 as u32 => Ok(SettingsVersion::V6),
+            v if v == SettingsVersion::V7 as u32 => Ok(SettingsVersion::V7),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),
@@ -121,13 +123,13 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             relay_settings: RelaySettings::Normal(RelayConstraints {
-                location: Constraint::Only(LocationConstraint::Location {
-                    location: GeographicLocationConstraint::Country("se".to_owned()),
-                }),
+                location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Country("se".to_owned()),
+                )),
                 wireguard_constraints: WireguardConstraints {
-                    entry_location: Constraint::Only(LocationConstraint::Location {
-                        location: GeographicLocationConstraint::Country("se".to_owned()),
-                    }),
+                    entry_location: Constraint::Only(LocationConstraint::Location(
+                        GeographicLocationConstraint::Country("se".to_owned()),
+                    )),
                     ..Default::default()
                 },
                 ..Default::default()

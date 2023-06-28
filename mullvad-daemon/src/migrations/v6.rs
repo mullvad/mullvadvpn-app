@@ -36,13 +36,52 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 
     migrate_udp2tcp_port_443(settings);
 
-    // TODO
-    // log::info!("Migrating settings format to V7");
+    migrate_location_constraint(settings)?;
 
-    // Note: Not incrementing the version number yet, since this migration is still open
-    // for future modification.
-    // settings["settings_version"] = serde_json::json!(SettingsVersion::V7);
+    log::info!("Migrating settings format to V7");
 
+    settings["settings_version"] = serde_json::json!(SettingsVersion::V7);
+
+    Ok(())
+}
+
+fn migrate_location_constraint(settings: &mut serde_json::Value) -> Result<()> {
+    if let Some(location) = settings
+        .get_mut("relay_settings")
+        .and_then(|relay_settings| relay_settings.get_mut("normal"))
+        .and_then(|normal_relay_settings| normal_relay_settings.get_mut("location"))
+    {
+        wrap_location(location)?;
+    }
+
+    if let Some(location) = settings
+        .get_mut("relay_settings")
+        .and_then(|relay_settings| relay_settings.get_mut("normal"))
+        .and_then(|normal_relay_settings| normal_relay_settings.get_mut("wireguard_constraints"))
+        .and_then(|normal_relay_settings| normal_relay_settings.get_mut("entry_location"))
+    {
+        wrap_location(location)?;
+    }
+
+    if let Some(location) = settings
+        .get_mut("bridge_settings")
+        .and_then(|relay_settings| relay_settings.get_mut("normal"))
+        .and_then(|normal_relay_settings| normal_relay_settings.get_mut("location"))
+    {
+        wrap_location(location)?;
+    }
+
+    Ok(())
+}
+
+fn wrap_location(location: &mut serde_json::Value) -> Result<()> {
+    if let Some(only) = location.get_mut("only") {
+        only["location"] = only.clone();
+        let only = only.as_object_mut().ok_or(Error::InvalidSettingsContent)?;
+        only.remove("country");
+        only.remove("city");
+        only.remove("hostname");
+    }
     Ok(())
 }
 
@@ -89,7 +128,7 @@ fn version_matches(settings: &mut serde_json::Value) -> bool {
 
 #[cfg(test)]
 mod test {
-    use super::{migrate, migrate_pq_setting, version_matches};
+    use super::{migrate, migrate_location_constraint, migrate_pq_setting, version_matches};
 
     pub const V6_SETTINGS: &str = r#"
 {
@@ -175,7 +214,9 @@ mod test {
     "normal": {
       "location": {
         "only": {
-          "country": "se"
+          "location": {
+            "country": "se"
+          }
         }
       },
       "tunnel_protocol": "any",
@@ -241,7 +282,7 @@ mod test {
       }
     }
   },
-  "settings_version": 6
+  "settings_version": 7
 }
 "#;
 
@@ -254,6 +295,252 @@ mod test {
         let new_settings: serde_json::Value = serde_json::from_str(V7_SETTINGS).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
+    }
+
+    /// For relay settings
+    /// location: { only: { country : "se" } } should be replaced with
+    /// location: { only: { location: { country: "se" } } }
+    #[test]
+    fn test_from_relay_settings_location_constraint_country() {
+        let mut migrated_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "relay_settings": {
+                "normal": {
+                    "location": {
+                        "only": {
+                            "country": "se"
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+        migrate_location_constraint(&mut migrated_settings).unwrap();
+
+        let expected_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "relay_settings": {
+                "normal": {
+                    "location": {
+                        "only": {
+                            "location": {
+                                "country": "se"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+
+        assert_eq!(migrated_settings, expected_settings);
+    }
+
+    /// For relay settings
+    /// location: { only: { country : "se", city: "got" } } should be replaced with
+    /// location: { only: { location: { country: "se", city: "got" } } }
+    #[test]
+    fn test_from_relay_settings_location_constraint_city() {
+        let mut migrated_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "relay_settings": {
+                "normal": {
+                    "location": {
+                        "only": {
+                            "country": "se",
+                            "city": "got"
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+        migrate_location_constraint(&mut migrated_settings).unwrap();
+
+        let expected_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "relay_settings": {
+                "normal": {
+                    "location": {
+                        "only": {
+                            "location": {
+                                "country": "se",
+                                "city": "got"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+
+        assert_eq!(migrated_settings, expected_settings);
+    }
+
+    /// For relay settings
+    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be
+    /// replaced with location: { only: { location: { country: "se", city: "got", hostname:
+    /// "se-got-wg-001" } } }
+    #[test]
+    fn test_from_relay_settings_location_constraint_hostname() {
+        let mut migrated_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "relay_settings": {
+                "normal": {
+                    "location": {
+                        "only": {
+                            "country": "se",
+                            "city": "got",
+                            "hostname": "se-got-wg-001"
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+        migrate_location_constraint(&mut migrated_settings).unwrap();
+
+        let expected_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "relay_settings": {
+                "normal": {
+                    "location": {
+                        "only": {
+                            "location": {
+                                "country": "se",
+                                "city": "got",
+                                "hostname": "se-got-wg-001"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+
+        assert_eq!(migrated_settings, expected_settings);
+    }
+
+    /// For bridge settings
+    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be
+    /// replaced with location: { only: { location: { country: "se", city: "got", hostname:
+    /// "se-got-wg-001" } } }
+    #[test]
+    fn test_from_bridge_location_constraint_hostname() {
+        let mut migrated_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "bridge_settings": {
+                "normal": {
+                    "location": {
+                        "only": {
+                            "country": "se",
+                            "city": "got",
+                            "hostname": "se-got-wg-001"
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+        migrate_location_constraint(&mut migrated_settings).unwrap();
+
+        let expected_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "bridge_settings": {
+                "normal": {
+                    "location": {
+                        "only": {
+                            "location": {
+                                "country": "se",
+                                "city": "got",
+                                "hostname": "se-got-wg-001"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+
+        assert_eq!(migrated_settings, expected_settings);
+    }
+
+    /// For wireguard constraints
+    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be
+    /// replaced with location: { only: { location: { country: "se", city: "got", hostname:
+    /// "se-got-wg-001" } } }
+    #[test]
+    fn test_from_wireguard_constraint_location_constraint_hostname() {
+        let mut migrated_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "relay_settings": {
+                "normal": {
+                    "wireguard_constraints": {
+                        "entry_location": {
+                            "only": {
+                                "country": "se",
+                                "city": "got",
+                                "hostname": "se-got-wg-001"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+        migrate_location_constraint(&mut migrated_settings).unwrap();
+
+        let expected_settings: serde_json::Value = serde_json::from_str(
+            r#"
+        {
+            "relay_settings": {
+                "normal": {
+                    "wireguard_constraints": {
+                        "entry_location": {
+                            "only": {
+                                "location": {
+                                    "country": "se",
+                                    "city": "got",
+                                    "hostname": "se-got-wg-001"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        "#,
+        )
+        .unwrap();
+
+        assert_eq!(migrated_settings, expected_settings);
     }
 
     /// use_pq_safe_psk=false should be replaced with quantum_resistant=null
