@@ -5,6 +5,7 @@ import android.os.Messenger
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.QuantumResistantState
@@ -72,7 +73,7 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize data class SetEnableSplitTunneling(val enable: Boolean) : Request()
 
-    @Parcelize data class SetRelayLocation(val relayLocation: LocationConstraint?) : Request()
+    @Parcelize data class SetRelayLocation(val relayLocation: GeographicLocationConstraint?) : Request()
 
     @Parcelize data class SetWireGuardMtu(val mtu: Int?) : Request()
 

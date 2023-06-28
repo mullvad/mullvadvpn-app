@@ -10,6 +10,7 @@ import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
 import net.mullvad.mullvadvpn.model.RelayList
@@ -27,7 +28,7 @@ class RelayListListener(endpoint: ServiceEndpoint) {
     private val daemon = endpoint.intermittentDaemon
 
     private var selectedRelayLocation by
-        observable<LocationConstraint?>(null) { _, _, _ ->
+        observable<GeographicLocationConstraint?>(null) { _, _, _ ->
             commandChannel.trySendBlocking(Command.SetRelayLocation)
         }
 
@@ -82,7 +83,7 @@ class RelayListListener(endpoint: ServiceEndpoint) {
 
     private suspend fun updateRelayConstraints() {
         val constraint: Constraint<LocationConstraint> =
-            selectedRelayLocation?.let { location -> Constraint.Only(location) } ?: Constraint.Any()
+            selectedRelayLocation?.let { location -> Constraint.Only(LocationConstraint.Location(location)) } ?: Constraint.Any()
 
         val update = RelaySettingsUpdate.Normal(RelayConstraintsUpdate(constraint))
 
