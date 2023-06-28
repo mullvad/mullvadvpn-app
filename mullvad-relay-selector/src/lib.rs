@@ -1564,7 +1564,7 @@ mod test {
                     BridgeState::Off,
                     attempt,
                     TunnelType::OpenVpn,
-                    &CustomListsSettings::default()
+                    &CustomListsSettings::default(),
                 );
                 assert_eq!(
                     preferred.tunnel_protocol,
@@ -1575,7 +1575,7 @@ mod test {
                     BridgeState::Off,
                     attempt,
                     TunnelType::OpenVpn,
-                    &CustomListsSettings::default()
+                    &CustomListsSettings::default(),
                 ) {
                     Ok(result) if matches!(result.endpoint, MullvadEndpoint::OpenVpn(_)) => (),
                     _ => panic!("OpenVPN endpoint was not selected"),
