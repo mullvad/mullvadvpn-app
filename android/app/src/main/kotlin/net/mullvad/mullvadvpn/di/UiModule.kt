@@ -14,9 +14,6 @@ import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
-import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
-import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
@@ -64,10 +61,6 @@ val uiModule = module {
 
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
 
-    single { AccountExpiryNotification(get()) }
-    single { TunnelStateNotification(get()) }
-    single { VersionInfoNotification(BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get()) }
-
     single { AccountRepository(get()) }
     single { DeviceRepository(get()) }
     single {
@@ -84,7 +77,7 @@ val uiModule = module {
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
-    viewModel { ConnectViewModel(get()) }
+    viewModel { ConnectViewModel(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get()) }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get()) }

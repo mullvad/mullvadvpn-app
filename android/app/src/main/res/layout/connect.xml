@@ -7,10 +7,6 @@
                                                 android:layout_width="match_parent"
                                                 android:layout_height="wrap_content"
                                                 android:elevation="0.5dp" />
-    <net.mullvad.mullvadvpn.ui.widget.NotificationBanner android:id="@+id/notification_banner"
-                                                         android:layout_width="match_parent"
-                                                         android:layout_height="wrap_content"
-                                                         android:elevation="0.25dp" />
     <androidx.compose.ui.platform.ComposeView android:id="@+id/compose_view"
                                               android:layout_width="match_parent"
                                               android:layout_height="match_parent"

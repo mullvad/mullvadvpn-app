@@ -49,7 +49,7 @@ class AccountViewModel(
     fun onManageAccountClick() {
         viewModelScope.launch {
             _viewActions.tryEmit(
-                ViewAction.OpenAccountView(
+                ViewAction.OpenAccountManagementPageInBrowser(
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
             )
@@ -61,6 +61,6 @@ class AccountViewModel(
     }
 
     sealed class ViewAction {
-        data class OpenAccountView(val token: String) : ViewAction()
+        data class OpenAccountManagementPageInBrowser(val token: String) : ViewAction()
     }
 }
