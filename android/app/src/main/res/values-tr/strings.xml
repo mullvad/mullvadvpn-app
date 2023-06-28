@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">bir günden az kaldı</string>
     <string name="less_than_a_minute_ago">bir dakikadan az</string>
     <string name="local_network_sharing">Yerel ağ paylaşımı</string>
+    <string name="local_network_sharing_additional_info">Bunu, yerel çok noktaya yayın ve yayın aralıklarının yanı sıra aşağıdaki özel IP aralıkları arasında tünel dışı ağ iletişimine izin vererek yapar:</string>
+    <string name="local_network_sharing_info">Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="log_out">Oturumu kapat</string>
     <string name="logged_in_description">Geçerli hesap numarası</string>
     <string name="logged_in_title">Oturum açıldı</string>
@@ -172,7 +174,7 @@
     <string name="update_available_footer">Güncelleme mevcut, güvende kalmak için güncellemeyi indirin.</string>
     <string name="update_dns_server_dialog_title">DNS sunucusunu güncelle</string>
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
-    <string name="user_message_hint">Lütfen sorununuzu İngilizce veya İsveççe olarak açıklayın.</string>
+    <string name="user_message_hint">Size daha iyi yardımcı olabilmemiz için lütfen mesajınızı İngilizce veya İsveççe olarak yazın ve hangi ülkeden bağlandığınızı belirtin.</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="virtual_adapter_problem">Sanal adaptör hatası</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>

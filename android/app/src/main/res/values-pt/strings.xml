@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">menos de um dia restante</string>
     <string name="less_than_a_minute_ago">há menos de um minuto</string>
     <string name="local_network_sharing">Partilha de rede local</string>
+    <string name="local_network_sharing_additional_info">Para tal, permite a comunicação de rede fora do túnel para intervalos locais de multicast e difusão, bem como de e para estes intervalos de IPs privados:</string>
+    <string name="local_network_sharing_info">Esta funcionalidade permite o acesso a outros dispositivos na rede local, por exemplo, para partilha, impressão, streaming, etc.</string>
     <string name="log_out">Terminar sessão</string>
     <string name="logged_in_description">Número de conta válido</string>
     <string name="logged_in_title">Sessão iniciada</string>
@@ -172,7 +174,7 @@
     <string name="update_available_footer">Atualização disponível, transfira-a para ficar seguro.</string>
     <string name="update_dns_server_dialog_title">Atualizar servidor DNS</string>
     <string name="user_email_hint">O seu email (opcional)</string>
-    <string name="user_message_hint">Descreva o seu problema em inglês ou sueco.</string>
+    <string name="user_message_hint">Para o ajudar melhor, escreva em inglês ou sueco e indique o país de onde está a efetuar a ligação.</string>
     <string name="view_logs">Ver os registos da app</string>
     <string name="virtual_adapter_problem">Erro de adaptador virtual</string>
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>

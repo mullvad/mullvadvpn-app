@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">mindre än en dag kvar</string>
     <string name="less_than_a_minute_ago">mindre än en minut sedan</string>
     <string name="local_network_sharing">Lokal nätverksdelning</string>
+    <string name="local_network_sharing_additional_info">Den gör det genom att tillåta nätverkskommunikation utanför tunneln till lokala multicast- och sändningsintervall, samt till och från dessa privata IP-intervall:</string>
+    <string name="local_network_sharing_info">Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv.</string>
     <string name="log_out">Logga ut</string>
     <string name="logged_in_description">Giltigt kontonummer</string>
     <string name="logged_in_title">Inloggad</string>
@@ -172,7 +174,7 @@
     <string name="update_available_footer">Uppdatering tillgänglig. Ladda ned för att vara säker.</string>
     <string name="update_dns_server_dialog_title">Uppdatera DNS-server</string>
     <string name="user_email_hint">Din e-postadress (valfritt)</string>
-    <string name="user_message_hint">Beskriv problemet på engelska eller svenska.</string>
+    <string name="user_message_hint">Skriv på engelska eller svenska och ange från vilket land du är ansluten så att vi kan hjälpa dig bättre.</string>
     <string name="view_logs">Visa appens loggar</string>
     <string name="virtual_adapter_problem">Fel med virtuell adapter</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>

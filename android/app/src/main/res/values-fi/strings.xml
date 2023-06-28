@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">alle vuorokausi jäljellä</string>
     <string name="less_than_a_minute_ago">alle minuutti sitten</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
+    <string name="local_network_sharing_additional_info">Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:</string>
+    <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
     <string name="log_out">Kirjaudu ulos</string>
     <string name="logged_in_description">Oikea tilin numero</string>
     <string name="logged_in_title">Kirjautuneena sisään</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">Päivitys saatavilla. Lataa se pysyäksesi suojattuna.</string>
     <string name="update_dns_server_dialog_title">Päivitä DNS-palvelin</string>
     <string name="user_email_hint">Sähköpostisi (valinnainen)</string>
+    <string name="user_message_hint">Jotta voisimme avustaa sinua paremmin, kirjoita englanniksi tai ruotsiksi ja mainitse, mistä maasta muodostat yhteyden.</string>
     <string name="view_logs">Tarkastele sovelluslokeja</string>
     <string name="virtual_adapter_problem">Virtuaalisovittimen virhe</string>
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>

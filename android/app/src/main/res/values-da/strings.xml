@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">mindre end én dag tilbage</string>
     <string name="less_than_a_minute_ago">mindre end et minut siden</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
+    <string name="local_network_sharing_additional_info">Det opnås ved at tillade netværkskommunikation uden for tunnelen til lokale multicast- og broadcast-områder samt til og fra disse private IP-intervaller:</string>
+    <string name="local_network_sharing_info">Denne funktion giver adgang til andre enheder på det lokale netværk, såsom til deling, udskrivning, streaming osv.</string>
     <string name="log_out">Log af</string>
     <string name="logged_in_description">Gyldigt kontonummer</string>
     <string name="logged_in_title">Logget ind</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">Opdatering tilgængelig, download den for at forblive sikker.</string>
     <string name="update_dns_server_dialog_title">Opdater DNS-server</string>
     <string name="user_email_hint">Din e-mail (valgfrit)</string>
+    <string name="user_message_hint">For at vi bedre kan hjælpe dig, bedes du skrive på engelsk eller svensk og nævne hvilket land, du befinder dig i.</string>
     <string name="view_logs">Se app-logfiler</string>
     <string name="virtual_adapter_problem">Fejl ved virtuel adapter</string>
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>

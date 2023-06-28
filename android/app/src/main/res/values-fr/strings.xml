@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">moins d\'un jour restant</string>
     <string name="less_than_a_minute_ago">il y a moins d\'une minute</string>
     <string name="local_network_sharing">Partage réseau local</string>
+    <string name="local_network_sharing_additional_info">Pour ce faire, il autorise la communication réseau à l\'extérieur du tunnel vers les plages locales de multidiffusion et de diffusion, ainsi que vers et à partir de ces plages IP privées :</string>
+    <string name="local_network_sharing_info">Cette fonctionnalité permet d\'accéder à d\'autres appareils sur le réseau local, par exemple pour le partage, l\'impression, le streaming, etc.</string>
     <string name="log_out">Déconnexion</string>
     <string name="logged_in_description">Numéro de compte valide</string>
     <string name="logged_in_title">Connecté</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">Mise à jour disponible. Téléchargez-la pour rester en sécurité.</string>
     <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="user_email_hint">Votre e-mail (facultatif)</string>
+    <string name="user_message_hint">Pour nous permettre de mieux vous assister, merci d\'écrire en anglais ou en suédois et d\'indiquer le pays à partir duquel vous vous connectez.</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>

@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">queda menos de un día</string>
     <string name="less_than_a_minute_ago">hace menos de un minuto</string>
     <string name="local_network_sharing">Uso compartido de la red local</string>
+    <string name="local_network_sharing_additional_info">Lo realiza permitiendo la comnunicación de red fuera del túnel hacia rangos de emisión y multidifusión locales y también hacia y desde estos rangos de IP privados:</string>
+    <string name="local_network_sharing_info">Esta característica permite el acceso a otros dispositivos de la red local, como para compartir, imprimir, transmitir, etc.</string>
     <string name="log_out">Cerrar sesión</string>
     <string name="logged_in_description">Número de cuenta válido</string>
     <string name="logged_in_title">Sesión iniciada</string>
@@ -172,7 +174,7 @@
     <string name="update_available_footer">Hay una actualización disponible, descárguela para seguir protegido.</string>
     <string name="update_dns_server_dialog_title">Actualizar servidor DNS</string>
     <string name="user_email_hint">Su correo electrónico (opcional)</string>
-    <string name="user_message_hint">Describa su problema en inglés o sueco.</string>
+    <string name="user_message_hint">Para ayudarle mejor, escriba en inglés o sueco e indique desde qué país se está conectando.</string>
     <string name="view_logs">Ver registros de la aplicación</string>
     <string name="virtual_adapter_problem">Error del adaptador virtual</string>
     <string name="voucher_already_used">El código del cupón ya se ha usado.</string>

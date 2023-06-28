@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">mindre enn én dag igjen</string>
     <string name="less_than_a_minute_ago">mindre enn ett minutt siden</string>
     <string name="local_network_sharing">Deling over lokalt nettverk</string>
+    <string name="local_network_sharing_additional_info">Den gjør det ved å tillate nettverkkommunikasjon utenfor tunnelen til lokale multicast- og sendingsintervall, samt mellom følgende privat IP-intervall:</string>
+    <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
     <string name="log_out">Logg ut</string>
     <string name="logged_in_description">Gyldig kontonummer</string>
     <string name="logged_in_title">Du er logget inn</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten.</string>
     <string name="update_dns_server_dialog_title">Oppdater DNS-serveren</string>
     <string name="user_email_hint">E-post (valgfritt)</string>
+    <string name="user_message_hint">For at vi skal kunne hjelpe deg bedre, ber vi deg om å skrive på engelsk eller svensk og fortelle hvilket land du befinner deg i.</string>
     <string name="view_logs">Se applogger</string>
     <string name="virtual_adapter_problem">Virtuell adapterfeil</string>
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>

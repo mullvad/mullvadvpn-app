@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">残り1日未満</string>
     <string name="less_than_a_minute_ago">1分未満前</string>
     <string name="local_network_sharing">ローカルネットワーク共有</string>
+    <string name="local_network_sharing_additional_info">これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。</string>
+    <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
     <string name="log_out">ログアウト</string>
     <string name="logged_in_description">有効なアカウント番号</string>
     <string name="logged_in_title">ログインしました</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">アップデートできます。セキュリティを維持するにはダウンロードしてしてください。</string>
     <string name="update_dns_server_dialog_title">DNS サーバーを更新</string>
     <string name="user_email_hint">あなたのメールアドレス (任意)</string>
+    <string name="user_message_hint">最適なサポートを提供するため、英語またはスウェーデン語でご入力ください。また、接続元の国をお知らせください。</string>
     <string name="view_logs">アプリのログを表示</string>
     <string name="virtual_adapter_problem">仮想アダプタのエラー</string>
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>

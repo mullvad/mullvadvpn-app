@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">minder dan een dag over</string>
     <string name="less_than_a_minute_ago">minder dan een minuut geleden</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
+    <string name="local_network_sharing_additional_info">De functie doet dit door netwerkcommunicatie buiten de tunnel naar lokale multicast- en broadcastbereiken toe te staan, alsmede van en naar deze private IP-adresbereiken:</string>
+    <string name="local_network_sharing_info">Deze functie geeft toegang tot andere apparaten op het lokale netwerk, bijvoorbeeld voor delen, afdrukken, streamen en dergelijke</string>
     <string name="log_out">Afmelden</string>
     <string name="logged_in_description">Geldig accountnummer</string>
     <string name="logged_in_title">Aangemeld</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">Update beschikbaar, download deze om veilig te blijven.</string>
     <string name="update_dns_server_dialog_title">DNS-server bijwerken</string>
     <string name="user_email_hint">Uw e-mailadres (optioneel)</string>
+    <string name="user_message_hint">Om u beter te kunnen helpen, kunt u in het Engels of Zweeds schrijven. Vermeld uit welk land u komt.</string>
     <string name="view_logs">Applogboeken weergeven</string>
     <string name="virtual_adapter_problem">Fout virtuele adapter</string>
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>

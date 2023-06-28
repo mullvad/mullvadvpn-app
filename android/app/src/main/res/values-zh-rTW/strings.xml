@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">剩餘時間不足 1 天</string>
     <string name="less_than_a_minute_ago">不到 1 分鐘前</string>
     <string name="local_network_sharing">本機網路分享</string>
+    <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
+    <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
     <string name="log_out">登出</string>
     <string name="logged_in_description">有效帳號</string>
     <string name="logged_in_title">已登入</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">更新可用，請下載以維持安全。</string>
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
     <string name="user_email_hint">您的電子郵件 (選填)</string>
+    <string name="user_message_hint">為了給您提供更完善的協助，請您使用英語或瑞典語書寫，並註明您是從哪個國家/地區進行連線。</string>
     <string name="view_logs">檢視應用程式日誌</string>
     <string name="virtual_adapter_problem">虛擬配接器錯誤</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>

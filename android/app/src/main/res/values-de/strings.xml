@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">weniger als ein Tag übrig</string>
     <string name="less_than_a_minute_ago">vor weniger als einer Minute</string>
     <string name="local_network_sharing">Teilen im lokalen Netzwerk</string>
+    <string name="local_network_sharing_additional_info">Das geschieht, indem die Netzwerkkommunikation außerhalb des Tunnels zu lokalen Multicast- und Broadcast-Bereichen sowie zu und von diesen privaten IP-Bereichen zugelassen wird:</string>
+    <string name="local_network_sharing_info">Diese Funktion ermöglicht den Zugriff auf andere Geräte im lokalen Netzwerk, z. B. zum Teilen, Drucken, Streamen usw.</string>
     <string name="log_out">Abmelden</string>
     <string name="logged_in_description">Gültige Kontonummer</string>
     <string name="logged_in_title">Angemeldet</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">Update verfügbar, laden Sie es herunter, um sicher zu bleiben.</string>
     <string name="update_dns_server_dialog_title">DNS-Server aktualisieren</string>
     <string name="user_email_hint">Ihre E-Mail-Adresse (optional)</string>
+    <string name="user_message_hint">Um Ihnen besser weiterhelfen zu können, schreiben Sie uns bitte auf Englisch oder Schwedisch und geben Sie an, aus welchem Land Sie die Verbindung herstellen.</string>
     <string name="view_logs">App-Protokolle anzeigen</string>
     <string name="virtual_adapter_problem">Virtueller Adapterfehler</string>
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>

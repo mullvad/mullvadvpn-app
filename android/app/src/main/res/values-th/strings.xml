@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">เหลือเวลาน้อยกว่าหนึ่งวัน</string>
     <string name="less_than_a_minute_ago">น้อยกว่าหนึ่งนาทีก่อน</string>
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
+    <string name="local_network_sharing_additional_info">ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:</string>
+    <string name="local_network_sharing_info">คุณสมบัตินี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ</string>
     <string name="log_out">ลงชื่อออก</string>
     <string name="logged_in_description">หมายเลขบัญชีที่ถูกต้อง</string>
     <string name="logged_in_title">เข้าสู่ระบบแล้ว</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้</string>
     <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
+    <string name="user_message_hint">โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น</string>
     <string name="view_logs">ดูบันทึกของแอป</string>
     <string name="virtual_adapter_problem">ข้อผิดพลาดของอะแดปเตอร์เสมือน</string>
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>

@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">meno di un giorno rimanente</string>
     <string name="less_than_a_minute_ago">meno di un minuto fa</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
+    <string name="local_network_sharing_additional_info">Lo fa consentendo la comunicazione di rete al di fuori del tunnel verso intervalli multicast e broadcast locali, nonché da e verso questi intervalli IP privati:</string>
+    <string name="local_network_sharing_info">Questa funzione consente l\'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc.</string>
     <string name="log_out">Esci</string>
     <string name="logged_in_description">Numero di account valido</string>
     <string name="logged_in_title">Accesso effettuato</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">Aggiornamento disponibile; esegui il download per rimanere protetto.</string>
     <string name="update_dns_server_dialog_title">Aggiorna server DNS</string>
     <string name="user_email_hint">La tua e-mail (opzionale)</string>
+    <string name="user_message_hint">Per consentirci di assisterti meglio, scrivi in ​​inglese o in svedese e indica da quale Paese ti stai connettendo.</string>
     <string name="view_logs">Visualizza registri app</string>
     <string name="virtual_adapter_problem">Errore scheda virtuale</string>
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>

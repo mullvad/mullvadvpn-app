@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">剩余时间不足 1 天</string>
     <string name="less_than_a_minute_ago">不到 1 分钟前</string>
     <string name="local_network_sharing">本地网络共享</string>
+    <string name="local_network_sharing_additional_info">此功能通过允许隧道以外到本地组播和广播范围以及与以下私有 IP 范围的网络通信来实现访问。</string>
+    <string name="local_network_sharing_info">此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等</string>
     <string name="log_out">退出</string>
     <string name="logged_in_description">有效帐号</string>
     <string name="logged_in_title">已登录</string>
@@ -172,6 +174,7 @@
     <string name="update_available_footer">有可用更新，请下载以保持安全。</string>
     <string name="update_dns_server_dialog_title">更新 DNS 服务器</string>
     <string name="user_email_hint">您的电子邮件（可选）</string>
+    <string name="user_message_hint">为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。</string>
     <string name="view_logs">查看应用日志</string>
     <string name="virtual_adapter_problem">虚拟适配器错误</string>
     <string name="voucher_already_used">该优惠券码已被使用。</string>

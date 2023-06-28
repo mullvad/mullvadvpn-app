@@ -93,6 +93,8 @@
     <string name="less_than_a_day_left">pozostał mniej niż jeden dzień</string>
     <string name="less_than_a_minute_ago">mniej niż minutę temu</string>
     <string name="local_network_sharing">Udostępnianie sieci lokalnej</string>
+    <string name="local_network_sharing_additional_info">Zapewnia to poprzez umożliwienie komunikacji sieciowej poza tunelem do lokalnych zakresów adresów IP multiemisji i emisji, a także do i z następujących prywatnych zakresów adresów IP:</string>
+    <string name="local_network_sharing_info">Funkcja ta umożliwia dostęp do innych urządzeń w sieci lokalnej, np. w celu udostępniania, drukowania, transmisji strumieniowej itd.</string>
     <string name="log_out">Wyloguj się</string>
     <string name="logged_in_description">Prawidłowy numer konta</string>
     <string name="logged_in_title">Zalogowano jako</string>
@@ -172,7 +174,7 @@
     <string name="update_available_footer">Dostępna jest aktualizacja. Aby zachować bezpieczeństwo, pobierz ją.</string>
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="user_email_hint">Twój adres e-mail (opcjonalnie)</string>
-    <string name="user_message_hint">Opisz problem w języku angielskim lub szwedzkim.</string>
+    <string name="user_message_hint">Abyśmy mogli lepiej Ci pomóc, napisz w języku angielskim lub szwedzkim i podaj kraj, z którego się łączysz.</string>
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
     <string name="virtual_adapter_problem">Błąd wirtualnej karty sieciowej</string>
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
