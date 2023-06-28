@@ -31,6 +31,7 @@ pub enum SettingsVersion {
     V4 = 4,
     V5 = 5,
     V6 = 6,
+    V7 = 7,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -121,13 +122,13 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             relay_settings: RelaySettings::Normal(RelayConstraints {
-                location: Constraint::Only(LocationConstraint::Location {
-                    location: GeographicLocationConstraint::Country("se".to_owned()),
-                }),
+                location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Country("se".to_owned()),
+                )),
                 wireguard_constraints: WireguardConstraints {
-                    entry_location: Constraint::Only(LocationConstraint::Location {
-                        location: GeographicLocationConstraint::Country("se".to_owned()),
-                    }),
+                    entry_location: Constraint::Only(LocationConstraint::Location(
+                        GeographicLocationConstraint::Country("se".to_owned())
+                    )),
                     ..Default::default()
                 },
                 ..Default::default()

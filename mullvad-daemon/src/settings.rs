@@ -378,9 +378,7 @@ mod test {
                   "location": {
                     "only": {
                       "location": {
-                        "location": {
-                          "country": "gb"
-                        }
+                        "country": "gb"
                       }
                     }
                   },

@@ -168,7 +168,7 @@ impl Bridge {
                     } else {
                         Constraint::from(location)
                     };
-                let location = location.map(|location| LocationConstraint::Location { location });
+                let location = location.map(|location| LocationConstraint::Location(location));
                 Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
             }
             SetCommands::CustomList { custom_list_name } => {

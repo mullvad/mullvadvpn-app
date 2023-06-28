@@ -235,14 +235,12 @@ impl RelaySettings {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum LocationConstraint {
-    Location {
-        location: GeographicLocationConstraint,
-    },
+    Location(GeographicLocationConstraint),
     CustomList {
         list_id: Id,
     },
@@ -265,7 +263,7 @@ impl ResolvedLocationConstraint {
     ) -> Constraint<ResolvedLocationConstraint> {
         match location {
             Constraint::Any => Constraint::Any,
-            Constraint::Only(LocationConstraint::Location { location }) => {
+            Constraint::Only(LocationConstraint::Location(location)) => {
                 Constraint::Only(Self::Location { location })
             }
             Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
@@ -284,7 +282,7 @@ impl ResolvedLocationConstraint {
 
 impl From<GeographicLocationConstraint> for LocationConstraint {
     fn from(location: GeographicLocationConstraint) -> Self {
-        Self::Location { location }
+        Self::Location(location)
     }
 }
 
@@ -345,7 +343,7 @@ impl Constraint<ResolvedLocationConstraint> {
 impl LocationConstraint {
     fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
         match self {
-            Self::Location { location } => writeln!(f, "location - {location}"),
+            Self::Location(location) => writeln!(f, "location - {location}"),
             Self::CustomList { list_id } => match custom_lists
                 .custom_lists
                 .iter()

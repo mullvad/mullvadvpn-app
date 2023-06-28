@@ -450,7 +450,7 @@ impl Relay {
                 // The country field is assumed to be hostname due to CLI argument parsing
                 find_relay_by_hostname(&countries, &location_constraint_args.country)
             {
-                Constraint::Only(LocationConstraint::Location { location: relay })
+                Constraint::Only(LocationConstraint::Location(relay))
             } else {
                 let location_constraint: Constraint<GeographicLocationConstraint> =
                     Constraint::from(location_constraint_args);
@@ -468,7 +468,7 @@ impl Relay {
                         }
                     }
                 }
-                location_constraint.map(|location| LocationConstraint::Location { location })
+                location_constraint.map(|location| LocationConstraint::Location(location))
             };
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
@@ -576,7 +576,7 @@ impl Relay {
                 // The country field is assumed to be hostname due to CLI argument parsing
                 wireguard_constraints.entry_location =
                     if let Some(relay) = find_relay_by_hostname(&countries, &entry.country) {
-                        Constraint::Only(LocationConstraint::Location { location: relay })
+                        Constraint::Only(LocationConstraint::Location(relay))
                     } else {
                         Constraint::from(entry)
                     };

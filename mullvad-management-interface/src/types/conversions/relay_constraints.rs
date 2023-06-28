@@ -488,7 +488,7 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Locat
     fn from(location: mullvad_types::relay_constraints::LocationConstraint) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
         match location {
-            LocationConstraint::Location { location } => Self {
+            LocationConstraint::Location(location) => Self {
                 r#type: Some(proto::location_constraint::Type::Location(
                     proto::RelayLocation::from(location),
                 )),
@@ -515,7 +515,7 @@ impl TryFrom<proto::LocationConstraint>
                 match location {
                     Constraint::Any => Ok(Constraint::Any),
                     Constraint::Only(location) => {
-                        Ok(Constraint::Only(LocationConstraint::Location { location }))
+                        Ok(Constraint::Only(LocationConstraint::Location(location)))
                     }
                 }
             }
