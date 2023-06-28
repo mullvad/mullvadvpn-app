@@ -3,8 +3,9 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -29,6 +30,7 @@ import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.LocationInfo
+import net.mullvad.mullvadvpn.compose.component.Notification
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -57,10 +59,12 @@ fun ConnectScreen(
     onConnectClick: () -> Unit = {},
     onCancelClick: () -> Unit = {},
     onSwitchLocationClick: () -> Unit = {},
-    onToggleTunnelInfo: () -> Unit = {}
+    onToggleTunnelInfo: () -> Unit = {},
+    onUpdateVersionClick: () -> Unit = {},
+    onShowAccountClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
-    var lastConnectionActionTimestamp by remember { mutableStateOf(0L) }
+    var lastConnectionActionTimestamp by remember { mutableLongStateOf(0L) }
 
     fun handleThrottledAction(action: () -> Unit) {
         val currentTime = System.currentTimeMillis()
@@ -75,10 +79,16 @@ fun ConnectScreen(
         horizontalAlignment = Alignment.Start,
         modifier =
             Modifier.background(color = MaterialTheme.colorScheme.primary)
-                .height(IntrinsicSize.Max)
-                .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
+                .fillMaxHeight()
                 .verticalScroll(scrollState)
+                .padding(bottom = Dimens.screenVerticalMargin)
     ) {
+        Notification(
+            connectNotificationState = uiState.connectNotificationState,
+            onClickUpdateVersion = onUpdateVersionClick,
+            onClickShowAccount = onShowAccountClick
+        )
+        Spacer(modifier = Modifier.weight(1f).defaultMinSize(Dimens.screenVerticalMargin))
         if (
             uiState.tunnelRealState is TunnelState.Connecting ||
                 (uiState.tunnelRealState is TunnelState.Disconnecting &&
@@ -88,7 +98,8 @@ fun ConnectScreen(
             CircularProgressIndicator(
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier =
-                    Modifier.size(
+                    Modifier.padding(horizontal = Dimens.sideMargin)
+                        .size(
                             width = Dimens.progressIndicatorSize,
                             height = Dimens.progressIndicatorSize
                         )
@@ -97,16 +108,21 @@ fun ConnectScreen(
             )
         }
         Spacer(modifier = Modifier.height(Dimens.smallPadding))
-        ConnectionStatusText(state = uiState.tunnelRealState)
+        ConnectionStatusText(
+            state = uiState.tunnelRealState,
+            modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+        )
         Text(
             text = uiState.location?.country ?: "",
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.padding(horizontal = Dimens.sideMargin)
         )
         Text(
             text = uiState.location?.city ?: "",
             style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onPrimary
+            color = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.padding(horizontal = Dimens.sideMargin)
         )
         LocationInfo(
             onToggleTunnelInfo = onToggleTunnelInfo,
@@ -117,13 +133,17 @@ fun ConnectScreen(
             location = uiState.location,
             inAddress = uiState.inAddress,
             outAddress = uiState.outAddress,
-            modifier = Modifier.fillMaxWidth().testTag(LOCATION_INFO_TEST_TAG)
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(horizontal = Dimens.sideMargin)
+                    .testTag(LOCATION_INFO_TEST_TAG)
         )
         Spacer(modifier = Modifier.height(Dimens.buttonSeparation))
         SwitchLocationButton(
             modifier =
                 Modifier.fillMaxWidth()
                     .height(Dimens.selectLocationButtonHeight)
+                    .padding(horizontal = Dimens.sideMargin)
                     .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
             onClick = onSwitchLocationClick,
             showChevron = uiState.showLocation,
@@ -140,6 +160,7 @@ fun ConnectScreen(
             modifier =
                 Modifier.fillMaxWidth()
                     .height(Dimens.connectButtonHeight)
+                    .padding(horizontal = Dimens.sideMargin)
                     .testTag(CONNECT_BUTTON_TEST_TAG),
             disconnectClick = onDisconnectClick,
             reconnectClick = { handleThrottledAction(onReconnectClick) },

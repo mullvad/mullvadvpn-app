@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
@@ -27,33 +28,42 @@ fun PreviewConnectionStatusText() {
 }
 
 @Composable
-fun ConnectionStatusText(state: TunnelState) {
+fun ConnectionStatusText(state: TunnelState, modifier: Modifier = Modifier) {
     when (state) {
         is TunnelState.Disconnecting -> {
             when (state.actionAfterDisconnect) {
-                ActionAfterDisconnect.Nothing -> DisconnectedText()
-                ActionAfterDisconnect.Block -> ConnectedText(false)
-                ActionAfterDisconnect.Reconnect -> ConnectingText(false)
+                ActionAfterDisconnect.Nothing -> DisconnectedText(modifier = modifier)
+                ActionAfterDisconnect.Block ->
+                    ConnectedText(isQuantumResistant = false, modifier = modifier)
+                ActionAfterDisconnect.Reconnect ->
+                    ConnectingText(isQuantumResistant = false, modifier = modifier)
             }
         }
-        is TunnelState.Disconnected -> DisconnectedText()
-        is TunnelState.Connecting -> ConnectingText(state.endpoint?.quantumResistant == true)
-        is TunnelState.Connected -> ConnectedText(state.endpoint.quantumResistant)
-        is TunnelState.Error -> ErrorText(state.errorState.isBlocking)
+        is TunnelState.Disconnected -> DisconnectedText(modifier = modifier)
+        is TunnelState.Connecting ->
+            ConnectingText(
+                isQuantumResistant = state.endpoint?.quantumResistant == true,
+                modifier = modifier
+            )
+        is TunnelState.Connected ->
+            ConnectedText(isQuantumResistant = state.endpoint.quantumResistant, modifier = modifier)
+        is TunnelState.Error ->
+            ErrorText(isBlocking = state.errorState.isBlocking, modifier = modifier)
     }
 }
 
 @Composable
-private fun DisconnectedText() {
+private fun DisconnectedText(modifier: Modifier) {
     Text(
         text = textResource(id = R.string.unsecured_connection),
         color = MaterialTheme.colorScheme.error,
-        style = MaterialTheme.typography.connectionStatus
+        style = MaterialTheme.typography.connectionStatus,
+        modifier = modifier
     )
 }
 
 @Composable
-private fun ConnectingText(isQuantumResistant: Boolean) {
+private fun ConnectingText(isQuantumResistant: Boolean, modifier: Modifier) {
     Text(
         text =
             textResource(
@@ -62,12 +72,13 @@ private fun ConnectingText(isQuantumResistant: Boolean) {
                     else R.string.creating_secure_connection
             ),
         color = MaterialTheme.colorScheme.onPrimary,
-        style = MaterialTheme.typography.connectionStatus
+        style = MaterialTheme.typography.connectionStatus,
+        modifier = modifier
     )
 }
 
 @Composable
-private fun ConnectedText(isQuantumResistant: Boolean) {
+private fun ConnectedText(isQuantumResistant: Boolean, modifier: Modifier) {
     Text(
         text =
             textResource(
@@ -76,12 +87,13 @@ private fun ConnectedText(isQuantumResistant: Boolean) {
                     else R.string.secure_connection
             ),
         color = MaterialTheme.colorScheme.surface,
-        style = MaterialTheme.typography.connectionStatus
+        style = MaterialTheme.typography.connectionStatus,
+        modifier = modifier
     )
 }
 
 @Composable
-private fun ErrorText(isBlocking: Boolean) {
+private fun ErrorText(isBlocking: Boolean, modifier: Modifier) {
     Text(
         text =
             textResource(
@@ -89,6 +101,7 @@ private fun ErrorText(isBlocking: Boolean) {
             ),
         color =
             if (isBlocking) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.error,
-        style = MaterialTheme.typography.connectionStatus
+        style = MaterialTheme.typography.connectionStatus,
+        modifier = modifier
     )
 }
