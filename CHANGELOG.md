@@ -24,12 +24,14 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add `--help` and `--version` options to the desktop GUI application.
+- Add creation date below device name in the device list screen.
+- Add settings view button in main view in the desktop app.
+- Add time left and device name in the header bar in the desktop app.
 
 #### Android
 - Add UDP-over-TCP.
 - Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
   is turned off.
-- Add creation date below device name in the device list screen.
 - Add quantum resistant tunneling.
 
 ### Changed
