@@ -377,7 +377,7 @@ mod test {
                 "normal": {
                   "location": {
                     "only": {
-                      "Location": {
+                      "location": {
                         "location": {
                           "country": "gb"
                         }
