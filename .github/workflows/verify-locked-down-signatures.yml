@@ -7,7 +7,7 @@ on:
       - Cargo.lock
       - gui/package-lock.json
       - wireguard/libwg/go.sum
-      - ci/keys/
+      - ci/keys/**
       - ci/verify-locked-down-signatures.sh
       - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
       - android/gradle/verification-metadata.xml
@@ -16,8 +16,7 @@ on:
       - building/mullvad-app-container-signing.asc
       - building/linux-container-image.txt
       - building/android-container-image.txt
-      - building/sigstore/
-  workflow_dispatch:
+      - building/sigstore/**
 jobs:
   verify-signatures:
     runs-on: ubuntu-latest
