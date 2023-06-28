@@ -100,66 +100,89 @@ describe('Date helper', () => {
   });
 
   it('should format positive difference as string', () => {
-    const diff1 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-01-01 13:37:20');
+    const diff1 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2021-01-01 13:37:20',
+      { displayMonths: true },
+    );
     expect(diff1).to.equal('less than a day');
 
-    const diff2 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-01-02 13:37:20');
+    const diff2 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2021-01-02 13:37:20',
+      { displayMonths: true },
+    );
     expect(diff2).to.equal('1 day');
 
-    const diff3 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-02-25 13:37:20');
+    const diff3 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2021-02-25 13:37:20',
+      { displayMonths: true },
+    );
     expect(diff3).to.equal('55 days');
 
-    const diff4 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-04-25 13:37:20');
+    const diff4 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2021-04-25 13:37:20',
+      { displayMonths: true },
+    );
     expect(diff4).to.equal('3 months');
 
-    const diff5 = date.formatRelativeDate('2021-01-01 13:37:10', '2031-04-25 13:37:20');
+    const diff5 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2031-04-25 13:37:20',
+      { displayMonths: true },
+    );
     expect(diff5).to.equal('10 years');
   });
 
   it('should format positive difference as string suffixed with "left"', () => {
-    const diff1 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-01-01 13:37:20', true);
+    const diff1 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2021-01-01 13:37:20',
+      { suffix: true, displayMonths: true },
+    );
     expect(diff1).to.equal('less than a day left');
 
-    const diff2 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-01-02 13:37:20', true);
+    const diff2 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2021-01-02 13:37:20',
+      { suffix: true, displayMonths: true },
+    );
     expect(diff2).to.equal('1 day left');
 
-    const diff3 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-02-25 13:37:20', true);
+    const diff3 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2021-02-25 13:37:20',
+      { suffix: true, displayMonths: true },
+    );
     expect(diff3).to.equal('55 days left');
 
-    const diff4 = date.formatRelativeDate('2021-01-01 13:37:10', '2021-04-25 13:37:20', true);
+    const diff4 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2021-04-25 13:37:20',
+      { suffix: true, displayMonths: true },
+    );
     expect(diff4).to.equal('3 months left');
 
-    const diff5 = date.formatRelativeDate('2021-01-01 13:37:10', '2031-04-25 13:37:20', true);
+    const diff5 = date.formatRelativeDate(
+      '2021-01-01 13:37:10',
+      '2031-04-25 13:37:20',
+      { suffix: true, displayMonths: true },
+    );
     expect(diff5).to.equal('10 years left');
   });
 
-  it('should format negative difference as string', () => {
-    const diff1 = date.formatRelativeDate('2021-01-01 13:37:20', '2021-01-01 13:37:10', true);
-    expect(diff1).to.equal('less than a minute ago');
-
-    const diff2 = date.formatRelativeDate('2021-01-02 13:37:20', '2021-01-01 13:37:10', true);
-    expect(diff2).to.equal('a day ago');
-
-    const diff3 = date.formatRelativeDate('2021-02-25 13:37:20', '2021-01-01 13:37:10', true);
-    expect(diff3).to.equal('a month ago');
-
-    const diff4 = date.formatRelativeDate('2021-04-25 13:37:20', '2021-01-01 13:37:10', true);
-    expect(diff4).to.equal('3 months ago');
-
-    const diff5 = date.formatRelativeDate('2031-04-25 13:37:20', '2021-01-01 13:37:10', true);
-    expect(diff5).to.equal('10 years ago');
-  });
-
   it('should format time left correctly', () => {
-    expect(date.formatTimeLeft('2022-09-01', '2022-09-01')).to.equal('less than a day left');
-    expect(date.formatTimeLeft('2022-09-01', '2022-09-02')).to.equal('1 day left');
-    expect(date.formatTimeLeft('2022-09-01', '2022-09-05')).to.equal('4 days left');
-    expect(date.formatTimeLeft('2022-09-01', '2022-09-30')).to.equal('29 days left');
-    expect(date.formatTimeLeft('2022-09-01', '2023-09-01')).to.equal('365 days left');
-    expect(date.formatTimeLeft('2022-09-01', '2024-08-30')).to.equal('729 days left');
-    expect(date.formatTimeLeft('2022-09-01', '2024-08-31')).to.equal('2 years left');
-    expect(date.formatTimeLeft('2022-09-01', '2024-09-05')).to.equal('2 years left');
-    expect(date.formatTimeLeft('2022-09-01', '2025-08-31')).to.equal('2 years left');
-    expect(date.formatTimeLeft('2022-09-01', '2025-09-01')).to.equal('3 years left');
+    expect(date.formatRelativeDate('2022-09-01', '2022-09-01')).to.equal('less than a day');
+    expect(date.formatRelativeDate('2022-09-01', '2022-09-02')).to.equal('1 day');
+    expect(date.formatRelativeDate('2022-09-01', '2022-09-05')).to.equal('4 days');
+    expect(date.formatRelativeDate('2022-09-01', '2022-09-30')).to.equal('29 days');
+    expect(date.formatRelativeDate('2022-09-01', '2023-09-01')).to.equal('365 days');
+    expect(date.formatRelativeDate('2022-09-01', '2024-08-30')).to.equal('729 days');
+    expect(date.formatRelativeDate('2022-09-01', '2024-08-31')).to.equal('2 years');
+    expect(date.formatRelativeDate('2022-09-01', '2024-09-05')).to.equal('2 years');
+    expect(date.formatRelativeDate('2022-09-01', '2025-08-31')).to.equal('2 years');
+    expect(date.formatRelativeDate('2022-09-01', '2025-09-01')).to.equal('3 years');
   });
 });

@@ -1,14 +1,9 @@
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { measurements } from './common-styles';
 import { NavigationScrollbars } from './NavigationBar';
-
-export const StyledOutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: boolean }) => ({
-  color: props.isOutOfTime ? colors.red : undefined,
-}));
 
 export const StyledCellIcon = styled(Cell.UntintedIcon)({
   marginRight: '8px',

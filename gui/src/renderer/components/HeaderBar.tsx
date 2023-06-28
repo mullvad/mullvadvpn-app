@@ -1,13 +1,16 @@
 import React, { useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
+import { closeToExpiry, formatRemainingTime, hasExpired } from '../../shared/account-expiry';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { IReduxState } from '../redux/store';
+import { useSelector } from '../redux/store';
+import { tinyText } from './common-styles';
 import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
 
@@ -27,39 +30,45 @@ const headerBarStyleColorMap = {
 
 interface IHeaderBarContainerProps {
   barStyle?: HeaderBarStyle;
+  accountInfoVisible: boolean;
   unpinnedWindow: boolean;
 }
 
 const HeaderBarContainer = styled.header({}, (props: IHeaderBarContainerProps) => ({
-  padding: '12px 16px',
+  padding: '15px 16px 0px',
+  minHeight: props.accountInfoVisible ? '80px' : '68px',
+  height: props.accountInfoVisible ? '80px' : '68px',
   backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
+  transitionProperty: 'height, min-height',
+  transitionDuration: '250ms',
+  transitionTimingFunction: 'ease-in-out',
 }));
 
 const HeaderBarContent = styled.div({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
-  // In views without the brand components we still want the Header to have the same height.
-  minHeight: '51px',
+  height: '38px',
 });
 
 interface IHeaderBarProps {
   barStyle?: HeaderBarStyle;
   className?: string;
   children?: React.ReactNode;
+  showAccountInfo?: boolean;
 }
 
 export default function HeaderBar(props: IHeaderBarProps) {
-  const unpinnedWindow = useSelector(
-    (state: IReduxState) => state.settings.guiSettings.unpinnedWindow,
-  );
+  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
   return (
     <HeaderBarContainer
       barStyle={props.barStyle}
       className={props.className}
+      accountInfoVisible={props.showAccountInfo ?? false}
       unpinnedWindow={unpinnedWindow}>
       <HeaderBarContent>{props.children}</HeaderBarContent>
+      {props.showAccountInfo && <HeaderBarDeviceInfo />}
     </HeaderBarContainer>
   );
 }
@@ -78,9 +87,65 @@ const Title = styled(ImageView)({
 export function Brand(props: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <BrandContainer {...props}>
-      <ImageView width={44} height={44} source="logo-icon" />
-      <Title height={18} source="logo-text" />
+      <ImageView width={38} height={38} source="logo-icon" />
+      <Title height={15.4} source="logo-text" />
     </BrandContainer>
+  );
+}
+
+const StyledAccountInfo = styled.div({
+  display: 'flex',
+  marginTop: '2px',
+  maxWidth: '100%',
+});
+
+const StyledDeviceLabel = styled.div(tinyText, {
+  fontSize: '10px',
+  color: colors.white80,
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
+
+const StyledTimeLeftLabel = styled.div(tinyText, {
+  fontSize: '10px',
+  color: colors.white80,
+  marginLeft: '16px',
+  whiteSpace: 'nowrap',
+});
+
+function HeaderBarDeviceInfo() {
+  const deviceName = useSelector((state) => state.account.deviceName);
+  const accountExpiry = useSelector((state) => state.account.expiry);
+  const isOutOfTime = accountExpiry ? hasExpired(accountExpiry) : false;
+  const formattedExpiry = isOutOfTime
+    ? sprintf(messages.ngettext('1 day', '%d days', 0), 0)
+    : accountExpiry
+    ? formatRemainingTime(accountExpiry)
+    : '';
+
+  return (
+    <StyledAccountInfo>
+      <StyledDeviceLabel>
+        {sprintf(
+          // TRANSLATORS: A label that will display the newly created device name to inform the user
+          // TRANSLATORS: about it.
+          // TRANSLATORS: Available placeholders:
+          // TRANSLATORS: %(deviceName)s - The name of the current device
+          messages.pgettext('device-management', 'Device name: %(deviceName)s'),
+          {
+            deviceName: capitalizeEveryWord(deviceName ?? ''),
+          },
+        )}
+      </StyledDeviceLabel>
+      {accountExpiry && !closeToExpiry(accountExpiry) && !isOutOfTime && (
+        <StyledTimeLeftLabel>
+          {sprintf(messages.pgettext('device-management', 'Time left: %(timeLeft)s'), {
+            timeLeft: formattedExpiry,
+          })}
+        </StyledTimeLeftLabel>
+      )}
+    </StyledAccountInfo>
   );
 }
 
@@ -90,6 +155,10 @@ const HeaderBarSettingsButtonContainer = styled.button({
   marginLeft: 8,
   backgroundColor: 'transparent',
   border: 'none',
+});
+
+const HeaderBarAccountButtonContainer = styled(HeaderBarSettingsButtonContainer)({
+  marginRight: '16px',
 });
 
 interface IHeaderBarSettingsButtonProps {
@@ -120,12 +189,37 @@ export function HeaderBarSettingsButton(props: IHeaderBarSettingsButtonProps) {
   );
 }
 
-export function DefaultHeaderBar(props: IHeaderBarProps) {
+export function HeaderBarAccountButton() {
+  const history = useHistory();
+  const openAccount = useCallback(
+    () => history.push(RoutePath.account, { transition: transitions.show }),
+    [history],
+  );
+
   return (
-    <HeaderBar {...props}>
+    <HeaderBarAccountButtonContainer
+      onClick={openAccount}
+      aria-label={messages.gettext('Account settings')}>
+      <ImageView
+        height={24}
+        width={24}
+        source="icon-account"
+        tintColor={colors.white60}
+        tintHoverColor={colors.white80}
+      />
+    </HeaderBarAccountButtonContainer>
+  );
+}
+
+export function DefaultHeaderBar(props: IHeaderBarProps) {
+  const loggedIn = useSelector((state) => state.account.status.type === 'ok');
+
+  return (
+    <HeaderBar showAccountInfo={loggedIn} {...props}>
       <FocusFallback>
         <Brand />
       </FocusFallback>
+      {loggedIn && <HeaderBarAccountButton />}
       <HeaderBarSettingsButton />
     </HeaderBar>
   );

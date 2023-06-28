@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
 import { colors, links } from '../../config.json';
-import { formatRemainingTime, hasExpired } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
@@ -17,7 +16,6 @@ import {
   StyledCellIcon,
   StyledContent,
   StyledNavigationScrollbars,
-  StyledOutOfTimeSubText,
   StyledQuitButton,
   StyledSettingsContent,
 } from './SettingsStyles';
@@ -63,7 +61,6 @@ export default function Support() {
                   {showSubSettings ? (
                     <>
                       <Cell.Group>
-                        <AccountButton />
                         <UserInterfaceSettingsButton />
                         <VpnSettingsButton />
                       </Cell.Group>
@@ -99,30 +96,6 @@ export default function Support() {
         </SettingsContainer>
       </Layout>
     </BackAction>
-  );
-}
-
-function AccountButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.accountSettings), [history]);
-
-  const accountExpiry = useSelector((state) => state.account.expiry);
-  const isOutOfTime = accountExpiry ? hasExpired(accountExpiry) : false;
-  const formattedExpiry = accountExpiry ? formatRemainingTime(accountExpiry).toUpperCase() : '';
-  const outOfTimeMessage = messages.pgettext('settings-view', 'OUT OF TIME');
-
-  return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>
-        {
-          // TRANSLATORS: Navigation button to the 'Account' view
-          messages.pgettext('settings-view', 'Account')
-        }
-      </Cell.Label>
-      <StyledOutOfTimeSubText isOutOfTime={isOutOfTime}>
-        {isOutOfTime ? outOfTimeMessage : formattedExpiry}
-      </StyledOutOfTimeSubText>
-    </Cell.CellNavigationButton>
   );
 }
 

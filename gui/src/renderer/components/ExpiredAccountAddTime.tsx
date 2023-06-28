@@ -151,7 +151,9 @@ export function TimeAdded(props: ITimeAddedProps) {
   }, [history, finish]);
 
   const duration =
-    props.secondsAdded !== undefined ? formatRelativeDate(props.secondsAdded * 1000, 0) : undefined;
+    props.secondsAdded !== undefined
+      ? formatRelativeDate(0, props.secondsAdded * 1000, { capitalize: true, displayMonths: true })
+      : undefined;
 
   let newExpiry = '';
   if (props.newExpiry !== undefined) {

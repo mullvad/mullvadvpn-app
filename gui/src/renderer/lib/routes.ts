@@ -10,7 +10,7 @@ export enum RoutePath {
   setupFinished = '/main/setup-finished',
   settings = '/settings',
   selectLanguage = '/settings/language',
-  accountSettings = '/settings/account',
+  account = '/account',
   userInterfaceSettings = '/settings/interface',
   vpnSettings = '/settings/vpn',
   wireguardSettings = '/settings/advanced/wireguard',

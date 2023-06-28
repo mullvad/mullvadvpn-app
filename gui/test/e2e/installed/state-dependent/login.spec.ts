@@ -92,12 +92,8 @@ test('App should log in', async () => {
 
 test('App should log out', async () => {
   expect(await util.waitForNavigation(() => {
-    void page.getByLabel('Settings').click();
-  })).toEqual(RoutePath.settings);
-
-  expect(await util.waitForNavigation(() => {
     void page.getByText('Account').click();
-  })).toEqual(RoutePath.accountSettings);
+  })).toEqual(RoutePath.account);
 
   expect(await util.waitForNavigation(() => {
     void page.getByText('Log out').click();

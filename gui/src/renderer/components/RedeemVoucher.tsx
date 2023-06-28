@@ -217,7 +217,10 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
   const locale = useSelector((state) => state.userInterface.locale);
 
   if (response?.type === 'success') {
-    const duration = formatRelativeDate(response.secondsAdded * 1000, 0);
+    const duration = formatRelativeDate(0, response.secondsAdded * 1000, {
+      capitalize: true,
+      displayMonths: true,
+    });
     const expiry = formatDate(response.newExpiry, locale);
 
     return (
