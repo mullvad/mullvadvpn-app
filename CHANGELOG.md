@@ -23,36 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add `--help` and `--version` options to the desktop GUI application.
-- Add creation date below device name in the device list screen.
-- Add settings view button in main view in the desktop app.
-- Add time left and device name in the header bar in the desktop app.
-
 #### Android
 - Add UDP-over-TCP.
 - Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
   is turned off.
 - Add quantum resistant tunneling.
+- Add creation date below device name in the device list screen.
 
 ### Changed
-- In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
-  unified `mullvad tunnel get` command and removing individual `get` subcommands like
-  `mullvad tunnel ipv6 get`.
-- Update the CLI multihop settings to make it possible to set the entry location without toggling
-  multihop on or off.
-- In the CLI, the `mullvad account get` command will now print the account
-  number (if there is one) after the device has been revoked.
-- Update the CLI relay, multihop & bridge selection interface to accept a
-  hostname as sole argument, inheriting the behavior of `mullvad relay set
-  hostname`. This is in addition to accepting a geographical location as basis
-  for filtering relays.
-- Silence OpenVPN "replay attack" warnings.
-- Update Electron from 23.2.0 to 25.2.0.
-
-#### Windows
-- In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
-  `mullvad split-tunnel pid list` and `mullvad split-tunnel get`.
-
 #### Android
 - Rename "Advanced settings" to "VPN Settings".
 - Move the "Split tunneling" menu item up a level from "VPN settings" to "Settings".
@@ -60,11 +38,38 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate select Location view to compose.
 
 ### Fixed
-- Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
-  started, the relay list would only be updated after attempting to connect to the VPN.
-
 #### Android
 - Fix connection header flickering.
+
+
+## [2023.5-beta1] - 2023-07-13
+### Added
+- Add `--help` and `--version` options to the desktop GUI application.
+- Add creation date below device name in the device list screen.
+- Add account view button in main view in the desktop app.
+- Add time left and device name in the header bar in the desktop app.
+
+### Changed
+- In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
+  unified `mullvad tunnel get` command and removing individual `get` subcommands like
+  `mullvad tunnel ipv6 get`.
+- Update the CLI multihop settings to make it possible to set the entry location without toggling
+  multihop on or off.
+- In the CLI, the `mullvad account get` command will now print the account number (if there is one)
+  after the device has been revoked.
+- Update the CLI relay, multihop & bridge selection interface to accept a hostname as sole argument,
+  inheriting the behavior of `mullvad relay set hostname`. This is in addition to accepting a
+  geographical location as basis for filtering relays.
+- Silence OpenVPN "replay attack" warnings.
+- Update Electron from 23.2.0 to 25.2.0.
+
+#### Windows
+- In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
+  `mullvad split-tunnel pid list` and `mullvad split-tunnel get`.
+
+### Fixed
+- Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
+  started, the relay list would only be updated after attempting to connect to the VPN.
 
 #### macOS
 - Fix inability to sync iCloud and Safari bookmarks while connected to the VPN.
@@ -160,6 +165,7 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix tray window behaviour when opening mission control and switching between full-screen
   workspaces.
+- Fix issue where app stopped responding on ARM Macs.
 
 #### Linux
 - Fix RPM package containing unecessary files causing conflicts with other electron-builder based
