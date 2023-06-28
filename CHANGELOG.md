@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
   hostname as sole argument, inheriting the behavior of `mullvad relay set
   hostname`. This is in addition to accepting a geographical location as basis
   for filtering relays.
+- Silence OpenVPN "replay attack" warnings.
 
 #### Windows
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands
