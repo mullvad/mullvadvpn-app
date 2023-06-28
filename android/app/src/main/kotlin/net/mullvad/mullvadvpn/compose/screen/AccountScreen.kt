@@ -95,7 +95,7 @@ fun AccountScreen(
     ) {
         LaunchedEffect(Unit) {
             viewActions.collect { viewAction ->
-                if (viewAction is AccountViewModel.ViewAction.OpenAccountView) {
+                if (viewAction is AccountViewModel.ViewAction.OpenAccountManagementPageInBrowser) {
                     context.openAccountPageInBrowser(viewAction.token)
                 }
             }
