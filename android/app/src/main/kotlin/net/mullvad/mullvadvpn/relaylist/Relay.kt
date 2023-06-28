@@ -6,7 +6,8 @@ data class Relay(val city: RelayCity, override val name: String, override val ac
     RelayItem {
     override val code = name
     override val type = RelayItemType.Relay
-    override val location = GeographicLocationConstraint.Hostname(city.country.code, city.code, name)
+    override val location =
+        GeographicLocationConstraint.Hostname(city.country.code, city.code, name)
     override val hasChildren = false
 
     override val visibleChildCount = 0

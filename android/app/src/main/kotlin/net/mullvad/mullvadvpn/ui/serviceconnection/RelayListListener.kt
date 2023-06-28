@@ -6,7 +6,6 @@ import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
@@ -93,7 +92,10 @@ class RelayListListener(
             is RelaySettings.Normal -> {
                 val location = relaySettings.relayConstraints.location
 
-                return relayList?.findItemForLocation(location.toGeographicLocationConstraint(), true)
+                return relayList?.findItemForLocation(
+                    location.toGeographicLocationConstraint(),
+                    true
+                )
             }
             else -> {
                 /* NOOP */

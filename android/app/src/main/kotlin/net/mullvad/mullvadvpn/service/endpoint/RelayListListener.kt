@@ -83,7 +83,10 @@ class RelayListListener(endpoint: ServiceEndpoint) {
 
     private suspend fun updateRelayConstraints() {
         val constraint: Constraint<LocationConstraint> =
-            selectedRelayLocation?.let { location -> Constraint.Only(LocationConstraint.Location(location)) } ?: Constraint.Any()
+            selectedRelayLocation?.let { location ->
+                Constraint.Only(LocationConstraint.Location(location))
+            }
+                ?: Constraint.Any()
 
         val update = RelaySettingsUpdate.Normal(RelayConstraintsUpdate(constraint))
 
