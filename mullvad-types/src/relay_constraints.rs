@@ -241,9 +241,7 @@ impl RelaySettings {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum LocationConstraint {
     Location(GeographicLocationConstraint),
-    CustomList {
-        list_id: Id,
-    },
+    CustomList { list_id: Id },
 }
 
 #[derive(Debug, Clone)]
@@ -266,9 +264,7 @@ impl ResolvedLocationConstraint {
                 .custom_lists
                 .iter()
                 .find(|custom_list| custom_list.id == list_id)
-                .map(|custom_list| {
-                    Constraint::Only(Self::Locations(custom_list.locations.clone()))
-                })
+                .map(|custom_list| Constraint::Only(Self::Locations(custom_list.locations.clone())))
                 .unwrap_or(Constraint::Any),
         }
     }
@@ -286,14 +282,14 @@ impl Set<Constraint<ResolvedLocationConstraint>> for Constraint<ResolvedLocation
             Constraint::Any => other.is_any(),
             Constraint::Only(ResolvedLocationConstraint::Location(location)) => match other {
                 Constraint::Any => true,
-                Constraint::Only(ResolvedLocationConstraint::Location(
-                    other_location,
-                )) => location.is_subset(other_location),
-                Constraint::Only(ResolvedLocationConstraint::Locations(
+                Constraint::Only(ResolvedLocationConstraint::Location(other_location)) => {
+                    location.is_subset(other_location)
+                }
+                Constraint::Only(ResolvedLocationConstraint::Locations(other_locations)) => {
                     other_locations
-                )) => other_locations
-                    .iter()
-                    .any(|other_location| location.is_subset(other_location)),
+                        .iter()
+                        .any(|other_location| location.is_subset(other_location))
+                }
             },
             Constraint::Only(ResolvedLocationConstraint::Locations(locations)) => match other {
                 Constraint::Any => true,

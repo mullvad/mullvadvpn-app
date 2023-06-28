@@ -127,7 +127,7 @@ impl Default for Settings {
                 )),
                 wireguard_constraints: WireguardConstraints {
                     entry_location: Constraint::Only(LocationConstraint::Location(
-                        GeographicLocationConstraint::Country("se".to_owned())
+                        GeographicLocationConstraint::Country("se".to_owned()),
                     )),
                     ..Default::default()
                 },

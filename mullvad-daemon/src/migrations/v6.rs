@@ -46,7 +46,8 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 }
 
 fn migrate_location_constraint(settings: &mut serde_json::Value) -> Result<()> {
-    if let Some(location) = settings.get_mut("relay_settings")
+    if let Some(location) = settings
+        .get_mut("relay_settings")
         .and_then(|relay_settings| relay_settings.get_mut("normal"))
         .and_then(|normal_relay_settings| normal_relay_settings.get_mut("location"))
     {
@@ -59,7 +60,8 @@ fn migrate_location_constraint(settings: &mut serde_json::Value) -> Result<()> {
         }
     }
 
-    if let Some(location) = settings.get_mut("relay_settings")
+    if let Some(location) = settings
+        .get_mut("relay_settings")
         .and_then(|relay_settings| relay_settings.get_mut("normal"))
         .and_then(|normal_relay_settings| normal_relay_settings.get_mut("wireguard_constraints"))
         .and_then(|normal_relay_settings| normal_relay_settings.get_mut("entry_location"))
@@ -73,7 +75,8 @@ fn migrate_location_constraint(settings: &mut serde_json::Value) -> Result<()> {
         }
     }
 
-    if let Some(location) = settings.get_mut("bridge_settings")
+    if let Some(location) = settings
+        .get_mut("bridge_settings")
         .and_then(|relay_settings| relay_settings.get_mut("normal"))
         .and_then(|normal_relay_settings| normal_relay_settings.get_mut("location"))
     {
@@ -132,7 +135,7 @@ fn version_matches(settings: &mut serde_json::Value) -> bool {
 
 #[cfg(test)]
 mod test {
-    use super::{migrate, migrate_pq_setting, version_matches, migrate_location_constraint};
+    use super::{migrate, migrate_location_constraint, migrate_pq_setting, version_matches};
 
     pub const V6_SETTINGS: &str = r#"
 {
@@ -307,7 +310,7 @@ mod test {
     #[test]
     fn test_from_relay_settings_location_constraint_country() {
         let mut migrated_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "relay_settings": {
                 "normal": {
@@ -325,7 +328,7 @@ mod test {
         migrate_location_constraint(&mut migrated_settings).unwrap();
 
         let expected_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "relay_settings": {
                 "normal": {
@@ -352,7 +355,7 @@ mod test {
     #[test]
     fn test_from_relay_settings_location_constraint_city() {
         let mut migrated_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "relay_settings": {
                 "normal": {
@@ -371,7 +374,7 @@ mod test {
         migrate_location_constraint(&mut migrated_settings).unwrap();
 
         let expected_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "relay_settings": {
                 "normal": {
@@ -394,12 +397,13 @@ mod test {
     }
 
     /// For relay settings
-    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be replaced with
-    /// location: { only: { location: { country: "se", city: "got", hostname: "se-got-wg-001" } } }
+    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be
+    /// replaced with location: { only: { location: { country: "se", city: "got", hostname:
+    /// "se-got-wg-001" } } }
     #[test]
     fn test_from_relay_settings_location_constraint_hostname() {
         let mut migrated_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "relay_settings": {
                 "normal": {
@@ -419,7 +423,7 @@ mod test {
         migrate_location_constraint(&mut migrated_settings).unwrap();
 
         let expected_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "relay_settings": {
                 "normal": {
@@ -443,12 +447,13 @@ mod test {
     }
 
     /// For bridge settings
-    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be replaced with
-    /// location: { only: { location: { country: "se", city: "got", hostname: "se-got-wg-001" } } }
+    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be
+    /// replaced with location: { only: { location: { country: "se", city: "got", hostname:
+    /// "se-got-wg-001" } } }
     #[test]
     fn test_from_bridge_location_constraint_hostname() {
         let mut migrated_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "bridge_settings": {
                 "normal": {
@@ -468,7 +473,7 @@ mod test {
         migrate_location_constraint(&mut migrated_settings).unwrap();
 
         let expected_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "bridge_settings": {
                 "normal": {
@@ -492,12 +497,13 @@ mod test {
     }
 
     /// For wireguard constraints
-    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be replaced with
-    /// location: { only: { location: { country: "se", city: "got", hostname: "se-got-wg-001" } } }
+    /// location: { only: { country : "se", city: "got", hostname: "se-got-wg-001" } } should be
+    /// replaced with location: { only: { location: { country: "se", city: "got", hostname:
+    /// "se-got-wg-001" } } }
     #[test]
     fn test_from_wireguard_constraint_location_constraint_hostname() {
         let mut migrated_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "relay_settings": {
                 "normal": {
@@ -519,7 +525,7 @@ mod test {
         migrate_location_constraint(&mut migrated_settings).unwrap();
 
         let expected_settings: serde_json::Value = serde_json::from_str(
-        r#"
+            r#"
         {
             "relay_settings": {
                 "normal": {
