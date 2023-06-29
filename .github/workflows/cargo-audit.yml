@@ -6,8 +6,8 @@ on:
       - .github/workflows/cargo-audit.yml
       - Cargo.lock
   schedule:
-    # At 12:00 UTC every day. Will create an issue if a CVE is found
-    - cron: '00 12 * * *'
+    # At 06:20 UTC every day. Will create an issue if a CVE is found.
+    - cron: '20 6 * * *'
   workflow_dispatch:
 jobs:
   audit:
@@ -28,4 +28,4 @@ jobs:
           # RUSTSEC-2021-0145: The vulnerability affects custom global allocators,
           # so it should be safe to ignore it. Stop ignoring the warning once
           # atty has been removed from our dependency tree.
-          ignore: RUSTSEC-2020-0071
+          ignore: RUSTSEC-2020-0071,RUSTSEC-2021-0145
