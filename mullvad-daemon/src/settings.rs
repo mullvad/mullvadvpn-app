@@ -377,7 +377,9 @@ mod test {
                 "normal": {
                   "location": {
                     "only": {
-                      "country": "gb"
+                      "location": {
+                        "country": "gb"
+                      }
                     }
                   },
                   "tunnel_protocol": {
@@ -414,7 +416,10 @@ mod test {
                 }
               },
               "settings_version": 5,
-              "show_beta_releases": false
+              "show_beta_releases": false,
+              "custom_lists": {
+                "custom_lists": []
+              }
         }"#;
 
         let _ = SettingsPersister::load_from_bytes(settings).unwrap();

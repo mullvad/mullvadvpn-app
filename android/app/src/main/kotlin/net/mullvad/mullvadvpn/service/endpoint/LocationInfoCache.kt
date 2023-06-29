@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
+import net.mullvad.mullvadvpn.util.toGeographicLocationConstraint
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class LocationInfoCache(private val endpoint: ServiceEndpoint) {
@@ -131,6 +132,6 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
         val settings = relaySettings as? RelaySettings.Normal
         val constraint = settings?.relayConstraints?.location as? Constraint.Only
 
-        selectedRelayLocation = constraint?.value?.location
+        selectedRelayLocation = constraint?.value?.toGeographicLocationConstraint()?.location
     }
 }

@@ -1,8 +1,9 @@
 use crate::{
+    custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
-        ObfuscationSettings, RelayConstraints, RelaySettings, RelaySettingsUpdate,
-        SelectedObfuscation, WireguardConstraints,
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint,
+        LocationConstraint, ObfuscationSettings, RelayConstraints, RelaySettings,
+        RelaySettingsUpdate, SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
 };
@@ -20,7 +21,7 @@ mod dns;
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration
 /// being added to `mullvad-daemon`.
-pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V6;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V7;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
@@ -30,6 +31,7 @@ pub enum SettingsVersion {
     V4 = 4,
     V5 = 5,
     V6 = 6,
+    V7 = 7,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -43,6 +45,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V4 as u32 => Ok(SettingsVersion::V4),
             v if v == SettingsVersion::V5 as u32 => Ok(SettingsVersion::V5),
             v if v == SettingsVersion::V6 as u32 => Ok(SettingsVersion::V6),
+            v if v == SettingsVersion::V7 as u32 => Ok(SettingsVersion::V7),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),
@@ -71,6 +74,9 @@ pub struct Settings {
     pub obfuscation_settings: ObfuscationSettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_state: BridgeState,
+    /// All of the custom relay lists
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub custom_lists: CustomListsSettings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -117,9 +123,13 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             relay_settings: RelaySettings::Normal(RelayConstraints {
-                location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+                location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Country("se".to_owned()),
+                )),
                 wireguard_constraints: WireguardConstraints {
-                    entry_location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
+                    entry_location: Constraint::Only(LocationConstraint::Location(
+                        GeographicLocationConstraint::Country("se".to_owned()),
+                    )),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -139,6 +149,7 @@ impl Default for Settings {
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
+            custom_lists: CustomListsSettings::default(),
         }
     }
 }
@@ -155,10 +166,18 @@ impl Settings {
             if !update_supports_bridge && BridgeState::On == self.bridge_state {
                 self.bridge_state = BridgeState::Auto;
             }
+
+            let mut old_settings_string = String::new();
+            let _ = self
+                .relay_settings
+                .format(&mut old_settings_string, &self.custom_lists);
+            let mut new_settings_string = String::new();
+            let _ = new_settings.format(&mut new_settings_string, &self.custom_lists);
+
             log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
-                self.relay_settings,
-                new_settings
+                old_settings_string,
+                new_settings_string,
             );
 
             self.relay_settings = new_settings;

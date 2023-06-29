@@ -26,6 +26,11 @@ lazy_static::lazy_static! {
         .ok();
 }
 
+pub const CUSTOM_LIST_LOCATION_NOT_FOUND_DETAILS: &[u8] = b"custom_list_location_not_found";
+pub const CUSTOM_LIST_LIST_NOT_FOUND_DETAILS: &[u8] = b"custom_list_list_not_found";
+pub const CUSTOM_LIST_LOCATION_EXISTS_DETAILS: &[u8] = b"custom_list_location_exists";
+pub const CUSTOM_LIST_LIST_EXISTS_DETAILS: &[u8] = b"custom_list_list_exists";
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -88,6 +93,21 @@ pub enum Error {
 
     #[error(display = "Location data is unavailable")]
     NoLocationData,
+
+    #[error(display = "A custom list with that name already exists")]
+    CustomListExists,
+
+    #[error(display = "A custom list with that name does not exist")]
+    CustomListListNotFound,
+
+    #[error(display = "Can not add or remove 'any' to or from a custom list")]
+    CustomListCannotAddOrRemoveAny,
+
+    #[error(display = "Location already exists in the custom list")]
+    LocationExistsInCustomList,
+
+    #[error(display = "Location was not found in the custom list")]
+    LocationNotFoundInCustomlist,
 }
 
 #[deprecated(note = "Prefer MullvadProxyClient")]

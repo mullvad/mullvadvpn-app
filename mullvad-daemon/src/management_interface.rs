@@ -1,4 +1,7 @@
-use crate::{account_history, device, settings, DaemonCommand, DaemonCommandSender, EventListener};
+use crate::{
+    account_history, custom_lists, device, settings, DaemonCommand, DaemonCommandSender,
+    EventListener,
+};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -581,6 +584,91 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
+    // Custom lists
+    //
+
+    async fn list_custom_lists(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<mullvad_management_interface::types::CustomLists> {
+        log::debug!("list_custom_lists");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ListCustomLists(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(|custom_lists| {
+                Response::new(mullvad_management_interface::types::CustomLists::from(
+                    custom_lists,
+                ))
+            })
+            .map_err(map_daemon_error)
+    }
+
+    async fn get_custom_list(
+        &self,
+        request: Request<String>,
+    ) -> ServiceResult<mullvad_management_interface::types::CustomList> {
+        log::debug!("get_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(|custom_list| {
+                Response::new(mullvad_management_interface::types::CustomList::from(
+                    custom_list,
+                ))
+            })
+            .map_err(map_daemon_error)
+    }
+
+    async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("create_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::CreateCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn delete_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("delete_custom_list");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::DeleteCustomList(tx, request.into_inner()))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn update_custom_list_location(
+        &self,
+        request: Request<types::CustomListLocationUpdate>,
+    ) -> ServiceResult<()> {
+        log::debug!("update_custom_list_location");
+        let custom_list =
+            mullvad_types::custom_list::CustomListLocationUpdate::try_from(request.into_inner())?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::UpdateCustomListLocation(tx, custom_list))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+    async fn rename_custom_list(
+        &self,
+        request: Request<types::CustomListRename>,
+    ) -> ServiceResult<()> {
+        log::debug!("rename_custom_list");
+        let names: (String, String) = From::from(request.into_inner());
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RenameCustomList(tx, names.0, names.1))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     // Split tunneling
     //
 
@@ -937,6 +1025,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
             Status::unauthenticated(error.to_string())
         }
+        DaemonError::CustomListError(error) => map_custom_list_error(error),
         error => Status::unknown(error.to_string()),
     }
 }
@@ -1014,6 +1103,36 @@ fn map_account_history_error(error: account_history::Error) -> Status {
         account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
             Status::new(Code::Internal, error.to_string())
         }
+    }
+}
+
+/// Converts an instance of [`mullvad_daemon::account_history::Error`] into a tonic status.
+fn map_custom_list_error(error: custom_lists::Error) -> Status {
+    match error {
+        custom_lists::Error::ListExists => Status::with_details(
+            Code::AlreadyExists,
+            error.to_string(),
+            mullvad_management_interface::CUSTOM_LIST_LIST_EXISTS_DETAILS.into(),
+        ),
+        custom_lists::Error::ListNotFound => Status::with_details(
+            Code::NotFound,
+            error.to_string(),
+            mullvad_management_interface::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS.into(),
+        ),
+        custom_lists::Error::CannotAddOrRemoveAny => {
+            Status::new(Code::InvalidArgument, error.to_string())
+        }
+        custom_lists::Error::LocationExists => Status::with_details(
+            Code::AlreadyExists,
+            error.to_string(),
+            mullvad_management_interface::CUSTOM_LIST_LOCATION_EXISTS_DETAILS.into(),
+        ),
+        custom_lists::Error::LocationNotFoundInlist => Status::with_details(
+            Code::NotFound,
+            error.to_string(),
+            mullvad_management_interface::CUSTOM_LIST_LOCATION_NOT_FOUND_DETAILS.into(),
+        ),
+        custom_lists::Error::Settings(error) => map_settings_error(error),
     }
 }
 

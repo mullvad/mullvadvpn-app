@@ -16,7 +16,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.TestCoroutineRule
 import net.mullvad.mullvadvpn.assertLists
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
-import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
@@ -120,7 +120,7 @@ class SelectLocationViewModelTest {
     fun testSelectRelayAndClose() = runTest {
         // Arrange
         val mockRelayItem: RelayItem = mockk()
-        val mockLocation: LocationConstraint.Country = mockk(relaxed = true)
+        val mockLocation: GeographicLocationConstraint.Country = mockk(relaxed = true)
         val connectionProxyMock: ConnectionProxy = mockk(relaxUnitFun = true)
         every { mockRelayItem.location } returns mockLocation
         every { mockServiceConnectionManager.relayListListener() } returns mockRelayListListener

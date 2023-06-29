@@ -68,6 +68,14 @@ service ManagementService {
   rpc RotateWireguardKey(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 
+  // Custom lists
+  rpc ListCustomLists(google.protobuf.Empty) returns (CustomLists) {}
+  rpc GetCustomList(google.protobuf.StringValue) returns (CustomList) {}
+  rpc CreateCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc UpdateCustomListLocation(CustomListLocationUpdate) returns (google.protobuf.Empty) {}
+  rpc RenameCustomList(CustomListRename) returns (google.protobuf.Empty) {}
+
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
@@ -248,7 +256,7 @@ enum Ownership {
 
 message BridgeSettings {
   message BridgeConstraints {
-    RelayLocation location = 1;
+    LocationConstraint location = 1;
     repeated string providers = 2;
     Ownership ownership = 3;
   }
@@ -279,6 +287,13 @@ message BridgeSettings {
   }
 }
 
+message LocationConstraint {
+  oneof type {
+    string customList = 1;
+    RelayLocation location = 2;
+  }
+}
+
 message RelayLocation {
   string country = 1;
   string city = 2;
@@ -306,6 +321,31 @@ message ObfuscationSettings {
   Udp2TcpObfuscationSettings udp2tcp = 2;
 }
 
+message CustomListRename {
+  string name = 1;
+  string new_name = 2;
+}
+
+message CustomListLocationUpdate {
+  enum State {
+    ADD = 0;
+    REMOVE = 1;
+  }
+  State state = 1;
+  string name = 2;
+  RelayLocation location = 3;
+}
+
+message CustomList {
+  string id = 1;
+  string name = 2;
+  repeated RelayLocation locations = 3;
+}
+
+message CustomLists { repeated CustomList custom_lists = 1; }
+
+message CustomListSettings { repeated CustomList custom_lists = 1; }
+
 message Settings {
   RelaySettings relay_settings = 1;
   BridgeSettings bridge_settings = 2;
@@ -317,6 +357,7 @@ message Settings {
   bool show_beta_releases = 8;
   SplitTunnelSettings split_tunnel = 9;
   ObfuscationSettings obfuscation_settings = 10;
+  CustomListSettings custom_lists = 11;
 }
 
 message SplitTunnelSettings {
@@ -334,7 +375,7 @@ message RelaySettings {
 message TunnelTypeConstraint { TunnelType tunnel_type = 1; }
 
 message NormalRelaySettings {
-  RelayLocation location = 1;
+  LocationConstraint location = 1;
   repeated string providers = 2;
   TunnelTypeConstraint tunnel_type = 3;
   WireguardConstraints wireguard_constraints = 4;
@@ -344,7 +385,7 @@ message NormalRelaySettings {
 
 // Constraints are only updated for fields that are provided
 message NormalRelaySettingsUpdate {
-  RelayLocation location = 1;
+  LocationConstraint location = 1;
   ProviderUpdate providers = 2;
   TunnelTypeUpdate tunnel_type = 3;
   WireguardConstraints wireguard_constraints = 4;
@@ -376,7 +417,7 @@ message WireguardConstraints {
   uint32 port = 1;
   IpVersionConstraint ip_version = 2;
   bool use_multihop = 3;
-  RelayLocation entry_location = 4;
+  LocationConstraint entry_location = 4;
 }
 
 message CustomRelaySettings {

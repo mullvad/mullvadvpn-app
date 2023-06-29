@@ -5,9 +5,9 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     location::Location,
     relay_constraints::{
-        Constraint, LocationConstraint, Match, OpenVpnConstraints, Ownership, Provider, Providers,
-        RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TransportPort,
-        WireguardConstraints,
+        Constraint, GeographicLocationConstraint, LocationConstraint, Match, OpenVpnConstraints,
+        Ownership, Provider, Providers, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -63,6 +63,13 @@ pub enum SetCommands {
 \tmullvad relay set location se-got-wg-004"
     )]
     Location(LocationArgs),
+
+    /// Set custom list to select relays from. Use the 'custom-lists list'
+    /// command to show available alternatives.
+    CustomList {
+        /// Name of the custom list to use
+        custom_list_name: String,
+    },
 
     /// Set hosting provider(s) to select relays from. The 'list'
     /// command shows the available relays and their providers.
@@ -149,6 +156,8 @@ pub enum EntryLocation {
 \tmullvad relay set tunnel wireguard entry-location se-got-wg-004"
     )]
     EntryLocation(LocationArgs),
+    /// Name of custom list to use to pick entry endpoint.
+    CustomList { custom_list_name: String },
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -203,8 +212,11 @@ impl Relay {
 
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let relay_settings = rpc.get_settings().await?.relay_settings;
-        println!("Current constraints: {relay_settings}");
+        let settings = rpc.get_settings().await?;
+        let relay_settings = settings.relay_settings;
+        let mut buf = String::new();
+        let _ = relay_settings.format(&mut buf, &settings.custom_lists);
+        println!("Current constraints: \n{}", buf);
         Ok(())
     }
 
@@ -302,6 +314,9 @@ impl Relay {
         match subcmd {
             SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
             SetCommands::Location(location) => Self::set_location(location).await,
+            SetCommands::CustomList { custom_list_name } => {
+                Self::set_custom_list(custom_list_name).await
+            }
             SetCommands::Provider { providers } => Self::set_providers(providers).await,
             SetCommands::Ownership { ownership } => Self::set_ownership(ownership).await,
             SetCommands::Tunnel(subcmd) => Self::set_tunnel(subcmd).await,
@@ -435,9 +450,10 @@ impl Relay {
                 // The country field is assumed to be hostname due to CLI argument parsing
                 find_relay_by_hostname(&countries, &location_constraint_args.country)
             {
-                Constraint::Only(relay)
+                Constraint::Only(LocationConstraint::Location(relay))
             } else {
-                let location_constraint = Constraint::from(location_constraint_args);
+                let location_constraint: Constraint<GeographicLocationConstraint> =
+                    Constraint::from(location_constraint_args);
                 match &location_constraint {
                     Constraint::Any => (),
                     Constraint::Only(constraint) => {
@@ -452,7 +468,7 @@ impl Relay {
                         }
                     }
                 }
-                location_constraint
+                location_constraint.map(LocationConstraint::Location)
             };
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
@@ -460,6 +476,17 @@ impl Relay {
             ..Default::default()
         }))
         .await
+    }
+
+    async fn set_custom_list(custom_list_name: String) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let list_id = rpc.get_custom_list(custom_list_name).await?.id;
+        rpc.update_relay_settings(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+            location: Some(Constraint::Only(LocationConstraint::CustomList { list_id })),
+            ..Default::default()
+        }))
+        .await?;
+        Ok(())
     }
 
     async fn set_providers(providers: Vec<String>) -> Result<()> {
@@ -543,15 +570,23 @@ impl Relay {
         if let Some(use_multihop) = use_multihop {
             wireguard_constraints.use_multihop = *use_multihop;
         }
-        if let Some(EntryLocation::EntryLocation(entry)) = entry_location {
-            let countries = Self::get_filtered_relays().await?;
-            // The country field is assumed to be hostname due to CLI argument parsing
-            wireguard_constraints.entry_location =
-                if let Some(relay) = find_relay_by_hostname(&countries, &entry.country) {
-                    Constraint::Only(relay)
-                } else {
-                    Constraint::from(entry)
-                };
+        match entry_location {
+            Some(EntryLocation::EntryLocation(entry)) => {
+                let countries = Self::get_filtered_relays().await?;
+                // The country field is assumed to be hostname due to CLI argument parsing
+                wireguard_constraints.entry_location =
+                    if let Some(relay) = find_relay_by_hostname(&countries, &entry.country) {
+                        Constraint::Only(LocationConstraint::Location(relay))
+                    } else {
+                        Constraint::from(entry)
+                    };
+            }
+            Some(EntryLocation::CustomList { custom_list_name }) => {
+                let list = rpc.get_custom_list(custom_list_name).await?;
+                wireguard_constraints.entry_location =
+                    Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+            }
+            None => (),
         }
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
@@ -613,7 +648,7 @@ fn parse_transport_port(
 pub fn find_relay_by_hostname(
     countries: &[RelayListCountry],
     hostname: &str,
-) -> Option<LocationConstraint> {
+) -> Option<GeographicLocationConstraint> {
     countries
         .iter()
         .flat_map(|country| country.cities.clone())
@@ -626,7 +661,7 @@ pub fn find_relay_by_hostname(
                      city_code,
                      ..
                  }| {
-                    LocationConstraint::Hostname(country_code, city_code, relay.hostname)
+                    GeographicLocationConstraint::Hostname(country_code, city_code, relay.hostname)
                 },
             )
         })

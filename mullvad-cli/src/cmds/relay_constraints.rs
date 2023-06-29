@@ -1,7 +1,7 @@
 use clap::Args;
 use mullvad_types::{
     location::{CityCode, CountryCode, Hostname},
-    relay_constraints::{Constraint, LocationConstraint},
+    relay_constraints::{Constraint, GeographicLocationConstraint, LocationConstraint},
 };
 
 #[derive(Args, Debug, Clone)]
@@ -14,21 +14,41 @@ pub struct LocationArgs {
     pub hostname: Option<Hostname>,
 }
 
-impl From<LocationArgs> for Constraint<LocationConstraint> {
+impl From<LocationArgs> for Constraint<GeographicLocationConstraint> {
     fn from(value: LocationArgs) -> Self {
         if value.country.eq_ignore_ascii_case("any") {
             return Constraint::Any;
         }
 
         match (value.country, value.city, value.hostname) {
-            (country, None, None) => Constraint::Only(LocationConstraint::Country(country)),
+            (country, None, None) => {
+                Constraint::Only(GeographicLocationConstraint::Country(country))
+            }
             (country, Some(city), None) => {
-                Constraint::Only(LocationConstraint::City(country, city))
+                Constraint::Only(GeographicLocationConstraint::City(country, city))
             }
-            (country, Some(city), Some(hostname)) => {
-                Constraint::Only(LocationConstraint::Hostname(country, city, hostname))
-            }
+            (country, Some(city), Some(hostname)) => Constraint::Only(
+                GeographicLocationConstraint::Hostname(country, city, hostname),
+            ),
             _ => unreachable!("invalid location arguments"),
         }
+    }
+}
+
+impl From<LocationArgs> for Constraint<LocationConstraint> {
+    fn from(value: LocationArgs) -> Self {
+        if value.country.eq_ignore_ascii_case("any") {
+            return Constraint::Any;
+        }
+
+        let location = match (value.country, value.city, value.hostname) {
+            (country, None, None) => GeographicLocationConstraint::Country(country),
+            (country, Some(city), None) => GeographicLocationConstraint::City(country, city),
+            (country, Some(city), Some(hostname)) => {
+                GeographicLocationConstraint::Hostname(country, city, hostname)
+            }
+            _ => unreachable!("invalid location arguments"),
+        };
+        Constraint::Only(LocationConstraint::Location(location))
     }
 }

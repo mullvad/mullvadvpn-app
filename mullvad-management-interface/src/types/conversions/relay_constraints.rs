@@ -1,5 +1,8 @@
 use crate::types::{conversions::option_from_proto_string, proto, FromProtobufTypeError};
-use mullvad_types::relay_constraints::{Constraint, RelaySettingsUpdate};
+use mullvad_types::{
+    custom_list::Id,
+    relay_constraints::{Constraint, RelaySettingsUpdate},
+};
 use talpid_types::net::TunnelType;
 
 impl TryFrom<&proto::WireguardConstraints>
@@ -37,7 +40,12 @@ impl TryFrom<&proto::WireguardConstraints>
             entry_location: constraints
                 .entry_location
                 .clone()
-                .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from)
+                .and_then(|loc| {
+                    Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
+                        loc,
+                    )
+                    .ok()
+                })
                 .unwrap_or(Constraint::Any),
         })
     }
@@ -94,7 +102,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
             proto::relay_settings::Endpoint::Normal(settings) => {
                 let location = settings
                     .location
-                    .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from)
+                    .and_then(|loc| Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(loc).ok())
                     .unwrap_or(Constraint::Any);
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
@@ -136,7 +144,14 @@ impl From<RelaySettingsUpdate> for proto::RelaySettingsUpdate {
             RelaySettingsUpdate::Normal(constraints) => proto::RelaySettingsUpdate {
                 r#type: Some(proto::relay_settings_update::Type::Normal(
                     proto::NormalRelaySettingsUpdate {
-                        location: constraints.location.map(proto::RelayLocation::from),
+                        location: constraints
+                            .location
+                            .and_then(|constraint| match constraint {
+                                Constraint::Any => None,
+                                Constraint::Only(location) => {
+                                    Some(proto::LocationConstraint::from(location))
+                                }
+                            }),
                         providers: constraints
                             .providers
                             .map(|constraint| proto::ProviderUpdate {
@@ -176,7 +191,7 @@ impl From<RelaySettingsUpdate> for proto::RelaySettingsUpdate {
                                 entry_location: wireguard_constraints
                                     .entry_location
                                     .option()
-                                    .map(proto::RelayLocation::from),
+                                    .map(proto::LocationConstraint::from),
                             },
                         ),
                         openvpn_constraints: constraints.openvpn_constraints.map(
@@ -239,9 +254,12 @@ impl TryFrom<proto::RelaySettingsUpdate> for mullvad_types::relay_constraints::R
                 // If `location` isn't provided, no changes are made.
                 // If `location` is provided, but is an empty vector,
                 // then the constraint is set to `Constraint::Any`.
-                let location = settings
-                    .location
-                    .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from);
+                let location = settings.location.and_then(|loc| {
+                    Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
+                        loc,
+                    )
+                    .ok()
+                });
                 let providers = if let Some(ref provider_update) = settings.providers {
                     Some(try_providers_constraint_from_proto(
                         &provider_update.providers,
@@ -351,7 +369,7 @@ impl From<mullvad_types::relay_constraints::BridgeSettings> for proto::BridgeSet
                         .location
                         .clone()
                         .option()
-                        .map(proto::RelayLocation::from),
+                        .map(proto::LocationConstraint::from),
                     providers: convert_providers_constraint(&constraints.providers),
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                 })
@@ -408,7 +426,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                     location: constraints
                         .location
                         .option()
-                        .map(proto::RelayLocation::from),
+                        .map(proto::LocationConstraint::from),
                     providers: convert_providers_constraint(&constraints.providers),
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                     tunnel_type: match constraints.tunnel_protocol {
@@ -437,7 +455,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .wireguard_constraints
                             .entry_location
                             .option()
-                            .map(proto::RelayLocation::from),
+                            .map(proto::LocationConstraint::from),
                     }),
 
                     openvpn_constraints: Some(proto::OpenvpnConstraints {
@@ -466,40 +484,69 @@ impl From<mullvad_types::relay_constraints::TransportPort> for proto::TransportP
     }
 }
 
-impl
-    From<
-        mullvad_types::relay_constraints::Constraint<
-            mullvad_types::relay_constraints::LocationConstraint,
-        >,
-    > for proto::RelayLocation
-{
-    fn from(
-        location: mullvad_types::relay_constraints::Constraint<
-            mullvad_types::relay_constraints::LocationConstraint,
-        >,
-    ) -> Self {
-        location
-            .option()
-            .map(proto::RelayLocation::from)
-            .unwrap_or_default()
+impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::LocationConstraint {
+    fn from(location: mullvad_types::relay_constraints::LocationConstraint) -> Self {
+        use mullvad_types::relay_constraints::LocationConstraint;
+        match location {
+            LocationConstraint::Location(location) => Self {
+                r#type: Some(proto::location_constraint::Type::Location(
+                    proto::RelayLocation::from(location),
+                )),
+            },
+            LocationConstraint::CustomList { list_id } => Self {
+                r#type: Some(proto::location_constraint::Type::CustomList(list_id)),
+            },
+        }
     }
 }
 
-impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::RelayLocation {
-    fn from(location: mullvad_types::relay_constraints::LocationConstraint) -> Self {
+impl TryFrom<proto::LocationConstraint>
+    for Constraint<mullvad_types::relay_constraints::LocationConstraint>
+{
+    type Error = FromProtobufTypeError;
+
+    fn try_from(location: proto::LocationConstraint) -> Result<Self, Self::Error> {
         use mullvad_types::relay_constraints::LocationConstraint;
+        match location.r#type {
+            Some(proto::location_constraint::Type::Location(location)) => {
+                let location = Constraint::<
+                    mullvad_types::relay_constraints::GeographicLocationConstraint,
+                >::from(location);
+                match location {
+                    Constraint::Any => Ok(Constraint::Any),
+                    Constraint::Only(location) => {
+                        Ok(Constraint::Only(LocationConstraint::Location(location)))
+                    }
+                }
+            }
+            Some(proto::location_constraint::Type::CustomList(list_id)) => {
+                let location = LocationConstraint::CustomList {
+                    list_id: Id::try_from(list_id.as_str()).map_err(|_| {
+                        FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid")
+                    })?,
+                };
+                Ok(Constraint::Only(location))
+            }
+            None => Ok(Constraint::Any),
+        }
+    }
+}
+
+impl From<mullvad_types::relay_constraints::GeographicLocationConstraint> for proto::RelayLocation {
+    fn from(location: mullvad_types::relay_constraints::GeographicLocationConstraint) -> Self {
+        use mullvad_types::relay_constraints::GeographicLocationConstraint;
 
         match location {
-            LocationConstraint::Country(country) => Self {
+            GeographicLocationConstraint::Country(country) => Self {
                 country,
                 ..Default::default()
             },
-            LocationConstraint::City(country, city) => Self {
+            GeographicLocationConstraint::City(country, city) => Self {
                 country,
                 city,
                 ..Default::default()
             },
-            LocationConstraint::Hostname(country, city, hostname) => Self {
+            GeographicLocationConstraint::Hostname(country, city, hostname) => Self {
                 country,
                 city,
                 hostname,
@@ -509,21 +556,21 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Relay
 }
 
 impl From<proto::RelayLocation>
-    for Constraint<mullvad_types::relay_constraints::LocationConstraint>
+    for Constraint<mullvad_types::relay_constraints::GeographicLocationConstraint>
 {
     fn from(location: proto::RelayLocation) -> Self {
-        use mullvad_types::relay_constraints::LocationConstraint;
+        use mullvad_types::relay_constraints::GeographicLocationConstraint;
 
         if let Some(hostname) = option_from_proto_string(location.hostname) {
-            Constraint::Only(LocationConstraint::Hostname(
+            Constraint::Only(GeographicLocationConstraint::Hostname(
                 location.country,
                 location.city,
                 hostname,
             ))
         } else if let Some(city) = option_from_proto_string(location.city) {
-            Constraint::Only(LocationConstraint::City(location.country, city))
+            Constraint::Only(GeographicLocationConstraint::City(location.country, city))
         } else if let Some(country) = option_from_proto_string(location.country) {
-            Constraint::Only(LocationConstraint::Country(country))
+            Constraint::Only(GeographicLocationConstraint::Country(country))
         } else {
             Constraint::Any
         }
@@ -545,9 +592,9 @@ impl TryFrom<proto::BridgeSettings> for mullvad_types::relay_constraints::Bridge
             proto::bridge_settings::Type::Normal(constraints) => {
                 let location = match constraints.location {
                     None => Constraint::Any,
-                    Some(location) => {
-                        Constraint::<mullvad_constraints::LocationConstraint>::from(location)
-                    }
+                    Some(location) => Constraint::<
+                        mullvad_types::relay_constraints::LocationConstraint,
+                    >::try_from(location)?,
                 };
                 let providers = try_providers_constraint_from_proto(&constraints.providers)?;
                 let ownership = try_ownership_constraint_from_i32(constraints.ownership)?;

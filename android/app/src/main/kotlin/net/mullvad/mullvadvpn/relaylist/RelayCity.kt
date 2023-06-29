@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.relaylist
 
-import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 
 class RelayCity(
     val country: RelayCountry,
@@ -10,7 +10,7 @@ class RelayCity(
     val relays: List<Relay>
 ) : RelayItem {
     override val type = RelayItemType.City
-    override val location = LocationConstraint.City(country.code, code)
+    override val location = GeographicLocationConstraint.City(country.code, code)
 
     override val active
         get() = relays.any { relay -> relay.active }
