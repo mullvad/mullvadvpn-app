@@ -386,7 +386,6 @@ version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6358dedf60f4d9b8db43ad187391afe959746101346fe51bb978126bec61dfb"
 dependencies = [
- "clap 3.2.25",
  "heck",
  "indexmap",
  "log",
@@ -470,21 +469,6 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.2.25"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ea181bf566f71cb9a5d17a59e1871af638180a18fb0035c92ae62b705207123"
-dependencies = [
- "atty",
- "bitflags",
- "clap_lex 0.2.4",
- "indexmap",
- "strsim 0.10.0",
- "termcolor",
- "textwrap",
-]
-
-[[package]]
-name = "clap"
 version = "4.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34d21f9bf1b425d2968943631ec91202fe5e837264063503708b83013f8fc938"
@@ -503,7 +487,7 @@ dependencies = [
  "anstream",
  "anstyle",
  "bitflags",
- "clap_lex 0.4.1",
+ "clap_lex",
  "once_cell",
  "strsim 0.10.0",
 ]
@@ -514,7 +498,7 @@ version = "4.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a19591b2ab0e3c04b588a0e04ddde7b9eaa423646d1b4a8092879216bf47473"
 dependencies = [
- "clap 4.2.7",
+ "clap",
 ]
 
 [[package]]
@@ -527,15 +511,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.15",
-]
-
-[[package]]
-name = "clap_lex"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2850f2f5a82cbf437dd5af4d49848fbdfc27c157c3d010345776f952765261c5"
-dependencies = [
- "os_str_bytes",
 ]
 
 [[package]]
@@ -2020,7 +1995,7 @@ dependencies = [
  "anyhow",
  "base64 0.13.0",
  "chrono",
- "clap 4.2.7",
+ "clap",
  "clap_complete",
  "env_logger 0.10.0",
  "futures",
@@ -2044,7 +2019,7 @@ dependencies = [
  "android_logger",
  "cfg-if",
  "chrono",
- "clap 4.2.7",
+ "clap",
  "ctrlc",
  "dirs-next",
  "duct",
@@ -2173,7 +2148,7 @@ dependencies = [
 name = "mullvad-problem-report"
 version = "0.0.0"
 dependencies = [
- "clap 4.2.7",
+ "clap",
  "dirs-next",
  "duct",
  "env_logger 0.10.0",
@@ -2218,7 +2193,7 @@ dependencies = [
 name = "mullvad-setup"
 version = "0.0.0"
 dependencies = [
- "clap 4.2.7",
+ "clap",
  "env_logger 0.10.0",
  "err-derive",
  "lazy_static",
@@ -2238,7 +2213,7 @@ name = "mullvad-types"
 version = "0.0.0"
 dependencies = [
  "chrono",
- "clap 4.2.7",
+ "clap",
  "err-derive",
  "ipnetwork",
  "jnix",
@@ -2512,12 +2487,6 @@ dependencies = [
  "libc",
  "winapi",
 ]
-
-[[package]]
-name = "os_str_bytes"
-version = "6.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ceedf44fb00f2d1984b0bc98102627ce622e083e49a5bacdb3e514fa4238e267"
 
 [[package]]
 name = "oslog"
@@ -3930,12 +3899,6 @@ checksum = "2dfed899f0eb03f32ee8c6a0aabdb8a7949659e3466561fc0adf54e26d88c5f4"
 dependencies = [
  "winapi-util",
 ]
-
-[[package]]
-name = "textwrap"
-version = "0.16.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "222a222a5bfe1bba4a77b45ec488a741b3cb8872e5e499451fd7d0129c9c7c3d"
 
 [[package]]
 name = "thiserror"
