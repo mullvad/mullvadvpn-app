@@ -111,7 +111,7 @@ export default class ConnectionPanel extends React.Component<IProps> {
             {entryPoint && (
               <Row>
                 <Caption>{messages.pgettext('connection-info', 'In')}</Caption>
-                <Text>
+                <Text data-testid="in-ip">
                   {`${entryPoint.ip}:${entryPoint.port} ${entryPoint.protocol.toUpperCase()}`}
                 </Text>
               </Row>
