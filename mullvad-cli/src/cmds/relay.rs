@@ -468,7 +468,7 @@ impl Relay {
                         }
                     }
                 }
-                location_constraint.map(|location| LocationConstraint::Location(location))
+                location_constraint.map(LocationConstraint::Location)
             };
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
