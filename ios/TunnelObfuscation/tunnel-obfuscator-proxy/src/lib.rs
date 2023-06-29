@@ -1,3 +1,5 @@
+#![cfg(target_os = "ios")]
+
 use std::io;
 use std::net::SocketAddr;
 use tokio::sync::oneshot;

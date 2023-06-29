@@ -1,9 +1,9 @@
+#![cfg(target_os = "ios")]
+
 use super::{TunnelObfuscatorHandle, TunnelObfuscatorRuntime};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
-#[cfg(any(target_os = "macos", target_os = "ios"))]
 use std::sync::Once;
 
-#[cfg(any(target_os = "macos", target_os = "ios"))]
 static INIT_LOGGING: Once = Once::new();
 
 #[repr(C)]
@@ -19,7 +19,6 @@ pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
     peer_port: u16,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
-    #[cfg(any(target_os = "macos", target_os = "ios"))]
     INIT_LOGGING.call_once(|| {
         let _ = oslog::OsLogger::new("net.mullvad.MullvadVPN.TunnelObfuscatorProxy")
             .level_filter(log::LevelFilter::Info)
@@ -49,7 +48,7 @@ pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
         }
         Err(err) => {
             log::error!("Failed to run tunnel obfuscator proxy {}", err);
-            return err.raw_os_error().unwrap_or(-1);
+            err.raw_os_error().unwrap_or(-1)
         }
     }
 }
