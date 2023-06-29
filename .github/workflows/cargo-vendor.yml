@@ -1,0 +1,28 @@
+---
+# The reason why we check for vendorability is not because we at Mullvad usually vendor
+# dependencies ourselves. But it can help some third party packagers of this project.
+# It also is a sanity check on our dependency tree. Vendoring will fail if a single
+# dependency has multiple sources: https://github.com/mullvad/mullvadvpn-app/issues/4848
+name: Rust - Vendor dependencies
+on:
+  pull_request:
+    paths:
+      - .github/workflows/cargo-vendor.yml
+      - Cargo.lock
+      - '**/Cargo.toml'
+  workflow_dispatch:
+jobs:
+  cargo-vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          default: true
+
+      - name: Vendor Rust dependencies
+        run: cargo vendor
