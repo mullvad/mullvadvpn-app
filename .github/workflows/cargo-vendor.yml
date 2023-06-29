@@ -3,7 +3,7 @@
 # dependencies ourselves. But it can help some third party packagers of this project.
 # It also is a sanity check on our dependency tree. Vendoring will fail if a single
 # dependency has multiple sources: https://github.com/mullvad/mullvadvpn-app/issues/4848
-name: Rust - Test vendor dependencies
+name: Rust - Vendor dependencies
 on:
   pull_request:
     paths:
@@ -12,52 +12,8 @@ on:
       - '**/Cargo.toml'
   workflow_dispatch:
 jobs:
-  prepare-android:
-    name: Prepare Android container
+  cargo-vendor:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Use custom container image if specified
-        if: ${{ github.event.inputs.override_container_image != '' }}
-        run: echo "inner_container_image_android=${{ github.event.inputs.override_container_image }}"
-          >> $GITHUB_ENV
-
-      - name: Use default container image and resolve digest
-        if: ${{ github.event.inputs.override_container_image == '' }}
-        run: |
-          echo "inner_container_image_android=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
-
-    outputs:
-      container_image_android: ${{ env.inner_container_image_android }}
-
-  cargo-vendor-desktop:
-    name: cargo vendor, desktop
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          default: true
-
-      - name: Vendor Rust dependencies
-        run: cargo vendor
-
-  cargo-vendor-android:
-    name: cargo vendor, Android
-    needs: prepare-android
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.prepare-android.outputs.container_image_android }}
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
