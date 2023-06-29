@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import { Page } from 'playwright';
-import { assertDisconnected } from '../../shared/tunnel-state';
+import { expectDisconnected } from '../../shared/tunnel-state';
 
 import { startInstalledApp } from '../installed-utils';
 
@@ -18,5 +18,5 @@ test.afterAll(async () => {
 });
 
 test('App should show disconnected tunnel state', async () => {
-  await assertDisconnected(page);
+  await expectDisconnected(page);
 });

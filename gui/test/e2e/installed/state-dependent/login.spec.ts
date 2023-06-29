@@ -5,7 +5,7 @@ import { RoutePath } from '../../../../src/renderer/lib/routes';
 import { TestUtils } from '../../utils';
 
 import { startInstalledApp } from '../installed-utils';
-import { assertDisconnected } from '../../shared/tunnel-state';
+import { expectDisconnected } from '../../shared/tunnel-state';
 
 // This test expects the daemon to be logged out.
 // Env parameters:
@@ -87,7 +87,7 @@ test('App should log in', async () => {
   await expect(subtitle).toHaveText('Valid account number');
 
   expect(await util.waitForNavigation()).toEqual(RoutePath.main);
-  await assertDisconnected(page);
+  await expectDisconnected(page);
 });
 
 test('App should log out', async () => {

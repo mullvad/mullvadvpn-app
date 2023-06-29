@@ -3,7 +3,7 @@ import { Page } from 'playwright';
 
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
 import { ErrorStateCause, ILocation, ITunnelEndpoint, TunnelState } from '../../../src/shared/daemon-rpc-types';
-import { assertConnected, assertConnecting, assertDisconnected, assertDisconnecting, assertError } from '../shared/tunnel-state';
+import { expectConnected, expectConnecting, expectDisconnected, expectDisconnecting, expectError } from '../shared/tunnel-state';
 
 const mockLocation: ILocation = {
   country: 'Sweden',
@@ -36,7 +36,7 @@ test('App should show disconnected tunnel state', async () => {
     channel: 'tunnel-',
     response: { state: 'disconnected' },
   });
-  await assertDisconnected(page);
+  await expectDisconnected(page);
 });
 
 /**
@@ -51,7 +51,7 @@ test('App should show connecting tunnel state', async () => {
     channel: 'tunnel-',
     response: { state: 'connecting' },
   });
-  await assertConnecting(page);
+  await expectConnecting(page);
 });
 
 /**
@@ -75,7 +75,7 @@ test('App should show connected tunnel state', async () => {
     response: { state: 'connected', details: { endpoint, location } },
   });
 
-  await assertConnected(page);
+  await expectConnected(page);
 });
 
 /**
@@ -90,7 +90,7 @@ test('App should show disconnecting tunnel state', async () => {
     channel: 'tunnel-',
     response: { state: 'disconnecting', details: 'nothing' },
   });
-  await assertDisconnecting(page);
+  await expectDisconnecting(page);
 });
 
 /**
@@ -105,5 +105,5 @@ test('App should show error tunnel state', async () => {
     channel: 'tunnel-',
     response: { state: 'error', details: { cause: ErrorStateCause.isOffline } },
   });
-  await assertError(page);
+  await expectError(page);
 });

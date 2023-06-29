@@ -13,8 +13,8 @@ const SECURE_BUTTON_COLOR = anyOf(colors.green, colors.green90);
 const getLabel = (page: Page) => page.locator('span[role="status"]');
 const getHeader = (page: Page) => page.locator('header');
 
-export async function assertDisconnected(page: Page) {
-  await assertTunnelState(page, {
+export async function expectDisconnected(page: Page) {
+  await expectTunnelState(page, {
     labelText: 'unsecured connection',
     labelColor: UNSECURED_COLOR,
     headerColor: UNSECURED_COLOR,
@@ -23,8 +23,8 @@ export async function assertDisconnected(page: Page) {
   });
 }
 
-export async function assertConnecting(page: Page) {
-  await assertTunnelState(page, {
+export async function expectConnecting(page: Page) {
+  await expectTunnelState(page, {
     labelText: 'creating secure connection',
     labelColor: WHITE_COLOR,
     headerColor: SECURE_COLOR,
@@ -33,8 +33,8 @@ export async function assertConnecting(page: Page) {
   });
 }
 
-export async function assertConnected(page: Page) {
-  await assertTunnelState(page, {
+export async function expectConnected(page: Page) {
+  await expectTunnelState(page, {
     labelText: 'secure connection',
     labelColor: SECURE_COLOR,
     headerColor: SECURE_COLOR,
@@ -43,24 +43,24 @@ export async function assertConnected(page: Page) {
   });
 }
 
-export async function assertDisconnecting(page: Page) {
-  await assertTunnelState(page, {
+export async function expectDisconnecting(page: Page) {
+  await expectTunnelState(page, {
     headerColor: UNSECURED_COLOR,
     buttonText: 'secure my connection',
     buttonColor: SECURE_BUTTON_COLOR,
   });
 }
 
-export async function assertError(page: Page) {
-  await assertTunnelState(page, {
+export async function expectError(page: Page) {
+  await expectTunnelState(page, {
     labelText: 'blocked connection',
     labelColor: WHITE_COLOR,
     headerColor: SECURE_COLOR,
   });
 }
 
-export async function assertConnectingPq(page: Page) {
-  await assertTunnelState(page, {
+export async function expectConnectingPq(page: Page) {
+  await expectTunnelState(page, {
     labelText: 'creating quantum secure connection',
     labelColor: WHITE_COLOR,
     headerColor: SECURE_COLOR,
@@ -69,8 +69,8 @@ export async function assertConnectingPq(page: Page) {
   });
 }
 
-export async function assertConnectedPq(page: Page) {
-  await assertTunnelState(page, {
+export async function expectConnectedPq(page: Page) {
+  await expectTunnelState(page, {
     labelText: 'quantum secure connection',
     labelColor: SECURE_COLOR,
     headerColor: SECURE_COLOR,
@@ -87,7 +87,7 @@ interface TunnelStateContent {
   buttonColor?: string | RegExp;
 }
 
-export async function assertTunnelState(page: Page, content: TunnelStateContent) {
+export async function expectTunnelState(page: Page, content: TunnelStateContent) {
   const statusLabel = getLabel(page);
   if (content.labelText && content.labelColor) {
     await expect(statusLabel).toContainText(new RegExp(content.labelText, 'i'));
