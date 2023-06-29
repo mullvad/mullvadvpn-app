@@ -2809,7 +2809,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nCARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/MullvadTransport/shadowsocks-proxy/build.sh shadowsocks-proxy\n";
+			shellScript = "CARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/build-rust-library.sh shadowsocks-proxy\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

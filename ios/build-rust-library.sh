@@ -5,7 +5,7 @@ set -euvx
 if [ "$#" -ne 1 ]
 then
     echo "Usage (note: only call inside xcode!):"
-    echo "compile-library.sh <FFI_TARGET> <buildvariant>"
+    echo "build-rust-library.sh <FFI_TARGET>"
     exit 1
 fi
 
