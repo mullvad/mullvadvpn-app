@@ -26,6 +26,7 @@ type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 
 export default function Map() {
   const connection = useSelector((state) => state.connection);
+  const animateMap = useSelector((state) => state.settings.guiSettings.animateMap);
 
   const hasLocationValue = hasLocation(connection);
   const location = useMemo<Coordinate | undefined>(() => {
@@ -35,7 +36,7 @@ export default function Map() {
   const connectionState = getConnectionState(hasLocationValue, connection.status.state);
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const animate = !reduceMotion;
+  const animate = !reduceMotion && animateMap;
 
   return (
     <MapInner

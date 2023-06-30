@@ -364,6 +364,8 @@ export default class AppRenderer {
   public testCustomApiAccessMethod = (method: CustomProxy) =>
     IpcRendererEventChannel.settings.testCustomApiAccessMethod(method);
   public getMapData = () => IpcRendererEventChannel.map.getData();
+  public setAnimateMap = (displayMap: boolean): void =>
+    IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
 
   public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;
