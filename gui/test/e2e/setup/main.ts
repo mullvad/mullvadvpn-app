@@ -29,6 +29,7 @@ class ApplicationMain {
     unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
     browsedForSplitTunnelingApplications: [],
     changelogDisplayedForVersion: '',
+    animateMap: true,
   };
 
   private settings = getDefaultSettings();

@@ -344,6 +344,8 @@ export default class AppRenderer {
   public updateCustomList = (customList: ICustomList) =>
     IpcRendererEventChannel.customLists.updateCustomList(customList);
   public getMapData = () => IpcRendererEventChannel.map.getData();
+  public setAnimateMap = (displayMap: boolean): void =>
+    IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
 
   public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;

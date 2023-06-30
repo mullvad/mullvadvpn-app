@@ -30,6 +30,12 @@ const StyledCellIcon = styled(Cell.UntintedIcon)({
   marginRight: '8px',
 });
 
+const StyledAnimateMapSettingsGroup = styled(Cell.Group)({
+  '@media (prefers-reduced-motion: reduce)': {
+    display: 'none',
+  },
+});
+
 export default function UserInterfaceSettings() {
   const { pop } = useHistory();
   const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
@@ -81,6 +87,10 @@ export default function UserInterfaceSettings() {
                     <StartMinimizedSetting />
                   </Cell.Group>
                 )}
+
+                <StyledAnimateMapSettingsGroup>
+                  <AnimateMapSetting />
+                </StyledAnimateMapSettingsGroup>
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
@@ -205,6 +215,33 @@ function StartMinimizedSetting() {
               'user-interface-settings-view',
               'Show only the tray icon when the app starts.',
             )}
+          </Cell.CellFooterText>
+        </AriaDescription>
+      </Cell.CellFooter>
+    </AriaInputGroup>
+  );
+}
+
+function AnimateMapSetting() {
+  const animateMap = useSelector((state) => state.settings.guiSettings.animateMap);
+  const { setAnimateMap } = useAppContext();
+
+  return (
+    <AriaInputGroup>
+      <Cell.Container>
+        <AriaLabel>
+          <Cell.InputLabel>
+            {messages.pgettext('user-interface-settings-view', 'Animate map')}
+          </Cell.InputLabel>
+        </AriaLabel>
+        <AriaInput>
+          <Cell.Switch isOn={animateMap} onChange={setAnimateMap} />
+        </AriaInput>
+      </Cell.Container>
+      <Cell.CellFooter>
+        <AriaDescription>
+          <Cell.CellFooterText>
+            {messages.pgettext('user-interface-settings-view', 'Animate map movements.')}
           </Cell.CellFooterText>
         </AriaDescription>
       </Cell.CellFooter>
