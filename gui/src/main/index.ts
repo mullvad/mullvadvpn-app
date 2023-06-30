@@ -454,6 +454,8 @@ class ApplicationMain
       this.account.isLoggedIn(),
       this.tunnelState.tunnelState,
     );
+
+    log.info(app.getGPUFeatureStatus());
   };
 
   private onSuspend = () => {
