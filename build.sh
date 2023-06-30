@@ -33,6 +33,8 @@ NOTARIZE="false"
 UNIVERSAL="false"
 # Use boringtun instead of wireguard-go
 BORINGTUN="false"
+# If build script should package electron GUI
+GUI="true"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -47,6 +49,7 @@ while [[ "$#" -gt 0 ]]; do
             UNIVERSAL="true"
             ;;
         --boringtun) BORINGTUN="true";;
+        --nogui) GUI="false" ;;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -394,25 +397,36 @@ else
 fi
 
 log_info "Updating relays.json..."
+
 cargo run -p mullvad-api --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
 
-log_header "Installing JavaScript dependencies"
+if [[ "$GUI" == "false" ]]; then
+    echo "Not building gui."
+    log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
+    ./package.sh --version "$PRODUCT_VERSION"
+else
+    log_header "Installing JavaScript dependencies"
 
-pushd desktop
-npm ci --no-audit --no-fund
+    pushd desktop
+    npm ci --no-audit --no-fund
+    pushd packages/mullvad-vpn
 
-pushd packages/mullvad-vpn
-
-log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
+    log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
+    case "$(uname -s)" in
+        Linux*) npm run pack:linux -- "${NPM_PACK_ARGS[@]}" ;;
+        Darwin*) npm run pack:mac -- "${NPM_PACK_ARGS[@]}" ;;
+        MINGW*) npm run pack:win -- "${NPM_PACK_ARGS[@]}" ;;
+    esac
+    popd
+    popd
+fi
 
 case "$(uname -s)" in
-    Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
-    Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
-    MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
+    Linux*) echo "Packaging app for Linux" ;;
+    Darwin*) echo "Packaging app for Darwin" ;;
+    MINGW*) echo "Packaging app for MINGW" ;;
 esac
-popd
-popd
 
 # When signing is enabled, we check that the working directory is clean before building,
 # further up. Now verify that this is still true. The build process should never make the
