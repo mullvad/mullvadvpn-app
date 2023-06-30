@@ -225,7 +225,7 @@ function DisplayMapSetting() {
       <Cell.Container>
         <AriaLabel>
           <Cell.InputLabel>
-            {messages.pgettext('user-interface-settings-view', 'Display map')}
+            {messages.pgettext('user-interface-settings-view', 'Show map')}
           </Cell.InputLabel>
         </AriaLabel>
         <AriaInput>
