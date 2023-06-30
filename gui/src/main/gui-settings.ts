@@ -14,6 +14,7 @@ const settingsSchema: Record<keyof IGuiSettingsState, string> = {
   unpinnedWindow: 'boolean',
   browsedForSplitTunnelingApplications: 'Array<string>',
   changelogDisplayedForVersion: 'string',
+  displayMap: 'boolean',
 };
 
 const defaultSettings: IGuiSettingsState = {
@@ -25,6 +26,7 @@ const defaultSettings: IGuiSettingsState = {
   unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
   browsedForSplitTunnelingApplications: [],
   changelogDisplayedForVersion: '',
+  displayMap: true,
 };
 
 export default class GuiSettings {
@@ -112,6 +114,14 @@ export default class GuiSettings {
     return this.stateValue.changelogDisplayedForVersion === ''
       ? undefined
       : this.stateValue.changelogDisplayedForVersion;
+  }
+
+  set displayMap(newValue: boolean) {
+    this.changeStateAndNotify({ ...this.stateValue, displayMap: newValue });
+  }
+
+  get displayMap(): boolean {
+    return this.stateValue.displayMap;
   }
 
   public load() {

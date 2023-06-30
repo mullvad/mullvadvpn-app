@@ -60,6 +60,8 @@ export default function Connect() {
   const relayLocations = useSelector((state) => state.settings.relayLocations);
   const customLists = useSelector((state) => state.settings.customLists);
 
+  const displayMap = useSelector((state) => state.settings.guiSettings.displayMap);
+
   const showMarkerOrSpinner = useMemo<MarkerOrSpinner>(() => {
     if (!connection.latitude) {
       return 'none';
@@ -117,7 +119,7 @@ export default function Connect() {
     <Layout>
       <DefaultHeaderBar barStyle={calculateHeaderBarStyle(connection.status)} />
       <StyledContainer>
-        <Map />
+        {displayMap && <Map />}
         <Content>
           <StyledNotificationArea />
 
