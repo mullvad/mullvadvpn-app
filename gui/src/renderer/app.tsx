@@ -343,6 +343,8 @@ export default class AppRenderer {
     IpcRendererEventChannel.customLists.deleteCustomList(id);
   public updateCustomList = (customList: ICustomList) =>
     IpcRendererEventChannel.customLists.updateCustomList(customList);
+  public setDisplayMap = (displayMap: boolean): void =>
+    IpcRendererEventChannel.guiSettings.setDisplayMap(displayMap);
 
   public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;

@@ -81,6 +81,10 @@ export default function UserInterfaceSettings() {
                     <StartMinimizedSetting />
                   </Cell.Group>
                 )}
+
+                <Cell.Group>
+                  <DisplayMapSetting />
+                </Cell.Group>
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>
@@ -204,6 +208,36 @@ function StartMinimizedSetting() {
             {messages.pgettext(
               'user-interface-settings-view',
               'Show only the tray icon when the app starts.',
+            )}
+          </Cell.CellFooterText>
+        </AriaDescription>
+      </Cell.CellFooter>
+    </AriaInputGroup>
+  );
+}
+
+function DisplayMapSetting() {
+  const displayMap = useSelector((state) => state.settings.guiSettings.displayMap);
+  const { setDisplayMap } = useAppContext();
+
+  return (
+    <AriaInputGroup>
+      <Cell.Container>
+        <AriaLabel>
+          <Cell.InputLabel>
+            {messages.pgettext('user-interface-settings-view', 'Display map')}
+          </Cell.InputLabel>
+        </AriaLabel>
+        <AriaInput>
+          <Cell.Switch isOn={displayMap} onChange={setDisplayMap} />
+        </AriaInput>
+      </Cell.Container>
+      <Cell.CellFooter>
+        <AriaDescription>
+          <Cell.CellFooterText>
+            {messages.pgettext(
+              'user-interface-settings-view',
+              'Toggles visibility of map in main view',
             )}
           </Cell.CellFooterText>
         </AriaDescription>

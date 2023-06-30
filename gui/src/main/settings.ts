@@ -93,6 +93,10 @@ export default class Settings implements Readonly<ISettings> {
       this.delegate.handleUnpinnedWindowChange();
     });
 
+    IpcMainEventChannel.guiSettings.handleSetDisplayMap((displayMap: boolean) => {
+      this.guiSettings.displayMap = displayMap;
+    });
+
     IpcMainEventChannel.currentVersion.handleDisplayedChangelog(() => {
       this.guiSettings.changelogDisplayedForVersion = this.currentVersion.gui;
     });

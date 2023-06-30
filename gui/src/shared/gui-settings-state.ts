@@ -31,4 +31,7 @@ export interface IGuiSettingsState {
   // The last version that the changelog dialog was shown for. This is used to only show the
   // changelog after upgrade.
   changelogDisplayedForVersion: string;
+
+  // Tells the app whether or not to show the map in the main view.
+  displayMap: boolean;
 }
