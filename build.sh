@@ -33,6 +33,8 @@ NOTARIZE="false"
 UNIVERSAL="false"
 # Use boringtun instead of wireguard-go
 BORINGTUN="false"
+# If build script should package electron GUI
+GUI="true"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -47,6 +49,7 @@ while [[ "$#" -gt 0 ]]; do
             UNIVERSAL="true"
             ;;
         --boringtun) BORINGTUN="true";;
+        --nogui) GUI="false" ;;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -388,32 +391,40 @@ else
 fi
 
 log_info "Updating relays.json..."
+
 cargo run -p mullvad-api --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
 
 log_header "Installing JavaScript dependencies"
 
-pushd desktop
-npm ci --no-audit --no-fund
-
-pushd packages/mullvad-vpn
-
 log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
 
 case "$(uname -s)" in
-    Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
-    Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
-    MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
+    Linux*) echo "Packaging app for Linux" ;;
+    Darwin*) echo "Packaging app for Darwin" ;;
+    MINGW*) echo "Packaging app for MINGW" ;;
 esac
-popd
-popd
 
-# sign installer on Windows
-if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
-    for installer_path in dist/*"$PRODUCT_VERSION"*.exe; do
-        log_info "Signing $installer_path"
-        sign_win "$installer_path"
-    done
+if [[ "$GUI" == "false" ]]; then
+    echo "Not building gui."
+    ./package.sh --version "$PRODUCT_VERSION"
+else
+    log_header "Installing JavaScript dependencies"
+
+    pushd desktop
+    npm ci --no-audit --no-fund
+
+    pushd packages/mullvad-vpn
+
+    log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
+
+    case "$(uname -s)" in
+        Linux*) npm run pack:linux -- "${NPM_PACK_ARGS[@]}" ;;
+        Darwin*) npm run pack:mac -- "${NPM_PACK_ARGS[@]}" ;;
+        MINGW*) npm run pack:win -- "${NPM_PACK_ARGS[@]}" ;;
+    esac
+    popd
+    popd
 fi
 
 # pack universal installer on Windows
