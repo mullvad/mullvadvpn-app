@@ -36,6 +36,7 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
   is turned off.
 - Add quantum resistant tunneling.
+- Add the ability to set a specific wireguard port.
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a

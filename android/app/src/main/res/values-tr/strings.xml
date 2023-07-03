@@ -122,6 +122,7 @@
     <string name="out_of_time">Süre doldu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
+    <string name="port">Port</string>
     <string name="port_removal_notice">Bu işlem, yönlendirilen tüm portları silecek. Yerel ayarlar kaydedilecektir.</string>
     <string name="privacy_disclaimer_title">Gizlilik</string>
     <string name="privacy_policy_label">Gizlilik politikası</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">Her zaman açık VPN başka bir uygulama için etkinleştirilebilir</string>
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
+    <string name="wireguard_custon_port_title">Özel</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar.</string>
+    <string name="wireguard_port_info_port_range">Özel port, geçerli aralıklar içindeki herhangi bir değer olabilir: %1$s.</string>
 </resources>

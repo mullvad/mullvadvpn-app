@@ -122,6 +122,7 @@
     <string name="out_of_time">Scaduto</string>
     <string name="paid_until">Pagato fino al</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
+    <string name="port">Porta</string>
     <string name="port_removal_notice">Questa operazione eliminerà tutte le porte inoltrate. Le impostazioni locali verranno salvate.</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Informativa sulla privacy</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">La VPN sempre attiva potrebbe essere abilitata per un\'altra app</string>
     <string name="vpn_permission_error_notification_title">Errore di autorizzazione VPN</string>
     <string name="we_will_look_into_this">Verificheremo.</string>
+    <string name="wireguard_custon_port_title">Personalizzato</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Imposta il valore MTU WireGuard. Intervallo valido: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">L\'impostazione automatica sceglierà in modo casuale una porta valida negli intervalli mostrati di seguito.</string>
+    <string name="wireguard_port_info_port_range">La porta personalizzata può essere qualsiasi valore all\'interno degli intervalli validi: %1$s.</string>
 </resources>

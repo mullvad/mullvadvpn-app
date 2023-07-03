@@ -22,5 +22,7 @@ val MullvadWhite60 = Color(0x99FFFFFF)
 val MullvadWhite80 = Color(0xCCFFFFFF)
 
 const val AlphaVisible = 1f
+const val AlphaDisabled = 0.2f
 const val AlphaInactive = 0.4f
+const val AlphaDescription = 0.6f
 const val AlphaInvisible = 0f

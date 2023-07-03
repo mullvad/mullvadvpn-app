@@ -122,6 +122,7 @@
     <string name="out_of_time">逾時</string>
     <string name="paid_until">支付至</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
+    <string name="port">連接埠</string>
     <string name="port_removal_notice">這將刪除所有轉送的連接埠。將儲存本機設定。</string>
     <string name="privacy_disclaimer_title">隱私權</string>
     <string name="privacy_policy_label">隱私權政策</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">可能已為另一個應用程式啟用了「始終啟用 VPN」</string>
     <string name="vpn_permission_error_notification_title">VPN 權限錯誤</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
+    <string name="wireguard_custon_port_title">自訂</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自動設定將會隨機從下方顯示的有效連接埠範圍中進行選擇。</string>
+    <string name="wireguard_port_info_port_range">自訂連接埠可以是有效範圍內的任何值：%1$s。</string>
 </resources>

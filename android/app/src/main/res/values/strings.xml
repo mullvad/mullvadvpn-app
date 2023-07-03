@@ -204,4 +204,12 @@
     <string name="quantum_secure_connection">QUANTUM SECURE CONNECTION</string>
     <string name="wireguard_port_title">WireGuard Port</string>
     <string name="wireguard_port_info_description">The automatic setting will randomly choose from the valid port ranges shown below.</string>
+    <string name="wireguard_port_info_port_range">The custom port can be any value inside the valid ranges: %s.</string>
+    <string name="wireguard_custon_port_title">Custom</string>
+    <string name="port">Port</string>
+    <string name="custom_port_dialog_title">WireGuard custom port</string>
+    <string name="custom_port_dialog_submit">Set port</string>
+    <string name="custom_port_dialog_remove">Remove custom port</string>
+    <string name="custom_port_dialog_valid_ranges">Valid ranges: %s</string>
+    <string name="custom_port_dialog_placeholder">Enter port</string>
 </resources>

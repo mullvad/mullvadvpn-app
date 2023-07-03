@@ -122,6 +122,7 @@
     <string name="out_of_time">Ingen tid kvar</string>
     <string name="paid_until">Betalat till</string>
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
+    <string name="port">Port</string>
     <string name="port_removal_notice">Detta tar bort alla vidarebefordrade portar. Lokala inställningar sparas.</string>
     <string name="privacy_disclaimer_title">Sekretess</string>
     <string name="privacy_policy_label">Sekretesspolicy</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">VPN som alltid är på kan ha aktiverats för annan app</string>
     <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
+    <string name="wireguard_custon_port_title">Anpassad</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiska inställningen väljer slumpmässigt från giltiga portintervall som visas nedan.</string>
+    <string name="wireguard_port_info_port_range">Den anpassade porten kan vara ett värde inom de giltiga intervallen: %1$s.</string>
 </resources>

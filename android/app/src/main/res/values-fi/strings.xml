@@ -122,6 +122,7 @@
     <string name="out_of_time">Ei käyttöaikaa</string>
     <string name="paid_until">Maksu ennen</string>
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
+    <string name="port">Portti</string>
     <string name="port_removal_notice">Toiminto poistaa kaikki välitetyt portit. Paikalliset asetukset tallennetaan.</string>
     <string name="privacy_disclaimer_title">Tietosuoja</string>
     <string name="privacy_policy_label">Tietosuojakäytäntö</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle</string>
     <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
+    <string name="wireguard_custon_port_title">Mukautettu</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>
+    <string name="wireguard_port_info_port_range">Mukautettu portti voi olla mikä tahansa sallittu arvo: %1$s.</string>
 </resources>

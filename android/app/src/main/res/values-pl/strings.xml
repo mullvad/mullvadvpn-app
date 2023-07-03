@@ -122,6 +122,7 @@
     <string name="out_of_time">Koniec czasu</string>
     <string name="paid_until">Płatne do</string>
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
+    <string name="port">Port</string>
     <string name="port_removal_notice">Spowoduje to usunięcie wszystkich przekierowanych portów. Ustawienia lokalne zostaną zapisane.</string>
     <string name="privacy_disclaimer_title">Prywatność</string>
     <string name="privacy_policy_label">Polityka prywatności</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji</string>
     <string name="vpn_permission_error_notification_title">Błąd uprawnienia VPN</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
+    <string name="wireguard_custon_port_title">Niestandardowy</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Ustawienie automatyczne skutkuje wyborem losowym prawidłowego zakresu portów spośród zakresów przedstawionych poniżej.</string>
+    <string name="wireguard_port_info_port_range">Port niestandardowy może mieć dowolną wartość z następujących prawidłowych zakresów: %1$s.</string>
 </resources>

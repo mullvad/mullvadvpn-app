@@ -122,6 +122,7 @@
     <string name="out_of_time">Закончилось время</string>
     <string name="paid_until">Оплачено до</string>
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
+    <string name="port">Порт</string>
     <string name="port_removal_notice">Будут удалены все перенаправленные порты. Локальные настройки сохранятся.</string>
     <string name="privacy_disclaimer_title">Конфиденциальность</string>
     <string name="privacy_policy_label">Политика конфиденциальности</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">Опцию «VPN всегда вкл.» может быть включена для другого приложения</string>
     <string name="vpn_permission_error_notification_title">Ошибка разрешения для VPN</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>
+    <string name="wireguard_custon_port_title">Пользовательский</string>
     <string name="wireguard_mtu">MTU для WireGuard</string>
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">При автоматической настройке порт будет выбираться случайным образом из допустимого диапазона, показанного ниже.</string>
+    <string name="wireguard_port_info_port_range">Пользовательский порт может принимать любое значение внутри допустимых диапазонов: %1$s.</string>
 </resources>

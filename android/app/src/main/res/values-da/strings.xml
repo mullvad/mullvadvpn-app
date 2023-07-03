@@ -122,6 +122,7 @@
     <string name="out_of_time">Tid udløbet</string>
     <string name="paid_until">Betalt indtil</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
+    <string name="port">Port</string>
     <string name="port_removal_notice">Dette vil slette alle videresendte porte. Lokale indstillinger vil blive gemt.</string>
     <string name="privacy_disclaimer_title">Privatliv</string>
     <string name="privacy_policy_label">Fortrolighedspolitik</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">Altid-til VPN er måske aktiveret for en anden app</string>
     <string name="vpn_permission_error_notification_title">VPN-tilladelsesfejl</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
+    <string name="wireguard_custon_port_title">Brugerdefineret</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor.</string>
+    <string name="wireguard_port_info_port_range">Den brugerdefinerede port kan være en hvilken som helst værdi inden for de gyldige intervaller: %1$s.</string>
 </resources>

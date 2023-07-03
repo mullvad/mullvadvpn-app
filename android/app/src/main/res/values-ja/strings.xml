@@ -122,6 +122,7 @@
     <string name="out_of_time">時間切れ</string>
     <string name="paid_until">次の日時まで支払い済み</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
+    <string name="port">ポート</string>
     <string name="port_removal_notice">これにより、転送されたポートがすべて削除されます。ローカル設定は保存されます。</string>
     <string name="privacy_disclaimer_title">プライバシー</string>
     <string name="privacy_policy_label">プライバシーポリシー</string>
@@ -182,7 +183,9 @@
     <string name="vpn_permission_error_notification_message">Always-on VPNが別のアプリで有効になっている可能性があります</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
+    <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTUの値を設定します。有効範囲: %1$d ～ %2$d</string>
     <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>
+    <string name="wireguard_port_info_port_range">カスタムポートは次の有効範囲内の任意の値に設定できます: %1$s。</string>
 </resources>

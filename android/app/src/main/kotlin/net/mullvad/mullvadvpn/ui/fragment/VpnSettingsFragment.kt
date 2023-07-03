@@ -57,7 +57,10 @@ class VpnSettingsFragment : BaseFragment() {
                         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
                         onQuantumResistanceInfoClicked = vm::onQuantumResistanceInfoClicked,
                         onWireguardPortSelected = vm::onWireguardPortSelected,
-                        onWireguardPortInfoClicked = vm::onWireguardPortInfoClicked
+                        onWireguardPortInfoClicked = vm::onWireguardPortInfoClicked,
+                        onShowCustomPortDialog = vm::onShowCustomPortDialog,
+                        onCancelCustomPortDialogClick = vm::onCancelDialogClick,
+                        onCustomPortDialogClose = vm::onCancelDialogClick
                     )
                 }
             }
