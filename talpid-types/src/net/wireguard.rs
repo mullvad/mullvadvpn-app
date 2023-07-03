@@ -1,6 +1,5 @@
 use crate::net::{Endpoint, GenericTunnelOptions, TransportProtocol};
 use ipnetwork::IpNetwork;
-use rand::rngs::OsRng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::{
     cmp, fmt,
@@ -83,7 +82,7 @@ pub struct TunnelOptions {
 }
 
 /// Wireguard x25519 private key
-#[derive(Clone)]
+#[derive(Clone, Zeroize, ZeroizeOnDrop)]
 pub struct PrivateKey(x25519_dalek::StaticSecret);
 
 impl PrivateKey {
@@ -93,7 +92,7 @@ impl PrivateKey {
     }
 
     pub fn new_from_random() -> Self {
-        PrivateKey(x25519_dalek::StaticSecret::new(OsRng))
+        PrivateKey(x25519_dalek::StaticSecret::random())
     }
 
     /// Generate public key from private key

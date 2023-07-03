@@ -29,7 +29,6 @@ tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
 shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "c45980bb22d0d50ac888813c59a1edf0cff14a36",  features = [ "local", "stream-cipher" ] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
-byteorder = "1"
 socket2 = { version = "0.4.2", features = ["all"] }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
