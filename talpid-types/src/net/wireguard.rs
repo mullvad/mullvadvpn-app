@@ -82,7 +82,7 @@ pub struct TunnelOptions {
 }
 
 /// Wireguard x25519 private key
-#[derive(Clone)]
+#[derive(Clone, Zeroize, ZeroizeOnDrop)]
 pub struct PrivateKey(x25519_dalek::StaticSecret);
 
 impl PrivateKey {
