@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 data class Dimensions(
+    val buttonHeight: Dp = 44.dp,
     val cellEndPadding: Dp = 16.dp,
     val cellFooterTopPadding: Dp = 6.dp,
     val cellHeight: Dp = 52.dp,
@@ -11,6 +12,7 @@ data class Dimensions(
     val cellStartPadding: Dp = 22.dp,
     val cityRowPadding: Dp = 34.dp,
     val countryRowPadding: Dp = 18.dp,
+    val customPortBoxMinWidth: Dp = 80.dp,
     val expandableCellChevronSize: Dp = 30.dp,
     val indentedCellStartPadding: Dp = 38.dp,
     val infoButtonVerticalPadding: Dp = 13.dp,
@@ -33,7 +35,8 @@ data class Dimensions(
     val sideMargin: Dp = 22.dp,
     val smallPadding: Dp = 8.dp,
     val titleIconSize: Dp = 24.dp,
-    val verticalSpace: Dp = 20.dp
+    val verticalSpace: Dp = 20.dp,
+    val verticalSpacer: Dp = 1.dp
 )
 
 val defaultDimensions = Dimensions()

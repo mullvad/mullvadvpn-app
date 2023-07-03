@@ -21,6 +21,8 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Port
@@ -623,6 +625,8 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
+
+        // Act
         composeTestRule
             .onNodeWithTag(LAZY_LIST_TEST_TAG)
             .performScrollToNode(
@@ -653,19 +657,21 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
+
+        // Act
         composeTestRule
             .onNodeWithTag(LAZY_LIST_TEST_TAG)
             .performScrollToNode(
                 hasTestTag(String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 53))
             )
-
-        // Assert
         composeTestRule
             .onNodeWithTagAndText(
                 testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
                 text = "51820"
             )
             .performClick()
+
+        // Assert
         verify(exactly = 1) {
             mockSelectWireguardPortSelectionListener.invoke(Constraint.Only(Port(51820)))
         }
@@ -690,6 +696,121 @@ class VpnSettingsScreenTest {
                 "The automatic setting will randomly choose from the valid port ranges shown below."
             )
             .assertExists()
+    }
+
+    @Test
+    fun testShowWireguardCustomPortDialog() {
+        // Arrange
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState =
+                    VpnSettingsUiState.CustomPortDialogUiState(
+                        availablePortRanges = listOf(PortRange(53, 53), PortRange(120, 121))
+                    ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+
+        // Assert
+        composeTestRule.onNodeWithText("Valid ranges: 53, 120-121").assertExists()
+    }
+
+    @Test
+    fun testShowWireguardCustomPort() {
+        // Arrange
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState =
+                    VpnSettingsUiState.DefaultUiState(
+                        selectedWireguardPort = Constraint.Only(Port(4000))
+                    ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+
+        // Act
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
+
+        // Assert
+        composeTestRule.onNodeWithText("4000").assertExists()
+    }
+
+    @Test
+    fun testClickWireguardCustomPortMainCell() {
+        // Arrange
+        val mockOnShowCustomPortDialog: () -> Unit = mockk(relaxed = true)
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState = VpnSettingsUiState.DefaultUiState(),
+                onShowCustomPortDialog = mockOnShowCustomPortDialog,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+
+        // Act
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
+        composeTestRule.onNodeWithTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG).performClick()
+
+        // Assert
+        verify { mockOnShowCustomPortDialog.invoke() }
+    }
+
+    @Test
+    fun testClickWireguardCustomPortNumberCell() {
+        // Arrange
+        val mockOnShowCustomPortDialog: () -> Unit = mockk(relaxed = true)
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState =
+                    VpnSettingsUiState.DefaultUiState(
+                        selectedWireguardPort = Constraint.Only(Port(4000))
+                    ),
+                onShowCustomPortDialog = mockOnShowCustomPortDialog,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+
+        // Act
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
+        composeTestRule
+            .onNodeWithTag(testTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG)
+            .performClick()
+
+        // Assert
+        verify { mockOnShowCustomPortDialog.invoke() }
+    }
+
+    @Test
+    fun testSelectWireguardCustomPort() {
+        // Arrange
+        val onWireguardPortSelected: (Constraint<Port>) -> Unit = mockk(relaxed = true)
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState =
+                    VpnSettingsUiState.DefaultUiState(
+                        selectedWireguardPort = Constraint.Only(Port(4000))
+                    ),
+                onWireguardPortSelected = onWireguardPortSelected,
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+
+        // Act
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
+        composeTestRule
+            .onNodeWithTag(testTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG)
+            .performClick()
+
+        // Assert
+        verify { onWireguardPortSelected.invoke(Constraint.Only(Port(4000))) }
     }
 
     companion object {
