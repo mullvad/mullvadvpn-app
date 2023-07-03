@@ -122,6 +122,7 @@
     <string name="out_of_time">Zeit abgelaufen</string>
     <string name="paid_until">Bezahlt bis</string>
     <string name="pay_to_start_using">Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen.</string>
+    <string name="port">Port</string>
     <string name="port_removal_notice">Dadurch werden alle weitergeleiteten Ports gelöscht. Die lokalen Einstellungen werden gespeichert.</string>
     <string name="privacy_disclaimer_title">Datenschutz</string>
     <string name="privacy_policy_label">Datenschutzrichtlinie</string>
@@ -185,7 +186,9 @@
     <string name="vpn_permission_error_notification_message">Always-on VPN könnte für eine andere App aktiviert sein</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
+    <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d – %2$d.</string>
     <string name="wireguard_port_info_description">Die automatische Einstellung wählt zufällig aus den unten gezeigten gültigen Portbereichen.</string>
+    <string name="wireguard_port_info_port_range">Der benutzerdefinierte Port kann ein beliebiger Wert innerhalb dieser gültigen Bereiche sein: %1$s.</string>
 </resources>

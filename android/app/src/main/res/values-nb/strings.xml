@@ -122,6 +122,7 @@
     <string name="out_of_time">Tiden har utløpt</string>
     <string name="paid_until">Betalt fram til</string>
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
+    <string name="port">Port</string>
     <string name="port_removal_notice">Dette vil slette alle formidlede porter. Lokale innstillinger blir lagret.</string>
     <string name="privacy_disclaimer_title">Personvern</string>
     <string name="privacy_policy_label">Retningslinjer for personvern</string>
@@ -185,7 +186,9 @@
     <string name="vpn_permission_error_notification_message">VPN som alltid er på, kan være aktivert for en annen app</string>
     <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
+    <string name="wireguard_custon_port_title">Egendefinert</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Angi WireGuard MTU-verdi. Verdiområde: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske innstillingen vil tilfeldig velge fra utvalget av gyldige porter vist under.</string>
+    <string name="wireguard_port_info_port_range">Den egendefinerte porten kan ha en hvilken som helst verdi innen det gyldige utvalget: %1$s.</string>
 </resources>

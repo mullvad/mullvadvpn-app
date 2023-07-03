@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
   is turned off.
 - Add quantum resistant tunneling.
 - Add search for select location.
+- Add the ability to set a custom wireguard port.
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a

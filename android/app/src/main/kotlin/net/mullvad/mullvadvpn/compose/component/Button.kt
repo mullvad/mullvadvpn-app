@@ -10,12 +10,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.theme.Dimens
 
 @Composable
 fun ActionButton(
@@ -32,11 +31,8 @@ fun ActionButton(
         contentPadding = PaddingValues(0.dp),
         modifier =
             modifier
-                .height(dimensionResource(id = R.dimen.button_height))
-                .defaultMinSize(
-                    minWidth = 0.dp,
-                    minHeight = dimensionResource(id = R.dimen.button_height)
-                )
+                .height(Dimens.buttonHeight)
+                .defaultMinSize(minWidth = 0.dp, minHeight = Dimens.buttonHeight)
                 .fillMaxWidth(),
         colors = colors,
         shape = MaterialTheme.shapes.small
