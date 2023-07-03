@@ -84,6 +84,8 @@ deny = [
     { name = "openssl-sys" },
     { name = "openssl-src" },
     { name = "openssl-probe" },
+    { name = "clap", version = "2" },
+    { name = "clap", version = "3" },
 ]
 skip = []
 skip-tree = []
