@@ -3715,7 +3715,6 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "bitflags",
- "byteorder",
  "cfg-if",
  "duct",
  "err-derive",
