@@ -1677,6 +1677,9 @@ msgstr ""
 msgid "Enter MTU"
 msgstr ""
 
+msgid "Enter port"
+msgstr ""
+
 msgid "Excluded applications"
 msgstr ""
 
@@ -1704,6 +1707,9 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
+msgid "Remove custom port"
+msgstr ""
+
 msgid "Reset to default"
 msgstr ""
 
@@ -1711,6 +1717,9 @@ msgid "Secured"
 msgstr ""
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
+msgstr ""
+
+msgid "Set port"
 msgstr ""
 
 msgid "Show system apps"
@@ -1770,6 +1779,9 @@ msgstr ""
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr ""
 
+msgid "Valid ranges: %s"
+msgstr ""
+
 msgid "Virtual adapter error"
 msgstr ""
 
@@ -1780,6 +1792,9 @@ msgid "WireGuard MTU"
 msgstr ""
 
 msgid "WireGuard Port"
+msgstr ""
+
+msgid "WireGuard custom port"
 msgstr ""
 
 msgid "WireGuard obfuscation"

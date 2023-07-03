@@ -352,10 +352,15 @@ class VpnSettingsViewModel(
             serviceConnectionManager.relayListListener()?.selectedWireguardConstraints =
                 WireguardConstraints(port = port)
         }
+        hideDialog()
     }
 
     fun onWireguardPortInfoClicked() {
         dialogState.update { VpnSettingsDialogState.WireguardPortInfoDialog }
+    }
+
+    fun onShowCustomPortDialog() {
+        dialogState.update { VpnSettingsDialogState.CustomPortDialog }
     }
 
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =

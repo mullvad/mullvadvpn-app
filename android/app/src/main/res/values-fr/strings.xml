@@ -122,6 +122,7 @@
     <string name="out_of_time">Plus de temps</string>
     <string name="paid_until">Payé jusqu\'au</string>
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
+    <string name="port">Port</string>
     <string name="port_removal_notice">Ceci supprimera tous les ports transférés. Les paramètres locaux seront enregistrés.</string>
     <string name="privacy_disclaimer_title">Confidentialité</string>
     <string name="privacy_policy_label">Politique de confidentialité</string>
@@ -185,7 +186,9 @@
     <string name="vpn_permission_error_notification_message">« Toujours exiger un VPN » est peut-être activé pour une autre application</string>
     <string name="vpn_permission_error_notification_title">Erreur de permission VPN</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>
+    <string name="wireguard_custon_port_title">Personnalisé</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Définir la valeur MTU WireGuard. Plage valide : %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Le réglage automatique choisira au hasard parmi la plage de ports valide affichée ci-dessous.</string>
+    <string name="wireguard_port_info_port_range">Le port personnalisé peut prendre n\'importe quelle valeur dans les plages valides : %1$s.</string>
 </resources>

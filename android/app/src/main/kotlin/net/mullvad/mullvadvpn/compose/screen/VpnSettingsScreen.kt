@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -46,6 +45,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
 import net.mullvad.mullvadvpn.compose.cell.CustomDnsCellSubtitle
+import net.mullvad.mullvadvpn.compose.cell.CustomPortCell
 import net.mullvad.mullvadvpn.compose.cell.DnsCell
 import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
@@ -60,6 +60,7 @@ import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.CustomDnsInfoDialog
+import net.mullvad.mullvadvpn.compose.dialog.CustomPortDialog
 import net.mullvad.mullvadvpn.compose.dialog.DnsDialog
 import net.mullvad.mullvadvpn.compose.dialog.LocalNetworkSharingInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.MalwareInfoDialog
@@ -73,6 +74,8 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
@@ -82,6 +85,8 @@ import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.util.hasValue
+import net.mullvad.mullvadvpn.util.isCustom
+import net.mullvad.mullvadvpn.util.toDisplayCustomPort
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 
 @Preview
@@ -127,7 +132,10 @@ private fun PreviewVpnSettings() {
             onSelectQuantumResistanceSetting = {},
             onQuantumResistanceInfoClicked = {},
             onWireguardPortSelected = {},
-            onWireguardPortInfoClicked = {}
+            onWireguardPortInfoClicked = {},
+            onShowCustomPortDialog = {},
+            onCancelCustomPortDialogClick = {},
+            onCustomPortDialogClose = {}
         )
     }
 }
@@ -168,10 +176,15 @@ fun VpnSettingsScreen(
     onSelectQuantumResistanceSetting: (quantumResistant: QuantumResistantState) -> Unit = {},
     onQuantumResistanceInfoClicked: () -> Unit = {},
     onWireguardPortSelected: (port: Constraint<Port>) -> Unit = {},
-    onWireguardPortInfoClicked: () -> Unit = {}
+    onWireguardPortInfoClicked: () -> Unit = {},
+    onShowCustomPortDialog: () -> Unit = {},
+    onCancelCustomPortDialogClick: () -> Unit = {},
+    onCustomPortDialogClose: () -> Unit = {}
 ) {
-    val cellVerticalSpacing = dimensionResource(id = R.dimen.cell_label_vertical_padding)
-    val cellHorizontalSpacing = dimensionResource(id = R.dimen.cell_left_padding)
+    val cellVerticalSpacing = Dimens.cellLabelVerticalPadding
+    val cellHorizontalSpacing = Dimens.cellStartPadding
+
+    val savedCustomPort = rememberSaveable { mutableStateOf<Constraint<Port>>(Constraint.Any()) }
 
     when (uiState) {
         is VpnSettingsUiState.MtuDialogUiState -> {
@@ -214,6 +227,24 @@ fun VpnSettingsScreen(
         is VpnSettingsUiState.WireguardPortInfoDialogUiState -> {
             WireguardPortInfoDialog(uiState.availablePortRanges, onDismissInfoClick)
         }
+        is VpnSettingsUiState.CustomPortDialogUiState -> {
+            CustomPortDialog(
+                customPort = savedCustomPort.value.toDisplayCustomPort(),
+                allowedPortRanges = uiState.availablePortRanges,
+                onSave = { customPortString ->
+                    onWireguardPortSelected(Constraint.Only(Port(customPortString.toInt())))
+                },
+                onReset = {
+                    if (uiState.selectedWireguardPort.isCustom()) {
+                        onWireguardPortSelected(Constraint.Any())
+                    }
+                    savedCustomPort.value = Constraint.Any()
+                    onCustomPortDialogClose()
+                },
+                showReset = savedCustomPort.value is Constraint.Only,
+                onDismissRequest = { onCancelCustomPortDialogClick() }
+            )
+        }
         else -> {
             // NOOP
         }
@@ -225,6 +256,15 @@ fun VpnSettingsScreen(
     val topPadding = 6.dp
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
+
+    LaunchedEffect(uiState.selectedWireguardPort) {
+        if (
+            uiState.selectedWireguardPort.isCustom() &&
+                uiState.selectedWireguardPort != savedCustomPort.value
+        ) {
+            savedCustomPort.value = uiState.selectedWireguardPort
+        }
+    }
 
     CollapsingToolbarScaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
@@ -463,6 +503,29 @@ fun VpnSettingsScreen(
                         onCellClicked = { onWireguardPortSelected(Constraint.Only(Port(port))) }
                     )
                 }
+            }
+
+            itemWithDivider {
+                CustomPortCell(
+                    title = stringResource(id = R.string.wireguard_custon_port_title),
+                    isSelected = uiState.selectedWireguardPort.isCustom(),
+                    port =
+                        if (uiState.selectedWireguardPort.isCustom()) {
+                            uiState.selectedWireguardPort.toDisplayCustomPort()
+                        } else {
+                            savedCustomPort.value.toDisplayCustomPort()
+                        },
+                    onMainCellClicked = {
+                        if (savedCustomPort.value is Constraint.Only) {
+                            onWireguardPortSelected(savedCustomPort.value)
+                        } else {
+                            onShowCustomPortDialog()
+                        }
+                    },
+                    onPortCellClicked = { onShowCustomPortDialog() },
+                    mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
+                    numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
+                )
             }
 
             item {
