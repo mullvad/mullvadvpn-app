@@ -11,8 +11,7 @@ publish = false
 serde = { version = "1.0", features = ["derive"] }
 ipnetwork = "0.16"
 base64 = "0.13"
-x25519-dalek = { version = "2.0.0-pre.1" }
-rand = "0.8.5"
+x25519-dalek = { version = "2.0.0-rc.3", features = ["static_secrets", "zeroize", "getrandom"] }
 err-derive = "0.3.1"
 zeroize = "1.5.7"
 
