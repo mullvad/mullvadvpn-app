@@ -47,7 +47,7 @@ class HeaderBarView: UIView {
 
     private lazy var buttonContainer: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [accountButton, settingsButton])
-        stackView.spacing = UIMetrics.headerBarButtonSpacing
+//        stackView.spacing = UIMetrics.headerBarButtonSpacing
         return stackView
     }()
 
@@ -57,7 +57,7 @@ class HeaderBarView: UIView {
         return layer
     }()
 
-    let accountButton: IncreasedHitButton = {
+    let accountButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage(named: "IconAccount"))
         button.accessibilityIdentifier = "AccountButton"
         button.accessibilityLabel = NSLocalizedString(
@@ -66,10 +66,12 @@ class HeaderBarView: UIView {
             value: "Account",
             comment: ""
         )
+        button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.touchAreaSize).isActive = true
+        button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
         return button
     }()
 
-    let settingsButton: IncreasedHitButton = {
+    let settingsButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage(named: "IconSettings"))
         button.accessibilityIdentifier = "SettingsButton"
         button.accessibilityLabel = NSLocalizedString(
@@ -78,6 +80,8 @@ class HeaderBarView: UIView {
             value: "Settings",
             comment: ""
         )
+        button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.touchAreaSize).isActive = true
+        button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
         return button
     }()
 
@@ -164,8 +168,13 @@ class HeaderBarView: UIView {
 
         accessibilityContainerType = .semanticGroup
 
-        let imageSize = brandNameImage?.size ?? .zero
-        let brandNameAspectRatio = imageSize.width / max(imageSize.height, 1)
+        let brandImageSize = brandNameImage?.size ?? .zero
+        let brandNameAspectRatio = brandImageSize.width / max(brandImageSize.height, 1)
+
+        var buttonContainerTrailingAdjustment: CGFloat = 0
+        if let buttonImageWidth = settingsButton.currentImage?.size.width {
+            buttonContainerTrailingAdjustment = (UIMetrics.Button.touchAreaSize - buttonImageWidth) / 2
+        }
 
         [deviceNameLabel, timeLeftLabel].forEach { deviceInfoHolder.addArrangedSubview($0) }
 
@@ -190,7 +199,10 @@ class HeaderBarView: UIView {
             brandNameImageView.heightAnchor.constraint(equalToConstant: UIMetrics.headerBarBrandNameHeight)
 
             buttonContainer.centerYAnchor.constraint(equalTo: brandNameImageView.centerYAnchor)
-            buttonContainer.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)
+            buttonContainer.trailingAnchor.constraint(
+                equalTo: layoutMarginsGuide.trailingAnchor,
+                constant: buttonContainerTrailingAdjustment
+            )
 
             deviceInfoHolder.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor)
             deviceInfoHolder.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor)

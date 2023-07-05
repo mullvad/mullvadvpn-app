@@ -38,6 +38,10 @@ enum UIMetrics {
         static let cornerRadius = 8.0
         static let preferredContentSize = CGSize(width: 292, height: 263)
     }
+
+    enum Button {
+        static let touchAreaSize: CGFloat = 44.0
+    }
 }
 
 extension UIMetrics {
