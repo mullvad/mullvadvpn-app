@@ -1,6 +1,7 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.compose.button
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,11 +20,19 @@ import net.mullvad.mullvadvpn.R
 
 @Composable
 fun ActionButton(
-    text: String,
     onClick: () -> Unit,
     colors: ButtonColors,
     modifier: Modifier = Modifier,
-    isEnabled: Boolean = true
+    text: String = "",
+    isEnabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit = {
+        Text(
+            text = text,
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
 ) {
     Button(
         onClick = onClick,
@@ -31,21 +40,16 @@ fun ActionButton(
         // Required along with defaultMinSize to control size and padding.
         contentPadding = PaddingValues(0.dp),
         modifier =
-            modifier
-                .height(dimensionResource(id = R.dimen.button_height))
-                .defaultMinSize(
-                    minWidth = 0.dp,
-                    minHeight = dimensionResource(id = R.dimen.button_height)
-                )
-                .fillMaxWidth(),
+        modifier
+            .height(dimensionResource(id = R.dimen.button_height))
+            .defaultMinSize(
+                minWidth = 0.dp,
+                minHeight = dimensionResource(id = R.dimen.button_height)
+            )
+            .fillMaxWidth(),
         colors = colors,
         shape = MaterialTheme.shapes.small
     ) {
-        Text(
-            text = text,
-            textAlign = TextAlign.Center,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
+        content()
     }
 }

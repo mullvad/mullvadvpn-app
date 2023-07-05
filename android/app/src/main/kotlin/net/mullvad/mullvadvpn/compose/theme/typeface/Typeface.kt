@@ -26,3 +26,13 @@ val Typography.listItemSubText: TextStyle
             fontSize = TypeScale.TextSmall
         )
     }
+
+val Typography.connectionStatus: TextStyle
+    @Composable
+    get() {
+        return TextStyle(
+            fontWeight = FontWeight.Bold,
+            letterSpacing = TextUnit.Unspecified,
+            fontSize = TypeScale.TextMedium
+        )
+    }
