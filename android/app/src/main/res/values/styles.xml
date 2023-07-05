@@ -38,9 +38,6 @@
     <style name="BlueButton" parent="Button">
         <item name="android:background">@drawable/blue_button_background</item>
     </style>
-    <style name="White20Button" parent="Button">
-        <item name="android:background">@drawable/white20_button_background</item>
-    </style>
     <style name="SettingsHeader">
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>

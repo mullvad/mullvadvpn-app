@@ -23,11 +23,16 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.combine
+import net.mullvad.mullvadvpn.util.toInAddress
+import net.mullvad.mullvadvpn.util.toOutAddress
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
-class ConnectViewModel(serviceConnectionManager: ServiceConnectionManager) : ViewModel() {
+class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionManager) :
+    ViewModel() {
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
@@ -64,7 +69,28 @@ class ConnectViewModel(serviceConnectionManager: ServiceConnectionManager) : Vie
                         versionInfo = versionInfo,
                         tunnelUiState = tunnelUiState,
                         tunnelRealState = tunnelRealState,
-                        isTunnelInfoExpanded = isTunnelInfoExpanded
+                        isTunnelInfoExpanded = isTunnelInfoExpanded,
+                        inAddress =
+                            when (tunnelRealState) {
+                                is TunnelState.Connected -> tunnelRealState.endpoint.toInAddress()
+                                is TunnelState.Connecting -> tunnelRealState.endpoint?.toInAddress()
+                                else -> null
+                            },
+                        outAddress = location?.toOutAddress() ?: "",
+                        showLocation =
+                            when (tunnelUiState) {
+                                is TunnelState.Disconnected -> true
+                                is TunnelState.Disconnecting -> {
+                                    when (tunnelUiState.actionAfterDisconnect) {
+                                        ActionAfterDisconnect.Nothing -> true
+                                        ActionAfterDisconnect.Block -> true
+                                        ActionAfterDisconnect.Reconnect -> false
+                                    }
+                                }
+                                is TunnelState.Connecting -> false
+                                is TunnelState.Connected -> false
+                                is TunnelState.Error -> true
+                            }
                     )
                 }
             }
@@ -90,6 +116,19 @@ class ConnectViewModel(serviceConnectionManager: ServiceConnectionManager) : Vie
 
     fun toggleTunnelInfoExpansion() {
         _isTunnelInfoExpanded.value = _isTunnelInfoExpanded.value.not()
+    }
+
+    fun onDisconnectClick() {
+        serviceConnectionManager.connectionProxy()?.disconnect()
+    }
+    fun onReconnectClick() {
+        serviceConnectionManager.connectionProxy()?.reconnect()
+    }
+    fun onConnectClick() {
+        serviceConnectionManager.connectionProxy()?.connect()
+    }
+    fun onCancelClick() {
+        serviceConnectionManager.connectionProxy()?.disconnect()
     }
 
     companion object {
