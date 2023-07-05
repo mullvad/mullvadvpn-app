@@ -8,4 +8,7 @@ object ContentType {
     const val DESCRIPTION = 4
     const val SPACER = 5
     const val PROGRESS = 6
+    const val DISCONNECT_BUTTON = 7
+    const val CONNECT_BUTTON = 8
+    const val SWITCH_LOCATION_BUTTON = 9
 }

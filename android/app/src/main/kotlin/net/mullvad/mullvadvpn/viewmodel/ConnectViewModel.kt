@@ -23,11 +23,13 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.combine
 
-class ConnectViewModel(serviceConnectionManager: ServiceConnectionManager) : ViewModel() {
+class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionManager) :
+    ViewModel() {
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
@@ -90,6 +92,19 @@ class ConnectViewModel(serviceConnectionManager: ServiceConnectionManager) : Vie
 
     fun toggleTunnelInfoExpansion() {
         _isTunnelInfoExpanded.value = _isTunnelInfoExpanded.value.not()
+    }
+
+    fun onDisconnectClick() {
+        serviceConnectionManager.connectionProxy()?.disconnect()
+    }
+    fun onReconnectClick() {
+        serviceConnectionManager.connectionProxy()?.reconnect()
+    }
+    fun onConnectClick() {
+        serviceConnectionManager.connectionProxy()?.connect()
+    }
+    fun onCancelClick() {
+        serviceConnectionManager.connectionProxy()?.disconnect()
     }
 
     companion object {

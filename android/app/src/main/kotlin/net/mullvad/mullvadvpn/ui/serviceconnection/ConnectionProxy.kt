@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.util.trySendRequest
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.util.EventNotifier
 
-val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
+const val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
 class ConnectionProxy(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     private var resetAnticipatedStateJob: Job? = null
