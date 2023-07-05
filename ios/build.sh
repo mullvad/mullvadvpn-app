@@ -106,6 +106,7 @@ release_build() {
     -sdk iphoneos \
     -configuration Release \
     -derivedDataPath "$DERIVED_DATA_DIR" \
+    -testPlan MullvadVPNCI \
     $@
 }
 
