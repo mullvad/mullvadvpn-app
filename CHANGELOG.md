@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
   hostname`. This is in addition to accepting a geographical location as basis
   for filtering relays.
 - Silence OpenVPN "replay attack" warnings.
+- Update Electron from 23.2.0 to 25.2.0.
 
 #### Windows
 - In the CLI, add a unified `mullvad split-tunnel get` command to replace the old commands

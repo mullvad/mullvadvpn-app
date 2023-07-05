@@ -288,8 +288,8 @@ export default class UserInterface implements WindowControllerDelegate {
           backgroundColor: '#fff',
         });
         const WM_DEVICECHANGE = 0x0219;
-        const DBT_DEVICEARRIVAL = 0x8000;
-        const DBT_DEVICEREMOVECOMPLETE = 0x8004;
+        const DBT_DEVICEARRIVAL = 0x8000n;
+        const DBT_DEVICEREMOVECOMPLETE = 0x8004n;
         appWindow.hookWindowMessage(WM_DEVICECHANGE, (wParam) => {
           const wParamL = wParam.readBigInt64LE(0);
           if (wParamL != DBT_DEVICEARRIVAL && wParamL != DBT_DEVICEREMOVECOMPLETE) {
@@ -376,7 +376,7 @@ export default class UserInterface implements WindowControllerDelegate {
     // add inspect element on right click menu
     this.windowController.window?.webContents.on(
       'context-menu',
-      (_e: Event, props: { x: number; y: number; isEditable: boolean }) => {
+      (_e: Electron.Event, props: { x: number; y: number; isEditable: boolean }) => {
         const inspectTemplate = [
           {
             label: 'Inspect element',
@@ -516,7 +516,7 @@ export default class UserInterface implements WindowControllerDelegate {
     this.windowController.window?.on('close', this.windowCloseHandler);
   }
 
-  private windowCloseHandler = (closeEvent: Event) => {
+  private windowCloseHandler = (closeEvent: Electron.Event) => {
     closeEvent.preventDefault();
     this.windowController.hide();
   };
