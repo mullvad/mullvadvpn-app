@@ -1,0 +1,46 @@
+{
+  "configurations" : [
+    {
+      "id" : "09D135C9-74DF-449C-AA90-9BDB4F4E3023",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:MullvadVPN.xcodeproj",
+      "identifier" : "58CE5E5F224146200008646E",
+      "name" : "MullvadVPN"
+    },
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "58B0A29F238EE67E00BC001D",
+        "name" : "MullvadVPNTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "58FBFBE5291622580020E046",
+        "name" : "MullvadRESTTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "589A455128E094B300565204",
+        "name" : "OperationsTests"
+      }
+    }
+  ],
+  "version" : 1
+}
