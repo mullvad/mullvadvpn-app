@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.talpid.util.EventNotifier
 import org.junit.After
@@ -69,6 +71,7 @@ class ConnectViewModelTest {
     @Before
     fun setup() {
         mockkStatic(CACHE_EXTENSION_CLASS)
+        mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
 
         mockAppVersionInfoCache =
             mockk<AppVersionInfoCache>().apply {
@@ -216,7 +219,45 @@ class ConnectViewModelTest {
             }
         }
 
+    @Test
+    fun testOnDisconnectClick() =
+        runTest(testCoroutineRule.testDispatcher) {
+            val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+            every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
+            viewModel.onDisconnectClick()
+            verify { mockConnectionProxy.disconnect() }
+        }
+
+    @Test
+    fun testOnReconnectClick() =
+        runTest(testCoroutineRule.testDispatcher) {
+            val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+            every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
+            viewModel.onReconnectClick()
+            verify { mockConnectionProxy.reconnect() }
+        }
+
+    @Test
+    fun testOnConnectClick() =
+        runTest(testCoroutineRule.testDispatcher) {
+            val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+            every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
+            viewModel.onConnectClick()
+            verify { mockConnectionProxy.connect() }
+        }
+
+    @Test
+    fun testOnCancelClick() =
+        runTest(testCoroutineRule.testDispatcher) {
+            val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+            every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
+            viewModel.onCancelClick()
+            verify { mockConnectionProxy.disconnect() }
+        }
+
     companion object {
         private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"
+        private const val SERVICE_CONNECTION_MANAGER_EXTENSIONS =
+            "net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManagerExtensionsKt"
     }
 }
