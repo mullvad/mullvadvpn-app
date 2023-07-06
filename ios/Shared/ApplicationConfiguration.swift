@@ -28,6 +28,9 @@ enum ApplicationConfiguration {
     /// Privacy policy URL.
     static let privacyPolicyURL = URL(string: "https://mullvad.net/help/privacy-policy/")!
 
+    /// Make a start regarding  policy URL.
+    static let privacyGuidesURL = URL(string: "https://mullvad.net/help/first-steps-towards-online-privacy/")!
+
     /// FAQ & Guides URL.
     static let faqAndGuidesURL = URL(string: "https://mullvad.net/help/tag/mullvad-app/")!
 

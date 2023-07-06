@@ -43,6 +43,9 @@ struct StoredAccountData: Codable, Equatable {
     /// Account expiry.
     var expiry: Date
 
+    /// be set `true` when account is created and  be flipped to `false` when user adds more credit
+    var isNew = false
+
     /// Returns `true` if account has expired.
     var isExpired: Bool {
         expiry <= Date()

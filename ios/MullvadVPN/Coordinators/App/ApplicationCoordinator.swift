@@ -155,6 +155,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         case .main:
             presentMain(animated: animated, completion: completion)
+
+        case .welcome:
+            presentWelcome(animated: animated, completion: completion)
+
+        case .setupAccountCompleted:
+            presentSetupAccountCompleted(animated: animated, completion: completion)
         }
     }
 
@@ -180,8 +186,17 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             let dismissedRoute = context.dismissedRoutes.first!
             assert(context.dismissedRoutes.count == 1)
 
-            if case .outOfTime = dismissedRoute.route {
+            if dismissedRoute.route == .outOfTime {
                 let coordinator = dismissedRoute.coordinator as! OutOfTimeCoordinator
+
+                coordinator.popFromNavigationStack(
+                    animated: context.isAnimated,
+                    completion: completion
+                )
+
+                coordinator.removeFromParent()
+            } else if dismissedRoute.route == .welcome {
+                let coordinator = dismissedRoute.coordinator as! WelcomeCoordinator
 
                 coordinator.popFromNavigationStack(
                     animated: context.isAnimated,
@@ -293,7 +308,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             return .login
 
         case let .loggedIn(accountData, _):
-            return accountData.isExpired ? .outOfTime : .main
+            return accountData.isExpired ? (accountData.isNew ? .welcome : .outOfTime) : .main
         }
     }
 
@@ -306,7 +321,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func didDismissAccount(_ reason: AccountDismissReason) {
         if isPad {
             router.dismiss(.account, animated: true)
-
             if reason == .userLoggedOut {
                 router.dismissAll(.primary, animated: true)
                 continueFlow(animated: true)
@@ -316,7 +330,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 router.dismissAll(.primary, animated: false)
                 continueFlow(animated: false)
             }
-
             router.dismiss(.account, animated: true)
         }
     }
@@ -553,6 +566,46 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
+    private func presentWelcome(animated: Bool, completion: @escaping (Coordinator) -> Void) {
+        let coordinator = WelcomeCoordinator(
+            navigationController: horizontalFlowController,
+            storePaymentManager: storePaymentManager,
+            tunnelManager: tunnelManager
+        )
+
+        coordinator.didFinishPayment = { [weak self] coordinator in
+            guard let self else { return }
+            if shouldDismissOutOfTime() {
+                router.dismiss(.welcome, animated: false)
+                continueFlow(animated: false)
+            }
+        }
+
+        addChild(coordinator)
+        coordinator.start(animated: animated)
+
+        beginHorizontalFlow(animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentSetupAccountCompleted(animated: Bool, completion: @escaping (Coordinator) -> Void) {
+        let coordinator = SetupAccountCompletedCoordinator(navigationController: horizontalFlowController)
+
+        coordinator.didFinish = { [weak self] coordinator in
+            guard let self else { return }
+            coordinator.removeFromParent()
+            continueFlow(animated: false)
+        }
+
+        addChild(coordinator)
+        coordinator.start(animated: animated)
+
+        beginHorizontalFlow(animated: animated) {
+            completion(coordinator)
+        }
+    }
+
     private func shouldDismissOutOfTime() -> Bool {
         !(tunnelManager.deviceState.accountData?.isExpired ?? false)
     }
@@ -631,6 +684,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         coordinator.didFinish = { [weak self] coordinator, reason in
             self?.didDismissAccount(reason)
+        }
+
+        coordinator.didAddMoreCredit = { [weak self] coordinator, option in
+            guard let self,
+                  self.isPresentingWelcome else { return }
+            self.router.dismiss(.welcome)
+            self.router.present(.setupAccountCompleted)
         }
 
         coordinator.start(animated: animated)
@@ -712,22 +772,24 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         switch deviceState {
         case let .loggedIn(accountData, _):
-            updateOutOfTimeTimer(accountData: accountData)
+
+            // It is already at creation account wizard
+            guard !isPresentingWelcome && !accountData.isNew else { return }
 
             // Handle transition to and from expired state.
-            let accountWasExpired = previousDeviceState.accountData?.isExpired ?? false
-            switch (accountWasExpired, accountData.isExpired) {
+            switch (previousDeviceState.accountData?.isExpired ?? false, accountData.isExpired) {
+            // add more credit
             case (true, false):
+                updateOutOfTimeTimer(accountData: accountData)
                 continueFlow(animated: true)
                 router.dismiss(.outOfTime, animated: true)
-
+            // account was expired
             case (false, true):
                 router.present(.outOfTime, animated: true)
 
             default:
                 break
             }
-
         case .revoked:
             cancelOutOfTimeTimer()
             router.present(.revoked, animated: true)
@@ -737,21 +799,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func updateDeviceInfo(deviceState: DeviceState) {
-        switch deviceState {
-        case let .loggedIn(storedAccountData, _):
-            let configuration = RootConfiguration(
-                deviceName: deviceState.deviceData?.capitalizedName,
-                expiry: (isPresentingAccountExpiryBanner || storedAccountData.isExpired)
-                    ? nil
-                    : deviceState.accountData?.expiry,
-                showsAccountButton: true
-            )
-            primaryNavigationContainer.update(configuration: configuration)
-            secondaryNavigationContainer.update(configuration: configuration)
-        case .loggedOut, .revoked:
-            primaryNavigationContainer.hideDeviceInfo()
-            secondaryNavigationContainer.hideDeviceInfo()
-        }
+        let rootDeviceInfoViewModel = RootDeviceInfoViewModel(
+            isPresentingAccountExpiryBanner: isPresentingAccountExpiryBanner,
+            deviceState: deviceState
+        )
+        primaryNavigationContainer.update(configuration: rootDeviceInfoViewModel.configuration)
+        secondaryNavigationContainer.update(configuration: rootDeviceInfoViewModel.configuration)
     }
 
     // MARK: - Out of time
@@ -788,12 +841,17 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     /// Returns `true` if settings are being presented.
     var isPresentingSettings: Bool {
-        router.isPresenting(.settings)
+        router.isPresenting(group: .settings)
     }
 
     /// Returns `true` if account controller is being presented.
     var isPresentingAccount: Bool {
-        router.isPresenting(.account)
+        router.isPresenting(group: .account)
+    }
+
+    /// Returns `true` if welcome controller is being presented.
+    private var isPresentingWelcome: Bool {
+        router.isPresenting(route: .welcome)
     }
 
     // MARK: - UISplitViewControllerDelegate
@@ -903,5 +961,18 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
         isLoggedIn ? .allVisible : .secondaryOnly
+    }
+}
+
+struct RootDeviceInfoViewModel {
+    let configuration: RootConfiguration
+    init(isPresentingAccountExpiryBanner: Bool, deviceState: DeviceState) {
+        configuration = RootConfiguration(
+            deviceName: deviceState.deviceData?.capitalizedName,
+            expiry: (isPresentingAccountExpiryBanner || (deviceState.accountData?.isExpired ?? true))
+                ? nil
+                : deviceState.accountData?.expiry,
+            showsAccountButton: deviceState.isLoggedIn
+        )
     }
 }

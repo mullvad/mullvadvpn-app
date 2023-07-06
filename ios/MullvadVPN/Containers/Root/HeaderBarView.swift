@@ -106,6 +106,12 @@ class HeaderBarView: UIView {
         }
     }
 
+    var isHiddenDeviceInfo = false {
+        didSet {
+            deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = isHiddenDeviceInfo }
+        }
+    }
+
     private var isAccountButtonHidden = false {
         didSet {
             accountButton.isHidden = isAccountButtonHidden
@@ -115,7 +121,6 @@ class HeaderBarView: UIView {
     private var timeLeft: Date? {
         didSet {
             if let timeLeft {
-                timeLeftLabel.isHidden = false
                 let formattedTimeLeft = NSLocalizedString(
                     "TIME_LEFT_HEADER_VIEW",
                     tableName: "Account",
@@ -131,7 +136,7 @@ class HeaderBarView: UIView {
                     ) ?? ""
                 )
             } else {
-                timeLeftLabel.isHidden = true
+                timeLeftLabel.text = ""
             }
         }
     }
@@ -139,7 +144,6 @@ class HeaderBarView: UIView {
     private var deviceName: String? {
         didSet {
             if let deviceName {
-                deviceNameLabel.isHidden = false
                 let formattedDeviceName = NSLocalizedString(
                     "DEVICE_NAME_HEADER_VIEW",
                     tableName: "Account",
@@ -148,7 +152,7 @@ class HeaderBarView: UIView {
                 )
                 deviceNameLabel.text = String(format: formattedDeviceName, deviceName)
             } else {
-                deviceNameLabel.isHidden = true
+                deviceNameLabel.text = ""
             }
         }
     }

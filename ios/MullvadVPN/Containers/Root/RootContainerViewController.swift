@@ -41,6 +41,22 @@ protocol RootContainment {
 
     /// Return true if the view controller prefers header bar hidden
     var prefersHeaderBarHidden: Bool { get }
+
+    /// Return true if the view controller prefers notification bar hidden
+    var prefersNotificationBarHidden: Bool { get }
+
+    /// Return true if the view controller prefers device info bar hidden
+    var prefersDeviceInfoBarHidden: Bool { get }
+}
+
+extension RootContainment {
+    var prefersNotificationBarHidden: Bool {
+        false
+    }
+
+    var prefersDeviceInfoBarHidden: Bool {
+        false
+    }
 }
 
 protocol RootContainerViewControllerDelegate: AnyObject {
@@ -495,6 +511,8 @@ class RootContainerViewController: UIViewController {
         let alongSideAnimations = {
             self.updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
             self.updateHeaderBarHiddenFromChildPreferences(animated: shouldAnimate)
+            self.updatePrefersNotificationBarHiddenFromChildPreferences()
+            self.updateDeviceInfoBarHiddenFromChildPreferences()
         }
 
         // Add new child controllers. The call to addChild() automatically calls child.willMove()
@@ -645,6 +663,21 @@ class RootContainerViewController: UIViewController {
         }
     }
 
+    private func updateDeviceInfoBarHiddenFromChildPreferences() {
+        if let conforming = topViewController as? RootContainment {
+            headerBarView.isHiddenDeviceInfo = conforming.prefersDeviceInfoBarHidden
+        }
+    }
+
+    private func updatePrefersNotificationBarHiddenFromChildPreferences() {
+        if let notificationController,
+           let child = topViewController as? RootContainment {
+            child.prefersNotificationBarHidden
+                ? removeNotificationController(notificationController)
+                : addNotificationController(notificationController)
+        }
+    }
+
     private func updateHeaderBarHiddenFromChildPreferences(animated: Bool) {
         guard overrideHeaderBarHidden == nil else { return }
 
@@ -787,9 +820,5 @@ extension RootContainerViewController {
         self.configuration = configuration
         presentationContainerAccountButton?.isHidden = !configuration.showsAccountButton
         headerBarView.update(configuration: configuration)
-    }
-
-    func hideDeviceInfo() {
-        update(configuration: RootConfiguration(showsAccountButton: false))
     }
 }
