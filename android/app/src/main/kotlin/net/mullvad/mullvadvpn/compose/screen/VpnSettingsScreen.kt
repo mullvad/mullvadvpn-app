@@ -51,8 +51,10 @@ import net.mullvad.mullvadvpn.compose.cell.ExpandableComposeCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
+import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
+import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -274,11 +276,13 @@ fun VpnSettingsScreen(
                 Spacer(modifier = Modifier.height(cellVerticalSpacing))
                 HeaderSwitchComposeCell(
                     title = stringResource(R.string.auto_connect),
-                    subtitle = stringResource(id = R.string.auto_connect_footer),
                     isToggled = uiState.isAutoConnectEnabled,
                     isEnabled = true,
                     onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
                 )
+            }
+            item {
+                SwitchComposeSubtitleCell(text = stringResource(id = R.string.auto_connect_footer))
             }
             item {
                 Spacer(modifier = Modifier.height(cellVerticalSpacing))
@@ -294,6 +298,7 @@ fun VpnSettingsScreen(
                 Spacer(modifier = Modifier.height(cellVerticalSpacing))
                 MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() })
             }
+            item { MtuSubtitle() }
 
             itemWithDivider {
                 ExpandableComposeCell(
@@ -493,7 +498,6 @@ fun VpnSettingsScreen(
                             )
                         },
                         bodyView = {},
-                        subtitle = null,
                         background = MaterialTheme.colorScheme.secondaryContainer,
                         startPadding = biggerPadding,
                     )

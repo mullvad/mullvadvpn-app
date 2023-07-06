@@ -32,8 +32,7 @@ fun NavigationComposeCell(
     BaseCell(
         onCellClicked = onClick,
         title = { NavigationTitleView(title = title, modifier = modifier) },
-        bodyView = { bodyView() },
-        subtitle = null,
+        bodyView = { bodyView() }
     )
 }
 

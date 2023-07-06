@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.QuantumResistantState
-import net.mullvad.mullvadvpn.onNodeWithTagAndChildrenText
+import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.StagedDns
 import org.junit.Before
@@ -565,7 +565,7 @@ class VpnSettingsScreenTest {
 
         // Assert
         composeTestRule
-            .onNodeWithTagAndChildrenText(testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG, text = "On")
+            .onNodeWithTagAndText(testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG, text = "On")
             .assertExists()
     }
 
@@ -590,7 +590,7 @@ class VpnSettingsScreenTest {
 
         // Assert
         composeTestRule
-            .onNodeWithTagAndChildrenText(testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG, text = "On")
+            .onNodeWithTagAndText(testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG, text = "On")
             .performClick()
         verify(exactly = 1) {
             mockSelectQuantumResistantSettingListener.invoke(QuantumResistantState.On)
@@ -631,7 +631,7 @@ class VpnSettingsScreenTest {
 
         // Assert
         composeTestRule
-            .onNodeWithTagAndChildrenText(
+            .onNodeWithTagAndText(
                 testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
                 text = "51820"
             )
@@ -661,7 +661,7 @@ class VpnSettingsScreenTest {
 
         // Assert
         composeTestRule
-            .onNodeWithTagAndChildrenText(
+            .onNodeWithTagAndText(
                 testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 51820),
                 text = "51820"
             )
