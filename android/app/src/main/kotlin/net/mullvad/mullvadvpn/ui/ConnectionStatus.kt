@@ -21,7 +21,7 @@ class ConnectionStatus(parentView: View, context: Context) {
                 when (state.actionAfterDisconnect) {
                     ActionAfterDisconnect.Nothing -> disconnected()
                     ActionAfterDisconnect.Block -> connected(false)
-                    ActionAfterDisconnect.Reconnect -> connecting(state.isSecured())
+                    ActionAfterDisconnect.Reconnect -> connecting(false)
                 }
             }
             is TunnelState.Disconnected -> disconnected()
