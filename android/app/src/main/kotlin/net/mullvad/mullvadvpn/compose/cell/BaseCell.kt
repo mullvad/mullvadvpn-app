@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -59,58 +59,37 @@ internal fun BaseCell(
     bodyView: @Composable () -> Unit = {},
     isRowEnabled: Boolean = true,
     onCellClicked: () -> Unit = {},
-    subtitle: @Composable (() -> Unit)? = null,
-    subtitleModifier: Modifier = Modifier,
     background: Color = MaterialTheme.colorScheme.primary,
     startPadding: Dp = Dimens.cellStartPadding,
     endPadding: Dp = Dimens.cellEndPadding,
+    minHeight: Dp = Dimens.cellHeight,
     testTag: String = ""
 ) {
-    Column(
+    val rowModifier =
+        Modifier.let {
+            if (isRowEnabled) {
+                it.clickable { onCellClicked() }
+            } else it
+        }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
         modifier =
-            Modifier.fillMaxWidth().wrapContentHeight().background(background).testTag(testTag)
+            rowModifier
+                .wrapContentHeight()
+                .defaultMinSize(minHeight = minHeight)
+                .fillMaxWidth()
+                .background(background)
+                .testTag(testTag)
+                .padding(start = startPadding, end = endPadding)
     ) {
-        val rowModifier =
-            Modifier.let {
-                if (isRowEnabled) {
-                    it.clickable { onCellClicked() }
-                } else it
-            }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start,
-            modifier =
-                rowModifier
-                    .height(Dimens.cellHeight)
-                    .fillMaxWidth()
-                    .padding(start = startPadding, end = endPadding)
-        ) {
-            iconView()
+        iconView()
 
-            title()
+        title()
 
-            Spacer(modifier = Modifier.weight(1.0f))
+        Spacer(modifier = Modifier.weight(1.0f))
 
-            Column(modifier = modifier.wrapContentWidth().wrapContentHeight()) { bodyView() }
-        }
-
-        if (subtitle != null) {
-            Row(
-                modifier =
-                    subtitleModifier
-                        .background(MaterialTheme.colorScheme.secondary)
-                        .padding(
-                            start = startPadding,
-                            top = Dimens.cellFooterTopPadding,
-                            end = endPadding,
-                            bottom = Dimens.cellLabelVerticalPadding
-                        )
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-            ) {
-                subtitle()
-            }
-        }
+        Column(modifier = modifier.wrapContentWidth().wrapContentHeight()) { bodyView() }
     }
 }
 
@@ -122,5 +101,24 @@ internal fun BaseCellTitle(title: String, style: TextStyle, modifier: Modifier =
         style = style,
         color = MaterialTheme.colorScheme.onPrimary,
         modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()
+    )
+}
+
+@Composable
+fun BaseSubtitleCell(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSecondary,
+        modifier =
+            modifier
+                .padding(
+                    start = Dimens.cellStartPadding,
+                    top = Dimens.cellFooterTopPadding,
+                    end = Dimens.cellEndPadding,
+                    bottom = Dimens.cellLabelVerticalPadding
+                )
+                .fillMaxWidth()
+                .wrapContentHeight()
     )
 }
