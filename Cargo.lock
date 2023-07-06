@@ -913,7 +913,7 @@ checksum = "37ae3fc31835f74c2a7ceda3aeede378b0ae2e74c8f1c36559fcc9ae2a4e7d3e"
 dependencies = [
  "libc",
  "once_cell",
- "os_pipe 1.1.4",
+ "os_pipe",
  "shared_child",
 ]
 
@@ -2491,16 +2491,6 @@ dependencies = [
 
 [[package]]
 name = "os_pipe"
-version = "0.9.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb233f06c2307e1f5ce2ecad9f8121cffbbee2c95428f44ea85222e460d0d213"
-dependencies = [
- "libc",
- "winapi",
-]
-
-[[package]]
-name = "os_pipe"
 version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ae859aa07428ca9a929b936690f8b12dc5f11dd8c6992a18ca93919f28bc177"
@@ -3667,7 +3657,7 @@ dependencies = [
  "nftnl",
  "nix 0.23.1",
  "once_cell",
- "os_pipe 0.9.2",
+ "os_pipe",
  "parity-tokio-ipc",
  "parking_lot",
  "pfctl",
@@ -3732,7 +3722,7 @@ dependencies = [
  "is-terminal",
  "lazy_static",
  "log",
- "os_pipe 0.9.2",
+ "os_pipe",
  "parity-tokio-ipc",
  "parking_lot",
  "prost",
