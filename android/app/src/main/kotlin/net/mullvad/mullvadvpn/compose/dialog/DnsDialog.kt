@@ -9,9 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -127,13 +128,14 @@ fun DnsDialog(
                             .fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
-                            backgroundColor = MullvadBlue,
+                            containerColor = MullvadBlue,
                             contentColor = MullvadWhite,
                             disabledContentColor = MullvadWhite60,
-                            disabledBackgroundColor = MullvadWhite20
+                            disabledContainerColor = MullvadWhite20
                         ),
                     onClick = { onAttemptToSave() },
-                    enabled = stagedDns.isValid()
+                    enabled = stagedDns.isValid(),
+                    shape = MaterialTheme.shapes.small
                 ) {
                     Text(
                         text = stringResource(id = R.string.submit_button),
@@ -150,10 +152,11 @@ fun DnsDialog(
                                 .fillMaxWidth(),
                         colors =
                             ButtonDefaults.buttonColors(
-                                backgroundColor = MullvadBlue,
+                                containerColor = MullvadBlue,
                                 contentColor = MullvadWhite
                             ),
-                        onClick = { onRemove() }
+                        onClick = { onRemove() },
+                        shape = MaterialTheme.shapes.small
                     ) {
                         Text(
                             text = stringResource(id = R.string.remove_button),
@@ -170,10 +173,11 @@ fun DnsDialog(
                             .fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
-                            backgroundColor = MullvadBlue,
+                            containerColor = MullvadBlue,
                             contentColor = Color.White
                         ),
-                    onClick = { onDismiss() }
+                    onClick = { onDismiss() },
+                    shape = MaterialTheme.shapes.small
                 ) {
                     Text(text = stringResource(id = R.string.cancel), fontSize = textMediumSize)
                 }

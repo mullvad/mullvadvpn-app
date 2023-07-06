@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -105,7 +105,7 @@ fun PrivacyDisclaimerScreen(
                 colors =
                     ButtonDefaults.buttonColors(
                         contentColor = Color.White,
-                        backgroundColor = colorResource(R.color.blue)
+                        containerColor = colorResource(R.color.blue)
                     )
             )
         }

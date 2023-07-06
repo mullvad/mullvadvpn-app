@@ -9,9 +9,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -114,13 +115,14 @@ fun MtuDialog(
                         Modifier.padding(top = mediumPadding).height(buttonSize).fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
-                            backgroundColor = MullvadBlue,
+                            containerColor = MullvadBlue,
                             contentColor = MullvadWhite,
                             disabledContentColor = MullvadWhite60,
-                            disabledBackgroundColor = MullvadWhite20
+                            disabledContainerColor = MullvadWhite20
                         ),
                     enabled = isValidMtu,
-                    onClick = { onSave() }
+                    onClick = { onSave() },
+                    shape = MaterialTheme.shapes.small
                 ) {
                     Text(text = stringResource(R.string.submit_button), fontSize = textMediumSize)
                 }
@@ -133,10 +135,11 @@ fun MtuDialog(
                             .fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
-                            backgroundColor = MullvadBlue,
+                            containerColor = MullvadBlue,
                             contentColor = MullvadWhite
                         ),
-                    onClick = { onRestoreDefaultValue() }
+                    onClick = { onRestoreDefaultValue() },
+                    shape = MaterialTheme.shapes.small
                 ) {
                     Text(
                         text = stringResource(R.string.reset_to_default_button),
@@ -152,10 +155,11 @@ fun MtuDialog(
                             .fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
-                            backgroundColor = MullvadBlue,
+                            containerColor = MullvadBlue,
                             contentColor = Color.White
                         ),
-                    onClick = { onDismiss() }
+                    onClick = { onDismiss() },
+                    shape = MaterialTheme.shapes.small
                 ) {
                     Text(text = stringResource(R.string.cancel), fontSize = textMediumSize)
                 }
