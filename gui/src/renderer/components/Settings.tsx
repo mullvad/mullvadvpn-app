@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 import { colors, links } from '../../config.json';
 import { messages } from '../../shared/gettext';
@@ -22,13 +22,6 @@ import {
 
 export default function Support() {
   const history = useHistory();
-  const { updateAccountData } = useAppContext();
-
-  useEffect(() => {
-    if (history.action === 'PUSH') {
-      updateAccountData();
-    }
-  }, []);
 
   const loginState = useSelector((state) => state.account.status);
   const connectedToDaemon = useSelector((state) => state.userInterface.connectedToDaemon);
