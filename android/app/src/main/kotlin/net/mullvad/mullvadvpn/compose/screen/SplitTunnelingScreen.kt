@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SplitTunnelingCell
-import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
+import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
@@ -36,7 +36,6 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
-import org.koin.androidx.compose.get
 
 @Preview
 @Composable
@@ -86,7 +85,7 @@ fun SplitTunnelingScreen(
     val progress = state.toolbarState.progress
     val lazyListState = rememberLazyListState()
 
-    CollapsableAwareToolbarScaffold(
+    CollapsingToolbarScaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize(),
         state = state,
