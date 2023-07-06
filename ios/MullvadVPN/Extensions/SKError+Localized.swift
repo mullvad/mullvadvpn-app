@@ -29,7 +29,7 @@ extension SKError: LocalizedError {
             return NSLocalizedString(
                 "PAYMENT_CANCELLED",
                 tableName: "StoreKitErrors",
-                value: "User cancelled the request.",
+                value: "The payment request was cancelled.",
                 comment: ""
             )
         case .paymentInvalid:
