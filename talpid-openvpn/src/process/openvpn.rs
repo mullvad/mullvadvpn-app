@@ -363,17 +363,20 @@ impl fmt::Display for OpenVpnCommand {
     }
 }
 
-/// Proc handle for an openvpn process
+/// Handle to a running OpenVPN process.
 pub struct OpenVpnProcHandle {
     /// Duct handle
     pub inner: duct::Handle,
-    /// Standard input handle
+    /// Pipe handle to stdin of the OpenVPN process. Our custom fork of OpenVPN
+    /// has been changed so that it exits cleanly when stdin is closed. This is a hack
+    /// solution to cleanly shut OpenVPN down without using the
+    /// management interface (which would be the correct thing to do).
     pub stdin: Mutex<Option<PipeWriter>>,
 }
 
-/// Impl for proc handle
 impl OpenVpnProcHandle {
-    /// Constructor for a new openvpn proc handle
+    /// Configures the expression to run OpenVPN in a way compatible with this handle
+    /// and spawns it. Returns the handle.
     pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
         use is_terminal::IsTerminal;
 
@@ -396,10 +399,9 @@ impl OpenVpnProcHandle {
 }
 
 impl StoppableProcess for OpenVpnProcHandle {
-    /// Closes STDIN to stop the openvpn process
     fn stop(&self) {
         // Dropping our stdin handle so that it is closed once. Closing the handle should
-        // gracefully stop our openvpn child process.
+        // gracefully stop our OpenVPN child process.
         if self.stdin.lock().take().is_none() {
             log::warn!("Tried to close OpenVPN stdin handle twice, this is a bug");
         }
