@@ -36,7 +36,8 @@ enum UIMetrics {
 
     enum RedeemVoucher {
         static let cornerRadius = 8.0
-        static let preferredContentSize = CGSize(width: 292, height: 263)
+        static let preferredContentSize = CGSize(width: 300, height: 280)
+        static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0)
     }
 
     enum Button {
@@ -110,4 +111,9 @@ extension UIMetrics {
 
     /// Height of brand name. Width is automatically produced based on aspect ratio.
     static let headerBarBrandNameHeight: CGFloat = 18
+
+    /// padding
+    static let padding8: CGFloat = 8
+    static let padding16: CGFloat = 16
+    static let padding24: CGFloat = 24
 }

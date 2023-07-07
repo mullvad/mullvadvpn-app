@@ -85,7 +85,7 @@ enum AppRoute: Equatable, Hashable {
     /**
      Routes that are part of primary horizontal navigation group.
      */
-    case tos, changelog, login, main, revoked, outOfTime
+    case tos, changelog, login, main, revoked, outOfTime, welcome, setupAccountCompleted
 
     /**
      Returns `true` when only one route of a kind can be displayed.
@@ -115,7 +115,7 @@ enum AppRoute: Equatable, Hashable {
      */
     var routeGroup: AppRouteGroup {
         switch self {
-        case .tos, .changelog, .login, .main, .revoked, .outOfTime:
+        case .tos, .changelog, .login, .main, .revoked, .outOfTime, .welcome, .setupAccountCompleted:
             return .primary
         case .selectLocation:
             return .selectLocation
@@ -346,8 +346,18 @@ final class ApplicationRouter {
     /**
      Returns `true` is the given route group is currently being presented.
      */
-    func isPresenting(_ group: AppRouteGroup) -> Bool {
+    func isPresenting(group: AppRouteGroup) -> Bool {
         modalStack.contains(group)
+    }
+
+    /**
+     Returns `true` is the given route  is currently being presented.
+     */
+    func isPresenting(route: AppRoute) -> Bool {
+        guard let presentedRoute = presentedRoutes[route.routeGroup] else {
+            return false
+        }
+        return presentedRoute.contains(where: { $0.route == route })
     }
 
     /**
