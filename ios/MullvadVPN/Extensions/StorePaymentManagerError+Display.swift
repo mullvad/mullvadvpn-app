@@ -80,7 +80,11 @@ extension StorePaymentManagerError: DisplayError {
             return errorString
 
         case let .storePayment(storeError):
-            return (storeError as? SKError)?.errorDescription ?? storeError.localizedDescription
+            guard let error = storeError as? SKError else { return storeError.localizedDescription }
+            if error.code.rawValue == 0, error.underlyingErrorChain.map({ $0 as NSError }).first?.code == 825 {
+                return SKError(.paymentCancelled).errorDescription
+            }
+            return SKError(error.code).errorDescription
         }
     }
 }
