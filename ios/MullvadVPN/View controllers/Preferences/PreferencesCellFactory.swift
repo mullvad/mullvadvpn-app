@@ -237,6 +237,14 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             cell.onReturnKey = { cell in
                 cell.endEditing(false)
             }
+
+        case .dnsServerInfo:
+            guard let cell = cell as? SettingsDNSInfoCell else { return }
+
+            cell.titleLabel.attributedText = viewModel.customDNSPrecondition.attributedLocalizedDescription(
+                isEditing: isEditing,
+                preferredFont: .systemFont(ofSize: 14)
+            )
         }
     }
 
