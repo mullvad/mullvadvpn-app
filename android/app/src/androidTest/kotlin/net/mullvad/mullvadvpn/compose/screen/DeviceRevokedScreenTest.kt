@@ -4,15 +4,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.mockk.MockKAnnotations
-import io.mockk.Runs
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
-import io.mockk.just
+import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
-import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,21 +15,18 @@ import org.junit.Test
 class DeviceRevokedScreenTest {
     @get:Rule val composeTestRule = createComposeRule()
 
-    @MockK lateinit var mockedViewModel: DeviceRevokedViewModel
-
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        every { mockedViewModel.onGoToLoginClicked() } just Runs
     }
 
     @Test
     fun testUnblockWarningShowingWhenSecured() {
         // Arrange
-        every { mockedViewModel.uiState } returns MutableStateFlow(DeviceRevokedUiState.SECURED)
+        val state = DeviceRevokedUiState.SECURED
 
         // Act
-        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(mockedViewModel) } }
+        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(state) } }
 
         // Assert
         composeTestRule.onNodeWithText(UNBLOCK_WARNING).assertExists()
@@ -43,10 +35,10 @@ class DeviceRevokedScreenTest {
     @Test
     fun testUnblockWarningNotShowingWhenNotSecured() {
         // Arrange
-        every { mockedViewModel.uiState } returns MutableStateFlow(DeviceRevokedUiState.UNSECURED)
+        val state = DeviceRevokedUiState.UNSECURED
 
         // Act
-        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(mockedViewModel) } }
+        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(state) } }
 
         // Assert
         composeTestRule.onNodeWithText(UNBLOCK_WARNING).assertDoesNotExist()
@@ -55,14 +47,19 @@ class DeviceRevokedScreenTest {
     @Test
     fun testGoToLogin() {
         // Arrange
-        every { mockedViewModel.uiState } returns MutableStateFlow(DeviceRevokedUiState.UNSECURED)
-        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(mockedViewModel) } }
+        val state = DeviceRevokedUiState.UNSECURED
+        val mockOnGoToLoginClicked: () -> Unit = mockk(relaxed = true)
+        composeTestRule.setContent {
+            AppTheme {
+                DeviceRevokedScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
+            }
+        }
 
         // Act
         composeTestRule.onNodeWithText(GO_TO_LOGIN_BUTTON_TEXT).performClick()
 
         // Assert
-        verify { mockedViewModel.onGoToLoginClicked() }
+        verify { mockOnGoToLoginClicked.invoke() }
     }
 
     companion object {
