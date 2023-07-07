@@ -43,6 +43,11 @@ enum UIMetrics {
     enum Button {
         static let barButtonSize: CGFloat = 44.0
     }
+
+    enum SettingsCell {
+        static let textFieldContentInsets = UIEdgeInsets(top: 8, left: 24, bottom: 8, right: 24)
+        static let textFieldNonEditingContentInsetLeft: CGFloat = 40
+    }
 }
 
 extension UIMetrics {
