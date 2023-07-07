@@ -4,7 +4,6 @@ import path from 'path';
 import { sprintf } from 'sprintf-js';
 import { promisify } from 'util';
 
-import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
 import { IAccountData, ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
@@ -325,10 +324,7 @@ export default class UserInterface implements WindowControllerDelegate {
       // cancel notifications when window appears
       this.delegate.dismissActiveNotifications();
 
-      const accountData = this.delegate.getAccountData();
-      if (!accountData || closeToExpiry(accountData.expiry, 4) || hasExpired(accountData.expiry)) {
-        this.delegate.updateAccountData();
-      }
+      this.delegate.updateAccountData();
     });
 
     this.windowController.window?.on('blur', () => {
