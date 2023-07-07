@@ -6,6 +6,12 @@
 - Endpoint - a combination of a socket address and the transport protocol
 - Transport protocol - TCP or UDP
 - Tunnel protocol - WireGuard or OpenVPN
+- Obfuscation - Putting WireGuard, OpenVPN or API traffic inside a protocol designed to make it
+  harder to fingerprint or block the contained traffic. This is used to circumvent censorship.
+  Mullvad hosts many different obfuscation protocols. Some are hosted directly on the VPN relays,
+  but most are hosted on separate bridge servers. Even if most obfuscation protocols used include
+  encryption, that encryption is not to be treated as secure. We only use the obfuscation protocol
+  for its obfuscating properties, not for any security properties it might have.
 
 # Relay selector
 
@@ -14,7 +20,7 @@ into account certain user-configurable criteria.  Relays can be filtered by thei
 (country, city, hostname), by the protocols and ports they support (transport protocol, tunnel
 protocol, port), and by other constraints.  The constraints are user specified and stored in the
 settings. The default value for location constraints restricts relay selection to relays from Sweden.
-The default protocol constraints default to _auto_, which implies specific behavior.
+The default protocol constraints default to _Auto_, which implies specific behavior.
 
 Generally, the filtering process consists of going through each relay in our relay list and
 removing relay and endpoint combinations that do not match the constraints outlined above. The
@@ -53,10 +59,22 @@ constraints, following default ones will take effect:
     The client's decision will persist over time.
     If the client decides to use WireGuard it will have the same behavior as MacOS and Linux.
 
-- If the tunnel protocol is specified as WireGuard without any other protocol constraints, then the
-  transport protocol is not applicable as only UDP endpoints exist and any port will be matched.
-  The target port alternates between a random one every two attempts, and port 53 for the next 2
-  attempts.
+- If the tunnel protocol is specified as WireGuard and obfuscation mode is set to _Auto_:
+  - First two attempts will be used without _udp2tcp_, using a random port on first attempt, and
+    port 53 on second attempt.
+  - Next two attempts will use _udp2tcp_ on ports 80 and 5001 respectively.
+  - The above steps repeat ad infinitum.
+
+  If obfuscation is turned on, connections will alternate between port 80 and port 5001 using
+  _udp2tcp_ all of the time.
+
+  If obfuscation is turned _off_, WireGuard connections will first alternate between using
+  a random port and port 53, with 2 attempts each, e.g. first attempt using port 22151, second
+  26107, third attempt and fourth attempt using port 53, and then back to random ports.
+
+  If the user has specified a specific port for either _udp2tcp_ or WireGuard, it will override the
+  port selection, but it will not change the connection type described above (WireGuard or WireGuard
+  over _udp2tcp_).
 
 - If no OpenVPN tunnel constraints are specified, then the first two attempts at selecting a tunnel
   will try to select UDP endpoints on any port, and the third and fourth attempts will filter for
@@ -82,12 +100,13 @@ The transport protocol is supposedly inferred by the selected bridge- but for no
 supports TCP bridges, so only TCP bridges are being selected. If no location constraint is specified
 explicitly, then the relay location will be used.
 
+
 ### Selecting a bridge endpoint between filtered relays
 
 When filtering bridge endpoints by location, if multiple bridge endpoints match the specified
 constraints then endpoints which are geographically closer to the selected tunnel relay are more
 likely to be selected. If bridge state is set to _On_, then a bridge is always selected and used.
-If it's set to _auto_, a bridge will only be tried after 3 failed attempts at connecting without a
+If it's set to _Auto_, a bridge will only be tried after 3 failed attempts at connecting without a
 bridge and only if the relay constraints allow for a bridge to be selected.
 
 ### Bridge caveats
@@ -97,4 +116,10 @@ set to _On_, the daemon will automatically set the tunnel constraints to _OpenVP
 have bridges that support UDP tunnels over TCP bridges, this behavior should be removed. Conversely,
 changing the tunnel constraints to ones that do not support bridges (WireGuard, OpenVPN over UDP)
 will indirectly change the bridge state to _Auto_ if it was previously set to _On_.
+
+
+### Obfuscator caveats
+
+Currently, there is only a single type of obfuscator - _udp2tcp_, and it's only used if it's mode is
+set to _On_ or _Auto_ and the user has selected WireGuard to be the only tunnel protocol to be used.
 
