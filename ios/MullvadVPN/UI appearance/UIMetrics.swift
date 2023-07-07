@@ -38,6 +38,11 @@ enum UIMetrics {
         static let cornerRadius = 8.0
         static let preferredContentSize = CGSize(width: 292, height: 263)
     }
+
+    enum SettingsCell {
+        static let textFieldContentInsets = UIEdgeInsets(top: 8, left: 24, bottom: 8, right: 24)
+        static let textFieldNonEditingContentInsetLeft: CGFloat = 40
+    }
 }
 
 extension UIMetrics {
