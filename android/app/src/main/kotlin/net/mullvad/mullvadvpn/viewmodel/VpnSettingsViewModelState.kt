@@ -1,7 +1,10 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.model.Port
+import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.SelectedObfuscation
 
@@ -15,7 +18,9 @@ data class VpnSettingsViewModelState(
     val contentBlockersOptions: DefaultDnsOptions,
     val selectedObfuscation: SelectedObfuscation,
     val dialogState: VpnSettingsDialogState,
-    val quantumResistant: QuantumResistantState
+    val quantumResistant: QuantumResistantState,
+    val selectedWireguardPort: Constraint<Port>,
+    val availablePortRanges: List<PortRange>
 ) {
     fun toUiState(): VpnSettingsUiState {
         return when (dialogState) {
@@ -30,7 +35,8 @@ data class VpnSettingsViewModelState(
                     contentBlockersOptions = contentBlockersOptions,
                     mtuEditValue = dialogState.mtuEditValue,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
                 )
             is VpnSettingsDialogState.DnsDialog ->
                 VpnSettingsUiState.DnsDialogUiState(
@@ -43,7 +49,8 @@ data class VpnSettingsViewModelState(
                     contentBlockersOptions = contentBlockersOptions,
                     stagedDns = dialogState.stagedDns,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
                 )
             is VpnSettingsDialogState.LocalNetworkSharingInfoDialog ->
                 VpnSettingsUiState.LocalNetworkSharingInfoDialogUiState(
@@ -55,7 +62,8 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
                 )
             is VpnSettingsDialogState.ContentBlockersInfoDialog ->
                 VpnSettingsUiState.ContentBlockersInfoDialogUiState(
@@ -67,7 +75,8 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
                 )
             is VpnSettingsDialogState.CustomDnsInfoDialog ->
                 VpnSettingsUiState.CustomDnsInfoDialogUiState(
@@ -79,7 +88,8 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
                 )
             is VpnSettingsDialogState.MalwareInfoDialog ->
                 VpnSettingsUiState.MalwareInfoDialogUiState(
@@ -91,7 +101,8 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
                 )
             is VpnSettingsDialogState.ObfuscationInfoDialog ->
                 VpnSettingsUiState.ObfuscationInfoDialogUiState(
@@ -103,7 +114,8 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
                 )
             is VpnSettingsDialogState.QuantumResistanceInfoDialog -> {
                 VpnSettingsUiState.QuantumResistanceInfoDialogUiState(
@@ -115,7 +127,23 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
+                )
+            }
+            is VpnSettingsDialogState.WireguardPortInfoDialog -> {
+                VpnSettingsUiState.WireguardPortInfoDialogUiState(
+                    mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort,
+                    availablePortRanges = availablePortRanges
                 )
             }
             else ->
@@ -128,7 +156,8 @@ data class VpnSettingsViewModelState(
                     customDnsItems = customDnsList,
                     contentBlockersOptions = contentBlockersOptions,
                     selectedObfuscation = selectedObfuscation,
-                    quantumResistant = quantumResistant
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort
                 )
         }
     }
@@ -147,7 +176,9 @@ data class VpnSettingsViewModelState(
                 isAllowLanEnabled = false,
                 dialogState = VpnSettingsDialogState.NoDialog,
                 selectedObfuscation = SelectedObfuscation.Auto,
-                quantumResistant = QuantumResistantState.Off
+                quantumResistant = QuantumResistantState.Off,
+                selectedWireguardPort = Constraint.Any(),
+                availablePortRanges = emptyList()
             )
     }
 }
@@ -170,6 +201,8 @@ sealed class VpnSettingsDialogState {
     object ObfuscationInfoDialog : VpnSettingsDialogState()
 
     object QuantumResistanceInfoDialog : VpnSettingsDialogState()
+
+    object WireguardPortInfoDialog : VpnSettingsDialogState()
 }
 
 sealed interface StagedDns {

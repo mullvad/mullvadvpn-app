@@ -85,13 +85,7 @@ val uiModule = module {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
     viewModel { PrivacyDisclaimerViewModel(get()) }
-    viewModel {
-        VpnSettingsViewModel(
-            get(),
-            get(),
-            get(),
-        )
-    }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { SelectLocationViewModel(get()) }
 }
 
