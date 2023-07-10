@@ -41,6 +41,15 @@ protocol RootContainment {
 
     /// Return true if the view controller prefers header bar hidden
     var prefersHeaderBarHidden: Bool { get }
+
+    /// Return true if the view controller prefers notification bar hidden
+    var prefersNotificationBarHidden: Bool { get }
+}
+
+extension RootContainment {
+    var prefersNotificationBarHidden: Bool {
+        false
+    }
 }
 
 protocol RootContainerViewControllerDelegate: AnyObject {
@@ -81,6 +90,16 @@ class RootContainerViewController: UIViewController {
     private var appearingController: UIViewController?
     private var disappearingController: UIViewController?
     private var interfaceOrientationMask: UIInterfaceOrientationMask?
+    private var isNavigationBarHidden = false {
+        didSet {
+            guard let notificationController else {
+                return
+            }
+            isNavigationBarHidden
+                ? removeNotificationController(notificationController)
+                : addNotificationController(notificationController)
+        }
+    }
 
     var topViewController: UIViewController? {
         viewControllers.last
@@ -450,6 +469,9 @@ class RootContainerViewController: UIViewController {
 
         let viewControllersToAdd = newViewControllers.filter { !viewControllers.contains($0) }
         let viewControllersToRemove = viewControllers.filter { !newViewControllers.contains($0) }
+
+        // hide in-App notificationBanner when the container decides to keep it invisible
+        isNavigationBarHidden = (targetViewController as? RootContainment)?.prefersNotificationBarHidden ?? false
 
         let finishTransition = {
             /*
