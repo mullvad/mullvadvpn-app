@@ -6,12 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.colorResource
 import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.screen.DeviceRevokedScreen
-import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
@@ -29,22 +26,10 @@ class DeviceRevokedFragment : Fragment() {
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 AppTheme {
                     val state = deviceRevokedViewModel.uiState.collectAsState().value
-
-                    val topColor =
-                        colorResource(
-                            if (state == DeviceRevokedUiState.SECURED) {
-                                R.color.green
-                            } else {
-                                R.color.red
-                            }
-                        )
-
-                    ScaffoldWithTopBar(
-                        topBarColor = topColor,
-                        statusBarColor = topColor,
-                        navigationBarColor = colorResource(id = R.color.darkBlue),
+                    DeviceRevokedScreen(
+                        state = state,
                         onSettingsClicked = this@DeviceRevokedFragment::openSettingsView,
-                        content = { DeviceRevokedScreen(deviceRevokedViewModel) }
+                        onGoToLoginClicked = deviceRevokedViewModel::onGoToLoginClicked
                     )
                 }
             }

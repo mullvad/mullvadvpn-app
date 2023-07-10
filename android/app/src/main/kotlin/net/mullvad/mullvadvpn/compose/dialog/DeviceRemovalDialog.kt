@@ -30,12 +30,11 @@ import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
-import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 
 @Composable
-fun ShowDeviceRemovalDialog(viewModel: DeviceListViewModel, device: Device) {
+fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device: Device) {
     AlertDialog(
-        onDismissRequest = { viewModel.clearStagedDevice() },
+        onDismissRequest = { onDismiss() },
         title = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -78,7 +77,7 @@ fun ShowDeviceRemovalDialog(viewModel: DeviceListViewModel, device: Device) {
                         containerColor = colorResource(id = R.color.red),
                         contentColor = Color.White
                     ),
-                onClick = { viewModel.confirmRemovalOfStagedDevice() },
+                onClick = onConfirm,
                 shape = MaterialTheme.shapes.small
             ) {
                 Text(text = stringResource(id = R.string.confirm_removal), fontSize = 18.sp)
@@ -100,7 +99,7 @@ fun ShowDeviceRemovalDialog(viewModel: DeviceListViewModel, device: Device) {
                         containerColor = colorResource(id = R.color.blue),
                         contentColor = Color.White
                     ),
-                onClick = { viewModel.clearStagedDevice() },
+                onClick = { onDismiss() },
                 shape = MaterialTheme.shapes.small
             ) {
                 Text(text = stringResource(id = R.string.back), fontSize = 18.sp)

@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.res.colorResource
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.screen.DeviceListScreen
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
@@ -40,19 +39,16 @@ class DeviceListFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_compose, container, false).apply {
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 AppTheme {
-                    val topColor = colorResource(R.color.blue)
-                    ScaffoldWithTopBar(
-                        topBarColor = topColor,
-                        statusBarColor = topColor,
-                        navigationBarColor = colorResource(id = R.color.darkBlue),
+                    val state = deviceListViewModel.uiState.collectAsState().value
+                    DeviceListScreen(
+                        state = state,
+                        onBackClick = { openLoginView(doTriggerAutoLogin = false) },
+                        onContinueWithLogin = { openLoginView(doTriggerAutoLogin = true) },
                         onSettingsClicked = this@DeviceListFragment::openSettings,
-                        content = {
-                            DeviceListScreen(
-                                viewModel = deviceListViewModel,
-                                onBackClick = { openLoginView(doTriggerAutoLogin = false) },
-                                onContinueWithLogin = { openLoginView(doTriggerAutoLogin = true) }
-                            )
-                        }
+                        onDeviceRemovalClicked = deviceListViewModel::stageDeviceForRemoval,
+                        onDismissDeviceRemovalDialog = deviceListViewModel::clearStagedDevice,
+                        onConfirmDeviceRemovalDialog =
+                            deviceListViewModel::confirmRemovalOfStagedDevice
                     )
                 }
             }

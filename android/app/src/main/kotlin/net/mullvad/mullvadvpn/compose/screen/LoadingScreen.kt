@@ -25,11 +25,11 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 @Preview
 @Composable
 private fun PreviewLoadingScreen() {
-    LoadingScreen {}
+    LoadingScreen()
 }
 
 @Composable
-fun LoadingScreen(onSettingsCogClicked: () -> Unit) {
+fun LoadingScreen(onSettingsCogClicked: () -> Unit = {}) {
     val backgroundColor = colorResource(id = R.color.blue)
 
     ScaffoldWithTopBar(
@@ -42,7 +42,10 @@ fun LoadingScreen(onSettingsCogClicked: () -> Unit) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier =
-                    Modifier.background(backgroundColor).padding(bottom = 64.dp).fillMaxSize()
+                    Modifier.background(backgroundColor)
+                        .padding(it)
+                        .padding(bottom = it.calculateTopPadding())
+                        .fillMaxSize()
             ) {
                 Column(
                     verticalArrangement = Arrangement.Center,
