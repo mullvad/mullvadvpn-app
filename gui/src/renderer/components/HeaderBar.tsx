@@ -199,6 +199,7 @@ export function HeaderBarAccountButton() {
   return (
     <HeaderBarAccountButtonContainer
       onClick={openAccount}
+      data-testid="account-button"
       aria-label={messages.gettext('Account settings')}>
       <ImageView
         height={24}
