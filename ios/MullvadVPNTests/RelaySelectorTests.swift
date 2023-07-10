@@ -6,7 +6,7 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadREST
+@testable import MullvadREST
 import MullvadTypes
 import Network
 import RelaySelector
@@ -86,6 +86,14 @@ class RelaySelectorTests: XCTestCase {
         result = try RelaySelector.evaluate(relays: sampleRelays, constraints: constraints, numberOfFailedAttempts: 4)
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
     }
+
+    func testClosestShadowsocksRelay() throws {
+        let constraints = RelayConstraints(location: .only(.city("se", "sto")))
+
+        let selectedRelay = RelaySelector.closestShadowsocksRelayConstrained(by: constraints, in: sampleRelays)
+
+        XCTAssertEqual(selectedRelay?.hostname, "se-sto-br-001")
+    }
 }
 
 private let sampleRelays = REST.ServerRelaysResponse(
@@ -107,6 +115,24 @@ private let sampleRelays = REST.ServerRelaysResponse(
             city: "Stockholm",
             latitude: 59.3289,
             longitude: 18.0649
+        ),
+        "ae-dxb": REST.ServerLocation(
+            country: "United Arab Emirates",
+            city: "Dubai",
+            latitude: 25.276987,
+            longitude: 55.296249
+        ),
+        "jp-tyo": REST.ServerLocation(
+            country: "Japan",
+            city: "Tokyo",
+            latitude: 35.685,
+            longitude: 139.751389
+        ),
+        "ca-tor": REST.ServerLocation(
+            country: "Canada",
+            city: "Toronto",
+            latitude: 43.666667,
+            longitude: -79.416667
         ),
     ],
     wireguard: REST.ServerWireguardTunnels(
@@ -164,5 +190,48 @@ private let sampleRelays = REST.ServerRelaysResponse(
             ),
         ]
     ),
-    bridge: REST.ServerBridges(shadowsocks: [], relays: [])
+    bridge: REST.ServerBridges(shadowsocks: [
+        REST.ServerShadowsocks(protocol: "tcp", port: 443, cipher: "aes-256-gcm", password: "mullvad"),
+    ], relays: [
+        REST.BridgeRelay(
+            hostname: "se-sto-br-001",
+            active: true,
+            owned: true,
+            location: "se-sto",
+            provider: "31173",
+            ipv4AddrIn: .loopback,
+            weight: 100,
+            includeInCountry: true
+        ),
+        REST.BridgeRelay(
+            hostname: "jp-tyo-br-101",
+            active: true,
+            owned: true,
+            location: "jp-tyo",
+            provider: "M247",
+            ipv4AddrIn: .loopback,
+            weight: 1,
+            includeInCountry: true
+        ),
+        REST.BridgeRelay(
+            hostname: "ca-tor-ovpn-001",
+            active: false,
+            owned: false,
+            location: "ca-tor",
+            provider: "M247",
+            ipv4AddrIn: .loopback,
+            weight: 1,
+            includeInCountry: true
+        ),
+        REST.BridgeRelay(
+            hostname: "ae-dxb-ovpn-001",
+            active: true,
+            owned: false,
+            location: "ae-dxb",
+            provider: "M247",
+            ipv4AddrIn: .loopback,
+            weight: 100,
+            includeInCountry: true
+        ),
+    ])
 )
