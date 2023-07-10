@@ -92,7 +92,7 @@ test('App should log in', async () => {
 
 test('App should log out', async () => {
   expect(await util.waitForNavigation(() => {
-    void page.getByText('Account').click();
+    void page.getByTestId('account-button').click();
   })).toEqual(RoutePath.account);
 
   expect(await util.waitForNavigation(() => {
