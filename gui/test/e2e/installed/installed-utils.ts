@@ -16,3 +16,16 @@ function getAppInstallPath(): string {
       throw new Error('Platform not supported');
   }
 }
+
+export function getMullvadBin(): string {
+  switch (process.platform) {
+    case 'win32':
+      return 'C:\\Program Files\\Mullvad VPN\\resources\\mullvad.exe';
+    case 'linux':
+      return '/usr/bin/mullvad';
+    case 'darwin':
+      return '/usr/local/bin/mullvad';
+    default:
+      throw new Error('Platform not supported');
+  }
+}

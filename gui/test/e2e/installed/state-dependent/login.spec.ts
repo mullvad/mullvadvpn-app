@@ -4,7 +4,7 @@ import { Locator, Page } from 'playwright';
 import { RoutePath } from '../../../../src/renderer/lib/routes';
 import { TestUtils } from '../../utils';
 
-import { startInstalledApp } from '../installed-utils';
+import { getMullvadBin, startInstalledApp } from '../installed-utils';
 import { expectDisconnected } from '../../shared/tunnel-state';
 
 // This test expects the daemon to be logged out.
@@ -66,7 +66,7 @@ test('App should create account', async () => {
 
 test('App should become logged out', async () => {
   expect(await util.waitForNavigation(() => {
-    exec('mullvad account logout');
+    exec(`${getMullvadBin()} account logout`);
   })).toEqual(RoutePath.login);
 });
 
@@ -126,7 +126,7 @@ test('App should log in to expired account', async () => {
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Out of time');
 
-  execSync('mullvad account logout');
+  execSync(`${getMullvadBin()} account logout`);
 });
 
 function getInput(page: Page): Locator {
