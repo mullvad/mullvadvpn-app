@@ -4362,6 +4362,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "tunnel-obfuscator-proxy"
+version = "0.0.0"
+dependencies = [
+ "cbindgen",
+ "libc",
+ "log",
+ "oslog",
+ "tokio",
+ "tunnel-obfuscation",
+]
+
+[[package]]
 name = "typenum"
 version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
