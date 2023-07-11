@@ -620,7 +620,7 @@ where
         let settings = SettingsPersister::load(&settings_dir).await;
         let app_version_info = version_check::load_cache(&cache_dir).await;
 
-        let initial_selector_config = new_selector_config(&settings, &app_version_info);
+        let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
 
         let proxy_provider =
@@ -1082,7 +1082,7 @@ where
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
         self.app_version_info = Some(app_version_info.clone());
         self.relay_selector
-            .set_config(new_selector_config(&self.settings, &self.app_version_info));
+            .set_config(new_selector_config(&self.settings));
         self.event_listener.notify_app_version(app_version_info);
     }
 
@@ -1821,7 +1821,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                        .set_config(new_selector_config(&self.settings));
                     log::info!("Initiating tunnel restart because the relay settings changed");
                     self.reconnect_tunnel();
                 }
@@ -1979,7 +1979,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                        .set_config(new_selector_config(&self.settings));
                     if let Err(error) = self.api_handle.service().next_api_endpoint() {
                         log::error!("Failed to rotate API endpoint: {}", error);
                     }
@@ -2013,7 +2013,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                        .set_config(new_selector_config(&self.settings));
                     self.reconnect_tunnel();
                 }
                 Self::oneshot_send(tx, Ok(()), "set_obfuscation_settings");
@@ -2043,7 +2043,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                        .set_config(new_selector_config(&self.settings));
                     log::info!("Initiating tunnel restart because bridge state changed");
                     self.reconnect_tunnel();
                 }
@@ -2431,28 +2431,8 @@ impl DaemonShutdownHandle {
     }
 }
 
-fn new_selector_config(
-    settings: &Settings,
-    app_version_info: &Option<AppVersionInfo>,
-) -> SelectorConfig {
-    // In case of the app not having a version we safety default to OpenVPN to guard against the
-    // case where some error causes users to not receive a version and in that case all going to
-    // wireguard. Magic number 0.0 implies that 0% of users should use Wireguard.
-    // This will be removed in the future when we the migration is done.
-    let wg_migration_threshold = app_version_info
-        .as_ref()
-        .map(|f| f.wg_migration_threshold)
-        .unwrap_or(0.0);
-
-    let default_tunnel_type = if cfg!(target_os = "windows") {
-        if wg_migration_threshold >= settings.wg_migration_rand_num {
-            TunnelType::Wireguard
-        } else {
-            TunnelType::OpenVpn
-        }
-    } else {
-        TunnelType::Wireguard
-    };
+fn new_selector_config(settings: &Settings) -> SelectorConfig {
+    let default_tunnel_type = TunnelType::Wireguard;
 
     SelectorConfig {
         relay_settings: settings.relay_settings.clone(),
