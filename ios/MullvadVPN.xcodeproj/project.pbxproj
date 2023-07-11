@@ -417,11 +417,19 @@
 		F028A56C2A34D8E600C0CAA3 /* RedeemVoucherSucceededViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56B2A34D8E600C0CAA3 /* RedeemVoucherSucceededViewController.swift */; };
 		F028A56E2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A56D2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift */; };
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
-		F041CD562A38B0B7001B703B /* RedeemVoucherCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041CD552A38B0B7001B703B /* RedeemVoucherCoordinator.swift */; };
+		F041CD562A38B0B7001B703B /* SettingsRedeemVoucherCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041CD552A38B0B7001B703B /* SettingsRedeemVoucherCoordinator.swift */; };
 		F07BF2582A26112D00042943 /* InputTextFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */; };
 		F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
+		F07C0A052A52D4C3009825CA /* AccountRedeemingVoucherCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07C0A042A52D4C3009825CA /* AccountRedeemingVoucherCoordinator.swift */; };
+		F07C0A072A52DA64009825CA /* SetupAccountCompletedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07C0A062A52DA64009825CA /* SetupAccountCompletedCoordinator.swift */; };
 		F07CFF2029F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
+		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
+		F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */; };
+		F0E8CC052A4CC88F007ED3B4 /* WelcomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC042A4CC88F007ED3B4 /* WelcomeCoordinator.swift */; };
+		F0E8CC0A2A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */; };
+		F0E8CC0C2A4EE672007ED3B4 /* SetupAccountCompletedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedViewController.swift */; };
+		F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1145,11 +1153,19 @@
 		F028A56B2A34D8E600C0CAA3 /* RedeemVoucherSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherSucceededViewController.swift; sourceTree = "<group>"; };
 		F028A56D2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherInteractor.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
-		F041CD552A38B0B7001B703B /* RedeemVoucherCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherCoordinator.swift; sourceTree = "<group>"; };
+		F041CD552A38B0B7001B703B /* SettingsRedeemVoucherCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRedeemVoucherCoordinator.swift; sourceTree = "<group>"; };
 		F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputTextFormatterTests.swift; sourceTree = "<group>"; };
 		F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherOperation.swift; sourceTree = "<group>"; };
+		F07C0A042A52D4C3009825CA /* AccountRedeemingVoucherCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountRedeemingVoucherCoordinator.swift; sourceTree = "<group>"; };
+		F07C0A062A52DA64009825CA /* SetupAccountCompletedCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedCoordinator.swift; sourceTree = "<group>"; };
 		F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisteredDeviceInAppNotificationProvider.swift; sourceTree = "<group>"; };
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
+		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
+		F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
+		F0E8CC042A4CC88F007ED3B4 /* WelcomeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinator.swift; sourceTree = "<group>"; };
+		F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedContentView.swift; sourceTree = "<group>"; };
+		F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedViewController.swift; sourceTree = "<group>"; };
+		F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeInteractor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1461,6 +1477,7 @@
 		583FE01629C196E8006E85F9 /* View controllers */ = {
 			isa = PBXGroup;
 			children = (
+				F0E8E4B92A55593300ED26A3 /* CreationAccount */,
 				583FE02029C1A0B1006E85F9 /* Account */,
 				5878F4FA29CDA2D4003D4BE2 /* ChangeLog */,
 				583FE01D29C197C1006E85F9 /* DeviceList */,
@@ -1822,17 +1839,21 @@
 			isa = PBXGroup;
 			children = (
 				7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */,
+				F07C0A042A52D4C3009825CA /* AccountRedeemingVoucherCoordinator.swift */,
 				58BBB39629717E0C00C8DB7C /* ApplicationCoordinator.swift */,
 				5893C6FB29C311E9009090D1 /* ApplicationRouter.swift */,
 				5878F50129CDB989003D4BE2 /* ChangeLogCoordinator.swift */,
+				F07C0A062A52DA64009825CA /* SetupAccountCompletedCoordinator.swift */,
 				58CAF9F92983E0C600BE19F7 /* LoginCoordinator.swift */,
 				583FE00D29C0D586006E85F9 /* OutOfTimeCoordinator.swift */,
 				5847D58C29B7740F008C3808 /* RevokedCoordinator.swift */,
 				586891CC29D452E4002A8278 /* SafariCoordinator.swift */,
 				587C92FD2986E28100FB9664 /* SelectLocationCoordinator.swift */,
 				58C3F4FA296C3AD500D72515 /* SettingsCoordinator.swift */,
+				F041CD552A38B0B7001B703B /* SettingsRedeemVoucherCoordinator.swift */,
 				587C92FF2986E2B600FB9664 /* TermsOfServiceCoordinator.swift */,
 				58F185A9298A3E3E00075977 /* TunnelCoordinator.swift */,
+				F0E8CC042A4CC88F007ED3B4 /* WelcomeCoordinator.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -2004,28 +2025,28 @@
 		58CE5E62224146200008646E /* MullvadVPN */ = {
 			isa = PBXGroup;
 			children = (
+				58D7E3D629C78A130044B058 /* AddressCacheTracker */,
 				58CE5E63224146200008646E /* AppDelegate.swift */,
 				58C76A0A2A338E4300100D75 /* BackgroundTask.swift */,
-				58E25F802837BBBB002CFB2C /* SceneDelegate.swift */,
 				583FE02829C1B079006E85F9 /* Classes */,
-				5864AF0629C78816005B0CD9 /* Protocols */,
-				58B26E1F2943516500D5980C /* Notifications */,
-				583FE02729C1ADF7006E85F9 /* UI appearance */,
-				583FE02329C1AC9F006E85F9 /* Extensions */,
-				583FE01F29C197ED006E85F9 /* Views */,
 				58C774C929AB543C003A1A56 /* Containers */,
-				583FE01629C196E8006E85F9 /* View controllers */,
 				58CAF9F22983D32200BE19F7 /* Coordinators */,
-				5864859729A0D012006C5743 /* Presentation controllers */,
+				583FE02329C1AC9F006E85F9 /* Extensions */,
+				58B26E1F2943516500D5980C /* Notifications */,
 				586A950B2901250A007BAF2B /* Operations */,
+				5864859729A0D012006C5743 /* Presentation controllers */,
+				5864AF0629C78816005B0CD9 /* Protocols */,
+				585DA87526B0249A00B8C587 /* RelayCacheTracker */,
+				58E25F802837BBBB002CFB2C /* SceneDelegate.swift */,
+				580F8B88281A79A7002E0998 /* SettingsManager */,
 				583FE02629C1ADB6006E85F9 /* SimulatorTunnelProvider */,
 				5846226F26E229CD0035F7C2 /* StorePaymentManager */,
-				58D7E3D629C78A130044B058 /* AddressCacheTracker */,
-				585DA87526B0249A00B8C587 /* RelayCacheTracker */,
-				589E63DA28F7E9E7005FAB05 /* TransportMonitor */,
-				580F8B88281A79A7002E0998 /* SettingsManager */,
-				5823FA5726CE4A4100283BF8 /* TunnelManager */,
 				583FE02929C1B0E1006E85F9 /* Supporting Files */,
+				589E63DA28F7E9E7005FAB05 /* TransportMonitor */,
+				5823FA5726CE4A4100283BF8 /* TunnelManager */,
+				583FE02729C1ADF7006E85F9 /* UI appearance */,
+				583FE01629C196E8006E85F9 /* View controllers */,
+				583FE01F29C197ED006E85F9 /* Views */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -2178,13 +2199,40 @@
 			isa = PBXGroup;
 			children = (
 				F028A54A2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift */,
-				F041CD552A38B0B7001B703B /* RedeemVoucherCoordinator.swift */,
 				F028A56D2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift */,
 				F028A56B2A34D8E600C0CAA3 /* RedeemVoucherSucceededViewController.swift */,
 				F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */,
 				F028A5482A336E8500C0CAA3 /* VoucherTextField.swift */,
 			);
 			path = RedeemVoucher;
+			sourceTree = "<group>";
+		};
+		F0E361892A4ADCF500AEEF2B /* Welcome */ = {
+			isa = PBXGroup;
+			children = (
+				F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */,
+				F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */,
+				F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */,
+			);
+			path = Welcome;
+			sourceTree = "<group>";
+		};
+		F0E8CC082A4EE0DC007ED3B4 /* Completed */ = {
+			isa = PBXGroup;
+			children = (
+				F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */,
+				F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedViewController.swift */,
+			);
+			path = Completed;
+			sourceTree = "<group>";
+		};
+		F0E8E4B92A55593300ED26A3 /* CreationAccount */ = {
+			isa = PBXGroup;
+			children = (
+				F0E8CC082A4EE0DC007ED3B4 /* Completed */,
+				F0E361892A4ADCF500AEEF2B /* Welcome */,
+			);
+			path = CreationAccount;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2939,6 +2987,7 @@
 				58C3F4FB296C3AD500D72515 /* SettingsCoordinator.swift in Sources */,
 				5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
+				F0E8CC052A4CC88F007ED3B4 /* WelcomeCoordinator.swift in Sources */,
 				58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */,
 				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
@@ -2949,7 +2998,7 @@
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
 				587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
-				F041CD562A38B0B7001B703B /* RedeemVoucherCoordinator.swift in Sources */,
+				F041CD562A38B0B7001B703B /* SettingsRedeemVoucherCoordinator.swift in Sources */,
 				5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */,
 				7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */,
 				58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */,
@@ -2991,15 +3040,18 @@
 				F028A54B2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
+				F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
 				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				58CAF9FA2983E0C600BE19F7 /* LoginCoordinator.swift in Sources */,
+				F07C0A072A52DA64009825CA /* SetupAccountCompletedCoordinator.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */,
 				5878A279290954790096FC88 /* TunnelViewControllerInteractor.swift in Sources */,
 				7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */,
 				582AE3102440A6CA00E6733A /* InputTextFormatter.swift in Sources */,
 				5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */,
+				F0E8CC0C2A4EE672007ED3B4 /* SetupAccountCompletedViewController.swift in Sources */,
 				5846227726E22A7C0035F7C2 /* StorePaymentManagerDelegate.swift in Sources */,
 				58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */,
 				58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */,
@@ -3022,7 +3074,9 @@
 				7A1A26432A2612AE00B978AA /* PaymentAlertPresenter.swift in Sources */,
 				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
 				5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */,
+				F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */,
 				5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */,
+				F07C0A052A52D4C3009825CA /* AccountRedeemingVoucherCoordinator.swift in Sources */,
 				5868585524054096000B8131 /* AppButton.swift in Sources */,
 				5893C6FC29C311E9009090D1 /* ApplicationRouter.swift in Sources */,
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
@@ -3087,6 +3141,7 @@
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
 				58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
+				F0E8CC0A2A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift in Sources */,
 				581DA2752A1E283E0046ED47 /* WgKeyRotation.swift in Sources */,
 				06410DFE292CE18F00AFC18C /* KeychainSettingsStore.swift in Sources */,
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
@@ -3110,6 +3165,7 @@
 				5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelSettingsV1.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
+				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* PreferencesDataSource.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* TunnelControlView.swift in Sources */,

@@ -8,6 +8,19 @@
 
 import Foundation
 
+struct RootDeviceInfoViewModel {
+    let configuration: RootConfiguration
+    init(isPresentingAccountExpiryBanner: Bool, deviceState: DeviceState) {
+        configuration = RootConfiguration(
+            deviceName: deviceState.deviceData?.capitalizedName,
+            expiry: (isPresentingAccountExpiryBanner || (deviceState.accountData?.isExpired ?? true))
+                ? nil
+                : deviceState.accountData?.expiry,
+            showsAccountButton: deviceState.isLoggedIn
+        )
+    }
+}
+
 struct RootConfiguration {
     var deviceName: String?
     var expiry: Date?
