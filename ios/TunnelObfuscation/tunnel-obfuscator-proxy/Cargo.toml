@@ -1,0 +1,20 @@
+[package]
+name = "tunnel-obfuscator-proxy"
+version = "0.0.0"
+edition = "2021"
+license = "GPL-3.0"
+publish = false
+
+[lib]
+crate-type = [ "rlib", "staticlib" ]
+bench = false
+
+[target.'cfg(target_os = "ios")'.dependencies]
+tunnel-obfuscation = { path = "../../../tunnel-obfuscation" }
+tokio = { version = "1", features = ["sync"] }
+libc = "0.2"
+log = "0.4"
+oslog = "0.2"
+
+[target.'cfg(target_os = "ios")'.build-dependencies]
+cbindgen = { version = "0.24.3", default-features = false }
