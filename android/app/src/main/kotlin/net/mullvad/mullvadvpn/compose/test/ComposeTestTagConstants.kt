@@ -11,5 +11,11 @@ const val LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG =
 const val LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG =
     "lazy_list_wireguard_custom_port_number_test_tag"
 
-// SelectLocationScreen
+// SelectLocationScreen, ConnectScreen
 const val CIRCULAR_PROGRESS_INDICATOR = "circular_progress_indicator"
+
+// ConnectScreen
+const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
+const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"
+const val RECONNECT_BUTTON_TEST_TAG = "reconnect_button_test_tag"
+const val LOCATION_INFO_TEST_TAG = "location_info_test_tag"
