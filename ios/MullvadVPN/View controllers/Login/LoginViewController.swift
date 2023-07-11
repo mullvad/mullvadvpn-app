@@ -87,6 +87,14 @@ class LoginViewController: UIViewController, RootContainment {
         contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
     }
 
+    var prefersNotificationBarHidden: Bool {
+        true
+    }
+
+    var prefersDeviceInfoBarHidden: Bool {
+        true
+    }
+
     private let interactor: LoginInteractor
 
     var didFinishLogin: ((LoginAction, Error?) -> EndLoginAction)?

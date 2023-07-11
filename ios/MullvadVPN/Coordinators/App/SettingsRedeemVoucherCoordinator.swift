@@ -1,5 +1,5 @@
 //
-//  RedeemVoucherCoordinator.swift
+//  SettingsRedeemVoucherCoordinator.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2023-06-13.
@@ -10,11 +10,11 @@ import Foundation
 import MullvadREST
 import UIKit
 
-final class RedeemVoucherCoordinator: Coordinator, Presentable {
+final class SettingsRedeemVoucherCoordinator: Coordinator, Presentable {
     private let navigationController: UINavigationController
     private let viewController: RedeemVoucherViewController
-    var didFinish: ((RedeemVoucherCoordinator) -> Void)?
-    var didCancel: ((RedeemVoucherCoordinator) -> Void)?
+    var didFinish: ((SettingsRedeemVoucherCoordinator) -> Void)?
+    var didCancel: ((SettingsRedeemVoucherCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -35,7 +35,7 @@ final class RedeemVoucherCoordinator: Coordinator, Presentable {
     }
 }
 
-extension RedeemVoucherCoordinator: RedeemVoucherViewControllerDelegate {
+extension SettingsRedeemVoucherCoordinator: RedeemVoucherViewControllerDelegate {
     func redeemVoucherDidSucceed(
         _ controller: RedeemVoucherViewController,
         with response: REST.SubmitVoucherResponse
@@ -50,7 +50,16 @@ extension RedeemVoucherCoordinator: RedeemVoucherViewControllerDelegate {
     }
 }
 
-extension RedeemVoucherCoordinator: RedeemVoucherSucceededViewControllerDelegate {
+extension SettingsRedeemVoucherCoordinator: RedeemVoucherSucceededViewControllerDelegate {
+    func titleForAction(in controller: RedeemVoucherSucceededViewController) -> String {
+        NSLocalizedString(
+            "REDEEM_VOUCHER_DISMISS_BUTTON",
+            tableName: "RedeemVoucher",
+            value: "Got it!",
+            comment: ""
+        )
+    }
+
     func redeemVoucherSucceededViewControllerDidFinish(_ controller: RedeemVoucherSucceededViewController) {
         didFinish?(self)
     }

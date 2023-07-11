@@ -12,6 +12,8 @@ protocol RedeemVoucherSucceededViewControllerDelegate: AnyObject {
     func redeemVoucherSucceededViewControllerDidFinish(
         _ controller: RedeemVoucherSucceededViewController
     )
+
+    func titleForAction(in controller: RedeemVoucherSucceededViewController) -> String
 }
 
 class RedeemVoucherSucceededViewController: UIViewController {
@@ -47,12 +49,6 @@ class RedeemVoucherSucceededViewController: UIViewController {
 
     private let dismissButton: AppButton = {
         let button = AppButton(style: .default)
-        button.setTitle(NSLocalizedString(
-            "REDEEM_VOUCHER_DISMISS_BUTTON",
-            tableName: "RedeemVoucher",
-            value: "Got it!",
-            comment: ""
-        ), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -61,7 +57,11 @@ class RedeemVoucherSucceededViewController: UIViewController {
         .lightContent
     }
 
-    weak var delegate: RedeemVoucherSucceededViewControllerDelegate?
+    weak var delegate: RedeemVoucherSucceededViewControllerDelegate? {
+        didSet {
+            dismissButton.setTitle(delegate?.titleForAction(in: self), for: .normal)
+        }
+    }
 
     init(timeAddedComponents: DateComponents) {
         super.init(nibName: nil, bundle: nil)
