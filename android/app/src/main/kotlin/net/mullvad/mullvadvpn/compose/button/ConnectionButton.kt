@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +32,7 @@ import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 @Composable
 fun ConnectionButton(
     modifier: Modifier = Modifier,
+    reconnectButtonTestTag: String = "",
     state: TunnelState,
     disconnectClick: () -> Unit,
     reconnectClick: () -> Unit,
@@ -48,14 +50,16 @@ fun ConnectionButton(
                         modifier = modifier,
                         text = stringResource(id = R.string.disconnect),
                         mainClick = connectClick,
-                        reconnectClick = reconnectClick
+                        reconnectClick = reconnectClick,
+                        reconnectButtonTestTag = reconnectButtonTestTag
                     )
                 ActionAfterDisconnect.Reconnect ->
                     DisconnectButton(
                         modifier = modifier,
                         text = stringResource(id = R.string.disconnect),
                         mainClick = connectClick,
-                        reconnectClick = reconnectClick
+                        reconnectClick = reconnectClick,
+                        reconnectButtonTestTag = reconnectButtonTestTag
                     )
             }
         }
@@ -64,14 +68,16 @@ fun ConnectionButton(
                 modifier = modifier,
                 text = stringResource(id = R.string.cancel),
                 mainClick = cancelClick,
-                reconnectClick = reconnectClick
+                reconnectClick = reconnectClick,
+                reconnectButtonTestTag = reconnectButtonTestTag
             )
         is TunnelState.Connected ->
             DisconnectButton(
                 modifier = modifier,
                 text = stringResource(id = R.string.disconnect),
                 mainClick = disconnectClick,
-                reconnectClick = reconnectClick
+                reconnectClick = reconnectClick,
+                reconnectButtonTestTag = reconnectButtonTestTag
             )
         is TunnelState.Error -> {
             if (state.errorState.isBlocking) {
@@ -79,14 +85,16 @@ fun ConnectionButton(
                     modifier = modifier,
                     text = stringResource(id = R.string.disconnect),
                     mainClick = disconnectClick,
-                    reconnectClick = reconnectClick
+                    reconnectClick = reconnectClick,
+                    reconnectButtonTestTag = reconnectButtonTestTag
                 )
             } else {
                 DisconnectButton(
                     modifier = modifier,
                     text = stringResource(id = R.string.dismiss),
                     mainClick = cancelClick,
-                    reconnectClick = reconnectClick
+                    reconnectClick = reconnectClick,
+                    reconnectButtonTestTag = reconnectButtonTestTag
                 )
             }
         }
@@ -124,6 +132,7 @@ private fun DisconnectButton(
     text: String,
     modifier: Modifier = Modifier,
     height: Dp = Dimens.connectButtonHeight,
+    reconnectButtonTestTag: String = "",
     mainClick: () -> Unit,
     reconnectClick: () -> Unit
 ) {
@@ -163,7 +172,7 @@ private fun DisconnectButton(
                     contentColor = MaterialTheme.colorScheme.onError
                 ),
             onClick = reconnectClick,
-            modifier = Modifier.height(height).aspectRatio(1f, true)
+            modifier = Modifier.height(height).aspectRatio(1f, true).testTag(reconnectButtonTestTag)
         ) {
             Icon(painter = painterResource(id = R.drawable.icon_reload), contentDescription = null)
         }

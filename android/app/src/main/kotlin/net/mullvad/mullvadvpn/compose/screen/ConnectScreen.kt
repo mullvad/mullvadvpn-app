@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
@@ -24,6 +25,11 @@ import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.LocationInfo
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
+import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -70,6 +76,7 @@ fun ConnectScreen(
                                     height = Dimens.progressIndicatorSize
                                 )
                                 .align(Alignment.Center)
+                                .testTag(CIRCULAR_PROGRESS_INDICATOR)
                     )
                 }
             }
@@ -101,7 +108,7 @@ fun ConnectScreen(
                         is TunnelState.Connecting -> uiState.tunnelRealState.endpoint
                         else -> null
                     },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().testTag(LOCATION_INFO_TEST_TAG)
             )
         }
         item { Spacer(modifier = Modifier.height(Dimens.buttonSeparation)) }
@@ -121,7 +128,10 @@ fun ConnectScreen(
                     is TunnelState.Error -> true
                 }
             SwitchLocationButton(
-                modifier = Modifier.fillMaxWidth().height(Dimens.selectLocationButtonHeight),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(Dimens.selectLocationButtonHeight)
+                        .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
                 onClick = onSwitchLocationClick,
                 showChevron = showLocation,
                 text =
@@ -136,11 +146,15 @@ fun ConnectScreen(
         item {
             ConnectionButton(
                 state = uiState.tunnelUiState,
-                modifier = Modifier.fillMaxWidth().height(Dimens.connectButtonHeight),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(Dimens.connectButtonHeight)
+                        .testTag(CONNECT_BUTTON_TEST_TAG),
                 disconnectClick = onDisconnectClick,
                 reconnectClick = onReconnectClick,
                 cancelClick = onCancelClick,
                 connectClick = onConnectClick,
+                reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG
             )
         }
     }
