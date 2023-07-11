@@ -417,8 +417,10 @@
 		A9D99BA52A1F808900DE27D3 /* RelayCache.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 063F02732902B63F001FA09F /* RelayCache.framework */; };
 		A9D99BA62A1F809C00DE27D3 /* libRelaySelector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5898D29829017DAC00EB5EBA /* libRelaySelector.a */; };
 		A9D99BA92A1F81B700DE27D3 /* MullvadTransport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A97F1F412A1F4E1A00ECEFDE /* MullvadTransport.framework */; };
-		A9EC20EF2A5D79ED0040D56E /* TunnelObfuscation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; };
 		A9EC20F02A5D79ED0040D56E /* TunnelObfuscation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		A9EC20E62A5C488D0040D56E /* Haversine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC20E52A5C488D0040D56E /* Haversine.swift */; };
+		A9EC20E82A5D3A8C0040D56E /* CoordinatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */; };
+		A9EC20F42A5D96030040D56E /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC20F32A5D96030040D56E /* Midpoint.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -1190,6 +1192,9 @@
 		A9A8A8EA2A262AB30086D569 /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
 		A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCacheTests.swift; sourceTree = "<group>"; };
 		A9D99B9F2A1F7F3A00DE27D3 /* TransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportProvider.swift; sourceTree = "<group>"; };
+		A9EC20E52A5C488D0040D56E /* Haversine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Haversine.swift; sourceTree = "<group>"; };
+		A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatesTests.swift; sourceTree = "<group>"; };
+		A9EC20F32A5D96030040D56E /* Midpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Midpoint.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
@@ -1289,7 +1294,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A9EC20EF2A5D79ED0040D56E /* TunnelObfuscation.framework in Frameworks */,
 				58F0974E2A20C31100DA2DAD /* WireGuardKitTypes in Frameworks */,
 				5898D2A92901844E00EB5EBA /* libRelaySelector.a in Frameworks */,
 				58D223F9294C8FF00029F5F8 /* MullvadLogging.framework in Frameworks */,
@@ -1962,6 +1966,8 @@
 		5898D29929017DAC00EB5EBA /* RelaySelector */ = {
 			isa = PBXGroup;
 			children = (
+				A9EC20E52A5C488D0040D56E /* Haversine.swift */,
+				A9EC20F32A5D96030040D56E /* Midpoint.swift */,
 				58781CD422AFBA39009B9D8E /* RelaySelector.swift */,
 			);
 			path = RelaySelector;
@@ -2001,17 +2007,18 @@
 			isa = PBXGroup;
 			children = (
 				58B0A2A4238EE67E00BC001D /* Info.plist */,
-				F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */,
 				A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */,
+				A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */,
 				5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */,
 				58915D622A25F8400066445B /* DeviceCheckOperationTests.swift */,
 				58C3FA672A385C89006A450A /* FileCacheTests.swift */,
 				582A8A3928BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift */,
+				F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */,
+				58C3FA652A38549D006A450A /* MockFileCache.swift */,
 				A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */,
 				584B26F3237434D00073B10E /* RelaySelectorTests.swift */,
 				5807E2C1243203D000F5FF30 /* StringTests.swift */,
 				58165EBD2A262CBB00688EAD /* WgKeyRotationTests.swift */,
-				58C3FA652A38549D006A450A /* MockFileCache.swift */,
 			);
 			path = MullvadVPNTests;
 			sourceTree = "<group>";
@@ -3115,6 +3122,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				5898D29F29017DD000EB5EBA /* RelaySelector.swift in Sources */,
+				A9EC20E62A5C488D0040D56E /* Haversine.swift in Sources */,
+				A9EC20F42A5D96030040D56E /* Midpoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3153,6 +3162,7 @@
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
 				580810E92A30E17300B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */,
 				F07BF2582A26112D00042943 /* InputTextFormatterTests.swift in Sources */,
+				A9EC20E82A5D3A8C0040D56E /* CoordinatesTests.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
 				A9467E802A29E0A6000DC21F /* AddressCacheTests.swift in Sources */,
 			);
