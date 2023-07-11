@@ -19,7 +19,7 @@ fun ChevronView(modifier: Modifier = Modifier, isExpanded: Boolean) {
 
     LaunchedEffect(isExpanded) {
         rotation.animateTo(
-            targetValue = 90f + if (isExpanded) 0f else 180f,
+            targetValue = 90f + if (isExpanded) 180f else 0f,
             animationSpec = tween(100, easing = LinearEasing)
         )
     }
