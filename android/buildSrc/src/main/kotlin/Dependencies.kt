@@ -52,7 +52,6 @@ object Dependencies {
         const val junit = "androidx.compose.ui:ui-test-junit4:${Versions.Compose.base}"
         const val viewModelLifecycle =
             "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.Compose.viewModelLifecycle}"
-        const val material = "androidx.compose.material:material:${Versions.Compose.material}"
         const val material3 = "androidx.compose.material3:material3:${Versions.Compose.material3}"
         const val testManifest = "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
         const val uiController =
