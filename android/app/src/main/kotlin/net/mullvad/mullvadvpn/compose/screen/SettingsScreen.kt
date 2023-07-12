@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.DefaultExternalLinkView
 import net.mullvad.mullvadvpn.compose.cell.NavigationCellBody
@@ -34,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.constant.BuildTypes
 import net.mullvad.mullvadvpn.ui.extension.openLink
 import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 
@@ -160,17 +162,19 @@ fun SettingsScreen(
                 )
             }
 
-            itemWithDivider {
-                val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
-                NavigationComposeCell(
-                    title = faqGuideLabel,
-                    bodyView = @Composable { DefaultExternalLinkView(faqGuideLabel) },
-                    onClick = {
-                        context.openLink(
-                            Uri.parse(context.resources.getString(R.string.faqs_and_guides_url))
-                        )
-                    }
-                )
+            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                itemWithDivider {
+                    val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
+                    NavigationComposeCell(
+                        title = faqGuideLabel,
+                        bodyView = @Composable { DefaultExternalLinkView(faqGuideLabel) },
+                        onClick = {
+                            context.openLink(
+                                Uri.parse(context.resources.getString(R.string.faqs_and_guides_url))
+                            )
+                        }
+                    )
+                }
             }
 
             itemWithDivider {
