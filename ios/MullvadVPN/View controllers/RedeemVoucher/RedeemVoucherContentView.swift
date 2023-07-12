@@ -105,7 +105,8 @@ final class RedeemVoucherContentView: UIView {
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.setCustomSpacing(UIMetrics.padding16, after: titleLabel)
+        stackView.setCustomSpacing(UIMetrics.padding8, after: textField)
         return stackView
     }()
 
@@ -214,7 +215,8 @@ final class RedeemVoucherContentView: UIView {
 
     private func addConstraints() {
         addConstrainedSubviews([voucherCodeStackView, actionsStackView]) {
-            voucherCodeStackView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
+            voucherCodeStackView
+                .pinEdgesToSuperviewMargins(.all(UIMetrics.RedeemVoucher.contentLayoutMargins).excluding(.bottom))
             actionsStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
 
             actionsStackView.topAnchor.constraint(
