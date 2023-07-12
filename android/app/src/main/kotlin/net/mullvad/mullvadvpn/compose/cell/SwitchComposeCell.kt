@@ -39,14 +39,6 @@ private fun PreviewSwitchComposeCell() {
                 onCellClicked = {},
                 onInfoClicked = {}
             )
-            HeaderSwitchComposeCell(
-                title = "Checkbox Title",
-                isEnabled = true,
-                isToggled = true,
-                onCellClicked = {},
-                onInfoClicked = {},
-                subtitle = "Subtitle"
-            )
             NormalSwitchComposeCell(
                 title = "Checkbox Item",
                 isEnabled = true,
@@ -63,7 +55,6 @@ fun NormalSwitchComposeCell(
     title: String,
     isToggled: Boolean,
     startPadding: Dp = Dimens.indentedCellStartPadding,
-    subtitle: String? = null,
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: (Boolean) -> Unit = {},
@@ -73,7 +64,6 @@ fun NormalSwitchComposeCell(
         titleView = { BaseCellTitle(title = title, style = MaterialTheme.typography.labelLarge) },
         isToggled = isToggled,
         startPadding = startPadding,
-        subtitle = subtitle,
         isEnabled = isEnabled,
         background = background,
         onCellClicked = onCellClicked,
@@ -86,7 +76,6 @@ fun HeaderSwitchComposeCell(
     title: String,
     isToggled: Boolean,
     startPadding: Dp = Dimens.cellStartPadding,
-    subtitle: String? = null,
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: (Boolean) -> Unit = {},
@@ -96,7 +85,6 @@ fun HeaderSwitchComposeCell(
         titleView = { BaseCellTitle(title = title, style = MaterialTheme.typography.titleMedium) },
         isToggled = isToggled,
         startPadding = startPadding,
-        subtitle = subtitle,
         isEnabled = isEnabled,
         background = background,
         onCellClicked = onCellClicked,
@@ -109,7 +97,6 @@ private fun SwitchComposeCell(
     titleView: @Composable () -> Unit,
     isToggled: Boolean,
     startPadding: Dp,
-    subtitle: String?,
     isEnabled: Boolean,
     background: Color,
     onCellClicked: (Boolean) -> Unit,
@@ -117,16 +104,6 @@ private fun SwitchComposeCell(
 ) {
     BaseCell(
         title = titleView,
-        subtitle =
-            subtitle?.let {
-                @Composable {
-                    Text(
-                        text = it,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                }
-            },
         isRowEnabled = isEnabled,
         bodyView = {
             SwitchCellView(
@@ -197,4 +174,9 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
         color = MaterialTheme.colorScheme.onSecondary,
         modifier = modifier
     )
+}
+
+@Composable
+fun SwitchComposeSubtitleCell(text: String, modifier: Modifier = Modifier) {
+    BaseSubtitleCell(text = text, modifier = modifier)
 }
