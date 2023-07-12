@@ -25,9 +25,14 @@ data class Dimensions(
     val progressIndicatorSize: Dp = 60.dp,
     val relayCircleSize: Dp = 16.dp,
     val relayRowPadding: Dp = 50.dp,
+    val searchFieldHeight: Dp = 42.dp,
+    val searchFieldHorizontalPadding: Dp = 22.dp,
+    val searchIconSize: Dp = 24.dp,
+    val selectLocationTitlePadding: Dp = 12.dp,
     val selectableCellTextMargin: Dp = 12.dp,
     val sideMargin: Dp = 22.dp,
     val smallPadding: Dp = 8.dp,
+    val titleIconSize: Dp = 24.dp,
     val verticalSpace: Dp = 20.dp
 )
 

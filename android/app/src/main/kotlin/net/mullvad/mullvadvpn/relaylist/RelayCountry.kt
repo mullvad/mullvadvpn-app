@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 
-class RelayCountry(
+data class RelayCountry(
     override val name: String,
     override val code: String,
     override var expanded: Boolean,
@@ -16,15 +16,6 @@ class RelayCountry(
 
     override val hasChildren
         get() = cities.isNotEmpty()
-
-    override val visibleChildCount: Int
-        get() {
-            return if (expanded) {
-                cities.sumOf { city -> city.visibleItemCount }
-            } else {
-                0
-            }
-        }
 
     fun getItem(position: Int): GetItemResult {
         if (position == 0) {

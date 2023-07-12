@@ -15,11 +15,11 @@ import net.mullvad.mullvadvpn.R
 @Composable
 fun ChevronView(modifier: Modifier = Modifier, isExpanded: Boolean) {
     val resourceId = R.drawable.icon_chevron
-    val rotation = remember { Animatable(90f) }
+    val rotation = remember { Animatable(90f + if (isExpanded) 180f else 0f) }
 
     LaunchedEffect(isExpanded) {
         rotation.animateTo(
-            targetValue = 90f + if (isExpanded) 0f else 180f,
+            targetValue = 90f + if (isExpanded) 180f else 0f,
             animationSpec = tween(100, easing = LinearEasing)
         )
     }

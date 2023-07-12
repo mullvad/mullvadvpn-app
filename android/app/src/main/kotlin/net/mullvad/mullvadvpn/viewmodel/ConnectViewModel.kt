@@ -76,8 +76,8 @@ class ConnectViewModel(serviceConnectionManager: ServiceConnectionManager) : Vie
     }
 
     private fun RelayListListener.relayListCallbackFlow() = callbackFlow {
-        onRelayListChange = { _, item -> this.trySend(item) }
-        awaitClose { onRelayListChange = null }
+        onRelayCountriesChange = { _, item -> this.trySend(item) }
+        awaitClose { onRelayCountriesChange = null }
     }
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
