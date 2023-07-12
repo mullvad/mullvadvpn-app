@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
