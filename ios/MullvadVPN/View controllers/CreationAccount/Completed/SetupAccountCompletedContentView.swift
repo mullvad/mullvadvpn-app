@@ -15,7 +15,7 @@ protocol SetupAccountCompletedContentViewDelegate: AnyObject {
 
 class SetupAccountCompletedContentView: UIView {
     private enum Action: String {
-        case LearnAboutPrivacy, StartUsingTheApp
+        case learnAboutPrivacy, startUsingTheApp
     }
 
     private let titleLabel: UILabel = {
@@ -57,7 +57,7 @@ class SetupAccountCompletedContentView: UIView {
 
     private let privacyButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = Action.LearnAboutPrivacy.rawValue
+        button.accessibilityIdentifier = Action.learnAboutPrivacy.rawValue
         let localizedString = NSLocalizedString(
             "LEARN_ABOUT_PRIVACY_BUTTON",
             tableName: "CreatedAccountConfirmation",
@@ -71,7 +71,7 @@ class SetupAccountCompletedContentView: UIView {
 
     private let startButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = Action.StartUsingTheApp.rawValue
+        button.accessibilityIdentifier = Action.startUsingTheApp.rawValue
         button.setTitle(NSLocalizedString(
             "START_USING_THE_APP_BUTTON",
             tableName: "CreatedAccountConfirmation",
@@ -143,9 +143,9 @@ class SetupAccountCompletedContentView: UIView {
 
     @objc private func tapped(button: AppButton) {
         switch button.accessibilityIdentifier {
-        case Action.LearnAboutPrivacy.rawValue:
+        case Action.learnAboutPrivacy.rawValue:
             delegate?.didTapPrivacyButton(view: self, button: button)
-        case Action.StartUsingTheApp.rawValue:
+        case Action.startUsingTheApp.rawValue:
             delegate?.didTapStartingAppButton(view: self, button: button)
         default: return
         }
