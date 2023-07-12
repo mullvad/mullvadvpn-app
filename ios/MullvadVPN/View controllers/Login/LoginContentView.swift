@@ -134,7 +134,7 @@ class LoginContentView: UIView {
         footerContainer.addSubview(createAccountButton)
 
         addSubview(contentContainer)
-        addSubview(footerContainer)
+//        addSubview(footerContainer)
 
         let contentContainerBottomConstraint = bottomAnchor
             .constraint(equalTo: contentContainer.bottomAnchor)
@@ -146,15 +146,15 @@ class LoginContentView: UIView {
             contentContainer.trailingAnchor.constraint(equalTo: trailingAnchor),
             contentContainerBottomConstraint,
 
-            footerContainer.leadingAnchor.constraint(equalTo: leadingAnchor),
-            footerContainer.trailingAnchor.constraint(equalTo: trailingAnchor),
-            footerContainer.bottomAnchor.constraint(equalTo: bottomAnchor),
-
-            footerLabel.topAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.topAnchor),
-            footerLabel.leadingAnchor
-                .constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
-            footerLabel.trailingAnchor
-                .constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
+//            footerContainer.leadingAnchor.constraint(equalTo: leadingAnchor),
+//            footerContainer.trailingAnchor.constraint(equalTo: trailingAnchor),
+//            footerContainer.bottomAnchor.constraint(equalTo: bottomAnchor),
+//
+//            footerLabel.topAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.topAnchor),
+//            footerLabel.leadingAnchor
+//                .constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
+//            footerLabel.trailingAnchor
+//                .constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
 
             createAccountButton.topAnchor.constraint(
                 equalToSystemSpacingBelow: footerLabel.bottomAnchor,
