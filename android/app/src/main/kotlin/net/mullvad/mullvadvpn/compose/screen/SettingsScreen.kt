@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.ui.extension.openLink
+import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -115,7 +116,11 @@ fun SettingsScreen(
                     title = stringResource(id = R.string.app_version),
                     onClick = {
                         context.openLink(
-                            Uri.parse(context.resources.getString(R.string.download_url))
+                            Uri.parse(
+                                context.resources
+                                    .getString(R.string.download_url)
+                                    .appendHideNavOnReleaseBuild()
+                            )
                         )
                     },
                     bodyView =
@@ -175,7 +180,11 @@ fun SettingsScreen(
                     bodyView = @Composable { DefaultExternalLinkView(privacyPolicyLabel) },
                     onClick = {
                         context.openLink(
-                            Uri.parse(context.resources.getString(R.string.privacy_policy_url))
+                            Uri.parse(
+                                context.resources
+                                    .getString(R.string.privacy_policy_url)
+                                    .appendHideNavOnReleaseBuild()
+                            )
                         )
                     }
                 )
