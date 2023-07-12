@@ -15,6 +15,7 @@ final class WelcomeCoordinator: Coordinator, Presentable {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
     private var viewController: WelcomeViewController?
+    private var interactor: WelcomeInteractor?
 
     var didFinishPayment: ((WelcomeCoordinator) -> Void)?
 
@@ -33,18 +34,16 @@ final class WelcomeCoordinator: Coordinator, Presentable {
     }
 
     func start(animated: Bool) {
-        guard case let .loggedIn(storedAccountData, storedDeviceData) = tunnelManager.deviceState else {
-            return
-        }
-        let interactor = WelcomeInteractor(
-            deviceData: storedDeviceData,
-            accountData: storedAccountData
+        let welcomeInteractor = WelcomeInteractor(
+            storePaymentManager: storePaymentManager,
+            tunnelManager: tunnelManager
         )
 
-        let controller = WelcomeViewController(interactor: interactor)
+        let controller = WelcomeViewController(interactor: welcomeInteractor)
         controller.delegate = self
 
         viewController = controller
+        interactor = welcomeInteractor
 
         navigationController.pushViewController(controller, animated: animated)
     }
@@ -98,9 +97,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         presentedViewController.present(alertController, animated: true)
     }
 
-    func didRequestToPurchaseCredit(controller: WelcomeViewController) {
-        // TODO: In-app purchase
-    }
+    func didRequestToPurchaseCredit(controller: WelcomeViewController) {}
 
     func didRequestToRedeemVoucher(controller: WelcomeViewController) {
         let coordinator = AccountRedeemingVoucherCoordinator(

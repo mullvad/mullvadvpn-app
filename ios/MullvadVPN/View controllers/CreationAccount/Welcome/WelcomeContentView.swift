@@ -176,6 +176,14 @@ final class WelcomeContentView: UIView {
         }
     }
 
+    var productState: ProductState = .none {
+        didSet {
+            purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
+            purchaseButton.isLoading = productState.isFetching
+            purchaseButton.isEnabled = productState.isReceived
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 

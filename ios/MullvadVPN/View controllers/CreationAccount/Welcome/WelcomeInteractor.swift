@@ -7,19 +7,45 @@
 //
 
 import Foundation
+import StoreKit
+
 class WelcomeInteractor {
-    private let deviceData: StoredDeviceData
-    private let accountData: StoredAccountData
+    private let storePaymentManager: StorePaymentManager
+    private let tunnelManager: TunnelManager
+
+    var didChangeInAppPurchaseState: ((WelcomeInteractor, ProductState) -> Void)?
+
+    var viewDidLoad = false {
+        didSet {
+            guard viewDidLoad else { return }
+            requestAccessToStore()
+        }
+    }
 
     var viewModel: WelcomeViewModel {
         WelcomeViewModel(
-            deviceName: deviceData.capitalizedName,
-            accountNumber: accountData.number.formattedAccountNumber
+            deviceName: tunnelManager.deviceState.deviceData?.capitalizedName ?? "",
+            accountNumber: tunnelManager.deviceState.accountData?.number.formattedAccountNumber ?? ""
         )
     }
 
-    init(deviceData: StoredDeviceData, accountData: StoredAccountData) {
-        self.deviceData = deviceData
-        self.accountData = accountData
+    init(storePaymentManager: StorePaymentManager, tunnelManager: TunnelManager) {
+        self.storePaymentManager = storePaymentManager
+        self.tunnelManager = tunnelManager
+    }
+
+    private func requestAccessToStore() {
+        if !StorePaymentManager.canMakePayments {
+            didChangeInAppPurchaseState?(self, .cannotMakePurchases)
+        } else {
+            let product = StoreSubscription.thirtyDays
+            didChangeInAppPurchaseState?(self, .fetching(product))
+            _ = storePaymentManager.requestProducts(with: [product]) { [weak self] result in
+                guard let self else { return }
+                let productState: ProductState = result.value?.products.first
+                    .map { .received($0) } ?? .failed
+                self.didChangeInAppPurchaseState?(self, productState)
+            }
+        }
     }
 }

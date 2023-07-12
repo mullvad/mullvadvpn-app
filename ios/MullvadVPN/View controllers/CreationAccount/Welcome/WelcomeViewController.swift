@@ -57,6 +57,10 @@ class WelcomeViewController: UIViewController, RootContainment {
         super.viewDidLoad()
         configureUI()
         contentView.viewModel = interactor.viewModel
+        interactor.viewDidLoad = true
+        interactor.didChangeInAppPurchaseState = { [weak self] interactor, productState in
+            self?.contentView.productState = productState
+        }
     }
 
     private func configureUI() {
