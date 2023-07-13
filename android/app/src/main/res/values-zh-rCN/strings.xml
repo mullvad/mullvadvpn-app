@@ -122,6 +122,7 @@
     <string name="out_of_time">已没有时间</string>
     <string name="paid_until">到期时间</string>
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
+    <string name="port">端口</string>
     <string name="port_removal_notice">这将删除所有转发的端口。将保存本地设置。</string>
     <string name="privacy_disclaimer_title">隐私</string>
     <string name="privacy_policy_label">隐私政策</string>
@@ -185,7 +186,9 @@
     <string name="vpn_permission_error_notification_message">可能为另一个应用启用了“始终启用 VPN”</string>
     <string name="vpn_permission_error_notification_title">VPN 权限错误</string>
     <string name="we_will_look_into_this">我们将对此进行调查。</string>
+    <string name="wireguard_custon_port_title">自定义</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">设置 WireGuard MTU 值。有效范围：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自动设置将从下方显示的有效端口范围中随机选择。</string>
+    <string name="wireguard_port_info_port_range">自定义端口可以是有效范围内的任何值：%1$s。</string>
 </resources>

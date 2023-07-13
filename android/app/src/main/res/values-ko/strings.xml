@@ -122,6 +122,7 @@
     <string name="out_of_time">시간 초과</string>
     <string name="paid_until">유효 기간</string>
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
+    <string name="port">포트</string>
     <string name="port_removal_notice">전달된 모든 포트가 삭제됩니다. 로컬 설정이 저장됩니다.</string>
     <string name="privacy_disclaimer_title">개인 정보 보호</string>
     <string name="privacy_policy_label">개인정보 보호정책</string>
@@ -185,7 +186,9 @@
     <string name="vpn_permission_error_notification_message">상시 접속 VPN이 다른 앱에 활성화되었을 수 있습니다.</string>
     <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
+    <string name="wireguard_custon_port_title">사용자 지정</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d</string>
     <string name="wireguard_port_info_description">자동 설정은 아래 표시된 유효한 포트 범위에서 임의로 선택합니다.</string>
+    <string name="wireguard_port_info_port_range">사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수 있습니다: %1$s</string>
 </resources>

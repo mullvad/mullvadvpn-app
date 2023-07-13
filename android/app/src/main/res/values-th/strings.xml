@@ -122,6 +122,7 @@
     <string name="out_of_time">หมดเวลา</string>
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
+    <string name="port">พอร์ต</string>
     <string name="port_removal_notice">นี่จะเป็นการลบพอร์ตที่ส่งต่อทั้งหมด และการตั้งค่าบนอุปกรณ์จะได้รับการบันทึกไว้</string>
     <string name="privacy_disclaimer_title">ความเป็นส่วนตัว</string>
     <string name="privacy_policy_label">นโยบายความเป็นส่วนตัว</string>
@@ -185,7 +186,9 @@
     <string name="vpn_permission_error_notification_message">Always-on VPN อาจได้รับการเปิดใช้งานสำหรับแอปอื่น</string>
     <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
+    <string name="wireguard_custon_port_title">กำหนดเอง</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %1$d - %2$d</string>
     <string name="wireguard_port_info_description">การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง</string>
+    <string name="wireguard_port_info_port_range">พอร์ตแบบกำหนดเองอาจมีค่าใดๆ ก็ได้ ภายในช่วงที่ใช้งานได้: %1$s</string>
 </resources>

@@ -122,6 +122,7 @@
     <string name="out_of_time">Tiempo agotado</string>
     <string name="paid_until">Pagado hasta</string>
     <string name="pay_to_start_using">Para empezar a usar la aplicación, primero necesita agregar tiempo a su cuenta.</string>
+    <string name="port">Puerto</string>
     <string name="port_removal_notice">Se eliminarán todos los puertos reenviados. La configuración local se guardará.</string>
     <string name="privacy_disclaimer_title">Privacidad</string>
     <string name="privacy_policy_label">Política de privacidad</string>
@@ -185,7 +186,9 @@
     <string name="vpn_permission_error_notification_message">La VPN siempre activa podría estar habilitada en otra aplicación</string>
     <string name="vpn_permission_error_notification_title">Error en la autorización de la VPN</string>
     <string name="we_will_look_into_this">Revisaremos esto.</string>
+    <string name="wireguard_custon_port_title">Personalizado</string>
     <string name="wireguard_mtu">MTU de WireGuard</string>
     <string name="wireguard_mtu_footer">Establezca el valor de MTU de WireGuard. Intervalo válido: %1$d-%2$d.</string>
     <string name="wireguard_port_info_description">El ajuste automático se elegirá al azar entre los rangos de puertos válidos que se muestran a continuación.</string>
+    <string name="wireguard_port_info_port_range">El puerto personalizado pueder ser cualquier valor dentro de los rangos válidos: %1$s.</string>
 </resources>

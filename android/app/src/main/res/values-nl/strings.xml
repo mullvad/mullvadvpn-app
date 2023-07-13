@@ -122,6 +122,7 @@
     <string name="out_of_time">Geen tijd meer</string>
     <string name="paid_until">Betaald tot</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
+    <string name="port">Poort</string>
     <string name="port_removal_notice">Hiermee worden alle doorgestuurde poorten verwijderd. De lokale instellingen worden opgeslagen.</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Privacybeleid</string>
@@ -185,7 +186,9 @@
     <string name="vpn_permission_error_notification_message">Altijd-aan VPN is mogelijk ingeschakeld voor een andere app</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
+    <string name="wireguard_custon_port_title">Aangepast</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Bij de automatische instelling wordt willekeurig gekozen uit de hieronder weergegeven geldige poortbereiken.</string>
+    <string name="wireguard_port_info_port_range">De aangepaste poort kan elke waarde zijn binnen de geldige bereiken: %1$s.</string>
 </resources>
