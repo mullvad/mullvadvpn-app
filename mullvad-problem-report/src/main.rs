@@ -1,5 +1,3 @@
-#![deny(rust_2018_idioms)]
-
 use clap::Parser;
 use mullvad_problem_report::{collect_report, Error};
 use std::{

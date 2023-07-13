@@ -1,4 +1,3 @@
-#![deny(rust_2018_idioms)]
 #![recursion_limit = "512"]
 
 mod access_method;

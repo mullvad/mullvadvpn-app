@@ -40,6 +40,12 @@ members = [
     "tunnel-obfuscation",
 ]
 
+[workspace.lints.rust]
+rust_2018_idioms = "deny"
+
+[workspace.lints.clippy]
+unused_async = "deny"
+
 [workspace.dependencies]
 tokio = { version = "1.8" }
 # Tonic and related crates
