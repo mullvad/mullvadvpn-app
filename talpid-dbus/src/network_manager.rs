@@ -454,7 +454,7 @@ impl NetworkManager {
 
         let device = self.as_path(&device_path);
         // Get the last applied connection
-        let (mut settings, version_id): (NetworkSettings, u64) =
+        let (mut settings, version_id): (NetworkSettings<'_>, u64) =
             device.method_call(NM_DEVICE, "GetAppliedConnection", (0u32,))?;
 
         // Keep changed routes.

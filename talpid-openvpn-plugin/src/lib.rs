@@ -1,5 +1,3 @@
-#![deny(rust_2018_idioms)]
-
 use openvpn_plugin::{openvpn_plugin, EventResult, EventType};
 use std::{collections::HashMap, ffi::CString, io, sync::Mutex};
 use talpid_types::ErrorExt;

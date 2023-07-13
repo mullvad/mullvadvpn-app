@@ -1,5 +1,3 @@
-#![deny(rust_2018_idioms)]
-
 #[cfg(all(unix, not(target_os = "android")))]
 use anyhow::anyhow;
 use anyhow::Result;

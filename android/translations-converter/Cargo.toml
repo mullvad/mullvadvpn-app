@@ -8,6 +8,9 @@ license.workspace = true
 edition.workspace = true
 publish.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 err-derive = { workspace = true }
 htmlize = { version = "1.0.2", features = ["unescape"] }

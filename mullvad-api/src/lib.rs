@@ -1,5 +1,3 @@
-#![deny(rust_2018_idioms)]
-
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 use futures::Stream;

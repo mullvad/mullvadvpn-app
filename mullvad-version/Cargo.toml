@@ -13,6 +13,9 @@ license.workspace = true
 edition.workspace = true
 publish.workspace = true
 
+[lints]
+workspace = true
+
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 regex = "1.6.0"

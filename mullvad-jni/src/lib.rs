@@ -1,5 +1,4 @@
 #![cfg(target_os = "android")]
-#![deny(rust_2018_idioms)]
 
 mod classes;
 mod daemon_interface;

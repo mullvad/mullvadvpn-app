@@ -8,6 +8,9 @@ license.workspace = true
 edition.workspace = true
 publish.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 tokio = { workspace = true, features = ["time"] }
 libc = "0.2"

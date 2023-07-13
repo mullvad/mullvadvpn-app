@@ -27,7 +27,7 @@ pub async fn generate_keys() -> (PublicKey<'static>, SecretKey<'static>) {
 }
 
 pub fn decapsulate(
-    secret: &SecretKey,
+    secret: &SecretKey<'_>,
     ciphertext_slice: &[u8],
 ) -> Result<SharedSecret<'static>, super::Error> {
     let ciphertext_array =
