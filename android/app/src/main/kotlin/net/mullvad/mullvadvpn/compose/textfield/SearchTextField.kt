@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -66,7 +66,7 @@ fun SearchTextField(
         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSecondary),
         decorationBox =
             @Composable { innerTextField ->
-                TextFieldDefaults.TextFieldDecorationBox(
+                TextFieldDefaults.DecorationBox(
                     value = searchTerm,
                     innerTextField = innerTextField,
                     enabled = enabled,
@@ -91,13 +91,16 @@ fun SearchTextField(
                     },
                     shape = MaterialTheme.shapes.medium,
                     colors =
-                        TextFieldDefaults.textFieldColors(
-                            textColor = MaterialTheme.colorScheme.onSecondary,
-                            containerColor = backgroundColor,
+                        TextFieldDefaults.colors(
+                            focusedTextColor = MaterialTheme.colorScheme.onSecondary,
+                            unfocusedTextColor = MaterialTheme.colorScheme.onSecondary,
+                            focusedContainerColor = backgroundColor,
+                            unfocusedContainerColor = backgroundColor,
                             focusedIndicatorColor = Color.Transparent,
                             unfocusedIndicatorColor = Color.Transparent,
                             cursorColor = MaterialTheme.colorScheme.onSecondary,
-                            placeholderColor = MaterialTheme.colorScheme.onSecondary
+                            focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary
                         ),
                     contentPadding = PaddingValues(),
                 )

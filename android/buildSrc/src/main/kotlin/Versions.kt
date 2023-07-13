@@ -44,7 +44,7 @@ object Versions {
         const val composeCollapsingToolbar = "2.3.5"
         const val constrainLayout = "1.0.1"
         const val foundation = base
-        const val material3 = "1.0.1"
+        const val material3 = "1.1.1"
         const val uiController = "0.30.1"
         const val viewModelLifecycle = "2.6.1"
     }
