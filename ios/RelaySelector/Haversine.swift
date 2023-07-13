@@ -42,7 +42,7 @@ public enum Haversine {
 }
 
 extension Double {
-    var toRadians: Double { self * Double.pi / 180 }
+    var toRadians: Double { self * Double.pi / 180.0 }
     var toDegrees: Double { self * 180.0 / Double.pi }
-    var squared: Double { pow(self, 2) }
+    var squared: Double { pow(self, 2.0) }
 }
