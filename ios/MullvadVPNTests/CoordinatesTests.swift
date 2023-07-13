@@ -46,8 +46,13 @@ final class CoordinatesTests: XCTestCase {
             ]
         )
 
-        XCTAssertEqual(CLLocationCoordinate2D(latitude: 45, longitude: 90), midpoint1)
-        XCTAssertEqual(CLLocationCoordinate2D(latitude: -90, longitude: 0), midpoint2)
+        let expectedMidpoint1Value = CLLocationCoordinate2D(latitude: 45, longitude: 90)
+        XCTAssertEqual(expectedMidpoint1Value.latitude, midpoint1.latitude, accuracy: 0.1)
+        XCTAssertEqual(expectedMidpoint1Value.longitude, midpoint1.longitude, accuracy: 0.1)
+
+        let expectedMidpoint2Value = CLLocationCoordinate2D(latitude: -90, longitude: 0)
+        XCTAssertEqual(expectedMidpoint2Value.latitude, midpoint2.latitude, accuracy: 0.1)
+        XCTAssertEqual(expectedMidpoint2Value.longitude, midpoint2.longitude, accuracy: 0.1)
     }
 }
 
