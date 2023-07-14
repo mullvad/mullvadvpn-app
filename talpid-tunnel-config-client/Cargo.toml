@@ -1,11 +1,12 @@
 [package]
 name = "talpid-tunnel-config-client"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Uses the relay RPC service to set up PQ-safe peers, etc."
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [dependencies]
 log = "0.4"
