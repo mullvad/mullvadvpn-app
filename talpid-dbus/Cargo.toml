@@ -13,4 +13,4 @@ err-derive = "0.3.1"
 lazy_static = "1.0"
 log = "0.4"
 libc = "0.2"
-tokio = { version = "1.8", features = ["rt"] }
+tokio = { workspace = true, features = ["rt"] }

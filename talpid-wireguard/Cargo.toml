@@ -24,7 +24,7 @@ talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 zeroize = "1"
 chrono = "0.4.21"
-tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
+tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 

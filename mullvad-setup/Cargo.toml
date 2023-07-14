@@ -20,7 +20,7 @@ lazy_static = "1.1.0"
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 
-tokio = { version = "1.8", features =  ["rt-multi-thread"] }
+tokio = { workspace = true, features =  ["rt-multi-thread"] }
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }

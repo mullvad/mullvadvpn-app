@@ -20,7 +20,7 @@ prost = "0.11"
 prost-types = "0.11"
 parity-tokio-ipc = "0.9"
 futures = "0.3"
-tokio = { version = "1.8", features =  ["rt"] }
+tokio = { workspace = true, features =  ["rt"] }
 log = "0.4"
 
 [target.'cfg(unix)'.dependencies]

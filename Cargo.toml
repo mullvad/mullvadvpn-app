@@ -40,6 +40,9 @@ members = [
     "tunnel-obfuscation",
 ]
 
+[workspace.dependencies]
+tokio = { version = "1.8" }
+
 [profile.release]
 opt-level = 3
 lto = true

@@ -10,7 +10,7 @@ publish.workspace = true
 
 [dependencies]
 log = "0.4"
-tokio = { version = "1.8", features = ["fs"] }
+tokio = { workspace = true, features = ["fs"] }
 uuid = { version = "0.8", features = ["v4"] }
 
 talpid-types = { path = "../talpid-types" }

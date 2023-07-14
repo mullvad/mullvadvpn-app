@@ -16,7 +16,7 @@ shadowsocks-service.git = "https://github.com/mullvad/shadowsocks-rust"
 shadowsocks-service.rev = "c45980bb22d0d50ac888813c59a1edf0cff14a36"
 shadowsocks-service.features = [ "local", "stream-cipher", "local-http", "local-tunnel" ]
 
-tokio = "1"
+tokio = { workspace = true }
 libc = "0.2"
 log = "0.4"
 
