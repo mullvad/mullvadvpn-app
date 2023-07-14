@@ -21,12 +21,12 @@ tokio = { workspace = true, features =  ["rt"] }
 openvpn-plugin = { version = "0.4.2", features = ["serde", "log", "auth-failed-event"] }
 talpid-types = { path = "../talpid-types" }
 
-tonic = "0.8"
-tower = "0.4"
-prost = "0.11"
+tonic = { workspace = true }
+tower = { workspace = true }
+prost = { workspace = true }
 
 [build-dependencies]
-tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
+tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
 
 [target.'cfg(windows)'.build-dependencies]

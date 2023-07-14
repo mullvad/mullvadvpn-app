@@ -39,11 +39,11 @@ byteorder = "1"
 internet-checksum = "0.2"
 shell-escape = "0.1"
 socket2 = { version = "0.4.2", features = ["all"] }
-prost = "0.11"
 parity-tokio-ipc = "0.9"
 talpid-openvpn = { path = "../talpid-openvpn" }
 triggered = "0.1.1"
-tonic = "0.8"
+tonic = { workspace = true }
+prost = { workspace = true }
 uuid = { version = "0.8", features = ["v4"] }
 
 [target.'cfg(unix)'.dependencies]
@@ -107,8 +107,7 @@ features = [
 ]
 
 [build-dependencies]
-tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
-
+tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
 [dev-dependencies]
 tempfile = "3.0"

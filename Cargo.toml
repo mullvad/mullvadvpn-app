@@ -42,6 +42,12 @@ members = [
 
 [workspace.dependencies]
 tokio = { version = "1.8" }
+# Tonic and related crates
+tonic = "0.8"
+tonic-build = { version = "0.8", default-features = false }
+tower = "0.4"
+prost = "0.11"
+prost-types = "0.11"
 
 [profile.release]
 opt-level = 3

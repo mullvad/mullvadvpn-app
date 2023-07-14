@@ -33,8 +33,8 @@ shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev
 socket2 = { version = "0.4.2", features = ["all"] }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
-tonic = "0.8"
-prost = "0.11"
+tonic = { workspace = true }
+prost = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 which = { version = "4.0", default-features = false }
@@ -54,7 +54,7 @@ features = [
 ]
 
 [build-dependencies]
-tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
+tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
 
 [dev-dependencies]
