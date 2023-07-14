@@ -26,15 +26,15 @@ talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-types = { path = "../talpid-types" }
 uuid = { version = "0.8", features = ["v4"] }
-tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
+tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "c45980bb22d0d50ac888813c59a1edf0cff14a36",  features = [ "local", "stream-cipher" ] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 socket2 = { version = "0.4.2", features = ["all"] }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
-tonic = "0.8"
-prost = "0.11"
+tonic = { workspace = true }
+prost = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 which = { version = "4.0", default-features = false }
@@ -54,8 +54,8 @@ features = [
 ]
 
 [build-dependencies]
-tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
+tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
 
 [dev-dependencies]
-tokio = { version = "1", features = [ "test-util" ] }
+tokio = { workspace = true, features = [ "test-util" ] }

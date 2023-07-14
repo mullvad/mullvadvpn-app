@@ -13,7 +13,7 @@ bench = false
 
 [target.'cfg(target_os = "ios")'.dependencies]
 tunnel-obfuscation = { path = "../../../tunnel-obfuscation" }
-tokio = { version = "1", features = ["sync"] }
+tokio = { workspace = true, features = ["sync"] }
 libc = "0.2"
 log = "0.4"
 oslog = "0.2"
