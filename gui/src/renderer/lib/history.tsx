@@ -116,6 +116,19 @@ export default class History {
     this.notify(nextState?.transition ?? transitions.none);
   };
 
+  public replaceRoot = (
+    replacementLocation: LocationDescriptor,
+    replacementState?: Partial<LocationState>,
+  ) => {
+    if (this.index === 0) {
+      this.reset(replacementLocation, replacementState);
+    } else {
+      const location = this.createLocation(replacementLocation, replacementState);
+      this.lastAction = 'REPLACE';
+      this.entries.splice(0, 1, location);
+    }
+  };
+
   public listen(callback: LocationListener) {
     this.listeners.push(callback);
     return () => (this.listeners = this.listeners.filter((listener) => listener !== callback));

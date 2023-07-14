@@ -2,6 +2,7 @@ import { batch, Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 
+import { hasExpired } from '../shared/account-expiry';
 import { ILinuxSplitTunnelingApplication, IWindowsApplication } from '../shared/application-types';
 import {
   AccountToken,
@@ -204,7 +205,6 @@ export default class AppRenderer {
       initialState.translations.relayLocations,
     );
 
-    this.setAccountExpiry(initialState.accountData?.expiry);
     this.setSettings(initialState.settings);
     this.setIsPerformingPostUpgrade(initialState.isPerformingPostUpgrade);
 
@@ -219,6 +219,7 @@ export default class AppRenderer {
         initialState.navigationHistory !== undefined,
       );
     }
+    this.setAccountExpiry(initialState.accountData?.expiry);
 
     this.setAccountHistory(initialState.accountHistory);
     this.setTunnelState(initialState.tunnelState);
@@ -648,38 +649,52 @@ export default class AppRenderer {
       const nextPath = this.getNavigationBase() as RoutePath;
 
       if (pathname !== nextPath) {
-        // First level contains the possible next locations and the second level contains the
-        // possible current locations.
-        const navigationTransitions: Partial<
-          Record<RoutePath, Partial<Record<RoutePath | '*', ITransitionSpecification>>>
-        > = {
-          [RoutePath.launch]: {
-            [RoutePath.login]: transitions.pop,
-            [RoutePath.main]: transitions.pop,
-            '*': transitions.dismiss,
-          },
-          [RoutePath.login]: {
-            [RoutePath.launch]: transitions.push,
-            [RoutePath.main]: transitions.pop,
-            [RoutePath.deviceRevoked]: transitions.pop,
-            '*': transitions.dismiss,
-          },
-          [RoutePath.main]: {
-            [RoutePath.launch]: transitions.push,
-            [RoutePath.login]: transitions.push,
-            [RoutePath.tooManyDevices]: transitions.push,
-            '*': transitions.dismiss,
-          },
-          [RoutePath.deviceRevoked]: {
-            '*': transitions.pop,
-          },
-        };
-
-        const transition =
-          navigationTransitions[nextPath]?.[pathname] ?? navigationTransitions[nextPath]?.['*'];
+        const transition = this.getNavigationTransition(pathname, nextPath);
         this.history.reset(nextPath, { transition });
       }
     }
+  }
+
+  private getNavigationTransition(prevPath: RoutePath, nextPath: RoutePath) {
+    // First level contains the possible next locations and the second level contains the
+    // possible current locations.
+    const navigationTransitions: Partial<
+      Record<RoutePath, Partial<Record<RoutePath | '*', ITransitionSpecification>>>
+    > = {
+      [RoutePath.launch]: {
+        [RoutePath.login]: transitions.pop,
+        [RoutePath.main]: transitions.pop,
+        '*': transitions.dismiss,
+      },
+      [RoutePath.login]: {
+        [RoutePath.launch]: transitions.push,
+        [RoutePath.main]: transitions.pop,
+        [RoutePath.deviceRevoked]: transitions.pop,
+        '*': transitions.dismiss,
+      },
+      [RoutePath.main]: {
+        [RoutePath.launch]: transitions.push,
+        [RoutePath.login]: transitions.push,
+        [RoutePath.tooManyDevices]: transitions.push,
+        '*': transitions.dismiss,
+      },
+      [RoutePath.expired]: {
+        [RoutePath.launch]: transitions.push,
+        [RoutePath.login]: transitions.push,
+        [RoutePath.tooManyDevices]: transitions.push,
+        '*': transitions.dismiss,
+      },
+      [RoutePath.timeAdded]: {
+        [RoutePath.expired]: transitions.push,
+        [RoutePath.redeemVoucher]: transitions.push,
+        '*': transitions.dismiss,
+      },
+      [RoutePath.deviceRevoked]: {
+        '*': transitions.pop,
+      },
+    };
+
+    return navigationTransitions[nextPath]?.[prevPath] ?? navigationTransitions[nextPath]?.['*'];
   }
 
   private getNavigationBase(): RoutePath {
@@ -689,10 +704,17 @@ export default class AppRenderer {
 
       if (deviceRevoked) {
         return RoutePath.deviceRevoked;
-      } else if (this.isLoggedIn()) {
-        return RoutePath.main;
-      } else {
+      } else if (!this.isLoggedIn()) {
         return RoutePath.login;
+      } else if (
+        loginState.type === 'ok' &&
+        (loginState.expiredState === 'expired' || loginState.method === 'new_account')
+      ) {
+        return RoutePath.expired;
+      } else if (loginState.type === 'ok' && loginState.expiredState === 'time-added') {
+        return RoutePath.timeAdded;
+      } else {
+        return RoutePath.main;
       }
     } else {
       return RoutePath.launch;
@@ -884,7 +906,24 @@ export default class AppRenderer {
   }
 
   private setAccountExpiry(expiry?: string) {
+    const state = this.reduxStore.getState();
+    const previousExpiry = state.account.expiry;
     this.reduxActions.account.updateAccountExpiry(expiry);
+
+    const expired = expiry !== undefined && hasExpired(expiry);
+    if (
+      this.history &&
+      state.account.status.type === 'ok' &&
+      expiry !== undefined &&
+      expiry !== previousExpiry &&
+      ((state.account.status.expiredState === undefined && expired) ||
+        (state.account.status.expiredState === 'expired' && !expired))
+    ) {
+      const prevPath = this.history.location.pathname as RoutePath;
+      const nextPath = expired ? RoutePath.expired : RoutePath.timeAdded;
+      const transition = this.getNavigationTransition(prevPath, nextPath);
+      this.history.replaceRoot(nextPath, { transition });
+    }
   }
 
   private storeAutoStart(autoStart: boolean) {

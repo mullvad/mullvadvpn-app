@@ -2,10 +2,12 @@ import { AccountDataError, AccountToken, IDevice } from '../../../shared/daemon-
 import { ReduxAction } from '../store';
 
 type LoginMethod = 'existing_account' | 'new_account';
+type ExpiredState = 'expired' | 'time-added';
+
 export type LoginState =
   | { type: 'none'; deviceRevoked: boolean }
   | { type: 'logging in'; method: LoginMethod }
-  | { type: 'ok'; method: LoginMethod; newDeviceBanner: boolean }
+  | { type: 'ok'; method: LoginMethod; newDeviceBanner: boolean; expiredState?: ExpiredState }
   | { type: 'too many devices'; method: LoginMethod }
   | { type: 'failed'; method: 'existing_account'; error: AccountDataError['error'] }
   | { type: 'failed'; method: 'new_account'; error: Error };
@@ -98,7 +100,12 @@ export default function (
     case 'ACCOUNT_CREATED':
       return {
         ...state,
-        status: { type: 'ok', method: 'new_account', newDeviceBanner: true },
+        status: {
+          type: 'ok',
+          method: 'new_account',
+          newDeviceBanner: true,
+          expiredState: 'expired',
+        },
         accountToken: action.accountToken,
         deviceName: action.deviceName,
         expiry: action.expiry,
@@ -127,11 +134,28 @@ export default function (
         ...state,
         accountHistory: action.accountHistory,
       };
-    case 'UPDATE_ACCOUNT_EXPIRY':
+    case 'UPDATE_ACCOUNT_EXPIRY': {
+      let expiredState: ExpiredState | undefined;
+      if (state.status.type === 'ok') {
+        if (action.expired) {
+          expiredState = 'expired';
+        } else if (state.status.expiredState === 'expired' && !action.expired) {
+          expiredState = 'time-added';
+        }
+      }
+
       return {
         ...state,
         expiry: action.expiry,
+        status:
+          state.status.type === 'ok'
+            ? {
+                ...state.status,
+                expiredState,
+              }
+            : state.status,
       };
+    }
     case 'UPDATE_DEVICES':
       return {
         ...state,
