@@ -1,6 +1,7 @@
-package net.mullvad.mullvadvpn.compose.component
+package net.mullvad.mullvadvpn.compose.button
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,11 +19,19 @@ import net.mullvad.mullvadvpn.compose.theme.Dimens
 
 @Composable
 fun ActionButton(
-    text: String,
     onClick: () -> Unit,
     colors: ButtonColors,
     modifier: Modifier = Modifier,
-    isEnabled: Boolean = true
+    text: String = "",
+    isEnabled: Boolean = true,
+    content: @Composable RowScope.() -> Unit = {
+        Text(
+            text = text,
+            textAlign = TextAlign.Center,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
 ) {
     Button(
         onClick = onClick,
@@ -37,11 +46,6 @@ fun ActionButton(
         colors = colors,
         shape = MaterialTheme.shapes.small
     ) {
-        Text(
-            text = text,
-            textAlign = TextAlign.Center,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
+        content()
     }
 }
