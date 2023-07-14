@@ -183,7 +183,7 @@ class WelcomeFragment : BaseFragment() {
 
     private fun checkExpiry(maybeExpiry: DateTime?) {
         maybeExpiry?.let { expiry ->
-            val tomorrow = DateTime.now().plusDays(1)
+            val tomorrow = DateTime.now().plusHours(20)
 
             if (expiry.isAfter(tomorrow)) {
                 advanceToConnectScreen()
