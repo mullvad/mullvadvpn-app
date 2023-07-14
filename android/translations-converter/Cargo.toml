@@ -1,10 +1,12 @@
 [package]
 name = "translations-converter"
-version = "0.1.0"
-authors = ["Mullvad VPN"]
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+description = "Converts between PO and Android style localization formats"
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [dependencies]
 derive_more = "0.99"
