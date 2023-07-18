@@ -117,21 +117,32 @@ fun SettingsScreen(
                 NavigationComposeCell(
                     title = stringResource(id = R.string.app_version),
                     onClick = {
-                        context.openLink(
-                            Uri.parse(
-                                context.resources
-                                    .getString(R.string.download_url)
-                                    .appendHideNavOnReleaseBuild()
+                        if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                            context.openLink(
+                                Uri.parse(
+                                    context.resources
+                                        .getString(R.string.download_url)
+                                        .appendHideNavOnReleaseBuild()
+                                )
                             )
-                        )
+                        }
                     },
                     bodyView =
                         @Composable {
-                            NavigationCellBody(
-                                content = uiState.appVersion,
-                                contentBodyDescription = stringResource(id = R.string.app_version),
-                                isExternalLink = true,
-                            )
+                            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                                NavigationCellBody(
+                                    content = uiState.appVersion,
+                                    contentBodyDescription =
+                                        stringResource(id = R.string.app_version),
+                                    isExternalLink = true,
+                                )
+                            } else {
+                                Text(
+                                    text = uiState.appVersion.uppercase(),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            }
                         },
                     showWarning = uiState.isUpdateAvailable,
                 )
