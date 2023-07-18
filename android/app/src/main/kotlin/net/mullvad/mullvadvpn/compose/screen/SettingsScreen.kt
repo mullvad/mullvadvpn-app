@@ -127,13 +127,23 @@ fun SettingsScreen(
                     },
                     bodyView =
                         @Composable {
-                            NavigationCellBody(
-                                content = uiState.appVersion,
-                                contentBodyDescription = stringResource(id = R.string.app_version),
-                                isExternalLink = true,
-                            )
+                            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                                NavigationCellBody(
+                                    content = uiState.appVersion,
+                                    contentBodyDescription =
+                                        stringResource(id = R.string.app_version),
+                                    isExternalLink = true,
+                                )
+                            } else {
+                                Text(
+                                    text = uiState.appVersion.uppercase(),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            }
                         },
                     showWarning = uiState.isUpdateAvailable,
+                    isRowEnabled = BuildConfig.BUILD_TYPE != BuildTypes.RELEASE
                 )
             }
             if (uiState.isUpdateAvailable) {
