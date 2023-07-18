@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.ui.notification
 
 import android.content.Context
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.BuildTypes
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 
@@ -39,6 +41,9 @@ class VersionInfoNotification(val isEnabled: Boolean, context: Context) :
             }
 
             shouldShow = true
+            if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
+                disableExternalLink()
+            }
         } else {
             shouldShow = false
         }
