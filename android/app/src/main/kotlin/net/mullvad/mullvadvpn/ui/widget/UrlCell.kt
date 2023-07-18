@@ -33,6 +33,11 @@ open class UrlCell : Cell {
         onClickListener = { openLink() }
     }
 
+    internal fun disableExternalLink() {
+        externalLinkIcon.visibility = GONE
+        onClickListener = null
+    }
+
     private fun loadAttributes(attributes: AttributeSet?) {
         context.theme.obtainStyledAttributes(attributes, R.styleable.Url, 0, 0).apply {
             try {
