@@ -83,6 +83,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix misaligned read in `shadowsocks` leading to a panic on some platforms.
 
+#### Android
+- Prevent opening download page in Google Play builds.
+
 
 ## [android/2023.3] - 2023-06-27
 ### Changed
