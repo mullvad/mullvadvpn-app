@@ -65,6 +65,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix RPM package containing unecessary files causing conflicts with other electron-builder based
   packages.
 
+#### Android
+- Prevent opening download page in Google Play builds.
+
 
 ## [android/2023.3] - 2023-06-27
 ### Changed
