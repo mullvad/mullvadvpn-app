@@ -9,7 +9,9 @@ import android.view.Gravity
 import android.widget.ImageView
 import android.widget.TextView
 import kotlin.properties.Delegates.observable
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.BuildTypes
 import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 
 class AppVersionCell : UrlCell {
@@ -66,7 +68,9 @@ class AppVersionCell : UrlCell {
     init {
         cell.addView(warningIcon, 0)
         cell.addView(versionLabel, cell.getChildCount() - 1)
-
+        if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
+            disableExternalLink()
+        }
         if (url == null) {
             url = Uri.parse(context.getString(R.string.download_url).appendHideNavOnReleaseBuild())
         }
