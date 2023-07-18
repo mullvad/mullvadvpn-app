@@ -1,1 +1,1 @@
-Prevent app from leading to the Mullvad payment website in order to comply with distribution policies.
+Remove website download link from Google Play builds in order to comply with policies.
