@@ -88,7 +88,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
         redeemButton =
             view.findViewById<Button>(R.id.redeem).apply {
-                setEnabled(false)
+                isEnabled = false
 
                 setOnClickAction("action", jobTracker) { submitVoucher() }
             }
@@ -130,7 +130,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     private fun updateRedeemButton() {
-        redeemButton?.setEnabled(voucherInputIsValid && voucherRedeemer != null)
+        redeemButton?.isEnabled = voucherInputIsValid && voucherRedeemer != null
     }
 
     private suspend fun submitVoucher() {

@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.model.VoucherSubmissionResult as VoucherSubmission
 
 // Events that can be sent from the service
 sealed class Event : Message.EventMessage() {
-    protected override val messageKey = MESSAGE_KEY
+    override val messageKey = MESSAGE_KEY
 
     @Parcelize data class AccountCreationEvent(val result: AccountCreationResult) : Event()
 
@@ -65,7 +65,7 @@ sealed class Event : Message.EventMessage() {
     companion object {
         private const val MESSAGE_KEY = "event"
 
-        fun fromMessage(message: RawMessage): Event? = Message.fromMessage(message, MESSAGE_KEY)
+        fun fromMessage(message: RawMessage): Event? = fromMessage(message, MESSAGE_KEY)
     }
 }
 

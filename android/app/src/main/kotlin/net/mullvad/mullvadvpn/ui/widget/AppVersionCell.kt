@@ -65,7 +65,7 @@ class AppVersionCell : UrlCell {
 
     init {
         cell.addView(warningIcon, 0)
-        cell.addView(versionLabel, cell.getChildCount() - 1)
+        cell.addView(versionLabel, cell.childCount - 1)
 
         if (url == null) {
             url = Uri.parse(context.getString(R.string.download_url).appendHideNavOnReleaseBuild())

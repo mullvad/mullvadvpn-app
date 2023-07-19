@@ -14,7 +14,7 @@ class CopyableInformationView : InformationView {
 
     var copiedToast: String? = null
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {
         loadAttributes(attributes)

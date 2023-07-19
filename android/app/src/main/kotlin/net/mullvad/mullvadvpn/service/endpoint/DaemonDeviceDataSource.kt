@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
-import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.MullvadDaemon

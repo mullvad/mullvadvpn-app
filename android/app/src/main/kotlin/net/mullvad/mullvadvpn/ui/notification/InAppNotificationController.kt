@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.ui.notification
 
-import java.util.PriorityQueue
+import java.util.*
 import kotlin.properties.Delegates.observable
 
 class InAppNotificationController(private val onNotificationChanged: (InAppNotification?) -> Unit) {

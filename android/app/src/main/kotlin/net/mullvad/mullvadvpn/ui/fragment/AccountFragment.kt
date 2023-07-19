@@ -83,7 +83,7 @@ class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
     private var isOffline = true
         set(value) {
             field = value
-            redeemVoucherButton.setEnabled(!value)
+            redeemVoucherButton.isEnabled = !value
         }
 
     private var isAccountNumberShown by

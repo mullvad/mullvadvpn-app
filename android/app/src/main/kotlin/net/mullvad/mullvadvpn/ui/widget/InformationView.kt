@@ -36,7 +36,7 @@ open class InformationView : LinearLayout {
 
             inflater.inflate(R.layout.information_view, this).apply {
                 setOnClickListener { onClick?.invoke() }
-                setEnabled(false)
+                isEnabled = false
             }
         }
 
@@ -59,7 +59,7 @@ open class InformationView : LinearLayout {
 
     var onClick by
         observable<(() -> Unit)?>(null) { _, _, callback ->
-            container.setFocusable(callback != null)
+            container.isFocusable = callback != null
         }
 
     sealed class Masking {
@@ -103,7 +103,7 @@ open class InformationView : LinearLayout {
             toggleMaskingButton.setOnClickListener { callback?.invoke() }
         }
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {
         loadAttributes(attributes)
@@ -195,6 +195,6 @@ open class InformationView : LinearLayout {
     }
 
     private fun updateEnabled() {
-        setEnabled(shouldEnable && error == null && information != null)
+        isEnabled = shouldEnable && error == null && information != null
     }
 }

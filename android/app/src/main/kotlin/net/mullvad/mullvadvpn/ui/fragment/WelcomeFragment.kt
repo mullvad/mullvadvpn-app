@@ -89,11 +89,11 @@ class WelcomeFragment : BaseFragment() {
                 newAccount = true
 
                 setOnClickAction("openAccountPageInBrowser", jobTracker) {
-                    setEnabled(false)
+                    isEnabled = false
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
                         context.openAccountPageInBrowser(token)
                     }
-                    setEnabled(true)
+                    isEnabled = true
                 }
             }
 
@@ -158,7 +158,7 @@ class WelcomeFragment : BaseFragment() {
         val accountText = rawAccountNumber?.let { account -> addSpacesToAccountText(account) }
 
         accountLabel.text = accountText ?: ""
-        accountLabel.setEnabled(accountText != null && accountText.length > 0)
+        accountLabel.isEnabled = accountText != null && accountText.length > 0
     }
 
     private fun addSpacesToAccountText(account: String): String {

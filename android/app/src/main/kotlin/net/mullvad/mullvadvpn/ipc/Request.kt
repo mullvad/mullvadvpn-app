@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.model.WireguardConstraints
 
 // Requests that the service can handle
 sealed class Request : Message.RequestMessage() {
-    protected override val messageKey = MESSAGE_KEY
+    override val messageKey = MESSAGE_KEY
 
     @Parcelize
     @Deprecated("Use SetDnsOptions")
@@ -98,6 +98,6 @@ sealed class Request : Message.RequestMessage() {
     companion object {
         private const val MESSAGE_KEY = "request"
 
-        fun fromMessage(message: RawMessage): Request? = Message.fromMessage(message, MESSAGE_KEY)
+        fun fromMessage(message: RawMessage): Request? = fromMessage(message, MESSAGE_KEY)
     }
 }

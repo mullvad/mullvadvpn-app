@@ -280,7 +280,7 @@ class ProblemReportFragment : BaseFragment() {
     }
 
     private fun setSendButtonEnabled(enabled: Boolean) {
-        sendButton.setEnabled(enabled)
+        sendButton.isEnabled = enabled
         sendButton.alpha = if (enabled) 1.0F else 0.5F
     }
 

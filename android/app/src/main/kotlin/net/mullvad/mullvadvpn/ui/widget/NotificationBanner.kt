@@ -53,7 +53,7 @@ class NotificationBanner : FrameLayout {
     private val animation =
         ObjectAnimator.ofFloat(this, "translationY", 0.0f).apply {
             addListener(animationListener)
-            setDuration(350)
+            duration = 350
         }
 
     private val container =
@@ -107,18 +107,18 @@ class NotificationBanner : FrameLayout {
         jobTracker.cancelAllJobs()
     }
 
-    protected override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
+    override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
         animation.setFloatValues(-height.toFloat(), 0.0f)
     }
 
     private suspend fun onClick() {
         notifications.current?.onClick?.let { action ->
             alpha = 0.5f
-            setClickable(false)
+            isClickable = false
 
             jobTracker.runOnBackground(action)
 
-            setClickable(true)
+            isClickable = true
             alpha = 1.0f
         }
     }
@@ -147,7 +147,7 @@ class NotificationBanner : FrameLayout {
             icon.visibility = View.GONE
         }
 
-        setClickable(clickAction != null)
+        isClickable = clickAction != null
     }
 
     private fun animateChange() {

@@ -25,8 +25,8 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
         settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
             maybeDnsOptions?.let { dnsOptions ->
                 synchronized(this) {
-                    onEnabledChanged.notifyIfChanged(dnsOptions.state == DnsState.Custom)
-                    onDnsServersChanged.notifyIfChanged(dnsOptions.customOptions.addresses)
+                    onDnsOptionsChanged.notifyIfChanged(dnsOptions.state == DnsState.Custom)
+                    onDnsOptionsChanged.notifyIfChanged(dnsOptions.customOptions.addresses)
                     onDnsOptionsChanged.notifyIfChanged(dnsOptions)
                 }
             }
@@ -42,11 +42,11 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
     }
 
     fun isCustomDnsEnabled(): Boolean {
-        return onEnabledChanged.latestEvent ?: false
+        return onDnsOptionsChanged.latestEvent
     }
 
     fun addDnsServer(server: InetAddress): Boolean {
-        val didntAlreadyHaveServer = !onDnsServersChanged.latestEvent.contains(server)
+        val didntAlreadyHaveServer = !onDnsOptionsChanged.latestEvent.contains(server)
 
         connection.send(Request.AddCustomDnsServer(server).message)
 
@@ -55,7 +55,7 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
 
     fun replaceDnsServer(oldServer: InetAddress, newServer: InetAddress): Boolean {
         synchronized(this) {
-            val dnsServers = onDnsServersChanged.latestEvent
+            val dnsServers = onDnsOptionsChanged.latestEvent
             val containsOldServer = dnsServers.contains(oldServer)
             val replacementIsValid = oldServer == newServer || !dnsServers.contains(newServer)
 
@@ -74,8 +74,8 @@ class CustomDns(private val connection: Messenger, private val settingsListener:
     }
 
     fun onDestroy() {
-        onEnabledChanged.unsubscribeAll()
-        onDnsServersChanged.unsubscribeAll()
+        onDnsOptionsChanged.unsubscribeAll()
+        onDnsOptionsChanged.unsubscribeAll()
         onDnsOptionsChanged.unsubscribeAll()
 
         settingsListener.dnsOptionsNotifier.unsubscribe(this)

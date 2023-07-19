@@ -65,7 +65,7 @@ constructor(
             return
         }
         itemData.text?.let {
-            itemText.setText(it)
+            itemText.text = it
             return
         }
         itemText.text = ""

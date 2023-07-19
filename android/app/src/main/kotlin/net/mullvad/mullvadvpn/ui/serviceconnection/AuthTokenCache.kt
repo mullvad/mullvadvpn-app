@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
-import java.util.LinkedList
+import java.util.*
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.EventDispatcher

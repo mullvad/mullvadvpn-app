@@ -167,10 +167,10 @@ class CellSwitch : LinearLayout {
     ) : super(context, attributes, defaultStyleAttribute)
 
     init {
-        setBackground(resources.getDrawable(R.drawable.cell_switch_background, null))
+        background = resources.getDrawable(R.drawable.cell_switch_background, null)
         addView(
             knobView,
-            LinearLayout.LayoutParams(knobSize, knobSize).apply {
+            LayoutParams(knobSize, knobSize).apply {
                 gravity = Gravity.CENTER_VERTICAL
                 leftMargin = resources.getDimensionPixelSize(R.dimen.cell_switch_knob_margin)
             }
@@ -219,7 +219,7 @@ class CellSwitch : LinearLayout {
                 positionAnimation.start()
             }
             State.OFF -> {
-                if (!animationIsReversed || !colorAnimation.isRunning()) {
+                if (!animationIsReversed || !colorAnimation.isRunning) {
                     animationIsReversed = true
                     colorAnimation.reverse()
                     positionAnimation.reverse()

@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 
 // Container of classes that communicate with the service through an active connection
 //

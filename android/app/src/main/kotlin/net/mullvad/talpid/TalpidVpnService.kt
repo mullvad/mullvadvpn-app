@@ -82,7 +82,7 @@ open class TalpidVpnService : VpnService() {
     }
 
     private fun createTun(config: TunConfig): CreateTunResult {
-        if (VpnService.prepare(this) != null) {
+        if (prepare(this) != null) {
             // VPN permission wasn't granted
             return CreateTunResult.PermissionDenied
         }

@@ -10,7 +10,7 @@ class BlockingController(val blockableView: BlockableView) {
     var innerJob: Job? = null
 
     fun action() {
-        if (!(job?.isActive ?: false)) {
+        if (job?.isActive != true) {
             job =
                 GlobalScope.launch(Dispatchers.Main) {
                     blockableView.setEnabled(false)
