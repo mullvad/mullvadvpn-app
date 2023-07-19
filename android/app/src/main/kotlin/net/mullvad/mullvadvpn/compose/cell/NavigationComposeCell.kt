@@ -120,7 +120,7 @@ internal fun NavigationCellBody(
         modifier = modifier.wrapContentWidth().wrapContentHeight()
     ) {
         Text(
-            text = content.uppercase(),
+            text = content,
             style = MaterialTheme.typography.labelMedium,
             color = contentColor
         )
