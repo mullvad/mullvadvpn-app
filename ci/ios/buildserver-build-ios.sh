@@ -33,6 +33,20 @@ function build_ref() {
         return 0
     fi
 
+
+    if ! run_git verify-tag "$tag"; then
+        echo "!!!"
+        echo "[#] $tag failed GPG verification!"
+        echo "!!!"
+        sleep 60
+        return 0
+    fi
+
+    run_git reset --hard
+    run_git checkout $tag
+    run_git submodule update
+    run_git clean -df
+
     local app_build_version="";
     if ! app_build_version=$(read_app_version); then
         echo "!!!"
@@ -53,19 +67,6 @@ function build_ref() {
 
     echo ""
     echo "[#] $tag: $app_build_version $current_hash, building new packages."
-
-    if ! run_git verify-tag "$tag"; then
-        echo "!!!"
-        echo "[#] $tag failed GPG verification!"
-        echo "!!!"
-        sleep 60
-        return 0
-    fi
-
-    run_git reset --hard
-    run_git checkout $tag
-    run_git submodule update
-    run_git clean -df
 
     if "$SCRIPT_DIR"/run-build.sh; then
         touch "$LAST_BUILT_DIR"/"commit-$current_hash"
