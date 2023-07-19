@@ -1,4 +1,4 @@
-#!/usr/bin/env/ bash
+#!/usr/bin/env bash
 # Buildscript to run on our buildserver to create and upload an iOS app.
 #
 # The script expects two tart VMs, `ios-build` and `ios-upload` to exist and be
