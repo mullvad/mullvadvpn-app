@@ -119,11 +119,7 @@ internal fun NavigationCellBody(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.wrapContentWidth().wrapContentHeight()
     ) {
-        Text(
-            text = content,
-            style = MaterialTheme.typography.labelMedium,
-            color = contentColor
-        )
+        Text(text = content, style = MaterialTheme.typography.labelMedium, color = contentColor)
         Spacer(modifier = Modifier.width(Dimens.sideMargin))
         if (isExternalLink) {
             DefaultExternalLinkView(content)
