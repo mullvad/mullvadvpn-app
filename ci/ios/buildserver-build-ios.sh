@@ -68,7 +68,7 @@ function build_ref() {
     echo ""
     echo "[#] $tag: $app_build_version $current_hash, building new packages."
 
-    if "$SCRIPT_DIR"/run-build.sh; then
+    if "$SCRIPT_DIR"/run-build-and-upload.sh; then
         touch "$LAST_BUILT_DIR"/"commit-$current_hash"
         echo "$current_hash" > "$LAST_BUILT_DIR"/"build-${app_build_version}"
         echo "Successfully built ${app_build_version} ${tag} with hash ${current_hash}"

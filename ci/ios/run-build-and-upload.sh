@@ -18,34 +18,11 @@ ssh-add ~/.ssh/ios-vm-key
 # really do not like the whitespace. Thus, the build source is copied to a
 # non-whitespaced `~/build`, built there and the resulting `MullvadVPN.ipa` is
 # copied back.
-VM_BUILD_DIR="\"/Volumes/My Shared Files/build\""
 MULLVAD_CHECKOUT_DIR="${MULLVAD_CHECKOUT_DIR:-mullvadvpn-app}"
 
-BUILD_SCRIPT="
-	set -eu
-	security unlock-keychain -p 'build'
-	rm -rf ~/build
-	cp -r ${VM_BUILD_DIR} ~/build || true
-	cd ~/build/ios
-	rm -r Build
-    for file in ./Configurations/*.template ; do cp \$file \${file//.template/} ; done
-	IOS_PROVISIONING_PROFILES_DIR=~/provisioning-profiles bash build.sh
-	cp ~/build/ios/Build/MullvadVPN.ipa /Volumes/My\ Shared\ Files/build/ios/Build/
-"
-
-
-bash run-in-vm.sh "ios-build" "${BUILD_SCRIPT}" "build:${MULLVAD_CHECKOUT_DIR}"
+bash run-in-vm.sh "ios-build" "$(pwd)/build-app.sh" "build:${MULLVAD_CHECKOUT_DIR}"
 mkdir -p build-output
 cp "${MULLVAD_CHECKOUT_DIR}/ios/Build/MullvadVPN.ipa" build-output/MullvadVPN.ipa
 
-VM_UPLOAD_IPA_PATH="/Volumes/My\ Shared\ Files/build-output/MullvadVPN.ipa"
-# TODO figure out path to API key
-API_KEY_PATH="~/ci/app-store-connect-key.json"
-UPLOAD_SCRIPT="
-	cd ci/
-	source ~/.zshrc
-	source ~/.zprofile
-	bundle exec fastlane pilot upload --api-key-path ${API_KEY_PATH} --ipa ${VM_UPLOAD_IPA_PATH}
-"
 
-bash run-in-vm.sh "ios-upload" "${UPLOAD_SCRIPT}" "build-output:build-output"
+bash run-in-vm.sh "ios-upload" "$(pwd)/upload-app.sh" "build-output:build-output"
