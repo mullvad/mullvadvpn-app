@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
   not match the one stored on device.
 - Add redeeming voucher code on account view.
 - Add WireGuard port selection to settings.
+- Add account deletion ability to account view.
 
 ## [2023.2 - 2023-04-03]
 ### Changed
