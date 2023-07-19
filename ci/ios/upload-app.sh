@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 # Upload script to run in `ios-upload` VM to upload a newly built IPA to TestFlight
-set -eu -o pipefail
 
 VM_UPLOAD_IPA_PATH="/Volumes/My\ Shared\ Files/build-output/MullvadVPN.ipa"
 API_KEY_PATH="~/ci/app-store-connect-key.json"

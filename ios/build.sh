@@ -89,7 +89,7 @@ install_mobile_provisioning
 ###########################################
 
 release_build() {
-  PATH=/usr/local/go/bin:$PATH xcodebuild \
+  xcodebuild \
     -project "$XCODE_PROJECT_DIR" \
     -scheme "$PROJECT_NAME" \
     -sdk iphoneos \

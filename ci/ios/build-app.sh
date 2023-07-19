@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 # Buildscript to run inside a build VM to build a new IPA for the iOS app.
 
 # This single path really screws with XCode and wireguard-go's makefiles, which
@@ -7,7 +7,7 @@
 # copied back.
 set -eu
 
-VM_BUILD_DIR="\"/Volumes/My Shared Files/build\""
+VM_BUILD_DIR="/Volumes/My Shared Files/build"
 
 security unlock-keychain -p 'build'
 
