@@ -28,6 +28,7 @@ BUILD_SCRIPT="
 	cp -r ${VM_BUILD_DIR} ~/build || true
 	cd ~/build/ios
 	rm -r Build
+    for file in ./Configurations/*.template ; do cp \$file \${file//.template/} ; done
 	IOS_PROVISIONING_PROFILES_DIR=~/provisioning-profiles bash build.sh
 	cp ~/build/ios/Build/MullvadVPN.ipa /Volumes/My\ Shared\ Files/build/ios/Build/
 "
