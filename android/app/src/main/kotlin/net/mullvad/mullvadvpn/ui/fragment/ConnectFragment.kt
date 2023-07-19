@@ -28,7 +28,6 @@ import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
 import net.mullvad.mullvadvpn.ui.paintNavigationBar
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
@@ -46,7 +45,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     private val tunnelStateNotification: TunnelStateNotification by inject()
     private val versionInfoNotification: VersionInfoNotification by inject()
 
-    private lateinit var headerBar: HeaderBar
     private lateinit var notificationBanner: NotificationBanner
 
     @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
@@ -62,11 +60,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.connect, container, false)
-
-        headerBar =
-            view.findViewById<HeaderBar>(R.id.header_bar).apply {
-                tunnelState = connectViewModel.uiState.value.tunnelUiState
-            }
 
         if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
             accountExpiryNotification.onClick = null
@@ -100,7 +93,9 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                     onConnectClick = connectViewModel::onConnectClick,
                     onCancelClick = connectViewModel::onCancelClick,
                     onSwitchLocationClick = { openSwitchLocationScreen() },
-                    onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion
+                    onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion,
+                    onAccountIconClick = { openAccountScreen() },
+                    onSettingsIconClick = { openSettingsScreen() }
                 )
             }
         }
@@ -131,21 +126,16 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 versionInfoNotification.updateVersionInfo(uiState.versionInfo)
             }
             tunnelStateNotification.updateTunnelState(uiState.tunnelUiState)
-            updateTunnelState(uiState.tunnelRealState)
+
+            if (uiState.tunnelRealState.isTunnelErrorStateDueToExpiredAccount()) {
+                openOutOfTimeScreen()
+            }
         }
     }
 
     private fun CoroutineScope.launchAccountExpirySubscription() = launch {
         accountRepository.accountExpiryState.collect {
             accountExpiryNotification.updateAccountExpiry(it.date())
-        }
-    }
-
-    private fun updateTunnelState(realState: TunnelState) {
-        headerBar.tunnelState = realState
-
-        if (realState.isTunnelErrorStateDueToExpiredAccount()) {
-            openOutOfTimeScreen()
         }
     }
 
@@ -169,6 +159,34 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 replace(R.id.main_fragment, OutOfTimeFragment())
                 commitAllowingStateLoss()
             }
+        }
+    }
+
+    private fun openAccountScreen() {
+        parentFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_bottom,
+                R.anim.do_nothing,
+                R.anim.do_nothing,
+                R.anim.fragment_exit_to_bottom
+            )
+            replace(R.id.main_fragment, AccountFragment())
+            addToBackStack(null)
+            commitAllowingStateLoss()
+        }
+    }
+
+    private fun openSettingsScreen() {
+        parentFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_bottom,
+                R.anim.do_nothing,
+                R.anim.do_nothing,
+                R.anim.fragment_exit_to_bottom
+            )
+            replace(R.id.main_fragment, SettingsFragment())
+            addToBackStack(null)
+            commitAllowingStateLoss()
         }
     }
 
