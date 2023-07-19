@@ -17,6 +17,10 @@ SHARED_DIR=${3:?"No passthrough provided"}
 
 tart run --no-graphics "--dir=${SHARED_DIR}" "$VM_NAME" &
 vm_pid=$!
+
+# Sleep to wait until VM is up
+sleep 10
+
 # apparently, there's a difference between piping into zsh like this and doing
 # a <(echo $SCRIPT).
 echo "$SCRIPT" | ssh admin@$(tart ip "$VM_NAME") zsh /dev/stdin
