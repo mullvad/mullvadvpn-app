@@ -44,8 +44,9 @@ function build_ref() {
 
     if [ -f "$LAST_BUILT_DIR/build-$app_build_version" ]; then
         echo "!!!"
-        echo "[#] App version already built in commit $(cat "${LAST_BUILT_DIR}/build-${app_build_version}")"
+        echo "[#] App version $app_build_version already built in commit $(cat "${LAST_BUILT_DIR}/build-${app_build_version}")"
         echo "[#] The build version in Configuration/Version.xcconfig should be bumped."
+        echo "[#] Failed to build $current_hash"
         echo "!!!"
         return 0
     fi
