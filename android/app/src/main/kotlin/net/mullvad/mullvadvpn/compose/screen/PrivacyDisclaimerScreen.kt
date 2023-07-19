@@ -50,7 +50,8 @@ fun PrivacyDisclaimerScreen(
         topBarColor = topColor,
         statusBarColor = topColor,
         navigationBarColor = colorResource(id = R.color.darkBlue),
-        onSettingsClicked = null
+        onAccountIconClick = null,
+        onSettingsIconClick = null
     ) {
         ConstraintLayout(
             modifier =

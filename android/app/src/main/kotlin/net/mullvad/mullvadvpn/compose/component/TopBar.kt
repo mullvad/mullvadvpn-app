@@ -24,13 +24,18 @@ import net.mullvad.mullvadvpn.R
 @Preview
 @Composable
 private fun PreviewTopBar() {
-    TopBar(backgroundColor = colorResource(R.color.blue), onSettingsClicked = {})
+    TopBar(
+        backgroundColor = colorResource(R.color.blue),
+        onAccountIconClick = {},
+        onSettingsIconClick = {}
+    )
 }
 
 @Composable
 fun TopBar(
     backgroundColor: Color,
-    onSettingsClicked: (() -> Unit)?,
+    onAccountIconClick: (() -> Unit)?,
+    onSettingsIconClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     isIconAndLogoVisible: Boolean = true
 ) {
@@ -41,7 +46,7 @@ fun TopBar(
                 .background(backgroundColor)
                 .then(modifier),
     ) {
-        val (logo, appName, settingsIcon) = createRefs()
+        val (logo, appName, accountIcon, settingsIcon) = createRefs()
 
         if (isIconAndLogoVisible) {
             Image(
@@ -66,12 +71,24 @@ fun TopBar(
             )
         }
 
-        if (onSettingsClicked != null) {
+        if (onAccountIconClick != null) {
+            Image(
+                painter = painterResource(R.drawable.icon_account),
+                contentDescription = stringResource(id = R.string.settings_account),
+                modifier =
+                    Modifier.clickable { onAccountIconClick() }
+                        .fillMaxHeight()
+                        .padding(horizontal = 16.dp)
+                        .constrainAs(accountIcon) { end.linkTo(settingsIcon.start) }
+            )
+        }
+
+        if (onSettingsIconClick != null) {
             Image(
                 painter = painterResource(R.drawable.icon_settings),
                 contentDescription = stringResource(id = R.string.settings),
                 modifier =
-                    Modifier.clickable { onSettingsClicked() }
+                    Modifier.clickable { onSettingsIconClick() }
                         .fillMaxHeight()
                         .padding(horizontal = 16.dp)
                         .constrainAs(settingsIcon) { end.linkTo(parent.end) }

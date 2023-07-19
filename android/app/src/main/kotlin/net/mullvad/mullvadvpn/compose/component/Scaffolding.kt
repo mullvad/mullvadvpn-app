@@ -29,7 +29,8 @@ fun ScaffoldWithTopBar(
     topBarColor: Color,
     statusBarColor: Color,
     navigationBarColor: Color,
-    onSettingsClicked: (() -> Unit)?,
+    onAccountIconClick: (() -> Unit)?,
+    onSettingsIconClick: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -41,7 +42,8 @@ fun ScaffoldWithTopBar(
         topBar = {
             TopBar(
                 backgroundColor = topBarColor,
-                onSettingsClicked = onSettingsClicked,
+                onAccountIconClick = onAccountIconClick,
+                onSettingsIconClick = onSettingsIconClick,
                 isIconAndLogoVisible = isIconAndLogoVisible
             )
         },

@@ -36,7 +36,8 @@ fun LoadingScreen(onSettingsCogClicked: () -> Unit = {}) {
         topBarColor = backgroundColor,
         statusBarColor = backgroundColor,
         navigationBarColor = backgroundColor,
-        onSettingsClicked = onSettingsCogClicked,
+        onAccountIconClick = null,
+        onSettingsIconClick = onSettingsCogClicked,
         isIconAndLogoVisible = false,
         content = {
             Box(
