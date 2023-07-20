@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.Button
@@ -151,10 +152,13 @@ private fun DisconnectButton(
                 ),
             modifier = Modifier.weight(1f).height(height)
         ) {
+            // Offset to compensate for the reconnect button.
+            val paddingOffset = height + Dimens.listItemDivider
             Text(
                 text = text,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = paddingOffset)
             )
         }
 
