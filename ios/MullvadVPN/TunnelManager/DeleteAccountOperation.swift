@@ -1,0 +1,57 @@
+//
+//  DeleteAccountOperation.swift
+//  MullvadVPN
+//
+//  Created by Mojgan on 2023-07-18.
+//  Copyright © 2023 Mullvad VPN AB. All rights reserved.
+//
+
+import Foundation
+import MullvadLogging
+import MullvadREST
+import MullvadTypes
+import Operations
+
+class DeleteAccountOperation: ResultOperation<Bool> {
+    private let logger = Logger(label: "\(DeleteAccountOperation.self)")
+
+    private let accountNumber: String
+    private let accountsProxy: REST.AccountsProxy
+    private var task: Cancellable?
+
+    init(
+        dispatchQueue: DispatchQueue,
+        accountsProxy: REST.AccountsProxy,
+        accountNumber: String
+    ) {
+        self.accountNumber = accountNumber
+        self.accountsProxy = accountsProxy
+        super.init(dispatchQueue: dispatchQueue)
+    }
+
+    override func main() {
+        task = accountsProxy.deleteAccount(
+            accountNumber: accountNumber,
+            retryStrategy: .default,
+            completion: { [weak self] result in
+                self?.dispatchQueue.async {
+                    switch result {
+                    case let .success(isDeleted):
+                        self?.finish(result: .success(isDeleted))
+                    case let .failure(error):
+                        self?.logger.error(
+                            error: error,
+                            message: "Failed to delete account."
+                        )
+                        self?.finish(result: .failure(error))
+                    }
+                }
+            }
+        )
+    }
+
+    override func operationDidCancel() {
+        task?.cancel()
+        task = nil
+    }
+}

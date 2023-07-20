@@ -40,6 +40,10 @@ enum UIMetrics {
         static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0)
     }
 
+    enum AccountDeletion {
+        static let preferredContentSize = CGSize(width: 375, height: 500)
+    }
+
     enum Button {
         static let barButtonSize: CGFloat = 44.0
     }
