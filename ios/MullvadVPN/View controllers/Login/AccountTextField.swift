@@ -9,18 +9,46 @@
 import UIKit
 
 class AccountTextField: CustomTextField, UITextFieldDelegate {
-    private let inputFormatter = InputTextFormatter(configuration: InputTextFormatter.Configuration(
+    enum GroupingStyle: Int {
+        case full
+        case lastPart
+
+        var size: UInt8 {
+            switch self {
+            case .full:
+                return 4
+            case .lastPart:
+                return 1
+            }
+        }
+    }
+
+    private var groupSize: GroupingStyle = .full
+    private lazy var inputFormatter = InputTextFormatter(configuration: InputTextFormatter.Configuration(
         allowedInput: .numeric,
         groupSeparator: " ",
         groupSize: 4,
-        maxGroups: 4
+        maxGroups: groupSize.size
     ))
 
     var onReturnKey: ((AccountTextField) -> Bool)?
 
+    init(groupingStyle: GroupingStyle = .full) {
+        self.groupSize = groupingStyle
+        super.init(frame: .zero)
+        commonInit()
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
+        commonInit()
+    }
 
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func commonInit() {
         backgroundColor = .clear
         cornerRadius = 0
 
@@ -33,10 +61,6 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
             name: UIWindow.keyboardWillShowNotification,
             object: nil
         )
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     var autoformattingText: String {
