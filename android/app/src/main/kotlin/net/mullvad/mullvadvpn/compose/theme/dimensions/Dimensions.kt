@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 data class Dimensions(
+    val backButtonSideMargin: Dp = 30.dp,
     val buttonHeight: Dp = 44.dp,
     val buttonSeparation: Dp = 18.dp,
     val cellEndPadding: Dp = 16.dp,
@@ -21,6 +22,7 @@ data class Dimensions(
     val expandableCellChevronSize: Dp = 30.dp,
     val indentedCellStartPadding: Dp = 38.dp,
     val infoButtonVerticalPadding: Dp = 13.dp,
+    val informationIconSize: Dp = 28.dp,
     val listIconSize: Dp = 24.dp,
     val listItemDivider: Dp = 1.dp,
     val listItemHeight: Dp = 50.dp,
