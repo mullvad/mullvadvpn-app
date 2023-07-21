@@ -6,6 +6,7 @@ on:
       - .github/workflows/ios.yml
       - ios/.swiftformat
       - ios/**/*.swift
+      - ios/**/*.xctestplan
   workflow_dispatch:
 jobs:
   check-formatting:
