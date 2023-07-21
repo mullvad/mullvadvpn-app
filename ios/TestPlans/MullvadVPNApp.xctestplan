@@ -37,6 +37,14 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "58695A9C2A4ADA9100328DB3",
+        "name" : "TunnelObfuscationTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
         "identifier" : "589A455128E094B300565204",
         "name" : "OperationsTests"
       }
