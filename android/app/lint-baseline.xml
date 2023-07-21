@@ -48,17 +48,6 @@
     <issue
         id="ScrollViewSize"
         message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
-        errorLine1="                          android:layout_height=&quot;match_parent&quot;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/connect.xml"
-            line="23"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ScrollViewSize"
-        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
         errorLine1="                  android:layout_height=&quot;match_parent&quot;"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -312,28 +301,6 @@
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="    private val greenBackground = resources.getDrawable(R.drawable.green_button_background, null)"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ConnectActionButton.kt"
-            line="16"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        resources.getDrawable(R.drawable.transparent_red_left_half_button_background, null)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/ConnectActionButton.kt"
-            line="18"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
         errorLine1="    private val errorImage = resources.getDrawable(R.drawable.icon_notification_error, null)"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -351,28 +318,6 @@
             file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/NotificationBanner.kt"
             line="67"
             column="32"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="    val activeRelayIcon = resources.getDrawable(R.drawable.icon_relay_active, null)"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/relaylist/RelayListAdapter.kt"
-            line="17"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="    val inactiveRelayIcon = resources.getDrawable(R.drawable.icon_relay_inactive, null)"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/relaylist/RelayListAdapter.kt"
-            line="18"
-            column="29"/>
     </issue>
 
     <issue
@@ -772,32 +717,10 @@
     </issue>
 
     <issue
-        id="NotifyDataSetChanged"
-        message="It will always be more efficient to use more specific change events if you can. Rely on `notifyDataSetChanged` as a last resort."
-        errorLine1="            notifyDataSetChanged()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/relaylist/RelayListAdapter.kt"
-            line="64"
-            column="13"/>
-    </issue>
-
-    <issue
         id="ObsoleteSdkInt"
         message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 26. Merge all the resources in this folder into `mipmap-anydpi`.">
         <location
             file="src/main/res/mipmap-anydpi-v26"/>
-    </issue>
-
-    <issue
-        id="UseCompoundDrawables"
-        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable"
-        errorLine1="                        &lt;LinearLayout android:layout_width=&quot;wrap_content&quot;"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/connect.xml"
-            line="79"
-            column="26"/>
     </issue>
 
     <issue
@@ -880,17 +803,6 @@
     <issue
         id="InefficientWeight"
         message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="                                  android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/connect.xml"
-            line="71"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
         errorLine1="                          android:layout_height=&quot;wrap_content&quot;"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -935,17 +847,6 @@
     <issue
         id="NestedWeights"
         message="Nested weights are bad for performance"
-        errorLine1="                                  android:layout_weight=&quot;0&quot;"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/connect.xml"
-            line="72"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="NestedWeights"
-        message="Nested weights are bad for performance"
         errorLine1="                   android:layout_weight=&quot;1&quot; />"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -983,28 +884,6 @@
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/problem_report.xml"
-            line="5"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/select_location.xml"
-            line="4"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/settings.xml"
             line="5"
             column="14"/>
     </issue>
@@ -1407,28 +1286,6 @@
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
-        errorLine1="                            &lt;ImageView android:id=&quot;@+id/chevron&quot;"
-        errorLine2="                             ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/connect.xml"
-            line="89"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="                        &lt;ImageButton android:id=&quot;@+id/reconnect_button&quot;"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/connect.xml"
-            line="137"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
         errorLine1="        &lt;ImageView android:id=&quot;@+id/appIcon&quot;"
         errorLine2="         ~~~~~~~~~">
         <location
@@ -1528,61 +1385,6 @@
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
-        errorLine1="            &lt;ImageView android:id=&quot;@+id/relay_active&quot;"
-        errorLine2="             ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="23"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="            &lt;ImageView android:id=&quot;@+id/selected&quot;"
-        errorLine2="             ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="28"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageButton android:id=&quot;@+id/chevron&quot;"
-        errorLine2="     ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="46"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="            &lt;ImageButton android:id=&quot;@+id/close&quot;"
-        errorLine2="             ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/select_location.xml"
-            line="16"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="            &lt;ImageButton android:id=&quot;@+id/close&quot;"
-        errorLine2="             ~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/settings.xml"
-            line="17"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
         errorLine1="    &lt;ImageView android:layout_width=&quot;24dp&quot;"
         errorLine2="     ~~~~~~~~~">
         <location
@@ -1614,50 +1416,6 @@
     </issue>
 
     <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            inAddress.text = context.getString(R.string.in_address) + &quot;  $host:$port $protocol&quot;"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
-            line="119"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            inAddress.text = context.getString(R.string.in_address) + &quot;  $host:$port $protocol&quot;"
-        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
-            line="119"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            outAddress.text = context.getString(R.string.out_address) + &quot;  $ipAddress&quot;"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
-            line="141"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="            outAddress.text = context.getString(R.string.out_address) + &quot;  $ipAddress&quot;"
-        errorLine2="                                                                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/LocationInfo.kt"
-            line="141"
-            column="73"/>
-    </issue>
-
-    <issue
         id="RtlSymmetry"
         message="When you define `paddingRight` you should probably also define `paddingLeft` for right-to-left symmetry"
         errorLine1="                  android:paddingRight=&quot;@dimen/cell_inner_spacing&quot;"
@@ -1666,28 +1424,6 @@
             file="src/main/res/layout/split_tunneling_header.xml"
             line="41"
             column="19"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="            gravity = Gravity.RIGHT"
-        errorLine2="                              ~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AppVersionCell.kt"
-            line="31"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`Gravity.END`&quot; instead of &quot;`Gravity.RIGHT`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="            gravity = Gravity.RIGHT"
-        errorLine2="                              ~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/AppVersionCell.kt"
-            line="31"
-            column="31"/>
     </issue>
 
     <issue
@@ -1879,17 +1615,6 @@
 
     <issue
         id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;1dp&quot;` to better support right-to-left layouts"
-        errorLine1="                                     android:layout_marginLeft=&quot;1dp&quot;"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/connect.xml"
-            line="140"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
         message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;16dp&quot;` to better support right-to-left layouts"
         errorLine1="                android:paddingLeft=&quot;16dp&quot;"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~">
@@ -2011,116 +1736,6 @@
 
     <issue
         id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="              android:layout_alignParentLeft=&quot;true&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="12"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="              android:layout_alignParentRight=&quot;true&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="13"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="                     android:layout_alignParentLeft=&quot;true&quot;"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="20"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/country_row_padding&quot;` to better support right-to-left layouts"
-        errorLine1="                     android:layout_marginLeft=&quot;@dimen/country_row_padding&quot;>"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="22"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
-        errorLine1="                  android:layout_alignParentRight=&quot;true&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="39"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_toRightOf` with `android:layout_toEndOf=&quot;@id/status&quot;` to better support right-to-left layouts"
-        errorLine1="                  android:layout_toRightOf=&quot;@id/status&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/relay_list_item.xml"
-            line="40"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="             android:gravity=&quot;left&quot;>"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/res/layout/select_location.xml"
-            line="5"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="              android:gravity=&quot;left&quot;>"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/res/layout/select_location_header.xml"
-            line="5"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="             android:gravity=&quot;left&quot;>"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/res/layout/settings.xml"
-            line="6"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/side_margin&quot;` to better support right-to-left layouts"
-        errorLine1="                          android:layout_marginLeft=&quot;@dimen/side_margin&quot;"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/settings.xml"
-            line="42"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
         message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;8dp&quot;` to better support right-to-left layouts"
         errorLine1="               android:layout_marginRight=&quot;8dp&quot;"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -2194,17 +1809,6 @@
             file="src/main/res/layout/split_tunneling_header.xml"
             line="41"
             column="19"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:drawableRight` with `android:drawableEnd=&quot;@drawable/icon_chevron&quot;` to better support right-to-left layouts"
-        errorLine1="            android:drawableRight=&quot;@drawable/icon_chevron&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/switch_location_button.xml"
-            line="11"
-            column="13"/>
     </issue>
 
     <issue
