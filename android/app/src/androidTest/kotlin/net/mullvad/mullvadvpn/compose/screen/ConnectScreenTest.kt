@@ -516,11 +516,12 @@ class ConnectScreenTest {
     fun testToggleTunnelInfo() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+        val dummyLocation = GeoIpLocation(null, null, "dummy country", null, "dummy hostname")
         composeTestRule.setContent {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
-                        location = null,
+                        location = dummyLocation,
                         relayLocation = null,
                         versionInfo = null,
                         tunnelUiState = TunnelState.Connecting(null, null),
