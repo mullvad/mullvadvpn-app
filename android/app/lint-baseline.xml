@@ -823,28 +823,6 @@
     </issue>
 
     <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="              android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="9"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_width` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="        &lt;TextView android:layout_width=&quot;wrap_content&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="38"
-            column="19"/>
-    </issue>
-
-    <issue
         id="NestedWeights"
         message="Nested weights are bad for performance"
         errorLine1="                   android:layout_weight=&quot;1&quot; />"
@@ -891,122 +869,12 @@
     <issue
         id="Overdraw"
         message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling.xml"
-            line="5"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
         errorLine1="              android:background=&quot;@color/darkBlue&quot;"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/view_logs.xml"
             line="5"
             column="15"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.red45` appears to be unused"
-        errorLine1="    &lt;color name=&quot;red45&quot;>#72E34039&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="21"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.red40` appears to be unused"
-        errorLine1="    &lt;color name=&quot;red40&quot;>#66E34039&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="22"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.textInputBorder` appears to be unused"
-        errorLine1="    &lt;color name=&quot;textInputBorder&quot;>#234161&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="24"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.anim.fade_in` appears to be unused"
-        errorLine1="&lt;set xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/anim/fade_in.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.missing_service` appears to be unused"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/missing_service.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.split_tunneling` appears to be unused"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/split_tunneling.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.split_tunneling_header` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.wg_key_url` appears to be unused"
-        errorLine1="    &lt;string name=&quot;wg_key_url&quot; translatable=&quot;false&quot;>https://mullvad.net/account/ports&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings_non_translatable.xml"
-            line="6"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.transparent_red_button_background` appears to be unused"
-        errorLine1="&lt;selector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/transparent_red_button_background.xml"
-            line="2"
-            column="1"/>
     </issue>
 
     <issue
@@ -1416,17 +1284,6 @@
     </issue>
 
     <issue
-        id="RtlSymmetry"
-        message="When you define `paddingRight` you should probably also define `paddingLeft` for right-to-left symmetry"
-        errorLine1="                  android:paddingRight=&quot;@dimen/cell_inner_spacing&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="41"
-            column="19"/>
-    </issue>
-
-    <issue
         id="RtlHardcoded"
         message="Use &quot;`Gravity.START`&quot; instead of &quot;`Gravity.LEFT`&quot; to ensure correct behavior in right-to-left locales"
         errorLine1="        gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT"
@@ -1743,72 +1600,6 @@
             file="src/main/res/layout/settings_back_button.xml"
             line="4"
             column="16"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="             android:gravity=&quot;left&quot;>"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling.xml"
-            line="6"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="              android:gravity=&quot;left&quot;>"
-        errorLine2="                               ~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="6"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/side_margin&quot;` to better support right-to-left layouts"
-        errorLine1="              android:layout_marginLeft=&quot;@dimen/side_margin&quot;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="11"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;@dimen/cell_left_padding&quot;` to better support right-to-left layouts"
-        errorLine1="                  android:paddingLeft=&quot;@dimen/cell_left_padding&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="33"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/cell_right_padding&quot;` to better support right-to-left layouts"
-        errorLine1="                  android:paddingRight=&quot;@dimen/cell_right_padding&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="34"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/cell_inner_spacing&quot;` to better support right-to-left layouts"
-        errorLine1="                  android:paddingRight=&quot;@dimen/cell_inner_spacing&quot;"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/split_tunneling_header.xml"
-            line="41"
-            column="19"/>
     </issue>
 
     <issue
