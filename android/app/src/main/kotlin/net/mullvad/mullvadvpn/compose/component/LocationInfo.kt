@@ -113,7 +113,10 @@ fun LocationInfo(
             text = "${stringResource(id = R.string.out_address)} $outAddress",
             color = colorExpanded,
             style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.alpha(if (isExpanded) AlphaVisible else AlphaInvisible)
+            modifier =
+                Modifier.alpha(
+                    if (isExpanded && outAddress.isNotEmpty()) AlphaVisible else AlphaInvisible
+                )
         )
     }
 }
