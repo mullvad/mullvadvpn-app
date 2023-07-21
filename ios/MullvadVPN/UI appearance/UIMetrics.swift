@@ -40,6 +40,10 @@ enum UIMetrics {
         static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0)
     }
 
+    enum AccountDeletion {
+        static let preferredContentSize = CGSize(width: 465, height: 435)
+    }
+
     enum Button {
         static let barButtonSize: CGFloat = 44.0
     }
@@ -113,6 +117,7 @@ extension UIMetrics {
     static let headerBarBrandNameHeight: CGFloat = 18
 
     /// Various paddings used throughout the app to visually separate elements in StackViews
+    static let padding4: CGFloat = 4
     static let padding8: CGFloat = 8
     static let padding16: CGFloat = 16
     static let padding24: CGFloat = 24

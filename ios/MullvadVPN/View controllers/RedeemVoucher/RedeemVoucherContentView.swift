@@ -193,11 +193,27 @@ final class RedeemVoucherContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func willMove(toWindow newWindow: UIWindow?) {
+        if newWindow == nil {
+            NotificationCenter.default.removeObserver(self)
+        }
+    }
+
+    override func didMoveToWindow() {
+        if self.window != nil {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(textDidChange),
+                name: UITextField.textDidChangeNotification,
+                object: textField
+            )
+        }
+    }
+
     private func setup() {
         setupAppearance()
         configureUI()
         addButtonHandlers()
-        addTextFieldObserver()
         updateUI()
     }
 
@@ -224,15 +240,6 @@ final class RedeemVoucherContentView: UIView {
                 constant: UIMetrics.interButtonSpacing
             )
         }
-    }
-
-    private func addTextFieldObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(textDidChange),
-            name: UITextField.textDidChangeNotification,
-            object: textField
-        )
     }
 
     private func addButtonHandlers() {

@@ -431,6 +431,45 @@ final class TunnelManager: StorePaymentObserver {
         return operation
     }
 
+    func deleteAccount(
+        accountNumber: String,
+        completion: ((Result<Bool, Error>) -> Void)? = nil
+    ) -> Cancellable {
+        let operation = DeleteAccountOperation(
+            dispatchQueue: internalQueue,
+            accountsProxy: accountsProxy,
+            accountNumber: accountNumber
+        )
+
+        operation.completionQueue = .main
+        operation.completionHandler = { [weak self] result in
+            switch result {
+            case .success:
+                self?.unsetTunnelConfiguration {
+                    self?.operationQueue.cancelAllOperations()
+                    self?.wipeAllUserData()
+                    self?.setDeviceState(.loggedOut, persist: true)
+                    completion?(.success(true))
+                }
+            case let .failure(error):
+                completion?(.failure(error))
+            }
+        }
+
+        operation.addObserver(
+            BackgroundObserver(
+                application: application,
+                name: "Delete account",
+                cancelUponExpiration: true
+            )
+        )
+
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
+
+        operationQueue.addOperation(operation)
+        return operation
+    }
+
     func updateDeviceData(_ completionHandler: ((Error?) -> Void)? = nil) {
         let operation = UpdateDeviceDataOperation(
             dispatchQueue: internalQueue,
@@ -1083,10 +1122,47 @@ final class TunnelManager: StorePaymentObserver {
         if restError.compareErrorCode(.deviceNotFound) {
             setDeviceState(.revoked, persist: true)
         } else if restError.compareErrorCode(.invalidAccount) {
-            setDeviceState(.revoked, persist: true)
-            cancelPollingTunnelStatus()
-            cancelPollingKeyRotation()
-            wipeAllUserData()
+            unsetTunnelConfiguration {
+                self.setDeviceState(.revoked, persist: true)
+                self.operationQueue.cancelAllOperations()
+                self.wipeAllUserData()
+            }
+        }
+    }
+
+    private func unsetTunnelConfiguration(completion: @escaping () -> Void) {
+        setSettings(TunnelSettingsV2(), persist: true)
+
+        // Tell the caller to unsubscribe from VPN status notifications.
+        prepareForVPNConfigurationDeletion()
+
+        // Reset tunnel.
+        _ = setTunnelStatus { tunnelStatus in
+            tunnelStatus = TunnelStatus()
+            tunnelStatus.state = .disconnected
+        }
+
+        // Finish immediately if tunnel provider is not set.
+        guard let tunnel else {
+            completion()
+            return
+        }
+
+        // Remove VPN configuration.
+        tunnel.removeFromPreferences { [self] error in
+            internalQueue.async { [self] in
+                // Ignore error but log it.
+                if let error {
+                    logger.error(
+                        error: error,
+                        message: "Failed to remove VPN configuration."
+                    )
+                }
+
+                setTunnel(nil, shouldRefreshTunnelState: false)
+
+                completion()
+            }
         }
     }
 }
