@@ -95,7 +95,9 @@ fun ConnectScreen(
         )
         LocationInfo(
             onToggleTunnelInfo = onToggleTunnelInfo,
-            isVisible = uiState.tunnelRealState != TunnelState.Disconnected,
+            isVisible =
+                uiState.tunnelRealState != TunnelState.Disconnected &&
+                    uiState.location?.hostname != null,
             isExpanded = uiState.isTunnelInfoExpanded,
             location = uiState.location,
             inAddress = uiState.inAddress,
