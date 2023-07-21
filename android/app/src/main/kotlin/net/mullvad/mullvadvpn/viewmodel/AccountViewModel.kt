@@ -29,7 +29,7 @@ class AccountViewModel(
                 deviceState,
                 accountExpiry ->
                 AccountUiState(
-                    _deviceName = deviceState.deviceName() ?: "",
+                    deviceName = deviceState.deviceName() ?: "",
                     accountNumber = deviceState.token() ?: "",
                     accountExpiry = accountExpiry.date()
                 )
@@ -37,13 +37,13 @@ class AccountViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                AccountUiState(_deviceName = "", accountNumber = "", accountExpiry = null)
+                AccountUiState(deviceName = "", accountNumber = "", accountExpiry = null)
             )
     val uiState =
         vmState.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            AccountUiState(_deviceName = "", accountNumber = "", accountExpiry = null)
+            AccountUiState(deviceName = "", accountNumber = "", accountExpiry = null)
         )
 
     fun onManageAccountClick() {

@@ -1,9 +1,12 @@
 package net.mullvad.mullvadvpn.ui.extension
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.getInstalledPackagesList
@@ -52,4 +55,18 @@ fun Context.resolveAlwaysOnVpnPackageName(): String? {
 fun Context.openLink(uri: Uri) {
     val intent = Intent(Intent.ACTION_VIEW, uri)
     startActivity(intent)
+}
+
+fun Context.copyToClipboard(
+    content: String,
+    clipboardLabel: String,
+    copiedToastMessage: String? = null
+) {
+    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clipData = ClipData.newPlainText(clipboardLabel, content)
+    val toastMessage = copiedToastMessage ?: getString(R.string.copied_to_clipboard)
+
+    clipboard.setPrimaryClip(clipData)
+
+    Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show()
 }
