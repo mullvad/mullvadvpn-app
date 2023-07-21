@@ -29,6 +29,12 @@ private val MullvadTypography =
                 fontWeight = FontWeight.Bold
             ),
         bodySmall = TextStyle(color = MullvadWhite, fontSize = TypeScale.TextSmall),
+        titleSmall =
+            TextStyle(
+                color = MullvadWhite,
+                fontSize = TypeScale.TextMedium,
+                fontWeight = FontWeight.SemiBold
+            ),
         titleMedium =
             TextStyle(
                 color = MullvadWhite,
