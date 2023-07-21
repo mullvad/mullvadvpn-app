@@ -45,7 +45,7 @@ class BackButton : LinearLayout {
     init {
         setFocusable(true)
         isClickable = true
-        gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT
+        gravity = Gravity.CENTER_VERTICAL or Gravity.START
         orientation = HORIZONTAL
 
         resources.getDimensionPixelSize(R.dimen.settings_back_button_padding).let { padding ->
