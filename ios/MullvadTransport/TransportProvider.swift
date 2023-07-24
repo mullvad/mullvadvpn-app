@@ -31,7 +31,7 @@ public final class TransportProvider: RESTTransportProvider {
         relayCache: RelayCache,
         addressCache: REST.AddressCache,
         shadowsocksCache: ShadowsocksConfigurationCache,
-        transportStrategy: TransportStrategy = .init(),
+        transportStrategy: TransportStrategy,
         constraintsUpdater: RelayConstraintsUpdater
     ) {
         self.urlSessionTransport = urlSessionTransport

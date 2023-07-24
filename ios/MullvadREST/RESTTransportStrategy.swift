@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct TransportStrategy: Codable, Equatable {
+public struct TransportStrategy: Equatable {
     /// The different transports suggested by the strategy
     public enum Transport {
         /// Suggests using a direct connection
@@ -23,10 +23,17 @@ public struct TransportStrategy: Codable, Equatable {
     /// suggestion.
     ///
     /// `internal` instead of `private` for testing purposes.
-    internal var connectionAttempts: UInt
+    internal var connectionAttempts: Int
 
-    public init() {
-        connectionAttempts = 0
+    /// Enables recording of failed connection attempts.
+    private let userDefaults: UserDefaults
+
+    /// `UserDefaults` key shared by both processes. Used to cache and synchronize connection attempts between them.
+    internal static let connectionAttemptsSharedCacheKey = "ConnectionAttemptsSharedCacheKey"
+
+    public init(_ userDefaults: UserDefaults) {
+        self.connectionAttempts = userDefaults.integer(forKey: Self.connectionAttemptsSharedCacheKey)
+        self.userDefaults = userDefaults
     }
 
     /// Instructs the strategy that a network connection failed
@@ -34,8 +41,10 @@ public struct TransportStrategy: Codable, Equatable {
     /// Every third failure results in a direct transport suggestion.
     public mutating func didFail() {
         let (partial, isOverflow) = connectionAttempts.addingReportingOverflow(1)
-        // UInt.max is a multiple of 3, go directly to 1 when overflowing
-        connectionAttempts = isOverflow ? 1 : partial
+        // (Int.max - 1) is a multiple of 3, go directly to 2 when overflowing
+        // to keep the "every third failure" algorithm correct
+        connectionAttempts = isOverflow ? 2 : partial
+        userDefaults.set(connectionAttempts, forKey: Self.connectionAttemptsSharedCacheKey)
     }
 
     /// The suggested connection transport
@@ -43,5 +52,9 @@ public struct TransportStrategy: Codable, Equatable {
     /// - Returns: `.useURLSession` for every 3rd failed attempt, `.useShadowsocks` otherwise
     public func connectionTransport() -> Transport {
         connectionAttempts.isMultiple(of: 3) ? .useURLSession : .useShadowsocks
+    }
+
+    public static func == (lhs: TransportStrategy, rhs: TransportStrategy) -> Bool {
+        lhs.connectionAttempts == rhs.connectionAttempts
     }
 }
