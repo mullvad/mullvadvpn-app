@@ -36,4 +36,7 @@ enum ApplicationConfiguration {
 
     /// Maximum number of devices per account.
     static let maxAllowedDevices = 5
+
+    /// `UserDefaults` key shared by both processes. Used to cache and synchronize connection attempts between them.
+    static let connectionAttemptsSharedCacheKey = "ConnectionAttemptsSharedCacheKey"
 }
