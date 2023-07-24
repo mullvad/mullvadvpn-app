@@ -7,41 +7,53 @@
 //
 
 @testable import MullvadREST
+@testable import MullvadTypes
 import XCTest
 
 final class TransportStrategyTests: XCTestCase {
+    var userDefaults: UserDefaults!
+    static var suiteName: String!
+
+    override class func setUp() {
+        super.setUp()
+        suiteName = UUID().uuidString
+    }
+
+    override func setUpWithError() throws {
+        try super.setUpWithError()
+        userDefaults = UserDefaults(suiteName: Self.suiteName)
+    }
+
+    override func tearDownWithError() throws {
+        userDefaults.removePersistentDomain(forName: Self.suiteName)
+        try super.tearDownWithError()
+    }
+
     func testEveryThirdConnectionAttemptsIsDirect() {
-        loopStrategyTest(with: TransportStrategy())
+        loopStrategyTest(with: TransportStrategy(userDefaults), in: 0 ... 12)
     }
 
     func testOverflowingConnectionAttempts() {
-        var strategy = TransportStrategy()
-        strategy.connectionAttempts = UInt.max
+        userDefaults.set(Int.max, forKey: TransportStrategy.connectionAttemptsSharedCacheKey)
+        let strategy = TransportStrategy(userDefaults)
 
-        loopStrategyTest(with: strategy)
+        // (Int.max - 1) is a multiple of 3, so skip the first iteration
+        loopStrategyTest(with: strategy, in: 1 ... 12)
     }
 
-    func testLoadingFromCacheDoesNotImpactStrategy() throws {
-        var strategy = TransportStrategy()
+    func testConnectionAttemptsAreRecordedAfterFailure() {
+        var strategy = TransportStrategy(userDefaults)
 
-        // Fail twice, the next suggested transport mode should be via Shadowsocks proxy
         strategy.didFail()
-        strategy.didFail()
-        XCTAssertEqual(strategy.connectionTransport(), .useShadowsocks)
 
-        // Serialize the strategy and reload it from memory to simulate an application restart
-        let encodedRawStrategy = try JSONEncoder().encode(strategy)
-        var reloadedStrategy = try JSONDecoder().decode(TransportStrategy.self, from: encodedRawStrategy)
-
-        // This should be the third failure, the next suggested transport will be a direct one
-        reloadedStrategy.didFail()
-        XCTAssertEqual(reloadedStrategy.connectionTransport(), .useURLSession)
+        let recordedValue = userDefaults.integer(forKey: TransportStrategy.connectionAttemptsSharedCacheKey)
+        XCTAssertEqual(1, recordedValue)
     }
 
-    private func loopStrategyTest(with strategy: TransportStrategy) {
+    private func loopStrategyTest(with strategy: TransportStrategy, in range: ClosedRange<Int>) {
         var strategy = strategy
 
-        for index in 0 ... 12 {
+        for index in range {
             let expectedResult: TransportStrategy.Transport
             expectedResult = index.isMultiple(of: 3) ? .useURLSession : .useShadowsocks
             XCTAssertEqual(strategy.connectionTransport(), expectedResult)
