@@ -100,11 +100,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
+
+        // This init cannot fail as long as the security group identifier is valid
+        let sharedUserDefaults = UserDefaults(suiteName: ApplicationConfiguration.securityGroupIdentifier)!
+        let connectionAttempts = sharedUserDefaults
+            .integer(forKey: ApplicationConfiguration.connectionAttemptsSharedCacheKey)
+        let transportStrategy = TransportStrategy(
+            connectionAttempts: connectionAttempts,
+            attemptsRecorder: sharedUserDefaults
+        )
+
         let transportProvider = TransportProvider(
             urlSessionTransport: urlSessionTransport,
             relayCache: relayCache,
             addressCache: addressCache,
             shadowsocksCache: shadowsocksCache,
+            transportStrategy: transportStrategy,
             constraintsUpdater: constraintsUpdater
         )
 
