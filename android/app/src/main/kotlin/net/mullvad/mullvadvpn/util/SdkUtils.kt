@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.net.VpnService
 import android.os.Build
 import android.service.quicksettings.Tile
 
