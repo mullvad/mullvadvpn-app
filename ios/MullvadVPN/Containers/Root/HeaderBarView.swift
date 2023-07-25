@@ -160,6 +160,10 @@ class HeaderBarView: UIView {
         }
     }
 
+    /// Periodically refreshes the `timeLeftLabel` to show time left accurately without needing to restart the app
+    private var timeLeftTimer: Timer?
+    private let timeLeftUpdateInterval: TimeInterval = 60 * 60
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         directionalLayoutMargins = NSDirectionalEdgeInsets(
@@ -239,6 +243,14 @@ class HeaderBarView: UIView {
     func update(configuration: RootConfiguration) {
         deviceName = configuration.deviceName
         timeLeft = configuration.expiry
+
+        timeLeftTimer?.invalidate()
+        timeLeftTimer = Timer.scheduledTimer(withTimeInterval: timeLeftUpdateInterval, repeats: true) { _ in
+            DispatchQueue.main.async { [weak self] in
+                self?.timeLeft = self?.timeLeft
+            }
+        }
+
         isAccountButtonHidden = !configuration.showsAccountButton
     }
 }
