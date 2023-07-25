@@ -123,24 +123,7 @@ class HeaderBarView: UIView {
 
     private var timeLeft: Date? {
         didSet {
-            if let timeLeft {
-                let formattedTimeLeft = NSLocalizedString(
-                    "TIME_LEFT_HEADER_VIEW",
-                    tableName: "Account",
-                    value: "Time left: %@",
-                    comment: ""
-                )
-                timeLeftLabel.text = String(
-                    format: formattedTimeLeft,
-                    CustomDateComponentsFormatting.localizedString(
-                        from: Date(),
-                        to: timeLeft,
-                        unitsStyle: .full
-                    ) ?? ""
-                )
-            } else {
-                timeLeftLabel.text = ""
-            }
+            formatTimeLeftLabel()
         }
     }
 
@@ -159,6 +142,10 @@ class HeaderBarView: UIView {
             }
         }
     }
+
+    /// Periodically refreshes the `timeLeftLabel` to show time left accurately without needing to restart the app
+    private var timeLeftTimer: Timer?
+    private let timeLeftUpdateInterval: TimeInterval = 60 * 60
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -236,9 +223,38 @@ class HeaderBarView: UIView {
         return brandNameRect.intersects(buttonContainerRect)
     }
 
+    private func formatTimeLeftLabel() {
+        if let timeLeft {
+            let formattedTimeLeft = NSLocalizedString(
+                "TIME_LEFT_HEADER_VIEW",
+                tableName: "Account",
+                value: "Time left: %@",
+                comment: ""
+            )
+            timeLeftLabel.text = String(
+                format: formattedTimeLeft,
+                CustomDateComponentsFormatting.localizedString(
+                    from: Date(),
+                    to: timeLeft,
+                    unitsStyle: .full
+                ) ?? ""
+            )
+        } else {
+            timeLeftLabel.text = ""
+        }
+    }
+
     func update(configuration: RootConfiguration) {
         deviceName = configuration.deviceName
         timeLeft = configuration.expiry
+
+        timeLeftTimer?.invalidate()
+        timeLeftTimer = Timer.scheduledTimer(withTimeInterval: timeLeftUpdateInterval, repeats: true) { _ in
+            DispatchQueue.main.async { [weak self] in
+                self?.formatTimeLeftLabel()
+            }
+        }
+
         isAccountButtonHidden = !configuration.showsAccountButton
     }
 }
