@@ -10,7 +10,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
-                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentStart="true"
                     android:layout_alignBottom="@id/notification_title">
         <ImageView android:id="@+id/notification_status"
                    android:layout_width="wrap_content"
@@ -43,7 +43,7 @@
     <ImageView android:id="@+id/notification_icon"
                android:layout_width="20dp"
                android:layout_height="20dp"
-               android:layout_alignParentStart="true"
+               android:layout_alignParentEnd="true"
                android:layout_centerVertical="true"
                android:alpha="0.6"
                android:padding="4dp"
