@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceList
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.util.parseAsDateTime
 
 typealias DeviceId = String
 
@@ -54,7 +55,7 @@ class DeviceListViewModel(
                     }
                 val deviceUiItems =
                     devices
-                        ?.sortedBy { it.creationDate }
+                        ?.sortedBy { it.created.parseAsDateTime() }
                         ?.map { device ->
                             DeviceListItemUiState(
                                 device,
