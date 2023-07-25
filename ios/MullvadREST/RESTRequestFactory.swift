@@ -119,6 +119,13 @@ extension REST {
             )
         }
 
+        mutating func addValue(_ value: String, forHTTPHeaderField: String) {
+            restRequest.urlRequest.addValue(
+                value,
+                forHTTPHeaderField: forHTTPHeaderField
+            )
+        }
+
         func getRequest() -> REST.Request {
             restRequest
         }

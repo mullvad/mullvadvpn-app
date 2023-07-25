@@ -36,8 +36,22 @@ enum UIMetrics {
 
     enum RedeemVoucher {
         static let cornerRadius = 8.0
-        static let preferredContentSize = CGSize(width: 300, height: 280)
+        static let preferredContentSize = UIDevice.current.userInterfaceIdiom == .pad
+            ? CGSize(width: 320, height: 640)
+            : CGSize(
+                width: 320,
+                height: 300
+            )
         static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0)
+    }
+
+    enum AccountDeletion {
+        static let preferredContentSize = UIDevice.current.userInterfaceIdiom == .pad
+            ? CGSize(width: 700, height: 740)
+            : CGSize(
+                width: 320,
+                height: 540
+            )
     }
 
     enum Button {
@@ -113,6 +127,7 @@ extension UIMetrics {
     static let headerBarBrandNameHeight: CGFloat = 18
 
     /// Various paddings used throughout the app to visually separate elements in StackViews
+    static let padding4: CGFloat = 4
     static let padding8: CGFloat = 8
     static let padding16: CGFloat = 16
     static let padding24: CGFloat = 24
