@@ -18,6 +18,7 @@ enum AccountViewControllerAction {
     case finish
     case logOut
     case navigateToVoucher
+    case navigateToDeleteAccount
 }
 
 class AccountViewController: UIViewController {
@@ -116,6 +117,8 @@ class AccountViewController: UIViewController {
             for: .touchUpInside
         )
         contentView.logoutButton.addTarget(self, action: #selector(logOut), for: .touchUpInside)
+
+        contentView.deleteButton.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
 
         interactor.didReceiveDeviceState = { [weak self] deviceState in
             self?.updateView(from: deviceState)
@@ -237,6 +240,10 @@ class AccountViewController: UIViewController {
 
     @objc private func redeemVoucher() {
         actionHandler?(.navigateToVoucher)
+    }
+
+    @objc private func deleteAccount() {
+        actionHandler?(.navigateToDeleteAccount)
     }
 
     @objc private func doPurchase() {
