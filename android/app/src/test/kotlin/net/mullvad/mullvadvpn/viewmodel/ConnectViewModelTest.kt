@@ -58,6 +58,7 @@ class ConnectViewModelTest {
     private val mockRelayListListener: RelayListListener = mockk(relaxUnitFun = true)
     private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
     private val mockConnectionProxy: ConnectionProxy = mockk()
+    private val mockLocation: GeoIpLocation = mockk(relaxed = true)
 
     // Captures
     private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
@@ -85,6 +86,9 @@ class ConnectViewModelTest {
 
         every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
         every { mockConnectionProxy.onStateChange } returns eventNotifierTunnelRealState
+
+        every { mockLocation.country } returns "dummy country"
+
         // Listeners
         every { mockLocationInfoCache.onNewLocation = capture(locationSlot) } answers {}
         every { mockRelayListListener.onRelayCountriesChange = capture(relaySlot) } answers {}
@@ -113,7 +117,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk(relaxed = true))
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 viewModel.toggleTunnelInfoExpansion()
                 val result = awaitItem()
@@ -130,7 +134,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk(relaxed = true))
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
                 val result = awaitItem()
@@ -147,7 +151,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk(relaxed = true))
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelUiState.notify(tunnelUiStateTestItem)
                 val result = awaitItem()
@@ -170,7 +174,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk(relaxed = true))
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 versionInfo.value = versionInfoTestItem
                 val result = awaitItem()
@@ -188,7 +192,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk(relaxed = true))
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), relayTestItem)
                 val result = awaitItem()
                 assertEquals(relayTestItem, result.relayLocation)
