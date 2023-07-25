@@ -209,6 +209,7 @@ play {
 
 dependencies {
     implementation(project(Dependencies.Mullvad.endpointLib))
+    implementation(project(Dependencies.Mullvad.talpidLib))
 
     implementation(Dependencies.androidMaterial)
     implementation(Dependencies.commonsValidator)
