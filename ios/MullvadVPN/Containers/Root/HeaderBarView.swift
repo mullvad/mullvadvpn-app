@@ -123,24 +123,7 @@ class HeaderBarView: UIView {
 
     private var timeLeft: Date? {
         didSet {
-            if let timeLeft {
-                let formattedTimeLeft = NSLocalizedString(
-                    "TIME_LEFT_HEADER_VIEW",
-                    tableName: "Account",
-                    value: "Time left: %@",
-                    comment: ""
-                )
-                timeLeftLabel.text = String(
-                    format: formattedTimeLeft,
-                    CustomDateComponentsFormatting.localizedString(
-                        from: Date(),
-                        to: timeLeft,
-                        unitsStyle: .full
-                    ) ?? ""
-                )
-            } else {
-                timeLeftLabel.text = ""
-            }
+            formatTimeLeftLabel()
         }
     }
 
@@ -158,6 +141,14 @@ class HeaderBarView: UIView {
                 deviceNameLabel.text = ""
             }
         }
+    }
+
+    /// Periodically refreshes the `timeLeftLabel` to show time left accurately without needing to restart the app
+    private var timeLeftTimer: Timer?
+    private let timeLeftUpdateInterval: TimeInterval = 2
+
+    deinit {
+        print("BUY BHI")
     }
 
     override init(frame: CGRect) {
@@ -236,9 +227,36 @@ class HeaderBarView: UIView {
         return brandNameRect.intersects(buttonContainerRect)
     }
 
+    private func formatTimeLeftLabel() {
+        if let timeLeft {
+            let formattedTimeLeft = NSLocalizedString(
+                "TIME_LEFT_HEADER_VIEW",
+                tableName: "Account",
+                value: "Time left: %@",
+                comment: ""
+            )
+            timeLeftLabel.text = String(
+                format: formattedTimeLeft,
+                CustomDateComponentsFormatting.localizedString(
+                    from: Date(),
+                    to: timeLeft,
+                    unitsStyle: .full
+                ) ?? ""
+            )
+        } else {
+            timeLeftLabel.text = ""
+        }
+    }
+
     func update(configuration: RootConfiguration) {
         deviceName = configuration.deviceName
         timeLeft = configuration.expiry
+
+        timeLeftTimer?.invalidate()
+        timeLeftTimer = Timer.scheduledTimer(withTimeInterval: timeLeftUpdateInterval, repeats: true) { [weak self] _ in
+            self?.formatTimeLeftLabel()
+        }
+
         isAccountButtonHidden = !configuration.showsAccountButton
     }
 }
