@@ -13,7 +13,9 @@ fun ErrorState.getErrorNotificationResources(context: Context): ErrorNotificatio
             ErrorNotificationMessage(
                 R.string.blocking_internet,
                 cause.errorMessageId(),
-                cause.addresses.joinToString { address -> address.addressString() }
+                (cause as ErrorStateCause.InvalidDnsServers).addresses.joinToString { address ->
+                    address.addressString()
+                }
             )
         }
         cause is ErrorStateCause.VpnPermissionDenied -> {

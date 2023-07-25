@@ -6,7 +6,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.trySendBlocking
-import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult

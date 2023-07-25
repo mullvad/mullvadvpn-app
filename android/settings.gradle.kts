@@ -1,2 +1,11 @@
-include(":app", ":lib:endpoint")
-include(":test", ":test:common", ":test:e2e", ":test:mockapi")
+include(":app")
+include(
+    ":lib:endpoint",
+    ":lib:talpid:"
+)
+include(
+    ":test",
+    ":test:common",
+    ":test:e2e",
+    ":test:mockapi"
+)

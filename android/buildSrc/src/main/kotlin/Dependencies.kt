@@ -90,6 +90,7 @@ object Dependencies {
 
     object Mullvad {
         const val endpointLib = ":lib:endpoint"
+        const val talpidLib = ":lib:talpid"
     }
 
     object Plugin {
