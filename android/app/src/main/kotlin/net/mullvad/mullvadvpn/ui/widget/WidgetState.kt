@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.mullvadvpn.ui.widget
 
 import androidx.annotation.DrawableRes
 

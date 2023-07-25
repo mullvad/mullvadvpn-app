@@ -6,7 +6,7 @@ import android.widget.ImageView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.SwitchCompat
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.WidgetState
+import net.mullvad.mullvadvpn.ui.widget.WidgetState
 
 sealed class WidgetViewController<T : WidgetState>(val parent: ViewGroup) {
     @get:LayoutRes protected abstract val layoutRes: Int
