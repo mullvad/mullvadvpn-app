@@ -18,25 +18,29 @@ final class TunnelBlockObserver: TunnelObserver {
     ) -> Void
     typealias DidUpdateTunnelSettingsHandler = (TunnelManager, TunnelSettingsV2) -> Void
     typealias DidFailWithErrorHandler = (TunnelManager, Error) -> Void
+    typealias DidPeriodicallyReadDeviceStateHandler = (TunnelManager, DeviceState) -> Void
 
     private let didLoadConfiguration: DidLoadConfigurationHandler?
     private let didUpdateTunnelStatus: DidUpdateTunnelStatusHandler?
     private let didUpdateDeviceState: DidUpdateDeviceStateHandler?
     private let didUpdateTunnelSettings: DidUpdateTunnelSettingsHandler?
     private let didFailWithError: DidFailWithErrorHandler?
+    private let didPeriodicallyReadDeviceState: DidPeriodicallyReadDeviceStateHandler?
 
     init(
         didLoadConfiguration: DidLoadConfigurationHandler? = nil,
         didUpdateTunnelStatus: DidUpdateTunnelStatusHandler? = nil,
         didUpdateDeviceState: DidUpdateDeviceStateHandler? = nil,
         didUpdateTunnelSettings: DidUpdateTunnelSettingsHandler? = nil,
-        didFailWithError: DidFailWithErrorHandler? = nil
+        didFailWithError: DidFailWithErrorHandler? = nil,
+        didPeriodicallyReadDeviceState: DidPeriodicallyReadDeviceStateHandler? = nil
     ) {
         self.didLoadConfiguration = didLoadConfiguration
         self.didUpdateTunnelStatus = didUpdateTunnelStatus
         self.didUpdateDeviceState = didUpdateDeviceState
         self.didUpdateTunnelSettings = didUpdateTunnelSettings
         self.didFailWithError = didFailWithError
+        self.didPeriodicallyReadDeviceState = didPeriodicallyReadDeviceState
     }
 
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager) {
@@ -61,5 +65,9 @@ final class TunnelBlockObserver: TunnelObserver {
 
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error) {
         didFailWithError?(manager, error)
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didPeriodicallyRead deviceState: DeviceState) {
+        didPeriodicallyReadDeviceState?(manager, deviceState)
     }
 }

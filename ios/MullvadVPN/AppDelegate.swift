@@ -157,12 +157,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     @objc private func didBecomeActive(_ notification: Notification) {
         tunnelManager.startPeriodicPrivateKeyRotation()
+        tunnelManager.startPeriodicStateRefresh()
         relayCacheTracker.startPeriodicUpdates()
         addressCacheTracker.startPeriodicUpdates()
     }
 
     @objc private func willResignActive(_ notification: Notification) {
         tunnelManager.stopPeriodicPrivateKeyRotation()
+        tunnelManager.stopPeriodicStateRefresh()
         relayCacheTracker.stopPeriodicUpdates()
         addressCacheTracker.stopPeriodicUpdates()
     }
