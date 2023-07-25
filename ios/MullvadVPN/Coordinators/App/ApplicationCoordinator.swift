@@ -72,7 +72,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private let apiProxy: REST.APIProxy
     private let devicesProxy: REST.DevicesProxy
-    private var tunnelObserver: TunnelObserver?
+    private var deviceStateChangeObserver: TunnelObserver?
 
     private var outOfTimeTimer: Timer?
 
@@ -756,14 +756,19 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func addTunnelObserver() {
-        let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState, previousDeviceState in
-                self?.deviceStateDidChange(deviceState, previousDeviceState: previousDeviceState)
-            })
+        let deviceStateChangeObserver =
+            TunnelBlockObserver(
+                didUpdateDeviceState: { [weak self] manager, deviceState, previousDeviceState in
+                    self?.deviceStateDidChange(deviceState, previousDeviceState: previousDeviceState)
+                },
+                didPeriodicallyReadDeviceState: { [weak self] _, deviceState in
+                    self?.updateDeviceInfo(deviceState: deviceState)
+                }
+            )
 
-        tunnelManager.addObserver(tunnelObserver)
+        tunnelManager.addObserver(deviceStateChangeObserver)
 
-        self.tunnelObserver = tunnelObserver
+        self.deviceStateChangeObserver = deviceStateChangeObserver
 
         updateDeviceInfo(deviceState: tunnelManager.deviceState)
 

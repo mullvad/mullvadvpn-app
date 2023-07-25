@@ -18,4 +18,5 @@ protocol TunnelObserver: AnyObject {
     )
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelSettings: TunnelSettingsV2)
     func tunnelManager(_ manager: TunnelManager, didFailWithError error: Error)
+    func tunnelManager(_ manager: TunnelManager, didPeriodicallyRead deviceState: DeviceState)
 }

@@ -63,6 +63,10 @@ final class TunnelManager: StorePaymentObserver {
     private var privateKeyRotationTimer: DispatchSourceTimer?
     private var isRunningPeriodicPrivateKeyRotation = false
 
+    private var deviceStateRefreshTimer: DispatchSourceTimer?
+    private var isRunningPeriodicStateReadings = false
+    private let deviceStateRefreshPeriod: TimeInterval = 60 * 60
+
     private var tunnelStatusPollTimer: DispatchSourceTimer?
     private var isPolling = false
 
@@ -127,6 +131,33 @@ final class TunnelManager: StorePaymentObserver {
 
         isRunningPeriodicPrivateKeyRotation = false
         updatePrivateKeyRotationTimer()
+    }
+
+    func startPeriodicDeviceStateReadings() {
+        nslock.withLock {
+            guard isRunningPeriodicStateReadings == false else { return }
+            isRunningPeriodicStateReadings = true
+
+            let timer = DispatchSource.makeTimerSource(queue: .main)
+
+            timer.setEventHandler { [weak self] in
+                self?.readDeviceState()
+            }
+
+            timer.schedule(wallDeadline: .now(), repeating: deviceStateRefreshPeriod)
+            timer.activate()
+
+            self.deviceStateRefreshTimer = timer
+        }
+    }
+
+    func stopPeriodicDeviceStateReadings() {
+        nslock.withLock {
+            guard isRunningPeriodicStateReadings == true else { return }
+            isRunningPeriodicStateReadings = false
+
+            deviceStateRefreshTimer?.cancel()
+        }
     }
 
     func getNextKeyRotationDate() -> Date? {
@@ -896,6 +927,26 @@ final class TunnelManager: StorePaymentObserver {
         if let connectionStatus = _tunnel?.status {
             updateTunnelStatus(connectionStatus)
         }
+    }
+
+    /// Reads the device state from settings and notifies observers
+    ///
+    /// Used for observers that require periodic updates on the device state.
+    private func readDeviceState() {
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [weak self] in
+
+            // Failure is not a problem here
+            guard let deviceState = try? SettingsManager.readDeviceState(),
+                  let self else { return }
+            DispatchQueue.main.async {
+                self.observerList.forEach { observer in
+                    observer.tunnelManager(self, didPeriodicallyRead: deviceState)
+                }
+            }
+        }
+
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
+        operationQueue.addOperation(operation)
     }
 
     /// Refresh device state from settings and update the in-memory value.
