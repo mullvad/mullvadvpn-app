@@ -29,8 +29,6 @@ class FormSheetPresentationController: UIPresentationController {
      */
     private var lastKnownIsInFullScreen: Bool?
 
-    private var keyboardResponder: AutomaticKeyboardResponder?
-
     private let dimmingView: UIView = {
         let dimmingView = UIView()
         dimmingView.backgroundColor = UIMetrics.DimmingView.backgroundColor
@@ -53,11 +51,6 @@ class FormSheetPresentationController: UIPresentationController {
     var isInFullScreenPresentation: Bool {
         useFullScreenPresentationInCompactWidth &&
             traitCollection.horizontalSizeClass == .compact
-    }
-
-    override init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?) {
-        super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
-        addKeyboardResponder()
     }
 
     override var frameOfPresentedViewInContainerView: CGRect {
@@ -152,29 +145,6 @@ class FormSheetPresentationController: UIPresentationController {
             name: Self.willChangeFullScreenPresentation,
             object: presentedViewController,
             userInfo: [Self.isFullScreenUserInfoKey: NSNumber(booleanLiteral: currentIsInFullScreen)]
-        )
-    }
-
-    private func addKeyboardResponder() {
-        guard let presentedView else { return }
-        keyboardResponder = AutomaticKeyboardResponder(
-            targetView: presentedView,
-            handler: { [weak self] view, adjustment in
-                guard let self,
-                      let containerView,
-                      !isInFullScreenPresentation else { return }
-                let frame = view.frame
-                let bottomMarginFromKeyboard = adjustment > 0 ? UIMetrics.sectionSpacing : 0
-                view.frame = CGRect(
-                    origin: CGPoint(
-                        x: frame.origin.x,
-                        y: containerView.bounds.midY - presentedViewController.preferredContentSize
-                            .height * 0.5 - adjustment - bottomMarginFromKeyboard
-                    ),
-                    size: frame.size
-                )
-                view.layoutIfNeeded()
-            }
         )
     }
 }

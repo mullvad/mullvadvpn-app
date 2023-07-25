@@ -19,6 +19,10 @@ class AutomaticKeyboardResponder {
     private let logger = Logger(label: "AutomaticKeyboardResponder")
     private var presentationFrameObserver: NSKeyValueObservation?
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     init<T: UIView>(targetView: T, handler: @escaping (T, CGFloat) -> Void) {
         self.targetView = targetView
         self.handler = { view, adjustment in
@@ -154,6 +158,10 @@ class AutomaticKeyboardResponder {
 
     private func adjustContentInsets(keyboardRect: CGRect) {
         guard let targetView, let superview = targetView.superview else { return }
+
+        // layoutIfNeeded is a method that forces the view to immediately update its layout and the layout of its subviews.
+        targetView.layoutIfNeeded()
+        superview.layoutIfNeeded()
 
         // Compute the target view frame within screen coordinates
         let screenRect = superview.convert(targetView.frame, to: nil)

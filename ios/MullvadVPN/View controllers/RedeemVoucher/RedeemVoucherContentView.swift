@@ -114,7 +114,7 @@ final class RedeemVoucherContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [redeemButton, cancelButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.spacing = UIMetrics.padding16
         return stackView
     }()
 
@@ -163,6 +163,9 @@ final class RedeemVoucherContentView: UIView {
         }
     }
 
+    private var keyboardResponder: AutomaticKeyboardResponder?
+    private var bottomsOfButtonsConstraint: NSLayoutConstraint?
+
     // MARK: - public
 
     var redeemAction: ((String) -> Void)?
@@ -193,12 +196,29 @@ final class RedeemVoucherContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func willMove(toWindow newWindow: UIWindow?) {
+        if newWindow == nil {
+            NotificationCenter.default.removeObserver(self)
+        }
+    }
+
+    override func didMoveToWindow() {
+        if self.window != nil {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(textDidChange),
+                name: UITextField.textDidChangeNotification,
+                object: textField
+            )
+        }
+    }
+
     private func setup() {
         setupAppearance()
         configureUI()
         addButtonHandlers()
-        addTextFieldObserver()
         updateUI()
+        addKeyboardResponder()
     }
 
     private func configureUI() {
@@ -217,22 +237,16 @@ final class RedeemVoucherContentView: UIView {
         addConstrainedSubviews([voucherCodeStackView, actionsStackView]) {
             voucherCodeStackView
                 .pinEdgesToSuperviewMargins(.all(UIMetrics.RedeemVoucher.contentLayoutMargins).excluding(.bottom))
-            actionsStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
+            actionsStackView.pinEdgesToSuperviewMargins(.all().excluding(.top).excluding(.bottom))
 
             actionsStackView.topAnchor.constraint(
                 greaterThanOrEqualTo: voucherCodeStackView.bottomAnchor,
                 constant: UIMetrics.interButtonSpacing
             )
         }
-    }
 
-    private func addTextFieldObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(textDidChange),
-            name: UITextField.textDidChangeNotification,
-            object: textField
-        )
+        bottomsOfButtonsConstraint = actionsStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
+        bottomsOfButtonsConstraint?.isActive = true
     }
 
     private func addButtonHandlers() {
@@ -269,6 +283,17 @@ final class RedeemVoucherContentView: UIView {
 
     @objc private func textDidChange() {
         updateUI()
+    }
+
+    private func addKeyboardResponder() {
+        keyboardResponder = AutomaticKeyboardResponder(
+            targetView: self,
+            handler: { [weak self] view, adjustment in
+                guard let self else { return }
+                bottomsOfButtonsConstraint?.constant = -adjustment
+                self.layoutIfNeeded()
+            }
+        )
     }
 }
 
