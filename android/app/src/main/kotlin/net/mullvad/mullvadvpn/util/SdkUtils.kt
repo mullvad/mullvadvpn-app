@@ -24,12 +24,6 @@ object SdkUtils {
                 PackageManager.PERMISSION_GRANTED
     }
 
-    fun VpnService.Builder.setMeteredIfSupported(isMetered: Boolean) {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-            this.setMetered(isMetered)
-        }
-    }
-
     fun Tile.setSubtitleIfSupported(subtitleText: CharSequence) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             this.subtitle = subtitleText
