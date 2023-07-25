@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.view.isVisible
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.WidgetState
+import net.mullvad.mullvadvpn.ui.widget.WidgetState
 
 open class ActionListItemView
 @JvmOverloads
