@@ -417,7 +417,8 @@ class VpnSettingsViewModel(
     private fun Settings.getWireguardPort() =
         when (relaySettings) {
             RelaySettings.CustomTunnelEndpoint -> Constraint.Any()
-            is RelaySettings.Normal -> relaySettings.relayConstraints.wireguardConstraints.port
+            is RelaySettings.Normal ->
+                (relaySettings as RelaySettings.Normal).relayConstraints.wireguardConstraints.port
         }
 
     private fun String.isValidIp(): Boolean {

@@ -1,8 +1,9 @@
-package net.mullvad.mullvadvpn.model
+package net.mullvad.mullvadvpn.applist
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.IntDef
 import androidx.annotation.StringRes
+import net.mullvad.mullvadvpn.ui.widget.WidgetState
 
 data class ListItemData
 private constructor(

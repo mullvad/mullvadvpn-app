@@ -42,6 +42,7 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadWhite80
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.util.formatDate
+import net.mullvad.mullvadvpn.util.parseAsDateTime
 
 @Composable
 @Preview
@@ -193,7 +194,8 @@ fun DeviceListScreen(
                                     text =
                                         deviceUiState.device.name.capitalizeFirstCharOfEachWord(),
                                     subText =
-                                        deviceUiState.device.creationDate?.let { creationDate ->
+                                        deviceUiState.device.created.parseAsDateTime()?.let {
+                                            creationDate ->
                                             stringResource(
                                                 id = R.string.created_x,
                                                 creationDate.formatDate()

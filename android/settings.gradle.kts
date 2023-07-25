@@ -1,6 +1,7 @@
 include(":app")
 include(
     ":lib:endpoint",
+    ":lib:model:",
     ":lib:talpid:"
 )
 include(
