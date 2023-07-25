@@ -94,6 +94,7 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                     )
                 }
             }
+            .debounce(UI_STATE_DEBOUNCE_DURATION_MILLIS)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
     private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
@@ -108,11 +109,9 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onUiStateChange)
-            .debounce(TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS)
 
     private fun ConnectionProxy.tunnelRealStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onStateChange)
-            .debounce(TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS)
 
     fun toggleTunnelInfoExpansion() {
         _isTunnelInfoExpanded.value = _isTunnelInfoExpanded.value.not()
@@ -132,6 +131,6 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
     }
 
     companion object {
-        const val TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS: Long = 200
+        const val UI_STATE_DEBOUNCE_DURATION_MILLIS: Long = 100
     }
 }
