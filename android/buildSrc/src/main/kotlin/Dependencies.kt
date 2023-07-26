@@ -89,6 +89,7 @@ object Dependencies {
     }
 
     object Mullvad {
+        const val commonLib = ":lib:common"
         const val endpointLib = ":lib:endpoint"
         const val modelLib = ":lib:model"
         const val talpidLib = ":lib:talpid"
