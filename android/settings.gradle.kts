@@ -1,4 +1,7 @@
-include(":app")
+include(
+    ":app",
+    ":tile"
+)
 include(
     ":lib:common:",
     ":lib:endpoint",
