@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.lib.ipc.HandlerFlow
 import org.junit.Test
 
 class HandlerFlowTest {

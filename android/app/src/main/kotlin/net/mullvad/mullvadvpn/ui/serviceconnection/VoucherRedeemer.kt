@@ -2,9 +2,9 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
 import kotlinx.coroutines.CompletableDeferred
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.MessageDispatcher
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.MessageDispatcher
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 
 class VoucherRedeemer(val connection: Messenger, eventDispatcher: MessageDispatcher<Event>) {

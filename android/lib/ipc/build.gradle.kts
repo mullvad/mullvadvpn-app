@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.ipc"
+    namespace = "net.mullvad.mullvadvpn.lib.ipc"
     compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
@@ -30,6 +30,7 @@ android {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.commonLib))
     implementation(project(Dependencies.Mullvad.modelLib))
 
     implementation(Dependencies.Kotlin.stdlib)

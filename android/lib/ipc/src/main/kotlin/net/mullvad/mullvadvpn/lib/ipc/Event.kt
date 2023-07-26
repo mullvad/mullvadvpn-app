@@ -1,12 +1,11 @@
-package net.mullvad.mullvadvpn.ipc
+package net.mullvad.mullvadvpn.lib.ipc
 
-import android.os.Message as RawMessage
 import android.os.Messenger
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
-import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
+import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
@@ -15,7 +14,7 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.model.VoucherSubmissionResult as VoucherSubmissionResultData
+import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 
 // Events that can be sent from the service
 sealed class Event : Message.EventMessage() {
@@ -27,7 +26,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize data class AccountHistoryEvent(val history: AccountHistory) : Event()
 
-    @Parcelize data class AppVersionInfo(val versionInfo: AppVersionInfoData?) : Event()
+    @Parcelize
+    data class AppVersionInfo(val versionInfo: net.mullvad.mullvadvpn.model.AppVersionInfo?) :
+        Event()
 
     @Parcelize data class AuthToken(val token: String?) : Event()
 
@@ -57,7 +58,7 @@ sealed class Event : Message.EventMessage() {
     @Parcelize
     data class VoucherSubmissionResult(
         val voucher: String,
-        val result: VoucherSubmissionResultData
+        val result: net.mullvad.mullvadvpn.model.VoucherSubmissionResult
     ) : Event()
 
     @Parcelize object VpnPermissionRequest : Event()
@@ -65,7 +66,7 @@ sealed class Event : Message.EventMessage() {
     companion object {
         private const val MESSAGE_KEY = "event"
 
-        fun fromMessage(message: RawMessage): Event? = Message.fromMessage(message, MESSAGE_KEY)
+        fun fromMessage(message: android.os.Message): Event? = fromMessage(message, MESSAGE_KEY)
     }
 }
 

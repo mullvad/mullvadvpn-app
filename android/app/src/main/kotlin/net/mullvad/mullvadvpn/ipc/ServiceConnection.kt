@@ -26,6 +26,9 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.util.DispatchingFlow
 import net.mullvad.mullvadvpn.lib.common.util.bindServiceFlow
 import net.mullvad.mullvadvpn.lib.common.util.dispatchTo
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.HandlerFlow
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.MullvadVpnService
@@ -33,7 +36,7 @@ import net.mullvad.mullvadvpn.service.MullvadVpnService
 @FlowPreview
 class ServiceConnection(context: Context, scope: CoroutineScope) {
     private val activeListeners = MutableStateFlow<Pair<Messenger, Int>?>(null)
-    private val handler = HandlerFlow(Looper.getMainLooper(), Event::fromMessage)
+    private val handler = HandlerFlow(Looper.getMainLooper(), Event.Companion::fromMessage)
     private val listener = Messenger(handler)
     private val listenerId = MutableStateFlow<Int?>(null)
 

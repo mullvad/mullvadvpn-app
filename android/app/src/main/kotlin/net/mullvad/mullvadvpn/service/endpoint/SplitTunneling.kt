@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlin.properties.Delegates.observable
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.talpid.util.EventNotifier
 
