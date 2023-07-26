@@ -210,6 +210,7 @@ play {
 dependencies {
     implementation(project(Dependencies.Mullvad.commonLib))
     implementation(project(Dependencies.Mullvad.endpointLib))
+    implementation(project(Dependencies.Mullvad.ipcLib))
     implementation(project(Dependencies.Mullvad.modelLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
