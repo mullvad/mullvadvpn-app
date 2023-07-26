@@ -1608,6 +1608,7 @@
 				5867770F290975E8006F721F /* SettingsInteractorFactory.swift */,
 				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
+				7A42DEC82A05164100B209BE /* SettingsInputCell.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
