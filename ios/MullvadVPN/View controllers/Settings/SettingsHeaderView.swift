@@ -119,6 +119,9 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
     }
 
     private func updateAccessibilityCustomActions() {
+        #warning(
+            "SettingsHeaderView is reused for more than content blockers now, this code doesn't seem correct anymore."
+        )
         let actionName = isExpanded
             ? NSLocalizedString(
                 "CONTENT_BLOCKERS_COLLAPSE_ACCESSIBILITY_ACTION",

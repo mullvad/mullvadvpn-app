@@ -1582,6 +1582,7 @@
 		583FE01829C19709006E85F9 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */,
 				5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */,
 				582BB1AE229566420055B6EF /* SettingsCell.swift */,
 				5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */,
@@ -1595,7 +1596,6 @@
 				58ACF64A26553C3F00ACE4B7 /* SettingsSwitchCell.swift */,
 				58CCA01122424D11004F3011 /* SettingsViewController.swift */,
 				7A42DEC82A05164100B209BE /* SettingsInputCell.swift */,
-				7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
