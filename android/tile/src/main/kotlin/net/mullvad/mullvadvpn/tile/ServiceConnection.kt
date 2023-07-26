@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ipc
+package net.mullvad.mullvadvpn.tile
 
 import android.content.Context
 import android.content.Intent
@@ -31,7 +31,6 @@ import net.mullvad.mullvadvpn.lib.ipc.HandlerFlow
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.service.MullvadVpnService
 
 @FlowPreview
 class ServiceConnection(context: Context, scope: CoroutineScope) {
@@ -80,7 +79,7 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
     }
 
     private suspend fun connect(context: Context) {
-        val intent = Intent(context, MullvadVpnService::class.java)
+        val intent = Intent().apply { setClassName(VPN_SERVICE_PACKAGE, VPN_SERVICE_CLASS) }
 
         context
             .bindServiceFlow(intent)
