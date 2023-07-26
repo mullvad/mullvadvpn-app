@@ -23,12 +23,12 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.lib.common.util.DispatchingFlow
+import net.mullvad.mullvadvpn.lib.common.util.bindServiceFlow
+import net.mullvad.mullvadvpn.lib.common.util.dispatchTo
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.MullvadVpnService
-import net.mullvad.mullvadvpn.util.DispatchingFlow
-import net.mullvad.mullvadvpn.util.bindServiceFlow
-import net.mullvad.mullvadvpn.util.dispatchTo
 
 @FlowPreview
 class ServiceConnection(context: Context, scope: CoroutineScope) {

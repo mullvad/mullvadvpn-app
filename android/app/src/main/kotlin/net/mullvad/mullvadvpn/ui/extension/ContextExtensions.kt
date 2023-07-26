@@ -6,8 +6,8 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.getInstalledPackagesList
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.util.SdkUtils.getInstalledPackagesList
 
 private const val ALWAYS_ON_VPN_APP = "always_on_vpn_app"
 
