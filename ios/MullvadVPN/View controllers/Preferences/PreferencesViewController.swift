@@ -35,6 +35,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         tableView.estimatedRowHeight = 60
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
         tableView.allowsSelectionDuringEditing = true
+        tableView.allowsMultipleSelection = true
 
         dataSource = PreferencesDataSource(tableView: tableView)
         dataSource?.delegate = self
@@ -161,6 +162,21 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 portsString
             )
 
+        case .wireGuardObfuscation:
+            message = NSLocalizedString(
+                "PREFERENCES_WIRE_GUARD_OBFUSCATION_GENERAL",
+                tableName: "WireGuardObfuscation",
+                value: "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked.",
+                comment: ""
+            )
+
+        case .wireGuardObfuscationPort:
+            message = NSLocalizedString(
+                "PREFERENCES_WIRE_GUARD_OBFUSCATION_PORT_GENERAL",
+                tableName: "WireGuardObfuscation",
+                value: "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
+                comment: ""
+            )
         default:
             assertionFailure("No matching InfoButtonItem")
         }
