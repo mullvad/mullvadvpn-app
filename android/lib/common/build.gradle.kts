@@ -18,9 +18,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-    }
+    kotlinOptions { jvmTarget = Versions.jvmTarget }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")
@@ -31,5 +29,9 @@ android {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(project(Dependencies.Mullvad.talpidLib))
+
     implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.KotlinX.coroutinesAndroid)
 }
