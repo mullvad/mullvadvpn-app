@@ -208,6 +208,8 @@ play {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.tileService))
+
     implementation(project(Dependencies.Mullvad.commonLib))
     implementation(project(Dependencies.Mullvad.endpointLib))
     implementation(project(Dependencies.Mullvad.ipcLib))

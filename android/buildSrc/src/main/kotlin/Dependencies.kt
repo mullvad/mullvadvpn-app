@@ -89,6 +89,8 @@ object Dependencies {
     }
 
     object Mullvad {
+        const val tileService = ":tile"
+
         const val commonLib = ":lib:common"
         const val endpointLib = ":lib:endpoint"
         const val ipcLib = ":lib:ipc"
