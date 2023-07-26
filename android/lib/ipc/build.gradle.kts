@@ -11,6 +11,7 @@ android {
     defaultConfig {
         minSdk = Versions.Android.minSdkVersion
         targetSdk = Versions.Android.targetSdkVersion
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -35,4 +36,7 @@ dependencies {
 
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
+
+    androidTestImplementation(Dependencies.AndroidX.testRunner)
+    androidTestImplementation(Dependencies.Kotlin.test)
 }
