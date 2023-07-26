@@ -4,6 +4,7 @@ include(
     ":lib:endpoint",
     ":lib:ipc",
     ":lib:model:",
+    ":lib:resource",
     ":lib:talpid:"
 )
 include(
