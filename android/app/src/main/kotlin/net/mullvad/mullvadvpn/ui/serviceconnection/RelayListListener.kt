@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.PortRange

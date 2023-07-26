@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ipc
+package net.mullvad.mullvadvpn.lib.ipc
 
 import android.os.Message as RawMessage
 import android.os.Messenger
@@ -98,6 +98,6 @@ sealed class Request : Message.RequestMessage() {
     companion object {
         private const val MESSAGE_KEY = "request"
 
-        fun fromMessage(message: RawMessage): Request? = Message.fromMessage(message, MESSAGE_KEY)
+        fun fromMessage(message: RawMessage): Request? = fromMessage(message, MESSAGE_KEY)
     }
 }

@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlin.properties.Delegates.observable
-import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 

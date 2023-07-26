@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
-import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.RelaySettings

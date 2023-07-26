@@ -5,8 +5,8 @@ import android.os.Message
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.Request
 
 fun Messenger.trySendEvent(event: Event, logErrors: Boolean): Boolean {
     return trySend(event.message, logErrors, event::class.qualifiedName)

@@ -3,9 +3,9 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 import android.os.Messenger
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.util.trySendRequest
 
 class ServiceConnectionDeviceDataSource(

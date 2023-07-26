@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
-import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.DeviceListEvent
