@@ -92,4 +92,14 @@
         <packageUrl regex="true">^pkg:maven/com\.android\.tools/common@.*$</packageUrl>
         <cve>CVE-2021-4277</cve>
     </suppress>
+    <suppress until="2023-12-01Z">
+        <notes><![CDATA[
+        This CVE only affect the leakCanary build type which is limited to memory leak testing etc.
+        This will most likely be solved by bumping to a future version of the leakcanary dependency
+        where a fixed version of okio is used.
+        https://nvd.nist.gov/vuln/detail/CVE-2023-3635
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.squareup\.okio/okio.*@.*$</packageUrl>
+        <cve>CVE-2023-3635</cve>
+    </suppress>
 </suppressions>
