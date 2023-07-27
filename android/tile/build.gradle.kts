@@ -36,6 +36,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.resourceLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
+    implementation(Dependencies.AndroidX.appcompat)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 }

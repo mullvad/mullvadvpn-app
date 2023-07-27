@@ -29,3 +29,7 @@ android {
         warningsAsErrors = true
     }
 }
+
+dependencies {
+    implementation(Dependencies.AndroidX.appcompat)
+}
