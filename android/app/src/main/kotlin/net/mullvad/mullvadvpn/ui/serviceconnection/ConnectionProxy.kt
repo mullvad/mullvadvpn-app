@@ -6,9 +6,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.trySendRequest
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect

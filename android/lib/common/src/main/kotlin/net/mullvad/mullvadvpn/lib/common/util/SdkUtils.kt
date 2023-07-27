@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.lib.common.util
 
 import android.Manifest
 import android.app.PendingIntent

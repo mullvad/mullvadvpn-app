@@ -1,7 +1,13 @@
-include(":app")
 include(
+    ":app",
+    ":tile"
+)
+include(
+    ":lib:common:",
     ":lib:endpoint",
+    ":lib:ipc",
     ":lib:model:",
+    ":lib:resource",
     ":lib:talpid:"
 )
 include(

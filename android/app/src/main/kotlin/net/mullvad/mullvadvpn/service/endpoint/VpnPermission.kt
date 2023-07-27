@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.service.endpoint
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.Intermittent
 

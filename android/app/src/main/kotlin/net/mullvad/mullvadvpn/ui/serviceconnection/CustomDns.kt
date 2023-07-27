@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
 import java.net.InetAddress
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.DnsState
 import net.mullvad.mullvadvpn.util.trySendRequest

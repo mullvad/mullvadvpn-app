@@ -16,9 +16,9 @@ import io.mockk.slot
 import io.mockk.unmockkAll
 import kotlin.reflect.KClass
 import kotlin.test.assertEquals
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import org.junit.After
 import org.junit.Before

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ipc
+package net.mullvad.mullvadvpn.lib.ipc
 
 import android.os.Handler
 import android.os.Looper

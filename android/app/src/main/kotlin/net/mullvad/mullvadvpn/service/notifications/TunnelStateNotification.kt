@@ -8,9 +8,9 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.util.SdkUtils
 import net.mullvad.mullvadvpn.util.getErrorNotificationResources
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorStateCause

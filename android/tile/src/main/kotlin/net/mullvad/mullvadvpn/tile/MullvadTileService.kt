@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.tile
 
 import android.content.Intent
 import android.graphics.drawable.Icon
@@ -15,11 +15,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.ipc.ServiceConnection
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.util.SdkUtils.setSubtitleIfSupported
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class MullvadTileService : TileService() {
@@ -75,12 +73,13 @@ class MullvadTileService : TileService() {
 
     private fun toggleTunnel() {
         val intent =
-            Intent(this, MullvadVpnService::class.java).apply {
+            Intent().apply {
+                setClassName(VPN_SERVICE_PACKAGE, VPN_SERVICE_CLASS)
                 action =
                     if (qsTile.state == Tile.STATE_INACTIVE) {
-                        MullvadVpnService.KEY_CONNECT_ACTION
+                        KEY_CONNECT_ACTION
                     } else {
-                        MullvadVpnService.KEY_DISCONNECT_ACTION
+                        KEY_DISCONNECT_ACTION
                     }
             }
 

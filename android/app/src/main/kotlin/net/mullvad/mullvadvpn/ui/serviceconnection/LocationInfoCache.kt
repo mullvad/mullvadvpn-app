@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import kotlin.properties.Delegates.observable
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 
 class LocationInfoCache(eventDispatcher: EventDispatcher) {

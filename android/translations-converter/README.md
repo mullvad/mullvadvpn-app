@@ -17,7 +17,7 @@ for each locale it can find in the [`gui/locales` directory][gui-locales]. It wi
 [messages.pot] template file with the string messages from the Android app for which it did not find
 any translation, making it simpler to use the template for obtaining those translations.
 
-[android-resources]: ../app/src/main/res/
+[android-resources]: ../lib/resource/src/main/res/
 [gui-locales]: ../gui/locales/
 [messages.pot]: ../gui/locales/messages.pot
-[values-sv-example]: ../app/src/main/res/values-sv/strings.xml
+[values-sv-example]: ../lib/resource/src/main/res/values-sv/strings.xml
