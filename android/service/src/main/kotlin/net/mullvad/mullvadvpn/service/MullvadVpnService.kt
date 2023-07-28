@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service
 
+import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
@@ -12,26 +13,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.BuildConfig
-import net.mullvad.mullvadvpn.di.vpnServiceModule
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_QUIT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.DefaultApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.service.di.vpnServiceModule
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
-import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.core.context.loadKoinModules
 
 class MullvadVpnService : TalpidVpnService() {
     companion object {
         private val TAG = "mullvad"
-
-        val KEY_CONNECT_ACTION = "net.mullvad.mullvadvpn.connect_action"
-        val KEY_DISCONNECT_ACTION = "net.mullvad.mullvadvpn.disconnect_action"
-        val KEY_QUIT_ACTION = "net.mullvad.mullvadvpn.quit_action"
 
         init {
             System.loadLibrary("mullvad_jni")
@@ -70,6 +70,8 @@ class MullvadVpnService : TalpidVpnService() {
     private var apiEndpointConfiguration: ApiEndpointConfiguration =
         DefaultApiEndpointConfiguration()
 
+    // Suppressing since the tunnel state pref should be writted immediately.
+    @SuppressLint("ApplySharedPref")
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
@@ -265,7 +267,8 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun openUi() {
         val intent =
-            Intent(this, MainActivity::class.java).apply {
+            Intent().apply {
+                setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }

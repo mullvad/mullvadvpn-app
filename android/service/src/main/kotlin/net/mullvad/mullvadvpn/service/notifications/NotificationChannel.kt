@@ -6,7 +6,7 @@ import android.content.Context
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.service.R
 
 class NotificationChannel(
     val context: Context,

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.di
+package net.mullvad.mullvadvpn.service.di
 
 import androidx.core.app.NotificationManagerCompat
 import org.koin.android.ext.koin.androidContext

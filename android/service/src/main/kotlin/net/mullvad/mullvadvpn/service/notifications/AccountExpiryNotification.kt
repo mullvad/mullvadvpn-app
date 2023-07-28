@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.notifications
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -9,17 +10,18 @@ import android.net.Uri
 import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
-import net.mullvad.mullvadvpn.BuildConfig
-import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
 import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.service.BuildConfig
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.service.R
 import net.mullvad.mullvadvpn.service.endpoint.AccountCache
-import net.mullvad.mullvadvpn.ui.MainActivity
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
@@ -66,6 +68,8 @@ class AccountExpiryNotification(
         accountCache.onAccountExpiryChange.unsubscribe(this)
     }
 
+    // Suppressing since the permission check is done by calling a common util in another module.
+    @SuppressLint("MissingPermission")
     private suspend fun update(expiry: AccountExpiry) {
         val expiryDate = expiry.date()
         val durationUntilExpiry = expiryDate?.remainingTime()
@@ -102,9 +106,11 @@ class AccountExpiryNotification(
             }
         val intent =
             if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
-                Intent(context, MainActivity::class.java)
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    .setAction(Intent.ACTION_MAIN)
+                Intent().apply {
+                    setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
+                    setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    setAction(Intent.ACTION_MAIN)
+                }
             } else {
                 Intent(Intent.ACTION_VIEW, url)
             }

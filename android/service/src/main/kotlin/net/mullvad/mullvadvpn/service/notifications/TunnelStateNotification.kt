@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.notifications
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -7,11 +8,13 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
-import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
+import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.service.R
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorStateCause
 
@@ -97,17 +100,25 @@ class TunnelStateNotification(val context: Context) {
             }
         }
 
+    // Suppressing since the permission check is done by calling a common util in another module.
+    @SuppressLint("MissingPermission")
     private fun update() {
-        if (visible && (!reconnecting || !showingReconnecting)) {
+        if (
+            context.isNotificationPermissionGranted() &&
+                visible &&
+                (!reconnecting || !showingReconnecting)
+        ) {
             channel.notificationManager.notify(NOTIFICATION_ID, build())
         }
     }
 
     fun build(): Notification {
         val intent =
-            Intent(context, MainActivity::class.java)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                .setAction(Intent.ACTION_MAIN)
+            Intent().apply {
+                setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
+                setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                setAction(Intent.ACTION_MAIN)
+            }
         val pendingIntent =
             PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
         val actions =
@@ -128,7 +139,7 @@ class TunnelStateNotification(val context: Context) {
     private fun buildAction(): NotificationCompat.Action {
         val action = TunnelStateNotificationAction.from(tunnelState)
         val label = context.getString(action.text)
-        val intent = Intent(action.key).setPackage("net.mullvad.mullvadvpn")
+        val intent = Intent(action.key).setPackage(MULLVAD_PACKAGE_NAME)
         val pendingIntent =
             PendingIntent.getForegroundService(
                 context,
