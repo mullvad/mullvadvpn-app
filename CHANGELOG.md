@@ -64,6 +64,7 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate split tunneling view to compose.
 - Migrate select Location view to compose.
 - Migrate settings view to compose.
+- Migrate account view to compose.
 
 ### Fixed
 - Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
