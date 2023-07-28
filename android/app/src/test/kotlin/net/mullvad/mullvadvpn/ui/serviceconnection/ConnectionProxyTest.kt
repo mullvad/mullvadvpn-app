@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.DeadObjectException
 import android.os.Looper
@@ -19,7 +19,6 @@ import kotlin.test.assertEquals
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.Request
-import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
