@@ -1,7 +1,7 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.lib.common.util
 
-import net.mullvad.mullvadvpn.BuildConfig
-import net.mullvad.mullvadvpn.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.common.BuildConfig
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 

@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.ui.LoginState
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
@@ -24,7 +25,6 @@ import net.mullvad.mullvadvpn.ui.widget.AccountInput
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
-import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 

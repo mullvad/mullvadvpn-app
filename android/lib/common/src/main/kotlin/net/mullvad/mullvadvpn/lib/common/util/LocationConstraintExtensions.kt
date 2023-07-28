@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.lib.common.util
 
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint

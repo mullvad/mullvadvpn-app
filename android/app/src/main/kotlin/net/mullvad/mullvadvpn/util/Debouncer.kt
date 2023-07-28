@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.util
 
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 
 // Helper to filter out bursts of events so that only the latest event in an interval is notified.
 //

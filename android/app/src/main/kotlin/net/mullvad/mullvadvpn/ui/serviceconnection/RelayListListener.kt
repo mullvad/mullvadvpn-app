@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
+import net.mullvad.mullvadvpn.lib.common.util.toGeographicLocationConstraint
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.Request
@@ -14,7 +15,6 @@ import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.findItemForLocation
 import net.mullvad.mullvadvpn.relaylist.toRelayCountries
-import net.mullvad.mullvadvpn.util.toGeographicLocationConstraint
 
 class RelayListListener(
     private val connection: Messenger,

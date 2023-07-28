@@ -3,10 +3,10 @@ package net.mullvad.mullvadvpn.service.endpoint
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
+import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.util.Intermittent
 
 class VpnPermission(private val context: Context, private val endpoint: ServiceEndpoint) {
     private val isGranted = Intermittent<Boolean>()

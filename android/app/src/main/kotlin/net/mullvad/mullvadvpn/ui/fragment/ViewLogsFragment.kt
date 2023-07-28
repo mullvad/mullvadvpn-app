@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.util.JobTracker
 
 class ViewLogsFragment : BaseFragment() {
     private val jobTracker = JobTracker()

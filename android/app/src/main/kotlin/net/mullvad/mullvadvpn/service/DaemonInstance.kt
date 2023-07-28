@@ -10,8 +10,8 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.trySendBlocking
+import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
-import net.mullvad.mullvadvpn.util.Intermittent
 
 class DaemonInstance(private val vpnService: MullvadVpnService) {
     sealed class Command {

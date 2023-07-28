@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 
 @Composable
 fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device: Device) {

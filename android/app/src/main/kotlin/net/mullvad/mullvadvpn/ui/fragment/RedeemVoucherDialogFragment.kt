@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.model.VoucherSubmissionError
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -21,7 +22,6 @@ import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
 import net.mullvad.mullvadvpn.ui.widget.Button
-import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject

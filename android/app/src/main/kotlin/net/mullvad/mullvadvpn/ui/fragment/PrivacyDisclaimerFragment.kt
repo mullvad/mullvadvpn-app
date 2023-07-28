@@ -11,11 +11,11 @@ import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.PrivacyDisclaimerScreen
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnReleaseBuild
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
-import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import org.koin.android.ext.android.inject
 

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.lib.common.util
 
 import android.content.res.Resources
 

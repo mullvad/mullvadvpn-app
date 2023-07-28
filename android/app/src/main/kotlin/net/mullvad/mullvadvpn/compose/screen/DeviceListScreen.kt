@@ -39,10 +39,10 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
 import net.mullvad.mullvadvpn.compose.theme.MullvadGreen40
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite80
+import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
+import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.util.formatDate
-import net.mullvad.mullvadvpn.util.parseAsDateTime
 
 @Composable
 @Preview
