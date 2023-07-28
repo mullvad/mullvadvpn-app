@@ -14,9 +14,9 @@ import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.extensions.trySendEvent
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
-import net.mullvad.mullvadvpn.util.trySendEvent
 import net.mullvad.talpid.ConnectivityListener
 
 const val SHOULD_LOG_DEAD_OBJECT_EXCEPTION = true

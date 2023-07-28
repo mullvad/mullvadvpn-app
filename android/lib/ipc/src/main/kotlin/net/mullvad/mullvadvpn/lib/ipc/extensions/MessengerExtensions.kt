@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.util
+package net.mullvad.mullvadvpn.lib.ipc.extensions
 
 import android.os.DeadObjectException
 import android.os.Message
