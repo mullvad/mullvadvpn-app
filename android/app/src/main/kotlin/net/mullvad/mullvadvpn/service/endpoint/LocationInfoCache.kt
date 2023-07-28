@@ -12,13 +12,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
+import net.mullvad.mullvadvpn.lib.common.util.toGeographicLocationConstraint
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
-import net.mullvad.mullvadvpn.util.toGeographicLocationConstraint
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class LocationInfoCache(private val endpoint: ServiceEndpoint) {

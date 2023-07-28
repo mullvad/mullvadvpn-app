@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.constant
+package net.mullvad.mullvadvpn.lib.common.constant
 
 object BuildTypes {
     const val DEBUG = "debug"

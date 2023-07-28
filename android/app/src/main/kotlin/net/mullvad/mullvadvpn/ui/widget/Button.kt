@@ -8,7 +8,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.util.JobTracker
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 
 open class Button : FrameLayout {
     enum class ButtonColor {

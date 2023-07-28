@@ -30,8 +30,10 @@ android {
 
 dependencies {
     implementation(project(Dependencies.Mullvad.modelLib))
+    implementation(project(Dependencies.Mullvad.resourceLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
+    implementation(Dependencies.jodaTime)
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 }

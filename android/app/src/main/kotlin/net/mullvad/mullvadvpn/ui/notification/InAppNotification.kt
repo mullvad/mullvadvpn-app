@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.ui.notification
 
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.util.ChangeMonitor
-import net.mullvad.mullvadvpn.util.JobTracker
 
 abstract class InAppNotification {
     private val changeMonitor = ChangeMonitor()

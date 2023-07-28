@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlinx.coroutines.flow.collect
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.util.JobTracker
 
 class DaemonDeviceDataSource(val endpoint: ServiceEndpoint) {
     private val tracker = JobTracker()
