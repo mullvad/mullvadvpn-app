@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 data class Dimensions(
+    val backButtonSideMargin: Dp = 30.dp,
     val buttonHeight: Dp = 44.dp,
     val buttonSeparation: Dp = 18.dp,
     val cellEndPadding: Dp = 16.dp,
@@ -27,6 +28,7 @@ data class Dimensions(
     val listItemHeightExtra: Dp = 60.dp,
     val loadingSpinnerPadding: Dp = 12.dp,
     val loadingSpinnerSize: Dp = 24.dp,
+    val loadingSpinnerSizeMedium: Dp = 28.dp,
     val loadingSpinnerStrokeWidth: Dp = 3.dp,
     val mediumPadding: Dp = 16.dp,
     val progressIndicatorSize: Dp = 60.dp,
