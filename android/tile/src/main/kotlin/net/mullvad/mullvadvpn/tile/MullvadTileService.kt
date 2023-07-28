@@ -15,6 +15,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
+import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -74,7 +78,7 @@ class MullvadTileService : TileService() {
     private fun toggleTunnel() {
         val intent =
             Intent().apply {
-                setClassName(VPN_SERVICE_PACKAGE, VPN_SERVICE_CLASS)
+                setClassName(MULLVAD_PACKAGE_NAME, VPN_SERVICE_CLASS)
                 action =
                     if (qsTile.state == Tile.STATE_INACTIVE) {
                         KEY_CONNECT_ACTION
