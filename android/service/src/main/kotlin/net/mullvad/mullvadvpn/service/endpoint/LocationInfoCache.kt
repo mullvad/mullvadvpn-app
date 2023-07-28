@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.util.ExponentialBackoff
+import net.mullvad.mullvadvpn.service.util.ExponentialBackoff
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class LocationInfoCache(private val endpoint: ServiceEndpoint) {

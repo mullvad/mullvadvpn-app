@@ -1,8 +1,9 @@
 package net.mullvad.mullvadvpn.service.notifications
 
-import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.service.MullvadVpnService
+import net.mullvad.mullvadvpn.service.R
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 enum class TunnelStateNotificationAction {
@@ -45,8 +46,8 @@ enum class TunnelStateNotificationAction {
     val key
         get() =
             when (this) {
-                Connect -> MullvadVpnService.KEY_CONNECT_ACTION
-                else -> MullvadVpnService.KEY_DISCONNECT_ACTION
+                Connect -> KEY_CONNECT_ACTION
+                else -> KEY_DISCONNECT_ACTION
             }
 
     val icon
