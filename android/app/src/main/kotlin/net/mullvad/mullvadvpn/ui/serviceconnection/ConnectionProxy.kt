@@ -9,8 +9,8 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.extensions.trySendRequest
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.util.trySendRequest
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.util.EventNotifier
 

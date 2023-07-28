@@ -20,7 +20,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
+import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
+import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -29,7 +32,6 @@ import net.mullvad.mullvadvpn.ui.GroupedPasswordTransformationMethod
 import net.mullvad.mullvadvpn.ui.GroupedTransformationMethod
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
-import net.mullvad.mullvadvpn.ui.extension.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.paintNavigationBar
 import net.mullvad.mullvadvpn.ui.paintStatusBar
@@ -41,11 +43,9 @@ import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
-import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
-import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.koin.android.ext.android.inject

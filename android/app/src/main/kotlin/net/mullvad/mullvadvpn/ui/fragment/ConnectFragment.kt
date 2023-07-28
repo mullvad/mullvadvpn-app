@@ -18,7 +18,8 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectScreen
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
-import net.mullvad.mullvadvpn.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
@@ -30,7 +31,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
-import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.koin.android.ext.android.inject

@@ -1,5 +1,6 @@
 include(
     ":app",
+    ":service",
     ":tile"
 )
 include(

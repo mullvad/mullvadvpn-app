@@ -89,6 +89,7 @@ object Dependencies {
     }
 
     object Mullvad {
+        const val vpnService = ":service"
         const val tileService = ":tile"
 
         const val commonLib = ":lib:common"

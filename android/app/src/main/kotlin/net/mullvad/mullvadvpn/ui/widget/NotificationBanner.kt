@@ -14,10 +14,10 @@ import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.ui.notification.InAppNotification
 import net.mullvad.mullvadvpn.ui.notification.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
-import net.mullvad.mullvadvpn.util.JobTracker
 
 class NotificationBanner : FrameLayout {
     private val jobTracker = JobTracker()

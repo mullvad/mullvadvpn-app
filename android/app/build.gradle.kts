@@ -208,6 +208,7 @@ play {
 }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.vpnService))
     implementation(project(Dependencies.Mullvad.tileService))
 
     implementation(project(Dependencies.Mullvad.commonLib))
