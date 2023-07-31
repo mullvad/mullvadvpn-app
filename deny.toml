@@ -86,6 +86,8 @@ deny = [
     { name = "openssl-probe" },
     { name = "clap", version = "2" },
     { name = "clap", version = "3" },
+    # `atty` is an unmaintained crate with a CVE: RUSTSEC-2021-0145
+    { name = "atty" }
 ]
 skip = []
 skip-tree = []
