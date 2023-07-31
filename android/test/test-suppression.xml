@@ -102,4 +102,12 @@
         <packageUrl regex="true">^pkg:maven/com\.squareup\.okio/okio.*@.*$</packageUrl>
         <cve>CVE-2023-3635</cve>
     </suppress>
+    <suppress until="2023-12-01Z">
+        <notes><![CDATA[
+        This CVE only affect certain test cases so suppressing until patched.
+        https://nvd.nist.gov/vuln/detail/CVE-2023-3782
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.squareup\.okhttp3/.*@.*$</packageUrl>
+        <cve>CVE-2023-3782</cve>
+    </suppress>
 </suppressions>
