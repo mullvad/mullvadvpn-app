@@ -65,7 +65,13 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                     tunnelRealState,
                     isTunnelInfoExpanded ->
                     ConnectUiState(
-                        location = location,
+                        location =
+                            when (tunnelRealState) {
+                                is TunnelState.Connected -> tunnelRealState.location
+                                is TunnelState.Connecting -> tunnelRealState.location
+                                else -> null
+                            }
+                                ?: location,
                         relayLocation = relayLocation,
                         versionInfo = versionInfo,
                         tunnelUiState = tunnelUiState,
@@ -83,7 +89,7 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                                 is TunnelState.Disconnected -> true
                                 is TunnelState.Disconnecting -> {
                                     when (tunnelUiState.actionAfterDisconnect) {
-                                        ActionAfterDisconnect.Nothing -> true
+                                        ActionAfterDisconnect.Nothing -> false
                                         ActionAfterDisconnect.Block -> true
                                         ActionAfterDisconnect.Reconnect -> false
                                     }
