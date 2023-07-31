@@ -28,7 +28,6 @@ import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 @Composable
 fun ConnectionButton(
@@ -43,26 +42,13 @@ fun ConnectionButton(
     when (state) {
         is TunnelState.Disconnected -> ConnectButton(modifier = modifier, onClick = connectClick)
         is TunnelState.Disconnecting -> {
-            when (state.actionAfterDisconnect) {
-                ActionAfterDisconnect.Nothing ->
-                    ConnectButton(modifier = modifier, onClick = connectClick)
-                ActionAfterDisconnect.Block ->
-                    DisconnectButton(
-                        modifier = modifier,
-                        text = stringResource(id = R.string.disconnect),
-                        mainClick = connectClick,
-                        reconnectClick = reconnectClick,
-                        reconnectButtonTestTag = reconnectButtonTestTag
-                    )
-                ActionAfterDisconnect.Reconnect ->
-                    DisconnectButton(
-                        modifier = modifier,
-                        text = stringResource(id = R.string.disconnect),
-                        mainClick = connectClick,
-                        reconnectClick = reconnectClick,
-                        reconnectButtonTestTag = reconnectButtonTestTag
-                    )
-            }
+            DisconnectButton(
+                modifier = modifier,
+                text = stringResource(id = R.string.disconnect),
+                mainClick = connectClick,
+                reconnectClick = reconnectClick,
+                reconnectButtonTestTag = reconnectButtonTestTag
+            )
         }
         is TunnelState.Connecting ->
             DisconnectButton(
