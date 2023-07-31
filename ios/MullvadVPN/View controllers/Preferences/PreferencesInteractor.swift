@@ -14,10 +14,10 @@ final class PreferencesInteractor {
     private var tunnelObserver: TunnelObserver?
     private let relayCacheTracker: RelayCacheTracker
 
-    var tunnelSettingsDidChange: ((TunnelSettingsV2) -> Void)?
+    var tunnelSettingsDidChange: ((LatestTunnelSettings) -> Void)?
     var cachedRelaysDidChange: ((CachedRelays) -> Void)?
 
-    var tunnelSettings: TunnelSettingsV2 {
+    var tunnelSettings: LatestTunnelSettings {
         tunnelManager.settings
     }
 

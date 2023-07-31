@@ -154,7 +154,7 @@ struct PreferencesViewModel: Equatable {
         }
     }
 
-    init(from tunnelSettings: TunnelSettingsV2 = TunnelSettingsV2()) {
+    init(from tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
         let dnsSettings = tunnelSettings.dnsSettings
         blockAdvertising = dnsSettings.blockingOptions.contains(.blockAdvertising)
         blockTracking = dnsSettings.blockingOptions.contains(.blockTracking)

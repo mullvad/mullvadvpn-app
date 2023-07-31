@@ -87,7 +87,7 @@ enum SettingsManager {
 
     // MARK: - Settings
 
-    static func readSettings() throws -> TunnelSettingsV2 {
+    static func readSettings() throws -> LatestTunnelSettings {
         let storedVersion: Int
         let data: Data
         let parser = makeParser()
@@ -102,7 +102,7 @@ enum SettingsManager {
         let currentVersion = SchemaVersion.current
 
         if storedVersion == currentVersion.rawValue {
-            return try parser.parsePayload(as: TunnelSettingsV2.self, from: data)
+            return try parser.parsePayload(as: LatestTunnelSettings.self, from: data)
         } else {
             throw UnsupportedSettingsVersionError(
                 storedVersion: storedVersion,
@@ -111,7 +111,7 @@ enum SettingsManager {
         }
     }
 
-    static func writeSettings(_ settings: TunnelSettingsV2) throws {
+    static func writeSettings(_ settings: LatestTunnelSettings) throws {
         let parser = makeParser()
         let data = try parser.producePayload(settings, version: SchemaVersion.current.rawValue)
 
