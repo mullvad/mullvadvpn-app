@@ -1,20 +1,20 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.AnimatedIconButton
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.ui.extension.copyToClipboard
@@ -36,31 +36,29 @@ fun CopyableObfuscationView(content: String) {
             doObfuscateWithPasswordDots = shouldObfuscated.value
         )
         Spacer(modifier = Modifier.weight(1f))
-        Image(
-            painter =
-                painterResource(
-                    id = if (shouldObfuscated.value) R.drawable.icon_hide else R.drawable.icon_show
-                ),
-            modifier =
-                Modifier.clickable { shouldObfuscated.value = shouldObfuscated.value.not() }
-                    .padding(start = Dimens.sideMargin),
-            contentDescription = stringResource(id = R.string.copy_account_number)
+        AnimatedIconButton(
+            defaultIcon = painterResource(id = R.drawable.icon_hide),
+            secondaryIcon = painterResource(id = R.drawable.icon_show),
+            isToggleButton = true,
+            onClick = { shouldObfuscated.value = shouldObfuscated.value.not() }
         )
-        Image(
-            painter = painterResource(id = R.drawable.icon_copy),
-            modifier =
-                Modifier.clickable {
-                        context.copyToClipboard(
-                            content = content,
-                            clipboardLabel = context.getString(R.string.mullvad_account_number)
-                        )
-                        SdkUtils.showCopyToastIfNeeded(
-                            context,
-                            context.getString(R.string.copied_mullvad_account_number)
-                        )
-                    }
-                    .padding(start = Dimens.sideMargin, end = Dimens.sideMargin),
-            contentDescription = stringResource(id = R.string.copy_account_number)
+        AnimatedIconButton(
+            defaultIcon = painterResource(id = R.drawable.icon_copy),
+            secondaryIcon = painterResource(id = R.drawable.icon_tick),
+            secondaryIconColorFilter =
+                ColorFilter.tint(color = MaterialTheme.colorScheme.inversePrimary),
+            isToggleButton = false,
+            modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin),
+            onClick = {
+                context.copyToClipboard(
+                    content = content,
+                    clipboardLabel = context.getString(R.string.mullvad_account_number)
+                )
+                SdkUtils.showCopyToastIfNeeded(
+                    context,
+                    context.getString(R.string.copied_mullvad_account_number)
+                )
+            }
         )
     }
 }
