@@ -15,6 +15,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -36,6 +40,8 @@ import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
+private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
+
 @Preview
 @Composable
 fun PreviewConnectScreen() {
@@ -54,6 +60,16 @@ fun ConnectScreen(
     onToggleTunnelInfo: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
+    var lastConnectionActionTimestamp by remember { mutableStateOf(0L) }
+
+    fun handleThrottledAction(action: () -> Unit) {
+        val currentTime = System.currentTimeMillis()
+        if ((currentTime - lastConnectionActionTimestamp) > CONNECT_BUTTON_THROTTLE_MILLIS) {
+            lastConnectionActionTimestamp = currentTime
+            action.invoke()
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.Start,
@@ -126,9 +142,9 @@ fun ConnectScreen(
                     .height(Dimens.connectButtonHeight)
                     .testTag(CONNECT_BUTTON_TEST_TAG),
             disconnectClick = onDisconnectClick,
-            reconnectClick = onReconnectClick,
+            reconnectClick = { handleThrottledAction(onReconnectClick) },
             cancelClick = onCancelClick,
-            connectClick = onConnectClick,
+            connectClick = { handleThrottledAction(onConnectClick) },
             reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG
         )
     }
