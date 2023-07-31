@@ -402,7 +402,7 @@
 		A90F9DEC2A6E91A5009DC8B3 /* AttemptsRecording.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90F9DEB2A6E91A5009DC8B3 /* AttemptsRecording.swift */; };
 		A90F9DED2A6E929E009DC8B3 /* UserDefaults+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90F9DE92A6E8B1F009DC8B3 /* UserDefaults+Extensions.swift */; };
 		A90F9DEE2A6E92AD009DC8B3 /* UserDefaults+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90F9DE92A6E8B1F009DC8B3 /* UserDefaults+Extensions.swift */; };
-		A917351F29FAA9C400D5DCFD /* RESTTransportStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917351E29FAA9C400D5DCFD /* RESTTransportStrategy.swift */; };
+		A917351F29FAA9C400D5DCFD /* TransportStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917351E29FAA9C400D5DCFD /* TransportStrategy.swift */; };
 		A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */; };
 		A93D13782A1F60A6001EB0B1 /* shadowsocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 586F2BE129F6916F009E6924 /* shadowsocks.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A9467E7F2A29DEFE000DC21F /* RelayCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */; };
@@ -1189,7 +1189,7 @@
 		7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCoordinator.swift; sourceTree = "<group>"; };
 		A90F9DE92A6E8B1F009DC8B3 /* UserDefaults+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Extensions.swift"; sourceTree = "<group>"; };
 		A90F9DEB2A6E91A5009DC8B3 /* AttemptsRecording.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttemptsRecording.swift; sourceTree = "<group>"; };
-		A917351E29FAA9C400D5DCFD /* RESTTransportStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportStrategy.swift; sourceTree = "<group>"; };
+		A917351E29FAA9C400D5DCFD /* TransportStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportStrategy.swift; sourceTree = "<group>"; };
 		A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportStrategyTests.swift; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A9467E872A2DCD57000DC21F /* ShadowsocksConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksConfiguration.swift; sourceTree = "<group>"; };
@@ -1440,10 +1440,10 @@
 				5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */,
 				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
-				A917351E29FAA9C400D5DCFD /* RESTTransportStrategy.swift */,
 				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
 				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
 				06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */,
+				A917351E29FAA9C400D5DCFD /* TransportStrategy.swift */,
 			);
 			path = MullvadREST;
 			sourceTree = "<group>";
@@ -3099,7 +3099,7 @@
 				06799ADF28F98E4800ACD94E /* RESTDevicesProxy.swift in Sources */,
 				06799ADA28F98E4800ACD94E /* RESTResponseHandler.swift in Sources */,
 				062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */,
-				A917351F29FAA9C400D5DCFD /* RESTTransportStrategy.swift in Sources */,
+				A917351F29FAA9C400D5DCFD /* TransportStrategy.swift in Sources */,
 				06799AE428F98E4800ACD94E /* RESTAccountsProxy.swift in Sources */,
 				5897F1742913EAF800AF5695 /* ExponentialBackoff.swift in Sources */,
 				06799AE328F98E4800ACD94E /* RESTNetworkOperation.swift in Sources */,
