@@ -1,17 +1,16 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -60,9 +59,9 @@ fun ConnectScreen(
         horizontalAlignment = Alignment.Start,
         modifier =
             Modifier.background(color = MaterialTheme.colorScheme.primary)
-                .fillMaxHeight()
+                .height(IntrinsicSize.Max)
                 .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenVerticalMargin)
-                .scrollable(scrollState, Orientation.Vertical)
+                .verticalScroll(scrollState)
     ) {
         if (
             uiState.tunnelRealState is TunnelState.Connecting ||
