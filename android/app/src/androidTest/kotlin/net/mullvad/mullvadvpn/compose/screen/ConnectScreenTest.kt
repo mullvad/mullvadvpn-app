@@ -200,7 +200,7 @@ class ConnectScreenTest {
         composeTestRule.apply {
             onNodeWithText("UNSECURED CONNECTION").assertExists()
             onNodeWithText(mockLocationName).assertExists()
-            onNodeWithText("Secure my connection").assertExists()
+            onNodeWithText("Disconnect").assertExists()
         }
     }
 
