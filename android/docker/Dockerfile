@@ -76,13 +76,14 @@ RUN apt-get update -y && apt-get install -y \
     python \
     software-properties-common \
     unzip \
-    openjdk-11-jdk \
+    ca-certificates-java \
+    openjdk-17-jdk \
     tidy \
     && rm -rf /var/lib/apt/lists/*
 
 # Set default java version
-RUN update-alternatives --set java  /usr/lib/jvm/java-11-openjdk-amd64/bin/java
-RUN update-alternatives --set javac /usr/lib/jvm/java-11-openjdk-amd64/bin/javac
+RUN update-alternatives --set java  /usr/lib/jvm/java-17-openjdk-amd64/bin/java
+RUN update-alternatives --set javac /usr/lib/jvm/java-17-openjdk-amd64/bin/javac
 
 # Install Android command line tools
 RUN curl -sfLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${COMMAND_LINE_TOOLS_VERSION}_latest.zip && \
