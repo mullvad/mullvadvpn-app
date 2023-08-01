@@ -213,7 +213,7 @@ fn frontend_log_dir() -> Option<Result<PathBuf, LogError>> {
     #[cfg(target_os = "linux")]
     {
         Some(
-            dirs_next::home_dir()
+            dirs::home_dir()
                 .ok_or(LogError::NoHomeDir)
                 .map(|home_dir| home_dir.join(".config/Mullvad VPN/logs")),
         )
@@ -221,7 +221,7 @@ fn frontend_log_dir() -> Option<Result<PathBuf, LogError>> {
     #[cfg(target_os = "macos")]
     {
         Some(
-            dirs_next::home_dir()
+            dirs::home_dir()
                 .ok_or(LogError::NoHomeDir)
                 .map(|home_dir| home_dir.join("Library/Logs/Mullvad VPN")),
         )
@@ -420,7 +420,7 @@ impl ProblemReport {
     }
 
     fn redact_home_dir(input: &str) -> Cow<'_, str> {
-        redact_home_dir_inner(input, dirs_next::home_dir())
+        redact_home_dir_inner(input, dirs::home_dir())
     }
 
     fn redact_network_info(input: &str) -> Cow<'_, str> {
