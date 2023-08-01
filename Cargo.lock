@@ -3645,7 +3645,6 @@ dependencies = [
  "quickcheck",
  "quickcheck_macros",
  "rand 0.8.5",
- "regex",
  "resolv-conf",
  "rtnetlink",
  "shell-escape",
