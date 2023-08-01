@@ -3624,7 +3624,6 @@ dependencies = [
  "duct",
  "err-derive",
  "futures",
- "hex",
  "inotify 0.10.0",
  "internet-checksum",
  "ipnetwork",
