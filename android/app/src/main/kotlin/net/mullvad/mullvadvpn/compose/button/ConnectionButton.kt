@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
+import net.mullvad.mullvadvpn.compose.theme.AlphaDisconnectButton
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -133,7 +133,8 @@ private fun DisconnectButton(
                 ),
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaInactive),
+                    containerColor =
+                        MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton),
                     contentColor = MaterialTheme.colorScheme.onError
                 ),
             modifier = Modifier.weight(1f).height(height)
@@ -158,7 +159,8 @@ private fun DisconnectButton(
                 ),
             colors =
                 IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaInactive),
+                    containerColor =
+                        MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton),
                     contentColor = MaterialTheme.colorScheme.onError
                 ),
             onClick = reconnectClick,
