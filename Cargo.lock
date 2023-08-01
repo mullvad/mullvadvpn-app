@@ -3645,7 +3645,6 @@ dependencies = [
  "rand 0.8.5",
  "resolv-conf",
  "rtnetlink",
- "shell-escape",
  "socket2",
  "subslice",
  "system-configuration",
