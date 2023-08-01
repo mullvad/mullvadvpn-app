@@ -3620,7 +3620,6 @@ dependencies = [
  "async-trait",
  "bitflags",
  "byteorder",
- "cfg-if",
  "chrono",
  "duct",
  "err-derive",
