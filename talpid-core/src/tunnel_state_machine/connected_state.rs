@@ -7,7 +7,6 @@ use crate::{
     firewall::FirewallPolicy,
     tunnel::{TunnelEvent, TunnelMetadata},
 };
-use cfg_if::cfg_if;
 use futures::{
     channel::{mpsc, oneshot},
     stream::Fuse,
@@ -194,12 +193,10 @@ impl ConnectedState {
                 } else {
                     match self.set_firewall_policy(shared_values) {
                         Ok(()) => {
-                            cfg_if! {
-                                if #[cfg(target_os = "android")] {
-                                    self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
-                                } else {
-                                    SameState(self.into())
-                                }
+                            if cfg!(target_os = "android") {
+                                self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+                            } else {
+                                SameState(self.into())
                             }
                         }
                         Err(error) => self.disconnect(
