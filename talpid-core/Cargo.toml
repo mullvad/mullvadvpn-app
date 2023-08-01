@@ -43,7 +43,6 @@ resolv-conf = "0.7"
 nftnl = { version = "0.6.2", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.2", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
-tun = "0.5.1"
 talpid-dbus = { path = "../talpid-dbus" }
 
 
@@ -51,7 +50,6 @@ talpid-dbus = { path = "../talpid-dbus" }
 pfctl = "0.4.4"
 system-configuration = "0.5.1"
 trust-dns-server = { version = "0.22.0", features = ["resolver"] }
-tun = "0.5.1"
 subslice = "0.2"
 async-trait = "0.1"
 
