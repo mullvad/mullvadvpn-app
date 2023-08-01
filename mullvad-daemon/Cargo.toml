@@ -65,7 +65,7 @@ ctrlc = "3.0"
 duct = "0.13"
 windows-service = "0.6.0"
 winapi = { version = "0.3", features = ["winnt", "excpt"] }
-dirs-next = "2.0"
+dirs = "5.0.1"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 version = "0.45.0"
