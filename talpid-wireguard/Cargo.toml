@@ -53,9 +53,9 @@ bitflags = "1.2"
 talpid-windows-net = { path = "../talpid-windows-net" }
 widestring = "1.0"
 
-# Figure out which features are needed and which are not
+# TODO: Figure out which features are needed and which are not
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_Foundation",
     "Win32_Globalization",
