@@ -40,6 +40,7 @@ public struct TransportStrategy: Equatable {
     public mutating func didFail() {
         let (partial, isOverflow) = connectionAttempts.addingReportingOverflow(1)
         // (Int.max - 1) is a multiple of 3, go directly to 2 when overflowing
+        // to keep the "every third failure" algorithm correct
         connectionAttempts = isOverflow ? 2 : partial
         attemptsRecorder.record(connectionAttempts)
     }
