@@ -3673,7 +3673,6 @@ dependencies = [
  "windows-service",
  "windows-sys 0.45.0",
  "winreg",
- "zeroize",
 ]
 
 [[package]]
