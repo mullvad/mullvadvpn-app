@@ -18,8 +18,6 @@ yanked = "deny"
 notice = "deny"
 
 ignore = [
-    # Potential segfault in `time`:
-    "RUSTSEC-2020-0071"
 ]
 
 #severity-threshold =
@@ -87,7 +85,8 @@ deny = [
     { name = "clap", version = "2" },
     { name = "clap", version = "3" },
     # `atty` is an unmaintained crate with a CVE: RUSTSEC-2021-0145
-    { name = "atty" }
+    { name = "atty" },
+    { name = "time", version = "0.1"},
 ]
 skip = []
 skip-tree = []
