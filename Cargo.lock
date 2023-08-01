@@ -3651,7 +3651,6 @@ dependencies = [
  "talpid-types",
  "talpid-windows-net",
  "talpid-wireguard",
- "tempfile",
  "tokio",
  "tonic-build",
  "triggered",
