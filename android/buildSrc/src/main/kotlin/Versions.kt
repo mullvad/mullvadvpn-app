@@ -3,7 +3,6 @@ object Versions {
     const val jodaTime = "2.12.5"
     const val junit = "4.13.2"
     const val jvmTarget = "1.8"
-    const val koin = "3.4.1"
     const val kotlin = "1.8.21"
     const val kotlinCompilerExtensionVersion = "1.4.7"
     const val kotlinx = "1.7.1"
@@ -57,5 +56,10 @@ object Versions {
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"
         const val ktfmt = "0.12.0"
+    }
+
+    object Koin {
+        const val base = "3.4.3"
+        const val compose = "3.4.6"
     }
 }
