@@ -33,13 +33,11 @@ rand = "0.8.5"
 talpid-openvpn = { path = "../talpid-openvpn" }
 triggered = "0.1.1"
 
-[target.'cfg(unix)'.dependencies]
-nix = "0.23"
-
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
+nix = "0.23"
 inotify = "0.10"
 resolv-conf = "0.7"
 rtnetlink = "0.11"
