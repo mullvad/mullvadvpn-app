@@ -3657,7 +3657,6 @@ dependencies = [
  "talpid-wireguard",
  "tempfile",
  "tokio",
- "tonic",
  "tonic-build",
  "triggered",
  "trust-dns-server",
