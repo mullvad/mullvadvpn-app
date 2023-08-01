@@ -30,7 +30,6 @@ tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 rand = "0.8.5"
 
 [target.'cfg(not(target_os="android"))'.dependencies]
-internet-checksum = "0.2"
 shell-escape = "0.1"
 socket2 = { version = "0.4.2", features = ["all"] }
 parity-tokio-ipc = "0.9"

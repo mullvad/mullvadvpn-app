@@ -3624,7 +3624,6 @@ dependencies = [
  "err-derive",
  "futures",
  "inotify 0.10.0",
- "internet-checksum",
  "ipnetwork",
  "jnix",
  "lazy_static",
