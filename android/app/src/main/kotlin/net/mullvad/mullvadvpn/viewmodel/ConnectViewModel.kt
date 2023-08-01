@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
@@ -64,7 +65,13 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                     tunnelRealState,
                     isTunnelInfoExpanded ->
                     ConnectUiState(
-                        location = location,
+                        location =
+                            when (tunnelRealState) {
+                                is TunnelState.Connected -> tunnelRealState.location
+                                is TunnelState.Connecting -> tunnelRealState.location
+                                else -> null
+                            }
+                                ?: location,
                         relayLocation = relayLocation,
                         versionInfo = versionInfo,
                         tunnelUiState = tunnelUiState,
@@ -82,7 +89,7 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                                 is TunnelState.Disconnected -> true
                                 is TunnelState.Disconnecting -> {
                                     when (tunnelUiState.actionAfterDisconnect) {
-                                        ActionAfterDisconnect.Nothing -> true
+                                        ActionAfterDisconnect.Nothing -> false
                                         ActionAfterDisconnect.Block -> true
                                         ActionAfterDisconnect.Reconnect -> false
                                     }
@@ -94,12 +101,16 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                     )
                 }
             }
+            .debounce(UI_STATE_DEBOUNCE_DURATION_MILLIS)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
-    private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
-        onNewLocation = { this.trySend(it) }
-        awaitClose { onNewLocation = null }
-    }
+    private fun LocationInfoCache.locationCallbackFlow() =
+        callbackFlow {
+                onNewLocation = { this.trySend(it) }
+                awaitClose { onNewLocation = null }
+            }
+            // Filter out empty or short-name country representations.
+            .filter { it?.let { location -> location.country.length > 2 } ?: false }
 
     private fun RelayListListener.relayListCallbackFlow() = callbackFlow {
         onRelayCountriesChange = { _, item -> this.trySend(item) }
@@ -108,11 +119,9 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onUiStateChange)
-            .debounce(TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS)
 
     private fun ConnectionProxy.tunnelRealStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onStateChange)
-            .debounce(TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS)
 
     fun toggleTunnelInfoExpansion() {
         _isTunnelInfoExpanded.value = _isTunnelInfoExpanded.value.not()
@@ -132,6 +141,6 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
     }
 
     companion object {
-        const val TUNNEL_STATE_UPDATE_DEBOUNCE_DURATION_MILLIS: Long = 200
+        const val UI_STATE_DEBOUNCE_DURATION_MILLIS: Long = 100
     }
 }
