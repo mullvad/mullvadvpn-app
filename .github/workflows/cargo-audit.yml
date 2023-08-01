@@ -22,6 +22,3 @@ jobs:
         name: Audit Rust Dependencies
         with:
           denyWarnings: true
-          # RUSTSEC-2020-0071: Ignore the time segfault CVE since there are no known
-          # good workarounds, and we want logs etc to be in local time.
-          ignore: RUSTSEC-2020-0071
