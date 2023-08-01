@@ -18,8 +18,8 @@ log = "0.4"
 widestring = "1.0"
 once_cell = "1.13"
 
-[target.'cfg(target_os = "windows")'.dependencies.windows-sys]
-version = "0.45.0"
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
 features = [
     "Win32_Foundation",
     "Win32_Security",

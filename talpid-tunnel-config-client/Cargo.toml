@@ -21,10 +21,11 @@ pqc_kyber = { version = "0.4.0", features = ["std", "kyber1024", "zeroize"] }
 zeroize = "1.5.7"
 libc = "0.2"
 
-[target.'cfg(target_os="windows")'.dependencies]
-windows-sys = { version = "0.45.0", features = [
-     "Win32_Networking_WinSock"
-]}
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
+features = [
+    "Win32_Networking_WinSock"
+]
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["rt-multi-thread"] }

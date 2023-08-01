@@ -68,7 +68,7 @@ winapi = { version = "0.3", features = ["winnt", "excpt"] }
 dirs = "5.0.1"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_Foundation",
     "Win32_Security",
@@ -85,7 +85,7 @@ winres = "0.1"
 mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_System_SystemServices",
 ]
