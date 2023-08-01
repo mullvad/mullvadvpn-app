@@ -3638,7 +3638,6 @@ dependencies = [
  "once_cell",
  "parking_lot",
  "pfctl",
- "prost",
  "quickcheck",
  "quickcheck_macros",
  "rand 0.8.5",

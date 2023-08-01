@@ -32,7 +32,6 @@ rand = "0.8.5"
 [target.'cfg(not(target_os="android"))'.dependencies]
 talpid-openvpn = { path = "../talpid-openvpn" }
 triggered = "0.1.1"
-prost = { workspace = true }
 uuid = { version = "0.8", features = ["v4"] }
 
 [target.'cfg(unix)'.dependencies]
