@@ -19,9 +19,19 @@ enum RedeemVoucherState {
 final class RedeemVoucherContentView: UIView {
     // MARK: - private
 
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        return scrollView
+    }()
+
+    private let contentHolderView: UIView = {
+        let contentHolderView = UIView()
+        return contentHolderView
+    }()
+
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 17)
+        label.font = .preferredFont(forTextStyle: .body)
         label.text = NSLocalizedString(
             "REDEEM_VOUCHER_INSTRUCTION",
             tableName: "RedeemVoucher",
@@ -40,7 +50,7 @@ final class RedeemVoucherContentView: UIView {
         textField.placeholder = Array(repeating: "XXXX", count: 4).joined(separator: "-")
         textField.placeholderTextColor = .lightGray
         textField.backgroundColor = .white
-        textField.cornerRadius = UIMetrics.RedeemVoucher.cornerRadius
+        textField.cornerRadius = UIMetrics.SettingsRedeemVoucher.cornerRadius
         textField.keyboardType = .asciiCapable
         textField.autocapitalizationType = .allCharacters
         textField.returnKeyType = .done
@@ -107,14 +117,17 @@ final class RedeemVoucherContentView: UIView {
         stackView.axis = .vertical
         stackView.setCustomSpacing(UIMetrics.padding16, after: titleLabel)
         stackView.setCustomSpacing(UIMetrics.padding8, after: textField)
+        stackView.setCustomSpacing(UIMetrics.padding16, after: statusLabel)
+        stackView.setContentHuggingPriority(.defaultLow, for: .vertical)
         return stackView
     }()
 
-    private lazy var actionsStackView: UIStackView = {
+    private lazy var buttonsStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [redeemButton, cancelButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.spacing = UIMetrics.padding16
+        stackView.setContentCompressionResistancePriority(.required, for: .vertical)
         return stackView
     }()
 
@@ -163,6 +176,9 @@ final class RedeemVoucherContentView: UIView {
         }
     }
 
+    private var keyboardResponder: AutomaticKeyboardResponder?
+    private var bottomsOfButtonsConstraint: NSLayoutConstraint?
+
     // MARK: - public
 
     var redeemAction: ((String) -> Void)?
@@ -193,18 +209,29 @@ final class RedeemVoucherContentView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func willMove(toWindow newWindow: UIWindow?) {
+        if newWindow == nil {
+            NotificationCenter.default.removeObserver(self)
+        }
+    }
+
+    override func didMoveToWindow() {
+        if self.window != nil {
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(textDidChange),
+                name: UITextField.textDidChangeNotification,
+                object: textField
+            )
+        }
+    }
+
     private func setup() {
         setupAppearance()
         configureUI()
         addButtonHandlers()
-        addTextFieldObserver()
         updateUI()
-    }
-
-    private func configureUI() {
-        addSubview(voucherCodeStackView)
-        addSubview(actionsStackView)
-        addConstraints()
+        addKeyboardResponder()
     }
 
     private func setupAppearance() {
@@ -213,26 +240,26 @@ final class RedeemVoucherContentView: UIView {
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
     }
 
-    private func addConstraints() {
-        addConstrainedSubviews([voucherCodeStackView, actionsStackView]) {
-            voucherCodeStackView
-                .pinEdgesToSuperviewMargins(.all(UIMetrics.RedeemVoucher.contentLayoutMargins).excluding(.bottom))
-            actionsStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
+    private func configureUI() {
+        addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperviewMargins()
+        }
 
-            actionsStackView.topAnchor.constraint(
-                greaterThanOrEqualTo: voucherCodeStackView.bottomAnchor,
-                constant: UIMetrics.interButtonSpacing
+        scrollView.addConstrainedSubviews([contentHolderView]) {
+            contentHolderView.pinEdgesToSuperview()
+            contentHolderView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1.0)
+            contentHolderView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor, multiplier: 1.0)
+        }
+        contentHolderView.addConstrainedSubviews([voucherCodeStackView, buttonsStackView]) {
+            voucherCodeStackView.pinEdgesToSuperview(.all().excluding(.bottom))
+            buttonsStackView.pinEdgesToSuperview(PinnableEdges([.leading(.zero), .trailing(.zero)]))
+            voucherCodeStackView.bottomAnchor.constraint(
+                lessThanOrEqualTo: buttonsStackView.topAnchor,
+                constant: -UIMetrics.padding16
             )
         }
-    }
-
-    private func addTextFieldObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(textDidChange),
-            name: UITextField.textDidChangeNotification,
-            object: textField
-        )
+        bottomsOfButtonsConstraint = buttonsStackView.pinEdgesToSuperview(PinnableEdges([.bottom(.zero)])).first
+        bottomsOfButtonsConstraint?.isActive = true
     }
 
     private func addButtonHandlers() {
@@ -269,6 +296,17 @@ final class RedeemVoucherContentView: UIView {
 
     @objc private func textDidChange() {
         updateUI()
+    }
+
+    private func addKeyboardResponder() {
+        keyboardResponder = AutomaticKeyboardResponder(
+            targetView: self,
+            handler: { targetView, offset in
+                guard self.textField.isFirstResponder else { return }
+                self.bottomsOfButtonsConstraint?.constant = -offset
+                self.layoutIfNeeded()
+            }
+        )
     }
 }
 

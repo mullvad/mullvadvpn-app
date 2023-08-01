@@ -13,7 +13,6 @@ class AutomaticKeyboardResponder {
     weak var targetView: UIView?
     private let handler: (UIView, CGFloat) -> Void
 
-    private var showsKeyboard = false
     private var lastKeyboardRect: CGRect?
 
     private let logger = Logger(label: "AutomaticKeyboardResponder")
@@ -28,58 +27,75 @@ class AutomaticKeyboardResponder {
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillChangeFrame(_:)),
-            name: UIWindow.keyboardWillChangeFrameNotification,
+            name: UIResponder.keyboardWillChangeFrameNotification,
             object: nil
         )
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillShow(_:)),
-            name: UIWindow.keyboardWillShowNotification,
+            name: UIResponder.keyboardWillShowNotification,
             object: nil
         )
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(keyboardDidHide(_:)),
-            name: UIWindow.keyboardDidHideNotification,
+            selector: #selector(keyboardWillHide(_:)),
+            name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
     }
 
     func updateContentInsets() {
         guard let keyboardRect = lastKeyboardRect else { return }
-
-        adjustContentInsets(keyboardRect: keyboardRect)
+        adjustContentInsets(convertedKeyboardFrameEnd: keyboardRect)
     }
 
     // MARK: - Keyboard notifications
 
     @objc private func keyboardWillShow(_ notification: Notification) {
-        showsKeyboard = true
-
         addPresentationControllerObserver()
         handleKeyboardNotification(notification)
     }
 
-    @objc private func keyboardDidHide(_ notification: Notification) {
-        showsKeyboard = false
+    @objc private func keyboardWillHide(_ notification: Notification) {
         presentationFrameObserver = nil
     }
 
     @objc private func keyboardWillChangeFrame(_ notification: Notification) {
-        guard showsKeyboard else { return }
-
         handleKeyboardNotification(notification)
     }
 
     // MARK: - Private
 
     private func handleKeyboardNotification(_ notification: Notification) {
-        guard let keyboardFrameValue = notification
-            .userInfo?[UIWindow.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+        guard let userInfo = notification.userInfo,
+              let targetView else { return }
+        // In iOS 16.1 and later, the keyboard notification object is the screen the keyboard appears on.
+        if #available(iOS 16.1, *) {
+            guard let screen = notification.object as? UIScreen,
+                  // Get the keyboard’s frame at the end of its animation.
+                  let keyboardFrameEnd = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else { return }
 
-        lastKeyboardRect = keyboardFrameValue.cgRectValue
+            // Use that screen to get the coordinate space to convert from.
+            let fromCoordinateSpace = screen.coordinateSpace
 
-        adjustContentInsets(keyboardRect: keyboardFrameValue.cgRectValue)
+            // Get your view's coordinate space.
+            let toCoordinateSpace: UICoordinateSpace = targetView
+
+            // Convert the keyboard's frame from the screen's coordinate space to your view's coordinate space.
+            let convertedKeyboardFrameEnd = fromCoordinateSpace.convert(keyboardFrameEnd, to: toCoordinateSpace)
+
+            lastKeyboardRect = convertedKeyboardFrameEnd
+
+            adjustContentInsets(convertedKeyboardFrameEnd: convertedKeyboardFrameEnd)
+        } else {
+            guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
+            else { return }
+            let keyboardFrameEnd = keyboardValue.cgRectValue
+            let convertedKeyboardFrameEnd = targetView.convert(keyboardFrameEnd, from: targetView.window)
+            lastKeyboardRect = convertedKeyboardFrameEnd
+
+            adjustContentInsets(convertedKeyboardFrameEnd: convertedKeyboardFrameEnd)
+        }
     }
 
     private func addPresentationControllerObserver() {
@@ -100,7 +116,7 @@ class AutomaticKeyboardResponder {
                 guard let self,
                       let keyboardFrameValue = lastKeyboardRect else { return }
 
-                adjustContentInsets(keyboardRect: keyboardFrameValue)
+                adjustContentInsets(convertedKeyboardFrameEnd: keyboardFrameValue)
             }
         )
     }
@@ -112,7 +128,6 @@ class AutomaticKeyboardResponder {
             responder = responder?.next
             return responder
         }
-
         return iterator.first { $0 is UIViewController } as? UIViewController
     }
 
@@ -152,16 +167,24 @@ class AutomaticKeyboardResponder {
         return presentationStyle == .formSheet
     }
 
-    private func adjustContentInsets(keyboardRect: CGRect) {
-        guard let targetView, let superview = targetView.superview else { return }
+    private func adjustContentInsets(convertedKeyboardFrameEnd: CGRect) {
+        guard let targetView else { return }
 
-        // Compute the target view frame within screen coordinates
-        let screenRect = superview.convert(targetView.frame, to: nil)
+        // Get the safe area insets when the keyboard is offscreen.
+        var bottomOffset = targetView.safeAreaInsets.bottom
 
-        // Find the intersection between the keyboard and the view
-        let intersection = keyboardRect.intersection(screenRect)
+        // Get the intersection between the keyboard's frame and the view's bounds to work with the
+        // part of the keyboard that overlaps your view.
+        let viewIntersection = targetView.bounds.intersection(convertedKeyboardFrameEnd)
 
-        handler(targetView, intersection.height)
+        // Check whether the keyboard intersects your view before adjusting your offset.
+        if !viewIntersection.isEmpty {
+            // Adjust the offset by the difference between the view's height and the height of the
+            // intersection rectangle.
+            bottomOffset = targetView.bounds.maxY - viewIntersection.minY
+        }
+
+        handler(targetView, bottomOffset)
     }
 }
 

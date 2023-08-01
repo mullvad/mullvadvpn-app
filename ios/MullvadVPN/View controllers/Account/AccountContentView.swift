@@ -54,6 +54,19 @@ class AccountContentView: UIView {
         return button
     }()
 
+    let deleteButton: AppButton = {
+        let button = AppButton(style: .danger)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.accessibilityIdentifier = "DeleteButton"
+        button.setTitle(NSLocalizedString(
+            "DELETE_BUTTON_TITLE",
+            tableName: "Account",
+            value: "Delete account",
+            comment: ""
+        ), for: .normal)
+        return button
+    }()
+
     let accountDeviceRow: AccountDeviceRow = {
         let view = AccountDeviceRow()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -81,16 +94,22 @@ class AccountContentView: UIView {
             ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.sectionSpacing
+        stackView.spacing = UIMetrics.padding8
         return stackView
     }()
 
     lazy var buttonStackView: UIStackView = {
         let stackView =
-            UIStackView(arrangedSubviews: [redeemVoucherButton, purchaseButton, restorePurchasesButton, logoutButton])
+            UIStackView(arrangedSubviews: [
+                redeemVoucherButton,
+                purchaseButton,
+                restorePurchasesButton,
+                logoutButton,
+                deleteButton,
+            ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.spacing = UIMetrics.padding16
         stackView.setCustomSpacing(UIMetrics.interButtonSpacing, after: restorePurchasesButton)
         return stackView
     }()

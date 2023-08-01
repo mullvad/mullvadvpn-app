@@ -82,6 +82,48 @@ extension REST {
                 completionHandler: completion
             )
         }
+
+        public func deleteAccount(
+            accountNumber: String,
+            retryStrategy: RetryStrategy,
+            completion: @escaping CompletionHandler<Void>
+        ) -> Cancellable {
+            let requestHandler = AnyRequestHandler(createURLRequest: { endpoint, authorization in
+                var requestBuilder = try self.requestFactory.createRequestBuilder(
+                    endpoint: endpoint,
+                    method: .delete,
+                    pathTemplate: "accounts/me"
+                )
+                requestBuilder.setAuthorization(authorization)
+                requestBuilder.addValue("Mullvad-Account-Number", forHTTPHeaderField: accountNumber)
+
+                return requestBuilder.getRequest()
+            }, authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber))
+
+            let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Void> in
+                let statusCode = HTTPStatus(rawValue: response.statusCode)
+
+                switch statusCode {
+                case let statusCode where statusCode.isSuccess:
+                    return .success(())
+                default:
+                    return .unhandledResponse(
+                        try? self.responseDecoder.decode(
+                            ServerErrorResponse.self,
+                            from: data
+                        )
+                    )
+                }
+            }
+
+            return addOperation(
+                name: "delete-my-account",
+                retryStrategy: retryStrategy,
+                requestHandler: requestHandler,
+                responseHandler: responseHandler,
+                completionHandler: completion
+            )
+        }
     }
 
     public struct NewAccountData: Decodable {
