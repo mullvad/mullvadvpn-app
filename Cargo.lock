@@ -1976,7 +1976,6 @@ name = "mullvad-cli"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "base64 0.13.0",
  "chrono",
  "clap",
  "clap_complete",
@@ -1984,11 +1983,9 @@ dependencies = [
  "futures",
  "itertools",
  "mullvad-management-interface",
- "mullvad-paths",
  "mullvad-types",
  "mullvad-version",
  "natord",
- "serde",
  "talpid-types",
  "tokio",
  "windows-sys 0.45.0",

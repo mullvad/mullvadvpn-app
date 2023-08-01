@@ -15,17 +15,14 @@ path = "src/main.rs"
 
 [dependencies]
 anyhow = "1.0"
-base64 = "0.13"
 chrono = { workspace = true }
 clap = { version = "4.2.7", features = ["cargo", "derive"] }
 env_logger = "0.10.0"
 futures = "0.3"
 natord = "1.0.9"
-serde = "1.0"
 itertools = "0.10"
 
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }
-mullvad-paths = { path = "../mullvad-paths" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 
