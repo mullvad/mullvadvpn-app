@@ -1,4 +1,4 @@
-#[cfg(any(target_os = "android"))]
+#[cfg(target_os = "android")]
 #[path = "android.rs"]
 mod imp;
 
