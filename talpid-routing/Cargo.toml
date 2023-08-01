@@ -40,10 +40,13 @@ libc = "0.2"
 socket2 = { version = "0.4.2", features = ["all"] }
 talpid-windows-net = { path = "../talpid-windows-net" }
 widestring = "1.0"
-windows-sys = { version = "0.45.0", features = [
-     "Win32_NetworkManagement_Ndis",
-      "Win32_Globalization"
-]}
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
+features = [
+    "Win32_NetworkManagement_Ndis",
+    "Win32_Globalization"
+]
 
 [dev-dependencies]
 tokio = { workspace = true, features = [ "test-util" ] }

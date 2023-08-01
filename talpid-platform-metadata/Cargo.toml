@@ -13,8 +13,8 @@ publish.workspace = true
 rs-release = "0.1.7"
 talpid-dbus = { path = "../talpid-dbus" }
 
-[target.'cfg(target_os = "windows")'.dependencies.windows-sys]
-version = "0.45.0"
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
 features = [
     "Win32_Foundation",
     "Win32_System_LibraryLoader",
