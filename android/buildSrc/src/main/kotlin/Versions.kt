@@ -53,7 +53,7 @@ object Versions {
         // The androidAapt plugin version must be in sync with the android plugin version.
         const val android = "7.4.2"
         const val androidAapt = "$android-8841542"
-        const val playPublisher = "3.8.3"
+        const val playPublisher = "3.8.4"
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"
         const val ktfmt = "0.12.0"
