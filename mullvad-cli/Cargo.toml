@@ -16,7 +16,7 @@ path = "src/main.rs"
 [dependencies]
 anyhow = "1.0"
 base64 = "0.13"
-chrono = { version = "0.4.26", features = ["serde"] }
+chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.2.7", features = ["cargo", "derive"] }
 env_logger = "0.10.0"
 futures = "0.3"
