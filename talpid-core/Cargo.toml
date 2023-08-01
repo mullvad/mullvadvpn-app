@@ -11,7 +11,6 @@ publish.workspace = true
 [dependencies]
 bitflags = "1.2"
 async-trait = "0.1"
-cfg-if = "1.0"
 duct = "0.13"
 err-derive = "0.3.1"
 futures = "0.3.15"
