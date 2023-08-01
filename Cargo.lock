@@ -3660,7 +3660,6 @@ dependencies = [
  "triggered",
  "trust-dns-server",
  "tun",
- "uuid",
  "which",
  "widestring 1.0.2",
  "windows-service",
