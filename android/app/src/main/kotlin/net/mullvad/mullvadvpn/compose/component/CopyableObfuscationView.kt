@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -7,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +31,7 @@ fun CopyableObfuscationView(content: String) {
     val context = LocalContext.current
     val shouldObfuscated = remember { mutableStateOf(true) }
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(verticalAlignment = CenterVertically, horizontalArrangement = Arrangement.End) {
         AccountNumberView(
             accountNumber = content,
             doObfuscateWithPasswordDots = shouldObfuscated.value
@@ -40,6 +41,7 @@ fun CopyableObfuscationView(content: String) {
             defaultIcon = painterResource(id = R.drawable.icon_hide),
             secondaryIcon = painterResource(id = R.drawable.icon_show),
             isToggleButton = true,
+            modifier = Modifier.padding(start = Dimens.smallPadding, end = Dimens.sideMargin),
             onClick = { shouldObfuscated.value = shouldObfuscated.value.not() }
         )
         AnimatedIconButton(
@@ -48,7 +50,7 @@ fun CopyableObfuscationView(content: String) {
             secondaryIconColorFilter =
                 ColorFilter.tint(color = MaterialTheme.colorScheme.inversePrimary),
             isToggleButton = false,
-            modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin),
+            modifier = Modifier.padding(end = Dimens.sideMargin),
             onClick = {
                 context.copyToClipboard(
                     content = content,
