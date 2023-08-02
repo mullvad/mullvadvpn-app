@@ -3665,8 +3665,6 @@ name = "talpid-openvpn"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "bitflags",
- "cfg-if",
  "duct",
  "err-derive",
  "futures",
@@ -3689,7 +3687,6 @@ dependencies = [
  "tonic-build",
  "triggered",
  "uuid",
- "which",
  "widestring 1.0.2",
  "windows-sys 0.45.0",
  "winreg",
