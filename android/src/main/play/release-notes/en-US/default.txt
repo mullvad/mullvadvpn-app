@@ -1,1 +1,0 @@
-Remove website download link from Google Play builds in order to comply with policies.
