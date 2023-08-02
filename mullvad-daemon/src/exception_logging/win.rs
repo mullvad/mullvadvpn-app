@@ -1,10 +1,10 @@
 use mullvad_paths::log_dir;
 use std::{
     borrow::Cow,
-    ffi::{c_void, CStr},
+    ffi::{c_char, c_void, CStr},
     fmt::Write,
     fs, io, mem,
-    os::{raw::c_char, windows::io::AsRawHandle},
+    os::windows::io::AsRawHandle,
     path::{Path, PathBuf},
     ptr,
 };

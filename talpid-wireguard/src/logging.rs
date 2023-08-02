@@ -1,5 +1,5 @@
 use parking_lot::Mutex;
-use std::ffi::c_void;
+use std::ffi::{c_char, c_void};
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path};
 
 lazy_static::lazy_static! {
@@ -93,7 +93,7 @@ fn log_inner(logfile: &mut fs::File, level: LogLevel, tag: &str, msg: &str) {
 // Callback that receives messages from WireGuard
 pub unsafe extern "system" fn wg_go_logging_callback(
     level: WgLogLevel,
-    msg: *const libc::c_char,
+    msg: *const c_char,
     context: *mut c_void,
 ) {
     let mut map = LOG_MUTEX.lock();
