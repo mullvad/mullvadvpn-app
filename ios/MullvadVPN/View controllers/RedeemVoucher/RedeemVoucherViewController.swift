@@ -46,16 +46,31 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         addActions()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         enableEditing()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        disableEditing()
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        self.contentView.isEditing = false
+        super.viewWillTransition(to: size, with: coordinator)
     }
 
     // MARK: - private functions
 
     private func enableEditing() {
-        guard !contentView.isEditing else { return }
-        contentView.isEditing = true
+        guard !self.contentView.isEditing else { return }
+        self.contentView.isEditing = true
+    }
+
+    private func disableEditing() {
+        guard contentView.isEditing else { return }
+        self.contentView.isEditing = false
     }
 
     private func addActions() {
@@ -69,7 +84,6 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     }
 
     private func configureUI() {
-        view.addSubview(contentView)
         view.addConstrainedSubviews([contentView]) {
             contentView.pinEdgesToSuperview(.all())
         }
