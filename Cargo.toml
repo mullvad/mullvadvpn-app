@@ -51,6 +51,8 @@ prost-types = "0.11"
 
 windows-sys = "0.45.0"
 
+chrono = { version = "0.4.26", default-features = false}
+
 
 [profile.release]
 opt-level = 3
