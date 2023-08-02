@@ -1960,7 +1960,6 @@ dependencies = [
  "mullvad-fs",
  "mullvad-types",
  "once_cell",
- "regex",
  "rustls-pemfile",
  "serde",
  "serde_json",
@@ -1976,7 +1975,6 @@ name = "mullvad-cli"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "base64 0.13.0",
  "chrono",
  "clap",
  "clap_complete",
@@ -1984,11 +1982,9 @@ dependencies = [
  "futures",
  "itertools",
  "mullvad-management-interface",
- "mullvad-paths",
  "mullvad-types",
  "mullvad-version",
  "natord",
- "serde",
  "talpid-types",
  "tokio",
  "windows-sys 0.45.0",
@@ -2000,16 +1996,13 @@ name = "mullvad-daemon"
 version = "0.0.0"
 dependencies = [
  "android_logger",
- "cfg-if",
  "chrono",
  "clap",
  "ctrlc",
  "dirs",
- "duct",
  "err-derive",
  "fern",
  "futures",
- "ipnetwork",
  "lazy_static",
  "libc",
  "log",
@@ -2036,7 +2029,6 @@ dependencies = [
  "talpid-types",
  "tokio",
  "tokio-stream",
- "uuid",
  "winapi",
  "windows-service",
  "windows-sys 0.45.0",
@@ -2070,20 +2062,16 @@ dependencies = [
  "futures",
  "ipnetwork",
  "jnix",
- "lazy_static",
  "log",
  "log-panics",
  "mullvad-api",
  "mullvad-daemon",
- "mullvad-paths",
  "mullvad-problem-report",
  "mullvad-types",
  "nix 0.23.1",
  "rand 0.8.5",
- "talpid-core",
  "talpid-tunnel",
  "talpid-types",
- "tokio",
 ]
 
 [[package]]
@@ -2164,12 +2152,10 @@ dependencies = [
  "mullvad-types",
  "parking_lot",
  "rand 0.8.5",
- "serde",
  "serde_json",
  "talpid-core",
  "talpid-types",
  "tokio",
- "tokio-stream",
 ]
 
 [[package]]
@@ -3679,8 +3665,6 @@ name = "talpid-openvpn"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "bitflags",
- "cfg-if",
  "duct",
  "err-derive",
  "futures",
@@ -3703,7 +3687,6 @@ dependencies = [
  "tonic-build",
  "triggered",
  "uuid",
- "which",
  "widestring 1.0.2",
  "windows-sys 0.45.0",
  "winreg",
@@ -3753,7 +3736,6 @@ dependencies = [
  "netlink-sys",
  "nix 0.26.1",
  "rtnetlink",
- "socket2",
  "system-configuration",
  "talpid-types",
  "talpid-windows-net",
@@ -4310,7 +4292,6 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "err-derive",
- "futures",
  "tokio",
  "udp-over-tcp",
 ]
