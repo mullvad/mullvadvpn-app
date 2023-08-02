@@ -1,9 +1,8 @@
 use crate::cli;
-use libc::c_void;
 use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use std::{
     env,
-    ffi::OsString,
+    ffi::{c_void, OsString},
     ptr, slice,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},

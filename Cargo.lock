@@ -3810,7 +3810,6 @@ version = "0.0.0"
 dependencies = [
  "err-derive",
  "futures",
- "libc",
  "socket2",
  "winapi",
  "windows-sys 0.45.0",

@@ -1,4 +1,3 @@
-use libc::c_void;
 use socket2::SockAddr;
 use std::{
     ffi::{OsStr, OsString},
@@ -152,7 +151,7 @@ impl<'a> Drop for IpNotifierHandle<'a> {
 }
 
 unsafe extern "system" fn inner_callback(
-    context: *const c_void,
+    context: *const std::ffi::c_void,
     row: *const MIB_IPINTERFACE_ROW,
     notify_type: i32,
 ) {

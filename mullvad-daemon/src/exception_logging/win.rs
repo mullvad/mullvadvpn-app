@@ -1,8 +1,7 @@
-use libc::c_void;
 use mullvad_paths::log_dir;
 use std::{
     borrow::Cow,
-    ffi::CStr,
+    ffi::{c_void, CStr},
     fmt::Write,
     fs, io, mem,
     os::{raw::c_char, windows::io::AsRawHandle},
