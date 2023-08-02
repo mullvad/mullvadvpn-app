@@ -6,9 +6,8 @@ use crate::logging::{clean_up_logging, initialize_logging, wg_go_logging_callbac
 #[cfg(windows)]
 use futures::SinkExt;
 use std::{
-    ffi::{c_void, CStr},
+    ffi::{c_char, c_void, CStr},
     future::Future,
-    os::raw::c_char,
     path::Path,
     pin::Pin,
 };
@@ -425,7 +424,7 @@ fn check_wg_status(wg_code: i32) -> Result<()> {
 pub type Fd = std::os::unix::io::RawFd;
 
 pub type LoggingCallback =
-    unsafe extern "system" fn(level: WgLogLevel, msg: *const libc::c_char, context: *mut c_void);
+    unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 
 const ERROR_GENERAL_FAILURE: i32 = -1;
 const ERROR_INTERMITTENT_FAILURE: i32 = -2;
@@ -460,7 +459,7 @@ extern "C" {
         iface_name: *const i8,
         mtu: i64,
         settings: *const i8,
-        iface_name_out: *mut *mut std::os::raw::c_char,
+        iface_name_out: *mut *mut c_char,
         iface_luid_out: *mut u64,
         logging_callback: Option<LoggingCallback>,
         logging_context: *mut c_void,
@@ -470,7 +469,7 @@ extern "C" {
     fn wgTurnOff(handle: i32) -> i32;
 
     // Returns the file descriptor of the tunnel IPv4 socket.
-    fn wgGetConfig(handle: i32) -> *mut std::os::raw::c_char;
+    fn wgGetConfig(handle: i32) -> *mut c_char;
 
     // Sets the config of the WireGuard interface.
     fn wgSetConfig(handle: i32, settings: *const i8) -> i32;
