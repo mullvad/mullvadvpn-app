@@ -335,7 +335,7 @@ fn widestring_ip(ip: IpAddr) -> WideCString {
 pub extern "system" fn log_sink(
     level: log::Level,
     msg: *const libc::c_char,
-    context: *mut libc::c_void,
+    context: *mut std::ffi::c_void,
 ) {
     if msg.is_null() {
         log::error!("Log message from FFI boundary is NULL");
@@ -409,11 +409,11 @@ fn multibyte_to_wide(mb_string: &CStr, codepage: u32) -> Result<Vec<u16>, io::Er
 #[allow(non_snake_case)]
 mod winfw {
     use super::{widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString};
-    use libc;
+    use std::ffi::c_void;
     use talpid_types::net::TransportProtocol;
 
     type LogSink =
-        extern "system" fn(level: log::Level, msg: *const libc::c_char, context: *mut libc::c_void);
+        extern "system" fn(level: log::Level, msg: *const libc::c_char, context: *mut c_void);
 
     pub struct WinFwAllowedEndpointContainer {
         _clients: Box<[WideCString]>,

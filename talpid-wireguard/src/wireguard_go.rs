@@ -95,7 +95,7 @@ impl WgGoTunnel {
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_fd,
                 Some(wg_go_logging_callback),
-                logging_context.0 as *mut libc::c_void,
+                logging_context.0 as *mut c_void,
             )
         };
         check_wg_status(handle)?;
@@ -154,7 +154,7 @@ impl WgGoTunnel {
                 &mut alias_ptr,
                 &mut interface_luid,
                 Some(wg_go_logging_callback),
-                logging_context.0 as *mut libc::c_void,
+                logging_context.0 as *mut c_void,
             )
         };
         check_wg_status(handle)?;
@@ -424,11 +424,8 @@ fn check_wg_status(wg_code: i32) -> Result<()> {
 #[cfg(unix)]
 pub type Fd = std::os::unix::io::RawFd;
 
-pub type LoggingCallback = unsafe extern "system" fn(
-    level: WgLogLevel,
-    msg: *const libc::c_char,
-    context: *mut libc::c_void,
-);
+pub type LoggingCallback =
+    unsafe extern "system" fn(level: WgLogLevel, msg: *const libc::c_char, context: *mut c_void);
 
 const ERROR_GENERAL_FAILURE: i32 = -1;
 const ERROR_INTERMITTENT_FAILURE: i32 = -2;
@@ -445,7 +442,7 @@ extern "C" {
         settings: *const i8,
         fd: Fd,
         logging_callback: Option<LoggingCallback>,
-        logging_context: *mut libc::c_void,
+        logging_context: *mut c_void,
     ) -> i32;
 
     // Android
@@ -454,7 +451,7 @@ extern "C" {
         settings: *const i8,
         fd: Fd,
         logging_callback: Option<LoggingCallback>,
-        logging_context: *mut libc::c_void,
+        logging_context: *mut c_void,
     ) -> i32;
 
     // Windows
@@ -466,7 +463,7 @@ extern "C" {
         iface_name_out: *mut *mut std::os::raw::c_char,
         iface_luid_out: *mut u64,
         logging_callback: Option<LoggingCallback>,
-        logging_context: *mut libc::c_void,
+        logging_context: *mut c_void,
     ) -> i32;
 
     // Pass a handle that was created by wgTurnOn to stop a wireguard tunnel.

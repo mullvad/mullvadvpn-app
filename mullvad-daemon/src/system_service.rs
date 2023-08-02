@@ -1,10 +1,9 @@
 use crate::cli;
-use libc::c_void;
 use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use once_cell::sync::Lazy;
 use std::{
     env,
-    ffi::OsString,
+    ffi::{c_void, OsString},
     ptr, slice,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
