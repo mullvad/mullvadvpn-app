@@ -8,18 +8,25 @@
 
 import Foundation
 import MullvadREST
+import StoreKit
 import UIKit
 
-final class WelcomeCoordinator: Coordinator, Presentable {
+final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
     private let navigationController: RootContainerViewController
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
+    private let inAppPurchaseInteractor: InAppPurchaseInteractor
+
     private var viewController: WelcomeViewController?
     private var interactor: WelcomeInteractor?
 
     var didFinishPayment: ((WelcomeCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
+        navigationController
+    }
+
+    var presentationContext: UIViewController {
         navigationController
     }
 
@@ -31,6 +38,10 @@ final class WelcomeCoordinator: Coordinator, Presentable {
         self.navigationController = navigationController
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
+        self.inAppPurchaseInteractor = InAppPurchaseInteractor(
+            storePaymentManager: storePaymentManager,
+            tunnelManager: tunnelManager
+        )
     }
 
     func start(animated: Bool) {
@@ -64,6 +75,25 @@ final class WelcomeCoordinator: Coordinator, Presentable {
 }
 
 extension WelcomeCoordinator: WelcomeViewControllerDelegate {
+    func didRequestToDoInAppPurchase(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
+        let coordinator = InAppPurchaseCoordinator(
+            navigationController: navigationController,
+            interactor: inAppPurchaseInteractor
+        )
+
+        inAppPurchaseInteractor.viewControllerDelegate = viewController
+
+        coordinator.didFinish = { [weak self] coordinator in
+            guard let self else { return }
+            coordinator.removeFromParent()
+            didFinishPayment?(self)
+        }
+
+        addChild(coordinator)
+
+        coordinator.start(accountNumber: accountNumber, product: product)
+    }
+
     func didRequestToShowInfo(controller: WelcomeViewController) {
         let message = """
         This is the name assigned to the device. Each device logged in on a \
@@ -96,8 +126,6 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         )
         presentedViewController.present(alertController, animated: true)
     }
-
-    func didRequestToPurchaseCredit(controller: WelcomeViewController) {}
 
     func didRequestToRedeemVoucher(controller: WelcomeViewController) {
         let coordinator = AccountRedeemingVoucherCoordinator(

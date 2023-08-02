@@ -7,13 +7,22 @@
 //
 
 import Foundation
+import MullvadLogging
 import StoreKit
 
 class WelcomeInteractor {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
 
+    /// Interval used for periodic pulling account updates.
+    private let logger = Logger(label: "\(WelcomeInteractor.self)")
+
     var didChangeInAppPurchaseState: ((WelcomeInteractor, ProductState) -> Void)?
+    var productState: ProductState = .none {
+        didSet {
+            didChangeInAppPurchaseState?(self, productState)
+        }
+    }
 
     var viewDidLoad = false {
         didSet {
@@ -22,10 +31,14 @@ class WelcomeInteractor {
         }
     }
 
+    var accountNumber: String {
+        tunnelManager.deviceState.accountData?.number ?? ""
+    }
+
     var viewModel: WelcomeViewModel {
         WelcomeViewModel(
             deviceName: tunnelManager.deviceState.deviceData?.capitalizedName ?? "",
-            accountNumber: tunnelManager.deviceState.accountData?.number.formattedAccountNumber ?? ""
+            accountNumber: accountNumber.formattedAccountNumber
         )
     }
 
@@ -36,7 +49,7 @@ class WelcomeInteractor {
 
     private func requestAccessToStore() {
         if !StorePaymentManager.canMakePayments {
-            didChangeInAppPurchaseState?(self, .cannotMakePurchases)
+            productState = .cannotMakePurchases
         } else {
             let product = StoreSubscription.thirtyDays
             didChangeInAppPurchaseState?(self, .fetching(product))
@@ -44,7 +57,7 @@ class WelcomeInteractor {
                 guard let self else { return }
                 let productState: ProductState = result.value?.products.first
                     .map { .received($0) } ?? .failed
-                self.didChangeInAppPurchaseState?(self, productState)
+                self.productState = productState
             }
         }
     }

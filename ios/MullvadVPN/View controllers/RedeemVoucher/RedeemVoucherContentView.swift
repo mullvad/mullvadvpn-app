@@ -19,6 +19,16 @@ enum RedeemVoucherState {
 final class RedeemVoucherContentView: UIView {
     // MARK: - private
 
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        return scrollView
+    }()
+
+    private let contentHolderView: UIView = {
+        let contentHolderView = UIView()
+        return contentHolderView
+    }()
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17)
@@ -107,14 +117,17 @@ final class RedeemVoucherContentView: UIView {
         stackView.axis = .vertical
         stackView.setCustomSpacing(UIMetrics.padding16, after: titleLabel)
         stackView.setCustomSpacing(UIMetrics.padding8, after: textField)
+        stackView.setCustomSpacing(UIMetrics.padding16, after: statusLabel)
+        stackView.setContentHuggingPriority(.defaultLow, for: .vertical)
         return stackView
     }()
 
-    private lazy var actionsStackView: UIStackView = {
+    private lazy var buttonsStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [redeemButton, cancelButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.interButtonSpacing
+        stackView.spacing = UIMetrics.padding16
+        stackView.setContentCompressionResistancePriority(.required, for: .vertical)
         return stackView
     }()
 
@@ -163,6 +176,9 @@ final class RedeemVoucherContentView: UIView {
         }
     }
 
+    private var keyboardResponder: AutomaticKeyboardResponder?
+    private var bottomsOfButtonsConstraint: NSLayoutConstraint?
+
     // MARK: - public
 
     var redeemAction: ((String) -> Void)?
@@ -199,31 +215,35 @@ final class RedeemVoucherContentView: UIView {
         addButtonHandlers()
         addTextFieldObserver()
         updateUI()
+        addKeyboardResponder()
     }
 
     private func configureUI() {
-        addSubview(voucherCodeStackView)
-        addSubview(actionsStackView)
-        addConstraints()
+        addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperviewMargins()
+        }
+
+        scrollView.addConstrainedSubviews([contentHolderView]) {
+            contentHolderView.pinEdgesToSuperview()
+            contentHolderView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1.0)
+            contentHolderView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor, multiplier: 1.0)
+        }
+        contentHolderView.addConstrainedSubviews([voucherCodeStackView, buttonsStackView]) {
+            voucherCodeStackView.pinEdgesToSuperview(.all().excluding(.bottom))
+            buttonsStackView.pinEdgesToSuperview(PinnableEdges([.leading(.zero), .trailing(.zero)]))
+            voucherCodeStackView.bottomAnchor.constraint(
+                lessThanOrEqualTo: buttonsStackView.topAnchor,
+                constant: -UIMetrics.padding16
+            )
+        }
+        bottomsOfButtonsConstraint = buttonsStackView.pinEdgesToSuperview(PinnableEdges([.bottom(.zero)])).first
+        bottomsOfButtonsConstraint?.isActive = true
     }
 
     private func setupAppearance() {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .secondaryColor
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
-    }
-
-    private func addConstraints() {
-        addConstrainedSubviews([voucherCodeStackView, actionsStackView]) {
-            voucherCodeStackView
-                .pinEdgesToSuperviewMargins(.all(UIMetrics.RedeemVoucher.contentLayoutMargins).excluding(.bottom))
-            actionsStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
-
-            actionsStackView.topAnchor.constraint(
-                greaterThanOrEqualTo: voucherCodeStackView.bottomAnchor,
-                constant: UIMetrics.interButtonSpacing
-            )
-        }
     }
 
     private func addTextFieldObserver() {
@@ -254,6 +274,17 @@ final class RedeemVoucherContentView: UIView {
         redeemButton.isEnabled = isRedeemButtonEnabled && textField.isVoucherLengthSatisfied
         statusLabel.text = text
         statusLabel.textColor = textColor
+    }
+
+    private func addKeyboardResponder() {
+        keyboardResponder = AutomaticKeyboardResponder(
+            targetView: self,
+            handler: { targetView, offset in
+                guard self.textField.isFirstResponder else { return }
+                self.bottomsOfButtonsConstraint?.constant = -offset
+                self.layoutIfNeeded()
+            }
+        )
     }
 
     @objc private func cancelButtonTapped(_ sender: AppButton) {

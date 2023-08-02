@@ -550,6 +550,7 @@ final class TunnelManager: StorePaymentObserver {
                 case .loggedIn(var accountData, let deviceData):
                     if accountData.number == paymentCompletion.accountNumber {
                         accountData.expiry = paymentCompletion.serverResponse.newExpiry
+                        accountData.isNew = false
                         deviceState = .loggedIn(accountData, deviceData)
                     }
 

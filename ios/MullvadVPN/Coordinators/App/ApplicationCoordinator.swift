@@ -49,7 +49,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         preferredContentSize: preferredFormSheetContentSize,
         modalPresentationStyle: .custom,
         isModalInPresentation: true,
-        transitioningDelegate: SecondaryContextTransitioningDelegate()
+        transitioningDelegate: SecondaryContextTransitioningDelegate(adjustViewWhenKeyboardAppears: false)
     )
 
     private let notificationController = NotificationController()

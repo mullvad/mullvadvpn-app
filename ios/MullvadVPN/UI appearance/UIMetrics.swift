@@ -36,7 +36,7 @@ enum UIMetrics {
 
     enum RedeemVoucher {
         static let cornerRadius = 8.0
-        static let preferredContentSize = CGSize(width: 300, height: 280)
+        static let preferredContentSize = CGSize(width: 300, height: 260)
         static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0)
     }
 

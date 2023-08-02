@@ -94,7 +94,9 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: UIMetrics.RedeemVoucher.preferredContentSize,
                 modalPresentationStyle: .custom,
-                transitioningDelegate: FormSheetTransitioningDelegate()
+                transitioningDelegate: FormSheetTransitioningDelegate(
+                    option: FormSheetPresentationOptions(adjustViewWhenKeyboardAppears: true)
+                )
             )
         )
     }

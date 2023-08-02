@@ -46,9 +46,14 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         addActions()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         enableEditing()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        disableEditing()
     }
 
     // MARK: - private functions
@@ -56,6 +61,11 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     private func enableEditing() {
         guard !contentView.isEditing else { return }
         contentView.isEditing = true
+    }
+
+    private func disableEditing() {
+        guard contentView.isEditing else { return }
+        contentView.isEditing = false
     }
 
     private func addActions() {

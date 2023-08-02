@@ -6,9 +6,11 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import StoreKit
 import UIKit
+
 protocol WelcomeContentViewDelegate: AnyObject {
-    func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton)
+    func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton, product: SKProduct)
     func didTapRedeemVoucherButton(welcomeContentView: WelcomeContentView, button: AppButton)
     func didTapInfoButton(welcomeContentView: WelcomeContentView, button: UIButton)
 }
@@ -176,6 +178,16 @@ final class WelcomeContentView: UIView {
         }
     }
 
+    var isPurchasing = false {
+        didSet {
+            let alpha = isPurchasing ? 0.7 : 1.0
+            purchaseButton.isLoading = isPurchasing
+            purchaseButton.alpha = alpha
+            redeemVoucherButton.isEnabled = !isPurchasing
+            redeemVoucherButton.alpha = alpha
+        }
+    }
+
     var productState: ProductState = .none {
         didSet {
             purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
@@ -243,7 +255,8 @@ final class WelcomeContentView: UIView {
     @objc private func tapped(button: AppButton) {
         switch button.accessibilityIdentifier {
         case Action.purchase.rawValue:
-            delegate?.didTapPurchaseButton(welcomeContentView: self, button: button)
+            guard case let .received(product) = productState else { return }
+            delegate?.didTapPurchaseButton(welcomeContentView: self, button: button, product: product)
         case Action.redeemVoucher.rawValue:
             delegate?.didTapRedeemVoucherButton(welcomeContentView: self, button: button)
         case Action.showInfo.rawValue:

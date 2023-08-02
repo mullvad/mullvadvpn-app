@@ -61,8 +61,7 @@ extension StoredAccountData {
 
         // When the app is upgraded from 2023.3 or below, this field won't exist, and the auto synthesized init will fail.
         // This leads to a reset of the settings. If the key isn't present, consider the account not new to avoid the issue.
-        let isNewAccount = try? container.decode(Bool.self, forKey: .isNew)
-        self.isNew = isNewAccount ?? false
+        self.isNew = try container.decodeIfPresent(Bool.self, forKey: .isNew) ?? false
     }
 }
 

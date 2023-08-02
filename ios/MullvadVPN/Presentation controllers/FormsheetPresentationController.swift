@@ -7,6 +7,19 @@
 //
 
 import UIKit
+struct FormSheetPresentationOptions {
+    /**
+     Flag indicating whether presentation controller should use fullscreen presentation when in
+     compact width environment
+     */
+    var useFullScreenPresentationInCompactWidth = false
+
+    /**
+     Flag indicating whether presentation controller should make adjustment for the position of the  presentedView  when
+     it gets keyboard notifications
+     */
+    var adjustViewWhenKeyboardAppears = false
+}
 
 /**
  Custom implementation of a formsheet presentation controller.
@@ -42,22 +55,23 @@ class FormSheetPresentationController: UIPresentationController {
     }
 
     /**
-     Flag indicating whether presentation controller should use fullscreen presentation when in
-     compact width environment
-     */
-    var useFullScreenPresentationInCompactWidth = false
-
-    /**
      Returns `true` if presentation controller is in fullscreen presentation.
      */
     var isInFullScreenPresentation: Bool {
-        useFullScreenPresentationInCompactWidth &&
+        option.useFullScreenPresentationInCompactWidth &&
             traitCollection.horizontalSizeClass == .compact
     }
 
-    override init(presentedViewController: UIViewController, presenting presentingViewController: UIViewController?) {
+    let option: FormSheetPresentationOptions
+
+    init(
+        presentedViewController: UIViewController,
+        presenting presentingViewController: UIViewController?,
+        option: FormSheetPresentationOptions
+    ) {
+        self.option = option
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
-        addKeyboardResponder()
+        addKeyboardResponderIfNeeded()
     }
 
     override var frameOfPresentedViewInContainerView: CGRect {
@@ -155,8 +169,9 @@ class FormSheetPresentationController: UIPresentationController {
         )
     }
 
-    private func addKeyboardResponder() {
-        guard let presentedView else { return }
+    private func addKeyboardResponderIfNeeded() {
+        guard option.adjustViewWhenKeyboardAppears,
+              let presentedView else { return }
         keyboardResponder = AutomaticKeyboardResponder(
             targetView: presentedView,
             handler: { [weak self] view, adjustment in
@@ -180,6 +195,12 @@ class FormSheetPresentationController: UIPresentationController {
 }
 
 class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    let option: FormSheetPresentationOptions
+
+    init(option: FormSheetPresentationOptions = FormSheetPresentationOptions()) {
+        self.option = option
+    }
+
     func animationController(
         forPresented presented: UIViewController,
         presenting: UIViewController,
@@ -200,7 +221,8 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
     ) -> UIPresentationController? {
         FormSheetPresentationController(
             presentedViewController: presented,
-            presenting: source
+            presenting: source,
+            option: option
         )
     }
 }
