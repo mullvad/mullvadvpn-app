@@ -2152,12 +2152,10 @@ dependencies = [
  "mullvad-types",
  "parking_lot",
  "rand 0.8.5",
- "serde",
  "serde_json",
  "talpid-core",
  "talpid-types",
  "tokio",
- "tokio-stream",
 ]
 
 [[package]]
