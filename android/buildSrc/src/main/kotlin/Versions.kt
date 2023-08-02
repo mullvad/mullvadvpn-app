@@ -3,16 +3,15 @@ object Versions {
     const val jodaTime = "2.12.5"
     const val junit = "4.13.2"
     const val jvmTarget = "1.8"
-    const val koin = "3.4.1"
     const val kotlin = "1.8.21"
     const val kotlinCompilerExtensionVersion = "1.4.7"
     const val kotlinx = "1.7.1"
-    const val leakCanary = "2.11"
+    const val leakCanary = "2.12"
     // Make sure the following issue has been fixed before upgrading mockk:
     // https://github.com/mockk/mockk/issues/1035
     const val mockk = "1.13.3"
     const val mockWebserver = "4.11.0"
-    const val turbine = "0.13.0"
+    const val turbine = "1.0.0"
 
     object Android {
         const val compileSdkVersion = 33
@@ -29,8 +28,8 @@ object Versions {
         const val coordinatorlayout = "1.2.0"
         const val espresso = "3.5.1"
         const val lifecycle = "2.6.1"
-        const val fragment = "1.5.7"
-        const val recyclerview = "1.3.0"
+        const val fragment = "1.6.1"
+        const val recyclerview = "1.3.1"
         const val junit = "1.1.4"
         const val test = "1.5.0"
         const val testMonitor = "1.6.1"
@@ -53,9 +52,14 @@ object Versions {
         // The androidAapt plugin version must be in sync with the android plugin version.
         const val android = "7.4.2"
         const val androidAapt = "$android-8841542"
-        const val playPublisher = "3.8.3"
+        const val playPublisher = "3.8.4"
         const val dependencyCheck = "8.3.1"
-        const val gradleVersions = "0.46.0"
+        const val gradleVersions = "0.47.0"
         const val ktfmt = "0.12.0"
+    }
+
+    object Koin {
+        const val base = "3.4.3"
+        const val compose = "3.4.6"
     }
 }

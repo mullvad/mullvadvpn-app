@@ -3,6 +3,17 @@
 
     <issue
         id="MissingSuperCall"
+        message="Overriding method should call `super.onDismiss`"
+        errorLine1="    override fun onDismiss(dialogInterface: DialogInterface) {"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/fragment/ConfirmNoEmailDialogFragment.kt"
+            line="61"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="MissingSuperCall"
         message="Overriding method should call `super.onActivityResult`"
         errorLine1="    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
@@ -76,17 +87,6 @@
             file="src/main/res/layout/welcome.xml"
             line="14"
             column="23"/>
-    </issue>
-
-    <issue
-        id="ApplySharedPref"
-        message="Consider using `apply()` instead; `commit` writes its data to persistent storage immediately, whereas `apply` will handle it in the background"
-        errorLine1="        getSharedPreferences(&quot;tunnel_state&quot;, MODE_PRIVATE).edit().clear().commit()"
-        errorLine2="                                                                          ~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/service/MullvadVpnService.kt"
-            line="107"
-            column="75"/>
     </issue>
 
     <issue
@@ -290,17 +290,6 @@
     <issue
         id="UseCompatLoadingForDrawables"
         message="Use `ResourcesCompat.getDrawable()`"
-        errorLine1="        setBackground(resources.getDrawable(R.drawable.cell_switch_background, null))"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/CellSwitch.kt"
-            line="170"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UseCompatLoadingForDrawables"
-        message="Use `ResourcesCompat.getDrawable()`"
         errorLine1="    private val errorImage = resources.getDrawable(R.drawable.icon_notification_error, null)"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -443,17 +432,6 @@
 
     <issue
         id="Overdraw"
-        message="Possible overdraw: Root element paints background `@color/darkBlue` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="             android:background=&quot;@color/darkBlue&quot;"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/account.xml"
-            line="5"
-            column="14"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
         message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
         errorLine1="                android:background=&quot;?android:attr/selectableItemBackground&quot;>"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -483,28 +461,6 @@
             file="src/main/res/layout/view_logs.xml"
             line="5"
             column="15"/>
-    </issue>
-
-    <issue
-        id="RedundantNamespace"
-        message="This namespace declaration is redundant"
-        errorLine1="    &lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/information_view.xml"
-            line="2"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="UnusedNamespace"
-        message="Unused namespace declaration xmlns:android; already declared on the root element"
-        errorLine1="    &lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/information_view.xml"
-            line="2"
-            column="56"/>
     </issue>
 
     <issue
@@ -593,17 +549,6 @@
             file="src/main/res/layout/view_logs.xml"
             line="28"
             column="10"/>
-    </issue>
-
-    <issue
-        id="ClickableViewAccessibility"
-        message="Custom view `CellSwitch` overrides `onTouchEvent` but not `performClick`"
-        errorLine1="    override fun onTouchEvent(event: MotionEvent): Boolean {"
-        errorLine2="                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/CellSwitch.kt"
-            line="180"
-            column="18"/>
     </issue>
 
     <issue
@@ -857,17 +802,6 @@
             file="src/main/res/layout/view_logs.xml"
             line="28"
             column="10"/>
-    </issue>
-
-    <issue
-        id="SetTextI18n"
-        message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        errorLine1="                informationDisplay.text = information.substring(0, maxLength) + &quot;...&quot;"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/widget/InformationView.kt"
-            line="176"
-            column="43"/>
     </issue>
 
     <issue
