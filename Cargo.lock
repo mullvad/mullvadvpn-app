@@ -3736,7 +3736,6 @@ dependencies = [
  "netlink-sys",
  "nix 0.26.1",
  "rtnetlink",
- "socket2",
  "system-configuration",
  "talpid-types",
  "talpid-windows-net",
