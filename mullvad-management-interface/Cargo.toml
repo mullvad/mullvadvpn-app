@@ -9,7 +9,7 @@ edition.workspace = true
 publish.workspace = true
 
 [dependencies]
-chrono = { version = "0.4.26", default-features = false }
+chrono = { workspace = true }
 err-derive = "0.3.1"
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
