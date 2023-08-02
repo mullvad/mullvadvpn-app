@@ -1,11 +1,12 @@
 [package]
 name = "mullvad-jni"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "JNI interface for the Mullvad daemon"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [features]
 # Allow the API server to use to be configured
@@ -24,7 +25,7 @@ log = "0.4"
 log-panics = "2"
 nix = "0.23"
 rand = "0.8.5"
-tokio = "1.8"
+tokio = { workspace = true }
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }

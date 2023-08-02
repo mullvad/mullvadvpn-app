@@ -1,11 +1,12 @@
 [package]
 name = "talpid-wireguard"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Library for creating various WireGuard tunnels"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 
 [dependencies]
@@ -22,8 +23,8 @@ talpid-types = { path = "../talpid-types" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 zeroize = "1"
-chrono = "0.4.21"
-tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
+chrono = { workspace = true }
+tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 
@@ -52,9 +53,9 @@ bitflags = "1.2"
 talpid-windows-net = { path = "../talpid-windows-net" }
 widestring = "1.0"
 
-# Figure out which features are needed and which are not
+# TODO: Figure out which features are needed and which are not
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_Foundation",
     "Win32_Globalization",

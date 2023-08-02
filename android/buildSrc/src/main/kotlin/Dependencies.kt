@@ -52,7 +52,6 @@ object Dependencies {
         const val junit = "androidx.compose.ui:ui-test-junit4:${Versions.Compose.base}"
         const val viewModelLifecycle =
             "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.Compose.viewModelLifecycle}"
-        const val material = "androidx.compose.material:material:${Versions.Compose.material}"
         const val material3 = "androidx.compose.material3:material3:${Versions.Compose.material3}"
         const val testManifest = "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
         const val uiController =
@@ -65,10 +64,10 @@ object Dependencies {
     }
 
     object Koin {
-        const val core = "io.insert-koin:koin-core:${Versions.koin}"
-        const val android = "io.insert-koin:koin-android:${Versions.koin}"
-        const val compose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
-        const val test = "io.insert-koin:koin-test:${Versions.koin}"
+        const val core = "io.insert-koin:koin-core:${Versions.Koin.base}"
+        const val android = "io.insert-koin:koin-android:${Versions.Koin.base}"
+        const val compose = "io.insert-koin:koin-androidx-compose:${Versions.Koin.compose}"
+        const val test = "io.insert-koin:koin-test:${Versions.Koin.base}"
     }
 
     object Kotlin {
@@ -90,7 +89,15 @@ object Dependencies {
     }
 
     object Mullvad {
+        const val vpnService = ":service"
+        const val tileService = ":tile"
+
+        const val commonLib = ":lib:common"
         const val endpointLib = ":lib:endpoint"
+        const val ipcLib = ":lib:ipc"
+        const val modelLib = ":lib:model"
+        const val resourceLib = ":lib:resource"
+        const val talpidLib = ":lib:talpid"
     }
 
     object Plugin {

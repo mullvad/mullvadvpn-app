@@ -42,9 +42,43 @@ public enum RelaySelector {
     ) -> REST.BridgeRelay? {
         let mappedBridges = mapRelays(relays: relaysResponse.bridge.relays, locations: relaysResponse.locations)
         let filteredRelays = applyConstraints(constraints, relays: mappedBridges)
-        let randomBridgeRelay = pickRandomRelay(relays: filteredRelays)
+        guard filteredRelays.isEmpty == false else { return shadowsocksRelay(from: relaysResponse) }
 
-        return randomBridgeRelay?.relay ?? shadowsocksRelay(from: relaysResponse)
+        // Compute the midpoint location from all the filtered relays
+        // Take *either* the first five relays, OR the relays below maximum bridge distance
+        // sort all of them by Haversine distance from the computed midpoint location
+        // then use the roulette selection to pick a bridge
+
+        let midpointDistance = Midpoint.location(in: filteredRelays.map { $0.serverLocation.geoCoordinate })
+        let maximumBridgeDistance = 1500.0
+        let relaysWithDistance = filteredRelays.map {
+            RelayWithDistance(
+                relay: $0.relay,
+                distance: Haversine.distance(
+                    midpointDistance.latitude,
+                    midpointDistance.longitude,
+                    $0.serverLocation.latitude,
+                    $0.serverLocation.longitude
+                )
+            )
+        }.sorted {
+            $0.distance < $1.distance
+        }.filter {
+            $0.distance <= maximumBridgeDistance
+        }.prefix(5)
+
+        var greatestDistance = 0.0
+        relaysWithDistance.forEach {
+            if $0.distance > greatestDistance {
+                greatestDistance = $0.distance
+            }
+        }
+
+        let randomRelay = rouletteSelection(relays: Array(relaysWithDistance), weightFunction: { relay in
+            UInt64(1 + greatestDistance - relay.distance)
+        })
+
+        return randomRelay?.relay ?? filteredRelays.randomElement()?.relay
     }
 
     /**
@@ -64,7 +98,7 @@ public enum RelaySelector {
             numberOfFailedAttempts: numberOfFailedAttempts
         )
 
-        guard let relayWithLocation = pickRandomRelay(relays: filteredRelays), let port else {
+        guard let relayWithLocation = pickRandomRelayByWeight(relays: filteredRelays), let port else {
             throw NoRelaysSatisfyingConstraintsError()
         }
 
@@ -82,7 +116,7 @@ public enum RelaySelector {
         return RelaySelectorResult(
             endpoint: endpoint,
             relay: relayWithLocation.relay,
-            location: relayWithLocation.location
+            location: relayWithLocation.serverLocation
         )
     }
 
@@ -98,16 +132,16 @@ public enum RelaySelector {
             case let .only(relayConstraint):
                 switch relayConstraint {
                 case let .country(countryCode):
-                    return relayWithLocation.location.countryCode == countryCode &&
+                    return relayWithLocation.serverLocation.countryCode == countryCode &&
                         relayWithLocation.relay.includeInCountry
 
                 case let .city(countryCode, cityCode):
-                    return relayWithLocation.location.countryCode == countryCode &&
-                        relayWithLocation.location.cityCode == cityCode
+                    return relayWithLocation.serverLocation.countryCode == countryCode &&
+                        relayWithLocation.serverLocation.cityCode == cityCode
 
                 case let .hostname(countryCode, cityCode, hostname):
-                    return relayWithLocation.location.countryCode == countryCode &&
-                        relayWithLocation.location.cityCode == cityCode &&
+                    return relayWithLocation.serverLocation.countryCode == countryCode &&
+                        relayWithLocation.serverLocation.cityCode == cityCode &&
                         relayWithLocation.relay.hostname == hostname
                 }
             }
@@ -136,11 +170,15 @@ public enum RelaySelector {
         }
     }
 
-    private static func pickRandomRelay<T: AnyRelay>(relays: [RelayWithLocation<T>]) -> RelayWithLocation<T>? {
-        let totalWeight = relays.reduce(0) { accummulatedWeight, relayWithLocation in
-            accummulatedWeight + relayWithLocation.relay.weight
-        }
+    private static func pickRandomRelayByWeight<T: AnyRelay>(relays: [RelayWithLocation<T>])
+        -> RelayWithLocation<T>? {
+        rouletteSelection(relays: relays, weightFunction: { relayWithLocation in relayWithLocation.relay.weight })
+    }
 
+    private static func rouletteSelection<T>(relays: [T], weightFunction: (T) -> UInt64) -> T? {
+        let totalWeight = relays.map { weightFunction($0) }.reduce(0) { accumulated, weight in
+            accumulated + weight
+        }
         // Return random relay when all relays within the list have zero weight.
         guard totalWeight > 0 else {
             return relays.randomElement()
@@ -150,9 +188,9 @@ public enum RelaySelector {
         // non-zero weight.
         var i = (1 ... totalWeight).randomElement()!
 
-        let randomRelay = relays.first { relayWithLocation -> Bool in
+        let randomRelay = relays.first { relay -> Bool in
             let (result, isOverflow) = i
-                .subtractingReportingOverflow(relayWithLocation.relay.weight)
+                .subtractingReportingOverflow(weightFunction(relay))
 
             i = isOverflow ? 0 : result
 
@@ -228,7 +266,7 @@ public enum RelaySelector {
             longitude: serverLocation.longitude
         )
 
-        return RelayWithLocation(relay: relay, location: location)
+        return RelayWithLocation(relay: relay, serverLocation: location)
     }
 }
 
@@ -266,5 +304,10 @@ extension REST.BridgeRelay: AnyRelay {}
 
 fileprivate struct RelayWithLocation<T: AnyRelay> {
     let relay: T
-    let location: Location
+    let serverLocation: Location
+}
+
+fileprivate struct RelayWithDistance<T: AnyRelay> {
+    let relay: T
+    let distance: Double
 }

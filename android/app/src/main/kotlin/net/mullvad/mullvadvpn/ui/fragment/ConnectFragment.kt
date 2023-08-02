@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -14,25 +16,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.constant.BuildTypes
+import net.mullvad.mullvadvpn.compose.screen.ConnectScreen
+import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.ui.ConnectActionButton
-import net.mullvad.mullvadvpn.ui.ConnectionStatus
-import net.mullvad.mullvadvpn.ui.LocationInfo
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
-import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
 import net.mullvad.mullvadvpn.ui.paintNavigationBar
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
-import net.mullvad.mullvadvpn.ui.widget.SwitchLocationButton
-import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.koin.android.ext.android.inject
@@ -48,12 +46,8 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     private val tunnelStateNotification: TunnelStateNotification by inject()
     private val versionInfoNotification: VersionInfoNotification by inject()
 
-    private lateinit var actionButton: ConnectActionButton
-    private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
     private lateinit var notificationBanner: NotificationBanner
-    private lateinit var status: ConnectionStatus
-    private lateinit var locationInfo: LocationInfo
 
     @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
@@ -96,24 +90,20 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 }
             }
 
-        status = ConnectionStatus(view, requireMainActivity())
-
-        locationInfo =
-            LocationInfo(view, requireContext()) { connectViewModel.toggleTunnelInfoExpansion() }
-
-        actionButton = ConnectActionButton(view)
-
-        actionButton.apply {
-            onConnect = { serviceConnectionManager.connectionProxy()?.connect() }
-            onCancel = { serviceConnectionManager.connectionProxy()?.disconnect() }
-            onReconnect = { serviceConnectionManager.connectionProxy()?.reconnect() }
-            onDisconnect = { serviceConnectionManager.connectionProxy()?.disconnect() }
-        }
-
-        switchLocationButton =
-            view.findViewById<SwitchLocationButton>(R.id.switch_location).apply {
-                onClick = { openSwitchLocationScreen() }
+        view.findViewById<ComposeView>(R.id.compose_view).setContent {
+            AppTheme {
+                val state = connectViewModel.uiState.collectAsState().value
+                ConnectScreen(
+                    uiState = state,
+                    onDisconnectClick = connectViewModel::onDisconnectClick,
+                    onReconnectClick = connectViewModel::onReconnectClick,
+                    onConnectClick = connectViewModel::onConnectClick,
+                    onCancelClick = connectViewModel::onCancelClick,
+                    onSwitchLocationClick = { openSwitchLocationScreen() },
+                    onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion
+                )
             }
+        }
 
         return view
     }
@@ -137,14 +127,11 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     private fun CoroutineScope.launchViewModelSubscription() = launch {
         connectViewModel.uiState.collect { uiState ->
-            locationInfo.location = uiState.location
-            switchLocationButton.location = uiState.relayLocation
             uiState.versionInfo?.let {
                 versionInfoNotification.updateVersionInfo(uiState.versionInfo)
             }
             tunnelStateNotification.updateTunnelState(uiState.tunnelUiState)
-            updateTunnelState(uiState.tunnelUiState, uiState.tunnelRealState)
-            locationInfo.isTunnelInfoExpanded = uiState.isTunnelInfoExpanded
+            updateTunnelState(uiState.tunnelRealState)
         }
     }
 
@@ -154,13 +141,8 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         }
     }
 
-    private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {
-        locationInfo.state = realState
+    private fun updateTunnelState(realState: TunnelState) {
         headerBar.tunnelState = realState
-        status.setState(realState)
-
-        actionButton.tunnelState = uiState
-        switchLocationButton.tunnelState = uiState
 
         if (realState.isTunnelErrorStateDueToExpiredAccount()) {
             openOutOfTimeScreen()

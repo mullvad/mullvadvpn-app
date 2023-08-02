@@ -278,20 +278,11 @@ impl VersionUpdater {
             self.show_beta_releases || is_beta_version(),
         );
 
-        let wg_migration_threshold = if response.x_threshold_wg_default.is_nan() {
-            // If the value should for some strange reason be NaN then safe default to 0.0
-            0.0
-        } else {
-            // Make sure that the returned value is between 0% and 100%
-            response.x_threshold_wg_default.clamp(0.0, 1.0)
-        };
-
         AppVersionInfo {
             supported: response.supported,
             latest_stable: response.latest_stable.unwrap_or_else(|| "".to_owned()),
             latest_beta: response.latest_beta,
             suggested_upgrade,
-            wg_migration_threshold,
         }
     }
 
@@ -377,7 +368,6 @@ impl VersionUpdater {
                                     latest_stable: last_app_version_info.latest_stable,
                                     latest_beta: last_app_version_info.latest_beta,
                                     suggested_upgrade,
-                                    wg_migration_threshold: last_app_version_info.wg_migration_threshold,
                                 }).await;
                             }
                         }
@@ -471,10 +461,6 @@ fn dev_version_cache() -> AppVersionInfo {
         latest_stable: mullvad_version::VERSION.to_owned(),
         latest_beta: mullvad_version::VERSION.to_owned(),
         suggested_upgrade: None,
-        // Use WireGuard on 75% of dev builds. So we can manually modify
-        // wg_migration_rand_num in the settings and verify that the migration
-        // works as expected.
-        wg_migration_threshold: 0.75,
     }
 }
 

@@ -1,19 +1,20 @@
 [package]
 name = "talpid-platform-metadata"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Platform metadata detection functions"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"
 talpid-dbus = { path = "../talpid-dbus" }
 
-[target.'cfg(target_os = "windows")'.dependencies.windows-sys]
-version = "0.45.0"
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
 features = [
     "Win32_Foundation",
     "Win32_System_LibraryLoader",

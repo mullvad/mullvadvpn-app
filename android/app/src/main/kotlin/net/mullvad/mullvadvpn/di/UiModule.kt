@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
-import net.mullvad.mullvadvpn.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
+import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -28,6 +29,7 @@ import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -77,16 +79,18 @@ val uiModule = module {
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
     // View models
-    viewModel { ConnectViewModel(get()) }
-    viewModel { DeviceRevokedViewModel(get(), get()) }
-    viewModel { DeviceListViewModel(get(), get()) }
-    viewModel { LoginViewModel(get(), get()) }
+    viewModel { AccountViewModel(get(), get(), get()) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
+    viewModel { ConnectViewModel(get()) }
+    viewModel { DeviceListViewModel(get(), get()) }
+    viewModel { DeviceRevokedViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { SelectLocationViewModel(get()) }
+    viewModel { SettingsViewModel(get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"

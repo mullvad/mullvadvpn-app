@@ -18,6 +18,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case setting
         case settingSwitch
         case dnsServer
+        case dnsServerInfo
         case addDNSServer
         case wireGuardPort
         case wireGuardCustomPort
@@ -30,6 +31,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return SettingsSwitchCell.self
             case .dnsServer:
                 return SettingsDNSTextCell.self
+            case .dnsServerInfo:
+                return SettingsDNSInfoCell.self
             case .addDNSServer:
                 return SettingsAddDNSEntryCell.self
             case .wireGuardPort:
@@ -43,15 +46,12 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     private enum HeaderFooterReuseIdentifiers: String, CaseIterable {
         case contentBlockerHeader
         case wireGuardPortHeader
-        case customDNSFooter
         case spacer
 
         var reusableViewClass: AnyClass {
             switch self {
             case .contentBlockerHeader, .wireGuardPortHeader:
                 return SettingsHeaderView.self
-            case .customDNSFooter:
-                return SettingsStaticTextFooterView.self
             case .spacer:
                 return EmptyTableViewHeaderFooterView.self
             }
@@ -81,6 +81,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case useCustomDNS
         case addDNSServer
         case dnsServer(_ uniqueID: UUID)
+        case dnsServerInfo
 
         static var contentBlockers: [Item] {
             [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling]
@@ -119,6 +120,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return "addDNSServer"
             case let .dnsServer(uuid):
                 return "dnsServer(\(uuid.uuidString))"
+            case .dnsServerInfo:
+                return "dnsServerInfo"
             }
         }
 
@@ -136,6 +139,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return .addDNSServer
             case .dnsServer:
                 return .dnsServer
+            case .dnsServerInfo:
+                return .dnsServerInfo
             case .wireGuardPort:
                 return .wireGuardPort
             case .wireGuardCustomPort:
@@ -200,8 +205,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             viewModel.sanitizeCustomDNSEntries()
         }
 
-        updateSnapshot()
-        reloadCustomDNSFooter()
+        updateSnapshot(animated: true)
 
         viewModel.customDNSDomains.forEach { entry in
             self.reload(item: .dnsServer(entry.identifier))
@@ -247,9 +251,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             viewModel = mergedViewModel
         }
 
-        updateSnapshot { [weak self] in
-            self?.reloadCustomDNSFooter()
-        }
+        updateSnapshot()
     }
 
     // MARK: - UITableViewDataSource
@@ -390,18 +392,13 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case .contentBlockers:
             return nil
 
-        case .customDNS:
-            guard let view = tableView
-                .dequeueReusableHeaderFooterView(
-                    withIdentifier: HeaderFooterReuseIdentifiers.customDNSFooter.rawValue
-                ) as? SettingsStaticTextFooterView else { return nil }
-            configureFooterView(view)
-            return view
-
         case .wireGuardPorts:
             return tableView.dequeueReusableHeaderFooterView(
                 withIdentifier: HeaderFooterReuseIdentifiers.spacer.rawValue
             )
+
+        default:
+            return nil
         }
     }
 
@@ -421,19 +418,11 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .contentBlockers:
-            return 0
-
-        case .customDNS:
-            switch viewModel.customDNSPrecondition {
-            case .satisfied:
-                return 0
-            case .conflictsWithOtherSettings, .emptyDNSDomains:
-                return UITableView.automaticDimension
-            }
-
         case .wireGuardPorts:
             return UIMetrics.sectionSpacing
+
+        default:
+            return 0
         }
     }
 
@@ -509,6 +498,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         newSnapshot.appendSections(Section.allCases)
 
+        // Append sections
+
         if oldSnapshot.sectionIdentifiers.contains(.contentBlockers) {
             newSnapshot.appendItems(
                 oldSnapshot.itemIdentifiers(inSection: .contentBlockers),
@@ -523,6 +514,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             )
         }
 
+        // Append DNS settings
+
         newSnapshot.appendItems([.useCustomDNS], toSection: .customDNS)
 
         let dnsServerItems = viewModel.customDNSDomains.map { entry in
@@ -532,6 +525,18 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         if isEditing, viewModel.customDNSDomains.count < DNSSettings.maxAllowedCustomDNSDomains {
             newSnapshot.appendItems([.addDNSServer], toSection: .customDNS)
+        }
+
+        // Append/update DNS server info.
+
+        if viewModel.customDNSPrecondition == .satisfied {
+            newSnapshot.deleteItems([.dnsServerInfo])
+        } else {
+            if newSnapshot.itemIdentifiers(inSection: .customDNS).contains(.dnsServerInfo) {
+                newSnapshot.reloadItems([.dnsServerInfo])
+            } else {
+                newSnapshot.appendItems([.dnsServerInfo], toSection: .customDNS)
+            }
         }
 
         applySnapshot(newSnapshot, animated: animated, completion: completion)
@@ -561,7 +566,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         viewModel.setBlockAdvertising(isEnabled)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadCustomDNSFooter()
+            reloadDnsServerInfo()
         }
 
         if !isEditing {
@@ -575,7 +580,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         viewModel.setBlockTracking(isEnabled)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadCustomDNSFooter()
+            reloadDnsServerInfo()
         }
 
         if !isEditing {
@@ -589,7 +594,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         viewModel.setBlockMalware(isEnabled)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadCustomDNSFooter()
+            reloadDnsServerInfo()
         }
 
         if !isEditing {
@@ -603,7 +608,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         viewModel.setBlockAdultContent(isEnabled)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadCustomDNSFooter()
+            reloadDnsServerInfo()
         }
 
         if !isEditing {
@@ -617,7 +622,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         viewModel.setBlockGambling(isEnabled)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadCustomDNSFooter()
+            reloadDnsServerInfo()
         }
 
         if !isEditing {
@@ -626,9 +631,13 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private func setEnableCustomDNS(_ isEnabled: Bool) {
+        let oldViewModel = viewModel
+
         viewModel.setEnableCustomDNS(isEnabled)
 
-        reloadCustomDNSFooter()
+        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
+            reloadDnsServerInfo()
+        }
 
         if !isEditing {
             delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
@@ -641,23 +650,17 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         viewModel.updateDNSEntry(entryIdentifier: identifier, newAddress: inputString)
 
         if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
-            reloadCustomDNSFooter()
+            reloadDnsServerInfo()
         }
 
         return viewModel.isDNSDomainUserInputValid(inputString)
     }
 
     private func addDNSServerEntry() {
-        let oldViewModel = viewModel
-
         let newDNSEntry = DNSServerEntry(address: "")
         viewModel.customDNSDomains.append(newDNSEntry)
 
         updateSnapshot(animated: true) { [weak self] in
-            if oldViewModel.customDNSPrecondition != self?.viewModel.customDNSPrecondition {
-                self?.reloadCustomDNSFooter()
-            }
-
             // Focus on the new entry text field.
             let lastDNSEntry = self?.snapshot().itemIdentifiers(inSection: .customDNS)
                 .last { item in
@@ -679,8 +682,6 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private func deleteDNSServerEntry(entryIdentifier: UUID) {
-        let oldViewModel = viewModel
-
         let entryIndex = viewModel.customDNSDomains.firstIndex { entry in
             entry.identifier == entryIdentifier
         }
@@ -689,23 +690,26 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         viewModel.customDNSDomains.remove(at: entryIndex)
 
-        updateSnapshot(animated: true) { [weak self] in
-            if oldViewModel.customDNSPrecondition != self?.viewModel.customDNSPrecondition {
-                self?.reloadCustomDNSFooter()
-            }
-        }
+        reload(item: .useCustomDNS)
+        updateSnapshot(animated: true)
     }
 
-    private func reloadCustomDNSFooter() {
+    private func reloadDnsServerInfo() {
+        var snapshot = snapshot()
+
         reload(item: .useCustomDNS)
 
-        let sectionIndex = snapshot().indexOfSection(.customDNS)!
-
-        UIView.performWithoutAnimation {
-            if let reusableView = tableView?.footerView(forSection: sectionIndex) as? SettingsStaticTextFooterView {
-                configureFooterView(reusableView)
+        if viewModel.customDNSPrecondition == .satisfied {
+            snapshot.deleteItems([.dnsServerInfo])
+        } else {
+            if snapshot.itemIdentifiers(inSection: .customDNS).contains(.dnsServerInfo) {
+                snapshot.reloadItems([.dnsServerInfo])
+            } else {
+                snapshot.appendItems([.dnsServerInfo], toSection: .customDNS)
             }
         }
+
+        apply(snapshot, animatingDifferences: true)
     }
 
     private func configureContentBlockersHeader(_ reusableView: SettingsHeaderView) {
@@ -777,18 +781,6 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 self?.applySnapshot(snapshot, animated: true)
             }
         }
-    }
-
-    private func configureFooterView(_ reusableView: SettingsStaticTextFooterView) {
-        let font = reusableView.titleLabel.font ?? UIFont.systemFont(ofSize: UIFont.systemFontSize)
-
-        reusableView.titleLabel.attributedText = viewModel.customDNSPrecondition
-            .attributedLocalizedDescription(isEditing: isEditing, preferredFont: font)
-
-        reusableView.titleLabel.sizeToFit()
-
-        // Applying background color of table view hides overflow from contracting cells below.
-        reusableView.contentView.backgroundColor = tableView?.backgroundColor
     }
 
     private func selectRow(at indexPath: IndexPath?, animated: Bool = false) {

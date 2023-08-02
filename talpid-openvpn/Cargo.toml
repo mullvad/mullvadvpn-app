@@ -1,11 +1,12 @@
 [package]
 name = "talpid-openvpn"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Library for creating OpenVPN tunnels"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 
 [dependencies]
@@ -25,15 +26,15 @@ talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-types = { path = "../talpid-types" }
 uuid = { version = "0.8", features = ["v4"] }
-tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
+tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "c45980bb22d0d50ac888813c59a1edf0cff14a36",  features = [ "local", "stream-cipher" ] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 socket2 = { version = "0.4.2", features = ["all"] }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
-tonic = "0.8"
-prost = "0.11"
+tonic = { workspace = true }
+prost = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 which = { version = "4.0", default-features = false }
@@ -44,7 +45,7 @@ winreg = { version = "0.7", features = ["transactions"] }
 talpid-windows-net = { path = "../talpid-windows-net" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_Foundation",
     "Win32_System_LibraryLoader",
@@ -53,8 +54,8 @@ features = [
 ]
 
 [build-dependencies]
-tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
+tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
 
 [dev-dependencies]
-tokio = { version = "1", features = [ "test-util" ] }
+tokio = { workspace = true, features = [ "test-util" ] }

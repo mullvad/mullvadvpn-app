@@ -1,8 +1,14 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -14,20 +20,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.text.HtmlCompat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.RelayLocationCell
-import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
-import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
+import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
+import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
@@ -49,45 +60,52 @@ fun SelectLocationScreen(
     uiState: SelectLocationUiState,
     uiCloseAction: SharedFlow<Unit>,
     onSelectRelay: (item: RelayItem) -> Unit = {},
+    onSearchTermInput: (searchTerm: String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    val state = rememberCollapsingToolbarScaffoldState()
-    val progress = state.toolbarState.progress
     LaunchedEffect(Unit) { uiCloseAction.collect { onBackClick() } }
-    CollapsingToolbarScaffold(
-        backgroundColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize(),
-        state = state,
-        scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-        isEnabledWhenCollapsable = true,
-        toolbar = {
-            val scaffoldModifier =
-                Modifier.road(
-                    whenCollapsed = Alignment.TopCenter,
-                    whenExpanded = Alignment.BottomStart
-                )
-            CollapsingTopBar(
-                backgroundColor = MaterialTheme.colorScheme.background,
-                onBackClicked = { onBackClick() },
-                title = stringResource(id = R.string.switch_location),
-                progress = progress,
-                modifier = scaffoldModifier,
-                backTitle = "",
-                backIcon = R.drawable.icon_close
+    Column(
+        modifier =
+            Modifier.background(MaterialTheme.colorScheme.background).fillMaxWidth().fillMaxHeight()
+    ) {
+        Row(
+            modifier =
+                Modifier.padding(
+                        horizontal = Dimens.selectLocationTitlePadding,
+                        vertical = Dimens.selectLocationTitlePadding
+                    )
+                    .fillMaxWidth()
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_back),
+                contentDescription = null,
+                modifier =
+                    Modifier.size(Dimens.titleIconSize).rotate(270f).clickable { onBackClick() }
+            )
+            Text(
+                text = stringResource(id = R.string.select_location),
+                modifier =
+                    Modifier.align(Alignment.CenterVertically)
+                        .weight(weight = 1f)
+                        .padding(end = Dimens.titleIconSize),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
-    ) {
-        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally) {
-            item(contentType = ContentType.DESCRIPTION) {
-                Text(
-                    text = stringResource(id = R.string.select_location_description),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(horizontal = Dimens.sideMargin)
-                )
-            }
-            item(contentType = ContentType.SPACER) {
-                Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
-            }
+        SearchTextField(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .height(Dimens.searchFieldHeight)
+                    .padding(horizontal = Dimens.searchFieldHorizontalPadding)
+        ) { searchString ->
+            onSearchTermInput.invoke(searchString)
+        }
+        Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             when (uiState) {
                 SelectLocationUiState.Loading -> {
                     item(contentType = ContentType.PROGRESS) {
@@ -105,7 +123,7 @@ fun SelectLocationScreen(
                 is SelectLocationUiState.ShowData -> {
                     items(
                         count = uiState.countries.size,
-                        key = { index -> uiState.countries[index].code },
+                        key = { index -> uiState.countries[index].hashCode() },
                         contentType = { ContentType.ITEM }
                     ) { index ->
                         val country = uiState.countries[index]
@@ -114,6 +132,33 @@ fun SelectLocationScreen(
                             selectedItem = uiState.selectedRelay,
                             onSelectRelay = onSelectRelay,
                             modifier = Modifier.animateContentSize()
+                        )
+                    }
+                }
+                is SelectLocationUiState.NoSearchResultFound -> {
+                    item(contentType = ContentType.EMPTY_TEXT) {
+                        val firstRow =
+                            HtmlCompat.fromHtml(
+                                    textResource(
+                                        id = R.string.select_location_empty_text_first_row,
+                                        uiState.searchTerm
+                                    ),
+                                    HtmlCompat.FROM_HTML_MODE_COMPACT
+                                )
+                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                        Text(
+                            text =
+                                buildAnnotatedString {
+                                    append(firstRow)
+                                    appendLine()
+                                    append(
+                                        textResource(
+                                            id = R.string.select_location_empty_text_second_row
+                                        )
+                                    )
+                                },
+                            style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

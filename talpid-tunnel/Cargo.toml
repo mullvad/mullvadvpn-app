@@ -1,11 +1,12 @@
 [package]
 name = "talpid-tunnel"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Library for creating tunnel devices and interfacing with various VPN tunnels"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [dependencies]
 err-derive = "0.3.1"
@@ -14,7 +15,7 @@ ipnetwork = "0.16"
 talpid-routing = { path = "../talpid-routing" }
 talpid-types = { path = "../talpid-types" }
 futures = "0.3.15"
-tokio = { version = "1.8", features = ["process", "rt-multi-thread", "fs"] }
+tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 duct = "0.13"
@@ -34,7 +35,7 @@ tun = "0.5.1"
 talpid-windows-net = { path = "../talpid-windows-net" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_Foundation",
     "Win32_Networking_WinSock",

@@ -62,7 +62,7 @@ where
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
-                        .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                        .set_config(new_selector_config(&self.settings));
 
                     if need_to_reconnect {
                         log::info!(
@@ -100,7 +100,7 @@ where
             self.event_listener
                 .notify_settings(self.settings.to_settings());
             self.relay_selector
-                .set_config(new_selector_config(&self.settings, &self.app_version_info));
+                .set_config(new_selector_config(&self.settings));
         }
 
         settings_changed.map(|_| ())
@@ -148,10 +148,8 @@ where
 
                         self.event_listener
                             .notify_settings(self.settings.to_settings());
-                        self.relay_selector.set_config(new_selector_config(
-                            &self.settings,
-                            &self.app_version_info,
-                        ));
+                        self.relay_selector
+                            .set_config(new_selector_config(&self.settings));
 
                         if should_reconnect {
                             log::info!(
@@ -207,10 +205,8 @@ where
 
                         self.event_listener
                             .notify_settings(self.settings.to_settings());
-                        self.relay_selector.set_config(new_selector_config(
-                            &self.settings,
-                            &self.app_version_info,
-                        ));
+                        self.relay_selector
+                            .set_config(new_selector_config(&self.settings));
 
                         if should_reconnect {
                             log::info!(
@@ -263,10 +259,8 @@ where
                     if let Ok(true) = settings_changed {
                         self.event_listener
                             .notify_settings(self.settings.to_settings());
-                        self.relay_selector.set_config(new_selector_config(
-                            &self.settings,
-                            &self.app_version_info,
-                        ));
+                        self.relay_selector
+                            .set_config(new_selector_config(&self.settings));
                     }
 
                     Ok(())

@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
   is turned off.
 - Add quantum resistant tunneling.
+- Add search for select location.
+- Add the ability to set a custom wireguard port.
 
 ### Changed
 - In the CLI, update the `tunnel` subcommand to resemble `relay` more. For example, by adding a
@@ -61,6 +63,8 @@ Line wrap the file at 100 chars.                                              Th
 - Move the "Split tunneling" menu item up a level from "VPN settings" to "Settings".
 - Migrate split tunneling view to compose.
 - Migrate select Location view to compose.
+- Migrate settings view to compose.
+- Migrate account view to compose.
 
 ### Fixed
 - Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
@@ -74,6 +78,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Removed
 - Remove the CLI subcommand `mullvad relay set hostname`.
+
+
+## [android/2023.4] - 2023-07-18
+### Changed
+#### Android
+- Prevent opening download page in Google Play builds.
 
 
 ## [2023.4] - 2023-06-27

@@ -9,10 +9,6 @@ interface RelayItem {
     val location: GeographicLocationConstraint
     val active: Boolean
     val hasChildren: Boolean
-    val visibleChildCount: Int
-
-    val visibleItemCount: Int
-        get() = visibleChildCount + 1
 
     val locationName: String
         get() = name

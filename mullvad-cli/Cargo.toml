@@ -1,11 +1,13 @@
 [package]
 name = "mullvad-cli"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Manage the Mullvad VPN daemon via a convenient CLI"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
+
 
 [[bin]]
 name = "mullvad"
@@ -14,7 +16,7 @@ path = "src/main.rs"
 [dependencies]
 anyhow = "1.0"
 base64 = "0.13"
-chrono = { version = "0.4.26", features = ["serde"] }
+chrono = { workspace = true }
 clap = { version = "4.2.7", features = ["cargo", "derive"] }
 env_logger = "0.10.0"
 futures = "0.3"
@@ -28,7 +30,7 @@ mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
-tokio = { version = "1.8", features =  [ "rt-multi-thread" ] }
+tokio = { workspace = true, features =  [ "rt-multi-thread" ] }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 clap_complete = { version = "4.2.1" }
@@ -38,7 +40,7 @@ winres = "0.1"
 mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_System_SystemServices",
 ]

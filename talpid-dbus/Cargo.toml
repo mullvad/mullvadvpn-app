@@ -1,10 +1,11 @@
 [package]
 name = "talpid-dbus"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = "0.9"
@@ -12,4 +13,4 @@ err-derive = "0.3.1"
 lazy_static = "1.0"
 log = "0.4"
 libc = "0.2"
-tokio = { version = "1.8", features = ["rt"] }
+tokio = { workspace = true, features = ["rt"] }

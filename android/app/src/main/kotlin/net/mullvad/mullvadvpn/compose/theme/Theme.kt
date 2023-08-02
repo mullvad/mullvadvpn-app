@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.compose.theme.typeface.TypeScale
 // Add our own definitions here
 private val MullvadTypography =
     Typography(
+        headlineLarge = TextStyle(fontSize = TypeScale.TextHuge, fontWeight = FontWeight.Bold),
         headlineSmall =
             TextStyle(
                 color = MullvadWhite,
@@ -28,6 +29,12 @@ private val MullvadTypography =
                 fontWeight = FontWeight.Bold
             ),
         bodySmall = TextStyle(color = MullvadWhite, fontSize = TypeScale.TextSmall),
+        titleSmall =
+            TextStyle(
+                color = MullvadWhite,
+                fontSize = TypeScale.TextMedium,
+                fontWeight = FontWeight.SemiBold
+            ),
         titleMedium =
             TextStyle(
                 color = MullvadWhite,
@@ -61,9 +68,12 @@ private val MullvadColorPalette =
         onSurfaceVariant = MullvadWhite,
         onPrimary = MullvadWhite,
         onSecondary = MullvadWhite60,
+        onError = MullvadWhite,
+        onSurface = MullvadWhite,
         inversePrimary = MullvadGreen,
         error = MullvadRed,
-        outlineVariant = Color.Transparent // Used by divider
+        outlineVariant = Color.Transparent, // Used by divider
+        inverseSurface = MullvadWhite
     )
 
 val Shapes =

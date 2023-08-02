@@ -22,8 +22,6 @@ impl From<proto::AppVersionInfo> for mullvad_types::version::AppVersionInfo {
             } else {
                 Some(version_info.suggested_upgrade)
             },
-            // NOTE: This field is meaningless when derived from the gRPC type
-            wg_migration_threshold: f32::NAN,
         }
     }
 }

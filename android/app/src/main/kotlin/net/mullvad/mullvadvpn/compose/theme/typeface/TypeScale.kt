@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.sp
  * * Order entries within each type by descending size.
  */
 internal object TypeScale {
+    val TextHuge = 30.sp
     val TextBig = 24.sp
     val TextMediumPlus = 18.sp
     val TextMedium = 16.sp

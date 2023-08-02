@@ -1,11 +1,12 @@
 [package]
 name = "talpid-openvpn-plugin"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "OpenVPN shared library plugin for relaying OpenVPN events to talpid_core"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [lib]
 crate-type = ["cdylib"]
@@ -15,17 +16,17 @@ err-derive = "0.3.1"
 log = "0.4"
 env_logger = "0.10.0"
 parity-tokio-ipc = "0.9"
-tokio = { version = "1.8", features =  ["rt"] }
+tokio = { workspace = true, features =  ["rt"] }
 
 openvpn-plugin = { version = "0.4.2", features = ["serde", "log", "auth-failed-event"] }
 talpid-types = { path = "../talpid-types" }
 
-tonic = "0.8"
-tower = "0.4"
-prost = "0.11"
+tonic = { workspace = true }
+tower = { workspace = true }
+prost = { workspace = true }
 
 [build-dependencies]
-tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
+tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
 
 
 [target.'cfg(windows)'.build-dependencies]
@@ -33,7 +34,7 @@ winres = "0.1"
 mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_System_SystemServices",
 ]

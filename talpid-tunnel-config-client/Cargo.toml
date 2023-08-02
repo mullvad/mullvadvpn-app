@@ -1,32 +1,34 @@
 [package]
 name = "talpid-tunnel-config-client"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Uses the relay RPC service to set up PQ-safe peers, etc."
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [dependencies]
 log = "0.4"
 rand = "0.8"
 talpid-types = { path = "../talpid-types" }
-tonic = "0.8"
-prost = "0.11"
-tower = "0.4"
-tokio = "1"
+tonic = { workspace = true }
+tower = { workspace = true }
+prost = { workspace = true }
+tokio = { workspace = true }
 classic-mceliece-rust = { version = "2.0.0", features = ["mceliece460896f", "zeroize"] }
 pqc_kyber = { version = "0.4.0", features = ["std", "kyber1024", "zeroize"] }
 zeroize = "1.5.7"
 libc = "0.2"
 
-[target.'cfg(target_os="windows")'.dependencies]
-windows-sys = { version = "0.45.0", features = [
-     "Win32_Networking_WinSock"
-]}
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
+features = [
+    "Win32_Networking_WinSock"
+]
 
 [dev-dependencies]
-tokio = { version = "1", features = ["rt-multi-thread"] }
+tokio = { workspace = true, features = ["rt-multi-thread"] }
 
 [build-dependencies]
-tonic-build = { version = "0.8", default-features = false, features = ["transport", "prost"] }
+tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }

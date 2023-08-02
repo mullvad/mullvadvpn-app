@@ -13,6 +13,11 @@ enum AccountDismissReason: Equatable {
     case userLoggedOut
 }
 
+enum AddedMoreCreditOption: Equatable {
+    case redeemingVoucher
+    case inAppPurchase
+}
+
 final class AccountCoordinator: Coordinator, Presentable, Presenting {
     private let interactor: AccountInteractor
     private var accountController: AccountViewController?
@@ -28,6 +33,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     }
 
     var didFinish: ((AccountCoordinator, AccountDismissReason) -> Void)?
+    var didAddMoreCredit: ((AccountCoordinator, AddedMoreCreditOption) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -68,12 +74,14 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     }
 
     private func navigateToRedeemVoucher() {
-        let coordinator = RedeemVoucherCoordinator(
+        let coordinator = SettingsRedeemVoucherCoordinator(
             navigationController: CustomNavigationController(),
             interactor: RedeemVoucherInteractor(tunnelManager: interactor.tunnelManager)
         )
-        coordinator.didFinish = { redeemVoucherCoordinator in
+        coordinator.didFinish = { [weak self] redeemVoucherCoordinator in
             redeemVoucherCoordinator.dismiss(animated: true)
+            guard let self else { return }
+            self.didAddMoreCredit?(self, .redeemingVoucher)
         }
         coordinator.didCancel = { redeemVoucherCoordinator in
             redeemVoucherCoordinator.dismiss(animated: true)

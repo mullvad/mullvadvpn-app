@@ -1,20 +1,21 @@
 [package]
 name = "mullvad-problem-report"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Collect Mullvad VPN logs into a report and send it to support"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [dependencies]
-dirs-next = "2.0"
+dirs = "5.0.1"
 err-derive = "0.3.1"
 lazy_static = "1.0"
 log = "0.4"
 regex = "1.0"
 uuid = { version = "0.8", features = ["v4"] }
-tokio = { version = "1.8", features = ["rt"] }
+tokio = { workspace = true, features = ["rt"] }
 
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-api = { path = "../mullvad-api" }
@@ -34,7 +35,7 @@ winres = "0.1"
 mullvad-version = { path = "../mullvad-version" }
 
 [target.'cfg(windows)'.build-dependencies.windows-sys]
-version = "0.45.0"
+workspace = true
 features = [
     "Win32_System_SystemServices",
 ]

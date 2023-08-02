@@ -1,11 +1,12 @@
 [package]
 name = "talpid-routing"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Library for managing routing tables"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 
 [dependencies]
@@ -14,7 +15,7 @@ futures = "0.3.15"
 ipnetwork = "0.16"
 log = "0.4"
 talpid-types = { path = "../talpid-types" }
-tokio = { version = "1.8", features = ["process", "rt-multi-thread", "net"] }
+tokio = { workspace = true, features = ["process", "rt-multi-thread", "net"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 talpid-types = { path = "../talpid-types" }
@@ -39,10 +40,13 @@ libc = "0.2"
 socket2 = { version = "0.4.2", features = ["all"] }
 talpid-windows-net = { path = "../talpid-windows-net" }
 widestring = "1.0"
-windows-sys = { version = "0.45.0", features = [
-     "Win32_NetworkManagement_Ndis",
-      "Win32_Globalization"
-]}
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+workspace = true
+features = [
+    "Win32_NetworkManagement_Ndis",
+    "Win32_Globalization"
+]
 
 [dev-dependencies]
-tokio = { version = "1", features = [ "test-util" ] }
+tokio = { workspace = true, features = [ "test-util" ] }

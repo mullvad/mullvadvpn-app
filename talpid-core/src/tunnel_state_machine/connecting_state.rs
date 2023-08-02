@@ -7,7 +7,6 @@ use crate::{
     firewall::FirewallPolicy,
     tunnel::{self, TunnelMonitor},
 };
-use cfg_if::cfg_if;
 use futures::{
     channel::{mpsc, oneshot},
     future::Fuse,
@@ -301,12 +300,10 @@ impl ConnectingState {
             self.allowed_tunnel_traffic.clone(),
         ) {
             Ok(()) => {
-                cfg_if! {
-                    if #[cfg(target_os = "android")] {
-                        self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
-                    } else {
-                        EventConsequence::SameState(self.into())
-                    }
+                if cfg!(target_os = "android") {
+                    self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+                } else {
+                    EventConsequence::SameState(self.into())
                 }
             }
             Err(error) => self.disconnect(

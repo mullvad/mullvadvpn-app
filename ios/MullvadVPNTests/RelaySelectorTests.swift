@@ -94,6 +94,17 @@ class RelaySelectorTests: XCTestCase {
 
         XCTAssertEqual(selectedRelay?.hostname, "se-sto-br-001")
     }
+
+    func testClosestShadowsocksRelayIsRandomWhenNoContraintsAreSatisfied() throws {
+        let constraints = RelayConstraints(location: .only(.country("INVALID COUNTRY")))
+
+        let selectedRelay = try XCTUnwrap(RelaySelector.closestShadowsocksRelayConstrained(
+            by: constraints,
+            in: sampleRelays
+        ))
+
+        XCTAssertTrue(sampleRelays.bridge.relays.contains(selectedRelay))
+    }
 }
 
 private let sampleRelays = REST.ServerRelaysResponse(
@@ -133,6 +144,18 @@ private let sampleRelays = REST.ServerRelaysResponse(
             city: "Toronto",
             latitude: 43.666667,
             longitude: -79.416667
+        ),
+        "us-atl": REST.ServerLocation(
+            country: "USA",
+            city: "Atlanta, GA",
+            latitude: 40.73061,
+            longitude: -73.935242
+        ),
+        "us-dal": REST.ServerLocation(
+            country: "USA",
+            city: "Dallas, TX",
+            latitude: 32.89748,
+            longitude: -97.040443
         ),
     ],
     wireguard: REST.ServerWireguardTunnels(
@@ -188,6 +211,30 @@ private let sampleRelays = REST.ServerRelaysResponse(
                 publicKey: Data(),
                 includeInCountry: true
             ),
+            REST.ServerRelay(
+                hostname: "us-dal-wg-001",
+                active: true,
+                owned: true,
+                location: "us-dal",
+                provider: "",
+                weight: 100,
+                ipv4AddrIn: .loopback,
+                ipv6AddrIn: .loopback,
+                publicKey: Data(),
+                includeInCountry: true
+            ),
+            REST.ServerRelay(
+                hostname: "us-nyc-wg-301",
+                active: true,
+                owned: true,
+                location: "us-nyc",
+                provider: "",
+                weight: 100,
+                ipv4AddrIn: .loopback,
+                ipv6AddrIn: .loopback,
+                publicKey: Data(),
+                includeInCountry: true
+            ),
         ]
     ),
     bridge: REST.ServerBridges(shadowsocks: [
@@ -229,6 +276,26 @@ private let sampleRelays = REST.ServerRelaysResponse(
             owned: false,
             location: "ae-dxb",
             provider: "M247",
+            ipv4AddrIn: .loopback,
+            weight: 100,
+            includeInCountry: true
+        ),
+        REST.BridgeRelay(
+            hostname: "us-atl-br-101",
+            active: true,
+            owned: false,
+            location: "us-atl",
+            provider: "100TB",
+            ipv4AddrIn: .loopback,
+            weight: 100,
+            includeInCountry: true
+        ),
+        REST.BridgeRelay(
+            hostname: "us-dal-br-101",
+            active: true,
+            owned: false,
+            location: "us-dal",
+            provider: "100TB",
             ipv4AddrIn: .loopback,
             weight: 100,
             includeInCountry: true

@@ -20,6 +20,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
+import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceList
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
@@ -54,7 +55,7 @@ class DeviceListViewModel(
                     }
                 val deviceUiItems =
                     devices
-                        ?.sortedBy { it.creationDate }
+                        ?.sortedBy { it.created.parseAsDateTime() }
                         ?.map { device ->
                             DeviceListItemUiState(
                                 device,

@@ -1,25 +1,27 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.EventDispatcher
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.lib.common.util.toGeographicLocationConstraint
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
+import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.RelayList
-import net.mullvad.mullvadvpn.util.toGeographicLocationConstraint
+import net.mullvad.mullvadvpn.relaylist.findItemForLocation
+import net.mullvad.mullvadvpn.relaylist.toRelayCountries
 
 class RelayListListener(
     private val connection: Messenger,
     eventDispatcher: EventDispatcher,
     private val settingsListener: SettingsListener
 ) {
-    private var relayList: RelayList? = null
+    private var relayCountries: List<RelayCountry>? = null
     private var relaySettings: RelaySettings? = null
     private var portRanges: List<PortRange> = emptyList()
 
@@ -49,15 +51,15 @@ class RelayListListener(
             connection.send(Request.SetWireguardConstraints(value).message)
         }
 
-    var onRelayListChange: ((RelayList, RelayItem?) -> Unit)? = null
+    var onRelayCountriesChange: ((List<RelayCountry>, RelayItem?) -> Unit)? = null
         set(value) {
             field = value
 
             synchronized(this) {
-                val relayList = this.relayList
+                val relayCountries = this.relayCountries
 
-                if (relayList != null) {
-                    value?.invoke(relayList, selectedRelayItem)
+                if (relayCountries != null) {
+                    value?.invoke(relayCountries, selectedRelayItem)
                 }
             }
         }
@@ -72,7 +74,7 @@ class RelayListListener(
     init {
         eventDispatcher.registerHandler(Event.NewRelayList::class) { event ->
             event.relayList?.let { relayLocations ->
-                relayListChanged(RelayList(relayLocations))
+                relayListChanged(relayLocations.toRelayCountries())
                 portRangesChanged(relayLocations.wireguardEndpointData.portRanges)
             }
         }
@@ -84,12 +86,12 @@ class RelayListListener(
 
     fun onDestroy() {
         settingsListener.relaySettingsNotifier.unsubscribe(this)
-        onRelayListChange = null
+        onRelayCountriesChange = null
     }
 
     private fun relaySettingsChanged(newRelaySettings: RelaySettings?) {
         synchronized(this) {
-            val relayList = this.relayList
+            val relayCountries = this.relayCountries
             val portRanges = this.portRanges
 
             relaySettings =
@@ -98,19 +100,19 @@ class RelayListListener(
                         RelayConstraints(Constraint.Any(), WireguardConstraints(Constraint.Any()))
                     )
 
-            if (relayList != null) {
-                relayListChanged(relayList)
+            if (relayCountries != null) {
+                relayListChanged(relayCountries)
             }
             portRangesChanged(portRanges)
         }
     }
 
-    private fun relayListChanged(newRelayList: RelayList) {
+    private fun relayListChanged(newRelayCountries: List<RelayCountry>) {
         synchronized(this) {
-            relayList = newRelayList
+            relayCountries = newRelayCountries
             selectedRelayItem = findSelectedRelayItem()
 
-            onRelayListChange?.invoke(newRelayList, selectedRelayItem)
+            onRelayCountriesChange?.invoke(newRelayCountries, selectedRelayItem)
         }
     }
 
@@ -129,10 +131,8 @@ class RelayListListener(
             is RelaySettings.CustomTunnelEndpoint -> return null
             is RelaySettings.Normal -> {
                 val location = relaySettings.relayConstraints.location
-
-                return relayList?.findItemForLocation(
-                    location.toGeographicLocationConstraint(),
-                    true
+                return relayCountries?.findItemForLocation(
+                    location.toGeographicLocationConstraint()
                 )
             }
             else -> {

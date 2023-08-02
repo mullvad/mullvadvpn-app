@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name" translatable="false">Mullvad VPN</string>
+    <string name="login_hint" translatable="false">0000 0000 0000 0000</string>
+    <string name="voucher_hint" translatable="false">XXXX-XXXX-XXXX-XXXX</string>
+    <string name="account_url" translatable="false">https://mullvad.net/account</string>
+    <string name="download_url" translatable="false">https://mullvad.net/download</string>
+    <string name="faqs_and_guides_url" translatable="false">https://mullvad.net/help/tag/mullvad-app/</string>
+    <string name="privacy_policy_url" translatable="false">https://mullvad.net/help/privacy-policy/</string>
+    <string name="split_tunneling" translatable="false">Split tunneling</string>
+    <string name="wireguard" translatable="false">WireGuard</string>
+    <string name="local_network_sharing_ip_ranges">
+        <![CDATA[<ul><li>10.0.0.0/8</li><li>172.16.0.0/12</li><li>192.168.0.0/16</li><li>169.254.0.0/16</li><li>0xfe80::/10</li><li>0xfc00::/7</li></ul>]]>
+    </string>
+</resources>

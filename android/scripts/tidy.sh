@@ -33,10 +33,10 @@ function format {
         --indent-attributes yes \
         --indent-spaces 4 \
         --literal-attributes yes \
-        ../app/src/main/AndroidManifest.xml \
-        ../app/src/main/res/anim*/*.xml \
-        ../app/src/main/res/drawable*/*.xml \
-        ../app/src/main/res/layout*/*.xml \
+        ../**/src/main/AndroidManifest.xml \
+        ../lib/resource/src/main/res/anim*/*.xml \
+        ../lib/resource/src/main/res/drawable*/*.xml \
+        ../app/src/main/res/layout*/*.xml
 
     tidy -xml \
         -m  \
@@ -47,14 +47,14 @@ function format {
         --indent-spaces 4 \
         --literal-attributes yes \
         --indent-cdata yes \
-        ../app/src/main/res/values/*.xml
+        ../lib/resource/src/main/res/values/*.xml
 
     # FIXME - when tidy learns to not leave whitespace around, remove the line below - https://github.com/htacg/tidy-html5/issues/864
-    find ../app/src/main/ -name '*.xml' -exec sed -i -e 's/[ \t]*$//' '{}' ';'
+    find .. -name '*.xml' -exec sed -i -e 's/[ \t]*$//' '{}' ';'
 }
 
 function checkDiff {
-    if git diff --exit-code -- ../app/src/main/AndroidManifest.xml ../app/src/main/res; then
+    if git diff --exit-code -- ../**/AndroidManifest.xml ../**/src/main/res; then
         echo "Android XML files are correctly formatted"
         return 0
     else

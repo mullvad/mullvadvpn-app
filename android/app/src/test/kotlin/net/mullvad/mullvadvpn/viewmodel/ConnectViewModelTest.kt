@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.slot
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,6 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
-import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.talpid.util.EventNotifier
 import org.junit.After
@@ -57,10 +58,11 @@ class ConnectViewModelTest {
     private val mockRelayListListener: RelayListListener = mockk(relaxUnitFun = true)
     private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
     private val mockConnectionProxy: ConnectionProxy = mockk()
+    private val mockLocation: GeoIpLocation = mockk(relaxed = true)
 
     // Captures
     private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
-    private val relaySlot = slot<(RelayList, RelayItem?) -> Unit>()
+    private val relaySlot = slot<(List<RelayCountry>, RelayItem?) -> Unit>()
 
     // Event notifiers
     private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected)
@@ -69,6 +71,7 @@ class ConnectViewModelTest {
     @Before
     fun setup() {
         mockkStatic(CACHE_EXTENSION_CLASS)
+        mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
 
         mockAppVersionInfoCache =
             mockk<AppVersionInfoCache>().apply {
@@ -83,9 +86,12 @@ class ConnectViewModelTest {
 
         every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
         every { mockConnectionProxy.onStateChange } returns eventNotifierTunnelRealState
+
+        every { mockLocation.country } returns "dummy country"
+
         // Listeners
         every { mockLocationInfoCache.onNewLocation = capture(locationSlot) } answers {}
-        every { mockRelayListListener.onRelayListChange = capture(relaySlot) } answers {}
+        every { mockRelayListListener.onRelayCountriesChange = capture(relaySlot) } answers {}
         every { mockAppVersionInfoCache.onUpdate = any() } answers {}
 
         viewModel = ConnectViewModel(mockServiceConnectionManager)
@@ -111,7 +117,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk())
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 viewModel.toggleTunnelInfoExpansion()
                 val result = awaitItem()
@@ -122,13 +128,13 @@ class ConnectViewModelTest {
     @Test
     fun testTunnelRealStateUpdate() =
         runTest(testCoroutineRule.testDispatcher) {
-            val tunnelRealStateTestItem = TunnelState.Connected(mockk(), mockk())
+            val tunnelRealStateTestItem = TunnelState.Connected(mockk(relaxed = true), mockk())
 
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk())
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
                 val result = awaitItem()
@@ -145,7 +151,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk())
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelUiState.notify(tunnelUiStateTestItem)
                 val result = awaitItem()
@@ -168,7 +174,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk())
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 versionInfo.value = versionInfoTestItem
                 val result = awaitItem()
@@ -186,7 +192,7 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockk())
+                locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), relayTestItem)
                 val result = awaitItem()
                 assertEquals(relayTestItem, result.relayLocation)
@@ -198,8 +204,8 @@ class ConnectViewModelTest {
         runTest(testCoroutineRule.testDispatcher) {
             val locationTestItem =
                 GeoIpLocation(
-                    ipv4 = mockk(),
-                    ipv6 = mockk(),
+                    ipv4 = mockk(relaxed = true),
+                    ipv6 = mockk(relaxed = true),
                     country = "Sweden",
                     city = "Gothenburg",
                     hostname = "Host"
@@ -216,7 +222,45 @@ class ConnectViewModelTest {
             }
         }
 
+    @Test
+    fun testOnDisconnectClick() =
+        runTest(testCoroutineRule.testDispatcher) {
+            val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+            every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
+            viewModel.onDisconnectClick()
+            verify { mockConnectionProxy.disconnect() }
+        }
+
+    @Test
+    fun testOnReconnectClick() =
+        runTest(testCoroutineRule.testDispatcher) {
+            val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+            every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
+            viewModel.onReconnectClick()
+            verify { mockConnectionProxy.reconnect() }
+        }
+
+    @Test
+    fun testOnConnectClick() =
+        runTest(testCoroutineRule.testDispatcher) {
+            val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+            every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
+            viewModel.onConnectClick()
+            verify { mockConnectionProxy.connect() }
+        }
+
+    @Test
+    fun testOnCancelClick() =
+        runTest(testCoroutineRule.testDispatcher) {
+            val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
+            every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
+            viewModel.onCancelClick()
+            verify { mockConnectionProxy.disconnect() }
+        }
+
     companion object {
         private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"
+        private const val SERVICE_CONNECTION_MANAGER_EXTENSIONS =
+            "net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManagerExtensionsKt"
     }
 }

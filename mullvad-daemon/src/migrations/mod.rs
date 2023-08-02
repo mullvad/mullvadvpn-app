@@ -235,7 +235,7 @@ mod windows {
     pub async fn migrate_after_windows_update(
         destination_settings_dir: &Path,
     ) -> Result<bool, Error> {
-        let system_appdata_dir = dirs_next::data_local_dir().ok_or(Error::FindAppData)?;
+        let system_appdata_dir = dirs::data_local_dir().ok_or(Error::FindAppData)?;
         if !destination_settings_dir.starts_with(system_appdata_dir) {
             return Ok(false);
         }

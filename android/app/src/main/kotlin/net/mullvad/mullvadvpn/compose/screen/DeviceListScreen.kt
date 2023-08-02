@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.ActionButton
+import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ListItem
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.dialog.ShowDeviceRemovalDialog
@@ -39,8 +39,9 @@ import net.mullvad.mullvadvpn.compose.theme.MullvadGreen
 import net.mullvad.mullvadvpn.compose.theme.MullvadGreen40
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
 import net.mullvad.mullvadvpn.compose.theme.MullvadWhite80
+import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
+import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.model.Device
-import net.mullvad.mullvadvpn.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.util.formatDate
 
 @Composable
@@ -193,7 +194,8 @@ fun DeviceListScreen(
                                     text =
                                         deviceUiState.device.name.capitalizeFirstCharOfEachWord(),
                                     subText =
-                                        deviceUiState.device.creationDate?.let { creationDate ->
+                                        deviceUiState.device.created.parseAsDateTime()?.let {
+                                            creationDate ->
                                             stringResource(
                                                 id = R.string.created_x,
                                                 creationDate.formatDate()

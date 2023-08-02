@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/android-xml-format-check.yml
-      - android/app/src/main/**/*.xml
+      - android/**/*.xml
   workflow_dispatch:
 jobs:
   prepare:

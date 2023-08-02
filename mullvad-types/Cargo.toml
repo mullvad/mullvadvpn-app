@@ -1,14 +1,15 @@
 [package]
 name = "mullvad-types"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Common base data structures for Mullvad VPN client"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [dependencies]
-chrono = { version = "0.4.26", features = ["serde"] }
+chrono = { workspace = true, features = ["clock", "serde"] }
 err-derive = "0.3.1"
 ipnetwork = "0.16"
 lazy_static = "1.1.0"

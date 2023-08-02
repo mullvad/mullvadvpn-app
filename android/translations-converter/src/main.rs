@@ -46,7 +46,7 @@ use std::{
 };
 
 fn main() {
-    let resources_dir = Path::new("../app/src/main/res");
+    let resources_dir = Path::new("../lib/resource/src/main/res");
 
     let strings_file = File::open(resources_dir.join("values/strings.xml"))
         .expect("Failed to open string resources file");

@@ -18,4 +18,9 @@ abstract class NotificationWithUrl(protected val context: Context, urlString: St
         onClick = openUrl
         showIcon = true
     }
+
+    internal fun disableExternalLink() {
+        showIcon = false
+        onClick = null
+    }
 }

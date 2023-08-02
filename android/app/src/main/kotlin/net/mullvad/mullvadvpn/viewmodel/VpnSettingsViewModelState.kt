@@ -146,6 +146,21 @@ data class VpnSettingsViewModelState(
                     availablePortRanges = availablePortRanges
                 )
             }
+            is VpnSettingsDialogState.CustomPortDialog -> {
+                VpnSettingsUiState.CustomPortDialogUiState(
+                    mtu = mtuValue,
+                    isAutoConnectEnabled = isAutoConnectEnabled,
+                    isLocalNetworkSharingEnabled = isLocalNetworkSharingEnabled,
+                    isCustomDnsEnabled = isCustomDnsEnabled,
+                    isAllowLanEnabled = isAllowLanEnabled,
+                    customDnsItems = customDnsList,
+                    contentBlockersOptions = contentBlockersOptions,
+                    selectedObfuscation = selectedObfuscation,
+                    quantumResistant = quantumResistant,
+                    selectedWireguardPort = selectedWireguardPort,
+                    availablePortRanges = availablePortRanges
+                )
+            }
             else ->
                 VpnSettingsUiState.DefaultUiState(
                     mtu = mtuValue,
@@ -203,6 +218,8 @@ sealed class VpnSettingsDialogState {
     object QuantumResistanceInfoDialog : VpnSettingsDialogState()
 
     object WireguardPortInfoDialog : VpnSettingsDialogState()
+
+    object CustomPortDialog : VpnSettingsDialogState()
 }
 
 sealed interface StagedDns {

@@ -1,8 +1,17 @@
+[workspace.package]
+version = "0.0.0"
+authors = ["Mullvad VPN"]
+repository = "https://github.com/mullvad/mullvadvpn-app/"
+license = "GPL-3.0"
+edition = "2021"
+publish = false
+
 [workspace]
 resolver = "2"
 members = [
     "android/translations-converter",
     "ios/MullvadTransport/shadowsocks-proxy",
+    "ios/TunnelObfuscation/tunnel-obfuscator-proxy",
     "mullvad-daemon",
     "mullvad-cli",
     "mullvad-fs",
@@ -30,6 +39,20 @@ members = [
     "mullvad-management-interface",
     "tunnel-obfuscation",
 ]
+
+[workspace.dependencies]
+tokio = { version = "1.8" }
+# Tonic and related crates
+tonic = "0.8"
+tonic-build = { version = "0.8", default-features = false }
+tower = "0.4"
+prost = "0.11"
+prost-types = "0.11"
+
+windows-sys = "0.45.0"
+
+chrono = { version = "0.4.26", default-features = false}
+
 
 [profile.release]
 opt-level = 3

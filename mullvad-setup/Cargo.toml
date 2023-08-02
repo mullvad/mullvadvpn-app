@@ -1,11 +1,12 @@
 [package]
 name = "mullvad-setup"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Tool used to manage daemon setup"
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [[bin]]
 name = "mullvad-setup"
@@ -19,7 +20,7 @@ lazy_static = "1.1.0"
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 
-tokio = { version = "1.8", features =  ["rt-multi-thread"] }
+tokio = { workspace = true, features =  ["rt-multi-thread"] }
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }

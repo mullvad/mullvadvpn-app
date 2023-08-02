@@ -1056,13 +1056,37 @@ final class TunnelManager: StorePaymentObserver {
         isPolling = false
     }
 
+    private func cancelPollingKeyRotation() {
+        guard isRunningPeriodicPrivateKeyRotation else { return }
+
+        logger.debug("Cancel key rotation polling.")
+
+        privateKeyRotationTimer?.cancel()
+        privateKeyRotationTimer = nil
+        isRunningPeriodicPrivateKeyRotation = false
+    }
+
+    private func wipeAllUserData() {
+        do {
+            try SettingsManager.setLastUsedAccount(nil)
+        } catch {
+            logger.error(
+                error: error,
+                message: "Failed to delete account data."
+            )
+        }
+    }
+
     func handleRestError(_ error: Error) {
         guard let restError = error as? REST.Error else { return }
 
         if restError.compareErrorCode(.deviceNotFound) {
             setDeviceState(.revoked, persist: true)
         } else if restError.compareErrorCode(.invalidAccount) {
-            setDeviceState(.loggedOut, persist: true)
+            setDeviceState(.revoked, persist: true)
+            cancelPollingTunnelStatus()
+            cancelPollingKeyRotation()
+            wipeAllUserData()
         }
     }
 }

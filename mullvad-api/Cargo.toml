@@ -1,18 +1,19 @@
 [package]
 name = "mullvad-api"
-version = "0.0.0"
-authors = ["Mullvad VPN"]
 description = "Mullvad VPN API clients. Providing an interface to query our infrastructure for information."
-license = "GPL-3.0"
-edition = "2021"
-publish = false
+version.workspace = true
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+publish.workspace = true
 
 [features]
 # Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
 api-override = []
 
 [dependencies]
-chrono = { version = "0.4.26", features = ["serde"] }
+chrono = { workspace = true }
 err-derive = "0.3.1"
 futures = "0.3"
 http = "0.2"
@@ -22,9 +23,9 @@ log = "0.4"
 regex = "1"
 serde = "1"
 serde_json = "1.0"
-tokio = { version = "1.8", features = ["macros", "time", "rt-multi-thread", "net", "io-std", "io-util", "fs"] }
-tokio-rustls = "0.23"
-rustls-pemfile = "0.2"
+tokio = { workspace = true, features = ["macros", "time", "rt-multi-thread", "net", "io-std", "io-util", "fs"] }
+tokio-rustls = "0.24.1"
+rustls-pemfile = "1.0.3"
 once_cell = "1.13"
 
 mullvad-fs = { path = "../mullvad-fs" }

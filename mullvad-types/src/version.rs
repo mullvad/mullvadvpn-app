@@ -35,11 +35,6 @@ pub struct AppVersionInfo {
     pub latest_beta: AppVersion,
     /// Whether should update to newer version
     pub suggested_upgrade: Option<AppVersion>,
-    /// Temporary field provided by the API used to decide if a user should default to Wireguard or
-    /// OpenVpn. Represents the percentage of users which should use Wireguard.
-    /// NOTE: This field will be removed completely in future versions.
-    #[cfg_attr(target_os = "android", jnix(skip))]
-    pub wg_migration_threshold: f32,
 }
 
 pub type AppVersion = String;

@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import androidx.annotation.DimenRes
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
-import net.mullvad.mullvadvpn.model.ListItemData
+import net.mullvad.mullvadvpn.applist.ListItemData
 import net.mullvad.mullvadvpn.ui.ListItemListener
 
 abstract class ListItemView
