@@ -2062,20 +2062,16 @@ dependencies = [
  "futures",
  "ipnetwork",
  "jnix",
- "lazy_static",
  "log",
  "log-panics",
  "mullvad-api",
  "mullvad-daemon",
- "mullvad-paths",
  "mullvad-problem-report",
  "mullvad-types",
  "nix 0.23.1",
  "rand 0.8.5",
- "talpid-core",
  "talpid-tunnel",
  "talpid-types",
- "tokio",
 ]
 
 [[package]]
