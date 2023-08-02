@@ -9,9 +9,9 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::win32_err;
-use winapi::shared::ws2def::SOCKADDR_STORAGE as sockaddr_storage;
 use windows_sys::{
     core::GUID,
+    Win32::Networking::WinSock::SOCKADDR_STORAGE as sockaddr_storage,
     Win32::{
         Foundation::{ERROR_NOT_FOUND, HANDLE},
         NetworkManagement::{
@@ -438,7 +438,6 @@ pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAd
     unsafe {
         let mut storage: sockaddr_storage = mem::zeroed();
         *(&mut storage as *mut _ as *mut SOCKADDR_INET) = addr;
-        // TODO: Switch to windows-sys struct once socket2 is updated
         SockAddr::new(storage, mem::size_of_val(&addr) as i32)
     }
     .as_socket()

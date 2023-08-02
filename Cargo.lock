@@ -3649,7 +3649,7 @@ dependencies = [
  "prost",
  "shadowsocks-service",
  "shell-escape",
- "socket2 0.4.9",
+ "socket2 0.5.3",
  "talpid-routing",
  "talpid-tunnel",
  "talpid-types",
@@ -3782,9 +3782,8 @@ version = "0.0.0"
 dependencies = [
  "err-derive",
  "futures",
- "socket2 0.4.9",
+ "socket2 0.5.3",
  "talpid-types",
- "winapi",
  "windows-sys 0.48.0",
 ]
 
@@ -3812,7 +3811,7 @@ dependencies = [
  "parking_lot",
  "rand 0.8.5",
  "rtnetlink",
- "socket2 0.4.9",
+ "socket2 0.5.3",
  "talpid-dbus",
  "talpid-routing",
  "talpid-tunnel",
