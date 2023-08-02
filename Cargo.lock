@@ -4292,7 +4292,6 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "err-derive",
- "futures",
  "tokio",
  "udp-over-tcp",
 ]
