@@ -3366,7 +3366,6 @@ name = "shadowsocks-proxy"
 version = "0.0.0"
 dependencies = [
  "cbindgen",
- "libc",
  "log",
  "oslog",
  "shadowsocks-service",
@@ -4301,7 +4300,6 @@ name = "tunnel-obfuscator-proxy"
 version = "0.0.0"
 dependencies = [
  "cbindgen",
- "libc",
  "log",
  "oslog",
  "tokio",
