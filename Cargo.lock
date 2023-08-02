@@ -1960,7 +1960,6 @@ dependencies = [
  "mullvad-fs",
  "mullvad-types",
  "once_cell",
- "regex",
  "rustls-pemfile",
  "serde",
  "serde_json",
