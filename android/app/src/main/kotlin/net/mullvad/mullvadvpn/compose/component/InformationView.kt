@@ -24,17 +24,22 @@ private fun PreviewEmptyInformationView() {
 }
 
 @Composable
-fun InformationView(content: String, whenMissing: MissingPolicy = MissingPolicy.SHOW_VIEW) {
+fun InformationView(
+    content: String,
+    whenMissing: MissingPolicy = MissingPolicy.SHOW_VIEW,
+    modifier: Modifier = Modifier,
+    maxLines: Int = 1
+) {
     return if (content.isNotEmpty()) {
         Text(
             style = MaterialTheme.typography.titleSmall,
             text = content,
+            maxLines = maxLines,
             modifier =
-                Modifier.padding(
+                modifier.padding(
                     start = Dimens.sideMargin,
-                    end = Dimens.sideMargin,
                     top = Dimens.smallPadding,
-                    bottom = Dimens.mediumPadding
+                    bottom = Dimens.smallPadding
                 )
         )
     } else {
@@ -43,12 +48,12 @@ fun InformationView(content: String, whenMissing: MissingPolicy = MissingPolicy.
                 Text(
                     style = MaterialTheme.typography.titleMedium,
                     text = content,
+                    maxLines = maxLines,
                     modifier =
-                        Modifier.padding(
+                        modifier.padding(
                             start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
                             top = Dimens.smallPadding,
-                            bottom = Dimens.mediumPadding
+                            bottom = Dimens.smallPadding
                         )
                 )
             }
@@ -56,11 +61,11 @@ fun InformationView(content: String, whenMissing: MissingPolicy = MissingPolicy.
             MissingPolicy.SHOW_SPINNER -> {
                 CircularProgressIndicator(
                     modifier =
-                        Modifier.padding(
+                        modifier
+                            .padding(
                                 start = Dimens.sideMargin,
-                                end = Dimens.sideMargin,
                                 top = Dimens.smallPadding,
-                                bottom = Dimens.mediumPadding
+                                bottom = Dimens.smallPadding
                             )
                             .height(Dimens.loadingSpinnerSizeMedium)
                             .width(Dimens.loadingSpinnerSizeMedium),
