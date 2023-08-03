@@ -57,7 +57,7 @@ object Versions {
         const val playPublisher = "3.8.4"
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"
-        const val ktfmt = "0.12.0"
+        const val ktfmt = "0.13.0"
     }
 
     object Koin {
