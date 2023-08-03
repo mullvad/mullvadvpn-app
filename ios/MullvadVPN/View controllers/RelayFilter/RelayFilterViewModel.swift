@@ -33,15 +33,8 @@ class RelayFilterViewModel {
 
     func addItemToFilter(_ item: RelayFilterDataSource.Item) {
         switch item {
-        case .ownershipAny:
-            relayFilter.ownership = .any
-            relayFilter.providers = .any
-        case .ownershipOwned:
-            relayFilter.ownership = .owned
-            relayFilter.providers = .only(ownedProviders)
-        case .ownershipRented:
-            relayFilter.ownership = .rented
-            relayFilter.providers = .only(rentedProviders)
+        case .ownershipAny, .ownershipOwned, .ownershipRented:
+            relayFilter.ownership = ownership(for: item) ?? .any
         case .allProviders:
             relayFilter.providers = .any
         case let .provider(name):
@@ -52,31 +45,33 @@ class RelayFilterViewModel {
                 if !providers.contains(name) {
                     providers.append(name)
                     providers.caseInsensitiveSort()
-                    relayFilter.providers = .only(providers)
+
+                    if providers == availableProviders(for: relayFilter.ownership) {
+                        relayFilter.providers = .any
+                    } else {
+                        relayFilter.providers = .only(providers)
+                    }
                 }
             }
         }
     }
 
     func removeItemFromFilter(_ item: RelayFilterDataSource.Item) {
-        var dataSourceToRemoveFrom = [String]()
-        switch relayFilter.ownership {
-        case .any:
-            dataSourceToRemoveFrom = uniqueProviders
-        case .owned:
-            dataSourceToRemoveFrom = ownedProviders
-        case .rented:
-            dataSourceToRemoveFrom = rentedProviders
-        }
-
         switch item {
         case .ownershipAny, .ownershipOwned, .ownershipRented:
             break
         case .allProviders:
             relayFilter.providers = .only([])
         case let .provider(name):
-            dataSourceToRemoveFrom.removeAll { $0 == name }
-            relayFilter.providers = .only(dataSourceToRemoveFrom)
+            switch relayFilter.providers {
+            case .any:
+                var providers = availableProviders(for: relayFilter.ownership)
+                providers.removeAll { $0 == name }
+                relayFilter.providers = .only(providers)
+            case var .only(providers):
+                providers.removeAll { $0 == name }
+                relayFilter.providers = .only(providers)
+            }
         }
     }
 
@@ -117,5 +112,16 @@ class RelayFilterViewModel {
 
     func providerItem(for providerName: String?) -> RelayFilterDataSource.Item? {
         return .provider(providerName ?? "")
+    }
+
+    func availableProviders(for ownership: RelayFilter.Ownership) -> [String] {
+        switch ownership {
+        case .any:
+            return uniqueProviders
+        case .owned:
+            return ownedProviders
+        case .rented:
+            return rentedProviders
+        }
     }
 }

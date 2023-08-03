@@ -15,7 +15,7 @@ class SettingsDNSInfoCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundColor = .secondaryColor
-        contentView.directionalLayoutMargins = UIMetrics.settingsCellLayoutMargins
+        contentView.directionalLayoutMargins = UIMetrics.SettingsCell.layoutMargins
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textColor = UIColor.Cell.titleTextColor
