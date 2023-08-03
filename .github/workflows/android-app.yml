@@ -192,7 +192,7 @@ jobs:
       - name: Build Android app
         uses: burrunan/gradle-cache-action@v1
         with:
-          job-id: jdk11
+          job-id: jdk17
           arguments: assembleDebug
           gradle-version: wrapper
           build-root-directory: android
@@ -200,7 +200,7 @@ jobs:
       - name: Run unit tests
         uses: burrunan/gradle-cache-action@v1
         with:
-          job-id: jdk11
+          job-id: jdk17
           arguments: testDebugUnitTest
           gradle-version: wrapper
           build-root-directory: android
@@ -212,7 +212,7 @@ jobs:
       - name: Run AGP lint
         uses: burrunan/gradle-cache-action@v1
         with:
-          job-id: jdk11
+          job-id: jdk17
           arguments: lint
           gradle-version: wrapper
           build-root-directory: android
@@ -221,7 +221,7 @@ jobs:
       - name: Assemble instrumented test apk (app)
         uses: burrunan/gradle-cache-action@v1
         with:
-          job-id: jdk11
+          job-id: jdk17
           arguments: assembleAndroidTest
           gradle-version: wrapper
           build-root-directory: android
@@ -230,7 +230,7 @@ jobs:
       - name: Assemble instrumented test apk (mockapi)
         uses: burrunan/gradle-cache-action@v1
         with:
-          job-id: jdk11
+          job-id: jdk17
           arguments: :test:mockapi:assemble
           gradle-version: wrapper
           build-root-directory: android

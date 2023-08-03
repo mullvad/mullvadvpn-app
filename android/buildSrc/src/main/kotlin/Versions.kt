@@ -2,7 +2,7 @@ object Versions {
     const val commonsValidator = "1.7"
     const val jodaTime = "2.12.5"
     const val junit = "4.13.2"
-    const val jvmTarget = "1.8"
+    const val jvmTarget = "17"
     const val kotlin = "1.8.21"
     const val kotlinCompilerExtensionVersion = "1.4.7"
     const val kotlinx = "1.7.1"
@@ -50,8 +50,10 @@ object Versions {
 
     object Plugin {
         // The androidAapt plugin version must be in sync with the android plugin version.
-        const val android = "7.4.2"
-        const val androidAapt = "$android-8841542"
+        // Required for Gradle metadata verification to work properly, see:
+        // https://github.com/gradle/gradle/issues/19228
+        const val android = "8.0.2"
+        const val androidAapt = "$android-9289358"
         const val playPublisher = "3.8.4"
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"

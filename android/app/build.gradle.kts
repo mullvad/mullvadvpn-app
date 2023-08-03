@@ -107,8 +107,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
@@ -200,6 +200,12 @@ tasks.create("printVersion") {
     doLast {
         println("versionCode=${project.android.defaultConfig.versionCode}")
         println("versionName=${project.android.defaultConfig.versionName}")
+    }
+}
+
+afterEvaluate {
+    tasks.withType(com.android.build.gradle.internal.lint.AndroidLintAnalysisTask::class.java) {
+        mustRunAfter(tasks.getByName("copyExtraAssets"))
     }
 }
 
