@@ -13,7 +13,7 @@ use winapi::shared::ws2def::SOCKADDR_STORAGE as sockaddr_storage;
 use windows_sys::{
     core::GUID,
     Win32::{
-        Foundation::{ERROR_NOT_FOUND, HANDLE, NO_ERROR},
+        Foundation::{ERROR_NOT_FOUND, HANDLE, NO_ERROR, WIN32_ERROR},
         NetworkManagement::{
             IpHelper::{
                 CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
@@ -184,10 +184,10 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send
         )
     };
 
-    if status == NO_ERROR as i32 {
+    if status == NO_ERROR {
         Ok(context)
     } else {
-        Err(io::Error::from_raw_os_error(status))
+        Err(io::Error::from_raw_win32_error(status))
     }
 }
 
@@ -201,20 +201,20 @@ pub fn get_ip_interface_entry(
     row.InterfaceLuid = *luid;
 
     let result = unsafe { GetIpInterfaceEntry(&mut row) };
-    if result == NO_ERROR as i32 {
+    if result == NO_ERROR {
         Ok(row)
     } else {
-        Err(io::Error::from_raw_os_error(result))
+        Err(io::Error::from_raw_win32_error(result))
     }
 }
 
 /// Set the properties of an IP interface.
 pub fn set_ip_interface_entry(row: &mut MIB_IPINTERFACE_ROW) -> io::Result<()> {
     let result = unsafe { SetIpInterfaceEntry(row as *mut _) };
-    if result == NO_ERROR as i32 {
+    if result == NO_ERROR {
         Ok(())
     } else {
-        Err(io::Error::from_raw_os_error(result))
+        Err(io::Error::from_raw_win32_error(result))
     }
 }
 
@@ -294,10 +294,10 @@ pub async fn wait_for_addresses(luid: NET_LUID_LH) -> Result<()> {
 
             for row in &mut unicast_rows {
                 let status = unsafe { GetUnicastIpAddressEntry(row) };
-                if status != NO_ERROR as i32 {
-                    return Err(Error::ObtainUnicastAddress(io::Error::from_raw_os_error(
-                        status,
-                    )));
+                if status != NO_ERROR {
+                    return Err(Error::ObtainUnicastAddress(
+                        io::Error::from_raw_win32_error(status),
+                    ));
                 }
                 if row.DadState == IpDadStateTentative {
                     ready = false;
@@ -348,8 +348,8 @@ pub fn add_ip_address_for_interface(luid: NET_LUID_LH, address: IpAddr) -> Resul
     row.OnLinkPrefixLength = 255;
 
     let status = unsafe { CreateUnicastIpAddressEntry(&row) };
-    if status != NO_ERROR as i32 {
-        return Err(Error::CreateUnicastEntry(io::Error::from_raw_os_error(
+    if status != NO_ERROR {
+        return Err(Error::CreateUnicastEntry(io::Error::from_raw_win32_error(
             status,
         )));
     }
@@ -366,8 +366,8 @@ pub fn get_unicast_table(
 
     let status =
         unsafe { GetUnicastIpAddressTable(af_family_from_family(family), &mut unicast_table) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_win32_error(status));
     }
     let first_row = unsafe { &(*unicast_table).Table[0] } as *const MIB_UNICASTIPADDRESS_ROW;
     for i in 0..unsafe { *unicast_table }.NumEntries {
@@ -382,8 +382,8 @@ pub fn get_unicast_table(
 pub fn index_from_luid(luid: &NET_LUID_LH) -> io::Result<u32> {
     let mut index = 0u32;
     let status = unsafe { ConvertInterfaceLuidToIndex(luid, &mut index) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_win32_error(status));
     }
     Ok(index)
 }
@@ -392,8 +392,8 @@ pub fn index_from_luid(luid: &NET_LUID_LH) -> io::Result<u32> {
 pub fn guid_from_luid(luid: &NET_LUID_LH) -> io::Result<GUID> {
     let mut guid = MaybeUninit::zeroed();
     let status = unsafe { ConvertInterfaceLuidToGuid(luid, guid.as_mut_ptr()) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_win32_error(status));
     }
     Ok(unsafe { guid.assume_init() })
 }
@@ -407,8 +407,8 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID_LH> {
         .collect();
     let mut luid: NET_LUID_LH = unsafe { std::mem::zeroed() };
     let status = unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &mut luid) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_win32_error(status));
     }
     Ok(luid)
 }
@@ -418,8 +418,8 @@ pub fn alias_from_luid(luid: &NET_LUID_LH) -> io::Result<OsString> {
     let mut buffer = [0u16; IF_MAX_STRING_SIZE as usize + 1];
     let status =
         unsafe { ConvertInterfaceLuidToAlias(luid, &mut buffer[0] as *mut _, buffer.len()) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_win32_error(status));
     }
     let nul = buffer.iter().position(|&c| c == 0u16).unwrap();
     Ok(OsString::from_wide(&buffer[0..nul]))
@@ -496,6 +496,27 @@ impl fmt::Display for AddressFamily {
         match *self {
             AddressFamily::Ipv4 => write!(f, "IPv4 (AF_INET)"),
             AddressFamily::Ipv6 => write!(f, "IPv6 (AF_INET6)"),
+        }
+    }
+}
+
+/// Internal trait allowing simpler instantiation of io::Errors from OS error codes
+/// of the type `WIN32_ERROR`. This is needed because `io::Error::from_raw_os_error`
+/// expects an i32 and `WIN32_ERROR` is a u32. So to avoid just lossy casting
+/// we introduce this helper that makes any u32 error code larger than `i32::MAX`
+/// return `ErrorKind::Other` instead.
+trait Win32ErrorExt {
+    fn from_raw_win32_error(code: WIN32_ERROR) -> Self;
+}
+
+impl Win32ErrorExt for io::Error {
+    fn from_raw_win32_error(code: WIN32_ERROR) -> Self {
+        match i32::try_from(code) {
+            Ok(code) => io::Error::from_raw_os_error(code),
+            Err(_) => io::Error::new(
+                io::ErrorKind::Other,
+                format!("Unexpected WIN32_ERROR value: {code}"),
+            ),
         }
     }
 }
