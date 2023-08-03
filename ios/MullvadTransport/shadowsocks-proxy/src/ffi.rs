@@ -9,7 +9,7 @@ static INIT_LOGGING: Once = Once::new();
 
 #[repr(C)]
 pub struct ProxyHandle {
-    pub context: *mut libc::c_void,
+    pub context: *mut std::ffi::c_void,
     pub port: u16,
 }
 
