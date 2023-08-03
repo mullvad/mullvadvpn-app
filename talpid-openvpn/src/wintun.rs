@@ -7,12 +7,12 @@ use std::{
     ptr,
     sync::{Arc, Mutex},
 };
-use talpid_types::ErrorExt;
+use talpid_types::{win32_err, ErrorExt};
 use widestring::{U16CStr, U16CString};
 use windows_sys::{
     core::GUID,
     Win32::{
-        Foundation::{HMODULE, NO_ERROR},
+        Foundation::HMODULE,
         NetworkManagement::{IpHelper::ConvertInterfaceLuidToGuid, Ndis::NET_LUID_LH},
         System::{
             Com::StringFromGUID2,
@@ -121,10 +121,7 @@ impl WintunAdapter {
 
     pub fn guid(&self) -> io::Result<GUID> {
         let mut guid = mem::MaybeUninit::zeroed();
-        let result = unsafe { ConvertInterfaceLuidToGuid(&self.luid(), guid.as_mut_ptr()) };
-        if result != NO_ERROR as i32 {
-            return Err(io::Error::from_raw_os_error(result));
-        }
+        win32_err!(unsafe { ConvertInterfaceLuidToGuid(&self.luid(), guid.as_mut_ptr()) })?;
         Ok(unsafe { guid.assume_init() })
     }
 
@@ -205,10 +202,7 @@ impl WintunDll {
 
     fn new_inner(
         handle: HMODULE,
-        get_proc_fn: unsafe fn(
-            HMODULE,
-            &CStr,
-        ) -> io::Result<unsafe extern "system" fn() -> isize>,
+        get_proc_fn: unsafe fn(HMODULE, &CStr) -> io::Result<unsafe extern "system" fn() -> isize>,
     ) -> io::Result<Self> {
         Ok(WintunDll {
             handle,
