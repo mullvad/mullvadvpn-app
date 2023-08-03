@@ -9,7 +9,6 @@
 import UIKit
 
 enum UIMetrics {
-
     enum TableView {
         /// Height for separators between cells and/or sections.
         static let separatorHeight: CGFloat = 0.33
@@ -60,7 +59,7 @@ enum UIMetrics {
     enum SettingsCell {
         static let textFieldContentInsets = UIEdgeInsets(top: 8, left: 24, bottom: 8, right: 24)
         static let textFieldNonEditingContentInsetLeft: CGFloat = 40
-        
+
         /// Common layout margins for settings cell presentation.
         static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 12)
         /// Common layout margins for text field.
@@ -70,7 +69,7 @@ enum UIMetrics {
         /// Spacing between left view and content view.
         static let checkableSettingsCellLeftViewSpacing: CGFloat = 20
     }
-    
+
     enum FilterView {
         // Spacing between chips and label.
         static let labelSpacing: CGFloat = 5
