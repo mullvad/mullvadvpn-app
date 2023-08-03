@@ -49,7 +49,7 @@ tower = "0.4"
 prost = "0.11"
 prost-types = "0.11"
 
-windows-sys = "0.45.0"
+windows-sys = "0.48.0"
 
 chrono = { version = "0.4.26", default-features = false}
 
