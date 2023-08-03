@@ -9,6 +9,18 @@
 import UIKit
 
 enum UIMetrics {
+    enum TableView {
+        /// Height for separators between cells and/or sections.
+        static let separatorHeight: CGFloat = 0.33
+        /// Spacing used between distinct sections of views
+        static let sectionSpacing: CGFloat = 24
+        /// Common layout margins for row views presentation
+        /// Similar to `SettingsCell.layoutMargins` however maintains equal horizontal spacing
+        static let rowViewLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
+        /// Common cell indentation width
+        static let cellIndentationWidth: CGFloat = 16
+    }
+
     enum CustomAlert {
         /// Layout margins for container (main view) in `CustomAlertViewController`
         static let containerMargins = NSDirectionalEdgeInsets(
@@ -51,24 +63,40 @@ enum UIMetrics {
     enum SettingsCell {
         static let textFieldContentInsets = UIEdgeInsets(top: 8, left: 24, bottom: 8, right: 24)
         static let textFieldNonEditingContentInsetLeft: CGFloat = 40
+
+        /// Common layout margins for settings cell presentation.
+        static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 12)
+        /// Common layout margins for text field.
+        static let inputCellTextFieldLayoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        /// Spacing between left view and content view.
+        static let selectableSettingsCellLeftViewSpacing: CGFloat = 12
+        /// Spacing between left view and content view.
+        static let checkableSettingsCellLeftViewSpacing: CGFloat = 20
+    }
+
+    enum FilterView {
+        // Spacing between chips and label.
+        static let labelSpacing: CGFloat = 5
+        // Spacing between chip views.
+        static let interChipViewSpacing: CGFloat = 8
+        // Chip view corner radius.
+        static let chipViewCornerRadius: CGFloat = 8
+        // Chip view layout margins.
+        static let chipViewLayoutMargins = UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
+        // Spacing between chip view label and button.
+        static let chipViewLabelSpacing: CGFloat = 7
     }
 }
 
 extension UIMetrics {
-    enum TableView {
-        /// Height for separators between cells and/or sections.
-        static let separatorHeight: CGFloat = 0.33
+    /// Common layout margins for content presentation
+    static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 24, leading: 24, bottom: 24, trailing: 24)
 
-        /// Spacing used between distinct sections of views
-        static let sectionSpacing: CGFloat = 24
+    /// Common content margins for content presentation
+    static let contentInsets = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
 
-        /// Common layout margins for row views presentation
-        /// Similar to `SettingsCell.layoutMargins` however maintains equal horizontal spacing
-        static let rowViewLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
-
-        /// Common cell indentation width
-        static let cellIndentationWidth: CGFloat = 16
-    }
+    /// Common layout margins for location cell presentation
+    static let selectLocationCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 12)
 
     /// Group of constants related to in-app notifications banner.
     enum InAppBannerNotification {
@@ -78,46 +106,6 @@ extension UIMetrics {
         /// Size of little round severity indicator.
         static let indicatorSize = CGSize(width: 12, height: 12)
     }
-
-    enum SettingsCell {
-        /// Common layout margins for settings cell presentation.
-        static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 12)
-
-        /// Common layout margins for text field.
-        static let inputCellTextFieldLayoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
-
-        /// Spacing between left view and content view.
-        static let selectableSettingsCellLeftViewSpacing: CGFloat = 12
-
-        /// Spacing between left view and content view.
-        static let checkableSettingsCellLeftViewSpacing: CGFloat = 20
-    }
-
-    enum FilterView {
-        // Spacing between chips and label.
-        static let labelSpacing: CGFloat = 5
-
-        // Spacing between chip views.
-        static let interChipViewSpacing: CGFloat = 8
-
-        // Chip view corner radius.
-        static let chipViewCornerRadius: CGFloat = 8
-
-        // Chip view layout margins.
-        static let chipViewLayoutMargins = UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
-
-        // Spacing between chip view label and button.
-        static let chipViewLabelSpacing: CGFloat = 7
-    }
-
-    /// Common layout margins for content presentation
-    static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 24, leading: 24, bottom: 24, trailing: 24)
-
-    /// Common content margins for content presentation
-    static let contentInsets = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
-
-    /// Common layout margins for location cell presentation
-    static let selectLocationCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 12)
 
     /// Spacing used in stack views of buttons
     static let interButtonSpacing: CGFloat = 16

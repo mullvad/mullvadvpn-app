@@ -470,7 +470,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 
         switch sectionIdentifier {
         case .wireGuardObfuscationPort:
-            return UIMetrics.sectionSpacing
+            return UIMetrics.TableView.sectionSpacing
 
         default:
             return 0
