@@ -38,9 +38,12 @@ final class SelectLocationViewController: UIViewController {
             value: "Select location",
             comment: ""
         )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .done, actionHandler: { [weak self] in
-            self?.didFinish?()
-        })
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction(handler: { [weak self] _ in
+                self?.didFinish?()
+            })
+        )
 
         setupDataSource()
         setupTableView()
