@@ -56,7 +56,6 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
         viewModel.$relays
             .combineLatest(viewModel.$relayFilter)
             .sink { [weak self] relays in
-                print(relays)
                 self?.updateDataSnapshot()
             }
             .store(in: &disposeBag)
@@ -127,7 +126,15 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
                 }
             case .providers:
                 if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
-                    let items = viewModel.uniqueProviders.map { Item.provider($0) }
+                    var items: [RelayFilterDataSource.Item]
+
+                    switch viewModel.relayFilter.ownership {
+                    case .owned:
+                        items = viewModel.ownedProviders.map { Item.provider($0) }
+                    case .rented:
+                        items = viewModel.rentedProviders.map { Item.provider($0) }
+                    default: items = viewModel.uniqueProviders.map { Item.provider($0) }
+                    }
 
                     newSnapshot.appendItems([.allProviders])
                     newSnapshot.appendItems(items, toSection: .providers)
@@ -336,7 +343,15 @@ extension RelayFilterDataSource: UITableViewDelegate {
             let items = snapshot.itemIdentifiers(inSection: .providers)
             snapshot.deleteItems(items)
         } else {
-            let items = viewModel.uniqueProviders.map { Item.provider($0) }
+            var items: [RelayFilterDataSource.Item]
+
+            switch viewModel.relayFilter.ownership {
+            case .owned:
+                items = viewModel.ownedProviders.map { Item.provider($0) }
+            case .rented:
+                items = viewModel.rentedProviders.map { Item.provider($0) }
+            default: items = viewModel.uniqueProviders.map { Item.provider($0) }
+            }
 
             snapshot.appendItems([.allProviders])
             snapshot.appendItems(items, toSection: .providers)

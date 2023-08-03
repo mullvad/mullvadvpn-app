@@ -52,6 +52,7 @@ class RelayFilterView: UIView {
         self.filter = filter
 
         ownershipView.isHidden = filter.ownership == .any
+        providersView.isHidden = filter.providers == .any
 
         switch filter.ownership {
         case .any:
