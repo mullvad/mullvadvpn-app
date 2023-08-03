@@ -24,12 +24,13 @@ class CheckboxView: UIView {
         return imageView
     }()
 
-    var isChecked: Bool { didSet {
-        checkmarkView.alpha = isChecked ? 1 : 0
-    }}
+    var isChecked = false {
+        didSet {
+            checkmarkView.alpha = isChecked ? 1 : 0
+        }
+    }
 
     init() {
-        isChecked = false
         super.init(frame: .zero)
 
         directionalLayoutMargins = .init(top: 4, leading: 4, bottom: 4, trailing: 4)

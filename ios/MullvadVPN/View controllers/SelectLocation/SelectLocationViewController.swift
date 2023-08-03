@@ -55,9 +55,9 @@ final class SelectLocationViewController: UIViewController {
                 value: "Filter",
                 comment: ""
             ),
-            actionHandler: { [weak self] in
+            primaryAction: UIAction(handler: { [weak self] _ in
                 self?.navigateToFilter?()
-            }
+            })
         )
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
@@ -66,7 +66,7 @@ final class SelectLocationViewController: UIViewController {
                 self?.didFinish?()
             })
         )
-        
+
         setUpDataSource()
         setUpTableView()
         setUpTopContent()

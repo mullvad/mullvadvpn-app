@@ -47,9 +47,12 @@ class RelayFilterViewController: UIViewController {
             comment: ""
         )
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .cancel, actionHandler: { [weak self] in
-            self?.didFinish?()
-        })
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .cancel,
+            primaryAction: UIAction(handler: { [weak self] _ in
+                self?.didFinish?()
+            })
+        )
 
         applyButton.addTarget(self, action: #selector(applyFilter), for: .touchUpInside)
 

@@ -172,7 +172,6 @@ class RelaySelectorTests: XCTestCase {
         )
 
         XCTAssertNil(result)
->>>>>>> a61a0cd20 (Add filtering to location selection)
     }
 }
 
