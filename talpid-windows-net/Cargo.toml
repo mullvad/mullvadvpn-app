@@ -15,6 +15,8 @@ socket2 = { version = "0.4.2", features = ["all"] }
 futures = "0.3.15"
 winapi = { version = "0.3.6", features = ["ws2def"] }
 
+talpid-types = { path = "../talpid-types" }
+
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
 features = [
