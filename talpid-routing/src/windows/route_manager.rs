@@ -10,6 +10,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::{Arc, Mutex},
 };
+use talpid_types::win32_err;
 use talpid_windows_net::{
     inet_sockaddr_from_socketaddr, try_socketaddr_from_inet_sockaddr, AddressFamily,
 };
@@ -17,7 +18,7 @@ use widestring::{WideCStr, WideCString};
 use windows_sys::Win32::{
     Foundation::{
         ERROR_BUFFER_OVERFLOW, ERROR_NOT_FOUND, ERROR_NO_DATA, ERROR_OBJECT_ALREADY_EXISTS,
-        ERROR_SUCCESS, NO_ERROR,
+        ERROR_SUCCESS,
     },
     NetworkManagement::{
         IpHelper::{
@@ -215,18 +216,17 @@ impl RouteManagerInternal {
         //
         // The simplest thing in this case is to just overwrite the route.
         //
-
-        if ERROR_OBJECT_ALREADY_EXISTS as i32 == status {
+        if ERROR_OBJECT_ALREADY_EXISTS == status {
             // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have
             // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must
             // be set to the interface.
             status = unsafe { SetIpForwardEntry2(&spec) };
         }
 
-        if NO_ERROR as i32 != status {
+        win32_err!(status).map_err(|e| {
             log::error!("Could not register route in routing table");
-            return Err(Error::AddToRouteTable(io::Error::from_raw_os_error(status)));
-        }
+            Error::AddToRouteTable(e)
+        })?;
 
         Ok(RegisteredRoute {
             network: route.network,
@@ -263,15 +263,10 @@ impl RouteManagerInternal {
                         None => {
                             let mut luid = NET_LUID_LH { Value: 0 };
                             // SAFETY: No specific safety requirement
-                            if NO_ERROR as i32
-                                != unsafe {
-                                    ConvertInterfaceAliasToLuid(device_name.as_ptr(), &mut luid)
-                                }
-                            {
-                                log::error!(
-                                    "Unable to derive interface LUID from interface alias: {:?}",
-                                    device_name
-                                );
+                            if let Err(e) = win32_err!(unsafe {
+                                ConvertInterfaceAliasToLuid(device_name.as_ptr(), &mut luid)
+                            }) {
+                                log::error!("Unable to get interface LUID for interface \"{device_name:?}\": {e}");
                                 return Err(Error::DeviceNameNotFound);
                             } else {
                                 luid
@@ -355,26 +350,17 @@ impl RouteManagerInternal {
         // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have
         // a valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be
         // set to the interface.
-        let status = unsafe { DeleteIpForwardEntry2(&r) };
-
-        match u32::try_from(status) {
-            Ok(ERROR_NOT_FOUND) => {
-                log::warn!("Attempting to delete route which was not present in routing table, ignoring and proceeding. Route: {}", route);
+        match win32_err!(unsafe { DeleteIpForwardEntry2(&r) }) {
+            Ok(()) => Ok(()),
+            Err(e) if e.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => {
+                log::warn!("Attempting to delete route which was not present in routing table, ignoring and proceeding. Route: {route}");
+                Ok(())
             }
-            Ok(NO_ERROR) => (),
-            _ => {
-                log::error!(
-                    "Failed to delete route in routing table. Route: {}, Status: {}",
-                    route,
-                    status
-                );
-                return Err(Error::DeleteFromRouteTable(io::Error::from_raw_os_error(
-                    status,
-                )));
+            Err(e) => {
+                log::error!("Failed to delete route in routing table. Route: {route}, Error: {e}");
+                Err(Error::DeleteFromRouteTable(e))
             }
         }
-
-        Ok(())
     }
 
     fn restore_into_routing_table(route: &RegisteredRoute) -> Result<()> {
@@ -396,16 +382,10 @@ impl RouteManagerInternal {
         // SAFETY: DestinationPrefix must be initialized to a valid prefix. NextHop must have a
         // valid IP address and family. At least one of InterfaceLuid and InterfaceIndex must be set
         // to the interface.
-        let status = unsafe { CreateIpForwardEntry2(&spec) };
-
-        if NO_ERROR as i32 != status {
-            log::error!(
-                "Could not register route in routing table. Route: {}, Status: {}",
-                route,
-                status
-            );
-            return Err(Error::AddToRouteTable(io::Error::from_raw_os_error(status)));
-        }
+        win32_err!(unsafe { CreateIpForwardEntry2(&spec) }).map_err(|e| {
+            log::error!("Could not register route in routing table. Route: {route}");
+            Error::AddToRouteTable(e)
+        })?;
         Ok(())
     }
 

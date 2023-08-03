@@ -1,18 +1,16 @@
 use super::{Error, Result};
-use std::{io, net::SocketAddr, slice};
+use std::{net::SocketAddr, slice};
+use talpid_types::win32_err;
 use talpid_windows_net::{
     get_ip_interface_entry, try_socketaddr_from_inet_sockaddr, AddressFamily,
 };
 use widestring::{widecstr, WideCStr};
-use windows_sys::Win32::{
-    Foundation::NO_ERROR,
-    NetworkManagement::{
-        IpHelper::{
-            FreeMibTable, GetIfEntry2, GetIpForwardTable2, IF_TYPE_SOFTWARE_LOOPBACK,
-            IF_TYPE_TUNNEL, MIB_IF_ROW2, MIB_IPFORWARD_ROW2,
-        },
-        Ndis::NET_LUID_LH,
+use windows_sys::Win32::NetworkManagement::{
+    IpHelper::{
+        FreeMibTable, GetIfEntry2, GetIpForwardTable2, IF_TYPE_SOFTWARE_LOOPBACK, IF_TYPE_TUNNEL,
+        MIB_IF_ROW2, MIB_IPFORWARD_ROW2,
     },
+    Ndis::NET_LUID_LH,
 };
 
 // Interface description substrings found for virtual adapters.
@@ -28,12 +26,8 @@ fn get_ip_forward_table(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>
 
     // SAFETY: GetIpForwardTable2 does not have clear safety specifications however what it does is
     // heap allocate a IpForwardTable2 and then change table_ptr to point to that allocation.
-    let status = unsafe { GetIpForwardTable2(family, &mut table_ptr) };
-    if NO_ERROR as i32 != status {
-        return Err(Error::GetIpForwardTableFailed(
-            io::Error::from_raw_os_error(status),
-        ));
-    }
+    win32_err!(unsafe { GetIpForwardTable2(family, &mut table_ptr) })
+        .map_err(Error::GetIpForwardTableFailed)?;
 
     // SAFETY: table_ptr is valid since GetIpForwardTable2 did not return an error
     let num_entries = usize::try_from(unsafe { *table_ptr }.NumEntries).unwrap();
@@ -50,7 +44,7 @@ fn get_ip_forward_table(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>
     // MIB_IPFORWARD_TABLE2 This pointer is ONLY deallocated here so it is guaranteed to not
     // have been already deallocated. We have cloned all MIB_IPFORWARD_ROW2s and the rows do not
     // contain pointers to the table so they will not be dangling after this free.
-    unsafe { FreeMibTable(table_ptr as *const _) }
+    unsafe { FreeMibTable(table_ptr as *const _) };
 
     Ok(rows)
 }
@@ -133,12 +127,7 @@ fn is_route_on_physical_interface(route: &MIB_IPFORWARD_ROW2) -> Result<bool> {
     // SAFETY: GetIfEntry2 does not have clear safety rules however it will read the
     // row.InterfaceLuid or row.InterfaceIndex and use that information to populate the struct.
     // We guarantee here that these fields are valid since they are set.
-    let status = unsafe { GetIfEntry2(&mut row) };
-    if NO_ERROR as i32 != status {
-        return Err(Error::GetIfEntryFailed(io::Error::from_raw_os_error(
-            status,
-        )));
-    }
+    win32_err!(unsafe { GetIfEntry2(&mut row) }).map_err(Error::GetIfEntryFailed)?;
 
     let row_description = WideCStr::from_slice_truncate(&row.Description)
         .expect("Windows provided incorrectly formatted utf16 string");
