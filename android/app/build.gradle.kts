@@ -203,6 +203,12 @@ tasks.create("printVersion") {
     }
 }
 
+afterEvaluate {
+    tasks.withType(com.android.build.gradle.internal.lint.AndroidLintAnalysisTask::class.java) {
+        mustRunAfter(tasks.getByName("copyExtraAssets"))
+    }
+}
+
 play {
     serviceAccountCredentials.set(file("play-api-key.json"))
 }
