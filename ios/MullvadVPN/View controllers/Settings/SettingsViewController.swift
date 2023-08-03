@@ -44,11 +44,14 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
             value: "Settings",
             comment: ""
         )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .done, actionHandler: { [weak self] in
-            guard let self else { return }
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction(handler: { [weak self] _ in
+                guard let self else { return }
 
-            delegate?.settingsViewControllerDidFinish(self)
-        })
+                delegate?.settingsViewControllerDidFinish(self)
+            })
+        )
 
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
