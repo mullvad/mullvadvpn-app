@@ -12,11 +12,10 @@ use std::{
 use talpid_types::ErrorExt;
 use windows_sys::Win32::{
     Storage::FileSystem::GetLogicalDrives,
-    System::SystemServices::{
-        DBTF_NET, DBT_DEVICEARRIVAL, DBT_DEVICEREMOVECOMPLETE, DBT_DEVTYP_VOLUME,
-        DEV_BROADCAST_HDR, DEV_BROADCAST_VOLUME,
+    UI::WindowsAndMessaging::{
+        DefWindowProcW, DBTF_NET, DBT_DEVICEARRIVAL, DBT_DEVICEREMOVECOMPLETE, DBT_DEVTYP_VOLUME,
+        DEV_BROADCAST_HDR, DEV_BROADCAST_VOLUME, WM_DEVICECHANGE,
     },
-    UI::WindowsAndMessaging::{DefWindowProcW, WM_DEVICECHANGE},
 };
 
 pub(super) struct VolumeMonitor(());

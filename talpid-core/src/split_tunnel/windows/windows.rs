@@ -21,7 +21,7 @@ use windows_sys::Win32::{
         Diagnostics::ToolHelp::{
             CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W,
         },
-        ProcessStatus::K32GetProcessImageFileNameW,
+        ProcessStatus::GetProcessImageFileNameW,
         Threading::{
             CreateEventW, GetProcessTimes, OpenProcess, SetEvent, PROCESS_QUERY_LIMITED_INFORMATION,
         },
@@ -285,7 +285,7 @@ fn get_process_device_path_inner(
     buffer.reserve_exact(buffer_capacity);
 
     let written = unsafe {
-        K32GetProcessImageFileNameW(
+        GetProcessImageFileNameW(
             handle,
             buffer.as_mut_ptr() as *mut _,
             buffer.capacity() as u32,
