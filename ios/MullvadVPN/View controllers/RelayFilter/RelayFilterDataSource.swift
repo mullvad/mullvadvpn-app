@@ -55,8 +55,8 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
 
         viewModel.$relays
             .combineLatest(viewModel.$relayFilter)
-            .sink { [weak self] relays in
-                self?.updateDataSnapshot()
+            .sink { [weak self] _, filter in
+                self?.updateDataSnapshot(filter: filter)
             }
             .store(in: &disposeBag)
     }
@@ -112,7 +112,7 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
         applySnapshot(snapshot, animated: false)
     }
 
-    private func updateDataSnapshot() {
+    private func updateDataSnapshot(filter: RelayFilter? = nil) {
         let oldSnapshot = snapshot()
 
         var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
@@ -126,17 +126,18 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
                 }
             case .providers:
                 if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
-                    var items: [RelayFilterDataSource.Item]
+                    var items: [Item]
 
-                    switch viewModel.relayFilter.ownership {
+                    switch (filter ?? viewModel.relayFilter).ownership {
                     case .owned:
                         items = viewModel.ownedProviders.map { Item.provider($0) }
                     case .rented:
                         items = viewModel.rentedProviders.map { Item.provider($0) }
-                    default: items = viewModel.uniqueProviders.map { Item.provider($0) }
+                    default:
+                        items = viewModel.uniqueProviders.map { Item.provider($0) }
                     }
 
-                    newSnapshot.appendItems([.allProviders])
+                    newSnapshot.appendItems([.allProviders], toSection: .providers)
                     newSnapshot.appendItems(items, toSection: .providers)
                 }
             }
@@ -343,17 +344,18 @@ extension RelayFilterDataSource: UITableViewDelegate {
             let items = snapshot.itemIdentifiers(inSection: .providers)
             snapshot.deleteItems(items)
         } else {
-            var items: [RelayFilterDataSource.Item]
+            var items: [Item]
 
             switch viewModel.relayFilter.ownership {
             case .owned:
                 items = viewModel.ownedProviders.map { Item.provider($0) }
             case .rented:
                 items = viewModel.rentedProviders.map { Item.provider($0) }
-            default: items = viewModel.uniqueProviders.map { Item.provider($0) }
+            default:
+                items = viewModel.uniqueProviders.map { Item.provider($0) }
             }
 
-            snapshot.appendItems([.allProviders])
+            snapshot.appendItems([.allProviders], toSection: .providers)
             snapshot.appendItems(items, toSection: .providers)
         }
     }
