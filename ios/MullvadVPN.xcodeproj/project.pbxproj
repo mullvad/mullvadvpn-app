@@ -113,6 +113,7 @@
 		5864AF0729C78843005B0CD9 /* SettingsCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */; };
 		5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0129C7879B005B0CD9 /* CellFactoryProtocol.swift */; };
 		5864AF0929C78850005B0CD9 /* PreferencesCellFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF0229C7879B005B0CD9 /* PreferencesCellFactory.swift */; };
+		586604C72A7C050300151DBA /* PacketTunnelProviderState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586604C62A7C050300151DBA /* PacketTunnelProviderState.swift */; };
 		5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867770D29096984006F721F /* OutOfTimeInteractor.swift */; };
 		58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867770F290975E8006F721F /* SettingsInteractorFactory.swift */; };
 		58677712290976FB006F721F /* SettingsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58677711290976FB006F721F /* SettingsInteractor.swift */; };
@@ -1132,6 +1133,7 @@
 		5864AF0029C7879B005B0CD9 /* SettingsCellFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCellFactory.swift; sourceTree = "<group>"; };
 		5864AF0129C7879B005B0CD9 /* CellFactoryProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CellFactoryProtocol.swift; sourceTree = "<group>"; };
 		5864AF0229C7879B005B0CD9 /* PreferencesCellFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesCellFactory.swift; sourceTree = "<group>"; };
+		586604C62A7C050300151DBA /* PacketTunnelProviderState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProviderState.swift; sourceTree = "<group>"; };
 		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
 		5867770D29096984006F721F /* OutOfTimeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutOfTimeInteractor.swift; sourceTree = "<group>"; };
 		5867770F290975E8006F721F /* SettingsInteractorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInteractorFactory.swift; sourceTree = "<group>"; };
@@ -2477,6 +2479,7 @@
 				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
 				58E0729C28814AAE008902F8 /* PacketTunnelConfiguration.swift */,
 				58CE5E7B224146470008646E /* PacketTunnelProvider.swift */,
+				586604C62A7C050300151DBA /* PacketTunnelProviderState.swift */,
 				58E072A028814B0E008902F8 /* MullvadEndpoint+WgEndpoint.swift */,
 				58ED3A132A7C199C0085CE65 /* StartOptions.swift */,
 				58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */,
@@ -4050,6 +4053,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				586604C72A7C050300151DBA /* PacketTunnelProviderState.swift in Sources */,
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
 				581DA2762A1E2FD10046ED47 /* WgKeyRotation.swift in Sources */,
 				580810E52A30E13A00B74552 /* DeviceStateAccessorProtocol.swift in Sources */,
