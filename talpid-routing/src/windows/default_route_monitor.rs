@@ -5,15 +5,15 @@ use super::{
 
 use std::{
     ffi::c_void,
-    io,
     sync::{
         mpsc::{channel, RecvTimeoutError, Sender},
         Arc, Mutex,
     },
     time::{Duration, Instant},
 };
+use talpid_types::win32_err;
 use windows_sys::Win32::{
-    Foundation::{BOOLEAN, HANDLE, NO_ERROR},
+    Foundation::{BOOLEAN, HANDLE},
     NetworkManagement::{
         IpHelper::{
             CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, NotifyIpInterfaceChange,
@@ -65,12 +65,11 @@ impl DefaultRouteMonitorContext {
             let mut default_interface_index = 0;
             let route_luid = best_route.iface;
             // SAFETY: No clear safety specifications
-            if NO_ERROR as i32
-                == unsafe { ConvertInterfaceLuidToIndex(&route_luid, &mut default_interface_index) }
-            {
-                self.refresh_current_route = index == default_interface_index;
-            } else {
-                self.refresh_current_route = true;
+            match win32_err!(unsafe {
+                ConvertInterfaceLuidToIndex(&route_luid, &mut default_interface_index)
+            }) {
+                Ok(()) => self.refresh_current_route = index == default_interface_index,
+                Err(_) => self.refresh_current_route = true,
             }
         }
     }
@@ -143,12 +142,10 @@ impl Drop for NotifyChangeHandle {
         // SAFETY: There is no clear safety specification on this function. However self.0 should
         // point to a handle that has been allocated by windows and should be non-null. Even
         // if it would be null that would cause a panic rather than UB.
-        unsafe {
-            if NO_ERROR as i32 != CancelMibChangeNotify2(self.0) {
-                // If this callback is called after we free the context that could result in UB, in
-                // order to avoid that we panic.
-                panic!("Could not cancel change notification callback")
-            }
+        if let Err(e) = win32_err!(unsafe { CancelMibChangeNotify2(self.0) }) {
+            // If this callback is called after we free the context that could result in UB, in
+            // order to avoid that we panic.
+            panic!("Could not cancel change notification callback: {}", e)
         }
     }
 }
@@ -243,7 +240,7 @@ impl DefaultRouteMonitor {
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle
         // has not been dropped.
-        let status = unsafe {
+        win32_err!(unsafe {
             NotifyRouteChange2(
                 family,
                 Some(route_change_callback),
@@ -251,19 +248,14 @@ impl DefaultRouteMonitor {
                 WIN_FALSE,
                 &mut handle_ptr,
             )
-        };
-
-        if NO_ERROR as i32 != status {
-            return Err(Error::RegisterNotifyRouteCallback(
-                io::Error::from_raw_os_error(status),
-            ));
-        }
+        })
+        .map_err(Error::RegisterNotifyRouteCallback)?;
         let notify_route_change_handle = NotifyChangeHandle(handle_ptr);
 
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle
         // has not been dropped.
-        let status = unsafe {
+        win32_err!(unsafe {
             NotifyIpInterfaceChange(
                 family,
                 Some(interface_change_callback),
@@ -271,18 +263,14 @@ impl DefaultRouteMonitor {
                 WIN_FALSE,
                 &mut handle_ptr,
             )
-        };
-        if NO_ERROR as i32 != status {
-            return Err(Error::RegisterNotifyIpInterfaceCallback(
-                io::Error::from_raw_os_error(status),
-            ));
-        }
+        })
+        .map_err(Error::RegisterNotifyIpInterfaceCallback)?;
         let notify_interface_change_handle = NotifyChangeHandle(handle_ptr);
 
         let mut handle_ptr = 0;
         // SAFETY: No clear safety specifications, context_ptr must be valid for as long as handle
         // has not been dropped.
-        let status = unsafe {
+        win32_err!(unsafe {
             NotifyUnicastIpAddressChange(
                 family,
                 Some(ip_address_change_callback),
@@ -290,12 +278,8 @@ impl DefaultRouteMonitor {
                 WIN_FALSE,
                 &mut handle_ptr,
             )
-        };
-        if NO_ERROR as i32 != status {
-            return Err(Error::RegisterNotifyUnicastIpAddressCallback(
-                io::Error::from_raw_os_error(status),
-            ));
-        }
+        })
+        .map_err(Error::RegisterNotifyUnicastIpAddressCallback)?;
         let notify_address_change_handle = NotifyChangeHandle(handle_ptr);
 
         Ok((
