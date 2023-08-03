@@ -7,15 +7,12 @@
                                                 android:layout_width="match_parent"
                                                 android:layout_height="wrap_content"
                                                 android:elevation="0.5dp" />
-    <androidx.coordinatorlayout.widget.CoordinatorLayout android:layout_width="match_parent"
-                                                         android:layout_height="match_parent">
-        <net.mullvad.mullvadvpn.ui.widget.NotificationBanner android:id="@+id/notification_banner"
-                                                             android:layout_width="match_parent"
-                                                             android:layout_height="wrap_content"
-                                                             android:elevation="0.25dp" />
-        <androidx.compose.ui.platform.ComposeView android:id="@+id/compose_view"
-                                                  app:layout_behavior="net.mullvad.mullvadvpn.ui.UnderNotificationBannerBehavior"
-                                                  android:layout_width="match_parent"
-                                                  android:layout_height="match_parent" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    <net.mullvad.mullvadvpn.ui.widget.NotificationBanner android:id="@+id/notification_banner"
+                                                         android:layout_width="match_parent"
+                                                         android:layout_height="wrap_content"
+                                                         android:elevation="0.25dp" />
+    <androidx.compose.ui.platform.ComposeView android:id="@+id/compose_view"
+                                              android:layout_width="match_parent"
+                                              android:layout_height="match_parent"
+                                              app:layout_behavior="net.mullvad.mullvadvpn.ui.UnderNotificationBannerBehavior" />
 </LinearLayout>
