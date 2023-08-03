@@ -964,6 +964,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
 extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
-        isLoggedIn ? .allVisible : .secondaryOnly
+        isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
 }
