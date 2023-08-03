@@ -15,7 +15,15 @@ class RelayFilterViewModel {
     @Published var relayFilter: RelayFilter
 
     var uniqueProviders: [String] {
-        return Set(relays.map { $0.provider }).caseInsensitiveSorted()
+        Set(relays.map { $0.provider }).caseInsensitiveSorted()
+    }
+
+    var ownedProviders: [String] {
+        Set(relays.filter { $0.owned == true }.map { $0.provider }).caseInsensitiveSorted()
+    }
+
+    var rentedProviders: [String] {
+        Set(relays.filter { $0.owned == false }.map { $0.provider }).caseInsensitiveSorted()
     }
 
     init(relays: [REST.ServerRelay], relayFilter: RelayFilter) {
@@ -25,8 +33,15 @@ class RelayFilterViewModel {
 
     func addItemToFilter(_ item: RelayFilterDataSource.Item) {
         switch item {
-        case .ownershipAny, .ownershipOwned, .ownershipRented:
-            relayFilter.ownership = ownership(for: item) ?? .any
+        case .ownershipAny:
+            relayFilter.ownership = .any
+            relayFilter.providers = .any
+        case .ownershipOwned:
+            relayFilter.ownership = .owned
+            relayFilter.providers = .only(ownedProviders)
+        case .ownershipRented:
+            relayFilter.ownership = .rented
+            relayFilter.providers = .only(rentedProviders)
         case .allProviders:
             relayFilter.providers = .any
         case let .provider(name):
@@ -44,21 +59,24 @@ class RelayFilterViewModel {
     }
 
     func removeItemFromFilter(_ item: RelayFilterDataSource.Item) {
+        var dataSourceToRemoveFrom = [String]()
+        switch relayFilter.ownership {
+        case .any:
+            dataSourceToRemoveFrom = uniqueProviders
+        case .owned:
+            dataSourceToRemoveFrom = ownedProviders
+        case .rented:
+            dataSourceToRemoveFrom = rentedProviders
+        }
+
         switch item {
         case .ownershipAny, .ownershipOwned, .ownershipRented:
             break
         case .allProviders:
             relayFilter.providers = .only([])
         case let .provider(name):
-            switch relayFilter.providers {
-            case .any:
-                var providers = uniqueProviders
-                providers.removeAll { $0 == name }
-                relayFilter.providers = .only(providers)
-            case var .only(providers):
-                providers.removeAll { $0 == name }
-                relayFilter.providers = .only(providers)
-            }
+            dataSourceToRemoveFrom.removeAll { $0 == name }
+            relayFilter.providers = .only(dataSourceToRemoveFrom)
         }
     }
 
