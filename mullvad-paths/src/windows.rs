@@ -5,8 +5,8 @@ use windows_sys::{
     core::{GUID, PWSTR},
     Win32::{
         Foundation::{
-            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, HANDLE, INVALID_HANDLE_VALUE,
-            LUID, S_OK,
+            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_READ, HANDLE,
+            INVALID_HANDLE_VALUE, LUID, S_OK,
         },
         Security::{
             AdjustTokenPrivileges, CreateWellKnownSid, EqualSid, GetTokenInformation,
@@ -17,8 +17,7 @@ use windows_sys::{
         Storage::FileSystem::MAX_SID_SIZE,
         System::{
             Com::CoTaskMemFree,
-            ProcessStatus::K32EnumProcesses,
-            SystemServices::GENERIC_READ,
+            ProcessStatus::EnumProcesses,
             Threading::{
                 GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken,
                 PROCESS_QUERY_INFORMATION,
@@ -209,9 +208,7 @@ fn find_process<T>(handle_process: impl Fn(HANDLE) -> Option<T>) -> io::Result<T
 
     let bytes_available = num_procs * (mem::size_of::<u32>() as u32);
     let mut bytes_written = 0;
-    if unsafe { K32EnumProcesses(pid_buffer.as_mut_ptr(), bytes_available, &mut bytes_written) }
-        == 0
-    {
+    if unsafe { EnumProcesses(pid_buffer.as_mut_ptr(), bytes_available, &mut bytes_written) } == 0 {
         return Err(io::Error::last_os_error());
     }
 
