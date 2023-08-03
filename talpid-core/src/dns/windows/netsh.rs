@@ -13,8 +13,8 @@ use talpid_windows_net::{index_from_luid, luid_from_alias};
 use windows_sys::Win32::{
     Foundation::{MAX_PATH, WAIT_OBJECT_0, WAIT_TIMEOUT},
     System::{
-        SystemInformation::GetSystemDirectoryW, Threading::WaitForSingleObject,
-        WindowsProgramming::INFINITE,
+        SystemInformation::GetSystemDirectoryW,
+        Threading::{WaitForSingleObject, INFINITE},
     },
 };
 

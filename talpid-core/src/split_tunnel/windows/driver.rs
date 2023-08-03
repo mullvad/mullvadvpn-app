@@ -32,8 +32,7 @@ use windows_sys::Win32::{
     System::{
         Diagnostics::ToolHelp::TH32CS_SNAPPROCESS,
         Ioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
-        Threading::{WaitForMultipleObjects, WaitForSingleObject},
-        WindowsProgramming::INFINITE,
+        Threading::{WaitForMultipleObjects, WaitForSingleObject, INFINITE},
         IO::{DeviceIoControl, GetOverlappedResult, OVERLAPPED},
     },
 };
