@@ -121,7 +121,7 @@ public enum RelaySelector {
     }
 
     /// Determines whether a `REST.ServerRelay` satisfies the given relay filter.
-    public static func relayMatchesFilter(_ relay: REST.ServerRelay, filter: RelayFilter) -> Bool {
+    public static func relayMatchesFilter(_ relay: AnyRelay, filter: RelayFilter) -> Bool {
         if case let .only(providers) = filter.providers {
             if !providers.contains(relay.provider) {
                 return false
@@ -318,9 +318,11 @@ public struct RelaySelectorResult: Codable {
     }
 }
 
-protocol AnyRelay {
+public protocol AnyRelay {
     var hostname: String { get }
+    var owned: Bool { get }
     var location: String { get }
+    var provider: String { get }
     var weight: UInt64 { get }
     var active: Bool { get }
     var includeInCountry: Bool { get }
