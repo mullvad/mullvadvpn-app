@@ -1562,14 +1562,14 @@ checksum = "1c429fffa658f288669529fc26565f728489a2e39bc7b24a428aaaf51355182e"
 
 [[package]]
 name = "ipconfig"
-version = "0.3.0"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "723519edce41262b05d4143ceb95050e4c614f483e78e9fd9e39a8275a84ad98"
+checksum = "b58db92f96b720de98181bbbe63c831e87005ab460c1bf306eb2622b4707997f"
 dependencies = [
- "socket2 0.4.9",
- "widestring 0.5.1",
- "winapi",
- "winreg",
+ "socket2 0.5.3",
+ "widestring",
+ "windows-sys 0.48.0",
+ "winreg 0.50.0",
 ]
 
 [[package]]
@@ -2092,7 +2092,7 @@ dependencies = [
  "err-derive",
  "log",
  "once_cell",
- "widestring 1.0.2",
+ "widestring",
  "windows-sys 0.45.0",
 ]
 
@@ -3605,10 +3605,10 @@ dependencies = [
  "triggered",
  "trust-dns-server",
  "which",
- "widestring 1.0.2",
+ "widestring",
  "windows-service",
  "windows-sys 0.45.0",
- "winreg",
+ "winreg 0.7.0",
 ]
 
 [[package]]
@@ -3650,9 +3650,9 @@ dependencies = [
  "tonic-build",
  "triggered",
  "uuid",
- "widestring 1.0.2",
+ "widestring",
  "windows-sys 0.45.0",
- "winreg",
+ "winreg 0.7.0",
 ]
 
 [[package]]
@@ -3703,7 +3703,7 @@ dependencies = [
  "talpid-types",
  "talpid-windows-net",
  "tokio",
- "widestring 1.0.2",
+ "widestring",
  "windows-sys 0.45.0",
 ]
 
@@ -3813,7 +3813,7 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tunnel-obfuscation",
- "widestring 1.0.2",
+ "widestring",
  "windows-sys 0.45.0",
  "zeroize",
 ]
@@ -4494,12 +4494,6 @@ dependencies = [
 
 [[package]]
 name = "widestring"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17882f045410753661207383517a6f62ec3dbeb6a4ed2acce01f0728238d1983"
-
-[[package]]
-name = "widestring"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "653f141f39ec16bba3c5abe400a0c60da7468261cc2cbf36805022876bc721a8"
@@ -4551,7 +4545,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd9db37ecb5b13762d95468a2fc6009d4b2c62801243223aabd44fca13ad13c8"
 dependencies = [
  "bitflags",
- "widestring 1.0.2",
+ "widestring",
  "windows-sys 0.45.0",
 ]
 
@@ -4694,6 +4688,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0120db82e8a1e0b9fb3345a539c478767c0048d842860994d96113d5b667bd69"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "winreg"
+version = "0.50.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "524e57b2c537c0f9b1e69f1965311ec12182b4122e45035b1508cd24d2adadb1"
+dependencies = [
+ "cfg-if",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
