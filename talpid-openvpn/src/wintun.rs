@@ -12,7 +12,7 @@ use widestring::{U16CStr, U16CString};
 use windows_sys::{
     core::GUID,
     Win32::{
-        Foundation::{HINSTANCE, NO_ERROR},
+        Foundation::{HMODULE, NO_ERROR},
         NetworkManagement::{IpHelper::ConvertInterfaceLuidToGuid, Ndis::NET_LUID_LH},
         System::{
             Com::StringFromGUID2,
@@ -57,7 +57,7 @@ enum WintunLoggerLevel {
 }
 
 pub struct WintunDll {
-    handle: HINSTANCE,
+    handle: HMODULE,
     func_create: WintunCreateAdapterFn,
     func_close: WintunCloseAdapterFn,
     func_get_adapter_luid: WintunGetAdapterLuidFn,
@@ -206,9 +206,9 @@ impl WintunDll {
     }
 
     fn new_inner(
-        handle: HINSTANCE,
+        handle: HMODULE,
         get_proc_fn: unsafe fn(
-            HINSTANCE,
+            HMODULE,
             &CStr,
         ) -> io::Result<unsafe extern "system" fn() -> isize>,
     ) -> io::Result<Self> {
@@ -242,7 +242,7 @@ impl WintunDll {
     }
 
     unsafe fn get_proc_address(
-        handle: HINSTANCE,
+        handle: HMODULE,
         name: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
         let handle = GetProcAddress(handle, name.as_ptr() as *const u8);
@@ -373,7 +373,7 @@ mod tests {
     use super::*;
 
     fn get_proc_fn(
-        _handle: HINSTANCE,
+        _handle: HMODULE,
         _symbol: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
         Ok(null_fn)

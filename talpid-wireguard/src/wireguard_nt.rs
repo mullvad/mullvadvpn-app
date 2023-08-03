@@ -27,7 +27,7 @@ use widestring::{U16CStr, U16CString};
 use windows_sys::{
     core::GUID,
     Win32::{
-        Foundation::{BOOL, ERROR_MORE_DATA, HINSTANCE},
+        Foundation::{BOOL, ERROR_MORE_DATA, HMODULE},
         NetworkManagement::Ndis::NET_LUID_LH,
         Networking::WinSock::{
             ADDRESS_FAMILY, AF_INET, AF_INET6, IN6_ADDR, IN_ADDR, SOCKADDR_INET,
@@ -625,7 +625,7 @@ impl Drop for WgNtAdapter {
 }
 
 struct WgNtDll {
-    handle: HINSTANCE,
+    handle: HMODULE,
     func_create: WireGuardCreateAdapterFn,
     func_close: WireGuardCloseAdapterFn,
     func_get_adapter_luid: WireGuardGetAdapterLuidFn,
@@ -653,11 +653,8 @@ impl WgNtDll {
     }
 
     fn new_inner(
-        handle: HINSTANCE,
-        get_proc_fn: unsafe fn(
-            HINSTANCE,
-            &CStr,
-        ) -> io::Result<unsafe extern "system" fn() -> isize>,
+        handle: HMODULE,
+        get_proc_fn: unsafe fn(HMODULE, &CStr) -> io::Result<unsafe extern "system" fn() -> isize>,
     ) -> io::Result<Self> {
         Ok(WgNtDll {
             handle,
@@ -713,7 +710,7 @@ impl WgNtDll {
     }
 
     unsafe fn get_proc_address(
-        handle: HINSTANCE,
+        handle: HMODULE,
         name: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
         let handle = GetProcAddress(handle, name.as_ptr() as *const u8);
@@ -1071,7 +1068,7 @@ mod tests {
     }
 
     fn get_proc_fn(
-        _handle: HINSTANCE,
+        _handle: HMODULE,
         _symbol: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
         Ok(null_fn)
