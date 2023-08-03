@@ -122,10 +122,8 @@ public enum RelaySelector {
 
     /// Determines whether a `REST.ServerRelay` satisfies the given relay filter.
     public static func relayMatchesFilter(_ relay: AnyRelay, filter: RelayFilter) -> Bool {
-        if case let .only(providers) = filter.providers {
-            if !providers.contains(relay.provider) {
-                return false
-            }
+        if case let .only(providers) = filter.providers, providers.contains(relay.provider) == false {
+            return false
         }
 
         switch filter.ownership {
