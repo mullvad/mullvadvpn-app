@@ -11,6 +11,7 @@ import UIKit
 enum AccountDismissReason: Equatable {
     case none
     case userLoggedOut
+    case accountDeletion
 }
 
 enum AddedMoreCreditOption: Equatable {
@@ -70,6 +71,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             logOut()
         case .navigateToVoucher:
             navigateToRedeemVoucher()
+        case .navigateToDeleteAccount:
+            navigateToDeleteAccount()
         }
     }
 
@@ -92,9 +95,35 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             coordinator,
             animated: true,
             configuration: ModalPresentationConfiguration(
-                preferredContentSize: UIMetrics.RedeemVoucher.preferredContentSize,
-                modalPresentationStyle: .custom,
-                transitioningDelegate: FormSheetTransitioningDelegate()
+                preferredContentSize: UIMetrics.SettingsRedeemVoucher.preferredContentSize,
+                modalPresentationStyle: .formSheet
+            )
+        )
+    }
+
+    private func navigateToDeleteAccount() {
+        let coordinator = AccountDeletionCoordinator(
+            navigationController: CustomNavigationController(),
+            interactor: AccountDeletionInteractor(tunnelManager: interactor.tunnelManager)
+        )
+
+        coordinator.start()
+        coordinator.didCancel = { accountDeletionCoordinator in
+            accountDeletionCoordinator.dismiss(animated: true)
+        }
+
+        coordinator.didFinish = { accountDeletionCoordinator in
+            accountDeletionCoordinator.dismiss(animated: true) {
+                self.didFinish?(self, .userLoggedOut)
+            }
+        }
+
+        presentChild(
+            coordinator,
+            animated: true,
+            configuration: ModalPresentationConfiguration(
+                preferredContentSize: UIMetrics.AccountDeletion.preferredContentSize,
+                modalPresentationStyle: .formSheet
             )
         )
     }

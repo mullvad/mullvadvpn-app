@@ -438,12 +438,18 @@
 		F07C0A072A52DA64009825CA /* SetupAccountCompletedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07C0A062A52DA64009825CA /* SetupAccountCompletedCoordinator.swift */; };
 		F07CFF2029F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
+		F0C6FA812A66E23300F521F0 /* DeleteAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */; };
 		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
 		F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */; };
 		F0E8CC052A4CC88F007ED3B4 /* WelcomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC042A4CC88F007ED3B4 /* WelcomeCoordinator.swift */; };
 		F0E8CC0A2A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */; };
 		F0E8CC0C2A4EE672007ED3B4 /* SetupAccountCompletedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedViewController.swift */; };
 		F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */; };
+		F0E8E4C12A602CCB00ED26A3 /* AccountDeletionContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C02A602CCB00ED26A3 /* AccountDeletionContentView.swift */; };
+		F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */; };
+		F0E8E4C52A60499100ED26A3 /* AccountDeletionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C42A60499100ED26A3 /* AccountDeletionViewController.swift */; };
+		F0E8E4C72A604CBE00ED26A3 /* AccountDeletionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C62A604CBE00ED26A3 /* AccountDeletionCoordinator.swift */; };
+		F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1213,12 +1219,18 @@
 		F07C0A062A52DA64009825CA /* SetupAccountCompletedCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedCoordinator.swift; sourceTree = "<group>"; };
 		F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisteredDeviceInAppNotificationProvider.swift; sourceTree = "<group>"; };
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
+		F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountOperation.swift; sourceTree = "<group>"; };
 		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
 		F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		F0E8CC042A4CC88F007ED3B4 /* WelcomeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinator.swift; sourceTree = "<group>"; };
 		F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedContentView.swift; sourceTree = "<group>"; };
 		F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedViewController.swift; sourceTree = "<group>"; };
 		F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeInteractor.swift; sourceTree = "<group>"; };
+		F0E8E4C02A602CCB00ED26A3 /* AccountDeletionContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionContentView.swift; sourceTree = "<group>"; };
+		F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionViewModel.swift; sourceTree = "<group>"; };
+		F0E8E4C42A60499100ED26A3 /* AccountDeletionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionViewController.swift; sourceTree = "<group>"; };
+		F0E8E4C62A604CBE00ED26A3 /* AccountDeletionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionCoordinator.swift; sourceTree = "<group>"; };
+		F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionInteractor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1501,6 +1513,7 @@
 		5823FA5726CE4A4100283BF8 /* TunnelManager */ = {
 			isa = PBXGroup;
 			children = (
+				F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */,
 				588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */,
 				58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */,
 				F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */,
@@ -1547,9 +1560,10 @@
 		583FE01629C196E8006E85F9 /* View controllers */ = {
 			isa = PBXGroup;
 			children = (
-				F0E8E4B92A55593300ED26A3 /* CreationAccount */,
 				583FE02029C1A0B1006E85F9 /* Account */,
+				F0E8E4BF2A602C7D00ED26A3 /* AccountDeletion */,
 				5878F4FA29CDA2D4003D4BE2 /* ChangeLog */,
+				F0E8E4B92A55593300ED26A3 /* CreationAccount */,
 				583FE01D29C197C1006E85F9 /* DeviceList */,
 				583FE02529C1AD0E006E85F9 /* Launch */,
 				583FE02129C1A0F4006E85F9 /* Login */,
@@ -1931,11 +1945,11 @@
 			isa = PBXGroup;
 			children = (
 				7AF0419D29E957EB00D492DD /* AccountCoordinator.swift */,
+				F0E8E4C62A604CBE00ED26A3 /* AccountDeletionCoordinator.swift */,
 				F07C0A042A52D4C3009825CA /* AccountRedeemingVoucherCoordinator.swift */,
 				58BBB39629717E0C00C8DB7C /* ApplicationCoordinator.swift */,
 				5893C6FB29C311E9009090D1 /* ApplicationRouter.swift */,
 				5878F50129CDB989003D4BE2 /* ChangeLogCoordinator.swift */,
-				F07C0A062A52DA64009825CA /* SetupAccountCompletedCoordinator.swift */,
 				58CAF9F92983E0C600BE19F7 /* LoginCoordinator.swift */,
 				583FE00D29C0D586006E85F9 /* OutOfTimeCoordinator.swift */,
 				5847D58C29B7740F008C3808 /* RevokedCoordinator.swift */,
@@ -1943,6 +1957,7 @@
 				587C92FD2986E28100FB9664 /* SelectLocationCoordinator.swift */,
 				58C3F4FA296C3AD500D72515 /* SettingsCoordinator.swift */,
 				F041CD552A38B0B7001B703B /* SettingsRedeemVoucherCoordinator.swift */,
+				F07C0A062A52DA64009825CA /* SetupAccountCompletedCoordinator.swift */,
 				587C92FF2986E2B600FB9664 /* TermsOfServiceCoordinator.swift */,
 				58F185A9298A3E3E00075977 /* TunnelCoordinator.swift */,
 				F0E8CC042A4CC88F007ED3B4 /* WelcomeCoordinator.swift */,
@@ -2342,6 +2357,17 @@
 				F0E361892A4ADCF500AEEF2B /* Welcome */,
 			);
 			path = CreationAccount;
+			sourceTree = "<group>";
+		};
+		F0E8E4BF2A602C7D00ED26A3 /* AccountDeletion */ = {
+			isa = PBXGroup;
+			children = (
+				F0E8E4C02A602CCB00ED26A3 /* AccountDeletionContentView.swift */,
+				F0E8E4C82A604E7400ED26A3 /* AccountDeletionInteractor.swift */,
+				F0E8E4C42A60499100ED26A3 /* AccountDeletionViewController.swift */,
+				F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */,
+			);
+			path = AccountDeletion;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -3199,6 +3225,7 @@
 				5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				F0E8CC052A4CC88F007ED3B4 /* WelcomeCoordinator.swift in Sources */,
+				F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */,
 				58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */,
 				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
@@ -3247,6 +3274,7 @@
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				068CE57029278F5300A068BB /* MigrationFromV1ToV2.swift in Sources */,
+				F0E8E4C52A60499100ED26A3 /* AccountDeletionViewController.swift in Sources */,
 				F028A54B2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
@@ -3303,6 +3331,8 @@
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */,
+				F0C6FA812A66E23300F521F0 /* DeleteAccountOperation.swift in Sources */,
+				F0E8E4C72A604CBE00ED26A3 /* AccountDeletionCoordinator.swift in Sources */,
 				F07CFF2029F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				58CAF9F82983D36800BE19F7 /* Coordinator.swift in Sources */,
@@ -3344,10 +3374,12 @@
 				586891CD29D452E4002A8278 /* SafariCoordinator.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
+				F0E8E4C12A602CCB00ED26A3 /* AccountDeletionContentView.swift in Sources */,
 				58B26E1E2943514300D5980C /* InAppNotificationDescriptor.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				06410E04292D0F7100AFC18C /* SettingsParser.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
+				F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */,
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
 				58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
