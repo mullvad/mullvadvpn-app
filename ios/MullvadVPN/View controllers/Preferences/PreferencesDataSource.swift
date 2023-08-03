@@ -409,6 +409,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    func tableView(_ tableView: UITableView, willDeselectRowAt indexPath: IndexPath) -> IndexPath? {
+        nil
+    }
+
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
