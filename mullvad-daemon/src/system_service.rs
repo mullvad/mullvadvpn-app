@@ -1,6 +1,7 @@
 use crate::cli;
 use libc::c_void;
 use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
+use once_cell::sync::Lazy;
 use std::{
     env,
     ffi::OsString,
@@ -39,12 +40,12 @@ static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);
 const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_secs(60 * 15);
 
-lazy_static::lazy_static! {
-    static ref SERVICE_ACCESS: ServiceAccess = ServiceAccess::QUERY_CONFIG
-    | ServiceAccess::CHANGE_CONFIG
-    | ServiceAccess::START
-    | ServiceAccess::DELETE;
-}
+static SERVICE_ACCESS: Lazy<ServiceAccess> = Lazy::new(|| {
+    ServiceAccess::QUERY_CONFIG
+        | ServiceAccess::CHANGE_CONFIG
+        | ServiceAccess::START
+        | ServiceAccess::DELETE
+});
 
 pub fn run() -> Result<(), String> {
     // Start the service dispatcher.

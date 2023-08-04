@@ -1,9 +1,8 @@
+use once_cell::sync::Lazy;
 use parking_lot::Mutex;
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path};
 
-lazy_static::lazy_static! {
-    static ref LOG_MUTEX: Mutex<HashMap<u32, fs::File>> = Mutex::new(HashMap::new());
-}
+static LOG_MUTEX: Lazy<Mutex<HashMap<u32, fs::File>>> = Lazy::new(|| Mutex::new(HashMap::new()));
 
 static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
 

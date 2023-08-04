@@ -1299,6 +1299,7 @@ mod test {
             ShadowsocksEndpointData, WireguardEndpointData, WireguardRelayEndpointData,
         },
     };
+    use once_cell::sync::Lazy;
     use std::collections::HashSet;
     use talpid_types::net::{wireguard::PublicKey, Endpoint};
 
@@ -1313,135 +1314,135 @@ mod test {
         }
     }
 
-    lazy_static::lazy_static! {
-        static ref RELAYS: RelayList = RelayList {
-            etag: None,
-            countries: vec![
-                RelayListCountry {
-                    name: "Sweden".to_string(),
-                    code: "se".to_string(),
-                    cities: vec![
-                        RelayListCity {
-                            name: "Gothenburg".to_string(),
-                            code: "got".to_string(),
-                            latitude: 57.70887,
-                            longitude: 11.97456,
-                            relays: vec![
-                                Relay {
-                                    hostname: "se9-wireguard".to_string(),
-                                    ipv4_addr_in: "185.213.154.68".parse().unwrap(),
-                                    ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
-                                    include_in_country: true,
-                                    active: true,
-                                    owned: true,
-                                    provider: "provider0".to_string(),
-                                    weight: 1,
-                                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                                        public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
-                                    }),
-                                    location: None,
-                                },
-                                Relay {
-                                    hostname: "se10-wireguard".to_string(),
-                                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                                    ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
-                                    include_in_country: true,
-                                    active: true,
-                                    owned: false,
-                                    provider: "provider1".to_string(),
-                                    weight: 1,
-                                    endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
-                                        public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
-                                    }),
-                                    location: None,
-                                },
-                                Relay {
-                                    hostname: "se-got-001".to_string(),
-                                    ipv4_addr_in: "185.213.154.131".parse().unwrap(),
-                                    ipv6_addr_in: None,
-                                    include_in_country: true,
-                                    active: true,
-                                    owned: true,
-                                    provider: "provider2".to_string(),
-                                    weight: 1,
-                                    endpoint_data: RelayEndpointData::Openvpn,
-                                    location: None,
-                                },
-                                Relay {
-                                    hostname: "se-got-002".to_string(),
-                                    ipv4_addr_in: "1.2.3.4".parse().unwrap(),
-                                    ipv6_addr_in: None,
-                                    include_in_country: true,
-                                    active: true,
-                                    owned: true,
-                                    provider: "provider0".to_string(),
-                                    weight: 1,
-                                    endpoint_data: RelayEndpointData::Openvpn,
-                                    location: None,
-                                },
-                                Relay {
-                                    hostname: "se-got-br-001".to_string(),
-                                    ipv4_addr_in: "1.3.3.7".parse().unwrap(),
-                                    ipv6_addr_in: None,
-                                    include_in_country: true,
-                                    active: true,
-                                    owned: true,
-                                    provider: "provider3".to_string(),
-                                    weight: 1,
-                                    endpoint_data: RelayEndpointData::Bridge,
-                                    location: None,
-                                }
-                            ],
-                        },
-                    ],
-                }
+    static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
+        etag: None,
+        countries: vec![RelayListCountry {
+            name: "Sweden".to_string(),
+            code: "se".to_string(),
+            cities: vec![RelayListCity {
+                name: "Gothenburg".to_string(),
+                code: "got".to_string(),
+                latitude: 57.70887,
+                longitude: 11.97456,
+                relays: vec![
+                    Relay {
+                        hostname: "se9-wireguard".to_string(),
+                        ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                        include_in_country: true,
+                        active: true,
+                        owned: true,
+                        provider: "provider0".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                            public_key: PublicKey::from_base64(
+                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                            )
+                            .unwrap(),
+                        }),
+                        location: None,
+                    },
+                    Relay {
+                        hostname: "se10-wireguard".to_string(),
+                        ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                        ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                        include_in_country: true,
+                        active: true,
+                        owned: false,
+                        provider: "provider1".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Wireguard(WireguardRelayEndpointData {
+                            public_key: PublicKey::from_base64(
+                                "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
+                            )
+                            .unwrap(),
+                        }),
+                        location: None,
+                    },
+                    Relay {
+                        hostname: "se-got-001".to_string(),
+                        ipv4_addr_in: "185.213.154.131".parse().unwrap(),
+                        ipv6_addr_in: None,
+                        include_in_country: true,
+                        active: true,
+                        owned: true,
+                        provider: "provider2".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Openvpn,
+                        location: None,
+                    },
+                    Relay {
+                        hostname: "se-got-002".to_string(),
+                        ipv4_addr_in: "1.2.3.4".parse().unwrap(),
+                        ipv6_addr_in: None,
+                        include_in_country: true,
+                        active: true,
+                        owned: true,
+                        provider: "provider0".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Openvpn,
+                        location: None,
+                    },
+                    Relay {
+                        hostname: "se-got-br-001".to_string(),
+                        ipv4_addr_in: "1.3.3.7".parse().unwrap(),
+                        ipv6_addr_in: None,
+                        include_in_country: true,
+                        active: true,
+                        owned: true,
+                        provider: "provider3".to_string(),
+                        weight: 1,
+                        endpoint_data: RelayEndpointData::Bridge,
+                        location: None,
+                    },
+                ],
+            }],
+        }],
+        openvpn: OpenVpnEndpointData {
+            ports: vec![
+                OpenVpnEndpoint {
+                    port: 1194,
+                    protocol: TransportProtocol::Udp,
+                },
+                OpenVpnEndpoint {
+                    port: 443,
+                    protocol: TransportProtocol::Tcp,
+                },
+                OpenVpnEndpoint {
+                    port: 80,
+                    protocol: TransportProtocol::Tcp,
+                },
             ],
-            openvpn: OpenVpnEndpointData {
-                ports: vec![
-                    OpenVpnEndpoint {
-                        port: 1194,
-                        protocol: TransportProtocol::Udp,
-                    },
-                    OpenVpnEndpoint {
-                        port: 443,
-                        protocol: TransportProtocol::Tcp,
-                    },
-                    OpenVpnEndpoint {
-                        port: 80,
-                        protocol: TransportProtocol::Tcp,
-                    },
-                ],
-            },
-            bridge: BridgeEndpointData {
-                shadowsocks: vec![
-                    ShadowsocksEndpointData {
-                        port: 443,
-                        cipher: "aes-256-gcm".to_string(),
-                        password: "mullvad".to_string(),
-                        protocol: TransportProtocol::Tcp,
-                    },
-                    ShadowsocksEndpointData {
-                        port: 1234,
-                        cipher: "aes-256-cfb".to_string(),
-                        password: "mullvad".to_string(),
-                        protocol: TransportProtocol::Udp,
-                    },
-                    ShadowsocksEndpointData {
-                        port: 1236,
-                        cipher: "aes-256-gcm".to_string(),
-                        password: "mullvad".to_string(),
-                        protocol: TransportProtocol::Udp,
-                    },
-                ],
-            },
-            wireguard: WireguardEndpointData {
-                port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
-                ipv4_gateway: "10.64.0.1".parse().unwrap(),
-                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-                udp2tcp_ports: vec![],
-            },
-        };
-    }
+        },
+        bridge: BridgeEndpointData {
+            shadowsocks: vec![
+                ShadowsocksEndpointData {
+                    port: 443,
+                    cipher: "aes-256-gcm".to_string(),
+                    password: "mullvad".to_string(),
+                    protocol: TransportProtocol::Tcp,
+                },
+                ShadowsocksEndpointData {
+                    port: 1234,
+                    cipher: "aes-256-cfb".to_string(),
+                    password: "mullvad".to_string(),
+                    protocol: TransportProtocol::Udp,
+                },
+                ShadowsocksEndpointData {
+                    port: 1236,
+                    cipher: "aes-256-gcm".to_string(),
+                    password: "mullvad".to_string(),
+                    protocol: TransportProtocol::Udp,
+                },
+            ],
+        },
+        wireguard: WireguardEndpointData {
+            port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+            ipv4_gateway: "10.64.0.1".parse().unwrap(),
+            ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+            udp2tcp_ports: vec![],
+        },
+    });
 
     fn default_tunnel_type() -> TunnelType {
         if cfg!(target_os = "windows") {
