@@ -130,12 +130,15 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
     fun onDisconnectClick() {
         serviceConnectionManager.connectionProxy()?.disconnect()
     }
+
     fun onReconnectClick() {
         serviceConnectionManager.connectionProxy()?.reconnect()
     }
+
     fun onConnectClick() {
         serviceConnectionManager.connectionProxy()?.connect()
     }
+
     fun onCancelClick() {
         serviceConnectionManager.connectionProxy()?.disconnect()
     }

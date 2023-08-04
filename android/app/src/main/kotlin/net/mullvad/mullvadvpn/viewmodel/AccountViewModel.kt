@@ -55,6 +55,7 @@ class AccountViewModel(
             )
         }
     }
+
     fun onLogoutClick() {
         accountRepository.logout()
     }

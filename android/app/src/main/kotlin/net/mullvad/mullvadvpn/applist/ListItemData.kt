@@ -57,6 +57,7 @@ private constructor(
         const val ACTION = 3
         const val DOUBLE_ACTION = 4
         const val APPLICATION = 5
+
         fun build(identifier: String, setUp: Builder.() -> Unit): ListItemData =
             Builder(identifier).also(setUp).build()
     }

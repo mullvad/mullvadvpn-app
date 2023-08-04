@@ -239,7 +239,9 @@ sealed interface StagedDns {
 
     sealed class ValidationResult {
         object Success : ValidationResult()
+
         object InvalidAddress : ValidationResult()
+
         object DuplicateAddress : ValidationResult()
     }
 

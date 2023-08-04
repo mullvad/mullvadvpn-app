@@ -39,6 +39,7 @@ class Intermittent<T> {
     // resume execution. This allows performing any extra initialization before the value is made
     // available for usage.
     fun registerListener(id: Any, listener: (T?) -> Unit) = notifier.subscribe(id, listener)
+
     fun unregisterListener(id: Any) = notifier.unsubscribe(id)
 
     suspend fun await(): T {

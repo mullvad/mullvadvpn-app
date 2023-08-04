@@ -45,9 +45,14 @@ class ServiceConnectionAccountDataSource(
     }
 
     fun createAccount() = connection.send(Request.CreateAccount.message)
+
     fun login(accountToken: String) = connection.send(Request.Login(accountToken).message)
+
     fun logout() = connection.send(Request.Logout.message)
+
     fun fetchAccountExpiry() = connection.send(Request.FetchAccountExpiry.message)
+
     fun fetchAccountHistory() = connection.send(Request.FetchAccountHistory.message)
+
     fun clearAccountHistory() = connection.send(Request.ClearAccountHistory.message)
 }
