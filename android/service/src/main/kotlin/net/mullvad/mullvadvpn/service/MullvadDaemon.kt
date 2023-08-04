@@ -204,36 +204,52 @@ class MullvadDaemon(
     private external fun deinitialize()
 
     private external fun connect(daemonInterfaceAddress: Long)
+
     private external fun createNewAccount(daemonInterfaceAddress: Long): String?
+
     private external fun disconnect(daemonInterfaceAddress: Long)
+
     private external fun getAccountData(
         daemonInterfaceAddress: Long,
         accountToken: String
     ): GetAccountDataResult
 
     private external fun getAccountHistory(daemonInterfaceAddress: Long): String?
+
     private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String?
+
     private external fun getCurrentLocation(daemonInterfaceAddress: Long): GeoIpLocation?
+
     private external fun getCurrentVersion(daemonInterfaceAddress: Long): String?
+
     private external fun getRelayLocations(daemonInterfaceAddress: Long): RelayList?
+
     private external fun getSettings(daemonInterfaceAddress: Long): Settings?
+
     private external fun getState(daemonInterfaceAddress: Long): TunnelState?
+
     private external fun getVersionInfo(daemonInterfaceAddress: Long): AppVersionInfo?
+
     private external fun reconnect(daemonInterfaceAddress: Long)
+
     private external fun clearAccountHistory(daemonInterfaceAddress: Long)
+
     private external fun loginAccount(
         daemonInterfaceAddress: Long,
         accountToken: String?
     ): LoginResult
 
     private external fun logoutAccount(daemonInterfaceAddress: Long)
+
     private external fun listDevices(
         daemonInterfaceAddress: Long,
         accountToken: String?
     ): List<Device>?
 
     private external fun getDevice(daemonInterfaceAddress: Long): DeviceState
+
     private external fun updateDevice(daemonInterfaceAddress: Long)
+
     private external fun removeDevice(
         daemonInterfaceAddress: Long,
         accountToken: String?,
@@ -241,10 +257,15 @@ class MullvadDaemon(
     ): RemoveDeviceResult
 
     private external fun setAllowLan(daemonInterfaceAddress: Long, allowLan: Boolean)
+
     private external fun setAutoConnect(daemonInterfaceAddress: Long, alwaysOn: Boolean)
+
     private external fun setDnsOptions(daemonInterfaceAddress: Long, dnsOptions: DnsOptions)
+
     private external fun setWireguardMtu(daemonInterfaceAddress: Long, wireguardMtu: Int?)
+
     private external fun shutdown(daemonInterfaceAddress: Long)
+
     private external fun submitVoucher(
         daemonInterfaceAddress: Long,
         voucher: String

@@ -25,6 +25,7 @@ class NotificationBanner : FrameLayout {
     private val animationListener =
         object : AnimatorListener {
             override fun onAnimationCancel(animation: Animator) {}
+
             override fun onAnimationRepeat(animation: Animator) {}
 
             override fun onAnimationStart(animation: Animator) {
@@ -78,6 +79,7 @@ class NotificationBanner : FrameLayout {
     }
 
     constructor(context: Context) : super(context)
+
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes)
 
     constructor(

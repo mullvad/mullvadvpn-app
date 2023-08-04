@@ -30,6 +30,7 @@ class ServiceEndpoint(
     companion object {
         sealed class Command {
             data class RegisterListener(val listener: Messenger) : Command()
+
             data class UnregisterListener(val listenerId: Int) : Command()
         }
     }

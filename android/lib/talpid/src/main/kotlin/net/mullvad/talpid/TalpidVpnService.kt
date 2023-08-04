@@ -146,5 +146,6 @@ open class TalpidVpnService : VpnService() {
     }
 
     private external fun defaultTunConfig(): TunConfig
+
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 }

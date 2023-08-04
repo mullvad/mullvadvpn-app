@@ -16,8 +16,11 @@ const val PROBLEM_REPORT_FILE = "problem_report.txt"
 class MullvadProblemReport {
     private sealed class Command {
         class Collect() : Command()
+
         class Load(val logs: CompletableDeferred<String>) : Command()
+
         class Send(val result: CompletableDeferred<Boolean>) : Command()
+
         class Delete() : Command()
     }
 
@@ -128,6 +131,7 @@ class MullvadProblemReport {
     }
 
     private external fun collectReport(logDirectory: String, reportPath: String): Boolean
+
     private external fun sendProblemReport(
         userEmail: String,
         userMessage: String,

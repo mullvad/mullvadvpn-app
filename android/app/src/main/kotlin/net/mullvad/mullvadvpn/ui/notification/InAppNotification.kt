@@ -27,6 +27,7 @@ abstract class InAppNotification {
         protected set
 
     open fun onResume() {}
+
     open fun onPause() {}
 
     open fun onDestroy() {

@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 class DaemonInstance(private val vpnService: MullvadVpnService) {
     sealed class Command {
         data class Start(val apiEndpointConfiguration: ApiEndpointConfiguration) : Command()
+
         object Stop : Command()
     }
 

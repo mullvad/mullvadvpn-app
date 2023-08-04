@@ -23,7 +23,9 @@ class ForegroundNotificationManager(
 ) {
     private sealed class UpdaterMessage {
         class UpdateNotification : UpdaterMessage()
+
         class UpdateAction : UpdaterMessage()
+
         class NewTunnelState(val newState: TunnelState) : UpdaterMessage()
     }
 

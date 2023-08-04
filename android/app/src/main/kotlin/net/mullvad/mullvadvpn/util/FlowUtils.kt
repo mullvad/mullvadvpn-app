@@ -17,6 +17,7 @@ fun Animation.transitionFinished(): Flow<Unit> =
             val transitionAnimationListener =
                 object : Animation.AnimationListener {
                     override fun onAnimationStart(animation: Animation?) {}
+
                     override fun onAnimationEnd(animation: Animation?) {
                         safeOffer(Unit)
                     }

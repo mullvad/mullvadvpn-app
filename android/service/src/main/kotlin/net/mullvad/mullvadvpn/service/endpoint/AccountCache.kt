@@ -20,7 +20,9 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     companion object {
         private sealed class Command {
             object CreateAccount : Command()
+
             data class Login(val account: String) : Command()
+
             object Logout : Command()
         }
     }
