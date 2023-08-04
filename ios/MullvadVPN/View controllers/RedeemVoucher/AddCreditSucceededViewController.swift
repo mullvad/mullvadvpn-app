@@ -1,5 +1,5 @@
 //
-//  RedeemVoucherSucceededViewController.swift
+//  AddCreditSucceededViewController.swift
 //  MullvadVPN
 //
 //  Created by Sajad Vishkai on 2022-09-23.
@@ -8,15 +8,15 @@
 
 import UIKit
 
-protocol RedeemVoucherSucceededViewControllerDelegate: AnyObject {
-    func redeemVoucherSucceededViewControllerDidFinish(
-        _ controller: RedeemVoucherSucceededViewController
+protocol AddCreditSucceededViewControllerDelegate: AnyObject {
+    func addCreditSucceededViewControllerDidFinish(
+        _ controller: AddCreditSucceededViewController
     )
 
-    func titleForAction(in controller: RedeemVoucherSucceededViewController) -> String
+    func titleForAction(in controller: AddCreditSucceededViewController) -> String
 }
 
-class RedeemVoucherSucceededViewController: UIViewController {
+class AddCreditSucceededViewController: UIViewController, RootContainment {
     private let statusImageView: StatusImageView = {
         let statusImageView = StatusImageView(style: .success)
         statusImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -57,7 +57,23 @@ class RedeemVoucherSucceededViewController: UIViewController {
         .lightContent
     }
 
-    weak var delegate: RedeemVoucherSucceededViewControllerDelegate? {
+    var preferredHeaderBarPresentation: HeaderBarPresentation {
+        HeaderBarPresentation(style: .default, showsDivider: true)
+    }
+
+    var prefersHeaderBarHidden: Bool {
+        false
+    }
+
+    var prefersDeviceInfoBarHidden: Bool {
+        true
+    }
+
+    var prefersNotificationBarHidden: Bool {
+        true
+    }
+
+    weak var delegate: AddCreditSucceededViewControllerDelegate? {
         didSet {
             dismissButton.setTitle(delegate?.titleForAction(in: self), for: .normal)
         }
@@ -127,7 +143,7 @@ class RedeemVoucherSucceededViewController: UIViewController {
     }
 
     @objc private func handleDismissTap() {
-        delegate?.redeemVoucherSucceededViewControllerDidFinish(self)
+        delegate?.addCreditSucceededViewControllerDidFinish(self)
     }
 }
 

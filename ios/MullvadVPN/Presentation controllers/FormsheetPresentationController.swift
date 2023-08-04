@@ -7,6 +7,19 @@
 //
 
 import UIKit
+struct FormSheetPresentationOptions {
+    /**
+     Flag indicating whether presentation controller should use fullscreen presentation when in
+     compact width environment
+     */
+    var useFullScreenPresentationInCompactWidth = false
+
+    /**
+     Flag indicating whether presentation controller should make adjustment for the position of the  presentedView  when
+     it gets keyboard notifications
+     */
+    var adjustViewWhenKeyboardAppears = false
+}
 
 /**
  Custom implementation of a formsheet presentation controller.
@@ -29,6 +42,11 @@ class FormSheetPresentationController: UIPresentationController {
      */
     private var lastKnownIsInFullScreen: Bool?
 
+    /**
+     Change the position of  `presentedView` if  `FormSheetPresentationOptions.adjustViewWhenKeyboardAppears` is `true`
+     */
+    private var keyboardResponder: AutomaticKeyboardResponder?
+
     private let dimmingView: UIView = {
         let dimmingView = UIView()
         dimmingView.backgroundColor = UIMetrics.DimmingView.backgroundColor
@@ -40,17 +58,23 @@ class FormSheetPresentationController: UIPresentationController {
     }
 
     /**
-     Flag indicating whether presentation controller should use fullscreen presentation when in
-     compact width environment
-     */
-    var useFullScreenPresentationInCompactWidth = false
-
-    /**
      Returns `true` if presentation controller is in fullscreen presentation.
      */
     var isInFullScreenPresentation: Bool {
-        useFullScreenPresentationInCompactWidth &&
+        option.useFullScreenPresentationInCompactWidth &&
             traitCollection.horizontalSizeClass == .compact
+    }
+
+    private let option: FormSheetPresentationOptions
+
+    init(
+        presentedViewController: UIViewController,
+        presenting presentingViewController: UIViewController?,
+        options: FormSheetPresentationOptions
+    ) {
+        self.option = options
+        super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
+        addKeyboardResponderIfNeeded()
     }
 
     override var frameOfPresentedViewInContainerView: CGRect {
@@ -147,9 +171,39 @@ class FormSheetPresentationController: UIPresentationController {
             userInfo: [Self.isFullScreenUserInfoKey: NSNumber(booleanLiteral: currentIsInFullScreen)]
         )
     }
+
+    private func addKeyboardResponderIfNeeded() {
+        guard option.adjustViewWhenKeyboardAppears,
+              let presentedView else { return }
+        keyboardResponder = AutomaticKeyboardResponder(
+            targetView: presentedView,
+            handler: { [weak self] view, adjustment in
+                guard let self,
+                      let containerView,
+                      !isInFullScreenPresentation else { return }
+                let frame = view.frame
+                let bottomMarginFromKeyboard = adjustment > 0 ? UIMetrics.sectionSpacing : 0
+                view.frame = CGRect(
+                    origin: CGPoint(
+                        x: frame.origin.x,
+                        y: containerView.bounds.midY - presentedViewController.preferredContentSize
+                            .height * 0.5 - adjustment - bottomMarginFromKeyboard
+                    ),
+                    size: frame.size
+                )
+                view.layoutIfNeeded()
+            }
+        )
+    }
 }
 
 class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    let options: FormSheetPresentationOptions
+
+    init(options: FormSheetPresentationOptions = FormSheetPresentationOptions()) {
+        self.options = options
+    }
+
     func animationController(
         forPresented presented: UIViewController,
         presenting: UIViewController,
@@ -170,7 +224,8 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
     ) -> UIPresentationController? {
         FormSheetPresentationController(
             presentedViewController: presented,
-            presenting: source
+            presenting: source,
+            options: options
         )
     }
 }

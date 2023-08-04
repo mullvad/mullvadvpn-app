@@ -49,7 +49,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         preferredContentSize: preferredFormSheetContentSize,
         modalPresentationStyle: .custom,
         isModalInPresentation: true,
-        transitioningDelegate: SecondaryContextTransitioningDelegate()
+        transitioningDelegate: SecondaryContextTransitioningDelegate(adjustViewWhenKeyboardAppears: false)
     )
 
     private let notificationController = NotificationController()
@@ -314,7 +314,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             return .login
 
         case let .loggedIn(accountData, _):
-            return accountData.isExpired ? (accountData.isNew ? .welcome : .outOfTime) : .main
+            return accountData.isExpired ? (AccountFlow.isOnboarding ? .welcome : .outOfTime) : .main
         }
     }
 
@@ -579,7 +579,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             tunnelManager: tunnelManager
         )
 
-        coordinator.didFinishPayment = { [weak self] coordinator in
+        coordinator.didFinish = { [weak self] coordinator in
             guard let self else { return }
             router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
@@ -778,7 +778,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case let .loggedIn(accountData, _):
 
             // Account creation is being shown
-            guard !isPresentingWelcome && !accountData.isNew else { return }
+            guard !isPresentingWelcome && !AccountFlow.isOnboarding else { return }
 
             // Handle transition to and from expired state.
             switch (previousDeviceState.accountData?.isExpired ?? false, accountData.isExpired) {

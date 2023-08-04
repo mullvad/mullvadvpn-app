@@ -123,7 +123,10 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             animated: true,
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: UIMetrics.AccountDeletion.preferredContentSize,
-                modalPresentationStyle: .formSheet
+                modalPresentationStyle: .custom,
+                transitioningDelegate: SecondaryContextTransitioningDelegate(
+                    adjustViewWhenKeyboardAppears: false
+                )
             )
         )
     }

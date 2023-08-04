@@ -7,6 +7,7 @@
 //
 
 import UIKit
+
 protocol WelcomeContentViewDelegate: AnyObject {
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton)
     func didTapRedeemVoucherButton(welcomeContentView: WelcomeContentView, button: AppButton)
@@ -71,9 +72,8 @@ final class WelcomeContentView: UIView {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .preferredFont(forTextStyle: .body)
         label.textColor = .white
-        label.lineBreakMode = .byWordWrapping
-        label.numberOfLines = .zero
-        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
     }()
 
@@ -83,7 +83,8 @@ final class WelcomeContentView: UIView {
         button.tintColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
-        button.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return button
     }()
 
@@ -151,8 +152,8 @@ final class WelcomeContentView: UIView {
 
     private let spacerView: UIView = {
         let view = UIView()
-        view.setContentHuggingPriority(.fittingSizeLevel, for: .horizontal)
-        view.setContentCompressionResistancePriority(.fittingSizeLevel, for: .horizontal)
+        view.setContentHuggingPriority(.required, for: .horizontal)
+        view.setContentCompressionResistancePriority(.required, for: .horizontal)
         return view
     }()
 
@@ -173,6 +174,16 @@ final class WelcomeContentView: UIView {
                 value: "Device name: %@",
                 comment: ""
             ), viewModel?.deviceName ?? "")
+        }
+    }
+
+    var isPurchasing = false {
+        didSet {
+            let alpha = isPurchasing ? 0.7 : 1.0
+            purchaseButton.isLoading = isPurchasing
+            purchaseButton.alpha = alpha
+            redeemVoucherButton.isEnabled = !isPurchasing
+            redeemVoucherButton.alpha = alpha
         }
     }
 

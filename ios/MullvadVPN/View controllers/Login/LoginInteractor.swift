@@ -24,6 +24,7 @@ final class LoginInteractor {
     }
 
     func createAccount(completion: @escaping (Result<String, Error>) -> Void) {
+        AccountFlow.isOnboarding = true
         tunnelManager.setNewAccount { result in
             completion(result.map { $0.number })
         }
