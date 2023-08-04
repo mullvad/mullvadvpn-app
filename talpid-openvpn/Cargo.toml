@@ -23,7 +23,7 @@ shell-escape = "0.1"
 talpid-routing = { path = "../talpid-routing" }
 talpid-tunnel = { path = "../talpid-tunnel" }
 talpid-types = { path = "../talpid-types" }
-uuid = { version = "0.8", features = ["v4"] }
+uuid = { version = "1.4.1", features = ["v4"] }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 shadowsocks-service = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "c45980bb22d0d50ac888813c59a1edf0cff14a36",  features = [ "local", "stream-cipher" ] }
 
