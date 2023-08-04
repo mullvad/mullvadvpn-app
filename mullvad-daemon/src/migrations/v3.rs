@@ -1,5 +1,6 @@
 use super::{Error, Result};
 use mullvad_types::settings::SettingsVersion;
+use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
 
 // ======================================================
