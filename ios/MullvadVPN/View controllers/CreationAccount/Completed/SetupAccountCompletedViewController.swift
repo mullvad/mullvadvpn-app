@@ -13,12 +13,28 @@ protocol SetupAccountCompletedViewControllerDelegate: AnyObject {
     func didRequestToStartTheApp(controller: SetupAccountCompletedViewController)
 }
 
-class SetupAccountCompletedViewController: UIViewController {
+class SetupAccountCompletedViewController: UIViewController, RootContainment {
     private lazy var contentView: SetupAccountCompletedContentView = {
         let view = SetupAccountCompletedContentView()
         view.delegate = self
         return view
     }()
+
+    var preferredHeaderBarPresentation: HeaderBarPresentation {
+        HeaderBarPresentation(style: .default, showsDivider: true)
+    }
+
+    var prefersHeaderBarHidden: Bool {
+        false
+    }
+
+    var prefersDeviceInfoBarHidden: Bool {
+        true
+    }
+
+    var prefersNotificationBarHidden: Bool {
+        true
+    }
 
     weak var delegate: SetupAccountCompletedViewControllerDelegate?
 

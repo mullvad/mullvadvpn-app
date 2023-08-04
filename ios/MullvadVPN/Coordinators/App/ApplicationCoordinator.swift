@@ -49,7 +49,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         preferredContentSize: preferredFormSheetContentSize,
         modalPresentationStyle: .custom,
         isModalInPresentation: true,
-        transitioningDelegate: SecondaryContextTransitioningDelegate()
+        transitioningDelegate: SecondaryContextTransitioningDelegate(adjustViewWhenKeyboardAppears: false)
     )
 
     private let notificationController = NotificationController()
@@ -314,7 +314,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             return .login
 
         case let .loggedIn(accountData, _):
-            return accountData.isExpired ? (accountData.isNew ? .welcome : .outOfTime) : .main
+            return accountData.isExpired ? (AccountFlow.isOnboarding ? .welcome : .outOfTime) : .main
         }
     }
 
@@ -579,7 +579,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             tunnelManager: tunnelManager
         )
 
-        coordinator.didFinishPayment = { [weak self] coordinator in
+        coordinator.didFinish = { [weak self] coordinator in
             guard let self else { return }
             router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
@@ -690,13 +690,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             self?.didDismissAccount(reason)
         }
 
-        coordinator.didAddMoreCredit = { [weak self] coordinator, option in
-            guard let self,
-                  self.isPresentingWelcome else { return }
-            self.router.dismiss(.welcome, animated: false)
-            self.router.present(.setupAccountCompleted, animated: false)
-        }
-
         coordinator.start(animated: animated)
 
         presentChild(
@@ -704,7 +697,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             animated: animated,
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: preferredFormSheetContentSize,
-                modalPresentationStyle: .formSheet
+                modalPresentationStyle: .custom,
+                transitioningDelegate: SecondaryContextTransitioningDelegate(adjustViewWhenKeyboardAppears: false)
             )
         ) { [weak self] in
             completion(coordinator)
@@ -778,7 +772,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case let .loggedIn(accountData, _):
 
             // Account creation is being shown
-            guard !isPresentingWelcome && !accountData.isNew else { return }
+            guard !isPresentingWelcome && !AccountFlow.isOnboarding else { return }
 
             // Handle transition to and from expired state.
             switch (previousDeviceState.accountData?.isExpired ?? false, accountData.isExpired) {

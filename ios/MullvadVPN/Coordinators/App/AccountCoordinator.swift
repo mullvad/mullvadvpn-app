@@ -34,7 +34,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     }
 
     var didFinish: ((AccountCoordinator, AccountDismissReason) -> Void)?
-    var didAddMoreCredit: ((AccountCoordinator, AddedMoreCreditOption) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -81,10 +80,8 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             navigationController: CustomNavigationController(),
             interactor: RedeemVoucherInteractor(tunnelManager: interactor.tunnelManager)
         )
-        coordinator.didFinish = { [weak self] redeemVoucherCoordinator in
+        coordinator.didFinish = { redeemVoucherCoordinator in
             redeemVoucherCoordinator.dismiss(animated: true)
-            guard let self else { return }
-            self.didAddMoreCredit?(self, .redeemingVoucher)
         }
         coordinator.didCancel = { redeemVoucherCoordinator in
             redeemVoucherCoordinator.dismiss(animated: true)
@@ -96,7 +93,11 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             animated: true,
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: UIMetrics.SettingsRedeemVoucher.preferredContentSize,
-                modalPresentationStyle: .formSheet
+                modalPresentationStyle: .custom,
+                transitioningDelegate: FormSheetTransitioningDelegate(options: FormSheetPresentationOptions(
+                    useFullScreenPresentationInCompactWidth: false,
+                    adjustViewWhenKeyboardAppears: true
+                ))
             )
         )
     }
@@ -123,7 +124,10 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             animated: true,
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: UIMetrics.AccountDeletion.preferredContentSize,
-                modalPresentationStyle: .formSheet
+                modalPresentationStyle: .custom,
+                transitioningDelegate: SecondaryContextTransitioningDelegate(
+                    adjustViewWhenKeyboardAppears: false
+                )
             )
         )
     }
