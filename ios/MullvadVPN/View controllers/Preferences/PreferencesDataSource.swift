@@ -774,21 +774,24 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         apply(snapshot, animatingDifferences: true)
     }
 
-    private func configureContentBlockersHeader(_ reusableView: SettingsHeaderView) {
-        reusableView.titleLabel.text = NSLocalizedString(
+    private func configureContentBlockersHeader(_ header: SettingsHeaderView) {
+        let title = NSLocalizedString(
             "CONTENT_BLOCKERS_HEADER_LABEL",
             tableName: "Preferences",
             value: "DNS content blockers",
             comment: ""
         )
 
-        reusableView.infoButtonHandler = { [weak self] in
+        header.titleLabel.text = title
+        header.accessibilityCustomActionName = title
+
+        header.infoButtonHandler = { [weak self] in
             if let self {
                 self.delegate?.preferencesDataSource(self, showInfo: .contentBlockers)
             }
         }
 
-        reusableView.didCollapseHandler = { [weak self] headerView in
+        header.didCollapseHandler = { [weak self] headerView in
             guard let self else { return }
 
             var snapshot = self.snapshot()
@@ -804,21 +807,23 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    private func configureWireguardPortsHeader(_ reusableView: SettingsHeaderView) {
-        reusableView.titleLabel.text = NSLocalizedString(
+    private func configureWireguardPortsHeader(_ header: SettingsHeaderView) {
+        let title = NSLocalizedString(
             "WIRE_GUARD_PORTS_HEADER_LABEL",
             tableName: "Preferences",
             value: "WireGuard ports",
             comment: ""
         )
 
-        reusableView.infoButtonHandler = { [weak self] in
+        header.titleLabel.text = title
+        header.accessibilityCustomActionName = title
+        header.infoButtonHandler = { [weak self] in
             if let self {
                 self.delegate?.preferencesDataSource(self, showInfo: .wireGuardPorts)
             }
         }
 
-        reusableView.didCollapseHandler = { [weak self] headerView in
+        header.didCollapseHandler = { [weak self] headerView in
             guard let self else { return }
 
             var snapshot = self.snapshot()
@@ -846,13 +851,15 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private func configureObfuscationHeader(_ header: SettingsHeaderView) {
-        header.titleLabel.text = NSLocalizedString(
+        let title = NSLocalizedString(
             "OBFUSCATION_HEADER_LABEL",
             tableName: "Preferences",
             value: "WireGuard Obfuscation",
             comment: ""
         )
 
+        header.titleLabel.text = title
+        header.accessibilityCustomActionName = title
         header.didCollapseHandler = { [weak self] header in
             guard let self else { return }
 
@@ -872,13 +879,15 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     }
 
     private func configureObfuscationPortHeader(_ header: SettingsHeaderView) {
-        header.titleLabel.text = NSLocalizedString(
+        let title = NSLocalizedString(
             "OBFUSCATION_PORT_HEADER_LABEL",
             tableName: "Preferences",
             value: "UDP-over-TCP Port",
             comment: ""
         )
 
+        header.titleLabel.text = title
+        header.accessibilityCustomActionName = title
         header.didCollapseHandler = { [weak self] header in
             guard let self else { return }
 
