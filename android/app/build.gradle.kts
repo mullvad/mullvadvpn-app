@@ -137,7 +137,7 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         jniLibs.useLegacyPackaging = true
         resources {
             pickFirsts += setOf(
