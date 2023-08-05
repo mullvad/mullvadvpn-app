@@ -12,7 +12,6 @@ android {
 
     defaultConfig {
         minSdk = Versions.Android.minSdkVersion
-        targetSdk = Versions.Android.targetSdkVersion
         testApplicationId = "net.mullvad.mullvadvpn.test.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetProjectPath = ":app"

@@ -126,6 +126,9 @@ android {
         dependsOn(getTasksByName("copyExtraAssets", true))
     }
 
+    // Suppressing since we don't seem have much of an option than using this api. The impact should
+    // also be limited to tests.
+    @Suppress("UnstableApiUsage")
     testOptions {
         unitTests.all { test ->
             test.testLogging {
@@ -137,7 +140,7 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         jniLibs.useLegacyPackaging = true
         resources {
             pickFirsts += setOf(
