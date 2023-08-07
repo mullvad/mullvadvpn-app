@@ -1,7 +1,6 @@
 fn main() {
     #[cfg(all(target_arch = "x86", target_os = "windows"))]
     {
-        extern crate cbindgen;
         use std::env;
 
         let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();

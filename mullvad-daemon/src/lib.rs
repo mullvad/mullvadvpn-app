@@ -1,9 +1,6 @@
 #![deny(rust_2018_idioms)]
 #![recursion_limit = "512"]
 
-#[macro_use]
-extern crate serde;
-
 pub mod account_history;
 mod api;
 #[cfg(not(target_os = "android"))]
