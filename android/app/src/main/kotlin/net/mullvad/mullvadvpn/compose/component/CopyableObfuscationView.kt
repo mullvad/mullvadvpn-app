@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.AnimatedIconButton
@@ -29,7 +30,10 @@ fun CopyableObfuscationView(content: String) {
     val context = LocalContext.current
     val shouldObfuscated = remember { mutableStateOf(true) }
 
-    Row(verticalAlignment = CenterVertically) {
+    Row(
+        verticalAlignment = CenterVertically,
+        modifier = Modifier.padding(end = Dimens.sideMargin)
+    ) {
         AccountNumberView(
             accountNumber = content,
             doObfuscateWithPasswordDots = shouldObfuscated.value,
@@ -39,7 +43,7 @@ fun CopyableObfuscationView(content: String) {
             defaultIcon = painterResource(id = R.drawable.icon_hide),
             secondaryIcon = painterResource(id = R.drawable.icon_show),
             isToggleButton = true,
-            modifier = Modifier.padding(start = Dimens.smallPadding, end = Dimens.sideMargin),
+            contentDescription = stringResource(id = R.string.hide_account_number),
             onClick = { shouldObfuscated.value = shouldObfuscated.value.not() }
         )
         AnimatedIconButton(
@@ -48,7 +52,7 @@ fun CopyableObfuscationView(content: String) {
             secondaryIconColorFilter =
                 ColorFilter.tint(color = MaterialTheme.colorScheme.inversePrimary),
             isToggleButton = false,
-            modifier = Modifier.padding(end = Dimens.sideMargin),
+            contentDescription = stringResource(id = R.string.copy_account_number),
             onClick = {
                 context.copyToClipboard(
                     content = content,
