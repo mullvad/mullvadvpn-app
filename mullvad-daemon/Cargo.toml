@@ -39,7 +39,7 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-time = { path = "../talpid-time" }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
-clap = { version = "4.2.7", features = ["cargo", "derive"] }
+clap = { workspace = true }
 log-panics = "2.0.0"
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 mullvad-paths = { path = "../mullvad-paths" }
