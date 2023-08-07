@@ -44,9 +44,7 @@ fn get_ip_forward_table(family: AddressFamily) -> Result<Vec<MIB_IPFORWARD_ROW2>
     // MIB_IPFORWARD_TABLE2 This pointer is ONLY deallocated here so it is guaranteed to not
     // have been already deallocated. We have cloned all MIB_IPFORWARD_ROW2s and the rows do not
     // contain pointers to the table so they will not be dangling after this free.
-    if let Err(e) = win32_err!(unsafe { FreeMibTable(table_ptr as *const _) }) {
-        log::error!("FreeMibTable should not return a value, but did: {e}");
-    }
+    unsafe { FreeMibTable(table_ptr as *const _) };
 
     Ok(rows)
 }

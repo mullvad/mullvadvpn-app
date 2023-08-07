@@ -348,7 +348,7 @@ pub fn get_unicast_table(
     for i in 0..unsafe { *unicast_table }.NumEntries {
         unicast_rows.push(unsafe { *(first_row.offset(i as isize)) });
     }
-    unsafe { FreeMibTable(unicast_table as *mut _) };
+    unsafe { FreeMibTable(unicast_table as *const _) };
 
     Ok(unicast_rows)
 }
