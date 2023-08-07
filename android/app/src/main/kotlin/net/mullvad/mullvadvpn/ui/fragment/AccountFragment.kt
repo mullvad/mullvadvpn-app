@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.ui.fragment
 
+import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import net.mullvad.mullvadvpn.compose.screen.AccountScreen
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
+import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -40,6 +42,16 @@ class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
                 }
             }
         }
+    }
+
+    override fun onAttach(activity: Activity) {
+        super.onAttach(activity)
+        requireMainActivity().enterSecureScreen(this)
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        requireMainActivity().leaveSecureScreen(this)
     }
 
     private fun openRedeemVoucherFragment() {
