@@ -29,7 +29,10 @@ fun CopyableObfuscationView(content: String) {
     val context = LocalContext.current
     val shouldObfuscated = remember { mutableStateOf(true) }
 
-    Row(verticalAlignment = CenterVertically) {
+    Row(
+        verticalAlignment = CenterVertically,
+        modifier = Modifier.padding(end = Dimens.sideMargin)
+    ) {
         AccountNumberView(
             accountNumber = content,
             doObfuscateWithPasswordDots = shouldObfuscated.value,
@@ -39,7 +42,6 @@ fun CopyableObfuscationView(content: String) {
             defaultIcon = painterResource(id = R.drawable.icon_hide),
             secondaryIcon = painterResource(id = R.drawable.icon_show),
             isToggleButton = true,
-            modifier = Modifier.padding(start = Dimens.smallPadding, end = Dimens.sideMargin),
             onClick = { shouldObfuscated.value = shouldObfuscated.value.not() }
         )
         AnimatedIconButton(
@@ -48,7 +50,6 @@ fun CopyableObfuscationView(content: String) {
             secondaryIconColorFilter =
                 ColorFilter.tint(color = MaterialTheme.colorScheme.inversePrimary),
             isToggleButton = false,
-            modifier = Modifier.padding(end = Dimens.sideMargin),
             onClick = {
                 context.copyToClipboard(
                     content = content,
