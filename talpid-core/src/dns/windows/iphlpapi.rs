@@ -1,3 +1,8 @@
+//! DNS monitor that uses `SetInterfaceDnsSettings`. According to
+//! <https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-setinterfacednssettings>,
+//! it requires at least Windows 10, build 19041. For that reason, use run-time linking and fall
+//! back on other methods if it is not available.
+
 use crate::dns::DnsMonitorT;
 use once_cell::sync::OnceCell;
 use std::{
