@@ -9,11 +9,11 @@ use mullvad_types::{
 
 #[derive(Subcommand, Debug)]
 pub enum CustomList {
-    /// Get names of custom lists
-    List,
-
-    /// Retrieve a custom list by its name
-    Get { name: String },
+    /// List all custom lists or retrieve a custom list by its name
+    List {
+        /// A custom list. This argument is optional
+        name: Option<String>,
+    },
 
     /// Create a new custom list
     Create { name: String },
@@ -42,8 +42,8 @@ pub enum CustomList {
 impl CustomList {
     pub async fn handle(self) -> Result<()> {
         match self {
-            CustomList::List => Self::list().await,
-            CustomList::Get { name } => Self::get(name).await,
+            CustomList::List { name: None } => Self::list().await,
+            CustomList::List { name: Some(name) } => Self::get(name).await,
             CustomList::Create { name } => Self::create_list(name).await,
             CustomList::Add { name, location } => Self::add_location(name, location).await,
             CustomList::Remove { name, location } => Self::remove_location(name, location).await,
@@ -52,6 +52,7 @@ impl CustomList {
         }
     }
 
+    /// Print all custom lists.
     async fn list() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         for custom_list in rpc.list_custom_lists().await? {
@@ -60,6 +61,8 @@ impl CustomList {
         Ok(())
     }
 
+    /// Print a specific custom list (if it exists).
+    /// If the list does not exist, print an error.
     async fn get(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let custom_list = rpc.get_custom_list(name).await?;
