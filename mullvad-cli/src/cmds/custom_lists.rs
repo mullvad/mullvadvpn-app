@@ -9,34 +9,56 @@ use mullvad_types::{
 
 #[derive(Subcommand, Debug)]
 pub enum CustomList {
-    /// List all custom lists or retrieve a custom list by its name
+    /// Create a new custom list
+    New {
+        /// A name for the new custom list
+        name: String,
+    },
+
+    /// Show all custom lists or retrieve a specific custom list
     List {
+        // TODO: Would be cool to provide dynamic auto-completion:
+        // https://github.com/clap-rs/clap/issues/1232
         /// A custom list. This argument is optional
         name: Option<String>,
     },
 
-    /// Create a new custom list
-    Create { name: String },
+    /// Edit a custom list
+    #[clap(subcommand)]
+    Edit(EditCommand),
 
-    /// Add a location to the list
+    /// Delete a custom list
+    Delete {
+        /// A custom list
+        name: String,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum EditCommand {
+    /// Add a location to some custom list
     Add {
+        /// A custom list
         name: String,
         #[command(flatten)]
         location: LocationArgs,
     },
 
-    /// Remove a location from the list
+    /// Remove a location from some custom list
     Remove {
+        /// A custom list
         name: String,
         #[command(flatten)]
         location: LocationArgs,
     },
 
-    /// Delete the custom list
-    Delete { name: String },
-
-    /// Rename a custom list to a new name
-    Rename { name: String, new_name: String },
+    /// Rename a custom list
+    Rename {
+        /// Current name of the custom list
+        name: String,
+        /// A new name for the custom list
+        new_name: String,
+    },
 }
 
 impl CustomList {
@@ -44,11 +66,15 @@ impl CustomList {
         match self {
             CustomList::List { name: None } => Self::list().await,
             CustomList::List { name: Some(name) } => Self::get(name).await,
-            CustomList::Create { name } => Self::create_list(name).await,
-            CustomList::Add { name, location } => Self::add_location(name, location).await,
-            CustomList::Remove { name, location } => Self::remove_location(name, location).await,
+            CustomList::New { name } => Self::create_list(name).await,
             CustomList::Delete { name } => Self::delete_list(name).await,
-            CustomList::Rename { name, new_name } => Self::rename_list(name, new_name).await,
+            CustomList::Edit(cmd) => match cmd {
+                EditCommand::Add { name, location } => Self::add_location(name, location).await,
+                EditCommand::Rename { name, new_name } => Self::rename_list(name, new_name).await,
+                EditCommand::Remove { name, location } => {
+                    Self::remove_location(name, location).await
+                }
+            },
         }
     }
 
