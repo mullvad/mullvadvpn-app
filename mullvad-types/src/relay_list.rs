@@ -29,6 +29,12 @@ impl RelayList {
     pub fn empty() -> Self {
         Self::default()
     }
+
+    pub fn lookup_country(&self, country_code: CountryCode) -> Option<&RelayListCountry> {
+        self.countries
+            .iter()
+            .find(|country| country.code == country_code)
+    }
 }
 
 /// A list of [`RelayListCity`]s within a country. Used by [`RelayList`].
@@ -39,6 +45,12 @@ pub struct RelayListCountry {
     pub name: String,
     pub code: CountryCode,
     pub cities: Vec<RelayListCity>,
+}
+
+impl RelayListCountry {
+    pub fn lookup_city(&self, city_code: CityCode) -> Option<&RelayListCity> {
+        self.cities.iter().find(|city| city.code == city_code)
+    }
 }
 
 /// A list of [`Relay`]s within a city. Used by [`RelayListCountry`].

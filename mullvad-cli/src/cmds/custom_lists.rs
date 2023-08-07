@@ -5,6 +5,7 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     custom_list::CustomListLocationUpdate,
     relay_constraints::{Constraint, GeographicLocationConstraint},
+    relay_list::RelayList,
 };
 
 #[derive(Subcommand, Debug)]
@@ -81,8 +82,9 @@ impl CustomList {
     /// Print all custom lists.
     async fn list() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
+        let cache = rpc.get_relay_locations().await?;
         for custom_list in rpc.list_custom_lists().await? {
-            Self::print_custom_list(&custom_list)
+            Self::print_custom_list(&custom_list, &cache)
         }
         Ok(())
     }
@@ -92,7 +94,8 @@ impl CustomList {
     async fn get(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let custom_list = rpc.get_custom_list(name).await?;
-        Self::print_custom_list_content(&custom_list);
+        let cache = rpc.get_relay_locations().await?;
+        Self::print_custom_list_content(&custom_list, &cache);
         Ok(())
     }
 
@@ -130,14 +133,82 @@ impl CustomList {
         Ok(())
     }
 
-    fn print_custom_list(custom_list: &mullvad_types::custom_list::CustomList) {
+    fn print_custom_list(custom_list: &mullvad_types::custom_list::CustomList, cache: &RelayList) {
         println!("{}", custom_list.name);
-        Self::print_custom_list_content(&custom_list);
+        Self::print_custom_list_content(custom_list, cache);
     }
 
-    fn print_custom_list_content(custom_list: &mullvad_types::custom_list::CustomList) {
+    fn print_custom_list_content(
+        custom_list: &mullvad_types::custom_list::CustomList,
+        cache: &RelayList,
+    ) {
         for location in &custom_list.locations {
-            println!("\t{location}");
+            println!(
+                "\t{}",
+                GeographicLocationConstraintFormatter::from_constraint(location, cache)
+            );
+        }
+    }
+}
+
+/// Struct used for pretty printing [`GeographicLocationConstraint`] with
+/// human-readable names for countries and cities.
+pub struct GeographicLocationConstraintFormatter<'a> {
+    constraint: &'a GeographicLocationConstraint,
+    country: Option<String>,
+    city: Option<String>,
+}
+
+impl<'a> GeographicLocationConstraintFormatter<'a> {
+    fn from_constraint(constraint: &'a GeographicLocationConstraint, cache: &RelayList) -> Self {
+        use GeographicLocationConstraint::*;
+        let (country_code, city_code) = match constraint {
+            Country(country) => (Some(country), None),
+            City(country, city) | Hostname(country, city, _) => (Some(country), Some(city)),
+        };
+
+        let country =
+            country_code.and_then(|country_code| cache.lookup_country(country_code.to_string()));
+        let city = city_code.and_then(|city_code| {
+            country.and_then(|country| country.lookup_city(city_code.to_string()))
+        });
+
+        Self {
+            constraint,
+            country: country.map(|x| x.name.clone()),
+            city: city.map(|x| x.name.clone()),
+        }
+    }
+}
+
+impl<'a> std::fmt::Display for GeographicLocationConstraintFormatter<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        let unwrap_country = |country: Option<String>, constraint: &str| {
+            country.unwrap_or(format!("{constraint} <invalid country>"))
+        };
+
+        let unwrap_city = |city: Option<String>, constraint: &str| {
+            city.unwrap_or(format!("{constraint} <invalid city>"))
+        };
+
+        match &self.constraint {
+            GeographicLocationConstraint::Country(country) => {
+                let rich_country = unwrap_country(self.country.clone(), country);
+                write!(f, "{rich_country} ({country})")
+            }
+            GeographicLocationConstraint::City(country, city) => {
+                let rich_country = unwrap_country(self.country.clone(), country);
+                let rich_city = unwrap_city(self.city.clone(), city);
+                write!(f, "{rich_city}, {rich_country} ({city}, {country})")
+            }
+            GeographicLocationConstraint::Hostname(country, city, hostname) => {
+                let rich_country = unwrap_country(self.country.clone(), country);
+                let rich_city = unwrap_city(self.city.clone(), city);
+                write!(
+                    f,
+                    "{hostname} in {rich_city}, {rich_country} ({city}, {country})"
+                )
+            }
         }
     }
 }
