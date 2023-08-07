@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -108,21 +109,23 @@ fun SplitTunnelingScreen(
         },
     ) {
         LazyColumn(
-            modifier = Modifier.drawVerticalScrollbar(state = lazyListState),
+            modifier = Modifier.drawVerticalScrollbar(state = lazyListState).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState
         ) {
             item(key = CommonContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
-                Text(
-                    style = MaterialTheme.typography.labelMedium,
-                    text = stringResource(id = R.string.split_tunneling_description),
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.mediumPadding,
-                            end = Dimens.mediumPadding,
-                            bottom = Dimens.mediumPadding
-                        )
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        style = MaterialTheme.typography.labelMedium,
+                        text = stringResource(id = R.string.split_tunneling_description),
+                        modifier =
+                            Modifier.padding(
+                                start = Dimens.mediumPadding,
+                                end = Dimens.mediumPadding,
+                                bottom = Dimens.mediumPadding
+                            )
+                    )
+                }
             }
             when (uiState) {
                 SplitTunnelingUiState.Loading -> {
