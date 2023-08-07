@@ -1,3 +1,8 @@
+//! DNS monitor that uses `SetInterfaceDnsSettings`. According to
+//! <https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-setinterfacednssettings>,
+//! it requires at least Windows 10, build 19041. For that reason, use run-time linking and fall
+//! back on other methods if it is not available.
+
 use crate::dns::DnsMonitorT;
 use once_cell::sync::OnceCell;
 use std::{
@@ -74,6 +79,8 @@ impl IphlpApi {
             return Err(Error::LoadDll(io::Error::last_os_error()));
         }
 
+        // This function is loaded at runtime since it may be unavailable. See the module-level docs.
+        // TODO: `windows_sys` can be used directly when support for Windows 10, 2004, is dropped.
         let set_interface_dns_settings =
             unsafe { GetProcAddress(module, s!("SetInterfaceDnsSettings")) };
         let set_interface_dns_settings = set_interface_dns_settings.ok_or_else(|| {
