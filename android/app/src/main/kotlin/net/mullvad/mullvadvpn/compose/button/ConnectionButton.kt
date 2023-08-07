@@ -16,14 +16,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.theme.AlphaDisconnectButton
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
 import net.mullvad.mullvadvpn.compose.theme.Dimens
@@ -39,89 +40,90 @@ fun ConnectionButton(
     cancelClick: () -> Unit,
     connectClick: () -> Unit
 ) {
-    when (state) {
-        is TunnelState.Disconnected -> ConnectButton(modifier = modifier, onClick = connectClick)
-        is TunnelState.Disconnecting -> {
-            DisconnectButton(
-                modifier = modifier,
-                text = stringResource(id = R.string.disconnect),
-                mainClick = connectClick,
-                reconnectClick = reconnectClick,
-                reconnectButtonTestTag = reconnectButtonTestTag
-            )
+    val containerColor =
+        if (state is TunnelState.Disconnected) {
+            MaterialTheme.colorScheme.surface
+        } else {
+            MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton)
         }
-        is TunnelState.Connecting ->
-            DisconnectButton(
-                modifier = modifier,
-                text = stringResource(id = R.string.cancel),
-                mainClick = cancelClick,
-                reconnectClick = reconnectClick,
-                reconnectButtonTestTag = reconnectButtonTestTag
-            )
-        is TunnelState.Connected ->
-            DisconnectButton(
-                modifier = modifier,
-                text = stringResource(id = R.string.disconnect),
-                mainClick = disconnectClick,
-                reconnectClick = reconnectClick,
-                reconnectButtonTestTag = reconnectButtonTestTag
-            )
-        is TunnelState.Error -> {
-            if (state.errorState.isBlocking) {
-                DisconnectButton(
-                    modifier = modifier,
-                    text = stringResource(id = R.string.disconnect),
-                    mainClick = disconnectClick,
-                    reconnectClick = reconnectClick,
-                    reconnectButtonTestTag = reconnectButtonTestTag
-                )
-            } else {
-                DisconnectButton(
-                    modifier = modifier,
-                    text = stringResource(id = R.string.dismiss),
-                    mainClick = cancelClick,
-                    reconnectClick = reconnectClick,
-                    reconnectButtonTestTag = reconnectButtonTestTag
-                )
+
+    val contentColor =
+        if (state is TunnelState.Disconnected) {
+            MaterialTheme.colorScheme.onSurface
+        } else {
+            MaterialTheme.colorScheme.onError
+        }
+
+    val buttonText =
+        stringResource(
+            id =
+                when (state) {
+                    is TunnelState.Disconnected -> R.string.connect
+                    is TunnelState.Disconnecting -> R.string.disconnect
+                    is TunnelState.Connecting -> R.string.cancel
+                    is TunnelState.Connected -> R.string.disconnect
+                    is TunnelState.Error -> {
+                        if (state.errorState.isBlocking) {
+                            R.string.disconnect
+                        } else {
+                            R.string.dismiss
+                        }
+                    }
+                }
+        )
+
+    val onMainClick =
+        when (state) {
+            is TunnelState.Disconnected -> connectClick
+            is TunnelState.Connecting -> cancelClick
+            is TunnelState.Error -> {
+                if (state.errorState.isBlocking) {
+                    disconnectClick
+                } else {
+                    cancelClick
+                }
             }
+            else -> disconnectClick
         }
-    }
-}
 
-@Preview
-@Composable
-private fun PreviewConnectButton() {
-    AppTheme { ConnectButton(onClick = {}) }
-}
-
-@Composable
-private fun ConnectButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    ActionButton(
-        text = textResource(id = R.string.connect),
+    ConnectionButton(
         modifier = modifier,
-        onClick = onClick,
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            )
+        text = buttonText,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        mainClick = onMainClick,
+        reconnectClick = reconnectClick,
+        reconnectButtonTestTag = reconnectButtonTestTag,
+        isReconnectButtonEnabled = (state is TunnelState.Disconnected).not()
     )
 }
 
 @Preview
 @Composable
-fun PreviewDisconnectButton() {
-    AppTheme { DisconnectButton(text = "Disconnect", mainClick = {}, reconnectClick = {}) }
+fun ConnectionButton() {
+    AppTheme {
+        ConnectionButton(
+            text = "Disconnect",
+            mainClick = {},
+            containerColor = MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton),
+            contentColor = MaterialTheme.colorScheme.onError,
+            reconnectClick = {},
+            isReconnectButtonEnabled = false
+        )
+    }
 }
 
 @Composable
-private fun DisconnectButton(
+private fun ConnectionButton(
     text: String,
+    mainClick: () -> Unit,
+    reconnectClick: () -> Unit,
+    isReconnectButtonEnabled: Boolean,
+    containerColor: Color,
+    contentColor: Color,
     modifier: Modifier = Modifier,
     height: Dp = Dimens.connectButtonHeight,
-    reconnectButtonTestTag: String = "",
-    mainClick: () -> Unit,
-    reconnectClick: () -> Unit
+    reconnectButtonTestTag: String = ""
 ) {
     Row(modifier = modifier.height(height)) {
         Button(
@@ -133,14 +135,18 @@ private fun DisconnectButton(
                 ),
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor =
-                        MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton),
-                    contentColor = MaterialTheme.colorScheme.onError
+                    containerColor = containerColor,
+                    contentColor = contentColor
                 ),
             modifier = Modifier.weight(1f).height(height)
         ) {
             // Offset to compensate for the reconnect button.
-            val paddingOffset = height + Dimens.listItemDivider
+            val paddingOffset =
+                if (isReconnectButtonEnabled) {
+                    height + Dimens.listItemDivider
+                } else {
+                    0.dp
+                }
             Text(
                 text = text,
                 style = MaterialTheme.typography.titleMedium,
@@ -149,24 +155,29 @@ private fun DisconnectButton(
             )
         }
 
-        Spacer(modifier = Modifier.width(Dimens.listItemDivider))
+        if (isReconnectButtonEnabled) {
+            Spacer(modifier = Modifier.width(Dimens.listItemDivider))
 
-        FilledIconButton(
-            shape =
-                MaterialTheme.shapes.small.copy(
-                    topStart = CornerSize(percent = 0),
-                    bottomStart = CornerSize(percent = 0)
-                ),
-            colors =
-                IconButtonDefaults.filledIconButtonColors(
-                    containerColor =
-                        MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton),
-                    contentColor = MaterialTheme.colorScheme.onError
-                ),
-            onClick = reconnectClick,
-            modifier = Modifier.height(height).aspectRatio(1f, true).testTag(reconnectButtonTestTag)
-        ) {
-            Icon(painter = painterResource(id = R.drawable.icon_reload), contentDescription = null)
+            FilledIconButton(
+                shape =
+                    MaterialTheme.shapes.small.copy(
+                        topStart = CornerSize(percent = 0),
+                        bottomStart = CornerSize(percent = 0)
+                    ),
+                colors =
+                    IconButtonDefaults.filledIconButtonColors(
+                        containerColor = containerColor,
+                        contentColor = contentColor
+                    ),
+                onClick = reconnectClick,
+                modifier =
+                    Modifier.height(height).aspectRatio(1f, true).testTag(reconnectButtonTestTag)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_reload),
+                    contentDescription = null
+                )
+            }
         }
     }
 }
