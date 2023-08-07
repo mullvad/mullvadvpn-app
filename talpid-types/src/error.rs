@@ -53,10 +53,7 @@ impl BoxedError {
 }
 
 /// Helper macro allowing simpler handling of Windows FFI returning `WIN32_ERROR`
-/// status codes. This is needed because `io::Error::from_raw_os_error`
-/// expects an i32 and `WIN32_ERROR` is a u32. So to avoid just lossy casting
-/// we introduce this helper that makes any u32 error code larger than `i32::MAX`
-/// return `ErrorKind::Other` instead.
+/// status codes. Converts a `WIN32_ERROR` into an `io::Result<()>`.
 ///
 /// The caller of this macro must have `windows_sys` as a dependency.
 #[cfg(windows)]
@@ -67,13 +64,7 @@ macro_rules! win32_err {
         if status == ::windows_sys::Win32::Foundation::NO_ERROR {
             Ok(())
         } else {
-            Err(match i32::try_from(status) {
-                Ok(code) => ::std::io::Error::from_raw_os_error(code),
-                Err(_) => ::std::io::Error::new(
-                    ::std::io::ErrorKind::Other,
-                    format!("Unexpected WIN32_ERROR value: {status}"),
-                ),
-            })
+            Err(::std::io::Error::from_raw_os_error(status as i32))
         }
     }};
 }
