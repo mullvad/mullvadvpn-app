@@ -312,7 +312,7 @@ final class TunnelMonitor: PingerDelegate {
         }
     }
 
-    func onSleep(completion: @escaping () -> Void) {
+    func onSleep() {
         nslock.lock()
         defer { nslock.unlock() }
 
