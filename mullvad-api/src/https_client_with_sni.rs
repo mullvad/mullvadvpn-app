@@ -73,8 +73,112 @@ enum HttpsConnectorRequest {
 enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
-    /// Connect to the destination via a proxy.
-    Proxied(ParsedShadowsocksConfig),
+    /// Connect to the destination via a Shadowsocks proxy.
+    Shadowsocks(ShadowsocksConfig),
+    /// Connect to the destination via a Socks proxy.
+    Socks5(SocksConfig),
+}
+
+impl InnerConnectionMode {
+    async fn connect(
+        &self,
+        hostname: &str,
+        addr: &SocketAddr,
+    ) -> Result<ApiConnection, std::io::Error> {
+        use InnerConnectionMode::*;
+        match self {
+            Direct => Self::handle_direct_connection(addr, hostname).await,
+            Shadowsocks(config) => {
+                Self::handle_shadowsocks_connection(config.clone(), addr, hostname).await
+            }
+            Socks5(proxy_config) => {
+                Self::handle_socks_connection(proxy_config.clone(), addr, hostname).await
+            }
+        }
+    }
+
+    /// Set up a TCP-socket connection.
+    async fn handle_direct_connection(
+        addr: &SocketAddr,
+        hostname: &str,
+    ) -> Result<ApiConnection, io::Error> {
+        let socket = HttpsConnectorWithSni::open_socket(
+            *addr,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx.clone(),
+        )
+        .await?;
+        #[cfg(feature = "api-override")]
+        if API.disable_tls {
+            return Ok(ApiConnection::new(Box::new(socket)));
+        }
+
+        let tls_stream = TlsStream::connect_https(socket, hostname).await?;
+        Ok(ApiConnection::new(Box::new(tls_stream)))
+    }
+
+    /// Set up a shadowsocks-socket connection.
+    async fn handle_shadowsocks_connection(
+        shadowsocks: ShadowsocksConfig,
+        addr: &SocketAddr,
+        hostname: &str,
+    ) -> Result<ApiConnection, io::Error> {
+        let socket = HttpsConnectorWithSni::open_socket(
+            shadowsocks.params.peer,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx.clone(),
+        )
+        .await?;
+        let proxy = ProxyClientStream::from_stream(
+            shadowsocks.proxy_context,
+            socket,
+            &ServerConfig::from(shadowsocks.params),
+            *addr,
+        );
+
+        #[cfg(feature = "api-override")]
+        if API.disable_tls {
+            return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
+        }
+
+        let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
+        Ok(ApiConnection::new(Box::new(tls_stream)))
+    }
+
+    /// Set up a SOCKS5-socket connection.
+    ///
+    /// TODO: Handle case where the proxy-address is `localhost`.
+    async fn handle_socks_connection(
+        proxy_config: SocksConfig,
+        addr: &SocketAddr,
+        hostname: &str,
+    ) -> Result<ApiConnection, io::Error> {
+        let socket = HttpsConnectorWithSni::open_socket(
+            proxy_config.peer,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx.clone(),
+        )
+        .await?;
+        let proxy = tokio_socks::tcp::Socks5Stream::connect_with_socket(socket, addr)
+            .await
+            .map_err(|error| {
+                io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
+            })?;
+
+        #[cfg(feature = "api-override")]
+        if API.disable_tls {
+            return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
+        }
+
+        let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
+        Ok(ApiConnection::new(Box::new(tls_stream)))
+    }
+}
+
+#[derive(Clone)]
+struct ShadowsocksConfig {
+    proxy_context: SharedContext,
+    params: ParsedShadowsocksConfig,
 }
 
 #[derive(Clone)]
@@ -90,6 +194,11 @@ impl From<ParsedShadowsocksConfig> for ServerConfig {
     }
 }
 
+#[derive(Clone)]
+struct SocksConfig {
+    peer: SocketAddr,
+}
+
 #[derive(err_derive::Error, Debug)]
 enum ProxyConfigError {
     #[error(display = "Unrecognized cipher selected: {}", _0)]
@@ -102,14 +211,22 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
     fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
-            ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(config)) => {
-                InnerConnectionMode::Proxied(ParsedShadowsocksConfig {
-                    peer: config.peer,
-                    password: config.password,
-                    cipher: CipherKind::from_str(&config.cipher)
-                        .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
-                })
-            }
+            ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
+                ProxyConfig::Shadowsocks(config) => {
+                    InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
+                        params: ParsedShadowsocksConfig {
+                            peer: config.peer,
+                            password: config.password,
+                            cipher: CipherKind::from_str(&config.cipher)
+                                .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+                        },
+                        proxy_context: SsContext::new_shared(ServerType::Local),
+                    })
+                }
+                ProxyConfig::Socks(config) => {
+                    InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
+                }
+            },
         })
     }
 }
@@ -121,7 +238,6 @@ pub struct HttpsConnectorWithSni {
     sni_hostname: Option<String>,
     address_cache: AddressCache,
     abort_notify: Arc<tokio::sync::Notify>,
-    proxy_context: SharedContext,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
@@ -186,7 +302,6 @@ impl HttpsConnectorWithSni {
                 sni_hostname,
                 address_cache,
                 abort_notify,
-                proxy_context: SsContext::new_shared(ServerType::Local),
                 #[cfg(target_os = "android")]
                 socket_bypass_tx,
             },
@@ -194,6 +309,9 @@ impl HttpsConnectorWithSni {
         )
     }
 
+    /// Establishes a TCP connection with a peer at the specified socket address.
+    ///
+    /// Will timeout after [`CONNECT_TIMEOUT`] seconds.
     async fn open_socket(
         addr: SocketAddr,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -281,7 +399,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
             });
         let inner = self.inner.clone();
         let abort_notify = self.abort_notify.clone();
-        let proxy_context = self.proxy_context.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
         let address_cache = self.address_cache.clone();
@@ -301,50 +418,8 @@ impl Service<Uri> for HttpsConnectorWithSni {
             // is selected while connecting.
             let stream = loop {
                 let notify = abort_notify.notified();
-                let config = { inner.lock().unwrap().proxy_config.clone() };
-                let stream_fut = async {
-                    match config {
-                        InnerConnectionMode::Direct => {
-                            let socket = Self::open_socket(
-                                addr,
-                                #[cfg(target_os = "android")]
-                                socket_bypass_tx.clone(),
-                            )
-                            .await?;
-                            #[cfg(feature = "api-override")]
-                            if API.disable_tls {
-                                return Ok::<_, io::Error>(ApiConnection::new(Box::new(socket)));
-                            }
-
-                            let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
-                            Ok::<_, io::Error>(ApiConnection::new(Box::new(tls_stream)))
-                        }
-                        InnerConnectionMode::Proxied(proxy_config) => {
-                            let socket = Self::open_socket(
-                                proxy_config.peer,
-                                #[cfg(target_os = "android")]
-                                socket_bypass_tx.clone(),
-                            )
-                            .await?;
-                            let proxy = ProxyClientStream::from_stream(
-                                proxy_context.clone(),
-                                socket,
-                                &ServerConfig::from(proxy_config),
-                                addr,
-                            );
-
-                            #[cfg(feature = "api-override")]
-                            if API.disable_tls {
-                                return Ok(ApiConnection::new(Box::new(ConnectionDecorator(
-                                    proxy,
-                                ))));
-                            }
-
-                            let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
-                            Ok(ApiConnection::new(Box::new(tls_stream)))
-                        }
-                    }
-                };
+                let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
+                let stream_fut = proxy_config.connect(&hostname, &addr);
 
                 pin_mut!(stream_fut);
                 pin_mut!(notify);
