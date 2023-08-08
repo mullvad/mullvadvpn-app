@@ -5,7 +5,9 @@ set -eux
 export RUSTFLAGS="--deny warnings"
 
 # Build WireGuard Go
-./wireguard/build-wireguard-go.sh
+if [[ "$(uname -s)" != "MINGW"* ]]; then
+    ./wireguard/build-wireguard-go.sh
+fi
 
 # Build Rust crates
 source env.sh

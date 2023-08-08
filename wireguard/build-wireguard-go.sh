@@ -26,47 +26,6 @@ function is_docker_build {
     return 0
 }
 
-
-function win_deduce_lib_executable_path {
-    msbuild_path="$(which msbuild.exe)"
-    msbuild_dir=$(dirname "$msbuild_path")
-    find "$msbuild_dir/../../../../" -name "lib.exe" | \
-        grep -i "hostx64/x64" | \
-        head -n1
-}
-
-function win_gather_export_symbols {
-   grep -Eo "\/\/export \w+" libwg.go libwg_windows.go | cut -d' ' -f2
-}
-
-function win_create_lib_file {
-    echo "LIBRARY libwg" > exports.def
-    echo "EXPORTS" >> exports.def
-
-    for symbol in $(win_gather_export_symbols); do
-        printf "\t%s\n" "$symbol" >> exports.def
-    done
-
-    lib_path="$(win_deduce_lib_executable_path)"
-    "$lib_path" \
-        "/def:exports.def" \
-        "/out:libwg.lib" \
-        "/machine:X64"
-
-}
-
-function build_windows {
-    echo "Building wireguard-go for Windows"
-    pushd libwg
-        go build -v -o libwg.dll -buildmode c-shared
-        win_create_lib_file
-
-        target_dir=../../build/lib/x86_64-pc-windows-msvc/
-        mkdir -p $target_dir
-        mv libwg.dll libwg.lib $target_dir
-    popd
-}
-
 function unix_target_triple {
     local platform="$(uname -s)"
     if [[ ("${platform}" == "Linux") ]]; then
@@ -144,7 +103,10 @@ function build_wireguard_go {
     local platform="$(uname -s)";
     case  "$platform" in
         Linux*|Darwin*) build_unix ${1:-$(unix_target_triple)};;
-        MINGW*|MSYS_NT*) build_windows;;
+        *)
+            echo "Unsupported platform"
+            return 1
+            ;;
     esac
 }
 

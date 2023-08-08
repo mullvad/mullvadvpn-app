@@ -143,7 +143,6 @@ const config = {
         to: '.',
       },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
-      { from: buildAssets('lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/wintun/wintun.dll'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/split-tunnel/mullvad-split-tunnel.sys'), to: '.' },
       {

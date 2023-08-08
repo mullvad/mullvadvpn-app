@@ -54,7 +54,6 @@ fn main() {
     declare_library(WINFW_DIR_VAR, WINFW_BUILD_DIR, "winfw");
     let lib_dir = manifest_dir().join("../build/lib/x86_64-pc-windows-msvc");
     println!("cargo:rustc-link-search={}", &lib_dir.display());
-    println!("cargo:rustc-link-lib=dylib=libwg");
 }
 
 #[cfg(not(windows))]
