@@ -73,8 +73,8 @@ enum HttpsConnectorRequest {
 enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
-    /// Connect to the destination via a proxy.
-    Proxied(ParsedShadowsocksConfig),
+    /// Connect to the destination via a Shadowsocks proxy.
+    Shadowsocks(ParsedShadowsocksConfig),
 }
 
 #[derive(Clone)]
@@ -103,7 +103,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(config)) => {
-                InnerConnectionMode::Proxied(ParsedShadowsocksConfig {
+                InnerConnectionMode::Shadowsocks(ParsedShadowsocksConfig {
                     peer: config.peer,
                     password: config.password,
                     cipher: CipherKind::from_str(&config.cipher)
@@ -319,7 +319,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
                             let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
                             Ok::<_, io::Error>(ApiConnection::new(Box::new(tls_stream)))
                         }
-                        InnerConnectionMode::Proxied(proxy_config) => {
+                        InnerConnectionMode::Shadowsocks(proxy_config) => {
                             let socket = Self::open_socket(
                                 proxy_config.peer,
                                 #[cfg(target_os = "android")]
