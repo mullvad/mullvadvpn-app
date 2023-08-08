@@ -194,6 +194,9 @@ impl HttpsConnectorWithSni {
         )
     }
 
+    /// Establishes a TCP connection with a peer at the specified socket address.
+    ///
+    /// Will timeout after [`CONNECT_TIMEOUT`] seconds.
     async fn open_socket(
         addr: SocketAddr,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -259,6 +262,55 @@ impl fmt::Debug for HttpsConnectorWithSni {
     }
 }
 
+/// Set up a TCP-socket connection.
+async fn handle_direct_connection(
+    addr: &SocketAddr,
+    hostname: &str,
+) -> Result<ApiConnection, io::Error> {
+    let socket = HttpsConnectorWithSni::open_socket(
+        *addr,
+        #[cfg(target_os = "android")]
+        socket_bypass_tx.clone(),
+    )
+    .await?;
+    #[cfg(feature = "api-override")]
+    if API.disable_tls {
+        return Ok(ApiConnection::new(Box::new(socket)));
+    }
+
+    let tls_stream = TlsStream::connect_https(socket, hostname).await?;
+    Ok(ApiConnection::new(Box::new(tls_stream)))
+}
+
+/// Set up a shadowsocks-socket connection.
+async fn handle_shadowsocks_connection(
+    proxy_config: ParsedShadowsocksConfig,
+    proxy_context: SharedContext,
+    addr: &SocketAddr,
+    hostname: &str,
+) -> Result<ApiConnection, io::Error> {
+    let socket = HttpsConnectorWithSni::open_socket(
+        proxy_config.peer,
+        #[cfg(target_os = "android")]
+        socket_bypass_tx.clone(),
+    )
+    .await?;
+    let proxy = ProxyClientStream::from_stream(
+        proxy_context,
+        socket,
+        &ServerConfig::from(proxy_config),
+        *addr,
+    );
+
+    #[cfg(feature = "api-override")]
+    if API.disable_tls {
+        return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
+    }
+
+    let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
+    Ok(ApiConnection::new(Box::new(tls_stream)))
+}
+
 impl Service<Uri> for HttpsConnectorWithSni {
     type Response = AbortableStream<ApiConnection>;
     type Error = io::Error;
@@ -305,43 +357,16 @@ impl Service<Uri> for HttpsConnectorWithSni {
                 let stream_fut = async {
                     match config {
                         InnerConnectionMode::Direct => {
-                            let socket = Self::open_socket(
-                                addr,
-                                #[cfg(target_os = "android")]
-                                socket_bypass_tx.clone(),
-                            )
-                            .await?;
-                            #[cfg(feature = "api-override")]
-                            if API.disable_tls {
-                                return Ok::<_, io::Error>(ApiConnection::new(Box::new(socket)));
-                            }
-
-                            let tls_stream = TlsStream::connect_https(socket, &hostname).await?;
-                            Ok::<_, io::Error>(ApiConnection::new(Box::new(tls_stream)))
+                            handle_direct_connection(&addr, &hostname).await
                         }
                         InnerConnectionMode::Shadowsocks(proxy_config) => {
-                            let socket = Self::open_socket(
-                                proxy_config.peer,
-                                #[cfg(target_os = "android")]
-                                socket_bypass_tx.clone(),
-                            )
-                            .await?;
-                            let proxy = ProxyClientStream::from_stream(
+                            handle_shadowsocks_connection(
+                                proxy_config.clone(),
                                 proxy_context.clone(),
-                                socket,
-                                &ServerConfig::from(proxy_config),
-                                addr,
-                            );
-
-                            #[cfg(feature = "api-override")]
-                            if API.disable_tls {
-                                return Ok(ApiConnection::new(Box::new(ConnectionDecorator(
-                                    proxy,
-                                ))));
-                            }
-
-                            let tls_stream = TlsStream::connect_https(proxy, &hostname).await?;
-                            Ok(ApiConnection::new(Box::new(tls_stream)))
+                                &addr,
+                                &hostname,
+                            )
+                            .await
                         }
                     }
                 };
