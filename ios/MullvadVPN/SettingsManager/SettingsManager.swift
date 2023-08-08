@@ -15,21 +15,10 @@ private let keychainServiceName = "Mullvad VPN"
 private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
-enum SettingsMigrationResult {
-    /// Nothing to migrate.
-    case nothing
-
-    /// Successfully performed migration.
-    case success
-
-    /// Failure when migrating store.
-    case failure(Error)
-}
-
 enum SettingsManager {
     private static let logger = Logger(label: "SettingsManager")
 
-    private static let store: SettingsStore = KeychainSettingsStore(
+    static let store: SettingsStore = KeychainSettingsStore(
         serviceName: keychainServiceName,
         accessGroup: ApplicationConfiguration.securityGroupIdentifier
     )
@@ -134,32 +123,6 @@ enum SettingsManager {
         try store.write(data, for: .deviceState)
     }
 
-    // MARK: - Migration
-
-    /// Migrate settings store if needed.
-    ///
-    /// The following types of error are expected to be returned by this method:
-    /// `SettingsMigrationError`, `UnsupportedSettingsVersionError`, `ReadSettingsVersionError`.
-    static func migrateStore(
-        with restFactory: REST.ProxyFactory,
-        completion: @escaping (SettingsMigrationResult) -> Void
-    ) {
-        let handleCompletion = { (result: SettingsMigrationResult) in
-            // Reset store upon failure to migrate settings.
-            if case .failure = result {
-                resetStore()
-            }
-            completion(result)
-        }
-
-        do {
-            try checkLatestSettingsVersion()
-            handleCompletion(.nothing)
-        } catch {
-            handleCompletion(.failure(error))
-        }
-    }
-
     /// Removes all legacy settings, device state and tunnel settings but keeps the last used
     /// account number stored.
     static func resetStore(completely: Bool = false) {
@@ -229,12 +192,7 @@ enum SettingsManager {
     }
 }
 
-enum SettingsKey: String, CaseIterable {
-    case settings = "Settings"
-    case deviceState = "DeviceState"
-    case lastUsedAccount = "LastUsedAccount"
-    case shouldWipeSettings = "ShouldWipeSettings"
-}
+// MARK: - Supporting types
 
 /// An error type describing a failure to read or parse settings version.
 struct ReadSettingsVersionError: LocalizedError, WrappingError {
@@ -263,26 +221,6 @@ struct UnsupportedSettingsVersionError: LocalizedError {
         Stored settings version was not the same as current version, \
         stored version: \(storedVersion), current version: \(currentVersion)
         """
-    }
-}
-
-/// A wrapper type for errors returned by concrete migrations.
-struct SettingsMigrationError: LocalizedError, WrappingError {
-    private let inner: Error
-    let sourceVersion, targetVersion: SchemaVersion
-
-    var underlyingError: Error? {
-        inner
-    }
-
-    var errorDescription: String? {
-        "Failed to migrate settings from \(sourceVersion) to \(targetVersion)."
-    }
-
-    init(sourceVersion: SchemaVersion, targetVersion: SchemaVersion, underlyingError: Error) {
-        self.sourceVersion = sourceVersion
-        self.targetVersion = targetVersion
-        inner = underlyingError
     }
 }
 
