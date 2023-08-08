@@ -101,6 +101,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove the CLI subcommand `mullvad relay set hostname`.
 
+#### Windows
+- Removed wireguard-go (userspace WireGuard) support.
+
 
 ## [2023.4] - 2023-06-27
 ### Fixed
