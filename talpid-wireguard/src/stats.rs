@@ -27,6 +27,7 @@ pub struct Stats {
 pub type StatsMap = std::collections::HashMap<[u8; 32], Stats>;
 
 impl Stats {
+    #[cfg(unix)]
     pub fn parse_config_str(config: &str) -> Result<StatsMap, Error> {
         let mut map = StatsMap::new();
 
@@ -124,6 +125,7 @@ impl Stats {
 mod test {
     use super::{Error, Stats};
 
+    #[cfg(unix)]
     #[test]
     fn test_parsing() {
         let valid_input = "private_key=0000000000000000000000000000000000000000000000000000000000000000\npublic_key=0000000000000000000000000000000000000000000000000000000000000000\npreshared_key=0000000000000000000000000000000000000000000000000000000000000000\nprotocol_version=1\nendpoint=000.000.000.000:00000\nlast_handshake_time_sec=1578420649\nlast_handshake_time_nsec=369416131\ntx_bytes=2740\nrx_bytes=2396\npersistent_keepalive_interval=0\nallowed_ip=0.0.0.0/0\n";
@@ -137,6 +139,7 @@ mod test {
         assert_eq!(stats[&pubkey].tx_bytes, 2740);
     }
 
+    #[cfg(unix)]
     #[test]
     fn test_parsing_invalid_input() {
         let invalid_input = "private_key=0000000000000000000000000000000000000000000000000000000000000000\npublic_key=0000000000000000000000000000000000000000000000000000000000000000\npreshared_key=0000000000000000000000000000000000000000000000000000000000000000\nprotocol_version=1\nendpoint=000.000.000.000:00000\nlast_handshake_time_sec=1578420649\nlast_handshake_time_nsec=369416131\ntx_bytes=27error40\npersistent_keepalive_interval=0\nallowed_ip=0.0.0.0/0\n";

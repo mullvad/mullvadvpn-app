@@ -50,12 +50,14 @@ mod connectivity_check;
 mod logging;
 mod ping_monitor;
 mod stats;
+#[cfg(unix)]
 mod wireguard_go;
 #[cfg(target_os = "linux")]
 pub(crate) mod wireguard_kernel;
 #[cfg(windows)]
 mod wireguard_nt;
 
+#[cfg(unix)]
 use self::wireguard_go::WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
@@ -764,44 +766,33 @@ impl WireguardMonitor {
         }
 
         #[cfg(target_os = "windows")]
-        if config.use_wireguard_nt {
-            log::debug!("Using WireGuardNT");
-            return wireguard_nt::WgNtTunnel::start_tunnel(
-                config,
-                log_path,
-                resource_dir,
-                setup_done_tx,
-            )
-            .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
-            .map_err(Error::TunnelError);
+        {
+            wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir, setup_done_tx)
+                .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
+                .map_err(Error::TunnelError)
         }
 
-        #[cfg(not(windows))]
-        let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
+        #[cfg(unix)]
+        {
+            let routes =
+                Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
 
-        #[cfg(target_os = "android")]
-        let config = Self::patch_allowed_ips(config, psk_negotiation);
+            #[cfg(target_os = "android")]
+            let config = Self::patch_allowed_ips(config, psk_negotiation);
 
-        #[cfg(any(target_os = "linux", windows))]
-        log::debug!("Using userspace WireGuard implementation");
-        Ok(Box::new(
-            WgGoTunnel::start_tunnel(
-                #[allow(clippy::needless_borrow)]
-                &config,
-                log_path,
-                #[cfg(not(windows))]
-                tun_provider,
-                #[cfg(not(windows))]
-                routes,
-                #[cfg(windows)]
-                route_manager_handle,
-                #[cfg(windows)]
-                setup_done_tx,
-                #[cfg(windows)]
-                &runtime,
-            )
-            .map_err(Error::TunnelError)?,
-        ))
+            #[cfg(target_os = "linux")]
+            log::debug!("Using userspace WireGuard implementation");
+            Ok(Box::new(
+                WgGoTunnel::start_tunnel(
+                    #[allow(clippy::needless_borrow)]
+                    &config,
+                    log_path,
+                    tun_provider,
+                    routes,
+                )
+                .map_err(Error::TunnelError)?,
+            ))
+        }
     }
 
     /// Blocks the current thread until tunnel disconnects
