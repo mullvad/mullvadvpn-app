@@ -198,10 +198,6 @@ pub struct TunnelOptions {
         jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
     )]
     pub mtu: Option<u16>,
-    /// Temporary switch for wireguard-nt
-    #[cfg(windows)]
-    #[serde(rename = "wireguard_nt")]
-    pub use_wireguard_nt: bool,
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
     /// Interval used for automatic key rotation
@@ -215,8 +211,6 @@ impl Default for TunnelOptions {
         TunnelOptions {
             mtu: None,
             quantum_resistant: QuantumResistantState::Auto,
-            #[cfg(windows)]
-            use_wireguard_nt: true,
             rotation_interval: None,
         }
     }
@@ -226,8 +220,6 @@ impl TunnelOptions {
     pub fn into_talpid_tunnel_options(self) -> wireguard::TunnelOptions {
         wireguard::TunnelOptions {
             mtu: self.mtu,
-            #[cfg(windows)]
-            use_wireguard_nt: self.use_wireguard_nt,
             quantum_resistant: match self.quantum_resistant {
                 QuantumResistantState::Auto => QUANTUM_RESISTANT_AUTO_STATE,
                 QuantumResistantState::On => true,

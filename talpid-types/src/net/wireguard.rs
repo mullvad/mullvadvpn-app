@@ -74,9 +74,6 @@ pub struct TunnelConfig {
 pub struct TunnelOptions {
     /// MTU for the wireguard tunnel
     pub mtu: Option<u16>,
-    /// Temporary switch for wireguard-nt
-    #[cfg(windows)]
-    pub use_wireguard_nt: bool,
     /// Perform PQ-safe PSK exchange when connecting
     pub quantum_resistant: bool,
 }
