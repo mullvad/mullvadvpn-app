@@ -80,7 +80,7 @@ fn daemon_plist_url() -> Object {
     let nsurl_inst: Id = unsafe { msg_send![class!(NSURL), alloc] };
     let nsurl_inst: Id = unsafe { msg_send![nsurl_inst, initWithString: nsstr_inst] };
 
-    let _: libc::c_void = unsafe { msg_send![nsstr_inst, release] };
+    let _: () = unsafe { msg_send![nsstr_inst, release] };
 
     assert!(!nsurl_inst.is_null());
 
@@ -92,6 +92,6 @@ struct Object(Id);
 
 impl Drop for Object {
     fn drop(&mut self) {
-        let _: libc::c_void = unsafe { msg_send![self.0, release] };
+        let _: () = unsafe { msg_send![self.0, release] };
     }
 }
