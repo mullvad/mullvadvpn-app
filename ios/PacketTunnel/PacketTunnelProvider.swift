@@ -373,9 +373,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     override func sleep(completionHandler: @escaping () -> Void) {
-        tunnelMonitor.onSleep {
-            completionHandler()
-        }
+        tunnelMonitor.onSleep()
+        completionHandler()
     }
 
     override func wake() {
