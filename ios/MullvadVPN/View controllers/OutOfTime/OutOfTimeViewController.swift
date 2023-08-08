@@ -108,8 +108,16 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         } else {
             productState = .cannotMakePurchases
         }
+    }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         interactor.startAccountUpdateTimer()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        interactor.stopAccountUpdateTimer()
     }
 
     // MARK: - Private
