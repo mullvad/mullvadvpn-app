@@ -55,7 +55,7 @@ simple-signal = "1.1"
 talpid-dbus = { path = "../talpid-dbus" }
 
 [target.'cfg(target_os="macos")'.dependencies]
-objc = "0.2.3"
+objc = "0.2.7"
 
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3.0"
