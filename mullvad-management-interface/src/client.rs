@@ -582,15 +582,6 @@ impl MullvadProxyClient {
             .collect::<Vec<_>>())
     }
 
-    #[cfg(target_os = "windows")]
-    pub async fn set_use_wireguard_nt(&mut self, state: bool) -> Result<()> {
-        self.0
-            .set_use_wireguard_nt(state)
-            .await
-            .map_err(Error::Rpc)?;
-        Ok(())
-    }
-
     // check_volumes
 }
 

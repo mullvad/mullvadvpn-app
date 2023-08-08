@@ -84,10 +84,6 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
                     prost_types::Duration::try_from(std::time::Duration::from(ivl))
                         .expect("Failed to convert std::time::Duration to prost_types::Duration for tunnel_options.wireguard.rotation_interval")
                 }),
-                #[cfg(windows)]
-                use_wireguard_nt: options.wireguard.use_wireguard_nt,
-                #[cfg(not(windows))]
-                use_wireguard_nt: false,
                 quantum_resistant: Some(proto::QuantumResistantState::from(options.wireguard.quantum_resistant)),
             }),
             generic: Some(proto::tunnel_options::GenericOptions {
@@ -250,8 +246,6 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                 } else {
                     None
                 },
-                #[cfg(windows)]
-                use_wireguard_nt: wireguard_options.use_wireguard_nt,
                 rotation_interval: wireguard_options
                     .rotation_interval
                     .map(std::time::Duration::try_from)
