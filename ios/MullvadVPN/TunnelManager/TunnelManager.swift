@@ -68,7 +68,7 @@ final class TunnelManager: StorePaymentObserver {
 
     private var _isConfigurationLoaded = false
     private var _deviceState: DeviceState = .loggedOut
-    private var _tunnelSettings = TunnelSettingsV2()
+    private var _tunnelSettings = LatestTunnelSettings()
 
     private var _tunnel: Tunnel?
     private var _tunnelStatus = TunnelStatus()
@@ -623,7 +623,7 @@ final class TunnelManager: StorePaymentObserver {
         return _tunnelStatus
     }
 
-    var settings: TunnelSettingsV2 {
+    var settings: LatestTunnelSettings {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -764,7 +764,7 @@ final class TunnelManager: StorePaymentObserver {
         lastDeviceCheck = deviceCheck
     }
 
-    fileprivate func setSettings(_ settings: TunnelSettingsV2, persist: Bool) {
+    fileprivate func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -991,7 +991,7 @@ final class TunnelManager: StorePaymentObserver {
 
     private func scheduleSettingsUpdate(
         taskName: String,
-        modificationBlock: @escaping (inout TunnelSettingsV2) -> Void,
+        modificationBlock: @escaping (inout LatestTunnelSettings) -> Void,
         completionHandler: (() -> Void)?
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
@@ -1289,7 +1289,7 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.isConfigurationLoaded
     }
 
-    var settings: TunnelSettingsV2 {
+    var settings: LatestTunnelSettings {
         tunnelManager.settings
     }
 
@@ -1301,7 +1301,7 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.setConfigurationLoaded()
     }
 
-    func setSettings(_ settings: TunnelSettingsV2, persist: Bool) {
+    func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {
         tunnelManager.setSettings(settings, persist: persist)
     }
 

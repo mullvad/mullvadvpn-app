@@ -243,7 +243,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    func update(from tunnelSettings: TunnelSettingsV2) {
+    func update(from tunnelSettings: LatestTunnelSettings) {
         let newViewModel = PreferencesViewModel(from: tunnelSettings)
         let mergedViewModel = viewModel.merged(newViewModel)
 

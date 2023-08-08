@@ -30,7 +30,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
         let settings = settingsResult.flattenValue()
         let deviceState = deviceStateResult.flattenValue()
 
-        interactor.setSettings(settings ?? TunnelSettingsV2(), persist: false)
+        interactor.setSettings(settings ?? LatestTunnelSettings(), persist: false)
         interactor.setDeviceState(deviceState ?? .loggedOut, persist: false)
 
         if let tunnel, deviceState == nil {
@@ -57,7 +57,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
         finish(result: .success(()))
     }
 
-    private func readSettings() -> Result<TunnelSettingsV2?, Error> {
+    private func readSettings() -> Result<LatestTunnelSettings?, Error> {
         Result { try SettingsManager.readSettings() }
             .flatMapError { error in
                 if let error = error as? KeychainError, error == .itemNotFound {

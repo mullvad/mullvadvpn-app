@@ -201,7 +201,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         )
 
         // Reset tunnel settings.
-        interactor.setSettings(TunnelSettingsV2(), persist: true)
+        interactor.setSettings(LatestTunnelSettings(), persist: true)
 
         // Transition device state to logged in.
         interactor.setDeviceState(.loggedIn(accountData, storedDeviceData), persist: true)

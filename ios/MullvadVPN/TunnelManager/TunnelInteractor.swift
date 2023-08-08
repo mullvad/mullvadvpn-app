@@ -27,11 +27,11 @@ protocol TunnelInteractor {
     // MARK: - Configuration
 
     var isConfigurationLoaded: Bool { get }
-    var settings: TunnelSettingsV2 { get }
+    var settings: LatestTunnelSettings { get }
     var deviceState: DeviceState { get }
 
     func setConfigurationLoaded()
-    func setSettings(_ settings: TunnelSettingsV2, persist: Bool)
+    func setSettings(_ settings: LatestTunnelSettings, persist: Bool)
     func setDeviceState(_ deviceState: DeviceState, persist: Bool)
     func handleRestError(_ error: Error)
 
