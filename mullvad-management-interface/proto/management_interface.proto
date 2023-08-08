@@ -89,8 +89,6 @@ service ManagementService {
   rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
 
-  rpc SetUseWireguardNt(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-
   // Notify the split tunnel monitor that a volume was mounted or dismounted
   // (Windows).
   rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -469,7 +467,6 @@ message TunnelOptions {
   message WireguardOptions {
     uint32 mtu = 1;
     google.protobuf.Duration rotation_interval = 2;
-    bool use_wireguard_nt = 3;
     QuantumResistantState quantum_resistant = 4;
   }
   message GenericOptions { bool enable_ipv6 = 1; }
