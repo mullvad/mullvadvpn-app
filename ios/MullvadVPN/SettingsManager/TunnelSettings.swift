@@ -10,3 +10,15 @@ import Foundation
 
 /// Alias to the latest version of the `TunnelSettings`.
 typealias LatestTunnelSettings = TunnelSettingsV2
+
+/// Settings and device state schema versions.
+enum SchemaVersion: Int, Equatable {
+    /// Legacy settings format, stored as `TunnelSettingsV1`.
+    case v1 = 1
+
+    /// New settings format, stored as `TunnelSettingsV2`.
+    case v2 = 2
+
+    /// Current schema version.
+    static let current = SchemaVersion.v2
+}

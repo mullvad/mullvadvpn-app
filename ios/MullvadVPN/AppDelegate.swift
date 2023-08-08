@@ -41,6 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var storePaymentManager: StorePaymentManager!
     private var transportMonitor: TransportMonitor!
     private var relayConstraintsObserver: TunnelBlockObserver!
+    private let migrationManager = MigrationManager()
 
     // MARK: - Application lifecycle
 
@@ -368,31 +369,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
-            SettingsManager.migrateStore(with: proxyFactory) { [self] migrationResult in
-                switch migrationResult {
-                case .success:
-                    // Tell the tunnel to re-read tunnel configuration after migration.
-                    logger.debug("Reconnect the tunnel after settings migration.")
-                    tunnelManager.reconnectTunnel(selectNewRelay: true)
-                    fallthrough
+            migrationManager
+                .migrateSettings(store: SettingsManager.store, proxyFactory: proxyFactory) { [self] migrationResult in
+                    switch migrationResult {
+                    case .success:
+                        // Tell the tunnel to re-read tunnel configuration after migration.
+                        logger.debug("Reconnect the tunnel after settings migration.")
+                        tunnelManager.reconnectTunnel(selectNewRelay: true)
+                        fallthrough
 
-                case .nothing:
-                    finish(nil)
+                    case .nothing:
+                        finish(nil)
 
-                case let .failure(error):
-                    let migrationUIHandler = application.connectedScenes.first { $0 is SettingsMigrationUIHandler }
-                        as? SettingsMigrationUIHandler
+                    case let .failure(error):
+                        let migrationUIHandler = application.connectedScenes.first { $0 is SettingsMigrationUIHandler }
+                            as? SettingsMigrationUIHandler
 
-                    if let migrationUIHandler {
-                        migrationUIHandler.showMigrationError(error) {
+                        if let migrationUIHandler {
+                            migrationUIHandler.showMigrationError(error) {
+                                finish(error)
+                            }
+                        } else {
                             finish(error)
                         }
-                    } else {
-                        finish(error)
                     }
                 }
-            }
         }
+
         migrateSettingsOperation.addDependencies([wipeSettingsOperation, loadTunnelStoreOperation])
 
         let initTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { finish in

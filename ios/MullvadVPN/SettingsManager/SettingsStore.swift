@@ -8,6 +8,13 @@
 
 import Foundation
 
+enum SettingsKey: String, CaseIterable {
+    case settings = "Settings"
+    case deviceState = "DeviceState"
+    case lastUsedAccount = "LastUsedAccount"
+    case shouldWipeSettings = "ShouldWipeSettings"
+}
+
 protocol SettingsStore {
     func read(key: SettingsKey) throws -> Data
     func write(_ data: Data, for key: SettingsKey) throws
