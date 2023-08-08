@@ -200,8 +200,8 @@ fn try_set_tcp_sock_mtu(sock: RawSocket, mtu: u16) {
     let result = unsafe {
         setsockopt(
             raw_sock,
-            IPPROTO_IP as i32,
-            IP_USER_MTU as i32,
+            IPPROTO_IP,
+            IP_USER_MTU,
             &mtu as *const _ as _,
             std::ffi::c_int::try_from(std::mem::size_of_val(&mtu)).unwrap(),
         )
