@@ -1,8 +1,10 @@
 #![cfg(target_os = "ios")]
 
 use super::{TunnelObfuscatorHandle, TunnelObfuscatorRuntime};
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::sync::Once;
+use std::{
+    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    sync::Once,
+};
 
 static INIT_LOGGING: Once = Once::new();
 

@@ -1,7 +1,6 @@
 #![cfg(target_os = "ios")]
 
-use std::io;
-use std::net::SocketAddr;
+use std::{io, net::SocketAddr};
 use tokio::sync::oneshot;
 use tunnel_obfuscation::{create_obfuscator, Settings as ObfuscationSettings, Udp2TcpSettings};
 
