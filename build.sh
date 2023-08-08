@@ -200,12 +200,9 @@ function build {
     # Compile and link all binaries.
     ################################################################################
 
-    log_header "Building wireguard-go$for_target_string"
-
-    ./wireguard/build-wireguard-go.sh "$current_target"
-    if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
-        # Windows can only be built for this one target anyway, so it can be hardcoded.
-        sign_win "build/lib/x86_64-pc-windows-msvc/libwg.dll"
+    if [[ "$(uname -s)" != "MINGW"* ]]; then
+        log_header "Building wireguard-go$for_target_string"
+        ./wireguard/build-wireguard-go.sh "$current_target"
     fi
 
     log_header "Building Rust code in $RUST_BUILD_MODE mode using $RUSTC_VERSION$for_target_string"
