@@ -4,7 +4,6 @@ use mullvad_types::{
     relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
     settings::{DnsState, Settings},
 };
-use rand::Rng;
 use std::{
     fmt::{self, Display},
     ops::Deref,
@@ -67,15 +66,6 @@ impl SettingsPersister {
                 (settings, true)
             }
         };
-
-        // If the settings file did not contain a wg_migration_rand_num then it will be initialized
-        // to -1.0 by serde. This block ensures that this value is correctly intitialzed to a
-        // percentage.
-        if settings.wg_migration_rand_num < 0.0 || settings.wg_migration_rand_num > 1.0 {
-            let mut rng = rand::thread_rng();
-            settings.wg_migration_rand_num = rng.gen_range(0.0..=1.0);
-            should_save |= true
-        }
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
