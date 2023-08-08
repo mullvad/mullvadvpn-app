@@ -152,21 +152,11 @@ enum SettingsManager {
             completion(result)
         }
 
-        if let legacySettings = readLegacySettings() {
-            migrateLegacySettings(
-                restFactory: restFactory,
-                legacySettings: legacySettings
-            ) { error in
-                handleCompletion(error.map { .failure($0) } ?? .success)
-            }
-        } else {
-            do {
-                try checkLatestSettingsVersion()
-
-                handleCompletion(.nothing)
-            } catch {
-                handleCompletion(.failure(error))
-            }
+        do {
+            try checkLatestSettingsVersion()
+            handleCompletion(.nothing)
+        } catch {
+            handleCompletion(.failure(error))
         }
     }
 
@@ -208,42 +198,9 @@ enum SettingsManager {
                 }
             }
         }
-
-        Self.deleteAllLegacySettings()
     }
 
     // MARK: - Private
-
-    private static func migrateLegacySettings(
-        restFactory: REST.ProxyFactory,
-        legacySettings: LegacyTunnelSettings,
-        completion: @escaping (Error?) -> Void
-    ) {
-        let parser = makeParser()
-
-        let migration = MigrationFromV1ToV2(
-            restFactory: restFactory,
-            legacySettings: legacySettings
-        )
-
-        migration.migrate(with: store, parser: parser) { error in
-            if let error {
-                let migrationError = SettingsMigrationError(
-                    sourceVersion: .v1,
-                    targetVersion: .v2,
-                    underlyingError: error
-                )
-
-                logger.error(error: migrationError)
-
-                completion(migrationError)
-            } else {
-                Self.deleteAllLegacySettings()
-
-                completion(nil)
-            }
-        }
-    }
 
     private static func checkLatestSettingsVersion() throws {
         let settingsVersion: Int
@@ -270,174 +227,6 @@ enum SettingsManager {
 
         throw error
     }
-
-    // MARK: - Legacy settings
-
-    private static func readLegacySettings() -> LegacyTunnelSettings? {
-        guard let storedAccountNumber = UserDefaults.standard.string(forKey: accountTokenKey) else {
-            logger.debug("Legacy account number is not found in user defaults. Nothing to migrate.")
-            return nil
-        }
-
-        // List legacy settings stored in keychain.
-        logger.debug("List legacy settings in keychain...")
-
-        var storedSettings: [LegacyTunnelSettings] = []
-        do {
-            storedSettings = try findAllLegacySettingsInKeychain()
-        } catch .itemNotFound as KeychainError {
-            logger.debug("Legacy settings are not found in keychain.")
-
-            return nil
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to read legacy settings from keychain."
-            )
-
-            return nil
-        }
-
-        // Find settings matching the account number stored in user defaults.
-        let matchingSettings = storedSettings.first { settings in
-            settings.accountNumber == storedAccountNumber
-        }
-
-        guard let matchingSettings else {
-            logger.debug(
-                "Could not find legacy settings matching the legacy account number."
-            )
-
-            return nil
-        }
-
-        return matchingSettings
-    }
-
-    private static func findAllLegacySettingsInKeychain() throws -> [LegacyTunnelSettings] {
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: keychainServiceName,
-            kSecReturnAttributes: true,
-            kSecReturnData: true,
-            kSecMatchLimit: kSecMatchLimitAll,
-        ]
-
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        guard status == errSecSuccess else {
-            throw KeychainError(code: status)
-        }
-
-        guard let items = result as? [[CFString: Any]] else {
-            return []
-        }
-
-        return items.filter(Self.filterLegacySettings)
-            .compactMap { item -> LegacyTunnelSettings? in
-                guard let accountNumber = item[kSecAttrAccount] as? String,
-                      let data = item[kSecValueData] as? Data
-                else {
-                    return nil
-                }
-                do {
-                    let tunnelSettings = try JSONDecoder().decode(
-                        TunnelSettingsV1.self,
-                        from: data
-                    )
-
-                    return LegacyTunnelSettings(
-                        accountNumber: accountNumber,
-                        tunnelSettings: tunnelSettings
-                    )
-                } catch {
-                    logger.error(
-                        error: error,
-                        message: "Failed to decode legacy settings."
-                    )
-                    return nil
-                }
-            }
-    }
-
-    private static func deleteAllLegacySettings() {
-        logger.debug("Remove legacy settings from keychain.")
-        deleteLegacySettingsFromKeychain()
-
-        logger.debug("Remove legacy settings from user defaults.")
-        let userDefaults = UserDefaults.standard
-        userDefaults.removeObject(forKey: accountTokenKey)
-        userDefaults.removeObject(forKey: accountExpiryKey)
-    }
-
-    private static func deleteLegacySettingsFromKeychain() {
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: keychainServiceName,
-            kSecReturnAttributes: true,
-            kSecMatchLimit: kSecMatchLimitAll,
-        ]
-
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        guard status == errSecSuccess else {
-            let error = KeychainError(code: status)
-
-            if error != .itemNotFound {
-                logger.error(
-                    error: error,
-                    message: "Failed to list legacy settings."
-                )
-            }
-
-            return
-        }
-
-        guard let items = result as? [[CFString: Any]] else {
-            return
-        }
-
-        items.filter(Self.filterLegacySettings)
-            .enumerated()
-            .forEach { index, item in
-                guard let account = item[kSecAttrAccount] else {
-                    return
-                }
-
-                let deleteQuery: [CFString: Any] = [
-                    kSecClass: kSecClassGenericPassword,
-                    kSecAttrService: keychainServiceName,
-                    kSecAttrAccount: account,
-                ]
-
-                let status = SecItemDelete(deleteQuery as CFDictionary)
-                if status == errSecSuccess {
-                    logger.debug("Removed legacy settings entry \(index).")
-                } else {
-                    let error = KeychainError(code: status)
-
-                    logger.error(
-                        error: error,
-                        message: "Failed to remove legacy settings entry \(index)."
-                    )
-                }
-            }
-    }
-
-    private static func filterLegacySettings(_ item: [CFString: Any]) -> Bool {
-        guard let accountNumber = item[kSecAttrAccount] as? String else {
-            return false
-        }
-
-        return SettingsKey(rawValue: accountNumber) == nil
-    }
-}
-
-struct LegacyTunnelSettings {
-    let accountNumber: String
-    let tunnelSettings: TunnelSettingsV1
 }
 
 enum SettingsKey: String, CaseIterable {
