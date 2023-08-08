@@ -1,5 +1,6 @@
 use once_cell::sync::Lazy;
 use parking_lot::Mutex;
+#[cfg(unix)]
 use std::ffi::{c_char, c_void};
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path};
 
@@ -90,6 +91,7 @@ fn log_inner(logfile: &mut fs::File, level: LogLevel, tag: &str, msg: &str) {
 }
 
 // Callback that receives messages from WireGuard
+#[cfg(unix)]
 pub unsafe extern "system" fn wg_go_logging_callback(
     level: WgLogLevel,
     msg: *const c_char,
@@ -98,14 +100,7 @@ pub unsafe extern "system" fn wg_go_logging_callback(
     let mut map = LOG_MUTEX.lock();
     if let Some(logfile) = map.get_mut(&(context as u32)) {
         let managed_msg = if !msg.is_null() {
-            #[cfg(not(target_os = "windows"))]
-            let m = std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string();
-            #[cfg(target_os = "windows")]
-            let m = std::ffi::CStr::from_ptr(msg)
-                .to_string_lossy()
-                .to_string()
-                .replace('\n', "\r\n");
-            m
+            std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string()
         } else {
             "Logging message from WireGuard is NULL".to_string()
         };
@@ -118,8 +113,11 @@ pub unsafe extern "system" fn wg_go_logging_callback(
     }
 }
 
-pub type WgLogLevel = u32;
 // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
 // const WG_GO_LOG_SILENT: WgLogLevel = 0;
 // const WG_GO_LOG_ERROR: WgLogLevel = 1;
+#[cfg(unix)]
 const WG_GO_LOG_VERBOSE: WgLogLevel = 2;
+
+#[cfg(unix)]
+pub type WgLogLevel = u32;
