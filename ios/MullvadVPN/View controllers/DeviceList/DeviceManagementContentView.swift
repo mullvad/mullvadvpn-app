@@ -42,10 +42,8 @@ class DeviceManagementContentView: UIView {
         textLabel.textColor = .white
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.numberOfLines = 0
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            textLabel.lineBreakStrategy = []
-        }
+        // See: https://stackoverflow.com/q/46200027/351305
+        textLabel.lineBreakStrategy = []
         return textLabel
     }()
 

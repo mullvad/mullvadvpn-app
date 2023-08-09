@@ -16,10 +16,8 @@ final class ChangeLogContentView: UIView {
         titleLabel.textColor = .white
         titleLabel.allowsDefaultTighteningForTruncation = true
         titleLabel.lineBreakMode = .byWordWrapping
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            titleLabel.lineBreakStrategy = []
-        }
+        // See: https://stackoverflow.com/q/46200027/351305
+        titleLabel.lineBreakStrategy = []
         return titleLabel
     }()
 
@@ -30,10 +28,8 @@ final class ChangeLogContentView: UIView {
         subheadLabel.textColor = .white
         subheadLabel.allowsDefaultTighteningForTruncation = true
         subheadLabel.lineBreakMode = .byWordWrapping
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            subheadLabel.lineBreakStrategy = []
-        }
+        // See: https://stackoverflow.com/q/46200027/351305
+        subheadLabel.lineBreakStrategy = []
         subheadLabel.text = NSLocalizedString(
             "CHANGES_IN_THIS_VERSION",
             tableName: "ChangeLog",
