@@ -144,6 +144,6 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
     }
 
     companion object {
-        const val UI_STATE_DEBOUNCE_DURATION_MILLIS: Long = 100
+        const val UI_STATE_DEBOUNCE_DURATION_MILLIS: Long = 200
     }
 }
