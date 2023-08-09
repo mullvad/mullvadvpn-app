@@ -62,19 +62,10 @@ extension UINavigationBar {
         navigationBarAppearance.doneButtonAppearance = doneBarButtonAppearance
         navigationBarAppearance.backButtonAppearance = backButtonAppearance
 
-        if #available(iOS 14, *) {
-            navigationBarAppearance.setBackIndicatorImage(
-                backIndicatorImage,
-                transitionMaskImage: backIndicatorTransitionMask
-            )
-        } else {
-            // Bug: on iOS 13 setBackIndicatorImage accepts parameters in backward order
-            // https://stackoverflow.com/a/58171229/351305
-            navigationBarAppearance.setBackIndicatorImage(
-                backIndicatorTransitionMask,
-                transitionMaskImage: backIndicatorImage
-            )
-        }
+        navigationBarAppearance.setBackIndicatorImage(
+            backIndicatorImage,
+            transitionMaskImage: backIndicatorTransitionMask
+        )
 
         return navigationBarAppearance
     }

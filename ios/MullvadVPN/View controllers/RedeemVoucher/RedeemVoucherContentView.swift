@@ -75,10 +75,8 @@ final class RedeemVoucherContentView: UIView {
         label.textColor = .red
         label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            label.lineBreakStrategy = []
-        }
+        // See: https://stackoverflow.com/q/46200027/351305
+        label.lineBreakStrategy = []
         return label
     }()
 

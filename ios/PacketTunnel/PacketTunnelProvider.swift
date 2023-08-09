@@ -400,7 +400,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     func tunnelMonitorDelegateShouldHandleConnectionRecovery(_ tunnelMonitor: TunnelMonitor) {
-        dispatchPrecondition(condition: .onQueue(dispatchQueue))
+        /*
+         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         let (value, isOverflow) = numberOfFailedAttempts.addingReportingOverflow(1)
         numberOfFailedAttempts = isOverflow ? 0 : value
@@ -412,6 +413,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         providerLogger.debug("Recover connection. Picking next relay...")
 
         reconnectTunnel(to: .automatic, shouldStopTunnelMonitor: false)
+         */
     }
 
     func tunnelMonitor(

@@ -485,10 +485,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        if #available(iOS 14.0, *) {
-            completionHandler([.list, .banner, .sound])
-        } else {
-            completionHandler([.sound, .alert])
-        }
+        completionHandler([.list, .banner, .sound])
     }
 }

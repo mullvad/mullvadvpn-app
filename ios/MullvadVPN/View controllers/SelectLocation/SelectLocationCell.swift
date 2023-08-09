@@ -107,10 +107,8 @@ class SelectLocationCell: UITableViewCell {
         locationLabel.textColor = .white
         locationLabel.lineBreakMode = .byWordWrapping
         locationLabel.numberOfLines = 0
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            locationLabel.lineBreakStrategy = []
-        }
+        // See: https://stackoverflow.com/q/46200027/351305
+        locationLabel.lineBreakStrategy = []
 
         tickImageView.tintColor = .white
 
