@@ -75,6 +75,8 @@ enum InnerConnectionMode {
     Direct,
     /// Connect to the destination via a Shadowsocks proxy.
     Shadowsocks(ParsedShadowsocksConfig),
+    /// Connect to the destination via a Socks proxy.
+    Socks5(SocksConfig),
 }
 
 #[derive(Clone)]
@@ -88,6 +90,11 @@ impl From<ParsedShadowsocksConfig> for ServerConfig {
     fn from(config: ParsedShadowsocksConfig) -> Self {
         ServerConfig::new(config.peer, config.password, config.cipher)
     }
+}
+
+#[derive(Clone)]
+struct SocksConfig {
+    peer: SocketAddr,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -311,6 +318,33 @@ async fn handle_shadowsocks_connection(
     Ok(ApiConnection::new(Box::new(tls_stream)))
 }
 
+/// Set up a SOCKS5-socket connection.
+///
+/// TODO: Handle case where the proxy-address is `localhost`.
+async fn handle_socks_connection(
+    proxy_config: SocksConfig,
+    addr: &SocketAddr,
+    hostname: &str,
+) -> Result<ApiConnection, io::Error> {
+    let socket = HttpsConnectorWithSni::open_socket(
+        proxy_config.peer,
+        #[cfg(target_os = "android")]
+        socket_bypass_tx.clone(),
+    )
+    .await?;
+    let proxy = tokio_socks::tcp::Socks5Stream::connect_with_socket(socket, addr)
+        .await
+        .map_err(|error| io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}")))?;
+
+    #[cfg(feature = "api-override")]
+    if API.disable_tls {
+        return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
+    }
+
+    let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
+    Ok(ApiConnection::new(Box::new(tls_stream)))
+}
+
 impl Service<Uri> for HttpsConnectorWithSni {
     type Response = AbortableStream<ApiConnection>;
     type Error = io::Error;
@@ -367,6 +401,9 @@ impl Service<Uri> for HttpsConnectorWithSni {
                                 &hostname,
                             )
                             .await
+                        }
+                        InnerConnectionMode::Socks(proxy_config) => {
+                            handle_socks_connection(proxy_config, &addr, &hostname).await
                         }
                     }
                 };
