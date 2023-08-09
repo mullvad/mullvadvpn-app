@@ -74,9 +74,33 @@ enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
     /// Connect to the destination via a Shadowsocks proxy.
-    Shadowsocks(ParsedShadowsocksConfig),
+    Shadowsocks(ShadowsocksConfig),
     /// Connect to the destination via a Socks proxy.
     Socks5(SocksConfig),
+}
+
+impl InnerConnectionMode {
+    async fn connect(
+        &self,
+        hostname: &str,
+        addr: &SocketAddr,
+    ) -> Result<ApiConnection, std::io::Error> {
+        match self {
+            InnerConnectionMode::Direct => handle_direct_connection(addr, hostname).await,
+            InnerConnectionMode::Shadowsocks(config) => {
+                handle_shadowsocks_connection(config.clone(), addr, hostname).await
+            }
+            InnerConnectionMode::Socks(proxy_config) => {
+                handle_socks_connection(proxy_config.clone(), addr, hostname).await
+            }
+        }
+    }
+}
+
+#[derive(Clone)]
+struct ShadowsocksConfig {
+    proxy_context: SharedContext,
+    params: ParsedShadowsocksConfig,
 }
 
 #[derive(Clone)]
@@ -110,11 +134,14 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(config)) => {
-                InnerConnectionMode::Shadowsocks(ParsedShadowsocksConfig {
-                    peer: config.peer,
-                    password: config.password,
-                    cipher: CipherKind::from_str(&config.cipher)
-                        .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+                InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
+                    params: ParsedShadowsocksConfig {
+                        peer: config.peer,
+                        password: config.password,
+                        cipher: CipherKind::from_str(&config.cipher)
+                            .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+                    },
+                    proxy_context: SsContext::new_shared(ServerType::Local),
                 })
             }
         })
@@ -128,7 +155,6 @@ pub struct HttpsConnectorWithSni {
     sni_hostname: Option<String>,
     address_cache: AddressCache,
     abort_notify: Arc<tokio::sync::Notify>,
-    proxy_context: SharedContext,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
@@ -193,7 +219,6 @@ impl HttpsConnectorWithSni {
                 sni_hostname,
                 address_cache,
                 abort_notify,
-                proxy_context: SsContext::new_shared(ServerType::Local),
                 #[cfg(target_os = "android")]
                 socket_bypass_tx,
             },
@@ -291,21 +316,20 @@ async fn handle_direct_connection(
 
 /// Set up a shadowsocks-socket connection.
 async fn handle_shadowsocks_connection(
-    proxy_config: ParsedShadowsocksConfig,
-    proxy_context: SharedContext,
+    shadowsocks: ShadowsocksConfig,
     addr: &SocketAddr,
     hostname: &str,
 ) -> Result<ApiConnection, io::Error> {
     let socket = HttpsConnectorWithSni::open_socket(
-        proxy_config.peer,
+        shadowsocks.params.peer,
         #[cfg(target_os = "android")]
         socket_bypass_tx.clone(),
     )
     .await?;
     let proxy = ProxyClientStream::from_stream(
-        proxy_context,
+        shadowsocks.proxy_context,
         socket,
-        &ServerConfig::from(proxy_config),
+        &ServerConfig::from(shadowsocks.params),
         *addr,
     );
 
@@ -367,7 +391,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
             });
         let inner = self.inner.clone();
         let abort_notify = self.abort_notify.clone();
-        let proxy_context = self.proxy_context.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
         let address_cache = self.address_cache.clone();
@@ -387,26 +410,8 @@ impl Service<Uri> for HttpsConnectorWithSni {
             // is selected while connecting.
             let stream = loop {
                 let notify = abort_notify.notified();
-                let config = { inner.lock().unwrap().proxy_config.clone() };
-                let stream_fut = async {
-                    match config {
-                        InnerConnectionMode::Direct => {
-                            handle_direct_connection(&addr, &hostname).await
-                        }
-                        InnerConnectionMode::Shadowsocks(proxy_config) => {
-                            handle_shadowsocks_connection(
-                                proxy_config.clone(),
-                                proxy_context.clone(),
-                                &addr,
-                                &hostname,
-                            )
-                            .await
-                        }
-                        InnerConnectionMode::Socks(proxy_config) => {
-                            handle_socks_connection(proxy_config, &addr, &hostname).await
-                        }
-                    }
-                };
+                let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
+                let stream_fut = proxy_config.connect(&hostname, &addr);
 
                 pin_mut!(stream_fut);
                 pin_mut!(notify);
