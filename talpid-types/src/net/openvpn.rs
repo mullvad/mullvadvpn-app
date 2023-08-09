@@ -132,6 +132,21 @@ impl ShadowsocksProxySettings {
     }
 }
 
+/// Options for a bundled SOCKS5 proxy.
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
+pub struct SocksProxySettings {
+    pub peer: SocketAddr,
+}
+
+impl SocksProxySettings {
+    pub fn get_endpoint(&self) -> Endpoint {
+        Endpoint {
+            address: self.peer,
+            protocol: TransportProtocol::Tcp,
+        }
+    }
+}
+
 /// List of ciphers usable by a Shadowsocks proxy.
 /// Cf. [`ShadowsocksProxySettings::cipher`].
 pub const SHADOWSOCKS_CIPHERS: [&str; 19] = [
