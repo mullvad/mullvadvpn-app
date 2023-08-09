@@ -8,7 +8,9 @@ use std::{
     pin::Pin,
     task::{self, Poll},
 };
-use talpid_types::{net::openvpn::ShadowsocksProxySettings, ErrorExt};
+use talpid_types::{
+    net::openvpn::ShadowsocksProxySettings, net::openvpn::SocksProxySettings, ErrorExt,
+};
 use tokio::{
     fs,
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
@@ -36,6 +38,7 @@ impl fmt::Display for ApiConnectionMode {
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub enum ProxyConfig {
     Shadowsocks(ShadowsocksProxySettings),
+    Socks(SocksProxySettings),
 }
 
 impl fmt::Display for ProxyConfig {
@@ -43,6 +46,7 @@ impl fmt::Display for ProxyConfig {
         match self {
             // TODO: Do not hardcode TCP
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
+            ProxyConfig::Socks(s) => write!(f, "Socks5 {}/TCP", s.peer),
         }
     }
 }
@@ -110,8 +114,11 @@ impl ApiConnectionMode {
     /// Returns the remote address, or `None` for `ApiConnectionMode::Direct`.
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
-            ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss)) => Some(ss.peer),
             ApiConnectionMode::Direct => None,
+            ApiConnectionMode::Proxied(proxy_config) => match proxy_config {
+                ProxyConfig::Shadowsocks(ss) => Some(ss.peer),
+                ProxyConfig::Socks(s) => Some(s.peer),
+            },
         }
     }
 

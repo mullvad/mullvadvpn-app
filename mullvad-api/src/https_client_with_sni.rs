@@ -85,12 +85,13 @@ impl InnerConnectionMode {
         hostname: &str,
         addr: &SocketAddr,
     ) -> Result<ApiConnection, std::io::Error> {
+        use InnerConnectionMode::*;
         match self {
-            InnerConnectionMode::Direct => handle_direct_connection(addr, hostname).await,
-            InnerConnectionMode::Shadowsocks(config) => {
+            Direct => handle_direct_connection(addr, hostname).await,
+            Shadowsocks(config) => {
                 handle_shadowsocks_connection(config.clone(), addr, hostname).await
             }
-            InnerConnectionMode::Socks(proxy_config) => {
+            Socks5(proxy_config) => {
                 handle_socks_connection(proxy_config.clone(), addr, hostname).await
             }
         }
@@ -133,17 +134,22 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
     fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
-            ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(config)) => {
-                InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
-                    params: ParsedShadowsocksConfig {
-                        peer: config.peer,
-                        password: config.password,
-                        cipher: CipherKind::from_str(&config.cipher)
-                            .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
-                    },
-                    proxy_context: SsContext::new_shared(ServerType::Local),
-                })
-            }
+            ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
+                ProxyConfig::Shadowsocks(config) => {
+                    InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
+                        params: ParsedShadowsocksConfig {
+                            peer: config.peer,
+                            password: config.password,
+                            cipher: CipherKind::from_str(&config.cipher)
+                                .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+                        },
+                        proxy_context: SsContext::new_shared(ServerType::Local),
+                    })
+                }
+                ProxyConfig::Socks(config) => {
+                    InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
+                }
+            },
         })
     }
 }
