@@ -242,6 +242,7 @@ impl Relay {
                 );
 
                 println!("{:<4}{:<24}{}", "", "Provider(s):", constraints.providers,);
+                println!("{:<4}{:<24}{}", "", "Ownership:", constraints.ownership,);
 
                 println!("OpenVPN constraints");
 
