@@ -7,7 +7,7 @@ use super::{
 use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
 use std::{
-    ffi::{CStr, c_void, c_char},
+    ffi::{c_char, c_void, CStr},
     future::Future,
     path::Path,
     pin::Pin,
@@ -429,8 +429,8 @@ mod stats {
 }
 
 mod logging {
-    use std::ffi::{c_char, c_void};
     use super::super::logging::{log, LogLevel};
+    use std::ffi::{c_char, c_void};
 
     // Callback that receives messages from WireGuard
     pub unsafe extern "system" fn wg_go_logging_callback(
