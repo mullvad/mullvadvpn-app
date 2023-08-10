@@ -948,7 +948,7 @@ impl Tunnel for WgNtTunnel {
                     "{}",
                     error.display_chain_with_msg("Failed to obtain tunnel config")
                 );
-                TunnelError::GetConfigError
+                super::TunnelError::GetConfigError
             })?;
             for (peer, _allowed_ips) in &peers {
                 map.insert(
@@ -962,7 +962,7 @@ impl Tunnel for WgNtTunnel {
             Ok(map)
         } else {
             log::error!("Failed to obtain tunnel stats as device no longer exists");
-            Err(TunnelError::GetConfigError)
+            Err(super::TunnelError::GetConfigError)
         }
     }
 
