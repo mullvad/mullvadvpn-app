@@ -772,7 +772,7 @@ impl WireguardMonitor {
                 .map_err(Error::TunnelError)
         }
 
-        #[cfg(unix)]
+        #[cfg(not(target_os = "windows"))]
         {
             let routes =
                 Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
