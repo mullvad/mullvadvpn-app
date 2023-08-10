@@ -15,12 +15,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.BuildConfig
@@ -45,7 +49,8 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 private fun PreviewSettings() {
     SettingsScreen(
         uiState =
-            SettingsUiState(appVersion = "2222.22", isLoggedIn = true, isUpdateAvailable = true)
+            SettingsUiState(appVersion = "2222.22", isLoggedIn = true, isUpdateAvailable = true),
+        enterTransitionEndAction = MutableSharedFlow()
     )
 }
 
@@ -53,6 +58,7 @@ private fun PreviewSettings() {
 @Composable
 fun SettingsScreen(
     uiState: SettingsUiState,
+    enterTransitionEndAction: SharedFlow<Unit>,
     onVpnSettingCellClick: () -> Unit = {},
     onSplitTunnelingCellClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
@@ -62,6 +68,12 @@ fun SettingsScreen(
     val lazyListState = rememberLazyListState()
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val systemUiController = rememberSystemUiController()
+
+    LaunchedEffect(Unit) {
+        enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
+    }
 
     CollapsableAwareToolbarScaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
