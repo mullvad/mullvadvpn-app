@@ -2,7 +2,7 @@ use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
-use crate::logging::{clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel};
+use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
 use std::{
     ffi::{c_char, c_void, CStr},
@@ -76,7 +76,7 @@ impl WgGoTunnel {
                 mtu,
                 wg_config_str.as_ptr() as _,
                 tunnel_fd,
-                Some(wg_go_logging_callback),
+                Some(logging::wg_go_logging_callback),
                 logging_context.0 as *mut c_void,
             )
         };
@@ -269,9 +269,6 @@ fn check_wg_status(wg_code: i32) -> Result<()> {
 
 pub type Fd = std::os::unix::io::RawFd;
 
-pub type LoggingCallback =
-    unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
-
 const ERROR_GENERAL_FAILURE: i32 = -1;
 const ERROR_INTERMITTENT_FAILURE: i32 = -2;
 
@@ -286,7 +283,7 @@ extern "C" {
         mtu: isize,
         settings: *const i8,
         fd: Fd,
-        logging_callback: Option<LoggingCallback>,
+        logging_callback: Option<logging::LoggingCallback>,
         logging_context: *mut c_void,
     ) -> i32;
 
@@ -295,7 +292,7 @@ extern "C" {
     fn wgTurnOn(
         settings: *const i8,
         fd: Fd,
-        logging_callback: Option<LoggingCallback>,
+        logging_callback: Option<logging::LoggingCallback>,
         logging_context: *mut c_void,
     ) -> i32;
 
@@ -426,4 +423,39 @@ mod stats {
             );
         }
     }
+}
+
+mod logging {
+    use super::super::logging::{log, LogLevel};
+    use std::ffi::{c_char, c_void};
+
+    // Callback that receives messages from WireGuard
+    pub unsafe extern "system" fn wg_go_logging_callback(
+        level: WgLogLevel,
+        msg: *const c_char,
+        context: *mut c_void,
+    ) {
+        let managed_msg = if !msg.is_null() {
+            std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string()
+        } else {
+            "Logging message from WireGuard is NULL".to_string()
+        };
+
+        let level = match level {
+            WG_GO_LOG_VERBOSE => LogLevel::Verbose,
+            _ => LogLevel::Error,
+        };
+
+        log(context as u32, level, "wireguard-go", &managed_msg);
+    }
+
+    // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
+    // const WG_GO_LOG_SILENT: WgLogLevel = 0;
+    // const WG_GO_LOG_ERROR: WgLogLevel = 1;
+    const WG_GO_LOG_VERBOSE: WgLogLevel = 2;
+
+    pub type WgLogLevel = u32;
+
+    pub type LoggingCallback =
+        unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 }
