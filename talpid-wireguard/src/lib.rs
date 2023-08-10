@@ -29,8 +29,6 @@ use talpid_tunnel::tun_provider;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
 use ipnetwork::IpNetwork;
-#[cfg(windows)]
-use talpid_types::BoxedError;
 use talpid_types::{
     net::{
         obfuscation::ObfuscatorConfig,
