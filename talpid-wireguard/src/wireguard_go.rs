@@ -6,7 +6,6 @@ use super::{
 };
 use crate::logging::{clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel};
 use ipnetwork::IpNetwork;
-use talpid_types::BoxedError;
 use std::{
     ffi::{c_char, c_void, CStr},
     future::Future,
@@ -14,6 +13,7 @@ use std::{
     pin::Pin,
 };
 use talpid_tunnel::tun_provider::TunProvider;
+use talpid_types::BoxedError;
 use zeroize::Zeroize;
 
 #[cfg(target_os = "android")]
@@ -338,11 +338,11 @@ mod stats {
     impl Stats {
         pub fn parse_config_str(config: &str) -> std::result::Result<StatsMap, Error> {
             let mut map = StatsMap::new();
-    
+
             let mut peer = None;
             let mut tx_bytes = None;
             let mut rx_bytes = None;
-    
+
             // parts iterates over keys and values
             let parts = config.split('\n').filter_map(|line| {
                 let mut pair = line.split('=');
@@ -350,7 +350,7 @@ mod stats {
                 let value = pair.next()?;
                 Some((key, value))
             });
-    
+
             for (key, value) in parts {
                 match key {
                     "public_key" => {
@@ -377,10 +377,10 @@ mod stats {
                                 .map_err(|err| Error::IntParse(value.to_string(), err))?,
                         );
                     }
-    
+
                     _ => continue,
                 }
-    
+
                 if let (Some(peer_val), Some(tx_bytes_val), Some(rx_bytes_val)) =
                     (peer, tx_bytes, rx_bytes)
                 {
@@ -399,18 +399,16 @@ mod stats {
             Ok(map)
         }
     }
-    
-    
+
     #[cfg(test)]
     mod test {
         use super::super::stats::{Error, Stats};
-    
-        #[cfg(unix)]
+
         #[test]
         fn test_parsing() {
             let valid_input = "private_key=0000000000000000000000000000000000000000000000000000000000000000\npublic_key=0000000000000000000000000000000000000000000000000000000000000000\npreshared_key=0000000000000000000000000000000000000000000000000000000000000000\nprotocol_version=1\nendpoint=000.000.000.000:00000\nlast_handshake_time_sec=1578420649\nlast_handshake_time_nsec=369416131\ntx_bytes=2740\nrx_bytes=2396\npersistent_keepalive_interval=0\nallowed_ip=0.0.0.0/0\n";
             let pubkey = [0u8; 32];
-    
+
             let stats = Stats::parse_config_str(valid_input).expect("Failed to parse valid input");
             assert_eq!(stats.len(), 1);
             let actual_keys: Vec<[u8; 32]> = stats.keys().cloned().collect();
@@ -418,19 +416,17 @@ mod stats {
             assert_eq!(stats[&pubkey].rx_bytes, 2396);
             assert_eq!(stats[&pubkey].tx_bytes, 2740);
         }
-    
-        #[cfg(unix)]
+
         #[test]
         fn test_parsing_invalid_input() {
             let invalid_input = "private_key=0000000000000000000000000000000000000000000000000000000000000000\npublic_key=0000000000000000000000000000000000000000000000000000000000000000\npreshared_key=0000000000000000000000000000000000000000000000000000000000000000\nprotocol_version=1\nendpoint=000.000.000.000:00000\nlast_handshake_time_sec=1578420649\nlast_handshake_time_nsec=369416131\ntx_bytes=27error40\npersistent_keepalive_interval=0\nallowed_ip=0.0.0.0/0\n";
             let invalid_str = "27error40".to_string();
             let int_err = invalid_str.parse::<u64>().unwrap_err();
-    
+
             assert_eq!(
                 Stats::parse_config_str(invalid_input),
                 Err(Error::IntParse(invalid_str, int_err))
             );
         }
     }
-    
 }

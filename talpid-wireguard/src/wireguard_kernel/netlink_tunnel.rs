@@ -1,5 +1,5 @@
-use std::pin::Pin;
 use futures::Future;
+use std::pin::Pin;
 
 use super::{
     super::stats::{Stats, StatsMap},
