@@ -120,11 +120,8 @@ final class NotificationBannerView: UIView {
     }
 
     private func addConstraints() {
-        let actionButtonPriority: UILayoutPriority = .defaultHigh + 1
-        actionButton.setContentCompressionResistancePriority(actionButtonPriority, for: .horizontal)
-        actionButton.setContentCompressionResistancePriority(actionButtonPriority, for: .vertical)
-        actionButton.setContentHuggingPriority(actionButtonPriority, for: .horizontal)
-        actionButton.setContentHuggingPriority(actionButtonPriority, for: .vertical)
+        actionButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        actionButton.setContentHuggingPriority(.required, for: .horizontal)
 
         NSLayoutConstraint.activate([
             indicatorView.bottomAnchor.constraint(equalTo: titleLabel.firstBaselineAnchor),
