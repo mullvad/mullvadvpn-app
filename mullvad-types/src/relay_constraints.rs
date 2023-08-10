@@ -10,7 +10,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt, fmt::Write, str::FromStr};
+use std::{collections::HashSet, fmt, str::FromStr};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -205,21 +205,6 @@ pub enum RelaySettings {
 }
 
 impl RelaySettings {
-    pub fn format(
-        &self,
-        s: &mut String,
-        custom_lists: &CustomListsSettings,
-    ) -> Result<(), fmt::Error> {
-        match self {
-            RelaySettings::CustomTunnelEndpoint(endpoint) => {
-                write!(s, "custom endpoint {endpoint}")
-            }
-            RelaySettings::Normal(constraints) => constraints.format(s, custom_lists),
-        }
-    }
-}
-
-impl RelaySettings {
     pub fn merge(&self, update: RelaySettingsUpdate) -> Self {
         match update {
             RelaySettingsUpdate::CustomTunnelEndpoint(relay) => {
@@ -231,6 +216,31 @@ impl RelaySettings {
                 }
                 RelaySettings::Normal(ref constraint) => constraint.merge(constraint_update),
             }),
+        }
+    }
+}
+
+pub struct RelaySettingsFormatter<'a> {
+    pub settings: &'a RelaySettings,
+    pub custom_lists: &'a CustomListsSettings,
+}
+
+impl<'a> fmt::Display for RelaySettingsFormatter<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.settings {
+            RelaySettings::CustomTunnelEndpoint(endpoint) => {
+                write!(f, "custom endpoint {endpoint}")
+            }
+            RelaySettings::Normal(constraints) => {
+                write!(
+                    f,
+                    "{}",
+                    RelayConstraintsFormatter {
+                        constraints,
+                        custom_lists: self.custom_lists
+                    }
+                )
+            }
         }
     }
 }
@@ -326,30 +336,6 @@ impl Constraint<ResolvedLocationConstraint> {
     }
 }
 
-impl LocationConstraint {
-    fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
-        match self {
-            Self::Location(location) => writeln!(f, "location - {location}"),
-            Self::CustomList { list_id } => match custom_lists
-                .custom_lists
-                .iter()
-                .find(|custom_list| &custom_list.id == list_id)
-            {
-                Some(list) => {
-                    writeln!(f, "custom list - {}", list.name)?;
-                    for location in &list.locations {
-                        writeln!(f, "\t{}", location)?;
-                    }
-                    Ok(())
-                }
-                None => {
-                    writeln!(f, "custom list - list not found")
-                }
-            },
-        }
-    }
-}
-
 pub struct LocationConstraintFormatter<'a> {
     pub constraint: &'a LocationConstraint,
     pub custom_lists: &'a CustomListsSettings,
@@ -420,51 +406,36 @@ impl RelayConstraints {
     }
 }
 
-impl RelayConstraints {
-    pub fn format(
-        &self,
-        f: &mut String,
-        custom_lists: &CustomListsSettings,
-    ) -> Result<(), fmt::Error> {
-        match self.tunnel_protocol {
-            Constraint::Any => {
-                writeln!(
-                    f,
-                    "Tunnel protocol: Any\nOpenVPN constraints: {}\nWireguard constraints: ",
-                    &self.openvpn_constraints,
-                )?;
-                self.wireguard_constraints.format(f, custom_lists)?;
-            }
-            Constraint::Only(ref tunnel_protocol) => {
-                writeln!(f, "Tunnel protocol: {}", tunnel_protocol)?;
-                match tunnel_protocol {
-                    TunnelType::Wireguard => {
-                        writeln!(f, "Wireguard constraints: ")?;
-                        self.wireguard_constraints.format(f, custom_lists)?;
-                    }
-                    TunnelType::OpenVpn => {
-                        writeln!(f, "OpenVPN constraints: {}", &self.openvpn_constraints)?;
-                    }
-                };
-            }
-        }
-        match self.location {
-            Constraint::Any => writeln!(f, "Location: Any")?,
-            Constraint::Only(ref location_constraint) => {
-                write!(f, "Location: ")?;
-                location_constraint.format(f, custom_lists)?;
-            }
-        }
-        match self.providers {
-            Constraint::Any => writeln!(f, "Provider: Any")?,
-            Constraint::Only(ref constraint) => writeln!(f, "Provider: {}", constraint)?,
-        }
-        match self.ownership {
-            Constraint::Any => Ok(()),
-            Constraint::Only(ref constraint) => {
-                write!(f, "Constraints: {constraint}")
-            }
-        }
+pub struct RelayConstraintsFormatter<'a> {
+    pub constraints: &'a RelayConstraints,
+    pub custom_lists: &'a CustomListsSettings,
+}
+
+impl<'a> fmt::Display for RelayConstraintsFormatter<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(
+            f,
+            "Tunnel protocol: {}\nOpenVPN constraints: {}\nWireguard constraints: {}",
+            self.constraints.tunnel_protocol,
+            self.constraints.openvpn_constraints,
+            WireguardConstraintsFormatter {
+                constraints: &self.constraints.wireguard_constraints,
+                custom_lists: self.custom_lists,
+            },
+        )?;
+        writeln!(
+            f,
+            "Location: {}",
+            self.constraints
+                .location
+                .as_ref()
+                .map(|location| LocationConstraintFormatter {
+                    constraint: location,
+                    custom_lists: self.custom_lists,
+                })
+        )?;
+        writeln!(f, "Provider(s): {}", self.constraints.providers)?;
+        writeln!(f, "Ownership: {}", self.constraints.ownership)
     }
 }
 
@@ -741,6 +712,28 @@ pub struct WireguardConstraints {
     pub entry_location: Constraint<LocationConstraint>,
 }
 
+pub struct WireguardConstraintsFormatter<'a> {
+    pub constraints: &'a WireguardConstraints,
+    pub custom_lists: &'a CustomListsSettings,
+}
+
+impl<'a> fmt::Display for WireguardConstraintsFormatter<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "Port: {}", self.constraints.port)?;
+        writeln!(f, "IP protocol: {}", self.constraints.ip_version)?;
+        if self.constraints.use_multihop {
+            let location = self.constraints.entry_location.as_ref().map(|location| {
+                LocationConstraintFormatter {
+                    constraint: location,
+                    custom_lists: self.custom_lists,
+                }
+            });
+            writeln!(f, "Multihop entry: {}", location)?;
+        }
+        Ok(())
+    }
+}
+
 #[cfg(target_os = "android")]
 impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for WireguardConstraints
 where
@@ -765,30 +758,6 @@ where
         WireguardConstraints {
             port: port.map(|port| port.value as u16),
             ..Default::default()
-        }
-    }
-}
-
-impl WireguardConstraints {
-    fn format(&self, f: &mut String, custom_lists: &CustomListsSettings) -> Result<(), fmt::Error> {
-        match self.port {
-            Constraint::Any => writeln!(f, "Port: Any")?,
-            Constraint::Only(port) => writeln!(f, "port {port}")?,
-        }
-        match self.ip_version {
-            Constraint::Any => writeln!(f, "Protocol: IPv4 or IPv6")?,
-            Constraint::Only(protocol) => writeln!(f, "Protocol: {protocol}")?,
-        }
-        if self.use_multihop {
-            match &self.entry_location {
-                Constraint::Any => writeln!(f, "Entry location: Any"),
-                Constraint::Only(location) => {
-                    write!(f, "Wireguard entry ")?;
-                    location.format(f, custom_lists)
-                }
-            }
-        } else {
-            Ok(())
         }
     }
 }
@@ -903,24 +872,30 @@ pub struct BridgeConstraints {
     pub ownership: Constraint<Ownership>,
 }
 
-impl BridgeConstraints {
-    pub fn format(
-        &self,
-        f: &mut String,
-        custom_lists: &CustomListsSettings,
-    ) -> Result<(), fmt::Error> {
-        match self.location {
+pub struct BridgeConstraintsFormatter<'a> {
+    pub constraints: &'a BridgeConstraints,
+    pub custom_lists: &'a CustomListsSettings,
+}
+
+impl<'a> fmt::Display for BridgeConstraintsFormatter<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.constraints.location {
             Constraint::Any => write!(f, "any location")?,
-            Constraint::Only(ref location_constraint) => {
-                location_constraint.format(f, custom_lists)?
-            }
+            Constraint::Only(ref constraint) => write!(
+                f,
+                "{}",
+                LocationConstraintFormatter {
+                    constraint,
+                    custom_lists: self.custom_lists,
+                }
+            )?,
         }
         write!(f, " using ")?;
-        match self.providers {
+        match self.constraints.providers {
             Constraint::Any => write!(f, "any provider")?,
             Constraint::Only(ref constraint) => write!(f, "{}", constraint)?,
         }
-        match self.ownership {
+        match self.constraints.ownership {
             Constraint::Any => Ok(()),
             Constraint::Only(ref constraint) => {
                 write!(f, " and {constraint}")
