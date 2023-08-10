@@ -37,7 +37,7 @@ use talpid_types::{
         wireguard::{PresharedKey, PrivateKey, PublicKey},
         AllowedTunnelTraffic, Endpoint, TransportProtocol,
     },
-    ErrorExt,
+    ErrorExt, BoxedError,
 };
 use tokio::sync::Mutex as AsyncMutex;
 use tunnel_obfuscation::{
@@ -1005,7 +1005,7 @@ pub enum TunnelError {
 
     /// Error whilst trying to parse the WireGuard config to read the stats
     #[error(display = "Reading tunnel stats failed")]
-    StatsError(#[error(source)] stats::Error),
+    StatsError(#[error(source)] BoxedError),
 
     /// Error whilst trying to retrieve config of a WireGuard tunnel
     #[error(display = "Failed to get config of WireGuard tunnel")]

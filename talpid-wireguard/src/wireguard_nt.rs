@@ -1154,3 +1154,13 @@ mod tests {
         unreachable!("unexpected call of function")
     }
 }
+
+// FIXME
+#[derive(err_derive::Error, Debug, PartialEq)]
+pub enum Error {
+    #[error(display = "Device no longer exists")]
+    NoTunnelDevice,
+
+    #[error(display = "Failed to obtain tunnel config")]
+    NoTunnelConfig,
+}

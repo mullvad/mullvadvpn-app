@@ -18,6 +18,7 @@ use std::{ffi::CString, net::IpAddr};
 use tokio_stream::StreamExt;
 
 mod parsers;
+mod stats;
 
 pub mod wg_message;
 use wg_message::{DeviceMessage, DeviceNla};
