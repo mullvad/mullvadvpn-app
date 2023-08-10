@@ -350,6 +350,26 @@ impl LocationConstraint {
     }
 }
 
+pub struct LocationConstraintFormatter<'a> {
+    pub constraint: &'a LocationConstraint,
+    pub custom_lists: &'a CustomListsSettings,
+}
+
+impl<'a> fmt::Display for LocationConstraintFormatter<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.constraint {
+            LocationConstraint::Location(location) => write!(f, "{}", location),
+            LocationConstraint::CustomList { list_id } => self
+                .custom_lists
+                .custom_lists
+                .iter()
+                .find(|custom_list| &custom_list.id == list_id)
+                .map(|custom_list| write!(f, "{}", custom_list.name))
+                .unwrap_or_else(|| write!(f, "invalid custom list")),
+        }
+    }
+}
+
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]

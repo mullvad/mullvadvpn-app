@@ -5,9 +5,9 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     location::Location,
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, LocationConstraint, Match, OpenVpnConstraints,
-        Ownership, Provider, Providers, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
-        TransportPort, WireguardConstraints,
+        Constraint, GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
+        Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraintsUpdate,
+        RelaySettings, RelaySettingsUpdate, TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -214,9 +214,86 @@ impl Relay {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
         let relay_settings = settings.relay_settings;
-        let mut buf = String::new();
-        let _ = relay_settings.format(&mut buf, &settings.custom_lists);
-        println!("Current constraints: \n{}", buf);
+
+        match relay_settings {
+            RelaySettings::CustomTunnelEndpoint(endpoint) => {
+                println!("Custom endpoint: {endpoint}")
+            }
+
+            RelaySettings::Normal(constraints) => {
+                println!("Generic constraints");
+
+                println!(
+                    "{:<4}{:<24}{}",
+                    "",
+                    "Location:",
+                    constraints
+                        .location
+                        .as_ref()
+                        .map(|location| LocationConstraintFormatter {
+                            constraint: location,
+                            custom_lists: &settings.custom_lists
+                        }),
+                );
+
+                println!(
+                    "{:<4}{:<24}{}",
+                    "", "Tunnel protocol:", constraints.tunnel_protocol,
+                );
+
+                println!("{:<4}{:<24}{}", "", "Provider(s):", constraints.providers,);
+
+                println!("OpenVPN constraints");
+
+                match constraints.openvpn_constraints.port {
+                    Constraint::Any => {
+                        println!("{:<4}{:<24}{}", "", "Port:", "any",);
+                        println!("{:<4}{:<24}{}", "", "Transport:", "any",);
+                    }
+                    Constraint::Only(transport_port) => {
+                        println!("{:<4}{:<24}{}", "", "Port:", transport_port.port,);
+                        println!("{:<4}{:<24}{}", "", "Transport:", transport_port.protocol,);
+                    }
+                }
+
+                println!("WireGuard constraints");
+
+                println!(
+                    "{:<4}{:<24}{}",
+                    "", "Port:", constraints.wireguard_constraints.port,
+                );
+
+                println!(
+                    "{:<4}{:<24}{}",
+                    "", "IP protocol:", constraints.wireguard_constraints.ip_version,
+                );
+
+                println!(
+                    "{:<4}{:<24}{}",
+                    "",
+                    "Multihop state:",
+                    if constraints.wireguard_constraints.use_multihop {
+                        "enabled"
+                    } else {
+                        "disabled"
+                    },
+                );
+                println!(
+                    "{:<4}{:<24}{}",
+                    "",
+                    "Multihop entry:",
+                    constraints
+                        .wireguard_constraints
+                        .entry_location
+                        .as_ref()
+                        .map(|location| LocationConstraintFormatter {
+                            constraint: location,
+                            custom_lists: &settings.custom_lists
+                        }),
+                );
+            }
+        }
+
         Ok(())
     }
 
