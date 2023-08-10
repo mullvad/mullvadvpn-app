@@ -35,7 +35,8 @@ class AccountScreenTest {
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
                     ),
-                viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow()
+                viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -60,6 +61,7 @@ class AccountScreenTest {
                         accountExpiry = null
                     ),
                 viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onManageAccountClick = mockedClickHandler
             )
         }
@@ -85,6 +87,7 @@ class AccountScreenTest {
                         accountExpiry = null
                     ),
                 viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onRedeemVoucherClick = mockedClickHandler
             )
         }
@@ -110,6 +113,7 @@ class AccountScreenTest {
                         accountExpiry = null
                     ),
                 viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onLogoutClick = mockedClickHandler
             )
         }

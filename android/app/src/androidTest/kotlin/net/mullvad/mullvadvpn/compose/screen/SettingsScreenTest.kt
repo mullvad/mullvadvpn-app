@@ -4,6 +4,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import io.mockk.MockKAnnotations
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import org.junit.Before
 import org.junit.Rule
@@ -24,7 +26,8 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 uiState =
-                    SettingsUiState(appVersion = "", isLoggedIn = true, isUpdateAvailable = true)
+                    SettingsUiState(appVersion = "", isLoggedIn = true, isUpdateAvailable = true),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
         // Assert
@@ -42,7 +45,8 @@ class SettingsScreenTest {
         composeTestRule.setContent {
             SettingsScreen(
                 uiState =
-                    SettingsUiState(appVersion = "", isLoggedIn = false, isUpdateAvailable = true)
+                    SettingsUiState(appVersion = "", isLoggedIn = false, isUpdateAvailable = true),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
         // Assert

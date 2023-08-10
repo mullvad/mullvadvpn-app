@@ -8,6 +8,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -37,7 +38,8 @@ class SelectLocationScreenTest {
         composeTestRule.setContent {
             SelectLocationScreen(
                 uiState = SelectLocationUiState.Loading,
-                uiCloseAction = MutableSharedFlow()
+                uiCloseAction = MutableSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -55,7 +57,8 @@ class SelectLocationScreenTest {
                         countries = DUMMY_RELAY_COUNTRIES,
                         selectedRelay = null
                     ),
-                uiCloseAction = MutableSharedFlow()
+                uiCloseAction = MutableSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -85,7 +88,8 @@ class SelectLocationScreenTest {
                                 },
                             selectedRelay = DUMMY_RELAY_COUNTRIES[0].cities[0].relays[0]
                         ),
-                    uiCloseAction = MutableSharedFlow()
+                    uiCloseAction = MutableSharedFlow(),
+                    enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
                 )
             }
         }
@@ -114,6 +118,7 @@ class SelectLocationScreenTest {
                             selectedRelay = null
                         ),
                     uiCloseAction = MutableSharedFlow(),
+                    enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                     onSearchTermInput = mockedSearchTermInput
                 )
             }
@@ -138,6 +143,7 @@ class SelectLocationScreenTest {
                     uiState =
                         SelectLocationUiState.NoSearchResultFound(searchTerm = mockSearchString),
                     uiCloseAction = MutableSharedFlow(),
+                    enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                     onSearchTermInput = mockedSearchTermInput
                 )
             }

@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.HtmlCompat
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import net.mullvad.mullvadvpn.R
@@ -57,7 +59,13 @@ fun PreviewSelectLocationScreen() {
             countries = listOf(RelayCountry("Country 1", "Code 1", false, emptyList())),
             selectedRelay = null
         )
-    AppTheme { SelectLocationScreen(uiState = state, uiCloseAction = MutableSharedFlow()) }
+    AppTheme {
+        SelectLocationScreen(
+            uiState = state,
+            uiCloseAction = MutableSharedFlow(),
+            enterTransitionEndAction = MutableSharedFlow()
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -65,16 +73,21 @@ fun PreviewSelectLocationScreen() {
 fun SelectLocationScreen(
     uiState: SelectLocationUiState,
     uiCloseAction: SharedFlow<Unit>,
+    enterTransitionEndAction: SharedFlow<Unit>,
     onSelectRelay: (item: RelayItem) -> Unit = {},
     onSearchTermInput: (searchTerm: String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val systemUiController = rememberSystemUiController()
+
     LaunchedEffect(Unit) { uiCloseAction.collect { onBackClick() } }
+    LaunchedEffect(Unit) {
+        enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
+    }
+
     val (backFocus, listFocus, searchBarFocus) = remember { FocusRequester.createRefs() }
-    Column(
-        modifier =
-            Modifier.background(MaterialTheme.colorScheme.background).fillMaxWidth().fillMaxHeight()
-    ) {
+    Column(modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight()) {
         Row(
             modifier =
                 Modifier.padding(

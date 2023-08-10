@@ -33,6 +33,7 @@ class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
                     AccountScreen(
                         uiState = state,
                         viewActions = vm.viewActions,
+                        enterTransitionEndAction = vm.enterTransitionEndAction,
                         onRedeemVoucherClick = { openRedeemVoucherFragment() },
                         onManageAccountClick = vm::onManageAccountClick,
                         onLogoutClick = vm::onLogoutClick
@@ -52,6 +53,10 @@ class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
     override fun onDetach() {
         super.onDetach()
         requireMainActivity().leaveSecureScreen(this)
+    }
+
+    override fun onEnterTransitionAnimationEnd() {
+        vm.onTransitionAnimationEnd()
     }
 
     private fun openRedeemVoucherFragment() {
