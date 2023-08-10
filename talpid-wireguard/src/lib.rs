@@ -29,15 +29,13 @@ use talpid_tunnel::tun_provider;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
 use ipnetwork::IpNetwork;
-#[cfg(windows)]
-use talpid_types::BoxedError;
 use talpid_types::{
     net::{
         obfuscation::ObfuscatorConfig,
         wireguard::{PresharedKey, PrivateKey, PublicKey},
         AllowedTunnelTraffic, Endpoint, TransportProtocol,
     },
-    ErrorExt,
+    BoxedError, ErrorExt,
 };
 use tokio::sync::Mutex as AsyncMutex;
 use tunnel_obfuscation::{
@@ -1005,7 +1003,7 @@ pub enum TunnelError {
 
     /// Error whilst trying to parse the WireGuard config to read the stats
     #[error(display = "Reading tunnel stats failed")]
-    StatsError(#[error(source)] stats::Error),
+    StatsError(#[error(source)] BoxedError),
 
     /// Error whilst trying to retrieve config of a WireGuard tunnel
     #[error(display = "Failed to get config of WireGuard tunnel")]
