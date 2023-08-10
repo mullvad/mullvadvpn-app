@@ -1,5 +1,3 @@
-#![cfg(unix)]
-
 use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
@@ -269,7 +267,6 @@ fn check_wg_status(wg_code: i32) -> Result<()> {
     }
 }
 
-#[cfg(unix)]
 pub type Fd = std::os::unix::io::RawFd;
 
 const ERROR_GENERAL_FAILURE: i32 = -1;
