@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.relayListListener
 class SelectLocationViewModel(private val serviceConnectionManager: ServiceConnectionManager) :
     ViewModel() {
     private val _closeAction = MutableSharedFlow<Unit>()
+    private val _enterTransitionEndAction = MutableSharedFlow<Unit>()
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
     val uiState =
@@ -66,11 +67,16 @@ class SelectLocationViewModel(private val serviceConnectionManager: ServiceConne
             )
 
     val uiCloseAction = _closeAction.asSharedFlow()
+    val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
     fun selectRelay(relayItem: RelayItem?) {
         serviceConnectionManager.relayListListener()?.selectedRelayLocation = relayItem?.location
         serviceConnectionManager.connectionProxy()?.connect()
         viewModelScope.launch { _closeAction.emit(Unit) }
+    }
+
+    fun onTransitionAnimationEnd() {
+        viewModelScope.launch { _enterTransitionEndAction.emit(Unit) }
     }
 
     fun onSearchTermInput(searchTerm: String) {

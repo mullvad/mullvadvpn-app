@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -54,6 +55,7 @@ private fun PreviewAccountScreen() {
                 accountExpiry = null
             ),
         viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+        enterTransitionEndAction = MutableSharedFlow()
     )
 }
 
@@ -62,6 +64,7 @@ private fun PreviewAccountScreen() {
 fun AccountScreen(
     uiState: AccountUiState,
     viewActions: SharedFlow<AccountViewModel.ViewAction>,
+    enterTransitionEndAction: SharedFlow<Unit>,
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
@@ -70,7 +73,12 @@ fun AccountScreen(
     val context = LocalContext.current
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
+    val backgroundColor = MaterialTheme.colorScheme.background
+    val systemUiController = rememberSystemUiController()
 
+    LaunchedEffect(Unit) {
+        enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
+    }
     CollapsingToolbarScaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize(),

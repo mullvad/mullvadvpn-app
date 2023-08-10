@@ -67,7 +67,6 @@ fun CollapsableAwareToolbarScaffold(
     body: @Composable CollapsingToolbarScaffoldScope.() -> Unit
 ) {
     val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(backgroundColor)
     systemUiController.setNavigationBarColor(backgroundColor)
 
     var isCollapsable by remember { mutableStateOf(false) }

@@ -22,6 +22,7 @@ class AccountViewModel(
 ) : ViewModel() {
 
     private val _viewActions = MutableSharedFlow<ViewAction>(extraBufferCapacity = 1)
+    private val _enterTransitionEndAction = MutableSharedFlow<Unit>()
     val viewActions = _viewActions.asSharedFlow()
 
     private val vmState: StateFlow<AccountUiState> =
@@ -46,6 +47,8 @@ class AccountViewModel(
             AccountUiState(deviceName = "", accountNumber = "", accountExpiry = null)
         )
 
+    val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
+
     fun onManageAccountClick() {
         viewModelScope.launch {
             _viewActions.tryEmit(
@@ -58,6 +61,10 @@ class AccountViewModel(
 
     fun onLogoutClick() {
         accountRepository.logout()
+    }
+
+    fun onTransitionAnimationEnd() {
+        viewModelScope.launch { _enterTransitionEndAction.emit(Unit) }
     }
 
     sealed class ViewAction {
