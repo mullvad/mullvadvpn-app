@@ -435,7 +435,7 @@ impl<'a> fmt::Display for RelayConstraintsFormatter<'a> {
                 })
         )?;
         writeln!(f, "Provider(s): {}", self.constraints.providers)?;
-        writeln!(f, "Ownership: {}", self.constraints.ownership)
+        write!(f, "Ownership: {}", self.constraints.ownership)
     }
 }
 
@@ -719,8 +719,13 @@ pub struct WireguardConstraintsFormatter<'a> {
 
 impl<'a> fmt::Display for WireguardConstraintsFormatter<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "Port: {}", self.constraints.port)?;
-        writeln!(f, "IP protocol: {}", self.constraints.ip_version)?;
+        match self.constraints.port {
+            Constraint::Any => write!(f, "any port")?,
+            Constraint::Only(port) => write!(f, "port {}", port)?,
+        }
+        if let Constraint::Only(ip_version) = self.constraints.ip_version {
+            write!(f, ", {},", ip_version)?;
+        }
         if self.constraints.use_multihop {
             let location = self.constraints.entry_location.as_ref().map(|location| {
                 LocationConstraintFormatter {
@@ -728,7 +733,7 @@ impl<'a> fmt::Display for WireguardConstraintsFormatter<'a> {
                     custom_lists: self.custom_lists,
                 }
             });
-            writeln!(f, "Multihop entry: {}", location)?;
+            write!(f, ", multihop entry {}", location)?;
         }
         Ok(())
     }
