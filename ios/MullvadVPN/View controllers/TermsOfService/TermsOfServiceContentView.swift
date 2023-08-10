@@ -23,10 +23,7 @@ class TermsOfServiceContentView: UIView {
             comment: ""
         )
         titleLabel.lineBreakMode = .byWordWrapping
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            titleLabel.lineBreakStrategy = []
-        }
+        titleLabel.lineBreakStrategy = []
         return titleLabel
     }()
 

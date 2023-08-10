@@ -17,10 +17,7 @@ final class NotificationBannerView: UIView {
         textLabel.textColor = UIColor.InAppNotificationBanner.titleColor
         textLabel.numberOfLines = 0
         textLabel.lineBreakMode = .byWordWrapping
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            textLabel.lineBreakStrategy = []
-        }
+        textLabel.lineBreakStrategy = []
         return textLabel
     }()
 
@@ -30,10 +27,7 @@ final class NotificationBannerView: UIView {
         textLabel.textColor = UIColor.InAppNotificationBanner.bodyColor
         textLabel.numberOfLines = 0
         textLabel.lineBreakMode = .byWordWrapping
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            textLabel.lineBreakStrategy = []
-        }
+        textLabel.lineBreakStrategy = []
         return textLabel
     }()
 
