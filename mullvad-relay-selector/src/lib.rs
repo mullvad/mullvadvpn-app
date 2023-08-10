@@ -10,8 +10,8 @@ use mullvad_types::{
     relay_constraints::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint,
         Match, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
-        RelaySettings, ResolvedLocationConstraint, SelectedObfuscation, Set, TransportPort,
-        Udp2TcpObfuscationSettings,
+        RelayConstraintsFormatter, RelaySettings, ResolvedLocationConstraint, SelectedObfuscation,
+        Set, TransportPort, Udp2TcpObfuscationSettings,
     },
     relay_list::{BridgeEndpointData, Relay, RelayEndpointData, RelayList},
     CustomTunnelEndpoint,
@@ -651,9 +651,13 @@ impl RelaySelector {
             );
             Ok(result)
         } else {
-            let mut relay_constraints_string = String::new();
-            let _ = relay_constraints.format(&mut relay_constraints_string, custom_lists);
-            log::warn!("No relays matching {}", &relay_constraints_string);
+            log::warn!(
+                "No relays matching constraints: {}",
+                RelayConstraintsFormatter {
+                    constraints: relay_constraints,
+                    custom_lists,
+                }
+            );
             Err(Error::NoRelay)
         }
     }
