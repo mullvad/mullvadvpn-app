@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.SelectLocationScreen
 import net.mullvad.mullvadvpn.compose.theme.AppTheme
@@ -28,10 +26,6 @@ class SelectLocationFragment : BaseFragment(), StatusBarPainter, NavigationBarPa
         return inflater.inflate(R.layout.fragment_compose, container, false).apply {
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 AppTheme {
-                    val systemUiController = rememberSystemUiController()
-                    systemUiController.setStatusBarColor(MaterialTheme.colorScheme.background)
-                    systemUiController.setNavigationBarColor(MaterialTheme.colorScheme.background)
-
                     val state = vm.uiState.collectAsState().value
                     SelectLocationScreen(
                         uiState = state,

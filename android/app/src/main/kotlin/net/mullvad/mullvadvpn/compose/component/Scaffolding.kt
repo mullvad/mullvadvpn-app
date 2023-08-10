@@ -14,14 +14,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.delay
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.CollapsingToolbarScaffoldScope
 import me.onebone.toolbar.CollapsingToolbarScaffoldState
 import me.onebone.toolbar.CollapsingToolbarScope
 import me.onebone.toolbar.ExperimentalToolbarApi
 import me.onebone.toolbar.ScrollStrategy
+import net.mullvad.mullvadvpn.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,8 +64,8 @@ fun CollapsableAwareToolbarScaffold(
     toolbar: @Composable CollapsingToolbarScope.() -> Unit,
     body: @Composable CollapsingToolbarScaffoldScope.() -> Unit
 ) {
+    val context = LocalContext.current
     val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(backgroundColor)
     systemUiController.setNavigationBarColor(backgroundColor)
 
     var isCollapsable by remember { mutableStateOf(false) }
@@ -71,6 +74,10 @@ fun CollapsableAwareToolbarScaffold(
         if (!isCollapsable) {
             state.toolbarState.expand()
         }
+    }
+    LaunchedEffect(isCollapsable) {
+        delay(context.resources.getInteger(R.integer.transition_animation_duration).toLong())
+        systemUiController.setStatusBarColor(backgroundColor)
     }
 
     CollapsingToolbarScaffold(
