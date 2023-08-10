@@ -946,9 +946,9 @@ impl Tunnel for WgNtTunnel {
             let (_interface, peers) = device.get_config().map_err(|error| {
                 log::error!(
                     "{}",
-                    error.display_chain_with_msg("Failed to obtain wg-nt tunnel config")
+                    error.display_chain_with_msg("Failed to obtain tunnel config")
                 );
-                super::TunnelError::StatsError(super::stats::Error::NoTunnelConfig)
+                TunnelError::GetConfigError
             })?;
             for (peer, _allowed_ips) in &peers {
                 map.insert(
@@ -961,9 +961,8 @@ impl Tunnel for WgNtTunnel {
             }
             Ok(map)
         } else {
-            Err(super::TunnelError::StatsError(
-                super::stats::Error::NoTunnelDevice,
-            ))
+            log::error!("Failed to obtain tunnel stats as device no longer exists");
+            Err(TunnelError::GetConfigError)
         }
     }
 
@@ -1153,14 +1152,4 @@ mod tests {
     unsafe extern "system" fn null_fn() -> isize {
         unreachable!("unexpected call of function")
     }
-}
-
-// FIXME
-#[derive(err_derive::Error, Debug, PartialEq)]
-pub enum Error {
-    #[error(display = "Device no longer exists")]
-    NoTunnelDevice,
-
-    #[error(display = "Failed to obtain tunnel config")]
-    NoTunnelConfig,
 }

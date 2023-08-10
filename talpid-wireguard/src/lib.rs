@@ -37,7 +37,7 @@ use talpid_types::{
         wireguard::{PresharedKey, PrivateKey, PublicKey},
         AllowedTunnelTraffic, Endpoint, TransportProtocol,
     },
-    ErrorExt, BoxedError,
+    BoxedError, ErrorExt,
 };
 use tokio::sync::Mutex as AsyncMutex;
 use tunnel_obfuscation::{

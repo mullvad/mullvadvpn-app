@@ -1,5 +1,5 @@
-use crate::stats::{Stats, StatsMap};
 use super::wg_message::{DeviceMessage, DeviceNla, PeerNla};
+use crate::stats::{Stats, StatsMap};
 
 impl Stats {
     pub fn parse_device_message(message: &DeviceMessage) -> StatsMap {
