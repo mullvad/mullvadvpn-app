@@ -9,18 +9,27 @@ on:
       - ios/**/*.xctestplan
   workflow_dispatch:
 jobs:
+  install-tools:
+    name: Install SwiftFormat and SwiftLint
+    runs-on: macos-13
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Update brew
+        run: |
+          brew update
+      - name: Upgrade swiftformat
+        run: |
+          brew upgrade swiftformat
+      - name: Ugrade swiftlint
+        run: |
+          brew upgrade swiftlint
+
   check-formatting:
     name: Check formatting
     runs-on: macos-13
+    needs: [install-tools]
     steps:
-      - name: Install SwiftFormat
-        run: |
-          brew update
-          brew upgrade swiftformat
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
       - name: Check formatting
         run: |
           swiftformat --version
@@ -29,16 +38,9 @@ jobs:
   swiftlint:
     name: Run swiftlint
     runs-on: macos-13
+    needs: [install-tools]
     steps:
-      - name: Install SwiftLint
-        run: |
-          brew update
-          brew upgrade swiftlint
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Check formatting
+      - name: Run swiftlint
         run: |
           swiftlint --reporter github-actions-logging
 
