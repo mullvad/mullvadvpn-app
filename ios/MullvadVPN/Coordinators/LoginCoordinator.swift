@@ -84,7 +84,7 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
     }
 
     private func callDidFinishAfterDelay() {
-        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(1)) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
             guard let self else { return }
             didFinish?(self)
         }

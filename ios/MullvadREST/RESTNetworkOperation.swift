@@ -252,7 +252,7 @@ extension REST {
                 return
             }
 
-            logger.debug("Retry in \(waitDelay.format()).")
+            logger.debug("Retry in \(waitDelay.logFormat()).")
 
             // Create timer to delay retry.
             let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)

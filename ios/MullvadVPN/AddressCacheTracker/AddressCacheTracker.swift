@@ -13,11 +13,11 @@ import Operations
 import UIKit
 
 final class AddressCacheTracker {
-    /// Update interval (in seconds).
-    private static let updateInterval: TimeInterval = 60 * 60 * 24
+    /// Update interval.
+    private static let updateInterval: Duration = .days(1)
 
-    /// Retry interval (in seconds).
-    private static let retryInterval: TimeInterval = 60 * 15
+    /// Retry interval.
+    private static let retryInterval: Duration = .minutes(15)
 
     /// Logger.
     private let logger = Logger(label: "AddressCache.Tracker")
@@ -174,11 +174,11 @@ final class AddressCacheTracker {
     private func _nextScheduleDate() -> Date {
         let nextDate = lastFailureAttemptDate.map { date in
             Date(
-                timeInterval: Self.retryInterval,
+                timeInterval: Self.retryInterval.timeInterval,
                 since: date
             )
         } ?? Date(
-            timeInterval: Self.updateInterval,
+            timeInterval: Self.updateInterval.timeInterval,
             since: store.getLastUpdateDate()
         )
 
