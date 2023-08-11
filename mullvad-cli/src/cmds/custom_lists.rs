@@ -1,4 +1,7 @@
-use super::relay_constraints::LocationArgs;
+use super::{
+    relay::{find_relay_by_hostname, get_filtered_relays},
+    relay_constraints::LocationArgs,
+};
 use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
@@ -106,7 +109,9 @@ impl CustomList {
     }
 
     async fn add_location(name: String, location_args: LocationArgs) -> Result<()> {
-        let location = Constraint::<GeographicLocationConstraint>::from(location_args);
+        let countries = get_filtered_relays().await?;
+        let location = find_relay_by_hostname(&countries, &location_args.country)
+            .map_or(Constraint::from(location_args), Constraint::Only);
         let update = CustomListLocationUpdate::Add { name, location };
         let mut rpc = MullvadProxyClient::new().await?;
         rpc.update_custom_list_location(update).await?;
