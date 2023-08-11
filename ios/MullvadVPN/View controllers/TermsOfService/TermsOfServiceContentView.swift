@@ -36,7 +36,13 @@ class TermsOfServiceContentView: UIView {
         bodyLabel.text = NSLocalizedString(
             "PRIVACY_NOTICE_BODY",
             tableName: "TermsOfService",
-            value: "You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.\n\nIn some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.\n\nWe strongly believe in retaining as little data as possible because we want you to remain anonymous.",
+            value: """
+            You have a right to privacy. That’s why we never store activity logs, don’t ask for personal information, and encourage anonymous payments.
+
+            In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+
+            We strongly believe in retaining as little data as possible because we want you to remain anonymous.
+            """,
             comment: ""
         )
         return bodyLabel

@@ -449,6 +449,7 @@ class RootContainerViewController: UIViewController {
         showSettings(animated: true)
     }
 
+    // swiftlint:disable:next function_body_length
     private func setViewControllersInternal(
         _ newViewControllers: [UIViewController],
         isUnwinding: Bool,

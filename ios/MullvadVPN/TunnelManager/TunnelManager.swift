@@ -1325,3 +1325,5 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.handleRestError(error)
     }
 }
+
+// swiftlint:disable:this file_length
