@@ -44,7 +44,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         preferredContentSize: UIMetrics.preferredFormSheetContentSize,
         modalPresentationStyle: .custom,
         isModalInPresentation: true,
-        transitioningDelegate: SecondaryContextTransitioningDelegate()
+        transitioningDelegate: SecondaryContextTransitioningDelegate(adjustViewWhenKeyboardAppears: false)
     )
 
     private let notificationController = NotificationController()
@@ -68,6 +68,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private let apiProxy: REST.APIProxy
     private let devicesProxy: REST.DevicesProxy
     private var tunnelObserver: TunnelObserver?
+    private var appPreferences: AppPreferencesDataSource
 
     private var outOfTimeTimer: Timer?
 
@@ -80,13 +81,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         storePaymentManager: StorePaymentManager,
         relayCacheTracker: RelayCacheTracker,
         apiProxy: REST.APIProxy,
-        devicesProxy: REST.DevicesProxy
+        devicesProxy: REST.DevicesProxy,
+        appPreferences: AppPreferencesDataSource
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
         self.relayCacheTracker = relayCacheTracker
         self.apiProxy = apiProxy
         self.devicesProxy = devicesProxy
+        self.appPreferences = appPreferences
 
         /*
          Uncomment if you'd like to test TOS again
@@ -153,9 +156,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         case .welcome:
             presentWelcome(animated: animated, completion: completion)
-
-        case .setupAccountCompleted:
-            presentSetupAccountCompleted(animated: animated, completion: completion)
         }
     }
 
@@ -293,12 +293,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func evaluateNextRoute() -> AppRoute {
-        guard TermsOfService.isAgreed else {
+        guard appPreferences.isAgreedToTermsOfService else {
             return .tos
         }
 
-        guard ChangeLog.isSeen else {
+        guard appPreferences.isSeen else {
             return .changelog
+        }
+        guard appPreferences.isShownOnboarding else {
+            return .welcome
         }
 
         switch tunnelManager.deviceState {
@@ -309,7 +312,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             return .login
 
         case let .loggedIn(accountData, _):
-            return accountData.isExpired ? (accountData.isNew ? .welcome : .outOfTime) : .main
+            return accountData.isExpired ? .outOfTime : .main
         }
     }
 
@@ -481,6 +484,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let coordinator = TermsOfServiceCoordinator(navigationController: horizontalFlowController)
 
         coordinator.didFinish = { [weak self] coordinator in
+            self?.appPreferences.isAgreedToTermsOfService = true
             self?.continueFlow(animated: true)
         }
 
@@ -493,13 +497,19 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func presentChangeLog(completion: @escaping (Coordinator) -> Void) {
-        let coordinator = ChangeLogCoordinator(navigationController: primaryNavigationContainer)
+        let coordinator = ChangeLogCoordinator(
+            navigationController: horizontalFlowController,
+            interactor: ChangeLogInteractor()
+        )
+
+        coordinator.didFinish = { [weak self] coordinator in
+            self?.appPreferences.lastSeenChangeLogVersion = Bundle.main.shortVersion
+            self?.continueFlow(animated: false)
+            completion(coordinator)
+        }
 
         addChild(coordinator)
         coordinator.start(animated: false)
-
-        continueFlow(animated: false)
-        completion(coordinator)
     }
 
     private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
@@ -569,26 +579,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             tunnelManager: tunnelManager
         )
 
-        coordinator.didFinishPayment = { [weak self] coordinator in
-            guard let self else { return }
-            router.dismiss(.welcome, animated: false)
-            continueFlow(animated: false)
-        }
-
-        addChild(coordinator)
-        coordinator.start(animated: animated)
-
-        beginHorizontalFlow(animated: animated) {
-            completion(coordinator)
-        }
-    }
-
-    private func presentSetupAccountCompleted(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        let coordinator = SetupAccountCompletedCoordinator(navigationController: horizontalFlowController)
-
         coordinator.didFinish = { [weak self] coordinator in
             guard let self else { return }
-            coordinator.removeFromParent()
+            appPreferences.isShownOnboarding = true
+            router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
         }
 
@@ -620,11 +614,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let coordinator = LoginCoordinator(
             navigationController: horizontalFlowController,
             tunnelManager: tunnelManager,
-            devicesProxy: devicesProxy
+            devicesProxy: devicesProxy,
+            appPreferences: appPreferences
         )
 
         coordinator.didFinish = { [weak self] coordinator in
             self?.continueFlow(animated: true)
+        }
+        coordinator.didCreateAccount = { [weak self] in
+            self?.appPreferences.isShownOnboarding = false
         }
 
         addChild(coordinator)
@@ -680,13 +678,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             self?.didDismissAccount(reason)
         }
 
-        coordinator.didAddMoreCredit = { [weak self] coordinator, option in
-            guard let self,
-                  self.isPresentingWelcome else { return }
-            self.router.dismiss(.welcome, animated: false)
-            self.router.present(.setupAccountCompleted, animated: false)
-        }
-
         coordinator.start(animated: animated)
 
         presentChild(
@@ -694,7 +685,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             animated: animated,
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: UIMetrics.preferredFormSheetContentSize,
-                modalPresentationStyle: .formSheet
+                modalPresentationStyle: .custom,
+                transitioningDelegate: FormSheetTransitioningDelegate(options: FormSheetPresentationOptions(
+                    useFullScreenPresentationInCompactWidth: true,
+                    adjustViewWhenKeyboardAppears: false
+                ))
             )
         ) { [weak self] in
             completion(coordinator)
@@ -768,7 +763,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case let .loggedIn(accountData, _):
 
             // Account creation is being shown
-            guard !isPresentingWelcome && !accountData.isNew else { return }
+            guard !isPresentingWelcome && !appPreferences.isShownOnboarding else { return }
 
             // Handle transition to and from expired state.
             switch (previousDeviceState.accountData?.isExpired ?? false, accountData.isExpired) {
@@ -785,9 +780,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 break
             }
         case .revoked:
+            appPreferences.isShownOnboarding = true
             cancelOutOfTimeTimer()
             router.present(.revoked, animated: true)
         case .loggedOut:
+            appPreferences.isShownOnboarding = true
             cancelOutOfTimeTimer()
         }
     }
@@ -955,5 +952,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
         isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
+    }
+}
+
+fileprivate extension AppPreferencesDataSource {
+    var isSeen: Bool {
+        self.lastSeenChangeLogVersion == Bundle.main.shortVersion
     }
 }

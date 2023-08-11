@@ -49,6 +49,18 @@ class SecondaryContextPresentationController: FormSheetPresentationController {
 }
 
 class SecondaryContextTransitioningDelegate: FormSheetTransitioningDelegate {
+    convenience init(adjustViewWhenKeyboardAppears: Bool) {
+        let option = FormSheetPresentationOptions(
+            useFullScreenPresentationInCompactWidth: true,
+            adjustViewWhenKeyboardAppears: adjustViewWhenKeyboardAppears
+        )
+        self.init(options: option)
+    }
+
+    private override init(options: FormSheetPresentationOptions) {
+        super.init(options: options)
+    }
+
     override func presentationController(
         forPresented presented: UIViewController,
         presenting: UIViewController?,
@@ -56,10 +68,9 @@ class SecondaryContextTransitioningDelegate: FormSheetTransitioningDelegate {
     ) -> UIPresentationController? {
         let presentationController = SecondaryContextPresentationController(
             presentedViewController: presented,
-            presenting: source
+            presenting: source,
+            options: options
         )
-
-        presentationController.useFullScreenPresentationInCompactWidth = true
 
         return presentationController
     }

@@ -19,13 +19,15 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
     private var lastLoginAction: LoginAction?
 
     var didFinish: ((LoginCoordinator) -> Void)?
+    var didCreateAccount: (() -> Void)?
 
     let navigationController: RootContainerViewController
 
     init(
         navigationController: RootContainerViewController,
         tunnelManager: TunnelManager,
-        devicesProxy: REST.DevicesProxy
+        devicesProxy: REST.DevicesProxy,
+        appPreferences: AppPreferencesDataSource
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
@@ -39,6 +41,7 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
         loginController.didFinishLogin = { [weak self] action, error in
             self?.didFinishLogin(action: action, error: error) ?? .nothing
         }
+        interactor.didCreateAccount = self.didCreateAccount
 
         navigationController.pushViewController(loginController, animated: animated)
 

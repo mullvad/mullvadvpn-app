@@ -30,9 +30,6 @@ class TermsOfServiceCoordinator: Coordinator, Presenting {
 
         controller.completionHandler = { [weak self] in
             guard let self else { return }
-
-            TermsOfService.setAgreed()
-
             didFinish?(self)
         }
 

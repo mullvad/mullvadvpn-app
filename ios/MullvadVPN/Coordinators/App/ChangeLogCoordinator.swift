@@ -10,60 +10,27 @@ import MullvadLogging
 import UIKit
 
 final class ChangeLogCoordinator: Coordinator {
-    private let logger = Logger(label: "ChangeLogCoordinator")
     private let navigationController: UIViewController
+    private let interactor: ChangeLogInteractor
+    var didFinish: ((ChangeLogCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
         return navigationController
     }
 
-    private var changeLogText: NSAttributedString? {
-        guard let changeLogText = try? ChangeLog.readFromFile() else {
-            logger.error("Cannot read changelog from bundle.")
-            return nil
-        }
-
-        let bullet = "•  "
-        let font = UIFont.preferredFont(forTextStyle: .body)
-
-        let bulletList = changeLogText.split(whereSeparator: { $0.isNewline })
-            .map { "\(bullet)\($0)" }
-            .joined(separator: "\n")
-
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineBreakMode = .byWordWrapping
-        paragraphStyle.headIndent = bullet.size(withAttributes: [.font: font]).width
-
-        return NSAttributedString(
-            string: bulletList,
-            attributes: [
-                .paragraphStyle: paragraphStyle,
-                .font: font,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.8),
-            ]
-        )
-    }
-
-    init(navigationController: UIViewController) {
+    init(
+        navigationController: UIViewController,
+        interactor: ChangeLogInteractor
+    ) {
         self.navigationController = navigationController
+        self.interactor = interactor
     }
 
     func start(animated: Bool) {
-        ChangeLog.markAsSeen()
-
-        guard let changeLogText else {
-            return
-        }
-
         let alertController = CustomAlertViewController(
-            header: Bundle.main.shortVersion,
-            title: NSLocalizedString(
-                "CHANGE_LOG_TITLE",
-                tableName: "Account",
-                value: "Changes in this version:",
-                comment: ""
-            ),
-            attributedMessage: changeLogText
+            header: interactor.viewModel.header,
+            title: interactor.viewModel.title,
+            attributedMessage: interactor.viewModel.body
         )
 
         alertController.addAction(
@@ -75,7 +42,8 @@ final class ChangeLogCoordinator: Coordinator {
             ),
             style: .default
         )
-
-        presentedViewController.present(alertController, animated: animated)
+        presentedViewController.present(alertController, animated: animated) {
+            self.didFinish?(self)
+        }
     }
 }
