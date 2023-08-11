@@ -14,22 +14,22 @@ import struct Network.IPv4Address
 /// Interval for periodic heartbeat ping issued when traffic is flowing.
 /// Should help to detect connectivity issues on networks that drop traffic in one of directions,
 /// regardless if tx/rx counters are being updated.
-private let heartbeatPingInterval: TimeInterval = 10
+private let heartbeatPingInterval: TimeInterval = .seconds(10)
 
 /// Heartbeat timeout that once exceeded triggers next heartbeat to be sent.
-private let heartbeatReplyTimeout: TimeInterval = 3
+private let heartbeatReplyTimeout: TimeInterval = .seconds(3)
 
 /// Timeout used to determine if there was a network activity lately.
 private let trafficFlowTimeout: TimeInterval = heartbeatPingInterval * 0.5
 
 /// Ping timeout.
-private let pingTimeout: TimeInterval = 15
+private let pingTimeout: TimeInterval = .seconds(15)
 
 /// Interval to wait before sending next ping.
-private let pingDelay: TimeInterval = 3
+private let pingDelay: TimeInterval = .seconds(3)
 
 /// Initial timeout when establishing connection.
-private let initialEstablishTimeout: TimeInterval = 4
+private let initialEstablishTimeout: TimeInterval = .seconds(4)
 
 /// Multiplier applied to `establishTimeout` on each failed connection attempt.
 private let establishTimeoutMultiplier: UInt32 = 2
@@ -38,14 +38,14 @@ private let establishTimeoutMultiplier: UInt32 = 2
 private let maxEstablishTimeout: TimeInterval = pingTimeout
 
 /// Connectivity check periodicity.
-private let connectivityCheckInterval: TimeInterval = 1
+private let connectivityCheckInterval: TimeInterval = .seconds(1)
 
 /// Inbound traffic timeout used when outbound traffic was registered prior to inbound traffic.
-private let inboundTrafficTimeout: TimeInterval = 5
+private let inboundTrafficTimeout: TimeInterval = .seconds(5)
 
 /// Traffic timeout applied when both tx/rx counters remain stale, i.e no traffic flowing.
 /// Ping is issued after that timeout is exceeded.s
-private let trafficTimeout: TimeInterval = 120
+private let trafficTimeout: TimeInterval = .minutes(2)
 
 public final class TunnelMonitor: TunnelMonitorProtocol {
     /// Connection state.

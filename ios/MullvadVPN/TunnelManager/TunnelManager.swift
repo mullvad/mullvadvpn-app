@@ -21,11 +21,11 @@ import class WireGuardKitTypes.PublicKey
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
-private let establishingTunnelStatusPollInterval: TimeInterval = 3
+private let establishingTunnelStatusPollInterval: TimeInterval = .seconds(3)
 
 /// Interval used for periodic polling of tunnel connectivity status once the tunnel connection
 /// is established.
-private let establishedTunnelStatusPollInterval: TimeInterval = 5
+private let establishedTunnelStatusPollInterval: TimeInterval = .seconds(5)
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.

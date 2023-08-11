@@ -11,10 +11,10 @@ import Foundation
 /// Struct used for throttling UI calls to update account data via tunnel manager.
 struct AccountDataThrottling {
     /// Default cooldown interval between requests.
-    private static let defaultWaitInterval: TimeInterval = 60
+    private static let defaultWaitInterval: TimeInterval = .minutes(1)
 
     /// Cooldown interval used when account has already expired.
-    private static let waitIntervalForExpiredAccount: TimeInterval = 10
+    private static let waitIntervalForExpiredAccount: TimeInterval = .seconds(10)
 
     /// Interval in days when account is considered to be close to expiry.
     private static let closeToExpiryDays = 4

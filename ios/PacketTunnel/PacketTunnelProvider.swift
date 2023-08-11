@@ -21,10 +21,10 @@ import TunnelProviderMessaging
 import WireGuardKit
 
 /// Restart interval (in seconds) for the tunnel that failed to start early on.
-private let tunnelStartupFailureRestartInterval: TimeInterval = 2
+private let tunnelStartupFailureRestartInterval: Duration = .seconds(2)
 
 /// Delay before trying to reconnect tunnel after private key rotation.
-private let keyRotationTunnelReconnectionDelay = 60 * 2
+private let keyRotationTunnelReconnectionDelay: Duration = .minutes(2)
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
     /// Tunnel provider logger.
@@ -446,7 +446,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     // MARK: - Private
 
-    private func startTunnelReconnectionTimer(reconnectionDelay: Int) {
+    private func startTunnelReconnectionTimer(reconnectionDelay: Duration) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         providerLogger.debug("Delaying tunnel reconnection by \(reconnectionDelay) seconds...")
@@ -468,7 +468,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             self?.useCachedDeviceState = false
         }
 
-        timer.schedule(deadline: .now() + .seconds(reconnectionDelay))
+        timer.schedule(deadline: .now() + reconnectionDelay.timeInterval)
         timer.activate()
 
         tunnelReconnectionTimer?.cancel()
@@ -499,7 +499,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         timer.schedule(
             wallDeadline: .now() + tunnelStartupFailureRestartInterval,
-            repeating: tunnelStartupFailureRestartInterval
+            repeating: tunnelStartupFailureRestartInterval.timeInterval
         )
         timer.activate()
 
