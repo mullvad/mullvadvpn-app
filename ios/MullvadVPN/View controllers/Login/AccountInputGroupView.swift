@@ -6,9 +6,10 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
 import UIKit
 
-private let animationDuration: TimeInterval = 0.25
+private let animationDuration: Duration = .milliseconds(250)
 
 final class AccountInputGroupView: UIView {
     private let minimumAccountTokenLength = 10
@@ -479,7 +480,7 @@ final class AccountInputGroupView: UIView {
 
         if animated {
             actions()
-            UIView.animate(withDuration: animationDuration) {
+            UIView.animate(withDuration: animationDuration.timeInterval) {
                 self.layoutIfNeeded()
             }
         } else {
@@ -523,7 +524,7 @@ final class AccountInputGroupView: UIView {
         }
 
         if animated {
-            UIView.animate(withDuration: animationDuration) {
+            UIView.animate(withDuration: animationDuration.timeInterval) {
                 actions()
             }
         } else {
@@ -575,7 +576,7 @@ private class AccountInputBorderLayer: CAShapeLayer {
     override class func defaultAction(forKey event: String) -> CAAction? {
         if event == "path" {
             let action = CABasicAnimation(keyPath: event)
-            action.duration = animationDuration
+            action.duration = animationDuration.timeInterval
             action.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
 
             return action
