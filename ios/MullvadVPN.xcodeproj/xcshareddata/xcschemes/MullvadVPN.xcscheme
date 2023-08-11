@@ -213,6 +213,47 @@
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "58C7A43C2A863F450060C66F"
+               BuildableName = "PacketTunnelCoreTests.xctest"
+               BlueprintName = "PacketTunnelCoreTests"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "58C7A43C2A863F450060C66F"
+               BuildableName = "PacketTunnelCoreTests.xctest"
+               BlueprintName = "PacketTunnelCoreTests"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "58C7A43C2A863F450060C66F"
+               BuildableName = "PacketTunnelCoreTests.xctest"
+               BlueprintName = "PacketTunnelCoreTests"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "58C7A43C2A863F450060C66F"
+               BuildableName = "PacketTunnelCoreTests.xctest"
+               BlueprintName = "PacketTunnelCoreTests"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
