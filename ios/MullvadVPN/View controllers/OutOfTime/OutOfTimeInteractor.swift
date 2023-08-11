@@ -14,7 +14,7 @@ import Operations
 import StoreKit
 
 /// Interval used for periodic polling account updates.
-private let accountUpdateTimerInterval: TimeInterval = 60
+private let accountUpdateTimerInterval: TimeInterval = .minutes(1)
 
 final class OutOfTimeInteractor {
     private let storePaymentManager: StorePaymentManager

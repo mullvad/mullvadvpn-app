@@ -14,10 +14,10 @@ import UIKit
 
 final class AddressCacheTracker {
     /// Update interval (in seconds).
-    private static let updateInterval: TimeInterval = 60 * 60 * 24
+    private static let updateInterval: TimeInterval = .days(1)
 
     /// Retry interval (in seconds).
-    private static let retryInterval: TimeInterval = 60 * 15
+    private static let retryInterval: TimeInterval = .minutes(15)
 
     /// Logger.
     private let logger = Logger(label: "AddressCache.Tracker")

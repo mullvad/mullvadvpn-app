@@ -85,7 +85,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
                 if previousDeviceState == .loggedOut,
                    case .loggedIn = deviceState {
                     self?.isNewDeviceRegistered = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+                    DispatchQueue.main.asyncAfter(deadline: .now() + TimeInterval.seconds(1)) { [weak self] in
                         self?.invalidate()
                     }
 

@@ -13,6 +13,7 @@
 // -----------------------------------------------------
 
 import Foundation
+import MullvadTypes
 import XCTest
 
 var deviceLanguage = ""
@@ -33,7 +34,7 @@ func snapshot(_ name: String, waitForLoadingIndicator: Bool) {
 /// - Parameters:
 ///   - name: The name of the snapshot
 ///   - timeout: Amount of seconds to wait until the network loading indicator disappears. Pass `0` if you don't want to wait.
-func snapshot(_ name: String, timeWaitingForIdle timeout: TimeInterval = 20) {
+func snapshot(_ name: String, timeWaitingForIdle timeout: TimeInterval = .seconds(20)) {
     Snapshot.snapshot(name, timeWaitingForIdle: timeout)
 }
 
@@ -139,7 +140,7 @@ open class Snapshot: NSObject {
         }
     }
 
-    open class func snapshot(_ name: String, timeWaitingForIdle timeout: TimeInterval = 20) {
+    open class func snapshot(_ name: String, timeWaitingForIdle timeout: TimeInterval = .seconds(20)) {
         if timeout > 0 {
             waitForLoadingIndicatorToDisappear(within: timeout)
         }
