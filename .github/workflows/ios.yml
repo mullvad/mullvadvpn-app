@@ -26,6 +26,17 @@ jobs:
           swiftformat --version
           swiftformat --lint .
 
+  swiftlint:
+    name: Run swiftlint
+    runs-on: macos-13
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run swiftlint
+        run: |
+          swiftlint --reporter github-actions-logging
+
   test:
     name: Unit tests
     runs-on: macos-13

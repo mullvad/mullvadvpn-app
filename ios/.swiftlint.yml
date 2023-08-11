@@ -1,0 +1,49 @@
+---
+disabled_rules:
+  - colon
+  - comma
+  - control_statement
+  - identifier_name
+  - type_body_length
+  - opening_brace  # Differs from Google swift guidelines enforced by swiftformat
+  - trailing_comma
+opt_in_rules:
+  - empty_count
+
+analyzer_rules:  # rules run by `swiftlint analyze`
+  - explicit_self
+
+included:  # case-sensitive paths to include during linting. `--path` is ignored if present
+  - .
+excluded:  # case-sensitive paths to ignore during linting. Takes precedence over `included`
+  - AdditionalAssets
+  - Assets
+  - Configurations
+  - MullvadVPNScreenshots
+
+allow_zero_lintable_files: false
+
+force_cast: warning
+force_try:
+  severity: warning
+line_length:
+  ignores_comments: true
+  ignores_interpolated_strings: true
+  warning: 120
+  error: 300
+
+type_name:
+  min_length: 4
+  max_length:
+    error: 50
+  excluded: iPhone  # excluded via string
+  allowed_symbols: ["_"]  # these are allowed in type names
+identifier_name:
+  allowed_symbols: ["_"]  # these are allowed in type names
+  min_length:
+    error: 3
+  excluded:
+    - id
+    - URL
+    - GlobalAPIKey
+reporter: "xcode"
