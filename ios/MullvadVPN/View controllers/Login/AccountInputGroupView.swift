@@ -8,7 +8,7 @@
 
 import UIKit
 
-private let animationDuration: TimeInterval = 0.25
+private let animationDuration: TimeInterval = .milliseconds(250)
 
 final class AccountInputGroupView: UIView {
     private let minimumAccountTokenLength = 10

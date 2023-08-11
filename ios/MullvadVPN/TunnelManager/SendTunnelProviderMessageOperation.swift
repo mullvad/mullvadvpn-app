@@ -15,10 +15,10 @@ import UIKit
 /// Delay for sending tunnel provider messages to the tunnel when in connecting state.
 /// Used to workaround a bug when talking to the tunnel too early during startup may cause it
 /// to freeze.
-private let connectingStateWaitDelay: TimeInterval = 5
+private let connectingStateWaitDelay: TimeInterval = .seconds(5)
 
 /// Default timeout in seconds.
-private let defaultTimeout: TimeInterval = 5
+private let defaultTimeout: TimeInterval = .seconds(5)
 
 final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> {
     typealias DecoderHandler = (Data?) throws -> Output

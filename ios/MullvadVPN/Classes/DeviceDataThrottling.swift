@@ -11,7 +11,7 @@ import Foundation
 /// Struct used for throttling UI calls to update device data via tunnel manager.
 struct DeviceDataThrottling {
     /// Default cooldown interval between requests.
-    private static let defaultWaitInterval: TimeInterval = 60
+    private static let defaultWaitInterval: TimeInterval = .minutes(1)
 
     let tunnelManager: TunnelManager
     private(set) var lastUpdate: Date?

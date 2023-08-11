@@ -18,15 +18,15 @@ import class WireGuardKitTypes.PublicKey
 struct WgKeyRotation {
     /// Private key rotation interval measured in seconds and counted from the time when the key was successfully pushed
     /// to the backend.
-    public static let rotationInterval: TimeInterval = 60 * 60 * 24 * 14
+    public static let rotationInterval: TimeInterval = .days(14)
 
     /// Private key rotation retry interval measured in seconds and counted from the time when the last rotation
     /// attempt took place.
-    public static let retryInterval: TimeInterval = 60 * 60 * 24
+    public static let retryInterval: TimeInterval = .days(1)
 
     /// Cooldown interval measured in seconds used to prevent packet tunnel from forcefully pushing the key to our
     /// backend in the event of restart loop.
-    public static let packetTunnelCooldownInterval: TimeInterval = 15
+    public static let packetTunnelCooldownInterval: TimeInterval = .seconds(15)
 
     /// Mutated device data value.
     private(set) var data: StoredDeviceData

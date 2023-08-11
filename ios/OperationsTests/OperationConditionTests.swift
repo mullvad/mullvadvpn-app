@@ -124,7 +124,7 @@ class OperationConditionTests: XCTestCase {
         let operationQueue = AsyncOperationQueue()
 
         let firstOperation = AsyncBlockOperation { finish in
-            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(1)) {
                 expectFirstOperationExecution.fulfill()
                 finish(nil)
             }

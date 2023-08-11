@@ -10,7 +10,7 @@ import Foundation
 
 /// Interval used for reopening the log file descriptor in the event of failure to open it in
 /// the first place, or when writing to it.
-private let reopenFileLogInterval: TimeInterval = 5
+private let reopenFileLogInterval: TimeInterval = .seconds(5)
 
 class LogFileOutputStream: TextOutputStream {
     private let queue = DispatchQueue(label: "LogFileOutputStreamQueue", qos: .utility)
