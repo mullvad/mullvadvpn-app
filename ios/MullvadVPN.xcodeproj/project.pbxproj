@@ -405,6 +405,8 @@
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
 		7A1A26432A2612AE00B978AA /* PaymentAlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A26422A2612AE00B978AA /* PaymentAlertPresenter.swift */; };
 		7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */; };
+		7A307AD72A864BFB0017618B /* TimeInterval+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307AD62A864BFB0017618B /* TimeInterval+Extensions.swift */; };
+		7A307AD92A8CD8DA0017618B /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307AD82A8CD8DA0017618B /* Duration.swift */; };
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
 		7A42DECD2A09064C00B209BE /* SelectableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
@@ -1256,6 +1258,8 @@
 		7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FuzzyMatch.swift"; sourceTree = "<group>"; };
 		7A1A26422A2612AE00B978AA /* PaymentAlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentAlertPresenter.swift; sourceTree = "<group>"; };
 		7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITextField+Appearance.swift"; sourceTree = "<group>"; };
+		7A307AD62A864BFB0017618B /* TimeInterval+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Extensions.swift"; sourceTree = "<group>"; };
+		7A307AD82A8CD8DA0017618B /* Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Duration.swift; sourceTree = "<group>"; };
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSettingsCell.swift; sourceTree = "<group>"; };
 		7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunch.swift; sourceTree = "<group>"; };
@@ -1620,7 +1624,9 @@
 				5898D2AF2902A67C00EB5EBA /* RelayLocation.swift */,
 				581DA2722A1E227D0046ED47 /* RESTTypes.swift */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
+				7A307AD62A864BFB0017618B /* TimeInterval+Extensions.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
+				7A307AD82A8CD8DA0017618B /* Duration.swift */,
 			);
 			path = MullvadTypes;
 			sourceTree = "<group>";
@@ -3804,6 +3810,7 @@
 				A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */,
 				58D22408294C90210029F5F8 /* AnyIPEndpoint.swift in Sources */,
 				58D22409294C90210029F5F8 /* AnyIPAddress.swift in Sources */,
+				7A307AD92A8CD8DA0017618B /* Duration.swift in Sources */,
 				58D2240A294C90210029F5F8 /* IPAddress+Codable.swift in Sources */,
 				58E45A5729F12C5100281ECF /* Result+Extensions.swift in Sources */,
 				58D2240B294C90210029F5F8 /* Cancellable.swift in Sources */,
@@ -3822,6 +3829,7 @@
 				58D22415294C90210029F5F8 /* PacketTunnelStatus.swift in Sources */,
 				58D22416294C90210029F5F8 /* PacketTunnelRelay.swift in Sources */,
 				58D22417294C90210029F5F8 /* FixedWidthInteger+Arithmetics.swift in Sources */,
+				7A307AD72A864BFB0017618B /* TimeInterval+Extensions.swift in Sources */,
 				58D22418294C90210029F5F8 /* PacketTunnelErrorWrapper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

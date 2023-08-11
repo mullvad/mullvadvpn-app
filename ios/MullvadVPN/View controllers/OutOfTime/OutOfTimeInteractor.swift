@@ -22,7 +22,7 @@ final class OutOfTimeInteractor {
 
     private let logger = Logger(label: "OutOfTimeInteractor")
 
-    private let accountUpdateTimerInterval: TimeInterval = 60
+    private let accountUpdateTimerInterval: TimeInterval = .minutes(1)
     private var accountUpdateTimer: DispatchSourceTimer?
 
     var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?

@@ -140,7 +140,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
 
         alertPresenter.enqueue(alertController, presentingController: presentationContext) {
             self.interactor.logout {
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+                DispatchQueue.main.asyncAfter(deadline: .now() + DispatchTimeInterval.seconds(1)) { [weak self] in
                     guard let self else { return }
 
                     alertController.dismiss(animated: true) {

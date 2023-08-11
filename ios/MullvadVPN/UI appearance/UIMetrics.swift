@@ -29,7 +29,7 @@ enum UIMetrics {
     }
 
     enum FormSheetTransition {
-        static let duration: TimeInterval = 0.5
+        static let duration: TimeInterval = .milliseconds(500)
         static let delay: TimeInterval = .zero
         static let animationOptions: UIView.AnimationOptions = [.curveEaseInOut]
     }
