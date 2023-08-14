@@ -11,6 +11,39 @@ import MullvadLogging
 import UIKit
 
 /**
+ Formal protocol describing a group of routes.
+ */
+protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable {
+    /**
+     Returns `true` if group is presented modally, otherwise `false` if group is a part of root view
+     controller.
+     */
+    var isModal: Bool { get }
+}
+
+/**
+ Formal protocol describing a single route.
+ */
+protocol AppRouteProtocol: Equatable, Hashable {
+    associatedtype RouteGroupType: AppRouteGroupProtocol
+
+    /**
+     Returns `true` when only one route of a kind can be displayed.
+     */
+    var isExclusive: Bool { get }
+
+    /**
+     Returns `true` if the route supports sub-navigation.
+     */
+    var supportsSubNavigation: Bool { get }
+
+    /**
+     Navigation group to which the route belongs to.
+     */
+    var routeGroup: RouteGroupType { get }
+}
+
+/**
  Enum type describing groups of routes. Each group is a modal layer with horizontal navigation
  inside with exception where primary navigation is a part of root controller on iPhone.
  */
@@ -40,10 +73,6 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
      */
     case changelog
 
-    /**
-     Returns `true` if group is presented modally, otherwise `false` if group is a part of root view
-     controller.
-     */
     var isModal: Bool {
         switch self {
         case .primary:
@@ -97,9 +126,6 @@ enum AppRoute: Equatable, Hashable {
      */
     case tos, login, main, revoked, outOfTime, welcome, setupAccountCompleted
 
-    /**
-     Returns `true` when only one route of a kind can be displayed.
-     */
     var isExclusive: Bool {
         switch self {
         case .selectLocation, .account, .settings, .changelog:
@@ -109,9 +135,6 @@ enum AppRoute: Equatable, Hashable {
         }
     }
 
-    /**
-     Returns `true` if the route supports sub-navigation.
-     */
     var supportsSubNavigation: Bool {
         if case .settings = self {
             return true
@@ -120,9 +143,6 @@ enum AppRoute: Equatable, Hashable {
         }
     }
 
-    /**
-     Navigation group to which the route belongs to.
-     */
     var routeGroup: AppRouteGroup {
         switch self {
         case .tos, .login, .main, .revoked, .outOfTime, .welcome, .setupAccountCompleted:
@@ -139,11 +159,14 @@ enum AppRoute: Equatable, Hashable {
     }
 }
 
+extension AppRoute: AppRouteProtocol {}
+extension AppRouteGroup: AppRouteGroupProtocol {}
+
 /**
  Struct describing a routing request for presentation or dismissal.
  */
-struct PendingRoute: Equatable {
-    var operation: RouteOperation
+struct PendingRoute<RouteType: AppRouteProtocol>: Equatable {
+    var operation: RouteOperation<RouteType>
     var animated: Bool
 }
 
@@ -200,21 +223,21 @@ enum PendingDismissalResult {
 /**
  Enum describing operation over the route.
  */
-enum RouteOperation: Equatable {
+enum RouteOperation<RouteType: AppRouteProtocol>: Equatable {
     /**
      Present route.
      */
-    case present(AppRoute)
+    case present(RouteType)
 
     /**
      Dismiss route.
      */
-    case dismiss(DismissMatch)
+    case dismiss(DismissMatch<RouteType>)
 
     /**
      Returns a group of affected routes.
      */
-    var routeGroup: AppRouteGroup {
+    var routeGroup: RouteType.RouteGroupType {
         switch self {
         case let .present(route):
             return route.routeGroup
@@ -227,14 +250,14 @@ enum RouteOperation: Equatable {
 /**
  Enum type describing a single route or a group of routes requested to be dismissed.
  */
-enum DismissMatch: Equatable {
-    case group(AppRouteGroup)
-    case singleRoute(AppRoute)
+enum DismissMatch<RouteType: AppRouteProtocol>: Equatable {
+    case group(RouteType.RouteGroupType)
+    case singleRoute(RouteType)
 
     /**
      Returns a group of affected routes.
      */
-    var routeGroup: AppRouteGroup {
+    var routeGroup: RouteType.RouteGroupType {
         switch self {
         case let .group(group):
             return group
@@ -247,19 +270,19 @@ enum DismissMatch: Equatable {
 /**
  Struct describing presented route.
  */
-struct PresentedRoute: Equatable {
-    var route: AppRoute
+struct PresentedRoute<RouteType: AppRouteProtocol>: Equatable {
+    var route: RouteType
     var coordinator: Coordinator
 }
 
 /**
  Struct holding information used by delegate to perform dismissal of the route(s) in subject.
  */
-struct RouteDismissalContext {
+struct RouteDismissalContext<RouteType: AppRouteProtocol> {
     /**
      Specific routes that are being dismissed.
      */
-    var dismissedRoutes: [PresentedRoute]
+    var dismissedRoutes: [PresentedRoute<RouteType>]
 
     /**
      Whether the entire group is being dismissed.
@@ -275,22 +298,24 @@ struct RouteDismissalContext {
 /**
  Struct holding information used by delegate to perform sub-navigation of the route in subject.
  */
-struct RouteSubnavigationContext {
-    var presentedRoute: PresentedRoute
-    var route: AppRoute
+struct RouteSubnavigationContext<RouteType: AppRouteProtocol> {
+    var presentedRoute: PresentedRoute<RouteType>
+    var route: RouteType
     var isAnimated: Bool
 }
 
 /**
  Application router delegate
  */
-protocol ApplicationRouterDelegate: AnyObject {
+protocol ApplicationRouterDelegate<RouteType>: AnyObject {
+    associatedtype RouteType: AppRouteProtocol
+
     /**
      Delegate should present the route and pass corresponding `Coordinator` upon completion.
      */
     func applicationRouter(
-        _ router: ApplicationRouter,
-        route: AppRoute,
+        _ router: ApplicationRouter<RouteType>,
+        route: RouteType,
         animated: Bool,
         completion: @escaping (Coordinator) -> Void
     )
@@ -299,8 +324,8 @@ protocol ApplicationRouterDelegate: AnyObject {
      Delegate should dismiss the route.
      */
     func applicationRouter(
-        _ router: ApplicationRouter,
-        dismissWithContext context: RouteDismissalContext,
+        _ router: ApplicationRouter<RouteType>,
+        dismissWithContext context: RouteDismissalContext<RouteType>,
         completion: @escaping () -> Void
     )
 
@@ -309,7 +334,7 @@ protocol ApplicationRouterDelegate: AnyObject {
 
      Return `true` to proceed with presenation, otherwise `false` to prevent it.
      */
-    func applicationRouter(_ router: ApplicationRouter, shouldPresent route: AppRoute) -> Bool
+    func applicationRouter(_ router: ApplicationRouter<RouteType>, shouldPresent route: RouteType) -> Bool
 
     /**
      Delegate may reconsider if route dismissal should be done.
@@ -317,8 +342,8 @@ protocol ApplicationRouterDelegate: AnyObject {
      Return `true` to proceed with dismissal, otherwise `false` to prevent it.
      */
     func applicationRouter(
-        _ router: ApplicationRouter,
-        shouldDismissWithContext context: RouteDismissalContext
+        _ router: ApplicationRouter<RouteType>,
+        shouldDismissWithContext context: RouteDismissalContext<RouteType>
     ) -> Bool
 
     /**
@@ -326,8 +351,8 @@ protocol ApplicationRouterDelegate: AnyObject {
      router when it's done.
      */
     func applicationRouter(
-        _ router: ApplicationRouter,
-        handleSubNavigationWithContext context: RouteSubnavigationContext,
+        _ router: ApplicationRouter<RouteType>,
+        handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
         completion: @escaping () -> Void
     )
 }
@@ -335,37 +360,37 @@ protocol ApplicationRouterDelegate: AnyObject {
 /**
  Main application router.
  */
-final class ApplicationRouter {
+final class ApplicationRouter<RouteType: AppRouteProtocol> {
     private let logger = Logger(label: "ApplicationRouter")
 
-    private(set) var modalStack: [AppRouteGroup] = []
-    private var presentedRoutes: [AppRouteGroup: [PresentedRoute]] = [:]
+    private(set) var modalStack: [RouteType.RouteGroupType] = []
+    private var presentedRoutes: [RouteType.RouteGroupType: [PresentedRoute<RouteType>]] = [:]
 
-    private var pendingRoutes = [PendingRoute]()
+    private var pendingRoutes = [PendingRoute<RouteType>]()
     private var isProcessingPendingRoutes = false
 
-    private unowned let delegate: ApplicationRouterDelegate
+    private unowned let delegate: any ApplicationRouterDelegate<RouteType>
 
     /**
      Designated initializer.
 
      Delegate object is unonwed and the caller has to guarantee that the router does not outlive it.
      */
-    init(_ delegate: ApplicationRouterDelegate) {
+    init(_ delegate: some ApplicationRouterDelegate<RouteType>) {
         self.delegate = delegate
     }
 
     /**
      Returns `true` is the given route group is currently being presented.
      */
-    func isPresenting(group: AppRouteGroup) -> Bool {
+    func isPresenting(group: RouteType.RouteGroupType) -> Bool {
         modalStack.contains(group)
     }
 
     /**
      Returns `true` if is the given route  is currently being presented.
      */
-    func isPresenting(route: AppRoute) -> Bool {
+    func isPresenting(route: RouteType) -> Bool {
         guard let presentedRoute = presentedRoutes[route.routeGroup] else {
             return false
         }
@@ -375,7 +400,7 @@ final class ApplicationRouter {
     /**
      Enqueue route for presetnation.
      */
-    func present(_ route: AppRoute, animated: Bool = true) {
+    func present(_ route: RouteType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .present(route),
             animated: animated
@@ -385,7 +410,7 @@ final class ApplicationRouter {
     /**
      Enqueue dismissal of the route.
      */
-    func dismiss(_ route: AppRoute, animated: Bool = true) {
+    func dismiss(_ route: RouteType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .dismiss(.singleRoute(route)),
             animated: animated
@@ -395,14 +420,14 @@ final class ApplicationRouter {
     /**
      Enqueue dismissal of a group of routes.
      */
-    func dismissAll(_ group: AppRouteGroup, animated: Bool = true) {
+    func dismissAll(_ group: RouteType.RouteGroupType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .dismiss(.group(group)),
             animated: animated
         ))
     }
 
-    private func enqueue(_ pendingRoute: PendingRoute) {
+    private func enqueue(_ pendingRoute: PendingRoute<RouteType>) {
         logger.debug("Enqueue \(pendingRoute.operation).")
 
         pendingRoutes.append(pendingRoute)
@@ -413,7 +438,7 @@ final class ApplicationRouter {
     }
 
     private func presentRoute(
-        _ route: AppRoute,
+        _ route: RouteType,
         animated: Bool,
         completion: @escaping (PendingPresentationResult) -> Void
     ) {
@@ -487,7 +512,7 @@ final class ApplicationRouter {
     }
 
     private func dismissGroup(
-        _ dismissGroup: AppRouteGroup,
+        _ dismissGroup: RouteType.RouteGroupType,
         animated: Bool,
         completion: @escaping (PendingDismissalResult) -> Void
     ) {
@@ -533,7 +558,7 @@ final class ApplicationRouter {
     }
 
     private func dismissRoute(
-        _ dismissRoute: AppRoute,
+        _ dismissRoute: RouteType,
         animated: Bool,
         completion: @escaping (PendingDismissalResult) -> Void
     ) {
@@ -584,7 +609,7 @@ final class ApplicationRouter {
         }
     }
 
-    private func processPendingRoutes(skipRouteGroups: Set<AppRouteGroup> = []) {
+    private func processPendingRoutes(skipRouteGroups: Set<RouteType.RouteGroupType> = []) {
         isProcessingPendingRoutes = true
 
         let pendingRoute = pendingRoutes.first { pendingRoute in
@@ -634,7 +659,7 @@ final class ApplicationRouter {
     }
 
     private func handleDismissal(
-        _ dismissMatch: DismissMatch,
+        _ dismissMatch: DismissMatch<RouteType>,
         animated: Bool,
         completion: @escaping (PendingDismissalResult) -> Void
     ) {
@@ -647,7 +672,7 @@ final class ApplicationRouter {
         }
     }
 
-    private func finishPendingRoute(_ pendingRoute: PendingRoute) {
+    private func finishPendingRoute(_ pendingRoute: PendingRoute<RouteType>) {
         if let index = pendingRoutes.firstIndex(of: pendingRoute) {
             pendingRoutes.remove(at: index)
         }
@@ -655,7 +680,7 @@ final class ApplicationRouter {
         processPendingRoutes()
     }
 
-    private func handleInteractiveDismissal(route: AppRoute, coordinator: Coordinator) {
+    private func handleInteractiveDismissal(route: RouteType, coordinator: Coordinator) {
         var routes = presentedRoutes[route.routeGroup] ?? []
 
         routes.removeAll { presentedRoute in
@@ -674,7 +699,7 @@ final class ApplicationRouter {
         }
     }
 
-    private func addPresentedRoute(_ presented: PresentedRoute) {
+    private func addPresentedRoute(_ presented: PresentedRoute<RouteType>) {
         let group = presented.route.routeGroup
         var routes = presentedRoutes[group] ?? []
 
