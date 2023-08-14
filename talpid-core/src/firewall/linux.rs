@@ -331,7 +331,7 @@ impl<'a> PolicyBatch<'a> {
         rule.add_expr(&nft_expr!(meta mark set));
         self.batch.add(&rule, nftnl::MsgType::Add);
 
-        for chain in &[&self.in_chain, &self.out_chain] {
+        for chain in &[&self.in_chain, &self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
             rule.add_expr(&nft_expr!(ct mark));
             rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
