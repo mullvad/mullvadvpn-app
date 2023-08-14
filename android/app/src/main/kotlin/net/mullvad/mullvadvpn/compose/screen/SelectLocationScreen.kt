@@ -18,9 +18,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -55,6 +60,7 @@ fun PreviewSelectLocationScreen() {
     AppTheme { SelectLocationScreen(uiState = state, uiCloseAction = MutableSharedFlow()) }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SelectLocationScreen(
     uiState: SelectLocationUiState,
@@ -64,6 +70,7 @@ fun SelectLocationScreen(
     onBackClick: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) { uiCloseAction.collect { onBackClick() } }
+    val (backFocus, listFocus, searchBarFocus) = remember { FocusRequester.createRefs() }
     Column(
         modifier =
             Modifier.background(MaterialTheme.colorScheme.background).fillMaxWidth().fillMaxHeight()
@@ -80,7 +87,15 @@ fun SelectLocationScreen(
                 painter = painterResource(id = R.drawable.icon_back),
                 contentDescription = null,
                 modifier =
-                    Modifier.size(Dimens.titleIconSize).rotate(270f).clickable { onBackClick() }
+                    Modifier.focusRequester(backFocus)
+                        .focusProperties { next = listFocus }
+                        .focusProperties {
+                            down = listFocus
+                            right = searchBarFocus
+                        }
+                        .size(Dimens.titleIconSize)
+                        .rotate(270f)
+                        .clickable { onBackClick() }
             )
             Text(
                 text = stringResource(id = R.string.select_location),
@@ -96,6 +111,8 @@ fun SelectLocationScreen(
         SearchTextField(
             modifier =
                 Modifier.fillMaxWidth()
+                    .focusRequester(searchBarFocus)
+                    .focusProperties { next = backFocus }
                     .height(Dimens.searchFieldHeight)
                     .padding(horizontal = Dimens.searchFieldHorizontalPadding)
         ) { searchString ->
@@ -103,7 +120,7 @@ fun SelectLocationScreen(
         }
         Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
         LazyColumn(
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+            modifier = Modifier.focusRequester(listFocus).fillMaxWidth().fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (uiState) {
