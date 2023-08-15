@@ -14,12 +14,10 @@ public protocol DefaultPathObserverProtocol {
     var defaultPath: NetworkPath? { get }
 
     /// Start observing changes to `defaultPath`.
-    /// Returns cancellation token that will terminate observation either upon deallocation or upon explicit call to `invalidate()`.
-    func observe(_ body: @escaping (NetworkPath) -> Void) -> DefaultPathObservation
-}
+    func start(_ body: @escaping (NetworkPath) -> Void)
 
-public protocol DefaultPathObservation {
-    func invalidate()
+    /// Stop observing changes to `defaultPath`.
+    func stop()
 }
 
 public protocol NetworkPath {

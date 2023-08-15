@@ -12,6 +12,8 @@ import PacketTunnelCore
 
 final class PacketTunnelPathObserver: DefaultPathObserverProtocol {
     private weak var packetTunnelProvider: NEPacketTunnelProvider?
+    private let stateLock = NSLock()
+    private var observationToken: NSKeyValueObservation?
 
     init(packetTunnelProvider: NEPacketTunnelProvider) {
         self.packetTunnelProvider = packetTunnelProvider
@@ -21,26 +23,26 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol {
         return packetTunnelProvider?.defaultPath
     }
 
-    func observe(_ body: @escaping (NetworkPath) -> Void) -> DefaultPathObservation {
-        // Normally `NEPacketTunnelProvider` should exist throughout the network extension lifetime.
-        // If by chance this method is called after `packetTunnelProvider` is no longer in memory, then it returns
-        // empty invalidation token in anticipation that the process will terminate shortly after.
-        guard let packetTunnelProvider else {
-            return EmptyDefaultPathObservation()
-        }
+    func start(_ body: @escaping (NetworkPath) -> Void) {
+        stateLock.withLock {
+            observationToken?.invalidate()
 
-        return packetTunnelProvider.observe(\.defaultPath, options: [.new]) { _, change in
-            let nwPath = change.newValue.flatMap { $0 }
-            if let nwPath {
-                body(nwPath)
+            // Normally packet tunnel provider should exist throughout the network extension lifetime.
+            observationToken = packetTunnelProvider?.observe(\.defaultPath, options: [.new]) { _, change in
+                let nwPath = change.newValue.flatMap { $0 }
+                if let nwPath {
+                    body(nwPath)
+                }
             }
+        }
+    }
+
+    func stop() {
+        stateLock.withLock {
+            observationToken?.invalidate()
+            observationToken = nil
         }
     }
 }
 
 extension NetworkExtension.NWPath: NetworkPath {}
-extension NSKeyValueObservation: DefaultPathObservation {}
-
-private struct EmptyDefaultPathObservation: DefaultPathObservation {
-    func invalidate() {}
-}

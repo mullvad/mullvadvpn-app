@@ -227,7 +227,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
     private var pinger: PingerProtocol
     private var defaultPathObserver: DefaultPathObserverProtocol
-    private var defaultPathObservationToken: DefaultPathObservation?
+    private var isObservingDefaultPath = false
     private var timer: DispatchSourceTimer?
 
     private var state = State()
@@ -350,11 +350,13 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     }
 
     private func addDefaultPathObserver() {
-        defaultPathObservationToken?.invalidate()
+        defaultPathObserver.stop()
 
         logger.trace("Add default path observer.")
 
-        defaultPathObservationToken = defaultPathObserver.observe { [weak self] nwPath in
+        isObservingDefaultPath = true
+
+        defaultPathObserver.start { [weak self] nwPath in
             guard let self else { return }
 
             nslock.withLock {
@@ -368,12 +370,13 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     }
 
     private func removeDefaultPathObserver() {
-        guard let defaultPathObservationToken else { return }
+        guard isObservingDefaultPath else { return }
 
         logger.trace("Remove default path observer.")
 
-        defaultPathObservationToken.invalidate()
-        self.defaultPathObservationToken = nil
+        defaultPathObserver.stop()
+
+        isObservingDefaultPath = false
     }
 
     private func checkConnectivity() {
