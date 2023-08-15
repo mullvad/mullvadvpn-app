@@ -522,10 +522,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = ChangeLogCoordinator()
 
-        coordinator.didFinish = { coordinator in
+        coordinator.didFinish = { [weak self] coordinator in
             ChangeLog.markAsSeen()
 
-            coordinator.dismiss(animated: true)
+            self?.router.dismiss(.changelog, animated: true)
         }
 
         coordinator.start()
