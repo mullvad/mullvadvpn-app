@@ -64,6 +64,7 @@
 		580810E82A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580810E72A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift */; };
 		580810E92A30E17300B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580810E72A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift */; };
 		580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580909D22876D09A0078138D /* RevokedDeviceViewController.swift */; };
+		58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */; };
 		580F8B8328197881002E0998 /* TunnelSettingsV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580F8B8228197881002E0998 /* TunnelSettingsV2.swift */; };
 		580F8B8428197884002E0998 /* TunnelSettingsV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580F8B8228197881002E0998 /* TunnelSettingsV2.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
@@ -74,6 +75,8 @@
 		581DA2732A1E227D0046ED47 /* RESTTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2722A1E227D0046ED47 /* RESTTypes.swift */; };
 		581DA2752A1E283E0046ED47 /* WgKeyRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */; };
 		581DA2762A1E2FD10046ED47 /* WgKeyRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */; };
+		581F23AD2A8CF92100788AB6 /* MockDefaultPathObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581F23AC2A8CF92100788AB6 /* MockDefaultPathObserver.swift */; };
+		581F23AF2A8CF94D00788AB6 /* MockPinger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581F23AE2A8CF94D00788AB6 /* MockPinger.swift */; };
 		5820676426E771DB00655B05 /* TunnelManagerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820676326E771DB00655B05 /* TunnelManagerErrors.swift */; };
 		5820EDA9288FE064006BF4E4 /* DeviceManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820EDA8288FE064006BF4E4 /* DeviceManagementInteractor.swift */; };
 		5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820EDAA288FF0D2006BF4E4 /* DeviceRowView.swift */; };
@@ -369,6 +372,8 @@
 		58E45A5729F12C5100281ECF /* Result+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */; };
 		58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
 		58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */; };
+		58EC067A2A8D208D00BEB973 /* MockTunnelDeviceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC06792A8D208D00BEB973 /* MockTunnelDeviceInfo.swift */; };
+		58EC067C2A8D2A0B00BEB973 /* NetworkCounters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */; };
 		58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE2E38272FF814003BFF93 /* SettingsDataSource.swift */; };
 		58EE2E3B272FF814003BFF93 /* SettingsDataSourceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */; };
 		58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */; };
@@ -944,6 +949,7 @@
 		5808273B284888BC006B77A4 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = App.xcconfig; sourceTree = "<group>"; };
 		5808273C284888E5006B77A4 /* PacketTunnel.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = PacketTunnel.xcconfig; sourceTree = "<group>"; };
 		580909D22876D09A0078138D /* RevokedDeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDeviceViewController.swift; sourceTree = "<group>"; };
+		58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTests.swift; sourceTree = "<group>"; };
 		580CBFB72848D503007878F0 /* OperationConditionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationConditionTests.swift; sourceTree = "<group>"; };
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		580F8B8228197881002E0998 /* TunnelSettingsV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV2.swift; sourceTree = "<group>"; };
@@ -966,6 +972,8 @@
 		5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAddDNSEntryCell.swift; sourceTree = "<group>"; };
 		581DA2722A1E227D0046ED47 /* RESTTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTypes.swift; sourceTree = "<group>"; };
 		581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgKeyRotation.swift; sourceTree = "<group>"; };
+		581F23AC2A8CF92100788AB6 /* MockDefaultPathObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDefaultPathObserver.swift; sourceTree = "<group>"; };
+		581F23AE2A8CF94D00788AB6 /* MockPinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockPinger.swift; sourceTree = "<group>"; };
 		5820675A26E6576800655B05 /* RelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCache.swift; sourceTree = "<group>"; };
 		5820675D26E6839900655B05 /* PresentAlertOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentAlertOperation.swift; sourceTree = "<group>"; };
 		5820676326E771DB00655B05 /* TunnelManagerErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerErrors.swift; sourceTree = "<group>"; };
@@ -1216,6 +1224,8 @@
 		58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingErrors+CustomErrorDescription.swift"; sourceTree = "<group>"; };
 		58E511EA28DDE18400B0BCDE /* Error+Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+Chain.swift"; sourceTree = "<group>"; };
 		58E973DD24850EB600096F90 /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
+		58EC06792A8D208D00BEB973 /* MockTunnelDeviceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelDeviceInfo.swift; sourceTree = "<group>"; };
+		58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkCounters.swift; sourceTree = "<group>"; };
 		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Screenshots.xcconfig; sourceTree = "<group>"; };
 		58EE2E38272FF814003BFF93 /* SettingsDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsDataSource.swift; sourceTree = "<group>"; };
 		58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsDataSourceDelegate.swift; sourceTree = "<group>"; };
@@ -2181,6 +2191,8 @@
 			isa = PBXGroup;
 			children = (
 				58C7A46F2A8649ED0060C66F /* PingerTests.swift */,
+				58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */,
+				58EC067D2A8D2B0700BEB973 /* Mocks */,
 			);
 			path = PacketTunnelCoreTests;
 			sourceTree = "<group>";
@@ -2375,6 +2387,17 @@
 				58A3BDAF28A1821A00C8C2C6 /* WgStats.swift */,
 			);
 			path = TunnelMonitor;
+			sourceTree = "<group>";
+		};
+		58EC067D2A8D2B0700BEB973 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				581F23AC2A8CF92100788AB6 /* MockDefaultPathObserver.swift */,
+				581F23AE2A8CF94D00788AB6 /* MockPinger.swift */,
+				58EC06792A8D208D00BEB973 /* MockTunnelDeviceInfo.swift */,
+				58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */,
+			);
+			path = Mocks;
 			sourceTree = "<group>";
 		};
 		58ECD29023F178FD004298B6 /* Configurations */ = {
@@ -3418,6 +3441,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58EC067A2A8D208D00BEB973 /* MockTunnelDeviceInfo.swift in Sources */,
+				58EC067C2A8D2A0B00BEB973 /* NetworkCounters.swift in Sources */,
+				581F23AD2A8CF92100788AB6 /* MockDefaultPathObserver.swift in Sources */,
+				58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */,
+				581F23AF2A8CF94D00788AB6 /* MockPinger.swift in Sources */,
 				58C7A4702A8649ED0060C66F /* PingerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
