@@ -172,8 +172,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 endHorizontalFlow(animated: context.isAnimated, completion: completion)
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
-            case .selectLocation, .account, .settings:
-                let coordinator = dismissedRoute.coordinator as! Presentable
+            case .selectLocation, .account, .settings, .changelog:
+                guard let coordinator = dismissedRoute.coordinator as? Presentable else {
+                    completion()
+                    return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
+                }
 
                 coordinator.dismiss(animated: context.isAnimated, completion: completion)
             }
@@ -278,39 +281,63 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      Continues application flow by evaluating what route to present next.
      */
     private func continueFlow(animated: Bool) {
-        let next = evaluateNextRoute()
+        let nextRoutes = evaluateNextRoutes()
 
         /*
          On iPad the main route is always visible as it's a part of root controller hence we never
          ask router to navigate to it. Instead this is when we hide the primary horizontal
          navigation.
          */
-        if isPad, next == .main {
-            router.dismissAll(.primary, animated: animated)
+        if isPad {
+            if nextRoutes.contains(.main) {
+                router.dismissAll(.primary, animated: animated)
+            }
+
+            for nextRoute in nextRoutes {
+                if nextRoute != .main {
+                    router.present(nextRoute, animated: animated)
+                }
+            }
         } else {
-            router.present(next, animated: animated)
+            for nextRoute in nextRoutes {
+                router.present(nextRoute, animated: animated)
+            }
         }
     }
 
-    private func evaluateNextRoute() -> AppRoute {
+    /**
+     Evaluates conditions and returns the routes that need to be presented next.
+     */
+    private func evaluateNextRoutes() -> [AppRoute] {
+        // Show TOS alone blocking all other routes.
         guard TermsOfService.isAgreed else {
-            return .tos
+            return [.tos]
         }
 
-        guard ChangeLog.isSeen else {
-            return .changelog
-        }
+        var routes = [AppRoute]()
 
+        // Pick the primary route to present
         switch tunnelManager.deviceState {
         case .revoked:
-            return .revoked
+            routes.append(.revoked)
 
         case .loggedOut:
-            return .login
+            routes.append(.login)
 
         case let .loggedIn(accountData, _):
-            return accountData.isExpired ? (accountData.isNew ? .welcome : .outOfTime) : .main
+            if accountData.isExpired {
+                routes.append(accountData.isNew ? .welcome : .outOfTime)
+            } else {
+                routes.append(.main)
+            }
         }
+
+        // Changelog can be presented simultaneously with other routes.
+        if !ChangeLog.isSeen {
+            routes.append(.changelog)
+        }
+
+        return routes
     }
 
     private func logoutRevokedDevice() {
@@ -493,13 +520,19 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func presentChangeLog(completion: @escaping (Coordinator) -> Void) {
-        let coordinator = ChangeLogCoordinator(navigationController: primaryNavigationContainer)
+        let coordinator = ChangeLogCoordinator()
 
-        addChild(coordinator)
-        coordinator.start(animated: false)
+        coordinator.didFinish = { coordinator in
+            ChangeLog.markAsSeen()
 
-        continueFlow(animated: false)
-        completion(coordinator)
+            coordinator.dismiss(animated: true)
+        }
+
+        coordinator.start()
+
+        presentChild(coordinator, animated: false, configuration: ModalPresentationConfiguration()) {
+            completion(coordinator)
+        }
     }
 
     private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
