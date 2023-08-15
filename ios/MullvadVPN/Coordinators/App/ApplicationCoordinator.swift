@@ -143,7 +143,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             presentLogin(animated: animated, completion: completion)
 
         case .changelog:
-            presentChangeLog(completion: completion)
+            presentChangeLog(animated: animated, completion: completion)
 
         case .tos:
             presentTOS(animated: animated, completion: completion)
@@ -515,7 +515,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    private func presentChangeLog(completion: @escaping (Coordinator) -> Void) {
+    private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = ChangeLogCoordinator()
 
         coordinator.didFinish = { [weak self] in
@@ -526,7 +526,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         coordinator.start()
 
-        presentChild(coordinator, animated: false) {
+        presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }
