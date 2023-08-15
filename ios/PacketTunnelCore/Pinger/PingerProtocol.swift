@@ -16,7 +16,7 @@ public enum PingerReply {
 
 public struct PingerSendResult {
     public var sequenceNumber: UInt16
-    public var bytesSent: UInt16
+    public var bytesSent: UInt
 }
 
 public protocol PingerProtocol {
