@@ -65,7 +65,7 @@ protocol AppRouteProtocol: Equatable, Hashable {
  Enum type describing groups of routes. Each group is a modal layer with horizontal navigation
  inside with exception where primary navigation is a part of root controller on iPhone.
  */
-enum AppRouteGroup: Comparable, Equatable, Hashable {
+enum AppRouteGroup: AppRouteGroupProtocol {
     /**
      Primary horizontal navigation group.
      */
@@ -114,7 +114,7 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
 /**
  Enum type describing primary application routes.
  */
-enum AppRoute: Equatable, Hashable {
+enum AppRoute: AppRouteProtocol {
     /**
      Account route.
      */
@@ -172,9 +172,6 @@ enum AppRoute: Equatable, Hashable {
         }
     }
 }
-
-extension AppRoute: AppRouteProtocol {}
-extension AppRouteGroup: AppRouteGroupProtocol {}
 
 /**
  Struct describing a routing request for presentation or dismissal.
