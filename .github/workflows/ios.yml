@@ -80,6 +80,7 @@ jobs:
           project: ios/MullvadVPN.xcodeproj
           scheme: MullvadVPN
           test-plan: MullvadVPNCI
+          use-xcpretty: false
           destination: platform=iOS Simulator,OS=16.4,name=iPhone 14
           action: test
           cloned-source-packages-path: ios/${{ env.SOURCE_PACKAGES_PATH }}
