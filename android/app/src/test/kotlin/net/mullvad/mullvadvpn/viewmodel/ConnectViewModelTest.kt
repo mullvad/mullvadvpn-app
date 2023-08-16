@@ -13,11 +13,14 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.TestCoroutineRule
+import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -28,7 +31,10 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
+import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.util.EventNotifier
+import org.joda.time.DateTime
+import org.joda.time.ReadableInstant
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -48,9 +54,10 @@ class ConnectViewModelTest {
                 currentVersion = null,
                 upgradeVersion = null,
                 isOutdated = false,
-                isSupported = false
+                isSupported = true
             )
         )
+    private val accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -59,6 +66,9 @@ class ConnectViewModelTest {
     private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
     private val mockConnectionProxy: ConnectionProxy = mockk()
     private val mockLocation: GeoIpLocation = mockk(relaxed = true)
+
+    // Account Repository
+    private val mockAccountRepository: AccountRepository = mockk()
 
     // Captures
     private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
@@ -84,6 +94,8 @@ class ConnectViewModelTest {
         every { mockServiceConnectionContainer.appVersionInfoCache } returns mockAppVersionInfoCache
         every { mockServiceConnectionContainer.connectionProxy } returns mockConnectionProxy
 
+        every { mockAccountRepository.accountExpiryState } returns accountExpiryState
+
         every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
         every { mockConnectionProxy.onStateChange } returns eventNotifierTunnelRealState
 
@@ -94,7 +106,12 @@ class ConnectViewModelTest {
         every { mockRelayListListener.onRelayCountriesChange = capture(relaySlot) } answers {}
         every { mockAppVersionInfoCache.onUpdate = any() } answers {}
 
-        viewModel = ConnectViewModel(mockServiceConnectionManager)
+        viewModel =
+            ConnectViewModel(
+                serviceConnectionManager = mockServiceConnectionManager,
+                accountRepository = mockAccountRepository,
+                isVersionInfoNotificationEnabled = true
+            )
     }
 
     @After
@@ -156,29 +173,6 @@ class ConnectViewModelTest {
                 eventNotifierTunnelUiState.notify(tunnelUiStateTestItem)
                 val result = awaitItem()
                 assertEquals(tunnelUiStateTestItem, result.tunnelUiState)
-            }
-        }
-
-    @Test
-    fun testAppVersionInfoUpdate() =
-        runTest(testCoroutineRule.testDispatcher) {
-            val versionInfoTestItem =
-                VersionInfo(
-                    currentVersion = "1.0",
-                    upgradeVersion = "2.0",
-                    isOutdated = false,
-                    isSupported = false
-                )
-
-            viewModel.uiState.test {
-                assertEquals(ConnectUiState.INITIAL, awaitItem())
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockLocation)
-                relaySlot.captured.invoke(mockk(), mockk())
-                versionInfo.value = versionInfoTestItem
-                val result = awaitItem()
-                assertEquals(versionInfoTestItem, result.versionInfo)
             }
         }
 
@@ -256,6 +250,93 @@ class ConnectViewModelTest {
             every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
             viewModel.onCancelClick()
             verify { mockConnectionProxy.disconnect() }
+        }
+
+    @Test
+    fun testBlockingNotificationState() =
+        runTest(testCoroutineRule.testDispatcher) {
+            // Arrange
+            val expectedConnectNotificationState =
+                ConnectNotificationState.ShowTunnelStateNotificationBlocked
+            val tunnelUiState = TunnelState.Connecting(null, null)
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                locationSlot.captured.invoke(mockLocation)
+                relaySlot.captured.invoke(mockk(), mockk())
+                eventNotifierTunnelUiState.notify(tunnelUiState)
+                val result = awaitItem()
+                assertEquals(expectedConnectNotificationState, result.connectNotificationState)
+            }
+        }
+
+    @Test
+    fun testErrorNotificationState() =
+        runTest(testCoroutineRule.testDispatcher) {
+            // Arrange
+            val mockErrorState: ErrorState = mockk()
+            val expectedConnectNotificationState =
+                ConnectNotificationState.ShowTunnelStateNotificationError(mockErrorState)
+            val tunnelUiState = TunnelState.Error(mockErrorState)
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                locationSlot.captured.invoke(mockLocation)
+                relaySlot.captured.invoke(mockk(), mockk())
+                eventNotifierTunnelUiState.notify(tunnelUiState)
+                val result = awaitItem()
+                assertEquals(expectedConnectNotificationState, result.connectNotificationState)
+            }
+        }
+
+    @Test
+    fun testVersionInfoNotificationState() =
+        runTest(testCoroutineRule.testDispatcher) {
+            // Arrange
+            val mockVersionInfo: VersionInfo = mockk()
+            val expectedConnectNotificationState =
+                ConnectNotificationState.ShowVersionInfoNotification(mockVersionInfo)
+            every { mockVersionInfo.isOutdated } returns true
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                locationSlot.captured.invoke(mockLocation)
+                relaySlot.captured.invoke(mockk(), mockk())
+                versionInfo.value = mockVersionInfo
+                val result = awaitItem()
+                assertEquals(expectedConnectNotificationState, result.connectNotificationState)
+            }
+        }
+
+    @Test
+    fun testAccountExpiryNotificationState() =
+        runTest(testCoroutineRule.testDispatcher) {
+            // Arrange
+            val mockDateTime: DateTime = mockk()
+            val expectedConnectNotificationState =
+                ConnectNotificationState.ShowAccountExpiryNotification(mockDateTime)
+            every { mockDateTime.isBefore(any<ReadableInstant>()) } returns true
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                locationSlot.captured.invoke(mockLocation)
+                relaySlot.captured.invoke(mockk(), mockk())
+                accountExpiryState.value = AccountExpiry.Available(mockDateTime)
+                val result = awaitItem()
+                assertEquals(expectedConnectNotificationState, result.connectNotificationState)
+            }
         }
 
     companion object {
