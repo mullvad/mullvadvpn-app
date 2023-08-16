@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
 import android.util.AttributeSet
+import androidx.appcompat.content.res.AppCompatResources
 import net.mullvad.mullvadvpn.R
 
 open class UrlButton : Button {
@@ -17,7 +18,7 @@ open class UrlButton : Button {
 
     init {
         super.setEnabled(false)
-        super.detailImage = context.getDrawable(R.drawable.icon_extlink)
+        super.detailImage = AppCompatResources.getDrawable(context, R.drawable.icon_extlink)
         super.showSpinner = true
     }
 }

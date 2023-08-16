@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import net.mullvad.mullvadvpn.R
@@ -64,8 +65,10 @@ class NotificationBanner : FrameLayout {
             inflater.inflate(R.layout.notification_banner, this)
         }
 
-    private val errorImage = resources.getDrawable(R.drawable.icon_notification_error, null)
-    private val warningImage = resources.getDrawable(R.drawable.icon_notification_warning, null)
+    private val errorImage =
+        ResourcesCompat.getDrawable(resources, R.drawable.icon_notification_error, null)
+    private val warningImage =
+        ResourcesCompat.getDrawable(resources, R.drawable.icon_notification_warning, null)
 
     private val status: ImageView = container.findViewById(R.id.notification_status)
     private val title: TextView = container.findViewById(R.id.notification_title)
