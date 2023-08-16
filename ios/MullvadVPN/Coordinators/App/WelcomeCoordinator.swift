@@ -38,7 +38,8 @@ final class WelcomeCoordinator: Coordinator, Presentable {
         }
         let interactor = WelcomeInteractor(
             deviceData: storedDeviceData,
-            accountData: storedAccountData
+            accountData: storedAccountData,
+            tunnelManager: tunnelManager
         )
 
         let controller = WelcomeViewController(interactor: interactor)
@@ -123,5 +124,11 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         addChild(coordinator)
 
         coordinator.start()
+    }
+
+    func didUpdateDeviceState(deviceState: DeviceState) {
+        if deviceState.accountData?.isExpired == false {
+            didFinishPayment?(self)
+        }
     }
 }
