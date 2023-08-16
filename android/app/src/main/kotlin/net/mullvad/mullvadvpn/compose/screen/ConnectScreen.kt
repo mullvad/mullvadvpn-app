@@ -40,6 +40,7 @@ import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -103,6 +104,7 @@ fun ConnectScreen(
                 .fillMaxHeight()
                 .verticalScroll(scrollState)
                 .padding(bottom = Dimens.screenVerticalMargin)
+                .testTag(SCROLLABLE_COLUMN_TEST_TAG)
     ) {
         Notification(
             connectNotificationState = uiState.connectNotificationState,

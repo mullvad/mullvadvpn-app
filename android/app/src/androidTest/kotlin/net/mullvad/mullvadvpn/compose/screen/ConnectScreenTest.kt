@@ -9,20 +9,29 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.ui.VersionInfo
+import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.net.TransportProtocol
 import net.mullvad.talpid.net.TunnelEndpoint
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
+import org.joda.time.DateTime
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -44,10 +53,16 @@ class ConnectScreenTest {
     @Test
     fun testDefaultState() {
         // Arrange
-        composeTestRule.setContent { ConnectScreen(uiState = ConnectUiState.INITIAL) }
+        composeTestRule.setContent {
+            ConnectScreen(
+                uiState = ConnectUiState.INITIAL,
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+            )
+        }
 
         // Assert
         composeTestRule.apply {
+            onNodeWithTag(SCROLLABLE_COLUMN_TEST_TAG).assertExists()
             onNodeWithText("UNSECURED CONNECTION").assertExists()
             onNodeWithText("Secure my connection").assertExists()
         }
@@ -62,14 +77,16 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connecting(null, null),
                         tunnelRealState = TunnelState.Connecting(null, null),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowTunnelStateNotificationBlocked
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -79,6 +96,7 @@ class ConnectScreenTest {
             onNodeWithText("CREATING SECURE CONNECTION").assertExists()
             onNodeWithText("Switch location").assertExists()
             onNodeWithText("Cancel").assertExists()
+            onNodeWithText("BLOCKING INTERNET").assertExists()
         }
     }
 
@@ -93,15 +111,17 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connecting(endpoint = mockTunnelEndpoint, null),
                         tunnelRealState =
                             TunnelState.Connecting(endpoint = mockTunnelEndpoint, null),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowTunnelStateNotificationBlocked
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -111,6 +131,7 @@ class ConnectScreenTest {
             onNodeWithText("CREATING QUANTUM SECURE CONNECTION").assertExists()
             onNodeWithText("Switch location").assertExists()
             onNodeWithText("Cancel").assertExists()
+            onNodeWithText("BLOCKING INTERNET").assertExists()
         }
     }
 
@@ -124,14 +145,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                         tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -154,14 +176,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                         tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -185,14 +208,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = mockRelayLocation,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                         tunnelRealState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -216,14 +240,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = mockRelayLocation,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Disconnected,
                         tunnelRealState = TunnelState.Disconnected,
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -247,7 +272,6 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = mockRelayLocation,
-                        versionInfo = null,
                         tunnelUiState =
                             TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, true)),
                         tunnelRealState =
@@ -255,8 +279,13 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowTunnelStateNotificationError(
+                                ErrorState(ErrorStateCause.StartTunnelError, true)
+                            )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -265,6 +294,7 @@ class ConnectScreenTest {
             onNodeWithText("BLOCKED CONNECTION").assertExists()
             onNodeWithText(mockLocationName).assertExists()
             onNodeWithText("Disconnect").assertExists()
+            onNodeWithText("BLOCKING INTERNET").assertExists()
         }
     }
 
@@ -280,7 +310,6 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = mockRelayLocation,
-                        versionInfo = null,
                         tunnelUiState =
                             TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
                         tunnelRealState =
@@ -288,8 +317,13 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowTunnelStateNotificationError(
+                                ErrorState(ErrorStateCause.StartTunnelError, false)
+                            )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -298,6 +332,8 @@ class ConnectScreenTest {
             onNodeWithText("FAILED TO SECURE CONNECTION").assertExists()
             onNodeWithText(mockLocationName).assertExists()
             onNodeWithText("Dismiss").assertExists()
+            onNodeWithText(text = "Critical error (your attention is required)", ignoreCase = true)
+                .assertExists()
         }
     }
 
@@ -310,15 +346,17 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
                         tunnelRealState =
                             TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowTunnelStateNotificationBlocked
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -328,6 +366,7 @@ class ConnectScreenTest {
             onNodeWithText("CREATING SECURE CONNECTION").assertExists()
             onNodeWithText("Switch location").assertExists()
             onNodeWithText("Disconnect").assertExists()
+            onNodeWithText("BLOCKING INTERNET").assertExists()
         }
     }
 
@@ -343,14 +382,16 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = mockRelayLocation,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
                         tunnelRealState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false
-                    )
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowTunnelStateNotificationBlocked
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -359,6 +400,7 @@ class ConnectScreenTest {
             onNodeWithText("SECURE CONNECTION").assertExists()
             onNodeWithText(mockLocationName).assertExists()
             onNodeWithText("Disconnect").assertExists()
+            onNodeWithText("BLOCKING INTERNET").assertExists()
         }
     }
 
@@ -375,14 +417,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = mockRelayLocation,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Disconnected,
                         tunnelRealState = TunnelState.Disconnected,
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onSwitchLocationClick = mockedClickHandler
             )
         }
@@ -405,14 +448,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                         tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onDisconnectClick = mockedClickHandler
             )
         }
@@ -435,14 +479,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                         tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onReconnectClick = mockedClickHandler
             )
         }
@@ -464,14 +509,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Disconnected,
                         tunnelRealState = TunnelState.Disconnected,
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onConnectClick = mockedClickHandler
             )
         }
@@ -493,14 +539,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connecting(null, null),
                         tunnelRealState = TunnelState.Connecting(null, null),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onCancelClick = mockedClickHandler
             )
         }
@@ -523,14 +570,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = dummyLocation,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connecting(null, null),
                         tunnelRealState = TunnelState.Connecting(null, null),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState = ConnectNotificationState.HideNotification
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onToggleTunnelInfo = mockedClickHandler
             )
         }
@@ -560,14 +608,15 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = mockLocation,
                         relayLocation = null,
-                        versionInfo = null,
                         tunnelUiState = TunnelState.Connected(mockTunnelEndpoint, null),
                         tunnelRealState = TunnelState.Connected(mockTunnelEndpoint, null),
                         inAddress = mockInAddress,
                         outAddress = mockOutAddress,
                         showLocation = false,
-                        isTunnelInfoExpanded = true
-                    )
+                        isTunnelInfoExpanded = true,
+                        connectNotificationState = ConnectNotificationState.HideNotification
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -577,6 +626,200 @@ class ConnectScreenTest {
             onNodeWithText("WireGuard").assertExists()
             onNodeWithText("In $mockHost:$mockPort UDP").assertExists()
             onNodeWithText("Out $mockOutAddress").assertExists()
+        }
+    }
+
+    @Test
+    fun testOutdatedVersionNotification() {
+        // Arrange
+        val versionInfo =
+            VersionInfo(
+                currentVersion = "1.0",
+                upgradeVersion = "1.1",
+                isOutdated = true,
+                isSupported = true
+            )
+        composeTestRule.setContent {
+            ConnectScreen(
+                uiState =
+                    ConnectUiState(
+                        location = null,
+                        relayLocation = null,
+                        tunnelUiState = TunnelState.Connecting(null, null),
+                        tunnelRealState = TunnelState.Connecting(null, null),
+                        inAddress = null,
+                        outAddress = "",
+                        showLocation = false,
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowVersionInfoNotification(versionInfo)
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+            )
+        }
+
+        // Assert
+        composeTestRule.apply {
+            onNodeWithText("UPDATE AVAILABLE").assertExists()
+            onNodeWithText("Install Mullvad VPN (1.1) to stay up to date").assertExists()
+        }
+    }
+
+    @Test
+    fun testUnsupportedVersionNotification() {
+        // Arrange
+        val versionInfo =
+            VersionInfo(
+                currentVersion = "1.0",
+                upgradeVersion = "1.1",
+                isOutdated = true,
+                isSupported = false
+            )
+        composeTestRule.setContent {
+            ConnectScreen(
+                uiState =
+                    ConnectUiState(
+                        location = null,
+                        relayLocation = null,
+                        tunnelUiState = TunnelState.Connecting(null, null),
+                        tunnelRealState = TunnelState.Connecting(null, null),
+                        inAddress = null,
+                        outAddress = "",
+                        showLocation = false,
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowVersionInfoNotification(versionInfo)
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+            )
+        }
+
+        // Assert
+        composeTestRule.apply {
+            onNodeWithText("UNSUPPORTED VERSION").assertExists()
+            onNodeWithText(
+                    "Your privacy might be at risk with this unsupported app version. Please update now."
+                )
+                .assertExists()
+        }
+    }
+
+    @Test
+    fun testAccountExpiredNotification() {
+        // Arrange
+        val expiryDate = DateTime(2020, 11, 11, 10, 10)
+        composeTestRule.setContent {
+            ConnectScreen(
+                uiState =
+                    ConnectUiState(
+                        location = null,
+                        relayLocation = null,
+                        tunnelUiState = TunnelState.Connecting(null, null),
+                        tunnelRealState = TunnelState.Connecting(null, null),
+                        inAddress = null,
+                        outAddress = "",
+                        showLocation = false,
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowAccountExpiryNotification(expiryDate)
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+            )
+        }
+
+        // Assert
+        composeTestRule.apply {
+            onNodeWithText("ACCOUNT CREDIT EXPIRES SOON").assertExists()
+            onNodeWithText("Out of time").assertExists()
+        }
+    }
+
+    @Test
+    fun testOnUpdateVersionClick() {
+        // Arrange
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+        val versionInfo =
+            VersionInfo(
+                currentVersion = "1.0",
+                upgradeVersion = "1.1",
+                isOutdated = true,
+                isSupported = false
+            )
+        composeTestRule.setContent {
+            ConnectScreen(
+                onUpdateVersionClick = mockedClickHandler,
+                uiState =
+                    ConnectUiState(
+                        location = null,
+                        relayLocation = null,
+                        tunnelUiState = TunnelState.Connecting(null, null),
+                        tunnelRealState = TunnelState.Connecting(null, null),
+                        inAddress = null,
+                        outAddress = "",
+                        showLocation = false,
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowVersionInfoNotification(versionInfo)
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+            )
+        }
+
+        // Act
+        composeTestRule.onNodeWithTag(NOTIFICATION_BANNER).performClick()
+
+        // Assert
+        verify { mockedClickHandler.invoke() }
+    }
+
+    @Test
+    fun testOnShowAccountClick() {
+        // Arrange
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+        val expiryDate = DateTime(2020, 11, 11, 10, 10)
+        composeTestRule.setContent {
+            ConnectScreen(
+                onManageAccountClick = mockedClickHandler,
+                uiState =
+                    ConnectUiState(
+                        location = null,
+                        relayLocation = null,
+                        tunnelUiState = TunnelState.Connecting(null, null),
+                        tunnelRealState = TunnelState.Connecting(null, null),
+                        inAddress = null,
+                        outAddress = "",
+                        showLocation = false,
+                        isTunnelInfoExpanded = false,
+                        connectNotificationState =
+                            ConnectNotificationState.ShowAccountExpiryNotification(expiryDate)
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+            )
+        }
+
+        // Act
+        composeTestRule.onNodeWithTag(NOTIFICATION_BANNER).performClick()
+
+        // Assert
+        verify { mockedClickHandler.invoke() }
+    }
+
+    @Test
+    fun testOpenAccountView() {
+        // Arrange
+        composeTestRule.setContent {
+            ConnectScreen(
+                uiState = ConnectUiState.INITIAL,
+                viewActions =
+                    MutableStateFlow(
+                        ConnectViewModel.ViewAction.OpenAccountManagementPageInBrowser("222")
+                    )
+            )
+        }
+
+        // Assert
+        composeTestRule.apply {
+            onNodeWithTag(SCROLLABLE_COLUMN_TEST_TAG).assertDoesNotExist()
         }
     }
 }
