@@ -88,11 +88,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.apiProxy = apiProxy
         self.devicesProxy = devicesProxy
 
-        /*
-         Uncomment if you'd like to test TOS again
-         TermsOfService.unsetAgreed()
-         */
-
         super.init()
 
         primaryNavigationContainer.delegate = self
