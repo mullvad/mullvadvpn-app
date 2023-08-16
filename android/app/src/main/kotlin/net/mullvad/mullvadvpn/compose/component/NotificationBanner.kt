@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +28,7 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
 import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
+import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
 import net.mullvad.mullvadvpn.compose.util.rememberPrevious
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
@@ -145,6 +147,7 @@ private fun NotificationBanner(data: NotificationBannerData) {
                 )
                 .then(data.onClick?.let { Modifier.clickable(onClick = data.onClick) } ?: Modifier)
                 .animateContentSize()
+                .testTag(NOTIFICATION_BANNER)
     ) {
         val (status, textTitle, textMessage, icon) = createRefs()
         Box(
