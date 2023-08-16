@@ -48,6 +48,13 @@
         "identifier" : "589A455128E094B300565204",
         "name" : "OperationsTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "58C7A43C2A863F450060C66F",
+        "name" : "PacketTunnelCoreTests"
+      }
     }
   ],
   "version" : 1
