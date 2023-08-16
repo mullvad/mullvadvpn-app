@@ -36,6 +36,11 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
     case settings
 
     /**
+     Changelog group.
+     */
+    case changelog
+
+    /**
      Returns `true` if group is presented modally, otherwise `false` if group is a part of root view
      controller.
      */
@@ -44,7 +49,7 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
         case .primary:
             return UIDevice.current.userInterfaceIdiom == .pad
 
-        case .selectLocation, .account, .settings:
+        case .selectLocation, .account, .settings, .changelog:
             return true
         }
     }
@@ -53,7 +58,7 @@ enum AppRouteGroup: Comparable, Equatable, Hashable {
         switch self {
         case .primary:
             return 0
-        case .settings, .account, .selectLocation:
+        case .settings, .account, .selectLocation, .changelog:
             return 1
         }
     }
@@ -83,16 +88,21 @@ enum AppRoute: Equatable, Hashable {
     case selectLocation
 
     /**
+     Changelog route.
+     */
+    case changelog
+
+    /**
      Routes that are part of primary horizontal navigation group.
      */
-    case tos, changelog, login, main, revoked, outOfTime, welcome, setupAccountCompleted
+    case tos, login, main, revoked, outOfTime, welcome, setupAccountCompleted
 
     /**
      Returns `true` when only one route of a kind can be displayed.
      */
     var isExclusive: Bool {
         switch self {
-        case .selectLocation, .account, .settings:
+        case .selectLocation, .account, .settings, .changelog:
             return true
         default:
             return false
@@ -115,8 +125,10 @@ enum AppRoute: Equatable, Hashable {
      */
     var routeGroup: AppRouteGroup {
         switch self {
-        case .tos, .changelog, .login, .main, .revoked, .outOfTime, .welcome, .setupAccountCompleted:
+        case .tos, .login, .main, .revoked, .outOfTime, .welcome, .setupAccountCompleted:
             return .primary
+        case .changelog:
+            return .changelog
         case .selectLocation:
             return .selectLocation
         case .account:

@@ -14,6 +14,7 @@ import UIKit
 struct ModalPresentationConfiguration {
     var preferredContentSize: CGSize?
     var modalPresentationStyle: UIModalPresentationStyle?
+    var modalTransitionStyle: UIModalTransitionStyle?
     var isModalInPresentation: Bool?
     var transitioningDelegate: UIViewControllerTransitioningDelegate?
     var presentationControllerDelegate: UIAdaptivePresentationControllerDelegate?
@@ -23,6 +24,10 @@ struct ModalPresentationConfiguration {
 
         if let modalPresentationStyle {
             vc.modalPresentationStyle = modalPresentationStyle
+        }
+
+        if let modalTransitionStyle {
+            vc.modalTransitionStyle = modalTransitionStyle
         }
 
         if let preferredContentSize {

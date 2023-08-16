@@ -9,15 +9,44 @@
 import MullvadLogging
 import UIKit
 
-final class ChangeLogCoordinator: Coordinator {
+final class ChangeLogCoordinator: Coordinator, Presentable {
     private let logger = Logger(label: "ChangeLogCoordinator")
-    private let navigationController: UIViewController
+
+    private var alertController: CustomAlertViewController?
 
     var presentedViewController: UIViewController {
-        return navigationController
+        return alertController!
     }
 
-    private var changeLogText: NSAttributedString? {
+    var didFinish: (() -> Void)?
+
+    func start() {
+        alertController = CustomAlertViewController(
+            header: Bundle.main.shortVersion,
+            title: NSLocalizedString(
+                "CHANGE_LOG_TITLE",
+                tableName: "Account",
+                value: "Changes in this version:",
+                comment: ""
+            ),
+            attributedMessage: readChangeLogFromFile()
+        )
+
+        alertController?.addAction(
+            title: NSLocalizedString(
+                "CHANGE_LOG_OK_ACTION",
+                tableName: "Account",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default,
+            handler: { [weak self] in
+                self?.didFinish?()
+            }
+        )
+    }
+
+    private func readChangeLogFromFile() -> NSAttributedString? {
         guard let changeLogText = try? ChangeLog.readFromFile() else {
             logger.error("Cannot read changelog from bundle.")
             return nil
@@ -42,40 +71,5 @@ final class ChangeLogCoordinator: Coordinator {
                 .foregroundColor: UIColor.white.withAlphaComponent(0.8),
             ]
         )
-    }
-
-    init(navigationController: UIViewController) {
-        self.navigationController = navigationController
-    }
-
-    func start(animated: Bool) {
-        ChangeLog.markAsSeen()
-
-        guard let changeLogText else {
-            return
-        }
-
-        let alertController = CustomAlertViewController(
-            header: Bundle.main.shortVersion,
-            title: NSLocalizedString(
-                "CHANGE_LOG_TITLE",
-                tableName: "Account",
-                value: "Changes in this version:",
-                comment: ""
-            ),
-            attributedMessage: changeLogText
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "CHANGE_LOG_OK_ACTION",
-                tableName: "Account",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        presentedViewController.present(alertController, animated: animated)
     }
 }
