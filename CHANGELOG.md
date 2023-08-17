@@ -65,6 +65,7 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate select Location view to compose.
 - Migrate settings view to compose.
 - Migrate account view to compose.
+- Migrate in app notifications to compose.
 
 ### Fixed
 - Update relay list after logging in. Previously, if the user wasn't logged in when the daemon
