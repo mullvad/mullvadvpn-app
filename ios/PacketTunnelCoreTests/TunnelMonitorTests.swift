@@ -68,6 +68,7 @@ final class TunnelMonitorTests: XCTestCase {
          capped at 15s max.
          */
         var expectedTimings = [4, 8, 15, 15]
+        let totalAttemptCount = expectedTimings.count
 
         // Calculate the amount of time necessary to perform the test adding some leeway.
         let timeout = expectedTimings.reduce(1, +)
@@ -78,15 +79,24 @@ final class TunnelMonitorTests: XCTestCase {
         // This date will be used to measure the amount of time elapsed between `.connectionLost` events.
         var startDate = Date()
 
+        // Reconnection attempt counter.
+        var currentAttempt = 0
+
         tunnelMonitor.onEvent = { [weak tunnelMonitor] event in
             guard case .connectionLost = event else { return }
 
             switch event {
             case .connectionLost:
+                XCTAssertFalse(expectedTimings.isEmpty)
+
                 let expectedDuration = expectedTimings.removeFirst()
 
                 // Compute amount of time elapsed between `.connectionLost` events rounding it down towards zero.
                 let timeElapsed = Int(Date().timeIntervalSince(startDate).rounded(.down))
+
+                currentAttempt += 1
+
+                print("[\(currentAttempt)/\(totalAttemptCount)] \(event), time elapsed: \(timeElapsed)s")
 
                 XCTAssertEqual(
                     timeElapsed,
@@ -96,8 +106,12 @@ final class TunnelMonitorTests: XCTestCase {
 
                 expectation.fulfill()
 
-                if !expectedTimings.isEmpty {
+                if expectedTimings.isEmpty {
+                    print("Finished.")
+                } else {
                     startDate = Date()
+
+                    print("Continue monitoring.")
 
                     // Continue monitoring by calling start() again.
                     tunnelMonitor?.start(probeAddress: .loopback)
@@ -110,6 +124,8 @@ final class TunnelMonitorTests: XCTestCase {
                 break
             }
         }
+
+        print("Start monitoring.")
 
         // Start monitoring.
         tunnelMonitor.start(probeAddress: .loopback)
