@@ -281,7 +281,6 @@
 		58C7A45A2A863FDD0060C66F /* WgAdapterDeviceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582403142A821FB000163DE8 /* WgAdapterDeviceInfo.swift */; };
 		58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58225D272A84F23B0083D7F1 /* PacketTunnelPathObserver.swift */; };
 		58C7A45C2A8640490060C66F /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; platformFilter = ios; };
-		58C7A45D2A8640490060C66F /* MullvadLogging.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		58C7A4692A8643A90060C66F /* IPv4Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 58218E1428B65058000C624F /* IPv4Header.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		58C7A46A2A8643A90060C66F /* ICMPHeader.h in Headers */ = {isa = PBXBuildFile; fileRef = 58218E1628B65396000C624F /* ICMPHeader.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		58C7A4702A8649ED0060C66F /* PingerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C7A46F2A8649ED0060C66F /* PingerTests.swift */; };
@@ -862,17 +861,6 @@
 			dstSubfolderSpec = 16;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		58C7A4602A8640490060C66F /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				58C7A45D2A8640490060C66F /* MullvadLogging.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		58CE5E85224146470008646E /* Embed Foundation Extensions */ = {
@@ -2798,7 +2786,6 @@
 				58C7A4322A863F440060C66F /* Sources */,
 				58C7A4332A863F440060C66F /* Frameworks */,
 				58C7A4342A863F440060C66F /* Resources */,
-				58C7A4602A8640490060C66F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
