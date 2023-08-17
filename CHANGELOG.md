@@ -43,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate settings view to compose.
 - Migrate account view to compose.
 - Migrate welcome view to compose.
+- Migrate in app notifications to compose.
 
 ### Fixed
 #### Android
