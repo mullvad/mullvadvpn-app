@@ -34,7 +34,8 @@ import org.joda.time.DateTime
 class WelcomeViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
-    private val serviceConnectionManager: ServiceConnectionManager
+    private val serviceConnectionManager: ServiceConnectionManager,
+    private val pollAccountExpiry: Boolean = true
 ) : ViewModel() {
 
     private val _viewActions = MutableSharedFlow<ViewAction>(extraBufferCapacity = 1)
@@ -78,7 +79,7 @@ class WelcomeViewModel(
             }
         }
         viewModelScope.launch {
-            while (true) {
+            while (pollAccountExpiry) {
                 accountRepository.fetchAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
@@ -120,6 +121,7 @@ class WelcomeViewModel(
 
     sealed interface ViewAction {
         data class OpenAccountView(val token: String) : ViewAction
+
         data object OpenConnectScreen : ViewAction
     }
 }
