@@ -4450,6 +4450,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CURRENT_PROJECT_VERSION = 1;
@@ -4487,6 +4488,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CURRENT_PROJECT_VERSION = 1;
