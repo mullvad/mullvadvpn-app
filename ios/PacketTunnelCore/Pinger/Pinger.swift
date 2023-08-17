@@ -150,7 +150,7 @@ public final class Pinger: PingerProtocol {
             throw Error.sendPacket(errno)
         }
 
-        return PingerSendResult(sequenceNumber: sequenceNumber, bytesSent: UInt16(bytesSent))
+        return PingerSendResult(sequenceNumber: sequenceNumber, bytesSent: UInt(bytesSent))
     }
 
     private func nextSequenceNumber() -> UInt16 {
