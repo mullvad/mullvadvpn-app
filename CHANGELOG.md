@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 #### Android
 - Migrate welcome view to compose.
+- Migrate in app notifications to compose.
 
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.
