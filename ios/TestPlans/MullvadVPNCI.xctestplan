@@ -58,6 +58,7 @@
       }
     },
     {
+      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
         "identifier" : "58C7A43C2A863F450060C66F",
