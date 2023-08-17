@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate select Location view to compose.
 - Migrate settings view to compose.
 - Migrate account view to compose.
+- Migrate in app notifications to compose.
 
 ### Fixed
 #### Android
