@@ -17,10 +17,12 @@ import UIKit
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
     UISplitViewControllerDelegate, ApplicationRouterDelegate,
     NotificationManagerDelegate {
+    typealias RouteType = AppRoute
+
     /**
      Application router.
      */
-    private var router: ApplicationRouter!
+    private var router: ApplicationRouter<AppRoute>!
 
     /**
      Primary navigation container.
@@ -113,7 +115,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     // MARK: - ApplicationRouterDelegate
 
     func applicationRouter(
-        _ router: ApplicationRouter,
+        _ router: ApplicationRouter<RouteType>,
         route: AppRoute,
         animated: Bool,
         completion: @escaping (Coordinator) -> Void
@@ -155,8 +157,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func applicationRouter(
-        _ router: ApplicationRouter,
-        dismissWithContext context: RouteDismissalContext,
+        _ router: ApplicationRouter<RouteType>,
+        dismissWithContext context: RouteDismissalContext<RouteType>,
         completion: @escaping () -> Void
     ) {
         if context.isClosing {
@@ -210,7 +212,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    func applicationRouter(_ router: ApplicationRouter, shouldPresent route: AppRoute) -> Bool {
+    func applicationRouter(_ router: ApplicationRouter<RouteType>, shouldPresent route: RouteType) -> Bool {
         switch route {
         case .revoked:
             // Check if device is still revoked.
@@ -226,8 +228,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func applicationRouter(
-        _ router: ApplicationRouter,
-        shouldDismissWithContext context: RouteDismissalContext
+        _ router: ApplicationRouter<RouteType>,
+        shouldDismissWithContext context: RouteDismissalContext<RouteType>
     ) -> Bool {
         context.dismissedRoutes.allSatisfy { dismissedRoute in
             /*
@@ -245,8 +247,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func applicationRouter(
-        _ router: ApplicationRouter,
-        handleSubNavigationWithContext context: RouteSubnavigationContext,
+        _ router: ApplicationRouter<RouteType>,
+        handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
         completion: @escaping () -> Void
     ) {
         switch context.route {
