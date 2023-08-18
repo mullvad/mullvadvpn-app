@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1420"
+   LastUpgradeVersion = "1430"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "58B0A29F238EE67E00BC001D"
-               BuildableName = "MullvadVPNTests.xctest"
-               BlueprintName = "MullvadVPNTests"
+               BlueprintIdentifier = "7A88DCCD2A8FABBE00D2FF0E"
+               BuildableName = "Routing.framework"
+               BlueprintName = "Routing"
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -26,39 +26,8 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES">
-      <TestPlans>
-         <TestPlanReference
-            reference = "container:TestPlans/MullvadVPNApp.xctestplan"
-            default = "YES">
-         </TestPlanReference>
-         <TestPlanReference
-            reference = "container:TestPlans/MullvadVPNCI.xctestplan">
-         </TestPlanReference>
-      </TestPlans>
-      <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "58B0A29F238EE67E00BC001D"
-               BuildableName = "MullvadVPNTests.xctest"
-               BlueprintName = "MullvadVPNTests"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "7A88DCD62A8FABBE00D2FF0E"
-               BuildableName = "RoutingTests.xctest"
-               BlueprintName = "RoutingTests"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -80,9 +49,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "58B0A29F238EE67E00BC001D"
-            BuildableName = "MullvadVPNTests.xctest"
-            BlueprintName = "MullvadVPNTests"
+            BlueprintIdentifier = "7A88DCCD2A8FABBE00D2FF0E"
+            BuildableName = "Routing.framework"
+            BlueprintName = "Routing"
             ReferencedContainer = "container:MullvadVPN.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

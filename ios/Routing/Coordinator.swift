@@ -15,7 +15,7 @@ import UIKit
  Coordinators help to abstract the navigation and business logic from view controllers making them
  more manageable and reusable.
  */
-class Coordinator: NSObject {
+open class Coordinator: NSObject {
     /// Private trace log.
     private lazy var logger = Logger(label: "\(Self.self)")
 
@@ -32,12 +32,12 @@ class Coordinator: NSObject {
     fileprivate var interactiveDismissalObservers: [(Coordinator) -> Void] = []
 
     /// Child coordinators.
-    var childCoordinators: [Coordinator] {
+    public var childCoordinators: [Coordinator] {
         _children
     }
 
     /// Parent coordinator.
-    var parent: Coordinator? {
+    public var parent: Coordinator? {
         _parent
     }
 
@@ -48,7 +48,7 @@ class Coordinator: NSObject {
 
      Adding the same coordinator twice is a no-op.
      */
-    func addChild(_ child: Coordinator) {
+    public func addChild(_ child: Coordinator) {
         guard !_children.contains(child) else { return }
 
         _children.append(child)
@@ -62,7 +62,7 @@ class Coordinator: NSObject {
 
      Removing coordinator that's no longer a child of this coordinator is a no-op.
      */
-    func removeChild(_ child: Coordinator) {
+    public func removeChild(_ child: Coordinator) {
         guard let index = _children.firstIndex(where: { $0 == child }) else { return }
 
         _children.remove(at: index)
@@ -74,7 +74,7 @@ class Coordinator: NSObject {
     /**
      Remove coordinator from its parent.
      */
-    func removeFromParent() {
+    public func removeFromParent() {
         _parent?.removeChild(self)
     }
 }
@@ -82,7 +82,7 @@ class Coordinator: NSObject {
 /**
  Protocol describing coordinators that can be presented using modal presentation.
  */
-protocol Presentable: Coordinator {
+public protocol Presentable: Coordinator {
     /**
      View controller that is presented modally. It's expected it to be the top-most view controller
      managed by coordinator.
@@ -93,7 +93,7 @@ protocol Presentable: Coordinator {
 /**
  Protocol describing coordinators that provide modal presentation context.
  */
-protocol Presenting: Coordinator {
+public protocol Presenting: Coordinator {
     /**
      View controller providing modal presentation context.
      */
@@ -106,7 +106,7 @@ extension Presenting {
 
      Automatically adds child and removes it upon interactive dismissal.
      */
-    func presentChild(
+    public func presentChild(
         _ child: some Presentable,
         animated: Bool,
         configuration: ModalPresentationConfiguration = ModalPresentationConfiguration(),
@@ -148,7 +148,7 @@ extension Presentable {
 
      Automatically removes itself from parent.
      */
-    func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
+    public func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
         removeFromParent()
 
         presentedViewController.dismiss(animated: animated, completion: completion)
@@ -157,7 +157,7 @@ extension Presentable {
     /**
      Add block based observer triggered if coordinator is dismissed via user interaction.
      */
-    func onInteractiveDismissal(_ handler: @escaping (Coordinator) -> Void) {
+    public func onInteractiveDismissal(_ handler: @escaping (Coordinator) -> Void) {
         interactiveDismissalObservers.append(handler)
     }
 }

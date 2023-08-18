@@ -11,7 +11,7 @@ import Foundation
 /**
  Application router delegate
  */
-protocol ApplicationRouterDelegate<RouteType>: AnyObject {
+public protocol ApplicationRouterDelegate<RouteType>: AnyObject {
     associatedtype RouteType: AppRouteProtocol
 
     /**

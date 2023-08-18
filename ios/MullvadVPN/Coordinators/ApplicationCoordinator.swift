@@ -9,6 +9,7 @@
 import MullvadREST
 import MullvadTypes
 import RelayCache
+import Routing
 import UIKit
 
 /**
