@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider {
     private var accountExpiry: Date?
@@ -117,8 +118,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
         }
         timer.schedule(
             wallDeadline: .now() + fireDate.timeIntervalSince(now),
-            repeating: DispatchTimeInterval
-                .seconds(NotificationConfiguration.closeToExpiryInAppNotificationRefreshInterval)
+            repeating: .seconds(NotificationConfiguration.closeToExpiryInAppNotificationRefreshInterval)
         )
         timer.activate()
 

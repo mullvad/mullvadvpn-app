@@ -27,7 +27,7 @@ struct WgAdapterDeviceInfo: TunnelDeviceInfoProtocol {
             dispatchGroup.leave()
         }
 
-        guard case .success = dispatchGroup.wait(wallTimeout: .now() + DispatchTimeInterval.seconds(1))
+        guard case .success = dispatchGroup.wait(wallTimeout: .now() + .seconds(1))
         else { throw StatsError.timeout }
         guard let result else { throw StatsError.nilValue }
         guard let newStats = WgStats(from: result) else { throw StatsError.parse }

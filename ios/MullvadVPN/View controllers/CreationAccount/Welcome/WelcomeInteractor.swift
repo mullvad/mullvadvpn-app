@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadLogging
+import MullvadTypes
 import StoreKit
 
 final class WelcomeInteractor {
@@ -15,7 +16,7 @@ final class WelcomeInteractor {
     private let tunnelManager: TunnelManager
 
     /// Interval used for periodic polling account updates.
-    private let accountUpdateTimerInterval: TimeInterval = 60
+    private let accountUpdateTimerInterval: Duration = .minutes(1)
     private var accountUpdateTimer: DispatchSourceTimer?
 
     private let logger = Logger(label: "\(WelcomeInteractor.self)")
@@ -105,7 +106,10 @@ final class WelcomeInteractor {
         accountUpdateTimer?.cancel()
         accountUpdateTimer = timer
 
-        timer.schedule(wallDeadline: .now() + accountUpdateTimerInterval, repeating: accountUpdateTimerInterval)
+        timer.schedule(
+            wallDeadline: .now() + accountUpdateTimerInterval,
+            repeating: accountUpdateTimerInterval.timeInterval
+        )
         timer.activate()
     }
 

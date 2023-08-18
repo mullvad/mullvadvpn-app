@@ -6,6 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
 import Operations
 import StoreKit
 
@@ -14,7 +15,7 @@ final class ProductsRequestOperation: ResultOperation<SKProductsResponse>,
     private let productIdentifiers: Set<String>
 
     private let maxRetryCount = 10
-    private let retryDelay: TimeInterval = .seconds(2)
+    private let retryDelay: Duration = .seconds(2)
 
     private var retryCount = 0
     private var retryTimer: DispatchSourceTimer?

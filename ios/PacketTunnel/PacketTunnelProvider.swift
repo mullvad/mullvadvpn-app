@@ -441,7 +441,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             self?.useCachedDeviceState = false
         }
 
-        timer.schedule(deadline: .now() + reconnectionDelay.timeInterval)
+        timer.schedule(wallDeadline: .now() + reconnectionDelay)
         timer.activate()
 
         tunnelReconnectionTimer?.cancel()

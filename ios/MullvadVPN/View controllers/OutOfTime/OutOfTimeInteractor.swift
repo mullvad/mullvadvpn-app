@@ -22,7 +22,7 @@ final class OutOfTimeInteractor {
 
     private let logger = Logger(label: "OutOfTimeInteractor")
 
-    private let accountUpdateTimerInterval: TimeInterval = .minutes(1)
+    private let accountUpdateTimerInterval: Duration = .minutes(1)
     private var accountUpdateTimer: DispatchSourceTimer?
 
     var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
@@ -108,7 +108,10 @@ final class OutOfTimeInteractor {
         accountUpdateTimer?.cancel()
         accountUpdateTimer = timer
 
-        timer.schedule(wallDeadline: .now() + accountUpdateTimerInterval, repeating: accountUpdateTimerInterval)
+        timer.schedule(
+            wallDeadline: .now() + accountUpdateTimerInterval,
+            repeating: accountUpdateTimerInterval.timeInterval
+        )
         timer.activate()
     }
 

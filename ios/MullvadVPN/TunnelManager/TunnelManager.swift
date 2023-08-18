@@ -21,11 +21,11 @@ import class WireGuardKitTypes.PublicKey
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.
-private let establishingTunnelStatusPollInterval: TimeInterval = .seconds(3)
+private let establishingTunnelStatusPollInterval: Duration = .seconds(3)
 
 /// Interval used for periodic polling of tunnel connectivity status once the tunnel connection
 /// is established.
-private let establishedTunnelStatusPollInterval: TimeInterval = .seconds(5)
+private let establishedTunnelStatusPollInterval: Duration = .seconds(5)
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
@@ -1065,7 +1065,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Tunnel status polling
 
-    private func startPollingTunnelStatus(interval: TimeInterval) {
+    private func startPollingTunnelStatus(interval: Duration) {
         guard !isPolling else { return }
 
         isPolling = true
@@ -1078,7 +1078,7 @@ final class TunnelManager: StorePaymentObserver {
         timer.setEventHandler { [weak self] in
             self?.refreshTunnelStatus()
         }
-        timer.schedule(wallDeadline: .now() + interval, repeating: interval)
+        timer.schedule(wallDeadline: .now() + interval, repeating: interval.timeInterval)
         timer.activate()
 
         tunnelStatusPollTimer?.cancel()

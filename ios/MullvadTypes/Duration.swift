@@ -8,46 +8,86 @@
 
 import Foundation
 
+/// Custom implementation of iOS native `Duration` (available from iOS16). Meant as a
+/// drop-in replacement until the app supports iOS16. Ideally this whole file can
+/// then be deleted without affecting the rest of the code base.
+@available(iOS, introduced: 14.0, obsoleted: 16.0, message: "Replace with native Duration type.")
 public struct Duration {
-    private var components: (seconds: Int64, attoseconds: Int64)
+    private(set) var components: (seconds: Int64, attoseconds: Int64)
 
-    private init(seconds: Int, milliseconds: Double = 0) {
+    public init(secondsComponent: Int64, attosecondsComponent: Int64 = 0) {
         components = (
-            seconds: Int64(seconds),
-            attoseconds: Int64(milliseconds) * Int64(1e15)
+            seconds: Int64(secondsComponent),
+            attoseconds: Int64(attosecondsComponent)
         )
     }
 
     public static func milliseconds(_ milliseconds: Int) -> Duration {
+        let subSeconds = milliseconds % 1000
+        let seconds = (milliseconds - subSeconds) / 1000
+
         return Duration(
-            seconds: milliseconds / 1000,
-            milliseconds: Double(milliseconds).truncatingRemainder(dividingBy: 1000)
+            secondsComponent: Int64(seconds),
+            attosecondsComponent: Int64(subSeconds) * Int64(1e15)
         )
     }
 
     public static func seconds(_ seconds: Int) -> Duration {
-        return Duration(seconds: seconds)
+        return Duration(secondsComponent: Int64(seconds))
+    }
+
+    public func logFormat() -> String {
+        let timeInterval = timeInterval
+
+        guard timeInterval >= 1 else {
+            return "\(milliseconds)ms"
+        }
+
+        let trailingZeroesSuffix = ".00"
+        var string = String(format: "%.2f", timeInterval)
+
+        if string.hasSuffix(trailingZeroesSuffix) {
+            string.removeLast(trailingZeroesSuffix.count)
+        }
+
+        return "\(string)s"
     }
 }
 
-extension Duration {
-    public var timeInterval: TimeInterval {
-        return Double(components.seconds) + (Double(components.attoseconds) * 1e-18)
+extension Duration: DurationProtocol {
+    public static var zero: Duration {
+        return .seconds(0)
     }
 
-    public static func minutes(_ minutes: Int) -> Duration {
-        return .seconds(minutes * 60)
+    public static func / (lhs: Duration, rhs: Int) -> Duration {
+        return .milliseconds(lhs.milliseconds / max(rhs, 1))
     }
 
-    public static func hours(_ hours: Int) -> Duration {
-        return .seconds(hours * 3600)
+    public static func * (lhs: Duration, rhs: Int) -> Duration {
+        return .milliseconds(lhs.milliseconds.saturatingMultiplication(rhs))
     }
 
-    public static func days(_ days: Int) -> Duration {
-        return .seconds(days * 86400)
+    public static func / (lhs: Duration, rhs: Duration) -> Double {
+        guard rhs != .zero else {
+            return lhs.timeInterval
+        }
+
+        return lhs.timeInterval / rhs.timeInterval
     }
 
-    public static func + (rhs: DispatchWallTime, lhs: Duration) -> DispatchWallTime {
-        return rhs + lhs.timeInterval
+    public static func + (lhs: Duration, rhs: Duration) -> Duration {
+        return .milliseconds(lhs.milliseconds.saturatingAddition(rhs.milliseconds))
+    }
+
+    public static func - (lhs: Duration, rhs: Duration) -> Duration {
+        return .milliseconds(lhs.milliseconds.saturatingSubtraction(rhs.milliseconds))
+    }
+
+    public static func < (lhs: Duration, rhs: Duration) -> Bool {
+        return lhs.timeInterval < rhs.timeInterval
+    }
+
+    public static func == (lhs: Duration, rhs: Duration) -> Bool {
+        return lhs.timeInterval == rhs.timeInterval
     }
 }

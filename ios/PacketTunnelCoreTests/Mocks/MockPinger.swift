@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import Network
 @testable import PacketTunnelCore
 
@@ -58,7 +59,7 @@ class MockPinger: PingerProtocol {
 
         switch decideOutcome(address, nextSequenceId) {
         case let .sendReply(reply, delay):
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+            DispatchQueue.main.asyncAfter(wallDeadline: .now() + delay) { [weak self] in
                 guard let self else { return }
 
                 networkStatsReporting.reportBytesReceived(UInt64(icmpPacketSize))
@@ -109,7 +110,7 @@ class MockPinger: PingerProtocol {
     /// The outcome of ping request simulation.
     enum Outcome {
         /// Simulate ping reply transmission.
-        case sendReply(reply: Reply = .normal, afterDelay: TimeInterval = 0.1)
+        case sendReply(reply: Reply = .normal, afterDelay: Duration = .milliseconds(100))
 
         /// Simulate packet that was lost or left unanswered.
         case ignore

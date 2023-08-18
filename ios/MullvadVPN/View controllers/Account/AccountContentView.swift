@@ -453,7 +453,7 @@ class AccountNumberRow: UIView {
         copyAccountNumber?()
 
         DispatchQueue.main.asyncAfter(
-            deadline: .now() + DispatchTimeInterval.seconds(2),
+            deadline: .now() + .seconds(2),
             execute: delayedWorkItem
         )
     }

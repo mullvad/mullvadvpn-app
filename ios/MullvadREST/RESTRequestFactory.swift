@@ -13,7 +13,7 @@ extension REST {
     final class RequestFactory {
         let hostname: String
         let pathPrefix: String
-        let networkTimeout: TimeInterval
+        let networkTimeout: Duration
         let bodyEncoder: JSONEncoder
 
         class func withDefaultAPICredentials(
@@ -31,7 +31,7 @@ extension REST {
         init(
             hostname: String,
             pathPrefix: String,
-            networkTimeout: TimeInterval,
+            networkTimeout: Duration,
             bodyEncoder: JSONEncoder
         ) {
             self.hostname = hostname
@@ -57,7 +57,7 @@ extension REST {
             var request = URLRequest(
                 url: requestURL,
                 cachePolicy: .useProtocolCachePolicy,
-                timeoutInterval: networkTimeout
+                timeoutInterval: networkTimeout.timeInterval
             )
             request.httpShouldHandleCookies = false
             request.addValue(hostname, forHTTPHeaderField: HTTPHeader.host)

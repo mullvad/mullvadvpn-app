@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import MullvadTypes
 
 /// Interval used for reopening the log file descriptor in the event of failure to open it in
 /// the first place, or when writing to it.
-private let reopenFileLogInterval: TimeInterval = .seconds(5)
+private let reopenFileLogInterval: Duration = .seconds(5)
 
 class LogFileOutputStream: TextOutputStream {
     private let queue = DispatchQueue(label: "LogFileOutputStreamQueue", qos: .utility)
@@ -124,7 +125,7 @@ class LogFileOutputStream: TextOutputStream {
         }
         timer.schedule(
             wallDeadline: .now() + reopenFileLogInterval,
-            repeating: reopenFileLogInterval
+            repeating: reopenFileLogInterval.timeInterval
         )
         timer.activate()
 
