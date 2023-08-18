@@ -8,14 +8,8 @@
 
 import MullvadLogging
 import Operations
+import Routing
 import UIKit
-
-enum SettingsNavigationRoute: Equatable {
-    case root
-    case preferences
-    case problemReport
-    case faq
-}
 
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
     UINavigationControllerDelegate {

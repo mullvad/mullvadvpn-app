@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import Routing
 import UIKit
 
 final class ChangeLogCoordinator: Coordinator, Presentable {

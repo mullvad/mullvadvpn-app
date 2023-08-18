@@ -12,7 +12,7 @@ import UIKit
  Enum type describing groups of routes. Each group is a modal layer with horizontal navigation
  inside with exception where primary navigation is a part of root controller on iPhone.
  */
-enum AppRouteGroup: AppRouteGroupProtocol {
+public enum AppRouteGroup: AppRouteGroupProtocol {
     /**
      Primary horizontal navigation group.
      */
@@ -38,7 +38,7 @@ enum AppRouteGroup: AppRouteGroupProtocol {
      */
     case changelog
 
-    var isModal: Bool {
+    public var isModal: Bool {
         switch self {
         case .primary:
             return UIDevice.current.userInterfaceIdiom == .pad
@@ -48,7 +48,7 @@ enum AppRouteGroup: AppRouteGroupProtocol {
         }
     }
 
-    var modalLevel: Int {
+    public var modalLevel: Int {
         switch self {
         case .primary:
             return 0
@@ -61,7 +61,7 @@ enum AppRouteGroup: AppRouteGroupProtocol {
 /**
  Enum type describing primary application routes.
  */
-enum AppRoute: AppRouteProtocol {
+public enum AppRoute: AppRouteProtocol {
     /**
      Account route.
      */
@@ -87,7 +87,7 @@ enum AppRoute: AppRouteProtocol {
      */
     case tos, login, main, revoked, outOfTime, welcome, setupAccountCompleted
 
-    var isExclusive: Bool {
+    public var isExclusive: Bool {
         switch self {
         case .selectLocation, .account, .settings, .changelog:
             return true
@@ -96,7 +96,7 @@ enum AppRoute: AppRouteProtocol {
         }
     }
 
-    var supportsSubNavigation: Bool {
+    public var supportsSubNavigation: Bool {
         if case .settings = self {
             return true
         } else {
@@ -104,7 +104,7 @@ enum AppRoute: AppRouteProtocol {
         }
     }
 
-    var routeGroup: AppRouteGroup {
+    public var routeGroup: AppRouteGroup {
         switch self {
         case .tos, .login, .main, .revoked, .outOfTime, .welcome, .setupAccountCompleted:
             return .primary
@@ -118,4 +118,12 @@ enum AppRoute: AppRouteProtocol {
             return .settings
         }
     }
+}
+
+/// Enum type describing sub-routes for Settings functionality.
+public enum SettingsNavigationRoute: Equatable {
+    case root
+    case preferences
+    case problemReport
+    case faq
 }

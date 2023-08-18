@@ -116,36 +116,36 @@ enum DismissMatch<RouteType: AppRouteProtocol>: Equatable {
 /**
  Struct describing presented route.
  */
-struct PresentedRoute<RouteType: AppRouteProtocol>: Equatable {
-    var route: RouteType
-    var coordinator: Coordinator
+public struct PresentedRoute<RouteType: AppRouteProtocol>: Equatable {
+    public var route: RouteType
+    public var coordinator: Coordinator
 }
 
 /**
  Struct holding information used by delegate to perform dismissal of the route(s) in subject.
  */
-struct RouteDismissalContext<RouteType: AppRouteProtocol> {
+public struct RouteDismissalContext<RouteType: AppRouteProtocol> {
     /**
      Specific routes that are being dismissed.
      */
-    var dismissedRoutes: [PresentedRoute<RouteType>]
+    public var dismissedRoutes: [PresentedRoute<RouteType>]
 
     /**
      Whether the entire group is being dismissed.
      */
-    var isClosing: Bool
+    public var isClosing: Bool
 
     /**
      Whether transition is animated.
      */
-    var isAnimated: Bool
+    public var isAnimated: Bool
 }
 
 /**
  Struct holding information used by delegate to perform sub-navigation of the route in subject.
  */
-struct RouteSubnavigationContext<RouteType: AppRouteProtocol> {
-    var presentedRoute: PresentedRoute<RouteType>
-    var route: RouteType
-    var isAnimated: Bool
+public struct RouteSubnavigationContext<RouteType: AppRouteProtocol> {
+    public var presentedRoute: PresentedRoute<RouteType>
+    public var route: RouteType
+    public var isAnimated: Bool
 }
