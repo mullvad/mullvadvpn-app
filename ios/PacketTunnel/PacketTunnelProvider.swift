@@ -191,41 +191,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         dispatchQueue.async {
-            let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
-            var appSelectorResult: RelaySelectorResult?
-
             // Parse relay selector from tunnel options.
-            do {
-                appSelectorResult = try tunnelOptions.getSelectorResult()
-
-                switch appSelectorResult {
-                case let .some(selectorResult):
-                    self.providerLogger.debug(
-                        "Start the tunnel via app, connect to \(selectorResult.relay.hostname)."
-                    )
-
-                case .none:
-                    if tunnelOptions.isOnDemand() {
-                        self.providerLogger.debug("Start the tunnel via on-demand rule.")
-                    } else {
-                        self.providerLogger.debug("Start the tunnel via system.")
-                    }
-                }
-            } catch {
-                self.providerLogger.debug("Start the tunnel via app.")
-                self.providerLogger.error(
-                    error: error,
-                    message: """
-                    Failed to decode relay selector result passed from the app. \
-                    Will continue by picking new relay.
-                    """
-                )
-            }
+            let parsedOptions = self.parseStartOptions(options ?? [:])
+            self.providerLogger.debug("\(parsedOptions.logFormat())")
 
             // Read tunnel configuration.
             let tunnelConfiguration: PacketTunnelConfiguration
             do {
-                let initialRelay: NextRelay = appSelectorResult.map { .set($0) } ?? .automatic
+                let initialRelay: NextRelay = parsedOptions.selectorResult.map { .set($0) } ?? .automatic
 
                 tunnelConfiguration = try self.makeConfiguration(initialRelay)
             } catch {
@@ -564,8 +537,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
-    private func makeConfiguration(_ nextRelay: NextRelay)
-        throws -> PacketTunnelConfiguration {
+    private func parseStartOptions(_ options: [String: NSObject]) -> StartOptions {
+        let tunnelOptions = PacketTunnelOptions(rawOptions: options)
+        var parsedOptions = StartOptions(launchSource: tunnelOptions.isOnDemand() ? .onDemand : .app)
+
+        do {
+            if let selectorResult = try tunnelOptions.getSelectorResult() {
+                parsedOptions.launchSource = .app
+                parsedOptions.selectorResult = selectorResult
+            } else {
+                parsedOptions.launchSource = tunnelOptions.isOnDemand() ? .onDemand : .system
+            }
+        } catch {
+            providerLogger.error(error: error, message: "Failed to decode relay selector result passed from the app.")
+        }
+
+        return parsedOptions
+    }
+
+    private func makeConfiguration(_ nextRelay: NextRelay) throws -> PacketTunnelConfiguration {
         let tunnelSettings = try SettingsManager.readSettings()
         let selectorResult: RelaySelectorResult
 
