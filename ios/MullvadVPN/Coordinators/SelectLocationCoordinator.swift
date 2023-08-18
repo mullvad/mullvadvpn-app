@@ -8,6 +8,7 @@
 
 import MullvadTypes
 import RelayCache
+import Routing
 import UIKit
 
 class SelectLocationCoordinator: Coordinator, Presentable, RelayCacheTrackerObserver {
