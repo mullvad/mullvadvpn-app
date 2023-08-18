@@ -20,5 +20,5 @@ extension REST {
     public static let isStagingEnvironment = false
 
     /// Default network timeout for API requests.
-    public static let defaultAPINetworkTimeout: TimeInterval = .seconds(10)
+    public static let defaultAPINetworkTimeout: Duration = .seconds(10)
 }

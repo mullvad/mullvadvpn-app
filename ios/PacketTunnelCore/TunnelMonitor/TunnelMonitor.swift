@@ -8,44 +8,45 @@
 
 import Foundation
 import MullvadLogging
+import MullvadTypes
 import protocol Network.IPAddress
 import struct Network.IPv4Address
 
 /// Interval for periodic heartbeat ping issued when traffic is flowing.
 /// Should help to detect connectivity issues on networks that drop traffic in one of directions,
 /// regardless if tx/rx counters are being updated.
-private let heartbeatPingInterval: TimeInterval = .seconds(10)
+private let heartbeatPingInterval: Duration = .seconds(10)
 
 /// Heartbeat timeout that once exceeded triggers next heartbeat to be sent.
-private let heartbeatReplyTimeout: TimeInterval = .seconds(3)
+private let heartbeatReplyTimeout: Duration = .seconds(3)
 
 /// Timeout used to determine if there was a network activity lately.
-private let trafficFlowTimeout: TimeInterval = heartbeatPingInterval * 0.5
+private let trafficFlowTimeout: Duration = heartbeatPingInterval * 0.5
 
 /// Ping timeout.
-private let pingTimeout: TimeInterval = .seconds(15)
+private let pingTimeout: Duration = .seconds(15)
 
 /// Interval to wait before sending next ping.
-private let pingDelay: TimeInterval = .seconds(3)
+private let pingDelay: Duration = .seconds(3)
 
 /// Initial timeout when establishing connection.
-private let initialEstablishTimeout: TimeInterval = .seconds(4)
+private let initialEstablishTimeout: Duration = .seconds(4)
 
 /// Multiplier applied to `establishTimeout` on each failed connection attempt.
 private let establishTimeoutMultiplier: UInt32 = 2
 
 /// Maximum timeout when establishing connection.
-private let maxEstablishTimeout: TimeInterval = pingTimeout
+private let maxEstablishTimeout = pingTimeout
 
 /// Connectivity check periodicity.
-private let connectivityCheckInterval: TimeInterval = .seconds(1)
+private let connectivityCheckInterval: Duration = .seconds(1)
 
 /// Inbound traffic timeout used when outbound traffic was registered prior to inbound traffic.
-private let inboundTrafficTimeout: TimeInterval = .seconds(5)
+private let inboundTrafficTimeout: Duration = .seconds(5)
 
 /// Traffic timeout applied when both tx/rx counters remain stale, i.e no traffic flowing.
 /// Ping is issued after that timeout is exceeded.s
-private let trafficTimeout: TimeInterval = .minutes(2)
+private let trafficTimeout: Duration = .minutes(2)
 
 public final class TunnelMonitor: TunnelMonitorProtocol {
     /// Connection state.
@@ -97,7 +98,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         /// Retry attempt.
         var retryAttempt: UInt32 = 0
 
-        func evaluateConnection(now: Date, pingTimeout: TimeInterval) -> ConnectionEvaluation {
+        func evaluateConnection(now: Date, pingTimeout: Duration) -> ConnectionEvaluation {
             switch connectionState {
             case .connecting:
                 if now.timeIntervalSince(timeoutReference) >= pingTimeout {
@@ -161,7 +162,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             return .ok
         }
 
-        func getPingTimeout() -> TimeInterval {
+        func getPingTimeout() -> Duration {
             switch connectionState {
             case .connecting:
                 let multiplier = establishTimeoutMultiplier.saturatingPow(retryAttempt)
@@ -575,7 +576,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         timer.setEventHandler { [weak self] in
             self?.checkConnectivity()
         }
-        timer.schedule(wallDeadline: .now(), repeating: connectivityCheckInterval)
+        timer.schedule(wallDeadline: .now(), repeating: connectivityCheckInterval.timeInterval)
         timer.activate()
 
         self.timer?.cancel()

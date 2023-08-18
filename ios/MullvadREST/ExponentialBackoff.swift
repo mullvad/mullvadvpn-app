@@ -10,44 +10,44 @@ import Foundation
 import MullvadTypes
 
 struct ExponentialBackoff: IteratorProtocol {
-    private var _next: REST.Duration
+    private var _next: Duration
     private let multiplier: UInt64
-    private let maxDelay: REST.Duration?
+    private let maxDelay: Duration?
 
-    init(initial: REST.Duration, multiplier: UInt64, maxDelay: REST.Duration? = nil) {
+    init(initial: Duration, multiplier: UInt64, maxDelay: Duration? = nil) {
         _next = initial
         self.multiplier = multiplier
         self.maxDelay = maxDelay
     }
 
-    mutating func next() -> REST.Duration? {
+    mutating func next() -> Duration? {
         let next = _next
 
         if let maxDelay, next > maxDelay {
             return maxDelay
         }
 
-        _next = next * multiplier
+        _next = next * Double(multiplier)
 
         return next
     }
 }
 
 struct Jittered<InnerIterator: IteratorProtocol>: IteratorProtocol
-    where InnerIterator.Element == REST.Duration {
+    where InnerIterator.Element == Duration {
     private var inner: InnerIterator
 
     init(_ inner: InnerIterator) {
         self.inner = inner
     }
 
-    mutating func next() -> REST.Duration? {
+    mutating func next() -> Duration? {
         guard let interval = inner.next() else { return nil }
 
         let jitter = Double.random(in: 0.0 ... 1.0)
-        let millis = interval.milliseconds
+        let millis = UInt64(interval.timeInterval * 1000)
         let millisWithJitter = millis.saturatingAddition(UInt64(Double(millis) * jitter))
 
-        return .milliseconds(millisWithJitter)
+        return .duration(from: TimeInterval(millisWithJitter / 1000))
     }
 }

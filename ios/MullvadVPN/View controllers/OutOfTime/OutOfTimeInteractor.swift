@@ -14,7 +14,7 @@ import Operations
 import StoreKit
 
 /// Interval used for periodic polling account updates.
-private let accountUpdateTimerInterval: TimeInterval = .minutes(1)
+private let accountUpdateTimerInterval: Duration = .minutes(1)
 
 final class OutOfTimeInteractor {
     private let storePaymentManager: StorePaymentManager
@@ -102,7 +102,10 @@ final class OutOfTimeInteractor {
         accountUpdateTimer?.cancel()
         accountUpdateTimer = timer
 
-        timer.schedule(wallDeadline: .now() + accountUpdateTimerInterval, repeating: accountUpdateTimerInterval)
+        timer.schedule(
+            wallDeadline: .now() + accountUpdateTimerInterval,
+            repeating: accountUpdateTimerInterval.timeInterval
+        )
         timer.activate()
     }
 }

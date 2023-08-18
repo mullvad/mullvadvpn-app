@@ -15,10 +15,10 @@ import UIKit
 /// Delay for sending tunnel provider messages to the tunnel when in connecting state.
 /// Used to workaround a bug when talking to the tunnel too early during startup may cause it
 /// to freeze.
-private let connectingStateWaitDelay: TimeInterval = .seconds(5)
+private let connectingStateWaitDelay: Duration = .seconds(5)
 
 /// Default timeout in seconds.
-private let defaultTimeout: TimeInterval = .seconds(5)
+private let defaultTimeout: Duration = .seconds(5)
 
 final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> {
     typealias DecoderHandler = (Data?) throws -> Output
@@ -26,7 +26,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
     private let application: UIApplication
     private let tunnel: Tunnel
     private let message: TunnelProviderMessage
-    private let timeout: TimeInterval
+    private let timeout: Duration
 
     private let decoderHandler: DecoderHandler
 
@@ -41,7 +41,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
         application: UIApplication,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        timeout: TimeInterval? = nil,
+        timeout: Duration? = nil,
         decoderHandler: @escaping DecoderHandler,
         completionHandler: CompletionHandler?
     ) {
@@ -68,7 +68,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
     }
 
     override func main() {
-        setTimeoutTimer(connectingStateWaitDelay: 0)
+        setTimeoutTimer(connectingStateWaitDelay: .zero)
 
         statusObserver = tunnel.addBlockObserver(queue: dispatchQueue) { [weak self] _, status in
             self?.handleVPNStatus(status)
@@ -98,7 +98,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
         statusObserver = nil
     }
 
-    private func setTimeoutTimer(connectingStateWaitDelay delay: TimeInterval) {
+    private func setTimeoutTimer(connectingStateWaitDelay delay: Duration) {
         let workItem = DispatchWorkItem { [weak self] in
             self?.finish(result: .failure(SendTunnelProviderMessageError.timeout))
         }
@@ -221,7 +221,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
         application: UIApplication,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        timeout: TimeInterval? = nil,
+        timeout: Duration? = nil,
         completionHandler: @escaping CompletionHandler
     ) {
         self.init(
@@ -248,7 +248,7 @@ extension SendTunnelProviderMessageOperation where Output == Void {
         application: UIApplication,
         tunnel: Tunnel,
         message: TunnelProviderMessage,
-        timeout: TimeInterval? = nil,
+        timeout: Duration? = nil,
         completionHandler: CompletionHandler?
     ) {
         self.init(

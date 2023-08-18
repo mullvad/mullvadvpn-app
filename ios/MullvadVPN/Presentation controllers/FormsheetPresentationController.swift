@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
 import UIKit
 
 /**
@@ -178,7 +179,7 @@ class FormSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDel
 class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?)
         -> TimeInterval {
-        (transitionContext?.isAnimated ?? true) ? UIMetrics.FormSheetTransition.duration : 0
+        (transitionContext?.isAnimated ?? true) ? UIMetrics.FormSheetTransition.duration.timeInterval : 0
     }
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
@@ -206,7 +207,7 @@ class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
         if transitionContext.isAnimated {
             UIView.animate(
                 withDuration: duration,
-                delay: UIMetrics.FormSheetTransition.delay,
+                delay: UIMetrics.FormSheetTransition.delay.timeInterval,
                 options: UIMetrics.FormSheetTransition.animationOptions,
                 animations: {
                     destinationView.frame = transitionContext.finalFrame(for: destinationController)
@@ -232,7 +233,7 @@ class FormSheetPresentationAnimator: NSObject, UIViewControllerAnimatedTransitio
         if transitionContext.isAnimated {
             UIView.animate(
                 withDuration: duration,
-                delay: UIMetrics.FormSheetTransition.delay,
+                delay: UIMetrics.FormSheetTransition.delay.timeInterval,
                 options: UIMetrics.FormSheetTransition.animationOptions,
                 animations: {
                     sourceView.frame = initialFrame

@@ -6,6 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
 import UIKit
 
 enum UIMetrics {
@@ -29,8 +30,8 @@ enum UIMetrics {
     }
 
     enum FormSheetTransition {
-        static let duration: TimeInterval = .milliseconds(500)
-        static let delay: TimeInterval = .zero
+        static let duration: Duration = .milliseconds(500)
+        static let delay: Duration = .zero
         static let animationOptions: UIView.AnimationOptions = [.curveEaseInOut]
     }
 
