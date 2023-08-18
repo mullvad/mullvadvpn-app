@@ -7,16 +7,17 @@
 //
 
 import MullvadREST
+import Routing
 import UIKit
 
-class AccountRedeemingVoucherCoordinator: Coordinator, Presentable {
+public class AccountRedeemingVoucherCoordinator: Coordinator, Presentable {
     private let navigationController: RootContainerViewController
     private let viewController: RedeemVoucherViewController
 
     var didFinish: ((AccountRedeemingVoucherCoordinator) -> Void)?
     var didCancel: ((AccountRedeemingVoucherCoordinator) -> Void)?
 
-    var presentedViewController: UIViewController {
+    public var presentedViewController: UIViewController {
         viewController
     }
 

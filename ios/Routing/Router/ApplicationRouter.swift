@@ -13,11 +13,11 @@ import UIKit
 /**
  Main application router.
  */
-final class ApplicationRouter<RouteType: AppRouteProtocol> {
+public final class ApplicationRouter<RouteType: AppRouteProtocol> {
     private let logger = Logger(label: "ApplicationRouter")
 
     private(set) var modalStack: [RouteType.RouteGroupType] = []
-    private var presentedRoutes: [RouteType.RouteGroupType: [PresentedRoute<RouteType>]] = [:]
+    private(set) var presentedRoutes: [RouteType.RouteGroupType: [PresentedRoute<RouteType>]] = [:]
 
     private var pendingRoutes = [PendingRoute<RouteType>]()
     private var isProcessingPendingRoutes = false
@@ -29,21 +29,21 @@ final class ApplicationRouter<RouteType: AppRouteProtocol> {
 
      Delegate object is unonwed and the caller has to guarantee that the router does not outlive it.
      */
-    init(_ delegate: some ApplicationRouterDelegate<RouteType>) {
+    public init(_ delegate: some ApplicationRouterDelegate<RouteType>) {
         self.delegate = delegate
     }
 
     /**
      Returns `true` is the given route group is currently being presented.
      */
-    func isPresenting(group: RouteType.RouteGroupType) -> Bool {
+    public func isPresenting(group: RouteType.RouteGroupType) -> Bool {
         modalStack.contains(group)
     }
 
     /**
      Returns `true` if is the given route  is currently being presented.
      */
-    func isPresenting(route: RouteType) -> Bool {
+    public func isPresenting(route: RouteType) -> Bool {
         guard let presentedRoute = presentedRoutes[route.routeGroup] else {
             return false
         }
@@ -53,7 +53,7 @@ final class ApplicationRouter<RouteType: AppRouteProtocol> {
     /**
      Enqueue route for presetnation.
      */
-    func present(_ route: RouteType, animated: Bool = true) {
+    public func present(_ route: RouteType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .present(route),
             animated: animated
@@ -63,7 +63,7 @@ final class ApplicationRouter<RouteType: AppRouteProtocol> {
     /**
      Enqueue dismissal of the route.
      */
-    func dismiss(_ route: RouteType, animated: Bool = true) {
+    public func dismiss(_ route: RouteType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .dismiss(.singleRoute(route)),
             animated: animated
@@ -73,7 +73,7 @@ final class ApplicationRouter<RouteType: AppRouteProtocol> {
     /**
      Enqueue dismissal of a group of routes.
      */
-    func dismissAll(_ group: RouteType.RouteGroupType, animated: Bool = true) {
+    public func dismissAll(_ group: RouteType.RouteGroupType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .dismiss(.group(group)),
             animated: animated
@@ -135,8 +135,8 @@ final class ApplicationRouter<RouteType: AppRouteProtocol> {
         /**
          Check if route can be presented above the last route in the modal stack.
          */
-        if let lastRouteGroup = modalStack.last, lastRouteGroup >= route.routeGroup,
-           route.routeGroup.isModal, route.isExclusive {
+        if let lastRouteGroup = modalStack.last, route.routeGroup.isModal,
+           (lastRouteGroup > route.routeGroup) || (route.isExclusive && lastRouteGroup == route.routeGroup) {
             completion(.blockedByModalContext)
             return
         }

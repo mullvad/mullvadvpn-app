@@ -11,7 +11,7 @@ import UIKit
 /**
  A struct holding modal presentation configuration.
  */
-struct ModalPresentationConfiguration {
+public struct ModalPresentationConfiguration {
     var preferredContentSize: CGSize?
     var modalPresentationStyle: UIModalPresentationStyle?
     var modalTransitionStyle: UIModalTransitionStyle?
@@ -19,7 +19,23 @@ struct ModalPresentationConfiguration {
     var transitioningDelegate: UIViewControllerTransitioningDelegate?
     var presentationControllerDelegate: UIAdaptivePresentationControllerDelegate?
 
-    func apply(to vc: UIViewController) {
+    public init(
+        preferredContentSize: CGSize? = nil,
+        modalPresentationStyle: UIModalPresentationStyle? = nil,
+        modalTransitionStyle: UIModalTransitionStyle? = nil,
+        isModalInPresentation: Bool? = nil,
+        transitioningDelegate: UIViewControllerTransitioningDelegate? = nil,
+        presentationControllerDelegate: UIAdaptivePresentationControllerDelegate? = nil
+    ) {
+        self.preferredContentSize = preferredContentSize
+        self.modalPresentationStyle = modalPresentationStyle
+        self.modalTransitionStyle = modalTransitionStyle
+        self.isModalInPresentation = isModalInPresentation
+        self.transitioningDelegate = transitioningDelegate
+        self.presentationControllerDelegate = presentationControllerDelegate
+    }
+
+    public func apply(to vc: UIViewController) {
         vc.transitioningDelegate = transitioningDelegate
 
         if let modalPresentationStyle {
@@ -46,7 +62,7 @@ struct ModalPresentationConfiguration {
      dismissal and calls `dismissalHandler` while proxying all delegate calls to the former
      delegate.
      */
-    mutating func notifyInteractiveDismissal(_ dismissalHandler: @escaping () -> Void) {
+    public mutating func notifyInteractiveDismissal(_ dismissalHandler: @escaping () -> Void) {
         presentationControllerDelegate =
             PresentationControllerDismissalInterceptor(
                 forwardingTarget: presentationControllerDelegate

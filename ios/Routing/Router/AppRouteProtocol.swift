@@ -11,7 +11,7 @@ import Foundation
 /**
  Formal protocol describing a group of routes.
  */
-protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable {
+public protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable {
     /**
      Returns `true` if group is presented modally, otherwise `false` if group is a part of root view
      controller.
@@ -32,7 +32,7 @@ protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable {
  Default implementation of `Comparable` for `AppRouteGroupProtocol` which compares `modalLevel` of both sides.
  */
 extension AppRouteGroupProtocol {
-    static func < (lhs: Self, rhs: Self) -> Bool {
+    public static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.modalLevel < rhs.modalLevel
     }
 }
@@ -40,7 +40,7 @@ extension AppRouteGroupProtocol {
 /**
  Formal protocol describing a single route.
  */
-protocol AppRouteProtocol: Equatable, Hashable {
+public protocol AppRouteProtocol: Equatable, Hashable {
     associatedtype RouteGroupType: AppRouteGroupProtocol
 
     /**

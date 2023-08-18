@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Routing
 import UIKit
 
 class SetupAccountCompletedCoordinator: Coordinator, Presenting {

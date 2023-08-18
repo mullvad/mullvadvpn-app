@@ -8,6 +8,7 @@
 
 import MullvadLogging
 import Operations
+import Routing
 import UIKit
 
 enum SettingsNavigationRoute: Equatable {
