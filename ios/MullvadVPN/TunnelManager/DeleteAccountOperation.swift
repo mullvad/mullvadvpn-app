@@ -36,7 +36,7 @@ class DeleteAccountOperation: ResultOperation<Void> {
             completion: { [weak self] result in
                 self?.dispatchQueue.async {
                     switch result {
-                    case .success():
+                    case .success:
                         self?.finish(result: .success(()))
                     case let .failure(error):
                         self?.logger.error(
