@@ -237,14 +237,14 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
     private var _onEvent: ((TunnelMonitorEvent) -> Void)?
     public var onEvent: ((TunnelMonitorEvent) -> Void)? {
-        set {
-            nslock.withLock {
-                _onEvent = newValue
-            }
-        }
         get {
             nslock.withLock {
                 return _onEvent
+            }
+        }
+        set {
+            nslock.withLock {
+                _onEvent = newValue
             }
         }
     }
