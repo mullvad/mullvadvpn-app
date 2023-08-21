@@ -4,6 +4,16 @@ use talpid_types::{
     tunnel::ErrorState,
 };
 
+#[macro_export]
+macro_rules! print_option {
+    ($value:expr $(,)?) => {{
+        println!("{:<4}{:<24}{}", "", "", $value,)
+    }};
+    ($option:expr, $value:expr $(,)?) => {{
+        println!("{:<4}{:<24}{}", "", concat!($option, ":"), $value,)
+    }};
+}
+
 pub fn print_state(state: &TunnelState, verbose: bool) {
     use TunnelState::*;
 

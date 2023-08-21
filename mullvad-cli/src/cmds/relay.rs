@@ -21,6 +21,7 @@ use talpid_types::net::{
 };
 
 use super::{relay_constraints::LocationArgs, BooleanOption};
+use crate::print_option;
 
 #[derive(Subcommand, Debug)]
 pub enum Relay {
@@ -223,10 +224,8 @@ impl Relay {
             RelaySettings::Normal(constraints) => {
                 println!("Generic constraints");
 
-                println!(
-                    "{:<4}{:<24}{}",
-                    "",
-                    "Location:",
+                print_option!(
+                    "Location",
                     constraints
                         .location
                         .as_ref()
@@ -236,53 +235,40 @@ impl Relay {
                         }),
                 );
 
-                println!(
-                    "{:<4}{:<24}{}",
-                    "", "Tunnel protocol:", constraints.tunnel_protocol,
-                );
+                print_option!("Tunnel protocol", constraints.tunnel_protocol,);
 
-                println!("{:<4}{:<24}{}", "", "Provider(s):", constraints.providers,);
-                println!("{:<4}{:<24}{}", "", "Ownership:", constraints.ownership,);
+                print_option!("Provider(s)", constraints.providers,);
+                print_option!("Ownership", constraints.ownership,);
 
                 println!("OpenVPN constraints");
 
                 match constraints.openvpn_constraints.port {
                     Constraint::Any => {
-                        println!("{:<4}{:<24}{}", "", "Port:", "any",);
-                        println!("{:<4}{:<24}{}", "", "Transport:", "any",);
+                        print_option!("Port", "any",);
+                        print_option!("Transport", "any",);
                     }
                     Constraint::Only(transport_port) => {
-                        println!("{:<4}{:<24}{}", "", "Port:", transport_port.port,);
-                        println!("{:<4}{:<24}{}", "", "Transport:", transport_port.protocol,);
+                        print_option!("Port", transport_port.port,);
+                        print_option!("Transport", transport_port.protocol,);
                     }
                 }
 
                 println!("WireGuard constraints");
 
-                println!(
-                    "{:<4}{:<24}{}",
-                    "", "Port:", constraints.wireguard_constraints.port,
-                );
+                print_option!("Port", constraints.wireguard_constraints.port,);
 
-                println!(
-                    "{:<4}{:<24}{}",
-                    "", "IP protocol:", constraints.wireguard_constraints.ip_version,
-                );
+                print_option!("IP protocol", constraints.wireguard_constraints.ip_version,);
 
-                println!(
-                    "{:<4}{:<24}{}",
-                    "",
-                    "Multihop state:",
+                print_option!(
+                    "Multihop state",
                     if constraints.wireguard_constraints.use_multihop {
                         "enabled"
                     } else {
                         "disabled"
                     },
                 );
-                println!(
-                    "{:<4}{:<24}{}",
-                    "",
-                    "Multihop entry:",
+                print_option!(
+                    "Multihop entry",
                     constraints
                         .wireguard_constraints
                         .entry_location
