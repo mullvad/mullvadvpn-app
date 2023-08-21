@@ -1,69 +1,104 @@
-use super::relay_constraints::LocationArgs;
+use super::{
+    relay::{find_relay_by_hostname, get_filtered_relays},
+    relay_constraints::LocationArgs,
+};
 use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     custom_list::CustomListLocationUpdate,
     relay_constraints::{Constraint, GeographicLocationConstraint},
+    relay_list::RelayList,
 };
 
 #[derive(Subcommand, Debug)]
 pub enum CustomList {
-    /// Get names of custom lists
-    List,
-
-    /// Retrieve a custom list by its name
-    Get { name: String },
-
     /// Create a new custom list
-    Create { name: String },
+    New {
+        /// A name for the new custom list
+        name: String,
+    },
 
-    /// Add a location to the list
+    /// Show all custom lists or retrieve a specific custom list
+    List {
+        // TODO: Would be cool to provide dynamic auto-completion:
+        // https://github.com/clap-rs/clap/issues/1232
+        /// A custom list. If omitted, all custom lists are shown
+        name: Option<String>,
+    },
+
+    /// Edit a custom list
+    #[clap(subcommand)]
+    Edit(EditCommand),
+
+    /// Delete a custom list
+    Delete {
+        /// A custom list
+        name: String,
+    },
+}
+
+#[derive(Subcommand, Debug)]
+pub enum EditCommand {
+    /// Add a location to some custom list
     Add {
+        /// A custom list
         name: String,
         #[command(flatten)]
         location: LocationArgs,
     },
 
-    /// Remove a location from the list
+    /// Remove a location from some custom list
     Remove {
+        /// A custom list
         name: String,
         #[command(flatten)]
         location: LocationArgs,
     },
 
-    /// Delete the custom list
-    Delete { name: String },
-
-    /// Rename a custom list to a new name
-    Rename { name: String, new_name: String },
+    /// Rename a custom list
+    Rename {
+        /// Current name of the custom list
+        name: String,
+        /// A new name for the custom list
+        new_name: String,
+    },
 }
 
 impl CustomList {
     pub async fn handle(self) -> Result<()> {
         match self {
-            CustomList::List => Self::list().await,
-            CustomList::Get { name } => Self::get(name).await,
-            CustomList::Create { name } => Self::create_list(name).await,
-            CustomList::Add { name, location } => Self::add_location(name, location).await,
-            CustomList::Remove { name, location } => Self::remove_location(name, location).await,
+            CustomList::List { name: None } => Self::list().await,
+            CustomList::List { name: Some(name) } => Self::get(name).await,
+            CustomList::New { name } => Self::create_list(name).await,
             CustomList::Delete { name } => Self::delete_list(name).await,
-            CustomList::Rename { name, new_name } => Self::rename_list(name, new_name).await,
+            CustomList::Edit(cmd) => match cmd {
+                EditCommand::Add { name, location } => Self::add_location(name, location).await,
+                EditCommand::Rename { name, new_name } => Self::rename_list(name, new_name).await,
+                EditCommand::Remove { name, location } => {
+                    Self::remove_location(name, location).await
+                }
+            },
         }
     }
 
+    /// Print all custom lists.
     async fn list() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
+        let cache = rpc.get_relay_locations().await?;
         for custom_list in rpc.list_custom_lists().await? {
-            Self::print_custom_list(&custom_list);
+            Self::print_custom_list(&custom_list, &cache)
         }
         Ok(())
     }
 
+    /// Print a specific custom list (if it exists).
+    /// If the list does not exist, print an error.
     async fn get(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let custom_list = rpc.get_custom_list(name).await?;
-        Self::print_custom_list(&custom_list);
+        let cache = rpc.get_relay_locations().await?;
+        Self::print_custom_list_content(&custom_list, &cache);
         Ok(())
     }
 
@@ -74,7 +109,9 @@ impl CustomList {
     }
 
     async fn add_location(name: String, location_args: LocationArgs) -> Result<()> {
-        let location = Constraint::<GeographicLocationConstraint>::from(location_args);
+        let countries = get_filtered_relays().await?;
+        let location = find_relay_by_hostname(&countries, &location_args.country)
+            .map_or(Constraint::from(location_args), Constraint::Only);
         let update = CustomListLocationUpdate::Add { name, location };
         let mut rpc = MullvadProxyClient::new().await?;
         rpc.update_custom_list_location(update).await?;
@@ -101,10 +138,82 @@ impl CustomList {
         Ok(())
     }
 
-    fn print_custom_list(custom_list: &mullvad_types::custom_list::CustomList) {
+    fn print_custom_list(custom_list: &mullvad_types::custom_list::CustomList, cache: &RelayList) {
         println!("{}", custom_list.name);
+        Self::print_custom_list_content(custom_list, cache);
+    }
+
+    fn print_custom_list_content(
+        custom_list: &mullvad_types::custom_list::CustomList,
+        cache: &RelayList,
+    ) {
         for location in &custom_list.locations {
-            println!("\t{}", location);
+            println!(
+                "\t{}",
+                GeographicLocationConstraintFormatter::from_constraint(location, cache)
+            );
+        }
+    }
+}
+
+/// Struct used for pretty printing [`GeographicLocationConstraint`] with
+/// human-readable names for countries and cities.
+pub struct GeographicLocationConstraintFormatter<'a> {
+    constraint: &'a GeographicLocationConstraint,
+    country: Option<String>,
+    city: Option<String>,
+}
+
+impl<'a> GeographicLocationConstraintFormatter<'a> {
+    fn from_constraint(constraint: &'a GeographicLocationConstraint, cache: &RelayList) -> Self {
+        use GeographicLocationConstraint::*;
+        let (country_code, city_code) = match constraint {
+            Country(country) => (Some(country), None),
+            City(country, city) | Hostname(country, city, _) => (Some(country), Some(city)),
+        };
+
+        let country =
+            country_code.and_then(|country_code| cache.lookup_country(country_code.to_string()));
+        let city = city_code.and_then(|city_code| {
+            country.and_then(|country| country.lookup_city(city_code.to_string()))
+        });
+
+        Self {
+            constraint,
+            country: country.map(|x| x.name.clone()),
+            city: city.map(|x| x.name.clone()),
+        }
+    }
+}
+
+impl<'a> std::fmt::Display for GeographicLocationConstraintFormatter<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        let unwrap_country = |country: Option<String>, constraint: &str| {
+            country.unwrap_or(format!("{constraint} <invalid country>"))
+        };
+
+        let unwrap_city = |city: Option<String>, constraint: &str| {
+            city.unwrap_or(format!("{constraint} <invalid city>"))
+        };
+
+        match &self.constraint {
+            GeographicLocationConstraint::Country(country) => {
+                let rich_country = unwrap_country(self.country.clone(), country);
+                write!(f, "{rich_country} ({country})")
+            }
+            GeographicLocationConstraint::City(country, city) => {
+                let rich_country = unwrap_country(self.country.clone(), country);
+                let rich_city = unwrap_city(self.city.clone(), city);
+                write!(f, "{rich_city}, {rich_country} ({city}, {country})")
+            }
+            GeographicLocationConstraint::Hostname(country, city, hostname) => {
+                let rich_country = unwrap_country(self.country.clone(), country);
+                let rich_city = unwrap_city(self.city.clone(), city);
+                write!(
+                    f,
+                    "{hostname} in {rich_city}, {rich_country} ({city}, {country})"
+                )
+            }
         }
     }
 }
