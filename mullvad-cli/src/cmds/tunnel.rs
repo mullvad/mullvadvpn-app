@@ -7,6 +7,7 @@ use mullvad_types::{
 };
 
 use super::BooleanOption;
+use crate::print_option;
 
 #[derive(Subcommand, Debug)]
 pub enum Tunnel {
@@ -70,10 +71,8 @@ impl Tunnel {
 
         println!("OpenVPN options");
 
-        println!(
-            "{:<4}{:<24}{}",
-            "",
-            "mssfix:",
+        print_option!(
+            "mssfix",
             tunnel_options
                 .openvpn
                 .mssfix
@@ -83,33 +82,27 @@ impl Tunnel {
 
         println!("WireGuard options");
 
-        println!(
-            "{:<4}{:<24}{}",
-            "",
-            "MTU:",
+        print_option!(
+            "MTU",
             tunnel_options
                 .wireguard
                 .mtu
                 .map(|val| val.to_string())
                 .unwrap_or("unset".to_string()),
         );
-        println!(
-            "{:<4}{:<24}{}",
-            "", "Quantum resistance:", tunnel_options.wireguard.quantum_resistant,
+        print_option!(
+            "Quantum resistance",
+            tunnel_options.wireguard.quantum_resistant,
         );
 
         let key = rpc.get_wireguard_key().await?;
-        println!("{:<4}{:<24}{}", "", "Public key:", key.key,);
-        println!(
-            "{:<4}{:<24}{}",
-            "",
-            "",
-            format_args!("Created {}", key.created.with_timezone(&chrono::Local)),
-        );
-        println!(
-            "{:<4}{:<24}{}",
-            "",
-            "Rotation interval:",
+        print_option!("Public key", key.key,);
+        print_option!(format_args!(
+            "Created {}",
+            key.created.with_timezone(&chrono::Local)
+        ),);
+        print_option!(
+            "Rotation interval",
             match tunnel_options.wireguard.rotation_interval {
                 Some(interval) => interval.to_string(),
                 None => "unset".to_string(),
@@ -118,11 +111,14 @@ impl Tunnel {
 
         println!("Generic options");
 
-        if tunnel_options.generic.enable_ipv6 {
-            println!("{:<4}{:<24}on", "", "IPv6:");
-        } else {
-            println!("{:<4}{:<24}off", "", "IPv6:");
-        }
+        print_option!(
+            "IPv6",
+            if tunnel_options.generic.enable_ipv6 {
+                "on"
+            } else {
+                "off"
+            }
+        );
 
         Ok(())
     }

@@ -3,7 +3,7 @@ use crate::{
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint,
         LocationConstraint, ObfuscationSettings, RelayConstraints, RelaySettings,
-        RelaySettingsUpdate, SelectedObfuscation, WireguardConstraints,
+        RelaySettingsFormatter, RelaySettingsUpdate, SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
 };
@@ -153,17 +153,16 @@ impl Settings {
                 self.bridge_state = BridgeState::Auto;
             }
 
-            let mut old_settings_string = String::new();
-            let _ = self
-                .relay_settings
-                .format(&mut old_settings_string, &self.custom_lists);
-            let mut new_settings_string = String::new();
-            let _ = new_settings.format(&mut new_settings_string, &self.custom_lists);
-
             log::debug!(
                 "Changing relay settings:\n\tfrom: {}\n\tto: {}",
-                old_settings_string,
-                new_settings_string,
+                RelaySettingsFormatter {
+                    settings: &self.relay_settings,
+                    custom_lists: &self.custom_lists,
+                },
+                RelaySettingsFormatter {
+                    settings: &new_settings,
+                    custom_lists: &self.custom_lists,
+                },
             );
 
             self.relay_settings = new_settings;
