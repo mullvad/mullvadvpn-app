@@ -49,11 +49,7 @@ extension REST {
             )
         }
 
-        public func getAccountData(
-            accountNumber: String,
-            retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<Account>
-        ) -> Cancellable {
+        public func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account> {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -74,11 +70,21 @@ extension REST {
                 with: responseDecoder
             )
 
-            return addOperation(
+            return makeRequestExecutor(
                 name: "get-my-account",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
+                responseHandler: responseHandler
+            )
+        }
+
+        @available(*, deprecated, message: "Use getAccountData(accountNumber:) instead")
+        public func getAccountData(
+            accountNumber: String,
+            retryStrategy: REST.RetryStrategy,
+            completion: @escaping CompletionHandler<Account>
+        ) -> Cancellable {
+            return getAccountData(accountNumber: accountNumber).execute(
+                retryStrategy: retryStrategy,
                 completionHandler: completion
             )
         }
