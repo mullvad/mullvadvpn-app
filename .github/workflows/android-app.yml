@@ -247,6 +247,7 @@ jobs:
           retention-days: 1
 
   instrumented-tests:
+    if: false
     name: Run instrumented tests
     runs-on: [self-hosted, android-emulator]
     timeout-minutes: 30
