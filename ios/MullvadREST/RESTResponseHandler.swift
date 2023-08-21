@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 
-protocol RESTResponseHandler {
+protocol RESTResponseHandler<Success> {
     associatedtype Success
 
     func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST.ResponseHandlerResult<Success>

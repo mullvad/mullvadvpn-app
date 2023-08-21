@@ -110,10 +110,8 @@ extension REST {
 
         public func createApplePayment(
             accountNumber: String,
-            receiptString: Data,
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping CompletionHandler<CreateApplePaymentResponse>
-        ) -> Cancellable {
+            receiptString: Data
+        ) -> any RESTRequestExecutor<CreateApplePaymentResponse> {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -160,11 +158,22 @@ extension REST {
                     }
                 }
 
-            return addOperation(
+            return makeRequestExecutor(
                 name: "create-apple-payment",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
+                responseHandler: responseHandler
+            )
+        }
+
+        @available(*, deprecated, message: "Use createApplePayment(accountNumber:, receiptString:) instead")
+        public func createApplePayment(
+            accountNumber: String,
+            receiptString: Data,
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping CompletionHandler<CreateApplePaymentResponse>
+        ) -> Cancellable {
+            return createApplePayment(accountNumber: accountNumber, receiptString: receiptString).execute(
+                retryStrategy: retryStrategy,
                 completionHandler: completionHandler
             )
         }
