@@ -261,6 +261,9 @@ dependencies {
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
+    //Billing library
+    implementation(Dependencies.billingClient)
+
     // UI tooling
     implementation(Dependencies.Compose.uiToolingPreview)
     debugImplementation(Dependencies.Compose.uiTooling)
