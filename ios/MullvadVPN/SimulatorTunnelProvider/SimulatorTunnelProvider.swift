@@ -417,8 +417,9 @@ final class SimulatorTunnelProviderManager: NSObject, VPNTunnelProviderManagerPr
         completionHandler?(error)
     }
 
-    static func == (lhs: SimulatorTunnelProviderManager, rhs: SimulatorTunnelProviderManager) -> Bool {
-        lhs.identifier == rhs.identifier
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? Self else { return false }
+        return self.identifier == other.identifier
     }
 }
 
