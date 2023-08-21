@@ -264,7 +264,11 @@ final class RedeemVoucherContentView: UIView {
     }
 
     private func updateUI() {
-        isLoading ? activityIndicator.startAnimating() : activityIndicator.stopAnimating()
+        if isLoading {
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
+        }
         redeemButton.isEnabled = isRedeemButtonEnabled && textField.isVoucherLengthSatisfied
         statusLabel.text = text
         statusLabel.textColor = textColor

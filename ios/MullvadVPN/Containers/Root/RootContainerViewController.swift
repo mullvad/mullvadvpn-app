@@ -102,9 +102,11 @@ class RootContainerViewController: UIViewController {
             guard let notificationController else {
                 return
             }
-            isNavigationBarHidden
-                ? removeNotificationController(notificationController)
-                : addNotificationController(notificationController)
+            if isNavigationBarHidden {
+                removeNotificationController(notificationController)
+            } else {
+                addNotificationController(notificationController)
+            }
         }
     }
 
@@ -686,9 +688,11 @@ class RootContainerViewController: UIViewController {
     private func updateNotificationBarHiddenFromChildPreferences() {
         if let notificationController,
            let conforming = topViewController as? RootContainment {
-            conforming.prefersNotificationBarHidden
-                ? removeNotificationController(notificationController)
-                : addNotificationController(notificationController)
+            if conforming.prefersNotificationBarHidden {
+                removeNotificationController(notificationController)
+            } else {
+                addNotificationController(notificationController)
+            }
         }
     }
 
