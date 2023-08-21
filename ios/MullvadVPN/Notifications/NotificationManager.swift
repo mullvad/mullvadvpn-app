@@ -16,6 +16,9 @@ final class NotificationManager: NotificationProviderDelegate {
     private var inAppNotificationDescriptors: [InAppNotificationDescriptor] = []
 
     var notificationProviders: [NotificationProvider] {
+        get {
+            _notificationProviders
+        }
         set(newNotificationProviders) {
             dispatchPrecondition(condition: .onQueue(.main))
 
@@ -28,9 +31,6 @@ final class NotificationManager: NotificationProviderDelegate {
             }
 
             _notificationProviders = newNotificationProviders
-        }
-        get {
-            _notificationProviders
         }
     }
 

@@ -64,12 +64,12 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
     }
 
     var autoformattingText: String {
+        get {
+            inputFormatter.formattedString
+        }
         set {
             inputFormatter.replace(with: newValue)
             inputFormatter.updateTextField(self)
-        }
-        get {
-            inputFormatter.formattedString
         }
     }
 
@@ -134,15 +134,15 @@ class AccountTextField: CustomTextField, UITextFieldDelegate {
     // MARK: - Accessibility
 
     override var accessibilityValue: String? {
-        set {
-            super.accessibilityValue = newValue
-        }
         get {
             if text?.isEmpty ?? true {
                 return ""
             } else {
                 return super.accessibilityValue
             }
+        }
+        set {
+            super.accessibilityValue = newValue
         }
     }
 }

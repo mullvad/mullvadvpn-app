@@ -19,11 +19,11 @@ class CustomTextView: UITextView {
 
     /// Placeholder string
     var placeholder: String? {
-        set {
-            placeholderTextLabel.text = newValue
-        }
         get {
             placeholderTextLabel.text
+        }
+        set {
+            placeholderTextLabel.text = newValue
         }
     }
 
@@ -56,9 +56,6 @@ class CustomTextView: UITextView {
     }
 
     override var accessibilityLabel: String? {
-        set {
-            super.accessibilityLabel = newValue
-        }
         get {
             if self.text.isEmpty {
                 return placeholderTextLabel.text
@@ -66,12 +63,12 @@ class CustomTextView: UITextView {
                 return super.accessibilityLabel
             }
         }
+        set {
+            super.accessibilityLabel = newValue
+        }
     }
 
     override var accessibilityPath: UIBezierPath? {
-        set {
-            super.accessibilityPath = newValue
-        }
         get {
             if roundCorners {
                 return UIBezierPath(
@@ -81,6 +78,9 @@ class CustomTextView: UITextView {
             } else {
                 return UIBezierPath(rect: accessibilityFrame)
             }
+        }
+        set {
+            super.accessibilityPath = newValue
         }
     }
 
