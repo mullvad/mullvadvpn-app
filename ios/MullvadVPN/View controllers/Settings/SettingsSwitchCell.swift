@@ -51,7 +51,7 @@ class SettingsSwitchCell: SettingsCell {
         action?(switchContainer.control.isOn)
     }
 
-    // MARK: -  Accessibility
+    // MARK: - Accessibility
 
     override var accessibilityTraits: UIAccessibilityTraits {
         get {
