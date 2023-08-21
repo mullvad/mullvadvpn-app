@@ -15,6 +15,7 @@ import UIKit
 protocol OutOfTimeViewControllerDelegate: AnyObject {
     func outOfTimeViewControllerDidBeginPayment(_ controller: OutOfTimeViewController)
     func outOfTimeViewControllerDidEndPayment(_ controller: OutOfTimeViewController)
+    func didUpdateDeviceState(deviceState: DeviceState)
 }
 
 class OutOfTimeViewController: UIViewController, RootContainment {
@@ -101,6 +102,10 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         interactor.didReceiveTunnelStatus = { [weak self] tunnelStatus in
             self?.setNeedsHeaderBarStyleAppearanceUpdate()
             self?.applyViewState()
+        }
+
+        interactor.didUpdateDeviceState = { [weak self] deviceState in
+            self?.delegate?.didUpdateDeviceState(deviceState: deviceState)
         }
 
         if StorePaymentManager.canMakePayments {

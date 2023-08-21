@@ -8,17 +8,24 @@
 
 import Foundation
 import MullvadREST
+import StoreKit
 import UIKit
 
-final class WelcomeCoordinator: Coordinator, Presentable {
+final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
     private let navigationController: RootContainerViewController
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
+    private let inAppPurchaseInteractor: InAppPurchaseInteractor
+
     private var viewController: WelcomeViewController?
 
-    var didFinishPayment: ((WelcomeCoordinator) -> Void)?
+    var didFinish: ((WelcomeCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
+        navigationController
+    }
+
+    var presentationContext: UIViewController {
         navigationController
     }
 
@@ -30,15 +37,12 @@ final class WelcomeCoordinator: Coordinator, Presentable {
         self.navigationController = navigationController
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
+        self.inAppPurchaseInteractor = InAppPurchaseInteractor(storePaymentManager: storePaymentManager)
     }
 
     func start(animated: Bool) {
-        guard case let .loggedIn(storedAccountData, storedDeviceData) = tunnelManager.deviceState else {
-            return
-        }
         let interactor = WelcomeInteractor(
-            deviceData: storedDeviceData,
-            accountData: storedAccountData,
+            storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager
         )
 
@@ -99,8 +103,27 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         presentedViewController.present(alertController, animated: true)
     }
 
-    func didRequestToPurchaseCredit(controller: WelcomeViewController) {
-        // TODO: In-app purchase
+    func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
+        let coordinator = InAppPurchaseCoordinator(
+            navigationController: navigationController,
+            interactor: inAppPurchaseInteractor
+        )
+
+        inAppPurchaseInteractor.viewControllerDelegate = viewController
+
+        coordinator.didFinish = { [weak self] coordinator in
+            guard let self else { return }
+            coordinator.removeFromParent()
+            didFinish?(self)
+        }
+
+        coordinator.didCancel = { coordinator in
+            coordinator.removeFromParent()
+        }
+
+        addChild(coordinator)
+
+        coordinator.start(accountNumber: accountNumber, product: product)
     }
 
     func didRequestToRedeemVoucher(controller: WelcomeViewController) {
@@ -116,9 +139,9 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         }
 
         coordinator.didFinish = { [weak self] coordinator in
-            guard let self else { return }
             coordinator.removeFromParent()
-            didFinishPayment?(self)
+            guard let self else { return }
+            didFinish?(self)
         }
 
         addChild(coordinator)
@@ -128,7 +151,14 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
 
     func didUpdateDeviceState(deviceState: DeviceState) {
         if deviceState.accountData?.isExpired == false {
-            didFinishPayment?(self)
+            let coordinator = SetupAccountCompletedCoordinator(navigationController: navigationController)
+            coordinator.didFinish = { [weak self] coordinator in
+                coordinator.removeFromParent()
+                guard let self else { return }
+                didFinish?(self)
+            }
+            addChild(coordinator)
+            coordinator.start(animated: true)
         }
     }
 }

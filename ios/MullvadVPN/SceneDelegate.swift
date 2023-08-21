@@ -65,7 +65,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             storePaymentManager: appDelegate.storePaymentManager,
             relayCacheTracker: appDelegate.relayCacheTracker,
             apiProxy: appDelegate.apiProxy,
-            devicesProxy: appDelegate.devicesProxy
+            devicesProxy: appDelegate.devicesProxy,
+            appPreferences: AppPreferences()
         )
 
         appCoordinator?.onShowSettings = { [weak self] in

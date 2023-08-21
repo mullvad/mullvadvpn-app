@@ -74,4 +74,10 @@ class OutOfTimeCoordinator: Coordinator, OutOfTimeViewControllerDelegate {
 
         didFinishPayment?(self)
     }
+
+    func didUpdateDeviceState(deviceState: DeviceState) {
+        if deviceState.accountData?.isExpired == false {
+            didFinishPayment?(self)
+        }
+    }
 }

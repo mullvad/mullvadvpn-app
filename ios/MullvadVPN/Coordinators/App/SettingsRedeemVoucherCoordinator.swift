@@ -40,7 +40,7 @@ extension SettingsRedeemVoucherCoordinator: RedeemVoucherViewControllerDelegate 
         _ controller: RedeemVoucherViewController,
         with response: REST.SubmitVoucherResponse
     ) {
-        let viewController = RedeemVoucherSucceededViewController(timeAddedComponents: response.dateComponents)
+        let viewController = AddCreditSucceededViewController(timeAddedComponents: response.dateComponents)
         viewController.delegate = self
         navigationController.pushViewController(viewController, animated: true)
     }
@@ -50,8 +50,12 @@ extension SettingsRedeemVoucherCoordinator: RedeemVoucherViewControllerDelegate 
     }
 }
 
-extension SettingsRedeemVoucherCoordinator: RedeemVoucherSucceededViewControllerDelegate {
-    func titleForAction(in controller: RedeemVoucherSucceededViewController) -> String {
+extension SettingsRedeemVoucherCoordinator: AddCreditSucceededViewControllerDelegate {
+    func addCreditSucceededViewControllerDidFinish(_ controller: AddCreditSucceededViewController) {
+        didFinish?(self)
+    }
+
+    func titleForAction(in controller: AddCreditSucceededViewController) -> String {
         NSLocalizedString(
             "REDEEM_VOUCHER_DISMISS_BUTTON",
             tableName: "RedeemVoucher",
@@ -60,7 +64,12 @@ extension SettingsRedeemVoucherCoordinator: RedeemVoucherSucceededViewController
         )
     }
 
-    func redeemVoucherSucceededViewControllerDidFinish(_ controller: RedeemVoucherSucceededViewController) {
-        didFinish?(self)
+    func header(in controller: AddCreditSucceededViewController) -> String {
+        NSLocalizedString(
+            "REDEEM_VOUCHER_SUCCESS_TITLE",
+            tableName: "RedeemVoucher",
+            value: "Voucher was successfully redeemed.",
+            comment: ""
+        )
     }
 }

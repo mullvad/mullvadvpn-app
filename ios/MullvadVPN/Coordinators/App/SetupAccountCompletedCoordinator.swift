@@ -11,7 +11,7 @@ import UIKit
 
 class SetupAccountCompletedCoordinator: Coordinator, Presenting {
     private let navigationController: RootContainerViewController
-    private var viewController: SetupAccountCompletedViewController?
+    private var viewController: SetupAccountCompletedController?
 
     var didFinish: ((SetupAccountCompletedCoordinator) -> Void)?
 
@@ -24,7 +24,7 @@ class SetupAccountCompletedCoordinator: Coordinator, Presenting {
     }
 
     func start(animated: Bool) {
-        let controller = SetupAccountCompletedViewController()
+        let controller = SetupAccountCompletedController()
         controller.delegate = self
 
         viewController = controller
@@ -33,12 +33,12 @@ class SetupAccountCompletedCoordinator: Coordinator, Presenting {
     }
 }
 
-extension SetupAccountCompletedCoordinator: SetupAccountCompletedViewControllerDelegate {
-    func didRequestToSeePrivacy(controller: SetupAccountCompletedViewController) {
+extension SetupAccountCompletedCoordinator: SetupAccountCompletedControllerDelegate {
+    func didRequestToSeePrivacy(controller: SetupAccountCompletedController) {
         presentChild(SafariCoordinator(url: ApplicationConfiguration.privacyGuidesURL), animated: true)
     }
 
-    func didRequestToStartTheApp(controller: SetupAccountCompletedViewController) {
+    func didRequestToStartTheApp(controller: SetupAccountCompletedController) {
         didFinish?(self)
     }
 }
