@@ -9,7 +9,6 @@ use crate::{
 };
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
-use rand::Rng;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(target_os = "windows")]
 use std::{collections::HashSet, path::PathBuf};
@@ -93,21 +92,9 @@ pub struct Settings {
     /// Split tunneling settings
     #[cfg(windows)]
     pub split_tunnel: SplitTunnelSettings,
-    /// Temporary variable for a random number between 0 and 1 that determines if the user should
-    /// use wireguard or openvpn when the automatic feature is set. This variable will be removed
-    /// in future versions.
-    /// A value of -1.0 implies that the variable should be initialized to a random number.
-    /// NOTE: This field will be removed completely in future versions.
-    #[serde(default = "out_of_range_wg_migration_rand_num")]
-    #[cfg_attr(target_os = "android", jnix(skip))]
-    pub wg_migration_rand_num: f32,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub settings_version: SettingsVersion,
-}
-
-fn out_of_range_wg_migration_rand_num() -> f32 {
-    -1.0
 }
 
 #[cfg(windows)]
@@ -145,7 +132,6 @@ impl Default for Settings {
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
-            wg_migration_rand_num: rand::thread_rng().gen_range(0.0..=1.0),
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
