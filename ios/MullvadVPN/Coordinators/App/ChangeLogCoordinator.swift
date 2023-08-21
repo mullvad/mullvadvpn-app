@@ -10,29 +10,26 @@ import MullvadLogging
 import UIKit
 
 final class ChangeLogCoordinator: Coordinator, Presentable {
-    private let logger = Logger(label: "ChangeLogCoordinator")
-
     private var alertController: CustomAlertViewController?
+    private let interactor: ChangeLogInteractor
+    var didFinish: ((ChangeLogCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
         return alertController!
     }
 
-    var didFinish: (() -> Void)?
+    init(interactor: ChangeLogInteractor) {
+        self.interactor = interactor
+    }
 
     func start() {
-        alertController = CustomAlertViewController(
-            header: Bundle.main.shortVersion,
-            title: NSLocalizedString(
-                "CHANGE_LOG_TITLE",
-                tableName: "Account",
-                value: "Changes in this version:",
-                comment: ""
-            ),
-            attributedMessage: readChangeLogFromFile()
+        let alertController = CustomAlertViewController(
+            header: interactor.viewModel.header,
+            title: interactor.viewModel.title,
+            attributedMessage: interactor.viewModel.body
         )
 
-        alertController?.addAction(
+        alertController.addAction(
             title: NSLocalizedString(
                 "CHANGE_LOG_OK_ACTION",
                 tableName: "Account",
@@ -41,35 +38,10 @@ final class ChangeLogCoordinator: Coordinator, Presentable {
             ),
             style: .default,
             handler: { [weak self] in
-                self?.didFinish?()
+                guard let self else { return }
+                didFinish?(self)
             }
         )
-    }
-
-    private func readChangeLogFromFile() -> NSAttributedString? {
-        guard let changeLogText = try? ChangeLog.readFromFile() else {
-            logger.error("Cannot read changelog from bundle.")
-            return nil
-        }
-
-        let bullet = "•  "
-        let font = UIFont.preferredFont(forTextStyle: .body)
-
-        let bulletList = changeLogText.split(whereSeparator: { $0.isNewline })
-            .map { "\(bullet)\($0)" }
-            .joined(separator: "\n")
-
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineBreakMode = .byWordWrapping
-        paragraphStyle.headIndent = bullet.size(withAttributes: [.font: font]).width
-
-        return NSAttributedString(
-            string: bulletList,
-            attributes: [
-                .paragraphStyle: paragraphStyle,
-                .font: font,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.8),
-            ]
-        )
+        self.alertController = alertController
     }
 }

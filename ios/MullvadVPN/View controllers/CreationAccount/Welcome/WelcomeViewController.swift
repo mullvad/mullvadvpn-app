@@ -6,12 +6,14 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import StoreKit
 import UIKit
+
 protocol WelcomeViewControllerDelegate: AnyObject {
-    func didRequestToPurchaseCredit(controller: WelcomeViewController)
     func didRequestToRedeemVoucher(controller: WelcomeViewController)
     func didRequestToShowInfo(controller: WelcomeViewController)
     func didUpdateDeviceState(deviceState: DeviceState)
+    func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct)
 }
 
 class WelcomeViewController: UIViewController, RootContainment {
@@ -56,27 +58,20 @@ class WelcomeViewController: UIViewController, RootContainment {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         configureUI()
         contentView.viewModel = interactor.viewModel
-
         interactor.didUpdateDeviceState = { [weak self] deviceState in
             self?.delegate?.didUpdateDeviceState(deviceState: deviceState)
         }
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        interactor.startAccountUpdateTimer()
+        interactor.viewDidLoad = true
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        interactor.stopAccountUpdateTimer()
+        interactor.viewDidDisappear = true
     }
 
     private func configureUI() {
-        view.addSubview(contentView)
         view.addConstrainedSubviews([contentView]) {
             contentView.pinEdgesToSuperview()
         }
@@ -89,10 +84,26 @@ extension WelcomeViewController: WelcomeContentViewDelegate {
     }
 
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton) {
-        delegate?.didRequestToPurchaseCredit(controller: self)
+        interactor.product.flatMap {
+            delegate?.didRequestToPurchaseCredit(
+                controller: self,
+                accountNumber: interactor.accountNumber,
+                product: $0
+            )
+        }
     }
 
     func didTapRedeemVoucherButton(welcomeContentView: WelcomeContentView, button: AppButton) {
         delegate?.didRequestToRedeemVoucher(controller: self)
+    }
+}
+
+extension WelcomeViewController: InAppPurchaseViewControllerDelegate {
+    func didBeginPayment() {
+        contentView.isPurchasing = true
+    }
+
+    func didEndPayment() {
+        contentView.isPurchasing = false
     }
 }

@@ -27,6 +27,7 @@ final class OutOfTimeInteractor {
 
     var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
     var didReceiveTunnelStatus: ((TunnelStatus) -> Void)?
+    var didUpdateDeviceState: ((DeviceState) -> Void)?
 
     init(storePaymentManager: StorePaymentManager, tunnelManager: TunnelManager) {
         self.storePaymentManager = storePaymentManager
@@ -35,6 +36,9 @@ final class OutOfTimeInteractor {
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] manager, tunnelStatus in
                 self?.didReceiveTunnelStatus?(tunnelStatus)
+            },
+            didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
+                self?.didUpdateDeviceState?(deviceState)
             }
         )
 

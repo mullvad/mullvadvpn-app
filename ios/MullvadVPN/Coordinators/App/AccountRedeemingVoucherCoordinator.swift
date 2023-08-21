@@ -36,33 +36,23 @@ class AccountRedeemingVoucherCoordinator: Coordinator, Presentable {
 
 extension AccountRedeemingVoucherCoordinator: RedeemVoucherViewControllerDelegate {
     func redeemVoucherDidSucceed(_ controller: RedeemVoucherViewController, with response: REST.SubmitVoucherResponse) {
-        let controller = RedeemVoucherSucceededViewController(timeAddedComponents: response.dateComponents)
-        controller.delegate = self
-        navigationController.pushViewController(controller, animated: true)
+        let coordinator = AddCreditSucceededCoordinator(
+            purchaseType: .redeemingVoucher,
+            timeAdded: response.timeAdded,
+            navigationController: navigationController
+        )
+
+        coordinator.didFinish = { [weak self] coordinator in
+            coordinator.removeFromParent()
+            guard let self else { return }
+            didFinish?(self)
+        }
+
+        addChild(coordinator)
+        coordinator.start()
     }
 
     func redeemVoucherDidCancel(_ controller: RedeemVoucherViewController) {
         didCancel?(self)
-    }
-}
-
-extension AccountRedeemingVoucherCoordinator: RedeemVoucherSucceededViewControllerDelegate {
-    func titleForAction(in controller: RedeemVoucherSucceededViewController) -> String {
-        NSLocalizedString(
-            "REDEEM_VOUCHER_DISMISS_BUTTON",
-            tableName: "Welcome",
-            value: "Next",
-            comment: ""
-        )
-    }
-
-    func redeemVoucherSucceededViewControllerDidFinish(_ controller: RedeemVoucherSucceededViewController) {
-        let coordinator = SetupAccountCompletedCoordinator(navigationController: navigationController)
-        coordinator.didFinish = { [self] coordinator in
-            coordinator.removeFromParent()
-            didFinish?(self)
-        }
-        addChild(coordinator)
-        coordinator.start(animated: true)
     }
 }
