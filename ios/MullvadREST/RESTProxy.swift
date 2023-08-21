@@ -43,14 +43,55 @@ extension REST {
             self.responseDecoder = responseDecoder
         }
 
+        @available(*, deprecated, message: "Use makeRequestExecutor() instead")
         func addOperation<Success>(
             name: String,
             retryStrategy: REST.RetryStrategy,
             requestHandler: RESTRequestHandler,
-            responseHandler: REST.AnyResponseHandler<Success>,
-            completionHandler: @escaping NetworkOperation<Success>.CompletionHandler
+            responseHandler: some RESTResponseHandler<Success>,
+            completionHandler: @escaping CompletionHandler<Success>
         ) -> Cancellable {
-            let operation = NetworkOperation(
+            let executor = makeRequestExecutor(
+                name: name,
+                requestHandler: requestHandler,
+                responseHandler: responseHandler
+            )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
+        }
+
+        func makeRequestExecutor<Success>(
+            name: String,
+            requestHandler: RESTRequestHandler,
+            responseHandler: some RESTResponseHandler<Success>
+        ) -> any RESTRequestExecutor<Success> {
+            let operationFactory = NetworkOperationFactory(
+                dispatchQueue: dispatchQueue,
+                configuration: configuration,
+                name: name,
+                requestHandler: requestHandler,
+                responseHandler: responseHandler
+            )
+
+            return RequestExecutor(operationFactory: operationFactory, operationQueue: operationQueue)
+        }
+    }
+
+    /// Factory object producing instances of `NetworkOperation`.
+    private struct NetworkOperationFactory<Success, ConfigurationType: ProxyConfiguration> {
+        let dispatchQueue: DispatchQueue
+        let configuration: ConfigurationType
+
+        let name: String
+        let requestHandler: RESTRequestHandler
+        let responseHandler: any RESTResponseHandler<Success>
+
+        /// Creates new network operation but does not schedule it for execution.
+        func makeOperation(
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: ((Result<Success, Swift.Error>) -> Void)? = nil
+        ) -> NetworkOperation<Success> {
+            return NetworkOperation(
                 name: getTaskIdentifier(name: name),
                 dispatchQueue: dispatchQueue,
                 configuration: configuration,
@@ -59,10 +100,49 @@ extension REST {
                 responseHandler: responseHandler,
                 completionHandler: completionHandler
             )
+        }
+    }
+
+    /// Network request executor that supports either callback or async based execution flows.
+    private struct RequestExecutor<Success, ConfigurationType: ProxyConfiguration>: RESTRequestExecutor {
+        let operationFactory: NetworkOperationFactory<Success, ConfigurationType>
+        let operationQueue: AsyncOperationQueue
+
+        func execute(
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping (Result<Success, Swift.Error>) -> Void
+        ) -> Cancellable {
+            let operation = operationFactory.makeOperation(
+                retryStrategy: retryStrategy,
+                completionHandler: completionHandler
+            )
 
             operationQueue.addOperation(operation)
 
             return operation
+        }
+
+        func execute(retryStrategy: REST.RetryStrategy) async throws -> Success {
+            let operation = operationFactory.makeOperation(retryStrategy: retryStrategy, completionHandler: nil)
+
+            return try await withTaskCancellationHandler {
+                return try await withCheckedThrowingContinuation { continuation in
+                    operation.completionHandler = { result in
+                        continuation.resume(with: result)
+                    }
+                    operationQueue.addOperation(operation)
+                }
+            } onCancel: {
+                operation.cancel()
+            }
+        }
+
+        func execute(completionHandler: @escaping (Result<Success, Swift.Error>) -> Void) -> Cancellable {
+            execute(retryStrategy: .noRetry, completionHandler: completionHandler)
+        }
+
+        func execute() async throws -> Success {
+            return try await execute(retryStrategy: .noRetry)
         }
     }
 

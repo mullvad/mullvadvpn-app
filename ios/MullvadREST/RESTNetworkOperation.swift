@@ -14,7 +14,7 @@ import Operations
 extension REST {
     class NetworkOperation<Success>: ResultOperation<Success> {
         private let requestHandler: RESTRequestHandler
-        private let responseHandler: AnyResponseHandler<Success>
+        private let responseHandler: any RESTResponseHandler<Success>
 
         private let logger: Logger
         private let transportProvider: () -> RESTTransport?
@@ -37,8 +37,8 @@ extension REST {
             configuration: ProxyConfiguration,
             retryStrategy: RetryStrategy,
             requestHandler: RESTRequestHandler,
-            responseHandler: AnyResponseHandler<Success>,
-            completionHandler: @escaping CompletionHandler
+            responseHandler: some RESTResponseHandler<Success>,
+            completionHandler: CompletionHandler?
         ) {
             addressCacheStore = configuration.addressCacheStore
             transportProvider = configuration.transportProvider
