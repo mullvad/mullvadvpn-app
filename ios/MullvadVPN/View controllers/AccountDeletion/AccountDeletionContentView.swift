@@ -319,7 +319,11 @@ class AccountDeletionContentView: UIView {
     }
 
     private func updateUI() {
-        isLoading ? activityIndicator.startAnimating() : activityIndicator.stopAnimating()
+        if isLoading {
+            activityIndicator.startAnimating()
+        } else {
+            activityIndicator.stopAnimating()
+        }
         deleteButton.isEnabled = isDeleteButtonEnabled && isAccountNumberLengthSatisfied
         statusLabel.text = text
         statusLabel.textColor = textColor
