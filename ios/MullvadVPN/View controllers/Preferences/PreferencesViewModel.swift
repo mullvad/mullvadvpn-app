@@ -55,7 +55,7 @@ enum CustomDNSPrecondition {
                         value: "Tap **Edit** to add at least one DNS server.",
                         comment: "Foot note displayed if there are no DNS entries, but table view is not in editing mode."
                     ),
-                    options: NSAttributedString.MarkdownStylingOptions(font: preferredFont)
+                    options: MarkdownStylingOptions(font: preferredFont)
                 )
             }
 
@@ -154,7 +154,7 @@ struct PreferencesViewModel: Equatable {
         }
     }
 
-    init(from tunnelSettings: TunnelSettingsV2 = TunnelSettingsV2()) {
+    init(from tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
         let dnsSettings = tunnelSettings.dnsSettings
         blockAdvertising = dnsSettings.blockingOptions.contains(.blockAdvertising)
         blockTracking = dnsSettings.blockingOptions.contains(.blockTracking)

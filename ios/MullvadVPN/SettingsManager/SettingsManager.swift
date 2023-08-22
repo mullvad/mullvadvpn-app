@@ -15,21 +15,10 @@ private let keychainServiceName = "Mullvad VPN"
 private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
-enum SettingsMigrationResult {
-    /// Nothing to migrate.
-    case nothing
-
-    /// Successfully performed migration.
-    case success
-
-    /// Failure when migrating store.
-    case failure(Error)
-}
-
 enum SettingsManager {
     private static let logger = Logger(label: "SettingsManager")
 
-    private static let store: SettingsStore = KeychainSettingsStore(
+    static let store: SettingsStore = KeychainSettingsStore(
         serviceName: keychainServiceName,
         accessGroup: ApplicationConfiguration.securityGroupIdentifier
     )
@@ -87,7 +76,7 @@ enum SettingsManager {
 
     // MARK: - Settings
 
-    static func readSettings() throws -> TunnelSettingsV2 {
+    static func readSettings() throws -> LatestTunnelSettings {
         let storedVersion: Int
         let data: Data
         let parser = makeParser()
@@ -102,7 +91,7 @@ enum SettingsManager {
         let currentVersion = SchemaVersion.current
 
         if storedVersion == currentVersion.rawValue {
-            return try parser.parsePayload(as: TunnelSettingsV2.self, from: data)
+            return try parser.parsePayload(as: LatestTunnelSettings.self, from: data)
         } else {
             throw UnsupportedSettingsVersionError(
                 storedVersion: storedVersion,
@@ -111,7 +100,7 @@ enum SettingsManager {
         }
     }
 
-    static func writeSettings(_ settings: TunnelSettingsV2) throws {
+    static func writeSettings(_ settings: LatestTunnelSettings) throws {
         let parser = makeParser()
         let data = try parser.producePayload(settings, version: SchemaVersion.current.rawValue)
 
@@ -132,42 +121,6 @@ enum SettingsManager {
         let data = try parser.produceUnversionedPayload(deviceState)
 
         try store.write(data, for: .deviceState)
-    }
-
-    // MARK: - Migration
-
-    /// Migrate settings store if needed.
-    ///
-    /// The following types of error are expected to be returned by this method:
-    /// `SettingsMigrationError`, `UnsupportedSettingsVersionError`, `ReadSettingsVersionError`.
-    static func migrateStore(
-        with restFactory: REST.ProxyFactory,
-        completion: @escaping (SettingsMigrationResult) -> Void
-    ) {
-        let handleCompletion = { (result: SettingsMigrationResult) in
-            // Reset store upon failure to migrate settings.
-            if case .failure = result {
-                resetStore()
-            }
-            completion(result)
-        }
-
-        if let legacySettings = readLegacySettings() {
-            migrateLegacySettings(
-                restFactory: restFactory,
-                legacySettings: legacySettings
-            ) { error in
-                handleCompletion(error.map { .failure($0) } ?? .success)
-            }
-        } else {
-            do {
-                try checkLatestSettingsVersion()
-
-                handleCompletion(.nothing)
-            } catch {
-                handleCompletion(.failure(error))
-            }
-        }
     }
 
     /// Removes all legacy settings, device state and tunnel settings but keeps the last used
@@ -208,42 +161,9 @@ enum SettingsManager {
                 }
             }
         }
-
-        Self.deleteAllLegacySettings()
     }
 
     // MARK: - Private
-
-    private static func migrateLegacySettings(
-        restFactory: REST.ProxyFactory,
-        legacySettings: LegacyTunnelSettings,
-        completion: @escaping (Error?) -> Void
-    ) {
-        let parser = makeParser()
-
-        let migration = MigrationFromV1ToV2(
-            restFactory: restFactory,
-            legacySettings: legacySettings
-        )
-
-        migration.migrate(with: store, parser: parser) { error in
-            if let error {
-                let migrationError = SettingsMigrationError(
-                    sourceVersion: .v1,
-                    targetVersion: .v2,
-                    underlyingError: error
-                )
-
-                logger.error(error: migrationError)
-
-                completion(migrationError)
-            } else {
-                Self.deleteAllLegacySettings()
-
-                completion(nil)
-            }
-        }
-    }
 
     private static func checkLatestSettingsVersion() throws {
         let settingsVersion: Int
@@ -270,182 +190,9 @@ enum SettingsManager {
 
         throw error
     }
-
-    // MARK: - Legacy settings
-
-    private static func readLegacySettings() -> LegacyTunnelSettings? {
-        guard let storedAccountNumber = UserDefaults.standard.string(forKey: accountTokenKey) else {
-            logger.debug("Legacy account number is not found in user defaults. Nothing to migrate.")
-            return nil
-        }
-
-        // List legacy settings stored in keychain.
-        logger.debug("List legacy settings in keychain...")
-
-        var storedSettings: [LegacyTunnelSettings] = []
-        do {
-            storedSettings = try findAllLegacySettingsInKeychain()
-        } catch .itemNotFound as KeychainError {
-            logger.debug("Legacy settings are not found in keychain.")
-
-            return nil
-        } catch {
-            logger.error(
-                error: error,
-                message: "Failed to read legacy settings from keychain."
-            )
-
-            return nil
-        }
-
-        // Find settings matching the account number stored in user defaults.
-        let matchingSettings = storedSettings.first { settings in
-            settings.accountNumber == storedAccountNumber
-        }
-
-        guard let matchingSettings else {
-            logger.debug(
-                "Could not find legacy settings matching the legacy account number."
-            )
-
-            return nil
-        }
-
-        return matchingSettings
-    }
-
-    private static func findAllLegacySettingsInKeychain() throws -> [LegacyTunnelSettings] {
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: keychainServiceName,
-            kSecReturnAttributes: true,
-            kSecReturnData: true,
-            kSecMatchLimit: kSecMatchLimitAll,
-        ]
-
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        guard status == errSecSuccess else {
-            throw KeychainError(code: status)
-        }
-
-        guard let items = result as? [[CFString: Any]] else {
-            return []
-        }
-
-        return items.filter(Self.filterLegacySettings)
-            .compactMap { item -> LegacyTunnelSettings? in
-                guard let accountNumber = item[kSecAttrAccount] as? String,
-                      let data = item[kSecValueData] as? Data
-                else {
-                    return nil
-                }
-                do {
-                    let tunnelSettings = try JSONDecoder().decode(
-                        TunnelSettingsV1.self,
-                        from: data
-                    )
-
-                    return LegacyTunnelSettings(
-                        accountNumber: accountNumber,
-                        tunnelSettings: tunnelSettings
-                    )
-                } catch {
-                    logger.error(
-                        error: error,
-                        message: "Failed to decode legacy settings."
-                    )
-                    return nil
-                }
-            }
-    }
-
-    private static func deleteAllLegacySettings() {
-        logger.debug("Remove legacy settings from keychain.")
-        deleteLegacySettingsFromKeychain()
-
-        logger.debug("Remove legacy settings from user defaults.")
-        let userDefaults = UserDefaults.standard
-        userDefaults.removeObject(forKey: accountTokenKey)
-        userDefaults.removeObject(forKey: accountExpiryKey)
-    }
-
-    private static func deleteLegacySettingsFromKeychain() {
-        let query: [CFString: Any] = [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrService: keychainServiceName,
-            kSecReturnAttributes: true,
-            kSecMatchLimit: kSecMatchLimitAll,
-        ]
-
-        var result: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &result)
-
-        guard status == errSecSuccess else {
-            let error = KeychainError(code: status)
-
-            if error != .itemNotFound {
-                logger.error(
-                    error: error,
-                    message: "Failed to list legacy settings."
-                )
-            }
-
-            return
-        }
-
-        guard let items = result as? [[CFString: Any]] else {
-            return
-        }
-
-        items.filter(Self.filterLegacySettings)
-            .enumerated()
-            .forEach { index, item in
-                guard let account = item[kSecAttrAccount] else {
-                    return
-                }
-
-                let deleteQuery: [CFString: Any] = [
-                    kSecClass: kSecClassGenericPassword,
-                    kSecAttrService: keychainServiceName,
-                    kSecAttrAccount: account,
-                ]
-
-                let status = SecItemDelete(deleteQuery as CFDictionary)
-                if status == errSecSuccess {
-                    logger.debug("Removed legacy settings entry \(index).")
-                } else {
-                    let error = KeychainError(code: status)
-
-                    logger.error(
-                        error: error,
-                        message: "Failed to remove legacy settings entry \(index)."
-                    )
-                }
-            }
-    }
-
-    private static func filterLegacySettings(_ item: [CFString: Any]) -> Bool {
-        guard let accountNumber = item[kSecAttrAccount] as? String else {
-            return false
-        }
-
-        return SettingsKey(rawValue: accountNumber) == nil
-    }
 }
 
-struct LegacyTunnelSettings {
-    let accountNumber: String
-    let tunnelSettings: TunnelSettingsV1
-}
-
-enum SettingsKey: String, CaseIterable {
-    case settings = "Settings"
-    case deviceState = "DeviceState"
-    case lastUsedAccount = "LastUsedAccount"
-    case shouldWipeSettings = "ShouldWipeSettings"
-}
+// MARK: - Supporting types
 
 /// An error type describing a failure to read or parse settings version.
 struct ReadSettingsVersionError: LocalizedError, WrappingError {
@@ -474,26 +221,6 @@ struct UnsupportedSettingsVersionError: LocalizedError {
         Stored settings version was not the same as current version, \
         stored version: \(storedVersion), current version: \(currentVersion)
         """
-    }
-}
-
-/// A wrapper type for errors returned by concrete migrations.
-struct SettingsMigrationError: LocalizedError, WrappingError {
-    private let inner: Error
-    let sourceVersion, targetVersion: SchemaVersion
-
-    var underlyingError: Error? {
-        inner
-    }
-
-    var errorDescription: String? {
-        "Failed to migrate settings from \(sourceVersion) to \(targetVersion)."
-    }
-
-    init(sourceVersion: SchemaVersion, targetVersion: SchemaVersion, underlyingError: Error) {
-        self.sourceVersion = sourceVersion
-        self.targetVersion = targetVersion
-        inner = underlyingError
     }
 }
 

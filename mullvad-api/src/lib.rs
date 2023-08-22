@@ -9,8 +9,8 @@ use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-use once_cell::sync::OnceCell;
 use proxy::ApiConnectionMode;
+use std::sync::OnceLock;
 use std::{
     cell::Cell,
     collections::BTreeMap,
@@ -66,18 +66,18 @@ const APP_URL_PREFIX: &str = "app/v1";
 
 pub static API: LazyManual<ApiEndpoint> = LazyManual::new(ApiEndpoint::from_env_vars);
 
-unsafe impl<T, F: Send> Sync for LazyManual<T, F> where OnceCell<T>: Sync {}
+unsafe impl<T, F: Send> Sync for LazyManual<T, F> where OnceLock<T>: Sync {}
 
 /// A value that is either initialized on access or explicitly.
 pub struct LazyManual<T, F = fn() -> T> {
-    cell: OnceCell<T>,
+    cell: OnceLock<T>,
     lazy_fn: Cell<Option<F>>,
 }
 
 impl<T, F> LazyManual<T, F> {
     const fn new(lazy_fn: F) -> Self {
         Self {
-            cell: OnceCell::new(),
+            cell: OnceLock::new(),
             lazy_fn: Cell::new(Some(lazy_fn)),
         }
     }

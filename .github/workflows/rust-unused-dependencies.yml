@@ -9,7 +9,8 @@ on:
       - 'building/*-container-image.txt'
   workflow_dispatch:
 env:
-  RUST_NIGHTLY_TOOLCHAIN: nightly-2023-01-13
+  # Pinning nightly just to avoid random breakage. It's fine to bump this at any time
+  RUST_NIGHTLY_TOOLCHAIN: nightly-2023-08-03
 jobs:
   prepare-containers:
     runs-on: ubuntu-latest

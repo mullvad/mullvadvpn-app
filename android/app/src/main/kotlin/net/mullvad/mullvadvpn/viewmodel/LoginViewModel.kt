@@ -27,15 +27,23 @@ class LoginViewModel(
 
     sealed class LoginUiState {
         object Default : LoginUiState()
+
         object Loading : LoginUiState()
+
         data class Success(val isOutOfTime: Boolean) : LoginUiState()
 
         object CreatingAccount : LoginUiState()
+
         object AccountCreated : LoginUiState()
+
         object UnableToCreateAccountError : LoginUiState()
+
         object InvalidAccountError : LoginUiState()
+
         data class TooManyDevicesError(val accountToken: String) : LoginUiState()
+
         object TooManyDevicesMissingListError : LoginUiState()
+
         data class OtherError(val errorMessage: String) : LoginUiState()
 
         fun isLoading(): Boolean {

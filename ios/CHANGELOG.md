@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Allow redeeming vouchers in account view.
+- Allow deleting account in account view.
 
 ## [2023.3 - 2023-07-15]
 ### Added

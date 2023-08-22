@@ -11,6 +11,7 @@ protocol WelcomeViewControllerDelegate: AnyObject {
     func didRequestToPurchaseCredit(controller: WelcomeViewController)
     func didRequestToRedeemVoucher(controller: WelcomeViewController)
     func didRequestToShowInfo(controller: WelcomeViewController)
+    func didUpdateDeviceState(deviceState: DeviceState)
 }
 
 class WelcomeViewController: UIViewController, RootContainment {
@@ -55,8 +56,23 @@ class WelcomeViewController: UIViewController, RootContainment {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         configureUI()
         contentView.viewModel = interactor.viewModel
+
+        interactor.didUpdateDeviceState = { [weak self] deviceState in
+            self?.delegate?.didUpdateDeviceState(deviceState: deviceState)
+        }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        interactor.startAccountUpdateTimer()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        interactor.stopAccountUpdateTimer()
     }
 
     private func configureUI() {

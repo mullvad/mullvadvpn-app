@@ -14,6 +14,7 @@ import MullvadTypes
 import Network
 import NetworkExtension
 import Operations
+import PacketTunnelCore
 import RelayCache
 import RelaySelector
 import TunnelProviderMessaging
@@ -25,7 +26,7 @@ private let tunnelStartupFailureRestartInterval: TimeInterval = 2
 /// Delay before trying to reconnect tunnel after private key rotation.
 private let keyRotationTunnelReconnectionDelay = 60 * 2
 
-class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
+class PacketTunnelProvider: NEPacketTunnelProvider {
     /// Tunnel provider logger.
     private let providerLogger: Logger
 
@@ -178,50 +179,26 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         )
 
         tunnelMonitor = TunnelMonitor(
-            delegateQueue: dispatchQueue,
-            packetTunnelProvider: self,
-            adapter: adapter
+            eventQueue: dispatchQueue,
+            pinger: Pinger(replyQueue: dispatchQueue),
+            tunnelDeviceInfo: WgAdapterDeviceInfo(adapter: adapter),
+            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self)
         )
-        tunnelMonitor.delegate = self
+        tunnelMonitor.onEvent = { [weak self] event in
+            self?.handleTunnelMonitorEvent(event)
+        }
     }
 
     override func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         dispatchQueue.async {
-            let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
-            var appSelectorResult: RelaySelectorResult?
-
             // Parse relay selector from tunnel options.
-            do {
-                appSelectorResult = try tunnelOptions.getSelectorResult()
-
-                switch appSelectorResult {
-                case let .some(selectorResult):
-                    self.providerLogger.debug(
-                        "Start the tunnel via app, connect to \(selectorResult.relay.hostname)."
-                    )
-
-                case .none:
-                    if tunnelOptions.isOnDemand() {
-                        self.providerLogger.debug("Start the tunnel via on-demand rule.")
-                    } else {
-                        self.providerLogger.debug("Start the tunnel via system.")
-                    }
-                }
-            } catch {
-                self.providerLogger.debug("Start the tunnel via app.")
-                self.providerLogger.error(
-                    error: error,
-                    message: """
-                    Failed to decode relay selector result passed from the app. \
-                    Will continue by picking new relay.
-                    """
-                )
-            }
+            let parsedOptions = self.parseStartOptions(options ?? [:])
+            self.providerLogger.debug("\(parsedOptions.logFormat())")
 
             // Read tunnel configuration.
             let tunnelConfiguration: PacketTunnelConfiguration
             do {
-                let initialRelay: NextRelay = appSelectorResult.map { .set($0) } ?? .automatic
+                let initialRelay: NextRelay = parsedOptions.selectorResult.map { .set($0) } ?? .automatic
 
                 tunnelConfiguration = try self.makeConfiguration(initialRelay)
             } catch {
@@ -373,18 +350,30 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
     }
 
     override func sleep(completionHandler: @escaping () -> Void) {
-        tunnelMonitor.onSleep {
-            completionHandler()
-        }
+        tunnelMonitor.onSleep()
+        completionHandler()
     }
 
     override func wake() {
         tunnelMonitor.onWake()
     }
 
-    // MARK: - TunnelMonitorDelegate
+    // MARK: - Private: Tunnel monitoring
 
-    func tunnelMonitorDidDetermineConnectionEstablished(_ tunnelMonitor: TunnelMonitor) {
+    private func handleTunnelMonitorEvent(_ event: TunnelMonitorEvent) {
+        switch event {
+        case .connectionEstablished:
+            tunnelConnectionEstablished()
+
+        case .connectionLost:
+            tunnelConnectionLost()
+
+        case let .networkReachabilityChanged(isReachable):
+            tunnelReachabilityChanged(isReachable)
+        }
+    }
+
+    private func tunnelConnectionEstablished() {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         providerLogger.debug("Connection established.")
@@ -400,7 +389,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         setReconnecting(false)
     }
 
-    func tunnelMonitorDelegateShouldHandleConnectionRecovery(_ tunnelMonitor: TunnelMonitor) {
+    private func tunnelConnectionLost() {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         let (value, isOverflow) = numberOfFailedAttempts.addingReportingOverflow(1)
@@ -415,10 +404,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         reconnectTunnel(to: .automatic, shouldStopTunnelMonitor: false)
     }
 
-    func tunnelMonitor(
-        _ tunnelMonitor: TunnelMonitor,
-        networkReachabilityStatusDidChange isNetworkReachable: Bool
-    ) {
+    private func tunnelReachabilityChanged(_ isNetworkReachable: Bool) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
         guard self.isNetworkReachable != isNetworkReachable else { return }
@@ -551,8 +537,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider, TunnelMonitorDelegate {
         }
     }
 
-    private func makeConfiguration(_ nextRelay: NextRelay)
-        throws -> PacketTunnelConfiguration {
+    private func parseStartOptions(_ options: [String: NSObject]) -> StartOptions {
+        let tunnelOptions = PacketTunnelOptions(rawOptions: options)
+        var parsedOptions = StartOptions(launchSource: tunnelOptions.isOnDemand() ? .onDemand : .app)
+
+        do {
+            if let selectorResult = try tunnelOptions.getSelectorResult() {
+                parsedOptions.launchSource = .app
+                parsedOptions.selectorResult = selectorResult
+            } else {
+                parsedOptions.launchSource = tunnelOptions.isOnDemand() ? .onDemand : .system
+            }
+        } catch {
+            providerLogger.error(error: error, message: "Failed to decode relay selector result passed from the app.")
+        }
+
+        return parsedOptions
+    }
+
+    private func makeConfiguration(_ nextRelay: NextRelay) throws -> PacketTunnelConfiguration {
         let tunnelSettings = try SettingsManager.readSettings()
         let selectorResult: RelaySelectorResult
 

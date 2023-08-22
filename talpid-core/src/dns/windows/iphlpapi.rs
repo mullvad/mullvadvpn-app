@@ -1,3 +1,8 @@
+//! DNS monitor that uses `SetInterfaceDnsSettings`. According to
+//! <https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-setinterfacednssettings>,
+//! it requires at least Windows 10, build 19041. For that reason, use run-time linking and fall
+//! back on other methods if it is not available.
+
 use crate::dns::DnsMonitorT;
 use once_cell::sync::OnceCell;
 use std::{
@@ -7,12 +12,13 @@ use std::{
     os::windows::ffi::OsStrExt,
     ptr,
 };
+use talpid_types::win32_err;
 use talpid_windows_net::{guid_from_luid, luid_from_alias};
 use windows_sys::{
     core::GUID,
     s, w,
     Win32::{
-        Foundation::{ERROR_PROC_NOT_FOUND, NO_ERROR, NTSTATUS},
+        Foundation::{ERROR_PROC_NOT_FOUND, WIN32_ERROR},
         NetworkManagement::IpHelper::{
             DNS_INTERFACE_SETTINGS, DNS_INTERFACE_SETTINGS_VERSION1, DNS_SETTING_IPV6,
             DNS_SETTING_NAMESERVER,
@@ -36,8 +42,8 @@ pub enum Error {
     ObtainInterfaceGuid(#[error(source)] io::Error),
 
     /// Failed to set DNS settings on interface.
-    #[error(display = "Failed to set DNS settings on interface: {}", _0)]
-    SetInterfaceDnsSettings(i32),
+    #[error(display = "Failed to set DNS settings on interface")]
+    SetInterfaceDnsSettings(#[error(source)] io::Error),
 
     /// Failure to flush DNS cache.
     #[error(display = "Failed to flush DNS resolver cache")]
@@ -55,7 +61,7 @@ pub enum Error {
 type SetInterfaceDnsSettingsFn = unsafe extern "stdcall" fn(
     interface: GUID,
     settings: *const DNS_INTERFACE_SETTINGS,
-) -> NTSTATUS;
+) -> WIN32_ERROR;
 
 struct IphlpApi {
     set_interface_dns_settings: SetInterfaceDnsSettingsFn,
@@ -74,6 +80,8 @@ impl IphlpApi {
             return Err(Error::LoadDll(io::Error::last_os_error()));
         }
 
+        // This function is loaded at runtime since it may be unavailable. See the module-level docs.
+        // TODO: `windows_sys` can be used directly when support for Windows 10, 2004, is dropped.
         let set_interface_dns_settings =
             unsafe { GetProcAddress(module, s!("SetInterfaceDnsSettings")) };
         let set_interface_dns_settings = set_interface_dns_settings.ok_or_else(|| {
@@ -199,12 +207,10 @@ fn set_interface_dns_servers<T: ToString>(
         ProfileNameServer: ptr::null_mut(),
     };
 
-    let result =
-        unsafe { (iphlpapi.set_interface_dns_settings)(guid.to_owned(), &dns_interface_settings) };
-    if result != (NO_ERROR as i32) {
-        return Err(Error::SetInterfaceDnsSettings(result));
-    }
-    Ok(())
+    win32_err!(unsafe {
+        (iphlpapi.set_interface_dns_settings)(guid.to_owned(), &dns_interface_settings)
+    })
+    .map_err(Error::SetInterfaceDnsSettings)
 }
 
 fn flush_dns_cache() -> Result<(), Error> {

@@ -80,6 +80,13 @@ Line wrap the file at 100 chars.                                              Th
 - Remove the CLI subcommand `mullvad relay set hostname`.
 
 
+## [android/2023.5] - 2023-08-02
+### Changed
+#### Android
+- New fancy version number in order to try to resolve Google Play distribution issues. Otherwise
+  same as `android/2023.4`.
+
+
 ## [android/2023.4] - 2023-07-18
 ### Changed
 #### Android

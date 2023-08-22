@@ -101,6 +101,9 @@ object Dependencies {
     }
 
     object Plugin {
+        // The aapt* plugin versions must be in sync with the android plugin version.
+        // Required for Gradle metadata verification to work properly, see:
+        // https://github.com/gradle/gradle/issues/19228
         const val aaptLinux = "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:linux"
         const val aaptOsx = "com.android.tools.build:aapt2:${Versions.Plugin.androidAapt}:osx"
         const val aaptWindows =

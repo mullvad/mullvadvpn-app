@@ -6,7 +6,7 @@
 use crate::proxy::{ProxyMonitor, ProxyResourceData};
 use futures::channel::oneshot;
 #[cfg(windows)]
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use process::{
     openvpn::{OpenVpnCommand, OpenVpnProcHandle},
     stoppable_process::StoppableProcess,
@@ -46,10 +46,10 @@ mod process;
 mod proxy;
 
 #[cfg(windows)]
-lazy_static! {
-    static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
-    static ref ADAPTER_TUNNEL_TYPE: U16CString = U16CString::from_str("Mullvad").unwrap();
-}
+static ADAPTER_ALIAS: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
+#[cfg(windows)]
+static ADAPTER_TUNNEL_TYPE: Lazy<U16CString> =
+    Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
 
 #[cfg(windows)]
 const ADAPTER_GUID: GUID = GUID {

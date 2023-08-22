@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.util.transitionFinished
 
 abstract class BaseFragment : Fragment {
     constructor() : super()
+
     constructor(@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
 
     protected var transitionFinishedFlow: Flow<Unit> = emptyFlow()

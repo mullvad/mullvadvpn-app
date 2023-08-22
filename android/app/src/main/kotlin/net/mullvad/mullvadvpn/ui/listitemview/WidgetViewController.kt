@@ -21,7 +21,9 @@ sealed class WidgetViewController<T : WidgetState>(val parent: ViewGroup) {
         WidgetViewController<WidgetState.ImageState>(parent) {
         override val layoutRes: Int
             get() = R.layout.list_item_widget_image
+
         private val imageView: ImageView = parent.findViewById(R.id.widgetImage)
+
         override fun updateState(state: WidgetState.ImageState) =
             imageView.setImageResource(state.imageRes)
     }
@@ -30,7 +32,9 @@ sealed class WidgetViewController<T : WidgetState>(val parent: ViewGroup) {
         WidgetViewController<WidgetState.SwitchState>(parent) {
         override val layoutRes: Int
             get() = R.layout.list_item_widget_switch
+
         private val switch: SwitchCompat = parent.findViewById(R.id.widgetSwitch)
+
         override fun updateState(state: WidgetState.SwitchState) {
             switch.isChecked = state.isChecked
         }

@@ -12,20 +12,17 @@ import RelayCache
 import UIKit
 
 /**
- Preferred content size for controllers presented using formsheet modal presentation style.
- */
-private let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
-
-/**
  Application coordinator managing split view and two navigation contexts.
  */
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
     UISplitViewControllerDelegate, ApplicationRouterDelegate,
     NotificationManagerDelegate {
+    typealias RouteType = AppRoute
+
     /**
      Application router.
      */
-    private var router: ApplicationRouter!
+    private var router: ApplicationRouter<AppRoute>!
 
     /**
      Primary navigation container.
@@ -46,7 +43,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private let secondaryNavigationContainer = RootContainerViewController()
 
     private lazy var secondaryRootConfiguration = ModalPresentationConfiguration(
-        preferredContentSize: preferredFormSheetContentSize,
+        preferredContentSize: UIMetrics.preferredFormSheetContentSize,
         modalPresentationStyle: .custom,
         isModalInPresentation: true,
         transitioningDelegate: SecondaryContextTransitioningDelegate()
@@ -93,11 +90,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.apiProxy = apiProxy
         self.devicesProxy = devicesProxy
 
-        /*
-         Uncomment if you'd like to test TOS again
-         TermsOfService.unsetAgreed()
-         */
-
         super.init()
 
         primaryNavigationContainer.delegate = self
@@ -123,7 +115,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     // MARK: - ApplicationRouterDelegate
 
     func applicationRouter(
-        _ router: ApplicationRouter,
+        _ router: ApplicationRouter<RouteType>,
         route: AppRoute,
         animated: Bool,
         completion: @escaping (Coordinator) -> Void
@@ -165,8 +157,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func applicationRouter(
-        _ router: ApplicationRouter,
-        dismissWithContext context: RouteDismissalContext,
+        _ router: ApplicationRouter<RouteType>,
+        dismissWithContext context: RouteDismissalContext<RouteType>,
         completion: @escaping () -> Void
     ) {
         if context.isClosing {
@@ -177,8 +169,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 endHorizontalFlow(animated: context.isAnimated, completion: completion)
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
-            case .selectLocation, .account, .settings:
-                let coordinator = dismissedRoute.coordinator as! Presentable
+            case .selectLocation, .account, .settings, .changelog:
+                guard let coordinator = dismissedRoute.coordinator as? Presentable else {
+                    completion()
+                    return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
+                }
 
                 coordinator.dismiss(animated: context.isAnimated, completion: completion)
             }
@@ -217,7 +212,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
-    func applicationRouter(_ router: ApplicationRouter, shouldPresent route: AppRoute) -> Bool {
+    func applicationRouter(_ router: ApplicationRouter<RouteType>, shouldPresent route: RouteType) -> Bool {
         switch route {
         case .revoked:
             // Check if device is still revoked.
@@ -233,8 +228,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func applicationRouter(
-        _ router: ApplicationRouter,
-        shouldDismissWithContext context: RouteDismissalContext
+        _ router: ApplicationRouter<RouteType>,
+        shouldDismissWithContext context: RouteDismissalContext<RouteType>
     ) -> Bool {
         context.dismissedRoutes.allSatisfy { dismissedRoute in
             /*
@@ -252,8 +247,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     func applicationRouter(
-        _ router: ApplicationRouter,
-        handleSubNavigationWithContext context: RouteSubnavigationContext,
+        _ router: ApplicationRouter<RouteType>,
+        handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
         completion: @escaping () -> Void
     ) {
         switch context.route {
@@ -283,39 +278,59 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      Continues application flow by evaluating what route to present next.
      */
     private func continueFlow(animated: Bool) {
-        let next = evaluateNextRoute()
+        var nextRoutes = evaluateNextRoutes()
 
-        /*
-         On iPad the main route is always visible as it's a part of root controller hence we never
-         ask router to navigate to it. Instead this is when we hide the primary horizontal
-         navigation.
-         */
-        if isPad, next == .main {
-            router.dismissAll(.primary, animated: animated)
-        } else {
-            router.present(next, animated: animated)
+        if isPad {
+            /*
+             On iPad the main route is always visible as it's a part of root controller hence we never
+             ask router to navigate to it. Instead this is when we hide the primary horizontal
+             navigation.
+             */
+            if nextRoutes.contains(.main) {
+                router.dismissAll(.primary, animated: animated)
+            }
+
+            nextRoutes.removeAll { $0 == .main }
+        }
+
+        for nextRoute in nextRoutes {
+            router.present(nextRoute, animated: animated)
         }
     }
 
-    private func evaluateNextRoute() -> AppRoute {
+    /**
+     Evaluates conditions and returns the routes that need to be presented next.
+     */
+    private func evaluateNextRoutes() -> [AppRoute] {
+        // Show TOS alone blocking all other routes.
         guard TermsOfService.isAgreed else {
-            return .tos
+            return [.tos]
         }
 
-        guard ChangeLog.isSeen else {
-            return .changelog
-        }
+        var routes = [AppRoute]()
 
+        // Pick the primary route to present
         switch tunnelManager.deviceState {
         case .revoked:
-            return .revoked
+            routes.append(.revoked)
 
         case .loggedOut:
-            return .login
+            routes.append(.login)
 
         case let .loggedIn(accountData, _):
-            return accountData.isExpired ? (accountData.isNew ? .welcome : .outOfTime) : .main
+            if accountData.isExpired {
+                routes.append(accountData.isNew ? .welcome : .outOfTime)
+            } else {
+                routes.append(.main)
+            }
         }
+
+        // Changelog can be presented simultaneously with other routes.
+        if !ChangeLog.isSeen {
+            routes.append(.changelog)
+        }
+
+        return routes
     }
 
     private func logoutRevokedDevice() {
@@ -498,16 +513,17 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        let coordinator = ChangeLogCoordinator(navigationController: horizontalFlowController)
+        let coordinator = ChangeLogCoordinator()
 
-        coordinator.didFinish = { [weak self] coordinator in
-            self?.continueFlow(animated: true)
+        coordinator.didFinish = { [weak self] in
+            ChangeLog.markAsSeen()
+
+            self?.router.dismiss(.changelog, animated: true)
         }
 
-        addChild(coordinator)
-        coordinator.start(animated: animated)
+        coordinator.start()
 
-        beginHorizontalFlow(animated: animated) {
+        presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }
@@ -703,7 +719,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             coordinator,
             animated: animated,
             configuration: ModalPresentationConfiguration(
-                preferredContentSize: preferredFormSheetContentSize,
+                preferredContentSize: UIMetrics.preferredFormSheetContentSize,
                 modalPresentationStyle: .formSheet
             )
         ) { [weak self] in
@@ -747,7 +763,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             coordinator,
             animated: animated,
             configuration: ModalPresentationConfiguration(
-                preferredContentSize: preferredFormSheetContentSize,
+                preferredContentSize: UIMetrics.preferredFormSheetContentSize,
                 modalPresentationStyle: .formSheet
             )
         ) {
@@ -964,6 +980,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
 extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
-        isLoggedIn ? .allVisible : .secondaryOnly
+        isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
 }

@@ -5,6 +5,7 @@ use nix::{
 };
 use std::{
     collections::BTreeMap,
+    ffi::{c_int, c_uchar, c_ushort},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
 };
 
@@ -385,13 +386,13 @@ impl RouteMessage {
 #[derive(Debug)]
 #[repr(C)]
 struct ifa_msghdr {
-    ifam_msglen: libc::c_ushort,
-    ifam_version: libc::c_uchar,
-    ifam_type: libc::c_uchar,
-    ifam_addrs: libc::c_int,
-    ifam_flags: libc::c_int,
-    ifam_index: libc::c_ushort,
-    ifam_metric: libc::c_int,
+    ifam_msglen: c_ushort,
+    ifam_version: c_uchar,
+    ifam_type: c_uchar,
+    ifam_addrs: c_int,
+    ifam_flags: c_int,
+    ifam_index: c_ushort,
+    ifam_metric: c_int,
 }
 
 #[derive(Debug)]
@@ -529,7 +530,7 @@ pub enum Error {
     /// Unrecognized message
     UnknownMessageType(u8),
     /// Unrecognized address flag
-    UnknownAddressFlag(libc::c_int),
+    UnknownAddressFlag(c_int),
     /// Mismatched socket address type
     MismatchedSocketAddress(AddressFlag, Box<SockaddrStorage>),
     /// Link socket address contains no identifier
@@ -1003,16 +1004,16 @@ impl<'a> Iterator for RouteSockAddrIterator<'a> {
 #[derive(Debug, Clone)]
 #[repr(C)]
 pub struct rt_msghdr {
-    pub rtm_msglen: libc::c_ushort,
-    pub rtm_version: libc::c_uchar,
-    pub rtm_type: libc::c_uchar,
-    pub rtm_index: libc::c_ushort,
-    pub rtm_flags: libc::c_int,
-    pub rtm_addrs: libc::c_int,
+    pub rtm_msglen: c_ushort,
+    pub rtm_version: c_uchar,
+    pub rtm_type: c_uchar,
+    pub rtm_index: c_ushort,
+    pub rtm_flags: c_int,
+    pub rtm_addrs: c_int,
     pub rtm_pid: libc::pid_t,
-    pub rtm_seq: libc::c_int,
-    pub rtm_errno: libc::c_int,
-    pub rtm_use: libc::c_int,
+    pub rtm_seq: c_int,
+    pub rtm_errno: c_int,
+    pub rtm_use: c_int,
     pub rtm_inits: u32,
     pub rtm_rmx: rt_metrics,
 }
@@ -1049,15 +1050,15 @@ impl rt_msghdr {
 #[derive(Debug)]
 #[repr(C)]
 pub struct rt_msghdr_short {
-    pub rtm_msglen: libc::c_ushort,
-    pub rtm_version: libc::c_uchar,
-    pub rtm_type: libc::c_uchar,
-    pub rtm_index: libc::c_ushort,
-    pub rtm_flags: libc::c_int,
-    pub rtm_addrs: libc::c_int,
+    pub rtm_msglen: c_ushort,
+    pub rtm_version: c_uchar,
+    pub rtm_type: c_uchar,
+    pub rtm_index: c_ushort,
+    pub rtm_flags: c_int,
+    pub rtm_addrs: c_int,
     pub rtm_pid: libc::pid_t,
-    pub rtm_seq: libc::c_int,
-    pub rtm_errno: libc::c_int,
+    pub rtm_seq: c_int,
+    pub rtm_errno: c_int,
 }
 const ROUTE_MESSAGE_HEADER_SHORT_SIZE: usize = std::mem::size_of::<rt_msghdr_short>();
 

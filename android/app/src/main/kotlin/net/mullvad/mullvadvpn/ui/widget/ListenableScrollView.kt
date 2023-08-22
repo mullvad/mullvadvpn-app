@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.util.ListenableScrollableView
 class ListenableScrollView : ScrollView, ListenableScrollableView {
     override val horizontalScrollOffset
         get() = scrollX
+
     override val verticalScrollOffset
         get() = scrollY
 

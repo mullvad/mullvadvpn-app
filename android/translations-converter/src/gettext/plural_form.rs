@@ -1,4 +1,3 @@
-use derive_more::{Display, Error};
 use std::str::FromStr;
 
 /// Known plural forms.
@@ -45,6 +44,6 @@ impl FromStr for PluralForm {
 /// Failed to create [`PluralForm`] from specified plural formula.
 ///
 /// The formula could be an invalid formula, or support for it hasn't been added yet.
-#[derive(Clone, Debug, Display, Error)]
-#[display(fmt = "Unsupported plural formula: {_0}")]
-pub struct UnsupportedPluralFormulaError(#[error(not(source))] String);
+#[derive(Clone, Debug, err_derive::Error)]
+#[error(display = "Unsupported plural formula: {}", _0)]
+pub struct UnsupportedPluralFormulaError(String);

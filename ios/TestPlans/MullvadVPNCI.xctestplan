@@ -18,6 +18,7 @@
   },
   "testTargets" : [
     {
+      "enabled" : false,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
         "identifier" : "58D0C79223F1CE7000FE9BA7",
@@ -54,6 +55,14 @@
         "containerPath" : "container:MullvadVPN.xcodeproj",
         "identifier" : "589A455128E094B300565204",
         "name" : "OperationsTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "58C7A43C2A863F450060C66F",
+        "name" : "PacketTunnelCoreTests"
       }
     }
   ],

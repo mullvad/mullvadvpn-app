@@ -94,9 +94,7 @@ final class WelcomeContentView: UIView {
         label.textColor = .white
         label.numberOfLines = .zero
         label.lineBreakMode = .byWordWrapping
-        if #available(iOS 14.0, *) {
-            label.lineBreakStrategy = []
-        }
+        label.lineBreakStrategy = []
         label.text = NSLocalizedString(
             "WELCOME_PAGE_DESCRIPTION",
             tableName: "Welcome",

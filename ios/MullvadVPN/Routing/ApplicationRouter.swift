@@ -11,349 +11,39 @@ import MullvadLogging
 import UIKit
 
 /**
- Enum type describing groups of routes. Each group is a modal layer with horizontal navigation
- inside with exception where primary navigation is a part of root controller on iPhone.
- */
-enum AppRouteGroup: Comparable, Equatable, Hashable {
-    /**
-     Primary horizontal navigation group.
-     */
-    case primary
-
-    /**
-     Select location group.
-     */
-    case selectLocation
-
-    /**
-     Account group.
-     */
-    case account
-
-    /**
-     Settings group.
-     */
-    case settings
-
-    /**
-     Returns `true` if group is presented modally, otherwise `false` if group is a part of root view
-     controller.
-     */
-    var isModal: Bool {
-        switch self {
-        case .primary:
-            return UIDevice.current.userInterfaceIdiom == .pad
-
-        case .selectLocation, .account, .settings:
-            return true
-        }
-    }
-
-    private var order: Int {
-        switch self {
-        case .primary:
-            return 0
-        case .settings, .account, .selectLocation:
-            return 1
-        }
-    }
-
-    static func < (lhs: AppRouteGroup, rhs: AppRouteGroup) -> Bool {
-        lhs.order < rhs.order
-    }
-}
-
-/**
- Enum type describing primary application routes.
- */
-enum AppRoute: Equatable, Hashable {
-    /**
-     Account route.
-     */
-    case account
-
-    /**
-     Settings route. Contains sub-route to display.
-     */
-    case settings(SettingsNavigationRoute?)
-
-    /**
-     Select location route.
-     */
-    case selectLocation
-
-    /**
-     Routes that are part of primary horizontal navigation group.
-     */
-    case tos, changelog, login, main, revoked, outOfTime, welcome, setupAccountCompleted
-
-    /**
-     Returns `true` when only one route of a kind can be displayed.
-     */
-    var isExclusive: Bool {
-        switch self {
-        case .selectLocation, .account, .settings:
-            return true
-        default:
-            return false
-        }
-    }
-
-    /**
-     Returns `true` if the route supports sub-navigation.
-     */
-    var supportsSubNavigation: Bool {
-        if case .settings = self {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    /**
-     Navigation group to which the route belongs to.
-     */
-    var routeGroup: AppRouteGroup {
-        switch self {
-        case .tos, .changelog, .login, .main, .revoked, .outOfTime, .welcome, .setupAccountCompleted:
-            return .primary
-        case .selectLocation:
-            return .selectLocation
-        case .account:
-            return .account
-        case .settings:
-            return .settings
-        }
-    }
-}
-
-/**
- Struct describing a routing request for presentation or dismissal.
- */
-struct PendingRoute: Equatable {
-    var operation: RouteOperation
-    var animated: Bool
-}
-
-/**
- Enum type describing an attempt to fulfill the route presentation request.
- **/
-enum PendingPresentationResult {
-    /**
-     Successfully presented the route.
-     */
-    case success
-
-    /**
-     The request to present this route should be dropped.
-     */
-    case drop
-
-    /**
-     The request to present this route cannot be fulfilled because the modal context does not allow
-     for that.
-
-     For example, on iPad, primary context cannot be presented above settings, because it enables
-     access to settings by making the settings cog accessible via custom presentation controller.
-     In such case the router will attempt to fulfill other requests in hope that perhaps settings
-     can be dismissed first before getting back to that request.
-     */
-    case blockedByModalContext
-}
-
-/**
- Enum type describing an attempt to fulfill the route dismissal request.
- */
-enum PendingDismissalResult {
-    /**
-     Successfully dismissed the route.
-     */
-    case success
-
-    /**
-     The request to present this route should be dropped.
-     */
-    case drop
-
-    /**
-     The route cannot be dismissed immediately because it's blocked by another modal presented
-     above.
-
-     The router will attempt to fulfill other requests first in hope to unblock the route by
-     dismissing the modal above before getting back to that request.
-     */
-    case blockedByModalAbove
-}
-
-/**
- Enum describing operation over the route.
- */
-enum RouteOperation: Equatable {
-    /**
-     Present route.
-     */
-    case present(AppRoute)
-
-    /**
-     Dismiss route.
-     */
-    case dismiss(DismissMatch)
-
-    /**
-     Returns a group of affected routes.
-     */
-    var routeGroup: AppRouteGroup {
-        switch self {
-        case let .present(route):
-            return route.routeGroup
-        case let .dismiss(dismissMatch):
-            return dismissMatch.routeGroup
-        }
-    }
-}
-
-/**
- Enum type describing a single route or a group of routes requested to be dismissed.
- */
-enum DismissMatch: Equatable {
-    case group(AppRouteGroup)
-    case singleRoute(AppRoute)
-
-    /**
-     Returns a group of affected routes.
-     */
-    var routeGroup: AppRouteGroup {
-        switch self {
-        case let .group(group):
-            return group
-        case let .singleRoute(route):
-            return route.routeGroup
-        }
-    }
-}
-
-/**
- Struct describing presented route.
- */
-struct PresentedRoute: Equatable {
-    var route: AppRoute
-    var coordinator: Coordinator
-}
-
-/**
- Struct holding information used by delegate to perform dismissal of the route(s) in subject.
- */
-struct RouteDismissalContext {
-    /**
-     Specific routes that are being dismissed.
-     */
-    var dismissedRoutes: [PresentedRoute]
-
-    /**
-     Whether the entire group is being dismissed.
-     */
-    var isClosing: Bool
-
-    /**
-     Whether transition is animated.
-     */
-    var isAnimated: Bool
-}
-
-/**
- Struct holding information used by delegate to perform sub-navigation of the route in subject.
- */
-struct RouteSubnavigationContext {
-    var presentedRoute: PresentedRoute
-    var route: AppRoute
-    var isAnimated: Bool
-}
-
-/**
- Application router delegate
- */
-protocol ApplicationRouterDelegate: AnyObject {
-    /**
-     Delegate should present the route and pass corresponding `Coordinator` upon completion.
-     */
-    func applicationRouter(
-        _ router: ApplicationRouter,
-        route: AppRoute,
-        animated: Bool,
-        completion: @escaping (Coordinator) -> Void
-    )
-
-    /**
-     Delegate should dismiss the route.
-     */
-    func applicationRouter(
-        _ router: ApplicationRouter,
-        dismissWithContext context: RouteDismissalContext,
-        completion: @escaping () -> Void
-    )
-
-    /**
-     Delegate may reconsider if route presentation is still needed.
-
-     Return `true` to proceed with presenation, otherwise `false` to prevent it.
-     */
-    func applicationRouter(_ router: ApplicationRouter, shouldPresent route: AppRoute) -> Bool
-
-    /**
-     Delegate may reconsider if route dismissal should be done.
-
-     Return `true` to proceed with dismissal, otherwise `false` to prevent it.
-     */
-    func applicationRouter(
-        _ router: ApplicationRouter,
-        shouldDismissWithContext context: RouteDismissalContext
-    ) -> Bool
-
-    /**
-     Delegate should handle sub-navigation for routes supporting it then call completion to tell
-     router when it's done.
-     */
-    func applicationRouter(
-        _ router: ApplicationRouter,
-        handleSubNavigationWithContext context: RouteSubnavigationContext,
-        completion: @escaping () -> Void
-    )
-}
-
-/**
  Main application router.
  */
-final class ApplicationRouter {
+final class ApplicationRouter<RouteType: AppRouteProtocol> {
     private let logger = Logger(label: "ApplicationRouter")
 
-    private(set) var modalStack: [AppRouteGroup] = []
-    private var presentedRoutes: [AppRouteGroup: [PresentedRoute]] = [:]
+    private(set) var modalStack: [RouteType.RouteGroupType] = []
+    private var presentedRoutes: [RouteType.RouteGroupType: [PresentedRoute<RouteType>]] = [:]
 
-    private var pendingRoutes = [PendingRoute]()
+    private var pendingRoutes = [PendingRoute<RouteType>]()
     private var isProcessingPendingRoutes = false
 
-    private unowned let delegate: ApplicationRouterDelegate
+    private unowned let delegate: any ApplicationRouterDelegate<RouteType>
 
     /**
      Designated initializer.
 
      Delegate object is unonwed and the caller has to guarantee that the router does not outlive it.
      */
-    init(_ delegate: ApplicationRouterDelegate) {
+    init(_ delegate: some ApplicationRouterDelegate<RouteType>) {
         self.delegate = delegate
     }
 
     /**
      Returns `true` is the given route group is currently being presented.
      */
-    func isPresenting(group: AppRouteGroup) -> Bool {
+    func isPresenting(group: RouteType.RouteGroupType) -> Bool {
         modalStack.contains(group)
     }
 
     /**
      Returns `true` if is the given route  is currently being presented.
      */
-    func isPresenting(route: AppRoute) -> Bool {
+    func isPresenting(route: RouteType) -> Bool {
         guard let presentedRoute = presentedRoutes[route.routeGroup] else {
             return false
         }
@@ -363,7 +53,7 @@ final class ApplicationRouter {
     /**
      Enqueue route for presetnation.
      */
-    func present(_ route: AppRoute, animated: Bool = true) {
+    func present(_ route: RouteType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .present(route),
             animated: animated
@@ -373,7 +63,7 @@ final class ApplicationRouter {
     /**
      Enqueue dismissal of the route.
      */
-    func dismiss(_ route: AppRoute, animated: Bool = true) {
+    func dismiss(_ route: RouteType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .dismiss(.singleRoute(route)),
             animated: animated
@@ -383,14 +73,14 @@ final class ApplicationRouter {
     /**
      Enqueue dismissal of a group of routes.
      */
-    func dismissAll(_ group: AppRouteGroup, animated: Bool = true) {
+    func dismissAll(_ group: RouteType.RouteGroupType, animated: Bool = true) {
         enqueue(PendingRoute(
             operation: .dismiss(.group(group)),
             animated: animated
         ))
     }
 
-    private func enqueue(_ pendingRoute: PendingRoute) {
+    private func enqueue(_ pendingRoute: PendingRoute<RouteType>) {
         logger.debug("Enqueue \(pendingRoute.operation).")
 
         pendingRoutes.append(pendingRoute)
@@ -401,7 +91,7 @@ final class ApplicationRouter {
     }
 
     private func presentRoute(
-        _ route: AppRoute,
+        _ route: RouteType,
         animated: Bool,
         completion: @escaping (PendingPresentationResult) -> Void
     ) {
@@ -475,7 +165,7 @@ final class ApplicationRouter {
     }
 
     private func dismissGroup(
-        _ dismissGroup: AppRouteGroup,
+        _ dismissGroup: RouteType.RouteGroupType,
         animated: Bool,
         completion: @escaping (PendingDismissalResult) -> Void
     ) {
@@ -521,7 +211,7 @@ final class ApplicationRouter {
     }
 
     private func dismissRoute(
-        _ dismissRoute: AppRoute,
+        _ dismissRoute: RouteType,
         animated: Bool,
         completion: @escaping (PendingDismissalResult) -> Void
     ) {
@@ -572,7 +262,7 @@ final class ApplicationRouter {
         }
     }
 
-    private func processPendingRoutes(skipRouteGroups: Set<AppRouteGroup> = []) {
+    private func processPendingRoutes(skipRouteGroups: Set<RouteType.RouteGroupType> = []) {
         isProcessingPendingRoutes = true
 
         let pendingRoute = pendingRoutes.first { pendingRoute in
@@ -622,7 +312,7 @@ final class ApplicationRouter {
     }
 
     private func handleDismissal(
-        _ dismissMatch: DismissMatch,
+        _ dismissMatch: DismissMatch<RouteType>,
         animated: Bool,
         completion: @escaping (PendingDismissalResult) -> Void
     ) {
@@ -635,7 +325,7 @@ final class ApplicationRouter {
         }
     }
 
-    private func finishPendingRoute(_ pendingRoute: PendingRoute) {
+    private func finishPendingRoute(_ pendingRoute: PendingRoute<RouteType>) {
         if let index = pendingRoutes.firstIndex(of: pendingRoute) {
             pendingRoutes.remove(at: index)
         }
@@ -643,7 +333,7 @@ final class ApplicationRouter {
         processPendingRoutes()
     }
 
-    private func handleInteractiveDismissal(route: AppRoute, coordinator: Coordinator) {
+    private func handleInteractiveDismissal(route: RouteType, coordinator: Coordinator) {
         var routes = presentedRoutes[route.routeGroup] ?? []
 
         routes.removeAll { presentedRoute in
@@ -662,7 +352,7 @@ final class ApplicationRouter {
         }
     }
 
-    private func addPresentedRoute(_ presented: PresentedRoute) {
+    private func addPresentedRoute(_ presented: PresentedRoute<RouteType>) {
         let group = presented.route.routeGroup
         var routes = presentedRoutes[group] ?? []
 

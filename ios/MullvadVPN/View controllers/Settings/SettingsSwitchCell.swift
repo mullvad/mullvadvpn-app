@@ -51,51 +51,51 @@ class SettingsSwitchCell: SettingsCell {
         action?(switchContainer.control.isOn)
     }
 
-    // MARK: -  Accessibility
+    // MARK: - Accessibility
 
     override var accessibilityTraits: UIAccessibilityTraits {
-        set {
-            super.accessibilityTraits = newValue
-        }
         get {
             // Use UISwitch traits to make the entire cell behave as "Switch button"
             switchContainer.control.accessibilityTraits
         }
+        set {
+            super.accessibilityTraits = newValue
+        }
     }
 
     override var accessibilityLabel: String? {
-        set {
-            super.accessibilityLabel = newValue
-        }
         get {
             titleLabel.text
+        }
+        set {
+            super.accessibilityLabel = newValue
         }
     }
 
     override var accessibilityValue: String? {
-        set {
-            super.accessibilityValue = newValue
-        }
         get {
             self.switchContainer.control.accessibilityValue
+        }
+        set {
+            super.accessibilityValue = newValue
         }
     }
 
     override var accessibilityFrame: CGRect {
-        set {
-            super.accessibilityFrame = newValue
-        }
         get {
             UIAccessibility.convertToScreenCoordinates(self.bounds, in: self)
+        }
+        set {
+            super.accessibilityFrame = newValue
         }
     }
 
     override var accessibilityPath: UIBezierPath? {
-        set {
-            super.accessibilityPath = newValue
-        }
         get {
             UIBezierPath(roundedRect: accessibilityFrame, cornerRadius: 4)
+        }
+        set {
+            super.accessibilityPath = newValue
         }
     }
 

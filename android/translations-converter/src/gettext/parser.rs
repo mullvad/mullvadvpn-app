@@ -1,5 +1,4 @@
 use super::{Messages, MsgString, PluralForm};
-use derive_more::{Display, Error};
 use std::{collections::BTreeMap, mem};
 
 /// A gettext messages file parser.
@@ -527,29 +526,35 @@ fn collect_variants(
 }
 
 /// Parsing errors.
-#[derive(Clone, Debug, Display, Error, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, err_derive::Error)]
 pub enum Error {
     /// An unexpected line was read while parsing.
-    #[display(fmt = "Unexpected line parsing gettext messages: {_0}")]
-    UnexpectedLine(#[error(not(source))] String),
+    #[error(display = "Unexpected line parsing gettext messages: {}", _0)]
+    UnexpectedLine(String),
 
     /// Input uses an unrecognized plural forumal.
-    #[display(fmt = "Input uses an unrecognized formula for the plural form: {_0}")]
-    UnrecognizedPluralFormula(#[error(not(source))] String),
+    #[error(
+        display = "Input uses an unrecognized formula for the plural form: {}",
+        _0
+    )]
+    UnrecognizedPluralFormula(String),
 
     /// Input ended with an incomplete entry.
-    #[display(fmt = "Input ended with an incomplete gettext entry with ID: {_0}")]
-    IncompleteEntry(#[error(not(source))] MsgString),
+    #[error(
+        display = "Input ended with an incomplete gettext entry with ID: {}",
+        _0
+    )]
+    IncompleteEntry(MsgString),
 
     /// Plural entry definition is missing a plural variant.
-    #[display(fmt = "Plural entry is missing a plural variant: {_0}")]
-    IncompletePluralEntry(#[error(not(source))] MsgString),
+    #[error(display = "Plural entry is missing a plural variant: {}", _0)]
+    IncompletePluralEntry(MsgString),
 
     /// Plural variant is invalid.
-    #[display(fmt = "Plural variant line is invalid: {_0}")]
-    InvalidPluralVariant(#[error(not(source))] String),
+    #[error(display = "Plural variant line is invalid: {}", _0)]
+    InvalidPluralVariant(String),
 
     /// Plural variant index was not parsable.
-    #[display(fmt = "Plural variant line contains an invalid index: {_0}")]
-    InvalidPluralIndex(#[error(not(source))] String),
+    #[error(display = "Plural variant line contains an invalid index: {}", _0)]
+    InvalidPluralIndex(String),
 }

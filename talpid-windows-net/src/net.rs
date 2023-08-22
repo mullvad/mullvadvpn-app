@@ -1,4 +1,3 @@
-use libc::c_void;
 use socket2::SockAddr;
 use std::{
     ffi::{OsStr, OsString},
@@ -9,11 +8,12 @@ use std::{
     sync::Mutex,
     time::{Duration, Instant},
 };
-use winapi::shared::ws2def::SOCKADDR_STORAGE as sockaddr_storage;
+use talpid_types::win32_err;
 use windows_sys::{
     core::GUID,
+    Win32::Networking::WinSock::SOCKADDR_STORAGE as sockaddr_storage,
     Win32::{
-        Foundation::{ERROR_NOT_FOUND, HANDLE, NO_ERROR},
+        Foundation::{ERROR_NOT_FOUND, HANDLE},
         NetworkManagement::{
             IpHelper::{
                 CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
@@ -152,7 +152,7 @@ impl<'a> Drop for IpNotifierHandle<'a> {
 }
 
 unsafe extern "system" fn inner_callback(
-    context: *const c_void,
+    context: *const std::ffi::c_void,
     row: *const MIB_IPINTERFACE_ROW,
     notify_type: i32,
 ) {
@@ -174,7 +174,7 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send
         handle: 0,
     });
 
-    let status = unsafe {
+    win32_err!(unsafe {
         NotifyIpInterfaceChange(
             af_family_from_family(family),
             Some(inner_callback),
@@ -182,13 +182,8 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send
             0,
             (&mut context.handle) as *mut _,
         )
-    };
-
-    if status == NO_ERROR as i32 {
-        Ok(context)
-    } else {
-        Err(io::Error::from_raw_os_error(status))
-    }
+    })?;
+    Ok(context)
 }
 
 /// Returns information about a network IP interface.
@@ -200,22 +195,13 @@ pub fn get_ip_interface_entry(
     row.Family = family as u16;
     row.InterfaceLuid = *luid;
 
-    let result = unsafe { GetIpInterfaceEntry(&mut row) };
-    if result == NO_ERROR as i32 {
-        Ok(row)
-    } else {
-        Err(io::Error::from_raw_os_error(result))
-    }
+    win32_err!(unsafe { GetIpInterfaceEntry(&mut row) })?;
+    Ok(row)
 }
 
 /// Set the properties of an IP interface.
 pub fn set_ip_interface_entry(row: &mut MIB_IPINTERFACE_ROW) -> io::Result<()> {
-    let result = unsafe { SetIpInterfaceEntry(row as *mut _) };
-    if result == NO_ERROR as i32 {
-        Ok(())
-    } else {
-        Err(io::Error::from_raw_os_error(result))
-    }
+    win32_err!(unsafe { SetIpInterfaceEntry(row as *mut _) })
 }
 
 fn ip_interface_entry_exists(family: AddressFamily, luid: &NET_LUID_LH) -> io::Result<bool> {
@@ -293,12 +279,8 @@ pub async fn wait_for_addresses(luid: NET_LUID_LH) -> Result<()> {
             let mut ready = true;
 
             for row in &mut unicast_rows {
-                let status = unsafe { GetUnicastIpAddressEntry(row) };
-                if status != NO_ERROR as i32 {
-                    return Err(Error::ObtainUnicastAddress(io::Error::from_raw_os_error(
-                        status,
-                    )));
-                }
+                win32_err!(unsafe { GetUnicastIpAddressEntry(row) })
+                    .map_err(Error::ObtainUnicastAddress)?;
                 if row.DadState == IpDadStateTentative {
                     ready = false;
                     break;
@@ -347,13 +329,7 @@ pub fn add_ip_address_for_interface(luid: NET_LUID_LH, address: IpAddr) -> Resul
     row.DadState = IpDadStatePreferred;
     row.OnLinkPrefixLength = 255;
 
-    let status = unsafe { CreateUnicastIpAddressEntry(&row) };
-    if status != NO_ERROR as i32 {
-        return Err(Error::CreateUnicastEntry(io::Error::from_raw_os_error(
-            status,
-        )));
-    }
-    Ok(())
+    win32_err!(unsafe { CreateUnicastIpAddressEntry(&row) }).map_err(Error::CreateUnicastEntry)
 }
 
 /// Returns the unicast IP address table. If `family` is `None`, then addresses for all families are
@@ -364,16 +340,14 @@ pub fn get_unicast_table(
     let mut unicast_rows = vec![];
     let mut unicast_table: *mut MIB_UNICASTIPADDRESS_TABLE = std::ptr::null_mut();
 
-    let status =
-        unsafe { GetUnicastIpAddressTable(af_family_from_family(family), &mut unicast_table) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
-    }
+    win32_err!(unsafe {
+        GetUnicastIpAddressTable(af_family_from_family(family), &mut unicast_table)
+    })?;
     let first_row = unsafe { &(*unicast_table).Table[0] } as *const MIB_UNICASTIPADDRESS_ROW;
     for i in 0..unsafe { *unicast_table }.NumEntries {
         unicast_rows.push(unsafe { *(first_row.offset(i as isize)) });
     }
-    unsafe { FreeMibTable(unicast_table as *mut _) };
+    unsafe { FreeMibTable(unicast_table as *const _) };
 
     Ok(unicast_rows)
 }
@@ -381,20 +355,14 @@ pub fn get_unicast_table(
 /// Returns the index of a network interface given its LUID.
 pub fn index_from_luid(luid: &NET_LUID_LH) -> io::Result<u32> {
     let mut index = 0u32;
-    let status = unsafe { ConvertInterfaceLuidToIndex(luid, &mut index) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
-    }
+    win32_err!(unsafe { ConvertInterfaceLuidToIndex(luid, &mut index) })?;
     Ok(index)
 }
 
 /// Returns the GUID of a network interface given its LUID.
 pub fn guid_from_luid(luid: &NET_LUID_LH) -> io::Result<GUID> {
     let mut guid = MaybeUninit::zeroed();
-    let status = unsafe { ConvertInterfaceLuidToGuid(luid, guid.as_mut_ptr()) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
-    }
+    win32_err!(unsafe { ConvertInterfaceLuidToGuid(luid, guid.as_mut_ptr()) })?;
     Ok(unsafe { guid.assume_init() })
 }
 
@@ -406,21 +374,16 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID_LH> {
         .chain(std::iter::once(0u16))
         .collect();
     let mut luid: NET_LUID_LH = unsafe { std::mem::zeroed() };
-    let status = unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &mut luid) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
-    }
+    win32_err!(unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &mut luid) })?;
     Ok(luid)
 }
 
 /// Returns the alias of an interface given its LUID.
 pub fn alias_from_luid(luid: &NET_LUID_LH) -> io::Result<OsString> {
     let mut buffer = [0u16; IF_MAX_STRING_SIZE as usize + 1];
-    let status =
-        unsafe { ConvertInterfaceLuidToAlias(luid, &mut buffer[0] as *mut _, buffer.len()) };
-    if status != NO_ERROR as i32 {
-        return Err(io::Error::from_raw_os_error(status));
-    }
+    win32_err!(unsafe {
+        ConvertInterfaceLuidToAlias(luid, &mut buffer[0] as *mut _, buffer.len())
+    })?;
     let nul = buffer.iter().position(|&c| c == 0u16).unwrap();
     Ok(OsString::from_wide(&buffer[0..nul]))
 }
@@ -475,7 +438,6 @@ pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAd
     unsafe {
         let mut storage: sockaddr_storage = mem::zeroed();
         *(&mut storage as *mut _ as *mut SOCKADDR_INET) = addr;
-        // TODO: Switch to windows-sys struct once socket2 is updated
         SockAddr::new(storage, mem::size_of_val(&addr) as i32)
     }
     .as_socket()

@@ -1,9 +1,9 @@
+use once_cell::sync::Lazy;
 use parking_lot::Mutex;
+use std::ffi::{c_char, c_void};
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path};
 
-lazy_static::lazy_static! {
-    static ref LOG_MUTEX: Mutex<HashMap<u32, fs::File>> = Mutex::new(HashMap::new());
-}
+static LOG_MUTEX: Lazy<Mutex<HashMap<u32, fs::File>>> = Lazy::new(|| Mutex::new(HashMap::new()));
 
 static mut LOG_CONTEXT_NEXT_ORDINAL: u32 = 0;
 
@@ -92,8 +92,8 @@ fn log_inner(logfile: &mut fs::File, level: LogLevel, tag: &str, msg: &str) {
 // Callback that receives messages from WireGuard
 pub unsafe extern "system" fn wg_go_logging_callback(
     level: WgLogLevel,
-    msg: *const libc::c_char,
-    context: *mut libc::c_void,
+    msg: *const c_char,
+    context: *mut c_void,
 ) {
     let mut map = LOG_MUTEX.lock();
     if let Some(logfile) = map.get_mut(&(context as u32)) {

@@ -16,9 +16,12 @@ import net.mullvad.mullvadvpn.model.DnsState
 class CustomDns(private val endpoint: ServiceEndpoint) {
     private sealed class Command {
         @Deprecated("Use SetDnsOptions") class AddDnsServer(val server: InetAddress) : Command()
+
         @Deprecated("Use SetDnsOptions") class RemoveDnsServer(val server: InetAddress) : Command()
+
         @Deprecated("Use SetDnsOptions")
         class ReplaceDnsServer(val oldServer: InetAddress, val newServer: InetAddress) : Command()
+
         @Deprecated("Use SetDnsOptions") class SetEnabled(val enabled: Boolean) : Command()
 
         class SetDnsOptions(val dnsOptions: DnsOptions) : Command()

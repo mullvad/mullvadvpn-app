@@ -24,6 +24,7 @@ class ConnectionProxy(private val connection: Messenger, eventDispatcher: EventD
 
     var state by onStateChange.notifiable()
         private set
+
     var uiState by onUiStateChange.notifiable()
         private set
 

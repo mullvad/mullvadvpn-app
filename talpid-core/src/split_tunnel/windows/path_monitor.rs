@@ -28,7 +28,7 @@ use windows_sys::Win32::{
     System::{
         Ioctl::FSCTL_GET_REPARSE_POINT,
         SystemServices::{IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK},
-        WindowsProgramming::INFINITE,
+        Threading::INFINITE,
         IO::{
             CancelIoEx, CreateIoCompletionPort, DeviceIoControl, GetQueuedCompletionStatus,
             PostQueuedCompletionStatus, OVERLAPPED,

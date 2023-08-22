@@ -82,7 +82,7 @@ impl DnsMonitor {
     fn fallback_due_to_dnscache(&mut self, result: &Result<(), super::Error>) -> bool {
         let is_dnscache_error = match result {
             Err(super::Error::Iphlpapi(iphlpapi::Error::SetInterfaceDnsSettings(error))) => {
-                *error == RPC_S_SERVER_UNAVAILABLE
+                error.raw_os_error() == Some(RPC_S_SERVER_UNAVAILABLE)
             }
             Err(super::Error::Netsh(netsh::Error::Netsh(Some(1)))) => true,
             _ => false,

@@ -14,7 +14,7 @@ import WireGuardKit
 
 struct PacketTunnelConfiguration {
     var deviceState: DeviceState
-    var tunnelSettings: TunnelSettingsV2
+    var tunnelSettings: LatestTunnelSettings
     var selectorResult: RelaySelectorResult
 }
 

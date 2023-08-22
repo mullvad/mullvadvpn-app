@@ -1,4 +1,4 @@
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::{
     ffi::CStr,
     fmt, io, mem,
@@ -7,12 +7,12 @@ use std::{
     ptr,
     sync::{Arc, Mutex},
 };
-use talpid_types::ErrorExt;
+use talpid_types::{win32_err, ErrorExt};
 use widestring::{U16CStr, U16CString};
 use windows_sys::{
     core::GUID,
     Win32::{
-        Foundation::{HINSTANCE, NO_ERROR},
+        Foundation::HMODULE,
         NetworkManagement::{IpHelper::ConvertInterfaceLuidToGuid, Ndis::NET_LUID_LH},
         System::{
             Com::StringFromGUID2,
@@ -28,10 +28,8 @@ use winreg::{
     RegKey,
 };
 
-lazy_static! {
-    /// Shared `WintunDll` instance
-    static ref WINTUN_DLL: Mutex<Option<Arc<WintunDll>>> = Mutex::new(None);
-}
+/// Shared `WintunDll` instance
+static WINTUN_DLL: Lazy<Mutex<Option<Arc<WintunDll>>>> = Lazy::new(|| Mutex::new(None));
 
 type WintunCreateAdapterFn = unsafe extern "stdcall" fn(
     name: *const u16,
@@ -57,7 +55,7 @@ enum WintunLoggerLevel {
 }
 
 pub struct WintunDll {
-    handle: HINSTANCE,
+    handle: HMODULE,
     func_create: WintunCreateAdapterFn,
     func_close: WintunCloseAdapterFn,
     func_get_adapter_luid: WintunGetAdapterLuidFn,
@@ -123,10 +121,7 @@ impl WintunAdapter {
 
     pub fn guid(&self) -> io::Result<GUID> {
         let mut guid = mem::MaybeUninit::zeroed();
-        let result = unsafe { ConvertInterfaceLuidToGuid(&self.luid(), guid.as_mut_ptr()) };
-        if result != NO_ERROR as i32 {
-            return Err(io::Error::from_raw_os_error(result));
-        }
+        win32_err!(unsafe { ConvertInterfaceLuidToGuid(&self.luid(), guid.as_mut_ptr()) })?;
         Ok(unsafe { guid.assume_init() })
     }
 
@@ -206,11 +201,8 @@ impl WintunDll {
     }
 
     fn new_inner(
-        handle: HINSTANCE,
-        get_proc_fn: unsafe fn(
-            HINSTANCE,
-            &CStr,
-        ) -> io::Result<unsafe extern "system" fn() -> isize>,
+        handle: HMODULE,
+        get_proc_fn: unsafe fn(HMODULE, &CStr) -> io::Result<unsafe extern "system" fn() -> isize>,
     ) -> io::Result<Self> {
         Ok(WintunDll {
             handle,
@@ -242,7 +234,7 @@ impl WintunDll {
     }
 
     unsafe fn get_proc_address(
-        handle: HINSTANCE,
+        handle: HMODULE,
         name: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
         let handle = GetProcAddress(handle, name.as_ptr() as *const u8);
@@ -373,7 +365,7 @@ mod tests {
     use super::*;
 
     fn get_proc_fn(
-        _handle: HINSTANCE,
+        _handle: HMODULE,
         _symbol: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
         Ok(null_fn)

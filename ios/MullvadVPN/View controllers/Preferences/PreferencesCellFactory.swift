@@ -36,6 +36,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
         return cell
     }
 
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     func configureCell(_ cell: UITableViewCell, item: PreferencesDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .blockAdvertising:
@@ -245,6 +246,53 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 isEditing: isEditing,
                 preferredFont: .systemFont(ofSize: 14)
             )
+        case .wireGuardObfuscationAutomatic:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "WIRE_GUARD_OBFUSCATION_AUTOMATIC_LABEL",
+                tableName: "Preferences",
+                value: "Automatic",
+                comment: ""
+            )
+            cell.accessibilityHint = nil
+            cell.applySubCellStyling()
+        case .wireGuardObfuscationOn:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "WIRE_GUARD_OBFUSCATION_ON_LABEL",
+                tableName: "Preferences",
+                value: "On (UDP-over-TCP)",
+                comment: ""
+            )
+            cell.accessibilityHint = nil
+            cell.applySubCellStyling()
+        case .wireGuardObfuscationOff:
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "WIRE_GUARD_OBFUSCATION_OFF_LABEL",
+                tableName: "Preferences",
+                value: "Off",
+                comment: ""
+            )
+            cell.accessibilityHint = nil
+            cell.applySubCellStyling()
+
+        case let .wireGuardObfuscationPort(port):
+            guard let cell = cell as? SelectableSettingsCell else { return }
+
+            let portValue = port == 0 ? "Automatic" : "\(port)"
+
+            cell.titleLabel.text = NSLocalizedString(
+                "WIRE_GUARD_OBFUSCATION_PORT_LABEL",
+                tableName: "Preferences",
+                value: portValue,
+                comment: ""
+            )
+            cell.accessibilityHint = nil
+            cell.applySubCellStyling()
         }
     }
 

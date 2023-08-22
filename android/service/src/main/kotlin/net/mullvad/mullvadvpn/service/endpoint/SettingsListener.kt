@@ -15,9 +15,13 @@ import net.mullvad.talpid.util.EventNotifier
 class SettingsListener(endpoint: ServiceEndpoint) {
     private sealed class Command {
         class SetAllowLan(val allow: Boolean) : Command()
+
         class SetAutoConnect(val autoConnect: Boolean) : Command()
+
         class SetWireGuardMtu(val mtu: Int?) : Command()
+
         class SetObfuscationSettings(val settings: ObfuscationSettings?) : Command()
+
         class SetQuantumResistant(val quantumResistant: QuantumResistantState) : Command()
     }
 

@@ -10,10 +10,10 @@ publish.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 err-derive = "0.3.1"
-libc = "0.2"
-socket2 = { version = "0.4.2", features = ["all"] }
+socket2 = { version = "0.5.3" }
 futures = "0.3.15"
-winapi = { version = "0.3.6", features = ["ws2def"] }
+
+talpid-types = { path = "../talpid-types" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true

@@ -1,6 +1,6 @@
 //
 //  TunnelMonitor.swift
-//  PacketTunnel
+//  PacketTunnelCore
 //
 //  Created by pronebird on 09/02/2022.
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
@@ -8,9 +8,8 @@
 
 import Foundation
 import MullvadLogging
-import MullvadTypes
-import NetworkExtension
-import WireGuardKit
+import protocol Network.IPAddress
+import struct Network.IPv4Address
 
 /// Interval for periodic heartbeat ping issued when traffic is flowing.
 /// Should help to detect connectivity issues on networks that drop traffic in one of directions,
@@ -48,7 +47,7 @@ private let inboundTrafficTimeout: TimeInterval = 5
 /// Ping is issued after that timeout is exceeded.s
 private let trafficTimeout: TimeInterval = 120
 
-final class TunnelMonitor: PingerDelegate {
+public final class TunnelMonitor: TunnelMonitorProtocol {
     /// Connection state.
     private enum ConnectionState {
         /// Initialized and doing nothing.
@@ -191,7 +190,7 @@ final class TunnelMonitor: PingerDelegate {
             netStats = newStats
         }
 
-        mutating func updatePingStats(sendResult: Pinger.SendResult, now: Date) {
+        mutating func updatePingStats(sendResult: PingerSendResult, now: Date) {
             pingStats.requests.updateValue(now, forKey: sendResult.sequenceNumber)
             pingStats.lastRequestDate = now
         }
@@ -220,15 +219,15 @@ final class TunnelMonitor: PingerDelegate {
         var lastReplyDate: Date?
     }
 
-    private let adapter: WireGuardAdapter
+    private let tunnelDeviceInfo: TunnelDeviceInfoProtocol
 
     private let nslock = NSLock()
-    private let eventQueue = DispatchQueue(label: "TunnelMonitor-eventQueue")
-    private let delegateQueue: DispatchQueue
+    private let timerQueue = DispatchQueue(label: "TunnelMonitor-timerQueue")
+    private let eventQueue: DispatchQueue
 
-    private let pinger: Pinger
-    private weak var packetTunnelProvider: NEPacketTunnelProvider?
-    private var defaultPathObserver: NSKeyValueObservation?
+    private var pinger: PingerProtocol
+    private var defaultPathObserver: DefaultPathObserverProtocol
+    private var isObservingDefaultPath = false
     private var timer: DispatchSourceTimer?
 
     private var state = State()
@@ -236,40 +235,49 @@ final class TunnelMonitor: PingerDelegate {
 
     private let logger = Logger(label: "TunnelMonitor")
 
-    private weak var _delegate: TunnelMonitorDelegate?
-    weak var delegate: TunnelMonitorDelegate? {
-        set {
-            nslock.lock()
-            defer { nslock.unlock() }
-
-            _delegate = newValue
-        }
+    private var _onEvent: ((TunnelMonitorEvent) -> Void)?
+    public var onEvent: ((TunnelMonitorEvent) -> Void)? {
         get {
-            nslock.lock()
-            defer { nslock.unlock() }
-
-            return _delegate
+            nslock.withLock {
+                return _onEvent
+            }
+        }
+        set {
+            nslock.withLock {
+                _onEvent = newValue
+            }
         }
     }
 
-    init(
-        delegateQueue: DispatchQueue,
-        packetTunnelProvider: NEPacketTunnelProvider,
-        adapter: WireGuardAdapter
+    public init(
+        eventQueue: DispatchQueue,
+        pinger: PingerProtocol,
+        tunnelDeviceInfo: TunnelDeviceInfoProtocol,
+        defaultPathObserver: DefaultPathObserverProtocol
     ) {
-        self.delegateQueue = delegateQueue
-        self.packetTunnelProvider = packetTunnelProvider
-        self.adapter = adapter
+        self.eventQueue = eventQueue
+        self.tunnelDeviceInfo = tunnelDeviceInfo
+        self.defaultPathObserver = defaultPathObserver
 
-        pinger = Pinger(delegateQueue: eventQueue)
-        pinger.delegate = self
+        self.pinger = pinger
+        self.pinger.onReply = { [weak self] reply in
+            guard let self else { return }
+
+            switch reply {
+            case let .success(sender, sequenceNumber):
+                didReceivePing(from: sender, sequenceNumber: sequenceNumber)
+
+            case let .parseError(error):
+                logger.error(error: error, message: "Failed to parse ICMP response.")
+            }
+        }
     }
 
     deinit {
         stop()
     }
 
-    func start(probeAddress: IPv4Address) {
+    public func start(probeAddress: IPv4Address) {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -286,14 +294,14 @@ final class TunnelMonitor: PingerDelegate {
         addDefaultPathObserver()
     }
 
-    func stop() {
+    public func stop() {
         nslock.lock()
         defer { nslock.unlock() }
 
         _stop()
     }
 
-    func onWake() {
+    public func onWake() {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -312,7 +320,7 @@ final class TunnelMonitor: PingerDelegate {
         }
     }
 
-    func onSleep(completion: @escaping () -> Void) {
+    public func onSleep() {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -320,23 +328,6 @@ final class TunnelMonitor: PingerDelegate {
 
         stopConnectivityCheckTimer()
         removeDefaultPathObserver()
-    }
-
-    // MARK: - PingerDelegate
-
-    func pinger(
-        _ pinger: Pinger,
-        didReceiveResponseFromSender senderAddress: IPAddress,
-        icmpHeader: ICMPHeader
-    ) {
-        didReceivePing(from: senderAddress, icmpHeader: icmpHeader)
-    }
-
-    func pinger(_ pinger: Pinger, didFailWithError error: Error) {
-        logger.error(
-            error: error,
-            message: "Failed to parse ICMP response."
-        )
     }
 
     // MARK: - Private
@@ -359,37 +350,33 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func addDefaultPathObserver() {
-        guard let packetTunnelProvider else { return }
-
-        defaultPathObserver?.invalidate()
+        defaultPathObserver.stop()
 
         logger.trace("Add default path observer.")
 
-        defaultPathObserver = packetTunnelProvider
-            .observe(\.defaultPath, options: [.new]) { [weak self] _, change in
-                guard let self else { return }
+        isObservingDefaultPath = true
 
-                nslock.lock()
-                defer { self.nslock.unlock() }
+        defaultPathObserver.start { [weak self] nwPath in
+            guard let self else { return }
 
-                let newValue = change.newValue.flatMap { $0 }
-                if let newPath = newValue {
-                    handleNetworkPathUpdate(newPath)
-                }
+            nslock.withLock {
+                self.handleNetworkPathUpdate(nwPath)
             }
+        }
 
-        if let currentPath = packetTunnelProvider.defaultPath {
+        if let currentPath = defaultPathObserver.defaultPath {
             handleNetworkPathUpdate(currentPath)
         }
     }
 
     private func removeDefaultPathObserver() {
-        guard let defaultPathObserver else { return }
+        guard isObservingDefaultPath else { return }
 
         logger.trace("Remove default path observer.")
 
-        defaultPathObserver.invalidate()
-        self.defaultPathObserver = nil
+        defaultPathObserver.stop()
+
+        isObservingDefaultPath = false
     }
 
     private func checkConnectivity() {
@@ -468,7 +455,7 @@ final class TunnelMonitor: PingerDelegate {
         state.connectionState = .recovering
         probeAddress = nil
 
-        sendDelegateShouldHandleConnectionRecovery()
+        sendConnectionLostEvent()
     }
 
     private func sendPing(to receiver: IPv4Address, now: Date) {
@@ -482,7 +469,7 @@ final class TunnelMonitor: PingerDelegate {
         }
     }
 
-    private func handleNetworkPathUpdate(_ networkPath: NetworkExtension.NWPath) {
+    private func handleNetworkPathUpdate(_ networkPath: NetworkPath) {
         let pathStatus = networkPath.status
         let isReachable = pathStatus == .satisfiable || pathStatus == .satisfied
 
@@ -491,11 +478,11 @@ final class TunnelMonitor: PingerDelegate {
             if isReachable {
                 logger.debug("Start monitoring connection.")
                 startMonitoring()
-                sendDelegateNetworkStatusChange(true)
+                sendNetworkStatusChangeEvent(true)
             } else {
                 logger.debug("Wait for network to become reachable before starting monitoring.")
                 state.connectionState = .waitingConnectivity
-                sendDelegateNetworkStatusChange(false)
+                sendNetworkStatusChangeEvent(false)
             }
 
         case .waitingConnectivity:
@@ -503,7 +490,7 @@ final class TunnelMonitor: PingerDelegate {
 
             logger.debug("Network is reachable. Resume monitoring.")
             startMonitoring()
-            sendDelegateNetworkStatusChange(true)
+            sendNetworkStatusChangeEvent(true)
 
         case .connecting, .connected:
             guard !isReachable else { return }
@@ -511,14 +498,14 @@ final class TunnelMonitor: PingerDelegate {
             logger.debug("Network is unreachable. Pause monitoring.")
             state.connectionState = .waitingConnectivity
             stopMonitoring(resetRetryAttempt: true)
-            sendDelegateNetworkStatusChange(false)
+            sendNetworkStatusChangeEvent(false)
 
         case .stopped, .recovering:
             break
         }
     }
 
-    private func didReceivePing(from sender: IPAddress, icmpHeader: ICMPHeader) {
+    private func didReceivePing(from sender: IPAddress, sequenceNumber: UInt16) {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -529,7 +516,6 @@ final class TunnelMonitor: PingerDelegate {
         }
 
         let now = Date()
-        let sequenceNumber = icmpHeader.sequenceNumber
         guard let pingTimestamp = state.setPingReplyReceived(sequenceNumber, now: now) else {
             logger.trace("Got unknown ping sequence: \(sequenceNumber).")
             return
@@ -548,13 +534,13 @@ final class TunnelMonitor: PingerDelegate {
         if case .connecting = state.connectionState {
             state.connectionState = .connected
             state.retryAttempt = 0
-            sendDelegateConnectionEstablished()
+            sendConnectionEstablishedEvent()
         }
     }
 
     private func startMonitoring() {
         do {
-            guard let interfaceName = adapter.interfaceName else {
+            guard let interfaceName = tunnelDeviceInfo.interfaceName else {
                 logger.debug("Failed to obtain utun interface name.")
                 return
             }
@@ -585,7 +571,7 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func startConnectivityCheckTimer() {
-        let timer = DispatchSource.makeTimerSource(queue: eventQueue)
+        let timer = DispatchSource.makeTimerSource(queue: timerQueue)
         timer.setEventHandler { [weak self] in
             self?.checkConnectivity()
         }
@@ -609,24 +595,21 @@ final class TunnelMonitor: PingerDelegate {
         self.timer = nil
     }
 
-    private func sendDelegateConnectionEstablished() {
-        delegateQueue.async {
-            self.delegate?.tunnelMonitorDidDetermineConnectionEstablished(self)
+    private func sendConnectionEstablishedEvent() {
+        eventQueue.async {
+            self.onEvent?(.connectionEstablished)
         }
     }
 
-    private func sendDelegateShouldHandleConnectionRecovery() {
-        delegateQueue.async {
-            self.delegate?.tunnelMonitorDelegateShouldHandleConnectionRecovery(self)
+    private func sendConnectionLostEvent() {
+        eventQueue.async {
+            self.onEvent?(.connectionLost)
         }
     }
 
-    private func sendDelegateNetworkStatusChange(_ isNetworkReachable: Bool) {
-        delegateQueue.async {
-            self.delegate?.tunnelMonitor(
-                self,
-                networkReachabilityStatusDidChange: isNetworkReachable
-            )
+    private func sendNetworkStatusChangeEvent(_ isNetworkReachable: Bool) {
+        eventQueue.async {
+            self.onEvent?(.networkReachabilityChanged(isNetworkReachable))
         }
     }
 
@@ -643,30 +626,12 @@ final class TunnelMonitor: PingerDelegate {
     }
 
     private func getStats() -> WgStats? {
-        var result: String?
+        do {
+            return try tunnelDeviceInfo.getStats()
+        } catch {
+            logger.error(error: error, message: "Failed to obtain adapter stats.")
 
-        let dispatchGroup = DispatchGroup()
-        dispatchGroup.enter()
-        adapter.getRuntimeConfiguration { string in
-            result = string
-            dispatchGroup.leave()
-        }
-
-        guard case .success = dispatchGroup.wait(wallTimeout: .now() + .seconds(1)) else {
-            logger.debug("adapter.getRuntimeConfiguration timeout.")
             return nil
         }
-
-        guard let result else {
-            logger.debug("Received nil string for stats.")
-            return nil
-        }
-
-        guard let newStats = WgStats(from: result) else {
-            logger.debug("Couldn't parse stats.")
-            return nil
-        }
-
-        return newStats
     }
 }

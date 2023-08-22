@@ -566,12 +566,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13418e745008f7349ec7e449155f419a61b92b58a99cc3616942b926825ec76b"
 
 [[package]]
-name = "convert_case"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
-
-[[package]]
 name = "core-foundation"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -668,7 +662,7 @@ dependencies = [
  "curve25519-dalek-derive",
  "fiat-crypto",
  "platforms",
- "rustc_version 0.4.0",
+ "rustc_version",
  "subtle",
  "zeroize",
 ]
@@ -834,19 +828,6 @@ dependencies = [
  "darling",
  "proc-macro2",
  "quote",
- "syn 1.0.100",
-]
-
-[[package]]
-name = "derive_more"
-version = "0.99.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "40eebddd2156ce1bb37b20bbe5151340a31828b1f2d22ba4141f3531710e38df"
-dependencies = [
- "convert_case",
- "proc-macro2",
- "quote",
- "rustc_version 0.3.3",
  "syn 1.0.100",
 ]
 
@@ -1425,7 +1406,7 @@ dependencies = [
  "httpdate",
  "itoa 1.0.1",
  "pin-project-lite",
- "socket2",
+ "socket2 0.4.9",
  "tokio",
  "tower-service",
  "tracing",
@@ -1581,14 +1562,14 @@ checksum = "1c429fffa658f288669529fc26565f728489a2e39bc7b24a428aaaf51355182e"
 
 [[package]]
 name = "ipconfig"
-version = "0.3.0"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "723519edce41262b05d4143ceb95050e4c614f483e78e9fd9e39a8275a84ad98"
+checksum = "b58db92f96b720de98181bbbe63c831e87005ab460c1bf306eb2622b4707997f"
 dependencies = [
- "socket2",
- "widestring 0.5.1",
- "winapi",
- "winreg",
+ "socket2 0.5.3",
+ "widestring",
+ "windows-sys 0.48.0",
+ "winreg 0.50.0",
 ]
 
 [[package]]
@@ -1960,7 +1941,6 @@ dependencies = [
  "mullvad-fs",
  "mullvad-types",
  "once_cell",
- "regex",
  "rustls-pemfile",
  "serde",
  "serde_json",
@@ -1976,7 +1956,6 @@ name = "mullvad-cli"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "base64 0.13.0",
  "chrono",
  "clap",
  "clap_complete",
@@ -1984,14 +1963,12 @@ dependencies = [
  "futures",
  "itertools",
  "mullvad-management-interface",
- "mullvad-paths",
  "mullvad-types",
  "mullvad-version",
  "natord",
- "serde",
  "talpid-types",
  "tokio",
- "windows-sys 0.45.0",
+ "windows-sys 0.48.0",
  "winres",
 ]
 
@@ -2000,17 +1977,13 @@ name = "mullvad-daemon"
 version = "0.0.0"
 dependencies = [
  "android_logger",
- "cfg-if",
  "chrono",
  "clap",
  "ctrlc",
  "dirs",
- "duct",
  "err-derive",
  "fern",
  "futures",
- "ipnetwork",
- "lazy_static",
  "libc",
  "log",
  "log-panics",
@@ -2023,8 +1996,8 @@ dependencies = [
  "mullvad-version",
  "nix 0.23.1",
  "objc",
+ "once_cell",
  "parking_lot",
- "rand 0.8.5",
  "regex",
  "serde",
  "serde_json",
@@ -2036,10 +2009,9 @@ dependencies = [
  "talpid-types",
  "tokio",
  "tokio-stream",
- "uuid",
  "winapi",
  "windows-service",
- "windows-sys 0.45.0",
+ "windows-sys 0.48.0",
  "winres",
 ]
 
@@ -2070,20 +2042,16 @@ dependencies = [
  "futures",
  "ipnetwork",
  "jnix",
- "lazy_static",
  "log",
  "log-panics",
  "mullvad-api",
  "mullvad-daemon",
- "mullvad-paths",
  "mullvad-problem-report",
  "mullvad-types",
  "nix 0.23.1",
  "rand 0.8.5",
- "talpid-core",
  "talpid-tunnel",
  "talpid-types",
- "tokio",
 ]
 
 [[package]]
@@ -2093,11 +2061,11 @@ dependencies = [
  "chrono",
  "err-derive",
  "futures",
- "lazy_static",
  "log",
  "mullvad-paths",
  "mullvad-types",
  "nix 0.23.1",
+ "once_cell",
  "parity-tokio-ipc",
  "prost",
  "prost-types",
@@ -2123,8 +2091,8 @@ dependencies = [
  "err-derive",
  "log",
  "once_cell",
- "widestring 1.0.2",
- "windows-sys 0.45.0",
+ "widestring",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -2136,17 +2104,17 @@ dependencies = [
  "duct",
  "env_logger 0.10.0",
  "err-derive",
- "lazy_static",
  "log",
  "mullvad-api",
  "mullvad-paths",
  "mullvad-version",
+ "once_cell",
  "regex",
  "talpid-platform-metadata",
  "talpid-types",
  "tokio",
  "uuid",
- "windows-sys 0.45.0",
+ "windows-sys 0.48.0",
  "winres",
 ]
 
@@ -2158,18 +2126,16 @@ dependencies = [
  "err-derive",
  "futures",
  "ipnetwork",
- "lazy_static",
  "log",
  "mullvad-api",
  "mullvad-types",
+ "once_cell",
  "parking_lot",
  "rand 0.8.5",
- "serde",
  "serde_json",
  "talpid-core",
  "talpid-types",
  "tokio",
- "tokio-stream",
 ]
 
 [[package]]
@@ -2179,13 +2145,13 @@ dependencies = [
  "clap",
  "env_logger 0.10.0",
  "err-derive",
- "lazy_static",
  "mullvad-api",
  "mullvad-daemon",
  "mullvad-management-interface",
  "mullvad-paths",
  "mullvad-types",
  "mullvad-version",
+ "once_cell",
  "talpid-core",
  "talpid-types",
  "tokio",
@@ -2200,9 +2166,8 @@ dependencies = [
  "err-derive",
  "ipnetwork",
  "jnix",
- "lazy_static",
  "log",
- "rand 0.8.5",
+ "once_cell",
  "regex",
  "serde",
  "talpid-types",
@@ -2421,6 +2386,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "915b1b472bc21c53464d6c8461c9d3af805ba1ef837e1cac254428f4a77177b1"
 dependencies = [
  "malloc_buf",
+ "objc_exception",
+]
+
+[[package]]
+name = "objc_exception"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad970fb455818ad6cba4c122ad012fae53ae8b4795f86378bce65e4f6bab2ca4"
+dependencies = [
+ "cc",
 ]
 
 [[package]]
@@ -3095,20 +3070,11 @@ checksum = "7ef03e0a2b150c7a90d01faf6254c9c48a41e95fb2a8c2ac1c6f0d2b9aefc342"
 
 [[package]]
 name = "rustc_version"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0dfe2087c51c460008730de8b57e6a320782fbfb312e1f4d520e6c6fae155ee"
-dependencies = [
- "semver 0.11.0",
-]
-
-[[package]]
-name = "rustc_version"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
 dependencies = [
- "semver 1.0.17",
+ "semver",
 ]
 
 [[package]]
@@ -3214,27 +3180,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f301af10236f6df4160f7c3f04eec6dbc70ace82d23326abad5edee88801c6b6"
-dependencies = [
- "semver-parser",
-]
-
-[[package]]
-name = "semver"
 version = "1.0.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bebd363326d05ec3e2f532ab7660680f3b02130d780c299bca73469d521bc0ed"
-
-[[package]]
-name = "semver-parser"
-version = "0.10.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "00b0bef5b7f9e0df16536d3961cfb6e84331c065b4066afb39768d0e319411f7"
-dependencies = [
- "pest",
-]
 
 [[package]]
 name = "sendfd"
@@ -3346,7 +3294,7 @@ dependencies = [
  "serde_json",
  "serde_urlencoded",
  "shadowsocks-crypto",
- "socket2",
+ "socket2 0.4.9",
  "spin 0.9.2",
  "thiserror",
  "tokio",
@@ -3380,7 +3328,6 @@ name = "shadowsocks-proxy"
 version = "0.0.0"
 dependencies = [
  "cbindgen",
- "libc",
  "log",
  "oslog",
  "shadowsocks-service",
@@ -3414,7 +3361,7 @@ dependencies = [
  "regex",
  "serde",
  "shadowsocks",
- "socket2",
+ "socket2 0.4.9",
  "spin 0.9.2",
  "thiserror",
  "tokio",
@@ -3492,6 +3439,16 @@ checksum = "64a4a911eed85daf18834cfaa86a79b7d266ff93ff5ba14005426219480ed662"
 dependencies = [
  "libc",
  "winapi",
+]
+
+[[package]]
+name = "socket2"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2538b18701741680e0322a2302176d3253a35388e2e62f172f64f4f16605f877"
+dependencies = [
+ "libc",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -3626,7 +3583,6 @@ dependencies = [
  "inotify 0.10.0",
  "ipnetwork",
  "jnix",
- "lazy_static",
  "libc",
  "log",
  "memoffset 0.6.4",
@@ -3656,10 +3612,10 @@ dependencies = [
  "triggered",
  "trust-dns-server",
  "which",
- "widestring 1.0.2",
+ "widestring",
  "windows-service",
- "windows-sys 0.45.0",
- "winreg",
+ "windows-sys 0.48.0",
+ "winreg 0.7.0",
 ]
 
 [[package]]
@@ -3668,9 +3624,9 @@ version = "0.0.0"
 dependencies = [
  "dbus",
  "err-derive",
- "lazy_static",
  "libc",
  "log",
+ "once_cell",
  "tokio",
 ]
 
@@ -3679,21 +3635,19 @@ name = "talpid-openvpn"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "bitflags",
- "cfg-if",
  "duct",
  "err-derive",
  "futures",
  "is-terminal",
- "lazy_static",
  "log",
+ "once_cell",
  "os_pipe",
  "parity-tokio-ipc",
  "parking_lot",
  "prost",
  "shadowsocks-service",
  "shell-escape",
- "socket2",
+ "socket2 0.5.3",
  "talpid-routing",
  "talpid-tunnel",
  "talpid-types",
@@ -3703,10 +3657,9 @@ dependencies = [
  "tonic-build",
  "triggered",
  "uuid",
- "which",
- "widestring 1.0.2",
- "windows-sys 0.45.0",
- "winreg",
+ "widestring",
+ "windows-sys 0.48.0",
+ "winreg 0.7.0",
 ]
 
 [[package]]
@@ -3725,7 +3678,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
- "windows-sys 0.45.0",
+ "windows-sys 0.48.0",
  "winres",
 ]
 
@@ -3735,7 +3688,7 @@ version = "0.0.0"
 dependencies = [
  "rs-release",
  "talpid-dbus",
- "windows-sys 0.45.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -3746,20 +3699,19 @@ dependencies = [
  "err-derive",
  "futures",
  "ipnetwork",
- "lazy_static",
  "libc",
  "log",
  "netlink-packet-route",
  "netlink-sys",
  "nix 0.26.1",
+ "once_cell",
  "rtnetlink",
- "socket2",
  "system-configuration",
  "talpid-types",
  "talpid-windows-net",
  "tokio",
- "widestring 1.0.2",
- "windows-sys 0.45.0",
+ "widestring",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -3787,7 +3739,7 @@ dependencies = [
  "talpid-windows-net",
  "tokio",
  "tun",
- "windows-sys 0.45.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -3805,7 +3757,7 @@ dependencies = [
  "tonic",
  "tonic-build",
  "tower",
- "windows-sys 0.45.0",
+ "windows-sys 0.48.0",
  "zeroize",
 ]
 
@@ -3828,10 +3780,9 @@ version = "0.0.0"
 dependencies = [
  "err-derive",
  "futures",
- "libc",
- "socket2",
- "winapi",
- "windows-sys 0.45.0",
+ "socket2 0.5.3",
+ "talpid-types",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -3847,7 +3798,6 @@ dependencies = [
  "hex",
  "internet-checksum",
  "ipnetwork",
- "lazy_static",
  "libc",
  "log",
  "netlink-packet-core",
@@ -3855,10 +3805,11 @@ dependencies = [
  "netlink-packet-utils",
  "netlink-proto",
  "nix 0.23.1",
+ "once_cell",
  "parking_lot",
  "rand 0.8.5",
  "rtnetlink",
- "socket2",
+ "socket2 0.5.3",
  "talpid-dbus",
  "talpid-routing",
  "talpid-tunnel",
@@ -3868,8 +3819,8 @@ dependencies = [
  "tokio",
  "tokio-stream",
  "tunnel-obfuscation",
- "widestring 1.0.2",
- "windows-sys 0.45.0",
+ "widestring",
+ "windows-sys 0.48.0",
  "zeroize",
 ]
 
@@ -3953,7 +3904,7 @@ dependencies = [
  "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
- "socket2",
+ "socket2 0.4.9",
  "tokio-macros",
  "windows-sys 0.48.0",
 ]
@@ -4002,9 +3953,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-tfo"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35ccf89920b48afc418f18135342355d30ad048f3c95ba54670f50a52371a439"
+checksum = "f30b433f102de6c9b0546dc73398ba3d38d8a556f29f731268451e0b1b3aab9e"
 dependencies = [
  "cfg-if",
  "futures",
@@ -4012,9 +3963,9 @@ dependencies = [
  "log",
  "once_cell",
  "pin-project",
- "socket2",
+ "socket2 0.5.3",
  "tokio",
- "windows-sys 0.36.1",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -4183,9 +4134,9 @@ dependencies = [
 name = "translations-converter"
 version = "0.0.0"
 dependencies = [
- "derive_more",
+ "err-derive",
  "htmlize",
- "lazy_static",
+ "once_cell",
  "quick-xml",
  "regex",
  "serde",
@@ -4310,7 +4261,6 @@ version = "0.0.0"
 dependencies = [
  "async-trait",
  "err-derive",
- "futures",
  "tokio",
  "udp-over-tcp",
 ]
@@ -4320,7 +4270,6 @@ name = "tunnel-obfuscator-proxy"
 version = "0.0.0"
 dependencies = [
  "cbindgen",
- "libc",
  "log",
  "oslog",
  "tokio",
@@ -4421,9 +4370,9 @@ checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
 
 [[package]]
 name = "uuid"
-version = "0.8.2"
+version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+checksum = "79daa5ed5740825c40b389c5e50312b9c86df53fccd33f281df655642b43869d"
 dependencies = [
  "getrandom 0.2.3",
  "serde",
@@ -4551,12 +4500,6 @@ dependencies = [
 
 [[package]]
 name = "widestring"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17882f045410753661207383517a6f62ec3dbeb6a4ed2acce01f0728238d1983"
-
-[[package]]
-name = "widestring"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "653f141f39ec16bba3c5abe400a0c60da7468261cc2cbf36805022876bc721a8"
@@ -4608,21 +4551,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cd9db37ecb5b13762d95468a2fc6009d4b2c62801243223aabd44fca13ad13c8"
 dependencies = [
  "bitflags",
- "widestring 1.0.2",
+ "widestring",
  "windows-sys 0.45.0",
-]
-
-[[package]]
-name = "windows-sys"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea04155a16a59f9eab786fe12a4a450e75cdb175f9e0d80da1e17db09f55b8d2"
-dependencies = [
- "windows_aarch64_msvc 0.36.1",
- "windows_i686_gnu 0.36.1",
- "windows_i686_msvc 0.36.1",
- "windows_x86_64_gnu 0.36.1",
- "windows_x86_64_msvc 0.36.1",
 ]
 
 [[package]]
@@ -4687,12 +4617,6 @@ checksum = "91ae572e1b79dba883e0d315474df7305d12f569b400fcf90581b06062f7e1bc"
 
 [[package]]
 name = "windows_aarch64_msvc"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bb8c3fd39ade2d67e9874ac4f3db21f0d710bee00fe7cab16949ec184eeaa47"
-
-[[package]]
-name = "windows_aarch64_msvc"
 version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e08e8864a60f06ef0d0ff4ba04124db8b0fb3be5776a5cd47641e942e58c4d43"
@@ -4702,12 +4626,6 @@ name = "windows_aarch64_msvc"
 version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2ef27e0d7bdfcfc7b868b317c1d32c641a6fe4629c171b8928c7b08d98d7cf3"
-
-[[package]]
-name = "windows_i686_gnu"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "180e6ccf01daf4c426b846dfc66db1fc518f074baa793aa7d9b9aaeffad6a3b6"
 
 [[package]]
 name = "windows_i686_gnu"
@@ -4723,12 +4641,6 @@ checksum = "622a1962a7db830d6fd0a69683c80a18fda201879f0f447f065a3b7467daa241"
 
 [[package]]
 name = "windows_i686_msvc"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2e7917148b2812d1eeafaeb22a97e4813dfa60a3f8f78ebe204bcc88f12f024"
-
-[[package]]
-name = "windows_i686_msvc"
 version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44d840b6ec649f480a41c8d80f9c65108b92d89345dd94027bfe06ac444d1060"
@@ -4738,12 +4650,6 @@ name = "windows_i686_msvc"
 version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4542c6e364ce21bf45d69fdd2a8e455fa38d316158cfd43b3ac1c5b1b19f8e00"
-
-[[package]]
-name = "windows_x86_64_gnu"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4dcd171b8776c41b97521e5da127a2d86ad280114807d0b2ab1e462bc764d9e1"
 
 [[package]]
 name = "windows_x86_64_gnu"
@@ -4771,12 +4677,6 @@ checksum = "7896dbc1f41e08872e9d5e8f8baa8fdd2677f29468c4e156210174edc7f7b953"
 
 [[package]]
 name = "windows_x86_64_msvc"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c811ca4a8c853ef420abd8592ba53ddbbac90410fab6903b3e79972a631f7680"
-
-[[package]]
-name = "windows_x86_64_msvc"
 version = "0.42.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9aec5da331524158c6d1a4ac0ab1541149c0b9505fde06423b02f5ef0106b9f0"
@@ -4794,6 +4694,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0120db82e8a1e0b9fb3345a539c478767c0048d842860994d96113d5b667bd69"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "winreg"
+version = "0.50.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "524e57b2c537c0f9b1e69f1965311ec12182b4122e45035b1508cd24d2adadb1"
+dependencies = [
+ "cfg-if",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]

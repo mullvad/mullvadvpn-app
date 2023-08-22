@@ -3,8 +3,8 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint, Ownership,
-        Provider, Providers,
+        BridgeConstraints, BridgeConstraintsFormatter, BridgeSettings, BridgeState, Constraint,
+        LocationConstraint, Ownership, Provider, Providers,
     },
     relay_list::RelayEndpointData,
 };
@@ -279,10 +279,14 @@ impl Bridge {
                     Self::print_shadowsocks_proxy(&shadowsocks_proxy)
                 }
             },
-            BridgeSettings::Normal(constraints) => {
-                let mut buf = String::new();
-                let _ = constraints.format(&mut buf, &settings.custom_lists);
-                println!("Bridge constraints: {buf}")
+            BridgeSettings::Normal(ref constraints) => {
+                println!(
+                    "Bridge constraints: {}",
+                    BridgeConstraintsFormatter {
+                        constraints,
+                        custom_lists: &settings.custom_lists
+                    }
+                )
             }
         };
         Ok(())

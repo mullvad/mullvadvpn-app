@@ -65,5 +65,6 @@ class ConnectivityListener {
     }
 
     private external fun notifyConnectivityChange(isConnected: Boolean, senderAddress: Long)
+
     private external fun destroySender(senderAddress: Long)
 }

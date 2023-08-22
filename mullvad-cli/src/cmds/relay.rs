@@ -5,9 +5,9 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     location::Location,
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, LocationConstraint, Match, OpenVpnConstraints,
-        Ownership, Provider, Providers, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
-        TransportPort, WireguardConstraints,
+        Constraint, GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
+        Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraintsUpdate,
+        RelaySettings, RelaySettingsUpdate, TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -21,6 +21,7 @@ use talpid_types::net::{
 };
 
 use super::{relay_constraints::LocationArgs, BooleanOption};
+use crate::print_option;
 
 #[derive(Subcommand, Debug)]
 pub enum Relay {
@@ -214,14 +215,77 @@ impl Relay {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
         let relay_settings = settings.relay_settings;
-        let mut buf = String::new();
-        let _ = relay_settings.format(&mut buf, &settings.custom_lists);
-        println!("Current constraints: \n{}", buf);
+
+        match relay_settings {
+            RelaySettings::CustomTunnelEndpoint(endpoint) => {
+                println!("Custom endpoint: {endpoint}")
+            }
+
+            RelaySettings::Normal(constraints) => {
+                println!("Generic constraints");
+
+                print_option!(
+                    "Location",
+                    constraints
+                        .location
+                        .as_ref()
+                        .map(|location| LocationConstraintFormatter {
+                            constraint: location,
+                            custom_lists: &settings.custom_lists
+                        }),
+                );
+
+                print_option!("Tunnel protocol", constraints.tunnel_protocol,);
+
+                print_option!("Provider(s)", constraints.providers,);
+                print_option!("Ownership", constraints.ownership,);
+
+                println!("OpenVPN constraints");
+
+                match constraints.openvpn_constraints.port {
+                    Constraint::Any => {
+                        print_option!("Port", "any",);
+                        print_option!("Transport", "any",);
+                    }
+                    Constraint::Only(transport_port) => {
+                        print_option!("Port", transport_port.port,);
+                        print_option!("Transport", transport_port.protocol,);
+                    }
+                }
+
+                println!("WireGuard constraints");
+
+                print_option!("Port", constraints.wireguard_constraints.port,);
+
+                print_option!("IP protocol", constraints.wireguard_constraints.ip_version,);
+
+                print_option!(
+                    "Multihop state",
+                    if constraints.wireguard_constraints.use_multihop {
+                        "enabled"
+                    } else {
+                        "disabled"
+                    },
+                );
+                print_option!(
+                    "Multihop entry",
+                    constraints
+                        .wireguard_constraints
+                        .entry_location
+                        .as_ref()
+                        .map(|location| LocationConstraintFormatter {
+                            constraint: location,
+                            custom_lists: &settings.custom_lists
+                        }),
+                );
+            }
+        }
+
         Ok(())
     }
 
     async fn list() -> Result<()> {
-        let mut countries = Self::get_filtered_relays().await?;
+        let mut countries = get_filtered_relays().await?;
         countries.sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
         for mut country in countries {
             country
@@ -274,34 +338,6 @@ impl Relay {
     }
 
     /// Get active relays which are not bridges.
-    async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
-        let mut rpc = MullvadProxyClient::new().await?;
-        let relay_list = rpc.get_relay_locations().await?;
-
-        let mut countries = vec![];
-
-        for mut country in relay_list.countries {
-            country.cities = country
-                .cities
-                .into_iter()
-                .filter_map(|mut city| {
-                    city.relays.retain(|relay| {
-                        relay.active && relay.endpoint_data != RelayEndpointData::Bridge
-                    });
-                    if !city.relays.is_empty() {
-                        Some(city)
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-            if !country.cities.is_empty() {
-                countries.push(country);
-            }
-        }
-
-        Ok(countries)
-    }
 
     async fn update_constraints(update: RelaySettingsUpdate) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
@@ -444,7 +480,7 @@ impl Relay {
     }
 
     async fn set_location(location_constraint_args: LocationArgs) -> Result<()> {
-        let countries = Self::get_filtered_relays().await?;
+        let countries = get_filtered_relays().await?;
         let constraint =
             if let Some(relay) =
                 // The country field is assumed to be hostname due to CLI argument parsing
@@ -572,7 +608,7 @@ impl Relay {
         }
         match entry_location {
             Some(EntryLocation::EntryLocation(entry)) => {
-                let countries = Self::get_filtered_relays().await?;
+                let countries = get_filtered_relays().await?;
                 // The country field is assumed to be hostname due to CLI argument parsing
                 wireguard_constraints.entry_location =
                     if let Some(relay) = find_relay_by_hostname(&countries, &entry.country) {
@@ -665,4 +701,33 @@ pub fn find_relay_by_hostname(
                 },
             )
         })
+}
+
+pub async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
+    let mut rpc = MullvadProxyClient::new().await?;
+    let relay_list = rpc.get_relay_locations().await?;
+
+    let mut countries = vec![];
+
+    for mut country in relay_list.countries {
+        country.cities = country
+            .cities
+            .into_iter()
+            .filter_map(|mut city| {
+                city.relays.retain(|relay| {
+                    relay.active && relay.endpoint_data != RelayEndpointData::Bridge
+                });
+                if !city.relays.is_empty() {
+                    Some(city)
+                } else {
+                    None
+                }
+            })
+            .collect();
+        if !country.cities.is_empty() {
+            countries.push(country);
+        }
+    }
+
+    Ok(countries)
 }

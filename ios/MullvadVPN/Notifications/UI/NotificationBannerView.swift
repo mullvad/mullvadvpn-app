@@ -17,10 +17,7 @@ final class NotificationBannerView: UIView {
         textLabel.textColor = UIColor.InAppNotificationBanner.titleColor
         textLabel.numberOfLines = 0
         textLabel.lineBreakMode = .byWordWrapping
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            textLabel.lineBreakStrategy = []
-        }
+        textLabel.lineBreakStrategy = []
         return textLabel
     }()
 
@@ -30,10 +27,7 @@ final class NotificationBannerView: UIView {
         textLabel.textColor = UIColor.InAppNotificationBanner.bodyColor
         textLabel.numberOfLines = 0
         textLabel.lineBreakMode = .byWordWrapping
-        if #available(iOS 14.0, *) {
-            // See: https://stackoverflow.com/q/46200027/351305
-            textLabel.lineBreakStrategy = []
-        }
+        textLabel.lineBreakStrategy = []
         return textLabel
     }()
 
@@ -120,11 +114,8 @@ final class NotificationBannerView: UIView {
     }
 
     private func addConstraints() {
-        let actionButtonPriority: UILayoutPriority = .defaultHigh + 1
-        actionButton.setContentCompressionResistancePriority(actionButtonPriority, for: .horizontal)
-        actionButton.setContentCompressionResistancePriority(actionButtonPriority, for: .vertical)
-        actionButton.setContentHuggingPriority(actionButtonPriority, for: .horizontal)
-        actionButton.setContentHuggingPriority(actionButtonPriority, for: .vertical)
+        actionButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+        actionButton.setContentHuggingPriority(.required, for: .horizontal)
 
         NSLayoutConstraint.activate([
             indicatorView.bottomAnchor.constraint(equalTo: titleLabel.firstBaselineAnchor),

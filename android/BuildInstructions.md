@@ -86,13 +86,13 @@ Linux distro:
   **Linux**
 
   ```bash
-  sudo apt install zip openjdk-11-jdk
+  sudo apt install zip openjdk-17-jdk
   ```
 
   **macOS**
 
   ```bash
-  brew install openjdk@11
+  brew install openjdk@17
   ```
 
 - Install the SDK

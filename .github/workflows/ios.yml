@@ -26,6 +26,17 @@ jobs:
           swiftformat --version
           swiftformat --lint .
 
+  swiftlint:
+    name: Run swiftlint
+    runs-on: macos-13
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run swiftlint
+        run: |
+          swiftlint --reporter github-actions-logging
+
   test:
     name: Unit tests
     runs-on: macos-13
@@ -63,12 +74,18 @@ jobs:
           cp Screenshots.xcconfig.template Screenshots.xcconfig
         working-directory: ios/Configurations
 
+      - name: Install xcbeautify
+        run: |
+          brew update
+          brew install xcbeautify
+
       - name: Run tests
-        uses: sersoft-gmbh/xcodebuild-action@v2
-        with:
-          project: ios/MullvadVPN.xcodeproj
-          scheme: MullvadVPN
-          skip-testing: MullvadVPNScreenshots
-          destination: platform=iOS Simulator,OS=16.4,name=iPhone 14
-          action: test
-          cloned-source-packages-path: ios/${{ env.SOURCE_PACKAGES_PATH }}
+        run: |
+          NSUnbufferedIO=YES set -o pipefail && \
+            xcodebuild -project MullvadVPN.xcodeproj \
+              -scheme MullvadVPN \
+              -testPlan MullvadVPNCI \
+              -destination "platform=iOS Simulator,OS=16.4,name=iPhone 14" \
+              -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+              test 2>&1 | xcbeautify
+        working-directory: ios/

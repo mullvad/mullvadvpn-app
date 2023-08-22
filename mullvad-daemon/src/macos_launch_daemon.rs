@@ -18,9 +18,18 @@ extern "C" {}
 #[repr(C)]
 #[derive(Debug)]
 struct NSOperatingSystemVersion {
-    major_version: libc::c_ulong,
-    minor_version: libc::c_ulong,
-    patch_version: libc::c_ulong,
+    major_version: libc::c_longlong,
+    minor_version: libc::c_longlong,
+    patch_version: libc::c_longlong,
+}
+
+/// Implement Objective-C type encoding for the struct. Allows the `objc` crate
+/// to perform function signature matching before performing calls into the Objective-C
+/// runtime. This is needed to be able to enable the `verify_message` feature on `objc`.
+unsafe impl objc::Encode for NSOperatingSystemVersion {
+    fn encode() -> objc::Encoding {
+        unsafe { objc::Encoding::from_str("{?=qqq}") }
+    }
 }
 
 /// Authorization status of the Mullvad daemon.
@@ -80,7 +89,7 @@ fn daemon_plist_url() -> Object {
     let nsurl_inst: Id = unsafe { msg_send![class!(NSURL), alloc] };
     let nsurl_inst: Id = unsafe { msg_send![nsurl_inst, initWithString: nsstr_inst] };
 
-    let _: libc::c_void = unsafe { msg_send![nsstr_inst, release] };
+    let _: () = unsafe { msg_send![nsstr_inst, release] };
 
     assert!(!nsurl_inst.is_null());
 
@@ -92,6 +101,6 @@ struct Object(Id);
 
 impl Drop for Object {
     fn drop(&mut self) {
-        let _: libc::c_void = unsafe { msg_send![self.0, release] };
+        let _: () = unsafe { msg_send![self.0, release] };
     }
 }

@@ -44,6 +44,12 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         }
     }
 
+    var accessibilityCustomActionName = "" {
+        didSet {
+            updateAccessibilityCustomActions()
+        }
+    }
+
     var didCollapseHandler: CollapseHandler?
     var infoButtonHandler: InfoButtonHandler?
 
@@ -92,7 +98,6 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         }
 
         updateCollapseImage()
-        updateAccessibilityCustomActions()
     }
 
     required init?(coder: NSCoder) {
@@ -121,15 +126,15 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
     private func updateAccessibilityCustomActions() {
         let actionName = isExpanded
             ? NSLocalizedString(
-                "CONTENT_BLOCKERS_COLLAPSE_ACCESSIBILITY_ACTION",
+                "SETTINGS_HEADER_COLLAPSE_ACCESSIBILITY_ACTION",
                 tableName: "Settings",
-                value: "Collapse content blockers",
+                value: "Collapse \(accessibilityCustomActionName)",
                 comment: ""
             )
             : NSLocalizedString(
-                "CONTENT_BLOCKERS_EXPAND_ACCESSIBILITY_ACTION",
+                "SETTINGS_HEADER_EXPAND_ACCESSIBILITY_ACTION",
                 tableName: "Settings",
-                value: "Expand content blockers",
+                value: "Expand \(accessibilityCustomActionName)",
                 comment: ""
             )
 

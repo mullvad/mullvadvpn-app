@@ -31,14 +31,20 @@ class ProblemReportReviewViewController: UIViewController {
             comment: ""
         )
 
-        navigationItem.rightBarButtonItem = UIBarButtonItem(systemItem: .done, actionHandler: { [weak self] in
-            self?.dismiss(animated: true)
-        })
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction(handler: { [weak self] _ in
+                self?.dismiss(animated: true)
+            })
+        )
 
         #if DEBUG
-        navigationItem.leftBarButtonItem = UIBarButtonItem(systemItem: .action, actionHandler: { [weak self] in
-            self?.share()
-        })
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            systemItem: .action,
+            primaryAction: UIAction(handler: { [weak self] _ in
+                self?.share()
+            })
+        )
         #endif
 
         textView.translatesAutoresizingMaskIntoConstraints = false

@@ -2,10 +2,10 @@ object Versions {
     const val commonsValidator = "1.7"
     const val jodaTime = "2.12.5"
     const val junit = "4.13.2"
-    const val jvmTarget = "1.8"
-    const val kotlin = "1.8.21"
-    const val kotlinCompilerExtensionVersion = "1.4.7"
-    const val kotlinx = "1.7.1"
+    const val jvmTarget = "17"
+    const val kotlin = "1.9.0"
+    const val kotlinCompilerExtensionVersion = "1.5.1"
+    const val kotlinx = "1.7.3"
     const val leakCanary = "2.12"
     // Make sure the following issue has been fixed before upgrading mockk:
     // https://github.com/mockk/mockk/issues/1035
@@ -39,7 +39,7 @@ object Versions {
     }
 
     object Compose {
-        const val base = "1.4.3"
+        const val base = "1.5.0-rc01"
         const val composeCollapsingToolbar = "2.3.5"
         const val constrainLayout = "1.0.1"
         const val foundation = base
@@ -50,12 +50,14 @@ object Versions {
 
     object Plugin {
         // The androidAapt plugin version must be in sync with the android plugin version.
-        const val android = "7.4.2"
-        const val androidAapt = "$android-8841542"
+        // Required for Gradle metadata verification to work properly, see:
+        // https://github.com/gradle/gradle/issues/19228
+        const val android = "8.1.0"
+        const val androidAapt = "$android-10154469"
         const val playPublisher = "3.8.4"
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"
-        const val ktfmt = "0.12.0"
+        const val ktfmt = "0.13.0"
     }
 
     object Koin {

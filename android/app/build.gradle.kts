@@ -107,8 +107,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
@@ -126,6 +126,9 @@ android {
         dependsOn(getTasksByName("copyExtraAssets", true))
     }
 
+    // Suppressing since we don't seem have much of an option than using this api. The impact should
+    // also be limited to tests.
+    @Suppress("UnstableApiUsage")
     testOptions {
         unitTests.all { test ->
             test.testLogging {
@@ -137,7 +140,7 @@ android {
         }
     }
 
-    packagingOptions {
+    packaging {
         jniLibs.useLegacyPackaging = true
         resources {
             pickFirsts += setOf(
@@ -203,8 +206,21 @@ tasks.create("printVersion") {
     }
 }
 
+afterEvaluate {
+    tasks.withType(com.android.build.gradle.internal.lint.AndroidLintAnalysisTask::class.java) {
+        mustRunAfter(tasks.getByName("copyExtraAssets"))
+    }
+}
+
 play {
     serviceAccountCredentials.set(file("play-api-key.json"))
+}
+
+configurations.all {
+    resolutionStrategy {
+        // Hold back emoji2 since newer versions require api level 34 which is not yet stable.
+        force("androidx.emoji2:emoji2:1.3.0")
+    }
 }
 
 dependencies {

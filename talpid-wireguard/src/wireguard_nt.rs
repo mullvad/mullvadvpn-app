@@ -7,7 +7,7 @@ use super::{
 use bitflags::bitflags;
 use futures::SinkExt;
 use ipnetwork::IpNetwork;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::{
     ffi::CStr,
     fmt,
@@ -27,7 +27,7 @@ use widestring::{U16CStr, U16CString};
 use windows_sys::{
     core::GUID,
     Win32::{
-        Foundation::{BOOL, ERROR_MORE_DATA, HINSTANCE},
+        Foundation::{BOOL, ERROR_MORE_DATA, HMODULE},
         NetworkManagement::Ndis::NET_LUID_LH,
         Networking::WinSock::{
             ADDRESS_FAMILY, AF_INET, AF_INET6, IN6_ADDR, IN_ADDR, SOCKADDR_INET,
@@ -38,11 +38,9 @@ use windows_sys::{
     },
 };
 
-lazy_static! {
-    static ref WG_NT_DLL: Mutex<Option<Arc<WgNtDll>>> = Mutex::new(None);
-    static ref ADAPTER_TYPE: U16CString = U16CString::from_str("Mullvad").unwrap();
-    static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
-}
+static WG_NT_DLL: Lazy<Mutex<Option<Arc<WgNtDll>>>> = Lazy::new(|| Mutex::new(None));
+static ADAPTER_TYPE: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
+static ADAPTER_ALIAS: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
 
 const ADAPTER_GUID: GUID = GUID {
     data1: 0x514a3988,
@@ -506,9 +504,7 @@ impl Drop for WgNtTunnel {
     }
 }
 
-lazy_static! {
-    static ref LOG_CONTEXT: Mutex<Option<u32>> = Mutex::new(None);
-}
+static LOG_CONTEXT: Lazy<Mutex<Option<u32>>> = Lazy::new(|| Mutex::new(None));
 
 struct LoggerHandle {
     dll: Arc<WgNtDll>,
@@ -625,7 +621,7 @@ impl Drop for WgNtAdapter {
 }
 
 struct WgNtDll {
-    handle: HINSTANCE,
+    handle: HMODULE,
     func_create: WireGuardCreateAdapterFn,
     func_close: WireGuardCloseAdapterFn,
     func_get_adapter_luid: WireGuardGetAdapterLuidFn,
@@ -653,11 +649,8 @@ impl WgNtDll {
     }
 
     fn new_inner(
-        handle: HINSTANCE,
-        get_proc_fn: unsafe fn(
-            HINSTANCE,
-            &CStr,
-        ) -> io::Result<unsafe extern "system" fn() -> isize>,
+        handle: HMODULE,
+        get_proc_fn: unsafe fn(HMODULE, &CStr) -> io::Result<unsafe extern "system" fn() -> isize>,
     ) -> io::Result<Self> {
         Ok(WgNtDll {
             handle,
@@ -713,7 +706,7 @@ impl WgNtDll {
     }
 
     unsafe fn get_proc_address(
-        handle: HINSTANCE,
+        handle: HMODULE,
         name: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
         let handle = GetProcAddress(handle, name.as_ptr() as *const u8);
@@ -1005,7 +998,7 @@ pub fn as_uninit_byte_slice<T: Copy + Sized>(value: &T) -> &[mem::MaybeUninit<u8
 #[cfg(test)]
 mod tests {
     use super::*;
-    use lazy_static::lazy_static;
+    use once_cell::sync::Lazy;
     use talpid_types::net::wireguard;
 
     #[derive(Debug, Eq, PartialEq, Clone, Copy)]
@@ -1016,62 +1009,60 @@ mod tests {
         p0_allowed_ip_0: WgAllowedIp,
     }
 
-    lazy_static! {
-        static ref WG_PRIVATE_KEY: wireguard::PrivateKey = wireguard::PrivateKey::new_from_random();
-        static ref WG_PUBLIC_KEY: wireguard::PublicKey =
-            wireguard::PrivateKey::new_from_random().public_key();
-        static ref WG_CONFIG: Config = {
-            Config {
-                tunnel: wireguard::TunnelConfig {
-                    private_key: WG_PRIVATE_KEY.clone(),
-                    addresses: vec![],
-                },
-                peers: vec![wireguard::PeerConfig {
-                    public_key: WG_PUBLIC_KEY.clone(),
-                    allowed_ips: vec!["1.3.3.0/24".parse().unwrap()],
-                    endpoint: "1.2.3.4:1234".parse().unwrap(),
-                    psk: None,
-                }],
-                ipv4_gateway: "0.0.0.0".parse().unwrap(),
-                ipv6_gateway: None,
-                mtu: 0,
-                use_wireguard_nt: true,
-                obfuscator_config: None,
-            }
-        };
-        static ref WG_STRUCT_CONFIG: Interface = Interface {
-            interface: WgInterface {
-                flags: WgInterfaceFlag::HAS_PRIVATE_KEY | WgInterfaceFlag::REPLACE_PEERS,
-                listen_port: 0,
-                private_key: WG_PRIVATE_KEY.to_bytes(),
-                public_key: [0; WIREGUARD_KEY_LENGTH],
-                peers_count: 1,
-            },
-            p0: WgPeer {
-                flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
-                reserved: 0,
-                public_key: *WG_PUBLIC_KEY.as_bytes(),
-                preshared_key: [0; WIREGUARD_KEY_LENGTH],
-                persistent_keepalive: 0,
-                endpoint: talpid_windows_net::inet_sockaddr_from_socketaddr(
-                    "1.2.3.4:1234".parse().unwrap()
-                )
-                .into(),
-                tx_bytes: 0,
-                rx_bytes: 0,
-                last_handshake: 0,
-                allowed_ips_count: 1,
-            },
-            p0_allowed_ip_0: WgAllowedIp {
-                address: WgIpAddr::from("1.3.3.0".parse::<Ipv4Addr>().unwrap()),
-                address_family: AF_INET,
-                cidr: 24,
-            },
-        };
-    }
+    static WG_PRIVATE_KEY: Lazy<wireguard::PrivateKey> =
+        Lazy::new(|| wireguard::PrivateKey::new_from_random());
+    static WG_PUBLIC_KEY: Lazy<wireguard::PublicKey> =
+        Lazy::new(|| wireguard::PrivateKey::new_from_random().public_key());
+    static WG_CONFIG: Lazy<Config> = Lazy::new(|| Config {
+        tunnel: wireguard::TunnelConfig {
+            private_key: WG_PRIVATE_KEY.clone(),
+            addresses: vec![],
+        },
+        peers: vec![wireguard::PeerConfig {
+            public_key: WG_PUBLIC_KEY.clone(),
+            allowed_ips: vec!["1.3.3.0/24".parse().unwrap()],
+            endpoint: "1.2.3.4:1234".parse().unwrap(),
+            psk: None,
+        }],
+        ipv4_gateway: "0.0.0.0".parse().unwrap(),
+        ipv6_gateway: None,
+        mtu: 0,
+        use_wireguard_nt: true,
+        obfuscator_config: None,
+    });
+
+    static WG_STRUCT_CONFIG: Lazy<Interface> = Lazy::new(|| Interface {
+        interface: WgInterface {
+            flags: WgInterfaceFlag::HAS_PRIVATE_KEY | WgInterfaceFlag::REPLACE_PEERS,
+            listen_port: 0,
+            private_key: WG_PRIVATE_KEY.to_bytes(),
+            public_key: [0; WIREGUARD_KEY_LENGTH],
+            peers_count: 1,
+        },
+        p0: WgPeer {
+            flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
+            reserved: 0,
+            public_key: *WG_PUBLIC_KEY.as_bytes(),
+            preshared_key: [0; WIREGUARD_KEY_LENGTH],
+            persistent_keepalive: 0,
+            endpoint: talpid_windows_net::inet_sockaddr_from_socketaddr(
+                "1.2.3.4:1234".parse().unwrap(),
+            )
+            .into(),
+            tx_bytes: 0,
+            rx_bytes: 0,
+            last_handshake: 0,
+            allowed_ips_count: 1,
+        },
+        p0_allowed_ip_0: WgAllowedIp {
+            address: WgIpAddr::from("1.3.3.0".parse::<Ipv4Addr>().unwrap()),
+            address_family: AF_INET,
+            cidr: 24,
+        },
+    });
 
     fn get_proc_fn(
-        _handle: HINSTANCE,
+        _handle: HMODULE,
         _symbol: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
         Ok(null_fn)

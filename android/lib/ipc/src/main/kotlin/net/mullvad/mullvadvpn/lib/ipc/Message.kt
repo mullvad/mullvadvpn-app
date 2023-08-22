@@ -6,6 +6,7 @@ import android.os.Parcelable
 
 sealed class Message(private val messageId: Int) : Parcelable {
     abstract class EventMessage : Message(1)
+
     abstract class RequestMessage : Message(2)
 
     protected abstract val messageKey: String

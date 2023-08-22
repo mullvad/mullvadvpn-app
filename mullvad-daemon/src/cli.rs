@@ -1,7 +1,8 @@
 use clap::Parser;
+use once_cell::sync::Lazy;
 
-lazy_static::lazy_static! {
-    static ref ENV_DESC: String = format!(
+static ENV_DESC: Lazy<String> = Lazy::new(|| {
+    format!(
 "ENV:
 
     MULLVAD_RESOURCE_DIR       Resource directory (i.e used to locate a root CA certificate)
@@ -18,8 +19,9 @@ lazy_static::lazy_static! {
         mullvad_paths::get_default_settings_dir().map(|dir| dir.display().to_string()).unwrap_or_else(|_| "N/A".to_string()),
         mullvad_paths::get_default_cache_dir().map(|dir| dir.display().to_string()).unwrap_or_else(|_| "N/A".to_string()),
         mullvad_paths::get_default_log_dir().map(|dir| dir.display().to_string()).unwrap_or_else(|_| "N/A".to_string()),
-        mullvad_paths::get_default_rpc_socket_path().display());
-}
+        mullvad_paths::get_default_rpc_socket_path().display()
+)
+});
 
 #[derive(Debug, Parser)]
 #[command(author, version = mullvad_version::VERSION, about, long_about = None, after_help = &*ENV_DESC)]
@@ -70,9 +72,7 @@ pub struct Config {
 }
 
 pub fn get_config() -> &'static Config {
-    lazy_static::lazy_static! {
-        static ref CONFIG: Config = create_config();
-    }
+    static CONFIG: Lazy<Config> = Lazy::new(create_config);
     &CONFIG
 }
 

@@ -9,38 +9,67 @@
 import MullvadLogging
 import UIKit
 
-final class ChangeLogCoordinator: Coordinator {
+final class ChangeLogCoordinator: Coordinator, Presentable {
     private let logger = Logger(label: "ChangeLogCoordinator")
 
-    let navigationController: RootContainerViewController
+    private var alertController: CustomAlertViewController?
 
-    var didFinish: ((ChangeLogCoordinator) -> Void)?
-
-    init(navigationController: RootContainerViewController) {
-        self.navigationController = navigationController
+    var presentedViewController: UIViewController {
+        return alertController!
     }
 
-    func start(animated: Bool) {
-        let controller = ChangeLogViewController()
+    var didFinish: (() -> Void)?
 
-        controller.setApplicationVersion(Bundle.main.shortVersion)
+    func start() {
+        alertController = CustomAlertViewController(
+            header: Bundle.main.shortVersion,
+            title: NSLocalizedString(
+                "CHANGE_LOG_TITLE",
+                tableName: "Account",
+                value: "Changes in this version:",
+                comment: ""
+            ),
+            attributedMessage: readChangeLogFromFile()
+        )
 
-        do {
-            let string = try ChangeLog.readFromFile()
+        alertController?.addAction(
+            title: NSLocalizedString(
+                "CHANGE_LOG_OK_ACTION",
+                tableName: "Account",
+                value: "Got it!",
+                comment: ""
+            ),
+            style: .default,
+            handler: { [weak self] in
+                self?.didFinish?()
+            }
+        )
+    }
 
-            controller.setChangeLogText(string)
-        } catch {
-            logger.error(error: error, message: "Cannot read changelog from bundle.")
+    private func readChangeLogFromFile() -> NSAttributedString? {
+        guard let changeLogText = try? ChangeLog.readFromFile() else {
+            logger.error("Cannot read changelog from bundle.")
+            return nil
         }
 
-        controller.onFinish = { [weak self] in
-            guard let self else { return }
+        let bullet = "•  "
+        let font = UIFont.preferredFont(forTextStyle: .body)
 
-            ChangeLog.markAsSeen()
+        let bulletList = changeLogText.split(whereSeparator: { $0.isNewline })
+            .map { "\(bullet)\($0)" }
+            .joined(separator: "\n")
 
-            didFinish?(self)
-        }
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineBreakMode = .byWordWrapping
+        paragraphStyle.headIndent = bullet.size(withAttributes: [.font: font]).width
 
-        navigationController.pushViewController(controller, animated: animated)
+        return NSAttributedString(
+            string: bulletList,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .font: font,
+                .foregroundColor: UIColor.white.withAlphaComponent(0.8),
+            ]
+        )
     }
 }

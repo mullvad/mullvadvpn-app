@@ -115,7 +115,7 @@ enum Cli {
 
     /// Manage custom lists
     #[clap(subcommand)]
-    CustomLists(custom_lists::CustomList),
+    CustomList(custom_lists::CustomList),
 }
 
 #[tokio::main]
@@ -141,7 +141,7 @@ async fn main() -> Result<()> {
         #[cfg(any(target_os = "windows", target_os = "linux"))]
         Cli::SplitTunnel(cmd) => cmd.handle().await,
         Cli::Status { cmd, args } => status::handle(cmd, args).await,
-        Cli::CustomLists(cmd) => cmd.handle().await,
+        Cli::CustomList(cmd) => cmd.handle().await,
 
         #[cfg(all(unix, not(target_os = "android")))]
         Cli::ShellCompletions { shell, dir } => {

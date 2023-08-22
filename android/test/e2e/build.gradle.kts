@@ -12,7 +12,6 @@ android {
 
     defaultConfig {
         minSdk = Versions.Android.minSdkVersion
-        targetSdk = Versions.Android.targetSdkVersion
         testApplicationId = "net.mullvad.mullvadvpn.test.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetProjectPath = ":app"
@@ -53,8 +52,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {

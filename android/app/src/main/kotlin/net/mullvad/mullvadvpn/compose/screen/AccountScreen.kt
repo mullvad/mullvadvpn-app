@@ -6,10 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -28,11 +27,12 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
-import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
+import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
 import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
+import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.AccountUiState
 import net.mullvad.mullvadvpn.compose.theme.Dimens
 import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
@@ -69,12 +69,12 @@ fun AccountScreen(
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
 
-    CollapsableAwareToolbarScaffold(
+    CollapsingToolbarScaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize(),
         state = state,
         scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-        isEnabledWhenCollapsable = true,
+        isEnabledWhenCollapsable = false,
         toolbar = {
             val scaffoldModifier =
                 Modifier.road(
@@ -99,13 +99,17 @@ fun AccountScreen(
                 }
             }
         }
+
+        val scrollState = rememberScrollState()
+
         Column(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.Start,
             modifier =
                 Modifier.background(MaterialTheme.colorScheme.background)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
+                    .fillMaxSize()
+                    .drawVerticalScrollbar(scrollState)
+                    .verticalScroll(scrollState)
                     .animateContentSize()
         ) {
             Text(
@@ -143,7 +147,7 @@ fun AccountScreen(
                 whenMissing = MissingPolicy.SHOW_SPINNER
             )
 
-            Spacer(modifier = Modifier.weight(1.0f))
+            Spacer(modifier = Modifier.weight(1f))
 
             ActionButton(
                 text = stringResource(id = R.string.manage_account),
@@ -192,8 +196,6 @@ fun AccountScreen(
                         containerColor = MaterialTheme.colorScheme.error
                     )
             )
-
-            Spacer(modifier = Modifier.height(Dimens.cellHeight))
         }
     }
 }

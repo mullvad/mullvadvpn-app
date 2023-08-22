@@ -34,5 +34,6 @@ class BlockingController(val blockableView: BlockableView) {
 
 interface BlockableView {
     fun setEnabled(enabled: Boolean)
+
     fun onClick(): Job
 }

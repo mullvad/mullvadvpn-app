@@ -1,6 +1,6 @@
 //
 //  Pinger.swift
-//  PacketTunnel
+//  PacketTunnelCore
 //
 //  Created by pronebird on 21/02/2022.
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
@@ -11,25 +11,7 @@ import protocol Network.IPAddress
 import struct Network.IPv4Address
 import struct Network.IPv6Address
 
-protocol PingerDelegate: AnyObject {
-    func pinger(
-        _ pinger: Pinger,
-        didReceiveResponseFromSender senderAddress: IPAddress,
-        icmpHeader: ICMPHeader
-    )
-
-    func pinger(
-        _ pinger: Pinger,
-        didFailWithError error: Error
-    )
-}
-
-final class Pinger {
-    struct SendResult {
-        var sequenceNumber: UInt16
-        var bytesSent: UInt16
-    }
-
+public final class Pinger: PingerProtocol {
     // Socket read buffer size.
     private static let bufferSize = 65535
 
@@ -40,37 +22,35 @@ final class Pinger {
     private var socket: CFSocket?
     private var readBuffer = [UInt8](repeating: 0, count: bufferSize)
     private let stateLock = NSRecursiveLock()
+    private let replyQueue: DispatchQueue
 
-    private weak var _delegate: PingerDelegate?
-    private let delegateQueue: DispatchQueue
-
-    var delegate: PingerDelegate? {
+    public var onReply: ((PingerReply) -> Void)? {
         get {
-            stateLock.lock()
-            defer { stateLock.unlock() }
-
-            return _delegate
+            stateLock.withLock {
+                return _onReply
+            }
         }
         set {
-            stateLock.lock()
-            defer { stateLock.unlock() }
-
-            _delegate = newValue
+            stateLock.withLock {
+                _onReply = newValue
+            }
         }
     }
+
+    private var _onReply: ((PingerReply) -> Void)?
 
     deinit {
         closeSocket()
     }
 
-    init(identifier: UInt16 = 757, delegateQueue: DispatchQueue) {
+    public init(identifier: UInt16 = 757, replyQueue: DispatchQueue) {
         self.identifier = identifier
-        self.delegateQueue = delegateQueue
+        self.replyQueue = replyQueue
     }
 
     /// Open socket and optionally bind it to the given interface.
     /// Automatically closes the previously opened socket when called multiple times in a row.
-    func openSocket(bindTo interfaceName: String?) throws {
+    public func openSocket(bindTo interfaceName: String?) throws {
         stateLock.lock()
         defer { stateLock.unlock() }
 
@@ -117,7 +97,7 @@ final class Pinger {
         socket = newSocket
     }
 
-    func closeSocket() {
+    public func closeSocket() {
         stateLock.lock()
         defer { stateLock.unlock() }
 
@@ -129,8 +109,8 @@ final class Pinger {
     }
 
     /// Send ping packet to the given address.
-    /// Returns `SendResult` on success, otherwise throws a `Pinger.Error`.
-    func send(to address: IPv4Address) throws -> SendResult {
+    /// Returns `PingerSendResult` on success, otherwise throws a `Pinger.Error`.
+    public func send(to address: IPv4Address) throws -> PingerSendResult {
         stateLock.lock()
         defer { stateLock.unlock() }
 
@@ -170,7 +150,7 @@ final class Pinger {
             throw Error.sendPacket(errno)
         }
 
-        return SendResult(sequenceNumber: sequenceNumber, bytesSent: UInt16(bytesSent))
+        return PingerSendResult(sequenceNumber: sequenceNumber, bytesSent: UInt(bytesSent))
     }
 
     private func nextSequenceNumber() -> UInt16 {
@@ -201,18 +181,14 @@ final class Pinger {
             let icmpHeader = try parseICMPResponse(buffer: &readBuffer, length: bytesRead)
             guard let sender = Self.makeIPAddress(from: address) else { throw Error.parseIPAddress }
 
-            delegateQueue.async {
-                self.delegate?.pinger(
-                    self,
-                    didReceiveResponseFromSender: sender,
-                    icmpHeader: icmpHeader
-                )
+            replyQueue.async {
+                self.onReply?(.success(sender, icmpHeader.sequenceNumber))
             }
         } catch Pinger.Error.clientIdentifierMismatch {
             // Ignore responses from other senders.
         } catch {
-            delegateQueue.async {
-                self.delegate?.pinger(self, didFailWithError: error)
+            replyQueue.async {
+                self.onReply?(.parseError(error))
             }
         }
     }
@@ -340,7 +316,7 @@ final class Pinger {
 }
 
 extension Pinger {
-    enum Error: LocalizedError {
+    public enum Error: LocalizedError {
         /// Failure to create a socket.
         case createSocket
 
@@ -371,7 +347,7 @@ extension Pinger {
         /// Failure to parse IP address.
         case parseIPAddress
 
-        var errorDescription: String? {
+        public var errorDescription: String? {
             switch self {
             case .createSocket:
                 return "Failure to create socket."
@@ -397,7 +373,7 @@ extension Pinger {
         }
     }
 
-    enum MalformedResponseReason {
+    public enum MalformedResponseReason {
         case ipv4PacketTooSmall
         case icmpHeaderTooSmall
         case invalidIPVersion

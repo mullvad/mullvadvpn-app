@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.2" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.2)" variant="all" version="7.4.2">
+<issues format="6" by="lint 8.1.0" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0)" variant="all" version="8.1.0">
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;days_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="3"
+            column="5"/>
+    </issue>
 
     <issue
         id="MissingQuantity"
@@ -9,6 +20,39 @@
         <location
             file="src/main/res/values-fr/plurals.xml"
             line="3"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;days_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="3"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;days_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="3"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;months_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="7"
             column="5"/>
     </issue>
 
@@ -25,12 +69,78 @@
 
     <issue
         id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;months_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="7"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;months_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="7"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;years_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="11"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;years_left&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/plurals.xml"
             line="11"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;years_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="11"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;years_left&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="11"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;days_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="15"
             column="5"/>
     </issue>
 
@@ -47,12 +157,78 @@
 
     <issue
         id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;days_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="15"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;days_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="15"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;minutes_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;minutes_ago&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/plurals.xml"
             line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;minutes_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;minutes_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;months_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="23"
             column="5"/>
     </issue>
 
@@ -69,12 +245,78 @@
 
     <issue
         id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;months_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;months_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;years_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;years_ago&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/plurals.xml"
             line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;years_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;years_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="27"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;hours_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="31"
             column="5"/>
     </issue>
 
@@ -91,6 +333,39 @@
 
     <issue
         id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;hours_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;hours_ago&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="31"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_days&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_days&quot;>"
         errorLine2="    ^">
@@ -102,11 +377,66 @@
 
     <issue
         id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_days&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_days&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
+            line="35"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;es&quot; (Spanish) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_hours&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-es/plurals.xml"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
         message="For locale &quot;fr&quot; (French) the following quantity should also be defined: `many` (e.g. &quot;1000000 de jours&quot;)"
         errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_hours&quot;>"
         errorLine2="    ^">
         <location
             file="src/main/res/values-fr/plurals.xml"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;it&quot; (Italian) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_hours&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-it/plurals.xml"
+            line="39"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pt&quot; (Portuguese) the following quantity should also be defined: `many`"
+        errorLine1="    &lt;plurals name=&quot;account_credit_expires_in_hours&quot;>"
+        errorLine2="    ^">
+        <location
+            file="src/main/res/values-pt/plurals.xml"
             line="39"
             column="5"/>
     </issue>
