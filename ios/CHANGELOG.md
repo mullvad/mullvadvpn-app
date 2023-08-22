@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Allow redeeming vouchers in account view.
 - Allow deleting account in account view.
+- Add new account flow
 
 ## [2023.3 - 2023-07-15]
 ### Added

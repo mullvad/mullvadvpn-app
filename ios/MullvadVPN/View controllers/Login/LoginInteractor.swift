@@ -12,6 +12,8 @@ import MullvadLogging
 final class LoginInteractor {
     private let tunnelManager: TunnelManager
     private let logger = Logger(label: "LoginInteractor")
+    private var tunnelObserver: TunnelObserver?
+    var didCreateAccount: (() -> Void)?
 
     init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
@@ -24,7 +26,8 @@ final class LoginInteractor {
     }
 
     func createAccount(completion: @escaping (Result<String, Error>) -> Void) {
-        tunnelManager.setNewAccount { result in
+        tunnelManager.setNewAccount { [weak self] result in
+            self?.didCreateAccount?()
             completion(result.map { $0.number })
         }
     }

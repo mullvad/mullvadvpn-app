@@ -226,8 +226,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                     return StoredAccountData(
                         identifier: newAccountData.id,
                         number: newAccountData.number,
-                        expiry: newAccountData.expiry,
-                        isNew: true
+                        expiry: newAccountData.expiry
                     )
                 }
 
