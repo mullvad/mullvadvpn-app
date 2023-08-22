@@ -85,7 +85,7 @@ enum AppRoute: AppRouteProtocol {
     /**
      Routes that are part of primary horizontal navigation group.
      */
-    case tos, login, main, revoked, outOfTime, welcome, setupAccountCompleted
+    case tos, login, main, revoked, outOfTime, welcome
 
     var isExclusive: Bool {
         switch self {
@@ -106,7 +106,7 @@ enum AppRoute: AppRouteProtocol {
 
     var routeGroup: AppRouteGroup {
         switch self {
-        case .tos, .login, .main, .revoked, .outOfTime, .welcome, .setupAccountCompleted:
+        case .tos, .login, .main, .revoked, .outOfTime, .welcome:
             return .primary
         case .changelog:
             return .changelog

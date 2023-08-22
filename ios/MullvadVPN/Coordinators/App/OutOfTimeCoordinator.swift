@@ -33,6 +33,12 @@ class OutOfTimeCoordinator: Coordinator, OutOfTimeViewControllerDelegate {
             storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager
         )
+
+        interactor.didAddMoreCredit = { [weak self] in
+            guard let self else { return }
+            didFinishPayment?(self)
+        }
+
         let controller = OutOfTimeViewController(
             interactor: interactor,
             errorPresenter: PaymentAlertPresenter(
