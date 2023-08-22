@@ -9,6 +9,7 @@ android {
 
     defaultConfig {
         minSdk = Versions.Android.minSdkVersion
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     compileOptions {
@@ -25,6 +26,16 @@ android {
         abortOnError = true
         warningsAsErrors = true
     }
+
+    packaging {
+        resources {
+            pickFirsts += setOf(
+                // Fixes packaging error caused by: jetified-junit-*
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md"
+            )
+        }
+    }
 }
 
 dependencies {
@@ -36,4 +47,14 @@ dependencies {
 
     //Billing library
     implementation(Dependencies.billingClient)
+
+    //Tests
+    androidTestImplementation(project(Dependencies.Mullvad.commonTestLib))
+    androidTestImplementation(Dependencies.MockK.android)
+    androidTestImplementation(Dependencies.Kotlin.test)
+    androidTestImplementation(Dependencies.KotlinX.coroutinesTest)
+    androidTestImplementation(Dependencies.turbine)
+    androidTestImplementation(Dependencies.junit)
+    androidTestImplementation(Dependencies.AndroidX.espressoContrib)
+    androidTestImplementation(Dependencies.AndroidX.espressoCore)
 }
