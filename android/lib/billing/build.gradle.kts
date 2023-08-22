@@ -28,6 +28,12 @@ android {
 }
 
 dependencies {
+    implementation(Dependencies.Kotlin.stdlib)
+    implementation(Dependencies.KotlinX.coroutinesAndroid)
+
+    implementation(Dependencies.Koin.core)
+    implementation(Dependencies.Koin.android)
+
     //Billing library
     implementation(Dependencies.billingClient)
 }
