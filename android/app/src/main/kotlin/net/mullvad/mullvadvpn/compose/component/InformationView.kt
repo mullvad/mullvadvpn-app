@@ -35,6 +35,7 @@ fun InformationView(
     maxLines: Int = 1
 ) {
     return if (content.isNotEmpty()) {
+
         AutoResizeText(
             style = MaterialTheme.typography.titleSmall,
             text = content,
