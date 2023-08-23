@@ -98,6 +98,7 @@ object Dependencies {
         const val modelLib = ":lib:model"
         const val resourceLib = ":lib:resource"
         const val talpidLib = ":lib:talpid"
+        const val themeLib = ":lib:theme"
     }
 
     object Plugin {

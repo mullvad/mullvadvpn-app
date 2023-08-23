@@ -4,12 +4,13 @@ include(
     ":tile"
 )
 include(
-    ":lib:common:",
+    ":lib:common",
     ":lib:endpoint",
     ":lib:ipc",
-    ":lib:model:",
+    ":lib:model",
     ":lib:resource",
-    ":lib:talpid:"
+    ":lib:talpid",
+    ":lib:theme"
 )
 include(
     ":test",
