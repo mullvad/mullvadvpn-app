@@ -35,6 +35,13 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        // Hold back emoji2 since newer versions require api level 34 which is not yet stable.
+        force("androidx.emoji2:emoji2:1.3.0")
+    }
+}
+
 dependencies {
     implementation(Dependencies.Compose.material3)
     implementation(Dependencies.Compose.ui)
