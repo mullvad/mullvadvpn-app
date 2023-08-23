@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import Routing
 import StoreKit
 import UIKit
 

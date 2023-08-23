@@ -64,6 +64,14 @@
         "identifier" : "58C7A43C2A863F450060C66F",
         "name" : "PacketTunnelCoreTests"
       }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "7A88DCD62A8FABBE00D2FF0E",
+        "name" : "RoutingTests"
+      }
     }
   ],
   "version" : 1
