@@ -59,7 +59,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         addressCache.loadFromFile()
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: { [weak self] in self?.transportMonitor },
+            transportProvider: AnyTransportProvider { [weak self] in
+                return self?.transportMonitor.makeTransport()
+            },
             addressCache: addressCache
         )
 
@@ -119,7 +121,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
-        simulatorTunnelProviderHost = SimulatorTunnelProviderHost(relayCacheTracker: relayCacheTracker)
+        simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
+            relayCacheTracker: relayCacheTracker,
+            transportProvider: transportProvider
+        )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         #endif
 
