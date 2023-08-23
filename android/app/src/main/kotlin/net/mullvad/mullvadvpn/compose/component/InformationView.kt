@@ -12,8 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale.TextMedium
-import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale.TextSmall
 
 @Preview
 @Composable
@@ -38,8 +36,8 @@ fun InformationView(
         AutoResizeText(
             style = MaterialTheme.typography.titleSmall,
             text = content,
-            minTextSize = TextSmall,
-            maxTextSize = TextMedium,
+            minTextSize = MaterialTheme.typography.labelMedium.fontSize,
+            maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
             maxLines = maxLines,
             modifier =
                 modifier.padding(
@@ -54,8 +52,8 @@ fun InformationView(
                 AutoResizeText(
                     style = MaterialTheme.typography.titleMedium,
                     text = content,
-                    minTextSize = TextSmall,
-                    maxTextSize = TextMedium,
+                    minTextSize = MaterialTheme.typography.labelMedium.fontSize,
+                    maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
                     maxLines = maxLines,
                     modifier =
                         modifier.padding(
