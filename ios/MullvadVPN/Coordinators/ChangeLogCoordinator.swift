@@ -11,7 +11,7 @@ import Routing
 import UIKit
 
 final class ChangeLogCoordinator: Coordinator, Presentable {
-    private var alertController: CustomAlertViewController?
+    private var alertController: AlertViewController?
     private let interactor: ChangeLogInteractor
     var didFinish: ((ChangeLogCoordinator) -> Void)?
 
@@ -24,7 +24,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable {
     }
 
     func start() {
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             header: interactor.viewModel.header,
             title: interactor.viewModel.title,
             attributedMessage: interactor.viewModel.body

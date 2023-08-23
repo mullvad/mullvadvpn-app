@@ -49,23 +49,27 @@ class InAppPurchaseCoordinator: Coordinator, Presentable {
                 coordinator.start()
 
             case let .failure(failure):
-                let alertController = CustomAlertViewController(
+                var presentation = AlertPresentation(
+                    icon: .alert,
                     message: failure.error.localizedDescription,
-                    icon: .alert
+                    buttons: [
+                        AlertAction(
+                            title: NSLocalizedString(
+                                "IN_APP_PURCHASE_ERROR_DIALOG_OK_ACTION",
+                                tableName: "Welcome",
+                                value: "Got it!",
+                                comment: ""
+                            ),
+                            style: .default,
+                            handler: { [weak self] in
+                                guard let self = self else { return }
+                                self.didCancel?(self)
+                            }
+                        ),
+                    ]
                 )
 
-                alertController.addAction(
-                    title: NSLocalizedString(
-                        "IN_APP_PURCHASE_ERROR_DIALOG_OK_ACTION",
-                        tableName: "Welcome",
-                        value: "Got it!",
-                        comment: ""
-                    ),
-                    style: .default
-                )
-                presentedViewController.present(alertController, animated: true) {
-                    self.didCancel?(self)
-                }
+                applicationRouter?.present(.alert(presentation), animated: true)
             }
         }
     }

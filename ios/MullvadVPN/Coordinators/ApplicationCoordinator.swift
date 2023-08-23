@@ -23,7 +23,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     /**
      Application router.
      */
-    private var router: ApplicationRouter<AppRoute>!
+    private(set) var router: ApplicationRouter<AppRoute>!
 
     /**
      Primary navigation container.
@@ -154,6 +154,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         case .welcome:
             presentWelcome(animated: animated, completion: completion)
+
+        case let .alert(presentation):
+            presentAlert(presentation: presentation, animated: animated, completion: completion)
         }
     }
 
@@ -170,7 +173,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 endHorizontalFlow(animated: context.isAnimated, completion: completion)
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
-            case .selectLocation, .account, .settings, .changelog:
+            case .selectLocation, .account, .settings, .changelog, .alert:
                 guard let coordinator = dismissedRoute.coordinator as? Presentable else {
                     completion()
                     return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
@@ -645,6 +648,24 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         coordinator.start(animated: animated)
 
         beginHorizontalFlow(animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentAlert(
+        presentation: AlertPresentation,
+        animated: Bool,
+        completion: @escaping (Coordinator) -> Void
+    ) {
+        let coordinator = AlertCoordinator(presentation: presentation)
+
+        coordinator.didFinish = { [weak self] in
+            self?.router.dismiss(.alert(presentation))
+        }
+
+        coordinator.start()
+
+        presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }
