@@ -23,7 +23,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     /**
      Application router.
      */
-    private var router: ApplicationRouter<AppRoute>!
+    private(set) var router: ApplicationRouter<AppRoute>!
 
     /**
      Primary navigation container.
@@ -154,6 +154,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         case .welcome:
             presentWelcome(animated: animated, completion: completion)
+
+        case let .alert(presentation):
+            presentAlert(presentation: presentation, animated: animated, completion: completion)
         }
     }
 
@@ -162,15 +165,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         dismissWithContext context: RouteDismissalContext<RouteType>,
         completion: @escaping () -> Void
     ) {
-        if context.isClosing {
-            let dismissedRoute = context.dismissedRoutes.first!
+        let dismissedRoute = context.dismissedRoutes.first!
 
+        if context.isClosing {
             switch dismissedRoute.route.routeGroup {
             case .primary:
                 endHorizontalFlow(animated: context.isAnimated, completion: completion)
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
-            case .selectLocation, .account, .settings, .changelog:
+            case .selectLocation, .account, .settings, .changelog, .alert:
                 guard let coordinator = dismissedRoute.coordinator as? Presentable else {
                     completion()
                     return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
@@ -179,13 +182,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 coordinator.dismiss(animated: context.isAnimated, completion: completion)
             }
         } else {
-            let dismissedRoute = context.dismissedRoutes.first!
             assert(context.dismissedRoutes.count == 1)
 
-            if dismissedRoute.route == .outOfTime {
-                guard let coordinator = dismissedRoute.coordinator as? OutOfTimeCoordinator else {
+            switch dismissedRoute.route {
+            case .outOfTime, .welcome:
+                guard let coordinator = dismissedRoute.coordinator as? Poppable else {
                     completion()
-                    return assertionFailure("Unhandled coordinator for \(dismissedRoute.route)")
+                    return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
                 }
 
                 coordinator.popFromNavigationStack(
@@ -194,19 +197,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 )
 
                 coordinator.removeFromParent()
-            } else if dismissedRoute.route == .welcome {
-                guard let coordinator = dismissedRoute.coordinator as? WelcomeCoordinator else {
-                    completion()
-                    return assertionFailure("Unhandled coordinator for \(dismissedRoute.route)")
-                }
 
-                coordinator.popFromNavigationStack(
-                    animated: context.isAnimated,
-                    completion: completion
-                )
-
-                coordinator.removeFromParent()
-            } else {
+            default:
                 assertionFailure("Unhandled dismissal for \(dismissedRoute.route)")
                 completion()
             }
@@ -649,6 +641,24 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
     }
 
+    private func presentAlert(
+        presentation: AlertPresentation,
+        animated: Bool,
+        completion: @escaping (Coordinator) -> Void
+    ) {
+        let coordinator = AlertCoordinator(presentation: presentation)
+
+        coordinator.didFinish = { [weak self] in
+            self?.router.dismiss(.alert(presentation))
+        }
+
+        coordinator.start()
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
+    }
+
     private func makeTunnelCoordinator() -> TunnelCoordinator {
         let tunnelCoordinator = TunnelCoordinator(tunnelManager: tunnelManager)
 
@@ -981,4 +991,11 @@ fileprivate extension AppPreferencesDataSource {
     }
 
     // swiftlint:disable:next file_length
+}
+
+private protocol Poppable: Presentable {
+    func popFromNavigationStack(
+        animated: Bool,
+        completion: () -> Void
+    )
 }
