@@ -129,10 +129,7 @@ extension REST {
         private func didFailToRequestAuthorization(_ error: Swift.Error) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            logger.error(
-                error: error,
-                message: "Failed to request authorization."
-            )
+            logger.error(error: error, message: "Failed to request authorization.")
 
             finish(result: .failure(error))
         }
@@ -143,7 +140,7 @@ extension REST {
             let transport = transportProvider()
             guard let transport else {
                 logger.error("Failed to obtain transport.")
-                finish(result: .failure(REST.Error.transport(NoTransportError())))
+                finish(result: .failure(REST.Error.transport(InternalTransportError.noTransport)))
                 return
             }
 
@@ -158,18 +155,15 @@ extension REST {
                 guard let self else { return }
                 dispatchQueue.async {
                     if let error {
-                        self.didReceiveError(
-                            error,
-                            transport: transport,
-                            endpoint: endpoint
-                        )
-                    } else {
-                        let httpResponse = response as! HTTPURLResponse
-                        let data = data ?? Data()
+                        let restError: REST.Error = (error as? URLError).map { .network($0) } ?? .transport(error)
 
-                        self.didReceiveURLResponse(
-                            httpResponse,
-                            data: data,
+                        self.didReceiveError(restError, transport: transport, endpoint: endpoint)
+                    } else if let httpResponse = response as? HTTPURLResponse {
+                        self.didReceiveURLResponse(httpResponse, data: data ?? Data(), endpoint: endpoint)
+                    } else {
+                        self.didReceiveError(
+                            .transport(InternalTransportError.invalidResponse(response)),
+                            transport: transport,
                             endpoint: endpoint
                         )
                     }
@@ -180,37 +174,23 @@ extension REST {
         private func didFailToCreateURLRequest(_ error: REST.Error) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            logger.error(
-                error: error,
-                message: "Failed to create URLRequest."
-            )
+            logger.error(error: error, message: "Failed to create URLRequest.")
 
             finish(result: .failure(error))
         }
 
-        private func didReceiveError(
-            _ error: Swift.Error,
-            transport: RESTTransport,
-            endpoint: AnyIPEndpoint
-        ) {
+        private func didReceiveError(_ error: REST.Error, transport: RESTTransport, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            if case URLError.cancelled = error {
+            if case .network(URLError.cancelled) = error {
                 finish(result: .failure(OperationError.cancelled))
             } else {
-                logger.error(
-                    error: error,
-                    message: "Failed to perform request to \(endpoint) using \(transport.name)."
-                )
+                logger.error(error: error, message: "Failed to perform request to \(endpoint) using \(transport.name).")
                 retryRequest(with: error)
             }
         }
 
-        private func didReceiveURLResponse(
-            _ response: HTTPURLResponse,
-            data: Data,
-            endpoint: AnyIPEndpoint
-        ) {
+        private func didReceiveURLResponse(_ response: HTTPURLResponse, data: Data, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             logger.debug("Response: \(response.statusCode).")
@@ -246,13 +226,13 @@ extension REST {
             }
         }
 
-        private func retryRequest(with error: Swift.Error) {
+        private func retryRequest(with error: REST.Error) {
             // Check if retry count is not exceeded.
             guard retryCount < retryStrategy.maxRetryCount else {
                 if retryStrategy.maxRetryCount > 0 {
                     logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
                 }
-                finish(result: .failure(wrapRequestError(error)))
+                finish(result: .failure(error))
                 return
             }
 
@@ -268,7 +248,7 @@ extension REST {
             guard let waitDelay = retryDelayIterator.next() else {
                 logger.debug("Retry delay iterator failed to produce next value.")
 
-                finish(result: .failure(wrapRequestError(error)))
+                finish(result: .failure(error))
                 return
             }
 
@@ -289,14 +269,6 @@ extension REST {
             timer.activate()
 
             retryTimer = timer
-        }
-
-        private func wrapRequestError(_ error: Swift.Error) -> REST.Error {
-            if let error = error as? URLError {
-                return .network(error)
-            } else {
-                return .transport(error)
-            }
         }
     }
 }
