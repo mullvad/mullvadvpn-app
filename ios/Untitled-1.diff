@@ -1,0 +1,129 @@
+diff --git a/ios/MullvadVPN/Classes/AppRoutes.swift b/ios/MullvadVPN/Classes/AppRoutes.swift
+index 876b7f84f..ee9e9434e 100644
+--- a/ios/MullvadVPN/Classes/AppRoutes.swift
++++ b/ios/MullvadVPN/Classes/AppRoutes.swift
+@@ -13,7 +13,7 @@ import UIKit
+  Enum type describing groups of routes. Each group is a modal layer with horizontal navigation
+  inside with exception where primary navigation is a part of root controller on iPhone.
+  */
+-enum AppRouteGroup: AppRouteGroupProtocol {
++enum AppRouteGroup: String, AppRouteGroupProtocol {
+     /**
+      Primary horizontal navigation group.
+      */
+@@ -65,6 +65,10 @@ enum AppRouteGroup: AppRouteGroupProtocol {
+             return 999
+         }
+     }
++
++    var debugDescription: String {
++        "\(rawValue) isModal: \(isModal) - modalLevel: \(modalLevel)"
++    }
+ }
+ 
+ /**
+diff --git a/ios/MullvadVPN/View controllers/Alert/AlertPresentation.swift b/ios/MullvadVPN/View controllers/Alert/AlertPresentation.swift
+index 35467f286..8a1993311 100644
+--- a/ios/MullvadVPN/View controllers/Alert/AlertPresentation.swift	
++++ b/ios/MullvadVPN/View controllers/Alert/AlertPresentation.swift	
+@@ -14,7 +14,7 @@ struct AlertAction {
+     var handler: (() -> Void)?
+ }
+ 
+-struct AlertPresentation: Identifiable {
++struct AlertPresentation: Identifiable, CustomDebugStringConvertible {
+     let id = UUID()
+ 
+     var header: String?
+@@ -22,6 +22,10 @@ struct AlertPresentation: Identifiable {
+     var title: String?
+     let message: String?
+     let buttons: [AlertAction]
++
++    var debugDescription: String {
++        id.uuidString
++    }
+ }
+ 
+ extension AlertPresentation: Equatable, Hashable {
+diff --git a/ios/Routing/Router/AppRouteProtocol.swift b/ios/Routing/Router/AppRouteProtocol.swift
+index 184318395..4106ea853 100644
+--- a/ios/Routing/Router/AppRouteProtocol.swift
++++ b/ios/Routing/Router/AppRouteProtocol.swift
+@@ -11,7 +11,7 @@ import Foundation
+ /**
+  Formal protocol describing a group of routes.
+  */
+-public protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable {
++public protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable, CustomDebugStringConvertible {
+     /**
+      Returns `true` if group is presented modally, otherwise `false` if group is a part of root view
+      controller.
+diff --git a/ios/Routing/Router/ApplicationRouter.swift b/ios/Routing/Router/ApplicationRouter.swift
+index 2de0cbc3f..957398f77 100644
+--- a/ios/Routing/Router/ApplicationRouter.swift
++++ b/ios/Routing/Router/ApplicationRouter.swift
+@@ -81,7 +81,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
+     }
+ 
+     private func enqueue(_ pendingRoute: PendingRoute<RouteType>) {
+-        logger.debug("Enqueue \(pendingRoute.operation).")
++        logger.debug("\(pendingRoute.operation).")
+ 
+         pendingRoutes.append(pendingRoute)
+ 
+diff --git a/ios/Routing/Router/ApplicationRouterTypes.swift b/ios/Routing/Router/ApplicationRouterTypes.swift
+index 1dfd128c0..e83c8d54b 100644
+--- a/ios/Routing/Router/ApplicationRouterTypes.swift
++++ b/ios/Routing/Router/ApplicationRouterTypes.swift
+@@ -69,7 +69,7 @@ enum PendingDismissalResult {
+ /**
+  Enum describing operation over the route.
+  */
+-enum RouteOperation<RouteType: AppRouteProtocol>: Equatable {
++enum RouteOperation<RouteType: AppRouteProtocol>: Equatable, CustomDebugStringConvertible {
+     /**
+      Present route.
+      */
+@@ -91,12 +91,23 @@ enum RouteOperation<RouteType: AppRouteProtocol>: Equatable {
+             return dismissMatch.routeGroup
+         }
+     }
++
++    var debugDescription: String {
++        let action: String
++        switch self {
++        case let .present(routeType):
++            action = "Presenting \(routeType)"
++        case let .dismiss(match):
++            action = "Dismissing \(match)"
++        }
++        return "\(action)"
++    }
+ }
+ 
+ /**
+  Enum type describing a single route or a group of routes requested to be dismissed.
+  */
+-enum DismissMatch<RouteType: AppRouteProtocol>: Equatable {
++enum DismissMatch<RouteType: AppRouteProtocol>: Equatable, CustomDebugStringConvertible {
+     case group(RouteType.RouteGroupType)
+     case singleRoute(RouteType)
+ 
+@@ -111,6 +122,15 @@ enum DismissMatch<RouteType: AppRouteProtocol>: Equatable {
+             return route.routeGroup
+         }
+     }
++
++    var debugDescription: String {
++        switch self {
++        case let .group(group):
++            return "\(group)"
++        case let .singleRoute(route):
++            return "\(route)"
++        }
++    }
+ }
+ 
+ /**
+    
