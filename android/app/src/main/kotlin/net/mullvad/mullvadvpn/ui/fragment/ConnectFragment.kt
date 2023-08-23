@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -20,9 +19,8 @@ import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnReleaseBuild
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
-import net.mullvad.mullvadvpn.ui.paintNavigationBar
-import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -31,8 +29,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     // Injected dependencies
     private val connectViewModel: ConnectViewModel by viewModel()
-
-    private lateinit var headerBar: HeaderBar
 
     @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
 
@@ -46,12 +42,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.connect, container, false)
-
-        headerBar =
-            view.findViewById<HeaderBar>(R.id.header_bar).apply {
-                tunnelState = connectViewModel.uiState.value.tunnelUiState
-            }
+        val view = inflater.inflate(R.layout.fragment_compose, container, false)
 
         view.findViewById<ComposeView>(R.id.compose_view).setContent {
             AppTheme {
@@ -63,20 +54,17 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                     onReconnectClick = connectViewModel::onReconnectClick,
                     onConnectClick = connectViewModel::onConnectClick,
                     onCancelClick = connectViewModel::onCancelClick,
-                    onSwitchLocationClick = { openSwitchLocationScreen() },
+                    onSwitchLocationClick = ::openSwitchLocationScreen,
                     onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion,
                     onUpdateVersionClick = { openDownloadUrl() },
-                    onManageAccountClick = connectViewModel::onManageAccountClick
+                    onManageAccountClick = connectViewModel::onManageAccountClick,
+                    onSettingsClick = ::openSettingsView,
+                    onAccountClick = ::openAccountView
                 )
             }
         }
 
         return view
-    }
-
-    override fun onResume() {
-        super.onResume()
-        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.blue))
     }
 
     private fun openDownloadUrl() {
@@ -102,8 +90,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun updateTunnelState(realState: TunnelState) {
-        headerBar.tunnelState = realState
-
         if (realState.isTunnelErrorStateDueToExpiredAccount()) {
             openOutOfTimeScreen()
         }
@@ -130,6 +116,14 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 commitAllowingStateLoss()
             }
         }
+    }
+
+    private fun openSettingsView() {
+        (context as? MainActivity)?.openSettings()
+    }
+
+    private fun openAccountView() {
+        (context as? MainActivity)?.openAccount()
     }
 
     private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
