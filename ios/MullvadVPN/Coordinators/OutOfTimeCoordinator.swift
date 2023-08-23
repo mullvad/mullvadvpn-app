@@ -42,10 +42,7 @@ class OutOfTimeCoordinator: Coordinator, OutOfTimeViewControllerDelegate {
 
         let controller = OutOfTimeViewController(
             interactor: interactor,
-            errorPresenter: PaymentAlertPresenter(
-                presentationController: navigationController,
-                alertPresenter: AlertPresenter()
-            )
+            errorPresenter: PaymentAlertPresenter(coordinator: self)
         )
 
         controller.delegate = self
