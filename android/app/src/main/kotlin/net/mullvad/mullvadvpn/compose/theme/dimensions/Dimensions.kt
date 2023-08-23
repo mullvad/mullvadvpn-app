@@ -44,6 +44,7 @@ data class Dimensions(
     val sideMargin: Dp = 22.dp,
     val smallPadding: Dp = 8.dp,
     val titleIconSize: Dp = 24.dp,
+    val topBarHeight: Dp = 64.dp,
     val verticalSpace: Dp = 20.dp,
     val verticalSpacer: Dp = 1.dp
 )

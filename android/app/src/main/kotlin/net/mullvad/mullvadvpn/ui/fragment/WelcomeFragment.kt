@@ -33,9 +33,10 @@ class WelcomeFragment : BaseFragment() {
                         uiState = state,
                         viewActions = vm.viewActions,
                         onSitePaymentClick = vm::onSitePaymentClick,
-                        onRedeemVoucherClick = { openRedeemVoucherFragment() },
-                        onSettingsClick = { openSettingsView() },
-                        openConnectScreen = { advanceToConnectScreen() }
+                        onRedeemVoucherClick = ::openRedeemVoucherFragment,
+                        onSettingsClick = ::openSettingsView,
+                        onAccountClick = ::openAccountView,
+                        openConnectScreen = ::advanceToConnectScreen
                     )
                 }
             }
@@ -57,5 +58,9 @@ class WelcomeFragment : BaseFragment() {
 
     private fun openSettingsView() {
         (context as? MainActivity)?.openSettings()
+    }
+
+    private fun openAccountView() {
+        (context as? MainActivity)?.openAccount()
     }
 }

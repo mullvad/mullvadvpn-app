@@ -95,7 +95,8 @@ fun DeviceListScreen(
         topBarColor = topColor,
         statusBarColor = topColor,
         navigationBarColor = colorResource(id = R.color.darkBlue),
-        onSettingsClicked = onSettingsClicked
+        onSettingsClicked = onSettingsClicked,
+        onAccountClicked = null,
     ) {
         ConstraintLayout(
             modifier =
