@@ -158,12 +158,14 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
         case .preferences:
             return PreferencesViewController(
-                interactor: interactorFactory.makePreferencesInteractor()
+                interactor: interactorFactory.makePreferencesInteractor(),
+                alertPresenter: AlertPresenter(coordinator: self)
             )
 
         case .problemReport:
             return ProblemReportViewController(
-                interactor: interactorFactory.makeProblemReportInteractor()
+                interactor: interactorFactory.makeProblemReportInteractor(),
+                alertPresenter: AlertPresenter(coordinator: self)
             )
 
         case .faq:

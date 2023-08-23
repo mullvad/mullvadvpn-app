@@ -117,7 +117,10 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
             accountNumber: accountNumber,
             devicesProxy: devicesProxy
         )
-        let controller = DeviceManagementViewController(interactor: interactor)
+        let controller = DeviceManagementViewController(
+            interactor: interactor,
+            alertPresenter: AlertPresenter(coordinator: self)
+        )
         controller.delegate = self
         controller.fetchDevices(animateUpdates: false) { [weak self] result in
             guard let self else { return }
