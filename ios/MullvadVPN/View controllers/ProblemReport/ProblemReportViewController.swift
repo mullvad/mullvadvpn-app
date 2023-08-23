@@ -508,7 +508,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
             comment: ""
         )
 
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             message: message,
             icon: .alert
         )

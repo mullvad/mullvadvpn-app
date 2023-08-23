@@ -137,7 +137,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     // MARK: - Alerts
 
     private func logOut() {
-        let alertController = CustomAlertViewController(icon: .spinner)
+        let alertController = AlertViewController(icon: .spinner)
 
         alertPresenter.enqueue(alertController, presentingController: presentationContext) {
             self.interactor.logout {
@@ -166,7 +166,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             comment: ""
         )
 
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             message: message,
             icon: .info
         )

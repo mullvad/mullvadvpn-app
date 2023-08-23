@@ -94,7 +94,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         If you log out, the device and the device name is removed. \
         When you log back in again, the device will get a new name.
         """
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             message: NSLocalizedString(
                 "WELCOME_DEVICE_CONCEPET_TEXT_DIALOG",
                 tableName: "Welcome",

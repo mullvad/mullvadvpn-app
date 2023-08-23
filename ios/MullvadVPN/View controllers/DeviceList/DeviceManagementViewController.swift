@@ -157,7 +157,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
     }
 
     private func showErrorAlert(title: String, error: Error) {
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             title: title,
             message: getErrorDescription(error)
         )
@@ -188,7 +188,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
             ), deviceName
         )
 
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             message: message,
             icon: .alert
         )

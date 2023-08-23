@@ -39,12 +39,17 @@ enum AppRouteGroup: AppRouteGroupProtocol {
      */
     case changelog
 
+    /**
+     Alert group.
+     */
+    case alert
+
     var isModal: Bool {
         switch self {
         case .primary:
             return UIDevice.current.userInterfaceIdiom == .pad
 
-        case .selectLocation, .account, .settings, .changelog:
+        case .selectLocation, .account, .settings, .changelog, .alert:
             return true
         }
     }
@@ -55,6 +60,9 @@ enum AppRouteGroup: AppRouteGroupProtocol {
             return 0
         case .settings, .account, .selectLocation, .changelog:
             return 1
+        case .alert:
+            // Alerts should always be top-most.
+            return 999
         }
     }
 }
@@ -84,13 +92,18 @@ enum AppRoute: AppRouteProtocol {
     case changelog
 
     /**
+     Alert route.
+     */
+    case alert(AlertPresentation)
+
+    /**
      Routes that are part of primary horizontal navigation group.
      */
     case tos, login, main, revoked, outOfTime, welcome
 
     var isExclusive: Bool {
         switch self {
-        case .selectLocation, .account, .settings, .changelog:
+        case .selectLocation, .account, .settings, .changelog, .alert:
             return true
         default:
             return false
@@ -117,6 +130,8 @@ enum AppRoute: AppRouteProtocol {
             return .account
         case .settings:
             return .settings
+        case .alert:
+            return .alert
         }
     }
 }

@@ -59,7 +59,7 @@ class TunnelCoordinator: Coordinator {
     }
 
     private func showCancelTunnelAlert() {
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             title: nil,
             message: NSLocalizedString(
                 "CANCEL_TUNNEL_ALERT_MESSAGE",

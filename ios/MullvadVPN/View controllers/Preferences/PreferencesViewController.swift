@@ -76,7 +76,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     }
 
     private func showContentBlockerInfo(with message: String) {
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             message: message,
             icon: .info
         )

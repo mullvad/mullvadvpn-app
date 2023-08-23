@@ -23,7 +23,7 @@ class PaymentAlertPresenter {
         context: REST.CreateApplePaymentResponse.Context,
         completion: (() -> Void)? = nil
     ) {
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             title: context.errorTitle,
             message: error.displayErrorDescription
         )
@@ -49,7 +49,7 @@ class PaymentAlertPresenter {
             return
         }
 
-        let alertController = CustomAlertViewController(
+        let alertController = AlertViewController(
             title: response.alertTitle(context: context),
             message: response.alertMessage(context: context)
         )

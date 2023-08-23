@@ -8,7 +8,26 @@
 
 import UIKit
 
-class CustomAlertViewController: UIViewController {
+struct AlertAction: Equatable, Hashable {
+    var title: String
+    var style: AlertActionStyle
+}
+
+enum AlertActionStyle {
+    case `default`
+    case destructive
+
+    fileprivate var buttonStyle: AppButton.Style {
+        switch self {
+        case .default:
+            return .default
+        case .destructive:
+            return .danger
+        }
+    }
+}
+
+class AlertViewController: UIViewController {
     typealias Handler = () -> Void
 
     enum Icon {
@@ -24,20 +43,6 @@ class CustomAlertViewController: UIViewController {
                 return UIImage(named: "IconInfo")?.withTintColor(.white)
             default:
                 return nil
-            }
-        }
-    }
-
-    enum ActionStyle {
-        case `default`
-        case destructive
-
-        fileprivate var buttonStyle: AppButton.Style {
-            switch self {
-            case .default:
-                return .default
-            case .destructive:
-                return .danger
             }
         }
     }
@@ -121,7 +126,7 @@ class CustomAlertViewController: UIViewController {
         }
     }
 
-    func addAction(title: String, style: ActionStyle, handler: (() -> Void)? = nil) {
+    func addAction(title: String, style: AlertActionStyle, handler: (() -> Void)? = nil) {
         // The presence of a button should reset any custom button margin to default.
         containerView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.bottom
 
@@ -228,13 +233,10 @@ class CustomAlertViewController: UIViewController {
     }
 
     @objc private func didTapButton(_ button: AppButton) {
-        dismiss(animated: true) { [self] in
-            if let handler = handlers.removeValue(forKey: button) {
-                handler()
-            }
-            didDismiss?()
-            didDismiss = nil
-            handlers.removeAll()
+        if let handler = handlers.removeValue(forKey: button) {
+            handler()
         }
+
+        handlers.removeAll()
     }
 }

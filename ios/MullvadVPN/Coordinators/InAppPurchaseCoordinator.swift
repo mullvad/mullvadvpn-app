@@ -49,7 +49,7 @@ class InAppPurchaseCoordinator: Coordinator, Presentable {
                 coordinator.start()
 
             case let .failure(failure):
-                let alertController = CustomAlertViewController(
+                let alertController = AlertViewController(
                     message: failure.error.localizedDescription,
                     icon: .alert
                 )

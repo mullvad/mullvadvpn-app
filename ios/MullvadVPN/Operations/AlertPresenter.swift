@@ -13,7 +13,7 @@ final class AlertPresenter {
     private let operationQueue = AsyncOperationQueue.makeSerial()
 
     func enqueue(
-        _ alertController: CustomAlertViewController,
+        _ alertController: AlertViewController,
         presentingController: UIViewController,
         presentCompletion: (() -> Void)? = nil
     ) {

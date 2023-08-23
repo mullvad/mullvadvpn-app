@@ -154,6 +154,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         case .welcome:
             presentWelcome(animated: animated, completion: completion)
+
+        case .alert(let presentation):
+            presentAlert(presentation: presentation, animated: animated, completion: completion)
         }
     }
 
@@ -170,7 +173,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 endHorizontalFlow(animated: context.isAnimated, completion: completion)
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
-            case .selectLocation, .account, .settings, .changelog:
+            case .selectLocation, .account, .settings, .changelog, .alert:
                 guard let coordinator = dismissedRoute.coordinator as? Presentable else {
                     completion()
                     return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
@@ -330,6 +333,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         if !appPreferences.isSeenLatestChanges {
             routes.append(.changelog)
         }
+
+        routes.append(.alert(AlertPresentation(style: .alert, message: "Yeah", buttons: [
+            AlertAction(title: "OK", style: .default)
+        ])))
 
         return routes
     }
@@ -645,6 +652,21 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         coordinator.start(animated: animated)
 
         beginHorizontalFlow(animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentAlert(presentation: AlertPresentation, animated: Bool, completion: @escaping (Coordinator) -> Void) {
+        let interactor = AlertInteractor(presentation: presentation)
+        let coordinator = AlertCoordinator(interactor: interactor)
+
+        interactor.presentation.onDismiss = { [weak self] _ in
+            self?.router.dismiss(.alert(presentation))
+        }
+
+        coordinator.start()
+
+        presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }
