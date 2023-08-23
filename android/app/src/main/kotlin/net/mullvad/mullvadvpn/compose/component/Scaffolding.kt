@@ -37,8 +37,10 @@ fun ScaffoldWithTopBar(
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(statusBarColor)
-    systemUiController.setNavigationBarColor(navigationBarColor)
+    LaunchedEffect(key1 = statusBarColor, key2 = navigationBarColor) {
+        systemUiController.setStatusBarColor(statusBarColor)
+        systemUiController.setNavigationBarColor(navigationBarColor)
+    }
 
     Scaffold(
         topBar = {

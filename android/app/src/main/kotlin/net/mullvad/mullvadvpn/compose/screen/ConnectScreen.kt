@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.LocationInfo
 import net.mullvad.mullvadvpn.compose.component.Notification
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -43,6 +44,7 @@ import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -75,7 +77,9 @@ fun ConnectScreen(
     onToggleTunnelInfo: () -> Unit = {},
     onUpdateVersionClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
-    onOpenOutOfTimeScreen: () -> Unit = {}
+    onOpenOutOfTimeScreen: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onAccountClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = Unit) {
@@ -102,104 +106,130 @@ fun ConnectScreen(
         }
     }
 
-    Column(
-        verticalArrangement = Arrangement.Bottom,
-        horizontalAlignment = Alignment.Start,
-        modifier =
-            Modifier.background(color = MaterialTheme.colorScheme.primary)
-                .fillMaxHeight()
-                .verticalScroll(scrollState)
-                .padding(bottom = Dimens.screenVerticalMargin)
-                .testTag(SCROLLABLE_COLUMN_TEST_TAG)
+    ScaffoldWithTopBar(
+        topBarColor =
+            if (uiState.tunnelUiState.isSecured()) {
+                MaterialTheme.colorScheme.inversePrimary
+            } else {
+                MaterialTheme.colorScheme.error
+            },
+        statusBarColor =
+            if (uiState.tunnelUiState.isSecured()) {
+                MaterialTheme.colorScheme.inversePrimary
+            } else {
+                MaterialTheme.colorScheme.error
+            },
+        navigationBarColor = MaterialTheme.colorScheme.primary,
+        iconTintColor =
+            if (uiState.tunnelUiState.isSecured()) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.onError
+                }
+                .copy(alpha = AlphaTopBar),
+        onSettingsClicked = onSettingsClick,
+        onAccountClicked = onAccountClick
     ) {
-        Notification(
-            connectNotificationState = uiState.connectNotificationState,
-            onClickUpdateVersion = onUpdateVersionClick,
-            onClickShowAccount = onManageAccountClick
-        )
-        Spacer(modifier = Modifier.weight(1f))
-        if (
-            uiState.tunnelRealState is TunnelState.Connecting ||
-                (uiState.tunnelRealState is TunnelState.Disconnecting &&
-                    uiState.tunnelRealState.actionAfterDisconnect ==
-                        ActionAfterDisconnect.Reconnect)
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.Start,
+            modifier =
+                Modifier.padding(it)
+                    .background(color = MaterialTheme.colorScheme.primary)
+                    .fillMaxHeight()
+                    .verticalScroll(scrollState)
+                    .padding(bottom = Dimens.screenVerticalMargin)
+                    .testTag(SCROLLABLE_COLUMN_TEST_TAG)
         ) {
-            CircularProgressIndicator(
+            Notification(
+                connectNotificationState = uiState.connectNotificationState,
+                onClickUpdateVersion = onUpdateVersionClick,
+                onClickShowAccount = onManageAccountClick
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            if (
+                uiState.tunnelRealState is TunnelState.Connecting ||
+                    (uiState.tunnelRealState is TunnelState.Disconnecting &&
+                        uiState.tunnelRealState.actionAfterDisconnect ==
+                            ActionAfterDisconnect.Reconnect)
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier =
+                        Modifier.padding(
+                                start = Dimens.sideMargin,
+                                end = Dimens.sideMargin,
+                                top = Dimens.mediumPadding
+                            )
+                            .size(
+                                width = Dimens.progressIndicatorSize,
+                                height = Dimens.progressIndicatorSize
+                            )
+                            .align(Alignment.CenterHorizontally)
+                            .testTag(CIRCULAR_PROGRESS_INDICATOR)
+                )
+            }
+            Spacer(modifier = Modifier.height(Dimens.mediumPadding))
+            ConnectionStatusText(
+                state = uiState.tunnelRealState,
+                modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+            )
+            Text(
+                text = uiState.location?.country ?: "",
+                style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+            )
+            Text(
+                text = uiState.location?.city ?: "",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+            )
+            LocationInfo(
+                onToggleTunnelInfo = onToggleTunnelInfo,
+                isVisible =
+                    uiState.tunnelRealState != TunnelState.Disconnected &&
+                        uiState.location?.hostname != null,
+                isExpanded = uiState.isTunnelInfoExpanded,
+                location = uiState.location,
+                inAddress = uiState.inAddress,
+                outAddress = uiState.outAddress,
                 modifier =
-                    Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            top = Dimens.mediumPadding
-                        )
-                        .size(
-                            width = Dimens.progressIndicatorSize,
-                            height = Dimens.progressIndicatorSize
-                        )
-                        .align(Alignment.CenterHorizontally)
-                        .testTag(CIRCULAR_PROGRESS_INDICATOR)
+                    Modifier.fillMaxWidth()
+                        .padding(horizontal = Dimens.sideMargin)
+                        .testTag(LOCATION_INFO_TEST_TAG)
+            )
+            Spacer(modifier = Modifier.height(Dimens.buttonSeparation))
+            SwitchLocationButton(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(Dimens.selectLocationButtonHeight)
+                        .padding(horizontal = Dimens.sideMargin)
+                        .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
+                onClick = onSwitchLocationClick,
+                showChevron = uiState.showLocation,
+                text =
+                    if (uiState.showLocation) {
+                        uiState.relayLocation?.locationName ?: ""
+                    } else {
+                        stringResource(id = R.string.switch_location)
+                    }
+            )
+            Spacer(modifier = Modifier.height(Dimens.buttonSeparation))
+            ConnectionButton(
+                state = uiState.tunnelUiState,
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .height(Dimens.connectButtonHeight)
+                        .padding(horizontal = Dimens.sideMargin)
+                        .testTag(CONNECT_BUTTON_TEST_TAG),
+                disconnectClick = onDisconnectClick,
+                reconnectClick = { handleThrottledAction(onReconnectClick) },
+                cancelClick = onCancelClick,
+                connectClick = { handleThrottledAction(onConnectClick) },
+                reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG
             )
         }
-        Spacer(modifier = Modifier.height(Dimens.mediumPadding))
-        ConnectionStatusText(
-            state = uiState.tunnelRealState,
-            modifier = Modifier.padding(horizontal = Dimens.sideMargin)
-        )
-        Text(
-            text = uiState.location?.country ?: "",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.padding(horizontal = Dimens.sideMargin)
-        )
-        Text(
-            text = uiState.location?.city ?: "",
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.padding(horizontal = Dimens.sideMargin)
-        )
-        LocationInfo(
-            onToggleTunnelInfo = onToggleTunnelInfo,
-            isVisible =
-                uiState.tunnelRealState != TunnelState.Disconnected &&
-                    uiState.location?.hostname != null,
-            isExpanded = uiState.isTunnelInfoExpanded,
-            location = uiState.location,
-            inAddress = uiState.inAddress,
-            outAddress = uiState.outAddress,
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(horizontal = Dimens.sideMargin)
-                    .testTag(LOCATION_INFO_TEST_TAG)
-        )
-        Spacer(modifier = Modifier.height(Dimens.buttonSeparation))
-        SwitchLocationButton(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .height(Dimens.selectLocationButtonHeight)
-                    .padding(horizontal = Dimens.sideMargin)
-                    .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
-            onClick = onSwitchLocationClick,
-            showChevron = uiState.showLocation,
-            text =
-                if (uiState.showLocation) {
-                    uiState.relayLocation?.locationName ?: ""
-                } else {
-                    stringResource(id = R.string.switch_location)
-                }
-        )
-        Spacer(modifier = Modifier.height(Dimens.buttonSeparation))
-        ConnectionButton(
-            state = uiState.tunnelUiState,
-            modifier =
-                Modifier.fillMaxWidth()
-                    .height(Dimens.connectButtonHeight)
-                    .padding(horizontal = Dimens.sideMargin)
-                    .testTag(CONNECT_BUTTON_TEST_TAG),
-            disconnectClick = onDisconnectClick,
-            reconnectClick = { handleThrottledAction(onReconnectClick) },
-            cancelClick = onCancelClick,
-            connectClick = { handleThrottledAction(onConnectClick) },
-            reconnectButtonTestTag = RECONNECT_BUTTON_TEST_TAG
-        )
     }
 }
