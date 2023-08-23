@@ -35,11 +35,12 @@ import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.ui.extension.copyToClipboard
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 
@@ -54,6 +55,7 @@ private fun PreviewWelcomeScreen() {
             onSitePaymentClick = {},
             onRedeemVoucherClick = {},
             onSettingsClick = {},
+            onAccountClick = {},
             openConnectScreen = {}
         )
     }
@@ -67,6 +69,7 @@ fun WelcomeScreen(
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onAccountClick: () -> Unit,
     openConnectScreen: () -> Unit
 ) {
     val context = LocalContext.current
@@ -94,7 +97,15 @@ fun WelcomeScreen(
                 MaterialTheme.colorScheme.error
             },
         navigationBarColor = MaterialTheme.colorScheme.background,
-        onSettingsClicked = onSettingsClick
+        iconTintColor =
+            if (uiState.tunnelState.isSecured()) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.onError
+                }
+                .copy(alpha = AlphaTopBar),
+        onSettingsClicked = onSettingsClick,
+        onAccountClicked = onAccountClick
     ) {
         Column(
             verticalArrangement = Arrangement.Bottom,

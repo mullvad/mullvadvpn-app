@@ -54,6 +54,7 @@ fun DeviceRevokedScreen(
         statusBarColor = topColor,
         navigationBarColor = colorResource(id = R.color.darkBlue),
         onSettingsClicked = onSettingsClicked,
+        onAccountClicked = null
     ) {
         ConstraintLayout(
             modifier =

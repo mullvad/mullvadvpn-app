@@ -3,11 +3,12 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -22,14 +23,16 @@ import me.onebone.toolbar.CollapsingToolbarScaffoldState
 import me.onebone.toolbar.CollapsingToolbarScope
 import me.onebone.toolbar.ExperimentalToolbarApi
 import me.onebone.toolbar.ScrollStrategy
+import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScaffoldWithTopBar(
     topBarColor: Color,
     statusBarColor: Color,
     navigationBarColor: Color,
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
     onSettingsClicked: (() -> Unit)?,
+    onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
@@ -41,7 +44,9 @@ fun ScaffoldWithTopBar(
         topBar = {
             TopBar(
                 backgroundColor = topBarColor,
+                iconTintColor = iconTintColor,
                 onSettingsClicked = onSettingsClicked,
+                onAccountClicked = onAccountClicked,
                 isIconAndLogoVisible = isIconAndLogoVisible
             )
         },
@@ -81,7 +86,7 @@ fun CollapsableAwareToolbarScaffold(
         toolbarModifier = toolbarModifier,
         toolbar = toolbar,
         body = {
-            var bodyHeight by remember { mutableStateOf(0) }
+            var bodyHeight by remember { mutableIntStateOf(0) }
 
             BoxWithConstraints(
                 modifier = Modifier.onGloballyPositioned { bodyHeight = it.size.height }
