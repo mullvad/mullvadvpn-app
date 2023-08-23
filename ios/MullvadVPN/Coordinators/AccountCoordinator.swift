@@ -136,7 +136,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
         let presentation = AlertPresentation(
             id: "account-logout-alert",
             icon: .spinner,
-            message: nil,
             buttons: []
         )
 
