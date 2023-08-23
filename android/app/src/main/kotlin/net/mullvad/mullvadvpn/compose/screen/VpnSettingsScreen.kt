@@ -77,8 +77,8 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
-import net.mullvad.mullvadvpn.compose.theme.AppTheme
-import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Port

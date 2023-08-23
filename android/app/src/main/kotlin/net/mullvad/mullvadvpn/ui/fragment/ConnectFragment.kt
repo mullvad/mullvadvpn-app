@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectScreen
-import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.model.TunnelState

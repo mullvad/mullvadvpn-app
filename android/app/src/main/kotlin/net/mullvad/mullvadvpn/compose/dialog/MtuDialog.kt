@@ -27,11 +27,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite20
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
+import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.MullvadDarkBlue
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite20
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite60
 import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
 import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.util.isValidMtu

@@ -32,7 +32,7 @@ import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
-import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable

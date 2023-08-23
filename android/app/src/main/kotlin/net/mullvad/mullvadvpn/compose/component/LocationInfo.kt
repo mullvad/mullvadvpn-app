@@ -15,11 +15,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
-import net.mullvad.mullvadvpn.compose.theme.AlphaInvisible
-import net.mullvad.mullvadvpn.compose.theme.AlphaVisible
-import net.mullvad.mullvadvpn.compose.theme.AppTheme
-import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.talpid.net.TransportProtocol
 

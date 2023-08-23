@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Composable
 fun ActionButton(

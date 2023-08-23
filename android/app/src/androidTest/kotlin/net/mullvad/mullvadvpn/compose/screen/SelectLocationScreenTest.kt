@@ -10,7 +10,7 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayEndpointData
 import net.mullvad.mullvadvpn.model.RelayList

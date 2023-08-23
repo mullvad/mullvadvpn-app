@@ -17,11 +17,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
-import net.mullvad.mullvadvpn.compose.theme.AlphaDescription
-import net.mullvad.mullvadvpn.compose.theme.AlphaDisabled
-import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
-import net.mullvad.mullvadvpn.compose.theme.AppTheme
-import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
+import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.util.asString
 import net.mullvad.mullvadvpn.util.isPortInValidRanges

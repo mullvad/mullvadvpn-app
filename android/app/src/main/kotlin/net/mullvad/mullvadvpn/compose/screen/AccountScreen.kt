@@ -34,7 +34,7 @@ import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.AccountUiState
-import net.mullvad.mullvadvpn.compose.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.util.toExpiryDateString
