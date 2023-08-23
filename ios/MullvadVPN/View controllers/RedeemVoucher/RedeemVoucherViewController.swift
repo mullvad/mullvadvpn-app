@@ -18,7 +18,7 @@ protocol RedeemVoucherViewControllerDelegate: AnyObject {
     func redeemVoucherDidCancel(_ controller: RedeemVoucherViewController)
 }
 
-class RedeemVoucherViewController: UIViewController, UINavigationControllerDelegate {
+class RedeemVoucherViewController: UIViewController, UINavigationControllerDelegate, RootContainment {
     private let contentView = RedeemVoucherContentView()
     private var voucherTask: Cancellable?
     private var interactor: RedeemVoucherInteractor?
@@ -36,6 +36,22 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
+    }
+
+    var preferredHeaderBarPresentation: HeaderBarPresentation {
+        HeaderBarPresentation(style: .default, showsDivider: true)
+    }
+
+    var prefersHeaderBarHidden: Bool {
+        false
+    }
+
+    var prefersDeviceInfoBarHidden: Bool {
+        true
+    }
+
+    var prefersNotificationBarHidden: Bool {
+        true
     }
 
     // MARK: - Life Cycle

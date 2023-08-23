@@ -19,6 +19,7 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
     private var lastLoginAction: LoginAction?
 
     var didFinish: ((LoginCoordinator) -> Void)?
+    var didCreateAccount: (() -> Void)?
 
     let navigationController: RootContainerViewController
 
@@ -39,6 +40,7 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
         loginController.didFinishLogin = { [weak self] action, error in
             self?.didFinishLogin(action: action, error: error) ?? .nothing
         }
+        interactor.didCreateAccount = self.didCreateAccount
 
         navigationController.pushViewController(loginController, animated: animated)
 

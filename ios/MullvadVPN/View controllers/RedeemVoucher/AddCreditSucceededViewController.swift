@@ -1,5 +1,5 @@
 //
-//  RedeemVoucherSucceededViewController.swift
+//  AddCreditSucceededViewController.swift
 //  MullvadVPN
 //
 //  Created by Sajad Vishkai on 2022-09-23.
@@ -8,15 +8,15 @@
 
 import UIKit
 
-protocol RedeemVoucherSucceededViewControllerDelegate: AnyObject {
-    func redeemVoucherSucceededViewControllerDidFinish(
-        _ controller: RedeemVoucherSucceededViewController
-    )
+protocol AddCreditSucceededViewControllerDelegate: AnyObject {
+    func header(in controller: AddCreditSucceededViewController) -> String
 
-    func titleForAction(in controller: RedeemVoucherSucceededViewController) -> String
+    func titleForAction(in controller: AddCreditSucceededViewController) -> String
+
+    func addCreditSucceededViewControllerDidFinish(in controller: AddCreditSucceededViewController)
 }
 
-class RedeemVoucherSucceededViewController: UIViewController {
+class AddCreditSucceededViewController: UIViewController, RootContainment {
     private let statusImageView: StatusImageView = {
         let statusImageView = StatusImageView(style: .success)
         statusImageView.translatesAutoresizingMaskIntoConstraints = false
@@ -26,12 +26,6 @@ class RedeemVoucherSucceededViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 20)
-        label.text = NSLocalizedString(
-            "REDEEM_VOUCHER_SUCCESS_TITLE",
-            tableName: "RedeemVoucher",
-            value: "Voucher was successfully redeemed.",
-            comment: ""
-        )
         label.textColor = .white
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -57,9 +51,26 @@ class RedeemVoucherSucceededViewController: UIViewController {
         .lightContent
     }
 
-    weak var delegate: RedeemVoucherSucceededViewControllerDelegate? {
+    var preferredHeaderBarPresentation: HeaderBarPresentation {
+        HeaderBarPresentation(style: .default, showsDivider: true)
+    }
+
+    var prefersHeaderBarHidden: Bool {
+        false
+    }
+
+    var prefersDeviceInfoBarHidden: Bool {
+        true
+    }
+
+    var prefersNotificationBarHidden: Bool {
+        true
+    }
+
+    weak var delegate: AddCreditSucceededViewControllerDelegate? {
         didSet {
             dismissButton.setTitle(delegate?.titleForAction(in: self), for: .normal)
+            titleLabel.text = delegate?.header(in: self)
         }
     }
 
@@ -71,8 +82,8 @@ class RedeemVoucherSucceededViewController: UIViewController {
 
         messageLabel.text = String(
             format: NSLocalizedString(
-                "REDEEM_VOUCHER_SUCCESS_MESSAGE",
-                tableName: "RedeemVoucher",
+                "ADDED_TIME_SUCCESS_MESSAGE",
+                tableName: "AddedTime",
                 value: "%@ were added to your account.",
                 comment: ""
             ),
@@ -127,7 +138,7 @@ class RedeemVoucherSucceededViewController: UIViewController {
     }
 
     @objc private func handleDismissTap() {
-        delegate?.redeemVoucherSucceededViewControllerDidFinish(self)
+        delegate?.addCreditSucceededViewControllerDidFinish(in: self)
     }
 }
 
