@@ -9,8 +9,8 @@ import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.WelcomeScreen
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -33,9 +33,10 @@ class WelcomeFragment : BaseFragment() {
                         uiState = state,
                         viewActions = vm.viewActions,
                         onSitePaymentClick = vm::onSitePaymentClick,
-                        onRedeemVoucherClick = { openRedeemVoucherFragment() },
-                        onSettingsClick = { openSettingsView() },
-                        openConnectScreen = { advanceToConnectScreen() }
+                        onRedeemVoucherClick = ::openRedeemVoucherFragment,
+                        onSettingsClick = ::openSettingsView,
+                        onAccountClick = ::openAccountView,
+                        openConnectScreen = ::advanceToConnectScreen
                     )
                 }
             }
@@ -57,5 +58,9 @@ class WelcomeFragment : BaseFragment() {
 
     private fun openSettingsView() {
         (context as? MainActivity)?.openSettings()
+    }
+
+    private fun openAccountView() {
+        (context as? MainActivity)?.openAccount()
     }
 }
