@@ -67,9 +67,6 @@ class RedeemVoucherOperation: ResultOperation<REST.SubmitVoucherResponse> {
             case .loggedIn(var storedAccountData, let storedDeviceData):
                 storedAccountData.expiry = voucherResponse.newExpiry
 
-                // flip the value to `false` when adding credit is successful
-                storedAccountData.isNew = false
-
                 let newDeviceState = DeviceState.loggedIn(storedAccountData, storedDeviceData)
 
                 interactor.setDeviceState(newDeviceState, persist: true)
