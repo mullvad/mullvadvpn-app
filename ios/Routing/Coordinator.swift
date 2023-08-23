@@ -84,7 +84,7 @@ open class Coordinator: NSObject {
  */
 public protocol Presentable: Coordinator {
     /**
-     View controller that is presented modally. It's expected it to be the top-most view controller
+     View controller that is presented modally. It's expected it to be the topmost view controller
      managed by coordinator.
      */
     var presentedViewController: UIViewController { get }
