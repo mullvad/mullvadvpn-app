@@ -14,7 +14,7 @@ import MullvadTypes
 import RelayCache
 import RelaySelector
 
-final class TransportMonitor: RESTTransport {
+final class TransportMonitor: RESTTransportProvider {
     private let tunnelManager: TunnelManager
     private let tunnelStore: TunnelStore
     private let transportProvider: TransportProvider
@@ -29,39 +29,24 @@ final class TransportMonitor: RESTTransport {
         self.transportProvider = transportProvider
     }
 
-    var name: String { selectTransport(transportProvider).name }
-
-    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> Cancellable
-    {
-        selectTransport(transportProvider).sendRequest(request, completion: completion)
-    }
-
-    // MARK: -
-
-    // MARK: Private API
-
     /// Selects a transport to use for sending an `URLRequest`
     ///
     /// This method returns the appropriate transport layer based on whether a tunnel is available, and whether it
-    /// should be bypassed
-    /// whenever a transport is requested.
+    /// should be bypassed whenever a transport is requested.
     ///
     /// - Parameters:
     ///   - transport: The transport to use if there is no tunnel, or if it shouldn't be bypassed
     /// - Returns: A transport to use for sending an `URLRequest`
-    private func selectTransport(_ transport: RESTTransport) -> RESTTransport {
+    func makeTransport() -> RESTTransport? {
         let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
-            tunnel.status == .connecting ||
-                tunnel.status == .reasserting ||
-                tunnel.status == .connected
+            tunnel.status == .connecting || tunnel.status == .reasserting || tunnel.status == .connected
         }
 
         if let tunnel, shouldByPassVPN(tunnel: tunnel) {
-            return PacketTunnelTransport(
-                tunnel: tunnel
-            )
+            return PacketTunnelTransport(tunnel: tunnel)
+        } else {
+            return transportProvider.makeTransport()
         }
-        return transport
     }
 
     private func shouldByPassVPN(tunnel: Tunnel) -> Bool {

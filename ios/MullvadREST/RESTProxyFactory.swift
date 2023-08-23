@@ -13,7 +13,7 @@ extension REST {
         public let configuration: AuthProxyConfiguration
 
         public class func makeProxyFactory(
-            transportProvider: @escaping () -> RESTTransport?,
+            transportProvider: RESTTransportProvider,
             addressCache: AddressCache
         ) -> ProxyFactory {
             let basicConfiguration = REST.ProxyConfiguration(

@@ -13,7 +13,7 @@ import MullvadTypes
 import RelayCache
 import RelaySelector
 
-public final class TransportProvider: RESTTransport {
+public final class TransportProvider: RESTTransportProvider {
     private let urlSessionTransport: URLSessionTransport
     private let relayCache: RelayCache
     private let logger = Logger(label: "TransportProvider")
@@ -49,9 +49,20 @@ public final class TransportProvider: RESTTransport {
         }
     }
 
-    // MARK: -
+    public func makeTransport() -> RESTTransport? {
+        parallelRequestsMutex.withLock {
+            guard let actualTransport = makeTransportInner() else { return nil }
 
-    // MARK: RESTTransport implementation
+            let currentStrategy = transportStrategy
+            return TransportWrapper(wrapped: actualTransport) { [weak self] error in
+                if let error = error as? URLError, error.shouldResetNetworkTransport {
+                    self?.resetTransportMatching(currentStrategy)
+                }
+            }
+        }
+    }
+
+    // MARK: -
 
     private func shadowsocks() -> RESTTransport? {
         do {
@@ -112,35 +123,6 @@ public final class TransportProvider: RESTTransport {
 
     // MARK: -
 
-    // MARK: RESTTransport implementation
-
-    public var name: String { currentTransport?.name ?? "TransportProvider" }
-
-    public func sendRequest(
-        _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
-    ) -> Cancellable {
-        parallelRequestsMutex.lock()
-        defer {
-            parallelRequestsMutex.unlock()
-        }
-
-        let currentStrategy = transportStrategy
-        guard let transport = makeTransport() else { return AnyCancellable() }
-
-        let failureCompletionHandler: (Data?, URLResponse?, Error?)
-            -> Void = { [weak self] data, response, error in
-                guard let self else { return }
-
-                if let error = error as? URLError, error.shouldResetNetworkTransport {
-                    resetTransportMatching(currentStrategy)
-                }
-                completion(data, response, error)
-            }
-
-        return transport.sendRequest(request, completion: failureCompletionHandler)
-    }
-
     /// When several requests fail at the same time,  prevents the `transportStrategy` from switching multiple times.
     ///
     /// The `strategy` is checked against the `transportStrategy`. When several requests are made and fail in parallel,
@@ -162,7 +144,7 @@ public final class TransportProvider: RESTTransport {
     /// > Warning: Do not  lock the `parallelRequestsMutex` in this method
     ///
     /// - Returns: A `RESTTransport` object to make a connection
-    private func makeTransport() -> RESTTransport? {
+    private func makeTransportInner() -> RESTTransport? {
         if currentTransport == nil {
             switch transportStrategy.connectionTransport() {
             case .useShadowsocks:
@@ -188,5 +170,25 @@ private extension URLError {
             code != .notConnectedToInternet &&
             code != .internationalRoamingOff &&
             code != .callIsActive
+    }
+}
+
+/// Interstitial implementation of `RESTTransport` that intercepts the completion of the wrapped transport.
+private struct TransportWrapper: RESTTransport {
+    let wrapped: RESTTransport
+    let onComplete: (Error?) -> Void
+
+    var name: String {
+        return wrapped.name
+    }
+
+    func sendRequest(
+        _ request: URLRequest,
+        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+    ) -> Cancellable {
+        return wrapped.sendRequest(request) { data, response, error in
+            onComplete(error)
+            completion(data, response, error)
+        }
     }
 }
