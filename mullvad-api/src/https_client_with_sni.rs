@@ -87,14 +87,91 @@ impl InnerConnectionMode {
     ) -> Result<ApiConnection, std::io::Error> {
         use InnerConnectionMode::*;
         match self {
-            Direct => handle_direct_connection(addr, hostname).await,
+            Direct => Self::handle_direct_connection(addr, hostname).await,
             Shadowsocks(config) => {
-                handle_shadowsocks_connection(config.clone(), addr, hostname).await
+                Self::handle_shadowsocks_connection(config.clone(), addr, hostname).await
             }
             Socks5(proxy_config) => {
-                handle_socks_connection(proxy_config.clone(), addr, hostname).await
+                Self::handle_socks_connection(proxy_config.clone(), addr, hostname).await
             }
         }
+    }
+
+    /// Set up a TCP-socket connection.
+    async fn handle_direct_connection(
+        addr: &SocketAddr,
+        hostname: &str,
+    ) -> Result<ApiConnection, io::Error> {
+        let socket = HttpsConnectorWithSni::open_socket(
+            *addr,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx.clone(),
+        )
+        .await?;
+        #[cfg(feature = "api-override")]
+        if API.disable_tls {
+            return Ok(ApiConnection::new(Box::new(socket)));
+        }
+
+        let tls_stream = TlsStream::connect_https(socket, hostname).await?;
+        Ok(ApiConnection::new(Box::new(tls_stream)))
+    }
+
+    /// Set up a shadowsocks-socket connection.
+    async fn handle_shadowsocks_connection(
+        shadowsocks: ShadowsocksConfig,
+        addr: &SocketAddr,
+        hostname: &str,
+    ) -> Result<ApiConnection, io::Error> {
+        let socket = HttpsConnectorWithSni::open_socket(
+            shadowsocks.params.peer,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx.clone(),
+        )
+        .await?;
+        let proxy = ProxyClientStream::from_stream(
+            shadowsocks.proxy_context,
+            socket,
+            &ServerConfig::from(shadowsocks.params),
+            *addr,
+        );
+
+        #[cfg(feature = "api-override")]
+        if API.disable_tls {
+            return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
+        }
+
+        let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
+        Ok(ApiConnection::new(Box::new(tls_stream)))
+    }
+
+    /// Set up a SOCKS5-socket connection.
+    ///
+    /// TODO: Handle case where the proxy-address is `localhost`.
+    async fn handle_socks_connection(
+        proxy_config: SocksConfig,
+        addr: &SocketAddr,
+        hostname: &str,
+    ) -> Result<ApiConnection, io::Error> {
+        let socket = HttpsConnectorWithSni::open_socket(
+            proxy_config.peer,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx.clone(),
+        )
+        .await?;
+        let proxy = tokio_socks::tcp::Socks5Stream::connect_with_socket(socket, addr)
+            .await
+            .map_err(|error| {
+                io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
+            })?;
+
+        #[cfg(feature = "api-override")]
+        if API.disable_tls {
+            return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
+        }
+
+        let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
+        Ok(ApiConnection::new(Box::new(tls_stream)))
     }
 }
 
@@ -298,81 +375,6 @@ impl fmt::Debug for HttpsConnectorWithSni {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("HttpsConnectorWithSni").finish()
     }
-}
-
-/// Set up a TCP-socket connection.
-async fn handle_direct_connection(
-    addr: &SocketAddr,
-    hostname: &str,
-) -> Result<ApiConnection, io::Error> {
-    let socket = HttpsConnectorWithSni::open_socket(
-        *addr,
-        #[cfg(target_os = "android")]
-        socket_bypass_tx.clone(),
-    )
-    .await?;
-    #[cfg(feature = "api-override")]
-    if API.disable_tls {
-        return Ok(ApiConnection::new(Box::new(socket)));
-    }
-
-    let tls_stream = TlsStream::connect_https(socket, hostname).await?;
-    Ok(ApiConnection::new(Box::new(tls_stream)))
-}
-
-/// Set up a shadowsocks-socket connection.
-async fn handle_shadowsocks_connection(
-    shadowsocks: ShadowsocksConfig,
-    addr: &SocketAddr,
-    hostname: &str,
-) -> Result<ApiConnection, io::Error> {
-    let socket = HttpsConnectorWithSni::open_socket(
-        shadowsocks.params.peer,
-        #[cfg(target_os = "android")]
-        socket_bypass_tx.clone(),
-    )
-    .await?;
-    let proxy = ProxyClientStream::from_stream(
-        shadowsocks.proxy_context,
-        socket,
-        &ServerConfig::from(shadowsocks.params),
-        *addr,
-    );
-
-    #[cfg(feature = "api-override")]
-    if API.disable_tls {
-        return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
-    }
-
-    let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
-    Ok(ApiConnection::new(Box::new(tls_stream)))
-}
-
-/// Set up a SOCKS5-socket connection.
-///
-/// TODO: Handle case where the proxy-address is `localhost`.
-async fn handle_socks_connection(
-    proxy_config: SocksConfig,
-    addr: &SocketAddr,
-    hostname: &str,
-) -> Result<ApiConnection, io::Error> {
-    let socket = HttpsConnectorWithSni::open_socket(
-        proxy_config.peer,
-        #[cfg(target_os = "android")]
-        socket_bypass_tx.clone(),
-    )
-    .await?;
-    let proxy = tokio_socks::tcp::Socks5Stream::connect_with_socket(socket, addr)
-        .await
-        .map_err(|error| io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}")))?;
-
-    #[cfg(feature = "api-override")]
-    if API.disable_tls {
-        return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
-    }
-
-    let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
-    Ok(ApiConnection::new(Box::new(tls_stream)))
 }
 
 impl Service<Uri> for HttpsConnectorWithSni {
