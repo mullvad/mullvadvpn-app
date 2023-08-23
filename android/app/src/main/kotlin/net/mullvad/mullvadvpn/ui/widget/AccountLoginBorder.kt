@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.core.content.res.ResourcesCompat
 import net.mullvad.mullvadvpn.R
 
 class AccountLoginBorder : RelativeLayout {
@@ -21,30 +22,30 @@ class AccountLoginBorder : RelativeLayout {
     // horizontal line, and as a consequence either the horizontal or the vertical borders don't
     // show correctly, respectively.
     private class StateDrawables(
-        val corner: Drawable,
-        val horizontalBorder: Drawable,
-        val verticalBorder: Drawable
+        val corner: Drawable?,
+        val horizontalBorder: Drawable?,
+        val verticalBorder: Drawable?
     )
 
     private val unfocusedDrawables =
         StateDrawables(
-            resources.getDrawable(R.drawable.account_login_corner, null),
-            resources.getDrawable(R.drawable.account_login_border, null),
-            resources.getDrawable(R.drawable.account_login_border, null)
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_corner, null),
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_border, null),
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_border, null)
         )
 
     private val focusedDrawables =
         StateDrawables(
-            resources.getDrawable(R.drawable.account_login_corner_focused, null),
-            resources.getDrawable(R.drawable.account_login_border_focused, null),
-            resources.getDrawable(R.drawable.account_login_border_focused, null)
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_corner_focused, null),
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_border_focused, null),
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_border_focused, null)
         )
 
     private val errorDrawables =
         StateDrawables(
-            resources.getDrawable(R.drawable.account_login_corner_error, null),
-            resources.getDrawable(R.drawable.account_login_border_error, null),
-            resources.getDrawable(R.drawable.account_login_border_error, null)
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_corner_error, null),
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_border_error, null),
+            ResourcesCompat.getDrawable(resources, R.drawable.account_login_border_error, null)
         )
 
     private val container =
