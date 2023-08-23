@@ -59,7 +59,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         addressCache.loadFromFile()
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: { [weak self] in self?.transportMonitor },
+            transportProvider: AnyTransportProvider { [weak self] in
+                return self?.transportMonitor.makeTransport()
+            },
             addressCache: addressCache
         )
 

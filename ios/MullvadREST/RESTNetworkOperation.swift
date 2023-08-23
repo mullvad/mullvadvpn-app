@@ -17,7 +17,7 @@ extension REST {
         private let responseHandler: AnyResponseHandler<Success>
 
         private let logger: Logger
-        private let transportProvider: () -> RESTTransport?
+        private let transportProvider: RESTTransportProvider
         private let addressCacheStore: AddressCache
 
         private var networkTask: Cancellable?
@@ -137,8 +137,7 @@ extension REST {
         private func didReceiveURLRequest(_ restRequest: REST.Request, endpoint: AnyIPEndpoint) {
             dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
-            let transport = transportProvider()
-            guard let transport else {
+            guard let transport = transportProvider.makeTransport() else {
                 logger.error("Failed to obtain transport.")
                 finish(result: .failure(REST.Error.transport(InternalTransportError.noTransport)))
                 return
