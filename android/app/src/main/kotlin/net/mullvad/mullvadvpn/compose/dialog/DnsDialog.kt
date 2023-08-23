@@ -27,12 +27,12 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadDarkBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadRed
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite20
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite60
+import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.MullvadDarkBlue
+import net.mullvad.mullvadvpn.lib.theme.MullvadRed
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite20
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite60
 import net.mullvad.mullvadvpn.viewmodel.StagedDns
 
 @OptIn(ExperimentalComposeUiApi::class)

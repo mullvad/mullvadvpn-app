@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.ComposeView
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.SelectLocationScreen
-import net.mullvad.mullvadvpn.compose.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel

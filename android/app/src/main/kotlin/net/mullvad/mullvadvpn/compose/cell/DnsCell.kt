@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.theme.MullvadHelmetYellow
+import net.mullvad.mullvadvpn.lib.theme.MullvadHelmetYellow
 
 @Preview
 @Composable
