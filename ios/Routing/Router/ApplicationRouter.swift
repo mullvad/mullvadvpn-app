@@ -81,7 +81,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
     }
 
     private func enqueue(_ pendingRoute: PendingRoute<RouteType>) {
-        logger.debug("Enqueue \(pendingRoute.operation).")
+        logger.debug("\(pendingRoute.operation).")
 
         pendingRoutes.append(pendingRoute)
 
