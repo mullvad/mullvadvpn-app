@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.theme
+package net.mullvad.mullvadvpn.lib.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -14,9 +14,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.compose.theme.dimensions.Dimensions
-import net.mullvad.mullvadvpn.compose.theme.dimensions.defaultDimensions
-import net.mullvad.mullvadvpn.compose.theme.typeface.TypeScale
+import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
+import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
+import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale
 
 // Add our own definitions here
 private val MullvadTypography =

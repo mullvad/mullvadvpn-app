@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import net.mullvad.mullvadvpn.compose.theme.Dimens
-import net.mullvad.mullvadvpn.compose.theme.typeface.TypeScale.TextMedium
-import net.mullvad.mullvadvpn.compose.theme.typeface.TypeScale.TextSmall
+import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale.TextMedium
+import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale.TextSmall
 
 @Preview
 @Composable

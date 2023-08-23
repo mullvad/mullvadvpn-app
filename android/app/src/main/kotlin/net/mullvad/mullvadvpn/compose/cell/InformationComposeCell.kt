@@ -17,10 +17,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.theme.AlphaInactive
-import net.mullvad.mullvadvpn.compose.theme.AlphaVisible
-import net.mullvad.mullvadvpn.compose.theme.MullvadBlue
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
 
 @Preview
 @Composable

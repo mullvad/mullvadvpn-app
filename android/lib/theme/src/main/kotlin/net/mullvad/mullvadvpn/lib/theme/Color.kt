@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.theme
+package net.mullvad.mullvadvpn.lib.theme
 
 import androidx.compose.ui.graphics.Color
 

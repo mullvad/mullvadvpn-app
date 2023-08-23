@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.HtmlText
-import net.mullvad.mullvadvpn.compose.theme.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
 
 @Preview
 @Composable

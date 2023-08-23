@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.theme.typeface
+package net.mullvad.mullvadvpn.lib.theme.typeface
 
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
