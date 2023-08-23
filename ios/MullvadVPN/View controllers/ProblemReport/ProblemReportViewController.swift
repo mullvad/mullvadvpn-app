@@ -13,6 +13,7 @@ import UIKit
 
 final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     private let interactor: ProblemReportInteractor
+    private let alertPresenter: AlertPresenter
 
     private var textViewKeyboardResponder: AutomaticKeyboardResponder?
     private var scrollViewKeyboardResponder: AutomaticKeyboardResponder?
@@ -187,8 +188,9 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         false
     }
 
-    init(interactor: ProblemReportInteractor) {
+    init(interactor: ProblemReportInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
+        self.alertPresenter = alertPresenter
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -501,45 +503,43 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     }
 
     private func presentEmptyEmailConfirmationAlert(completion: @escaping (Bool) -> Void) {
-        let message = NSLocalizedString(
-            "EMPTY_EMAIL_ALERT_MESSAGE",
-            tableName: "ProblemReport",
-            value: "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.",
-            comment: ""
-        )
-
-        let alertController = CustomAlertViewController(
-            message: message,
-            icon: .alert
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION",
+        let presentation = AlertPresentation(
+            icon: .alert,
+            message: NSLocalizedString(
+                "EMPTY_EMAIL_ALERT_MESSAGE",
                 tableName: "ProblemReport",
-                value: "Send anyway",
+                value: "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.",
                 comment: ""
             ),
-            style: .destructive,
-            handler: {
-                completion(true)
-            }
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION",
+                        tableName: "ProblemReport",
+                        value: "Send anyway",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: {
+                        completion(true)
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "EMPTY_EMAIL_ALERT_CANCEL_ACTION",
+                        tableName: "ProblemReport",
+                        value: "Cancel",
+                        comment: ""
+                    ),
+                    style: .default,
+                    handler: {
+                        completion(false)
+                    }
+                ),
+            ]
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "EMPTY_EMAIL_ALERT_CANCEL_ACTION",
-                tableName: "ProblemReport",
-                value: "Cancel",
-                comment: ""
-            ),
-            style: .default,
-            handler: {
-                completion(false)
-            }
-        )
-
-        present(alertController, animated: true)
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     // MARK: - Private: Problem report submission

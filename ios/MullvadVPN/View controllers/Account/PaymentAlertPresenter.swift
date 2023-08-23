@@ -7,36 +7,31 @@
 //
 
 import MullvadREST
-import UIKit
+import Routing
 
-class PaymentAlertPresenter {
-    private let presentationController: UIViewController
-    private let alertPresenter: AlertPresenter
-
-    init(presentationController: UIViewController, alertPresenter: AlertPresenter) {
-        self.presentationController = presentationController
-        self.alertPresenter = alertPresenter
-    }
+struct PaymentAlertPresenter {
+    let coordinator: Coordinator
 
     func showAlertForError(
         _ error: StorePaymentManagerError,
         context: REST.CreateApplePaymentResponse.Context,
         completion: (() -> Void)? = nil
     ) {
-        let alertController = CustomAlertViewController(
+        let presentation = AlertPresentation(
             title: context.errorTitle,
-            message: error.displayErrorDescription
+            message: error.displayErrorDescription,
+            buttons: [
+                AlertAction(
+                    title: okButtonTextForKey("PAYMENT_ERROR_ALERT_OK_ACTION"),
+                    style: .default,
+                    handler: {
+                        completion?()
+                    }
+                ),
+            ]
         )
 
-        alertController.addAction(
-            title: okButtonTextForKey("PAYMENT_ERROR_ALERT_OK_ACTION"),
-            style: .default,
-            handler: {
-                completion?()
-            }
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: presentationController)
+        coordinator.applicationRouter?.present(.alert(presentation), animated: true)
     }
 
     func showAlertForResponse(
@@ -49,20 +44,21 @@ class PaymentAlertPresenter {
             return
         }
 
-        let alertController = CustomAlertViewController(
+        let presentation = AlertPresentation(
             title: response.alertTitle(context: context),
-            message: response.alertMessage(context: context)
+            message: response.alertMessage(context: context),
+            buttons: [
+                AlertAction(
+                    title: okButtonTextForKey("PAYMENT_RESPONSE_ALERT_OK_ACTION"),
+                    style: .default,
+                    handler: {
+                        completion?()
+                    }
+                ),
+            ]
         )
 
-        alertController.addAction(
-            title: okButtonTextForKey("PAYMENT_RESPONSE_ALERT_OK_ACTION"),
-            style: .default,
-            handler: {
-                completion?()
-            }
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: presentationController)
+        coordinator.applicationRouter?.present(.alert(presentation), animated: true)
     }
 
     private func okButtonTextForKey(_ key: String) -> String {

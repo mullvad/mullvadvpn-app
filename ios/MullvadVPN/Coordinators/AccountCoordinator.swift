@@ -23,7 +23,6 @@ enum AddedMoreCreditOption: Equatable {
 final class AccountCoordinator: Coordinator, Presentable, Presenting {
     private let interactor: AccountInteractor
     private var accountController: AccountViewController?
-    private let alertPresenter = AlertPresenter()
 
     let navigationController: UINavigationController
     var presentedViewController: UIViewController {
@@ -49,10 +48,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
 
         let accountController = AccountViewController(
             interactor: interactor,
-            errorPresenter: PaymentAlertPresenter(
-                presentationController: presentationContext,
-                alertPresenter: alertPresenter
-            )
+            errorPresenter: PaymentAlertPresenter(coordinator: self)
         )
 
         accountController.actionHandler = handleViewControllerAction
@@ -137,26 +133,26 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     // MARK: - Alerts
 
     private func logOut() {
-        let alertController = CustomAlertViewController(icon: .spinner)
+        let presentation = AlertPresentation(icon: .spinner, message: nil, buttons: [])
 
-        alertPresenter.enqueue(alertController, presentingController: presentationContext) {
-            self.interactor.logout {
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
-                    guard let self else { return }
+        interactor.logout {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+                guard let self else { return }
 
-                    alertController.dismiss(animated: true) {
-                        self.didFinish?(self, .userLoggedOut)
-                    }
-                }
+                applicationRouter?.dismiss(.alert(presentation), animated: true)
+                self.didFinish?(self, .userLoggedOut)
             }
         }
+
+        applicationRouter?.present(.alert(presentation))
     }
 
     private func showAccountDeviceInfo() {
         let message = NSLocalizedString(
             "DEVICE_INFO_DIALOG_MESSAGE_PART_1",
             tableName: "Account",
-            value: """
+            value:
+            """
             This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.
 
             You can have up to 5 devices logged in on one Mullvad account.
@@ -166,21 +162,19 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             comment: ""
         )
 
-        let alertController = CustomAlertViewController(
+        let presentation = AlertPresentation(
             message: message,
-            icon: .info
+            buttons: [AlertAction(
+                title: NSLocalizedString(
+                    "DEVICE_INFO_DIALOG_OK_ACTION",
+                    tableName: "Account",
+                    value: "Got it!",
+                    comment: ""
+                ),
+                style: .default
+            )]
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "DEVICE_INFO_DIALOG_OK_ACTION",
-                tableName: "Account",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: presentationContext)
+        applicationRouter?.present(.alert(presentation), animated: true)
     }
 }
