@@ -23,14 +23,9 @@ enum AddedMoreCreditOption: Equatable {
 final class AccountCoordinator: Coordinator, Presentable, Presenting {
     private let interactor: AccountInteractor
     private var accountController: AccountViewController?
-    private let alertPresenter = AlertPresenter()
 
     let navigationController: UINavigationController
     var presentedViewController: UIViewController {
-        navigationController
-    }
-
-    var presentationContext: UIViewController {
         navigationController
     }
 
@@ -49,10 +44,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
 
         let accountController = AccountViewController(
             interactor: interactor,
-            errorPresenter: PaymentAlertPresenter(
-                presentationController: presentationContext,
-                alertPresenter: alertPresenter
-            )
+            errorPresenter: PaymentAlertPresenter(alertContext: self)
         )
 
         accountController.actionHandler = handleViewControllerAction
@@ -141,19 +133,25 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     // MARK: - Alerts
 
     private func logOut() {
-        let alertController = CustomAlertViewController(icon: .spinner)
+        let presentation = AlertPresentation(
+            id: "account-logout-alert",
+            icon: .spinner,
+            message: nil,
+            buttons: []
+        )
 
-        alertPresenter.enqueue(alertController, presentingController: presentationContext) {
-            self.interactor.logout {
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
-                    guard let self else { return }
+        let alertPresenter = AlertPresenter(context: self)
 
-                    alertController.dismiss(animated: true) {
-                        self.didFinish?(self, .userLoggedOut)
-                    }
-                }
+        interactor.logout {
+            DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+                guard let self else { return }
+
+                alertPresenter.dismissAlert(presentation: presentation, animated: true)
+                self.didFinish?(self, .userLoggedOut)
             }
         }
+
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     private func showAccountDeviceInfo() {
@@ -172,21 +170,21 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             comment: ""
         )
 
-        let alertController = CustomAlertViewController(
+        let presentation = AlertPresentation(
+            id: "account-device-info-alert",
             message: message,
-            icon: .info
+            buttons: [AlertAction(
+                title: NSLocalizedString(
+                    "DEVICE_INFO_DIALOG_OK_ACTION",
+                    tableName: "Account",
+                    value: "Got it!",
+                    comment: ""
+                ),
+                style: .default
+            )]
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "DEVICE_INFO_DIALOG_OK_ACTION",
-                tableName: "Account",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: presentationContext)
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 }

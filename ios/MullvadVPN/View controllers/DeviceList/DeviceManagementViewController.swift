@@ -32,8 +32,6 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         .lightContent
     }
 
-    private let alertPresenter = AlertPresenter()
-
     private let contentView: DeviceManagementContentView = {
         let contentView = DeviceManagementContentView()
         contentView.translatesAutoresizingMaskIntoConstraints = false
@@ -42,9 +40,11 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     private let logger = Logger(label: "DeviceManagementViewController")
     private let interactor: DeviceManagementInteractor
+    private let alertPresenter: AlertPresenter
 
-    init(interactor: DeviceManagementInteractor) {
+    init(interactor: DeviceManagementInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
+        self.alertPresenter = alertPresenter
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -89,7 +89,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         completionHandler: ((Result<Void, Error>) -> Void)? = nil
     ) {
         interactor.getDevices { [weak self] result in
-            guard let self else { return }
+            guard let self = self else { return }
 
             if let devices = result.value {
                 setDevices(devices, animated: animateUpdates)
@@ -130,7 +130,9 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                 return
             }
 
-            deleteDevice(identifier: device.id) { error in
+            deleteDevice(identifier: device.id) { [weak self] error in
+                guard let self = self else { return }
+
                 if let error {
                     self.showErrorAlert(
                         title: NSLocalizedString(
@@ -157,74 +159,75 @@ class DeviceManagementViewController: UIViewController, RootContainment {
     }
 
     private func showErrorAlert(title: String, error: Error) {
-        let alertController = CustomAlertViewController(
+        let presentation = AlertPresentation(
+            id: "delete-device-error-alert",
             title: title,
-            message: getErrorDescription(error)
+            message: getErrorDescription(error),
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "ERROR_ALERT_OK_ACTION",
+                        tableName: "DeviceManagement",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "ERROR_ALERT_OK_ACTION",
-                tableName: "DeviceManagement",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     private func showLogoutConfirmation(
         deviceName: String,
         completion: @escaping (_ shouldDelete: Bool) -> Void
     ) {
-        let message = String(
-            format: NSLocalizedString(
-                "DELETE_ALERT_TITLE",
-                tableName: "DeviceManagement",
-                value: "Are you sure you want to log %@ out?",
-                comment: ""
-            ), deviceName
-        )
-
-        let alertController = CustomAlertViewController(
-            message: message,
-            icon: .alert
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "DELETE_ALERT_CANCEL_ACTION",
-                tableName: "DeviceManagement",
-                value: "Back",
-                comment: ""
+        let presentation = AlertPresentation(
+            id: "logout-confirmation-alert",
+            icon: .alert,
+            message: String(
+                format: NSLocalizedString(
+                    "DELETE_ALERT_TITLE",
+                    tableName: "DeviceManagement",
+                    value: "Are you sure you want to log %@ out?",
+                    comment: ""
+                ), deviceName
             ),
-            style: .default,
-            handler: {
-                completion(false)
-            }
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "DELETE_ALERT_CANCEL_ACTION",
+                        tableName: "DeviceManagement",
+                        value: "Back",
+                        comment: ""
+                    ),
+                    style: .default,
+                    handler: {
+                        completion(false)
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "DELETE_ALERT_CONFIRM_ACTION",
+                        tableName: "DeviceManagement",
+                        value: "Yes, log out device",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: {
+                        completion(true)
+                    }
+                ),
+            ]
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "DELETE_ALERT_CONFIRM_ACTION",
-                tableName: "DeviceManagement",
-                value: "Yes, log out device",
-                comment: ""
-            ),
-            style: .destructive,
-            handler: {
-                completion(true)
-            }
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     private func deleteDevice(identifier: String, completionHandler: @escaping (Error?) -> Void) {
         interactor.deleteDevice(identifier) { [weak self] completion in
-            guard let self else { return }
+            guard let self = self else { return }
 
             switch completion {
             case .success:

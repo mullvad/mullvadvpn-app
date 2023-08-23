@@ -84,10 +84,20 @@ open class Coordinator: NSObject {
  */
 public protocol Presentable: Coordinator {
     /**
-     View controller that is presented modally. It's expected it to be the top-most view controller
+     View controller that is presented modally. It's expected it to be the topmost view controller
      managed by coordinator.
      */
     var presentedViewController: UIViewController { get }
+}
+
+/**
+ Protocol describing `Presentable` coordinators that can be popped from a navigation stack.
+ */
+public protocol Poppable: Presentable {
+    func popFromNavigationStack(
+        animated: Bool,
+        completion: (() -> Void)?
+    )
 }
 
 /**
@@ -98,6 +108,15 @@ public protocol Presenting: Coordinator {
      View controller providing modal presentation context.
      */
     var presentationContext: UIViewController { get }
+}
+
+extension Presenting where Self: Presentable {
+    /**
+     View controller providing modal presentation context.
+     */
+    public var presentationContext: UIViewController {
+        return presentedViewController
+    }
 }
 
 extension Presenting {
@@ -134,11 +153,21 @@ extension Presenting {
 
         addChild(child)
 
-        presentationContext.present(
+        topmostPresentationContext(from: presentationContext).present(
             child.presentedViewController,
             animated: animated,
             completion: completion
         )
+    }
+
+    private func topmostPresentationContext(from: UIViewController) -> UIViewController {
+        var context = presentationContext
+
+        while let childContext = context.presentedViewController, context != childContext {
+            context = childContext
+        }
+
+        return context
     }
 }
 

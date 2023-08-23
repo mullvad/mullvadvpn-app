@@ -11,14 +11,16 @@ import UIKit
 class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate {
     private let interactor: PreferencesInteractor
     private var dataSource: PreferencesDataSource?
-    private let alertPresenter = AlertPresenter()
+    private let alertPresenter: AlertPresenter
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
 
-    init(interactor: PreferencesInteractor) {
+    init(interactor: PreferencesInteractor, alertPresenter: AlertPresenter) {
         self.interactor = interactor
+        self.alertPresenter = alertPresenter
+
         super.init(style: .grouped)
     }
 
@@ -76,22 +78,24 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     }
 
     private func showContentBlockerInfo(with message: String) {
-        let alertController = CustomAlertViewController(
+        let presentation = AlertPresentation(
+            id: "preferences-content-blockers-alert",
+            icon: .info,
             message: message,
-            icon: .info
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "PREFERENCES_CONTENT_BLOCKERS_OK_ACTION",
+                        tableName: "ContentBlockers",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "PREFERENCES_CONTENT_BLOCKERS_OK_ACTION",
-                tableName: "ContentBlockers",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: self)
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     private func humanReadablePortRepresentation(_ ranges: [[UInt16]]) -> String {
@@ -150,8 +154,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
         case .wireGuardPorts:
             let portsString = humanReadablePortRepresentation(
-                interactor.cachedRelays?.relays.wireguard
-                    .portRanges ?? []
+                interactor.cachedRelays?.relays.wireguard.portRanges ?? []
             )
 
             message = String(

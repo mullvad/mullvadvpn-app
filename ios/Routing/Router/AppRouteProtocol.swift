@@ -35,6 +35,10 @@ extension AppRouteGroupProtocol {
     public static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.modalLevel < rhs.modalLevel
     }
+
+    public static func <= (lhs: Self, rhs: Self) -> Bool {
+        lhs.modalLevel <= rhs.modalLevel
+    }
 }
 
 /**

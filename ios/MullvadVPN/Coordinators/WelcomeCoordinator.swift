@@ -12,7 +12,7 @@ import Routing
 import StoreKit
 import UIKit
 
-final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
+final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
     private let navigationController: RootContainerViewController
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
@@ -25,10 +25,6 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
     var didLogout: ((String) -> Void)?
 
     var presentedViewController: UIViewController {
-        navigationController
-    }
-
-    var presentationContext: UIViewController {
         navigationController
     }
 
@@ -70,11 +66,11 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
         navigationController.pushViewController(controller, animated: animated)
     }
 
-    func popFromNavigationStack(animated: Bool, completion: @escaping () -> Void) {
+    func popFromNavigationStack(animated: Bool, completion: (() -> Void)?) {
         guard let viewController,
               let index = navigationController.viewControllers.firstIndex(of: viewController)
         else {
-            completion()
+            completion?()
             return
         }
         navigationController.setViewControllers(
@@ -87,36 +83,42 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
 
 extension WelcomeCoordinator: WelcomeViewControllerDelegate {
     func didRequestToShowInfo(controller: WelcomeViewController) {
-        let message = """
-        This is the name assigned to the device. Each device logged in on a \
-        Mullvad account gets a unique name that helps \
-        you identify it when you manage your devices in the app or on the website.
+        let message = NSLocalizedString(
+            "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
+            tableName: "Welcome",
+            value:
+            """
+            This is the name assigned to the device. Each device logged in on a \
+            Mullvad account gets a unique name that helps \
+            you identify it when you manage your devices in the app or on the website.
 
-        You can have up to 5 devices logged in on one Mullvad account.
+            You can have up to 5 devices logged in on one Mullvad account.
 
-        If you log out, the device and the device name is removed. \
-        When you log back in again, the device will get a new name.
-        """
-        let alertController = CustomAlertViewController(
-            message: NSLocalizedString(
-                "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
-                tableName: "Welcome",
-                value: message,
-                comment: ""
-            ),
-            icon: .info
+            If you log out, the device and the device name is removed. \
+            When you log back in again, the device will get a new name.
+            """,
+            comment: ""
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "WELCOME_DEVICE_NAME_DIALOG_OK_ACTION",
-                tableName: "Welcome",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default
+        let presentation = AlertPresentation(
+            id: "welcome-device-name-alert",
+            icon: .info,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "WELCOME_DEVICE_NAME_DIALOG_OK_ACTION",
+                        tableName: "Welcome",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
         )
-        presentedViewController.present(alertController, animated: true)
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
@@ -153,7 +155,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         )
 
         coordinator.didCancel = { [weak self] coordinator in
-            guard let self else { return }
+            guard let self = self else { return }
             navigationController.popViewController(animated: true)
             coordinator.removeFromParent()
         }

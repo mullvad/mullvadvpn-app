@@ -17,14 +17,13 @@ import UIKit
  Application coordinator managing split view and two navigation contexts.
  */
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
-    UISplitViewControllerDelegate, ApplicationRouterDelegate,
-    NotificationManagerDelegate {
+    UISplitViewControllerDelegate, ApplicationRouterDelegate, NotificationManagerDelegate {
     typealias RouteType = AppRoute
 
     /**
      Application router.
      */
-    private var router: ApplicationRouter<AppRoute>!
+    private(set) var router: ApplicationRouter<AppRoute>!
 
     /**
      Primary navigation container.
@@ -127,11 +126,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
-        route: AppRoute,
+        presentWithContext context: RoutePresentationContext<RouteType>,
         animated: Bool,
         completion: @escaping (Coordinator) -> Void
     ) {
-        switch route {
+        switch context.route {
         case .account:
             presentAccount(animated: animated, completion: completion)
 
@@ -161,6 +160,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
         case .welcome:
             presentWelcome(animated: animated, completion: completion)
+
+        case .alert:
+            presentAlert(animated: animated, context: context, completion: completion)
         }
     }
 
@@ -169,15 +171,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         dismissWithContext context: RouteDismissalContext<RouteType>,
         completion: @escaping () -> Void
     ) {
-        if context.isClosing {
-            let dismissedRoute = context.dismissedRoutes.first!
+        let dismissedRoute = context.dismissedRoutes.first!
 
+        if context.isClosing {
             switch dismissedRoute.route.routeGroup {
             case .primary:
                 endHorizontalFlow(animated: context.isAnimated, completion: completion)
                 context.dismissedRoutes.forEach { $0.coordinator.removeFromParent() }
 
-            case .selectLocation, .account, .settings, .changelog:
+            case .selectLocation, .account, .settings, .changelog, .alert:
                 guard let coordinator = dismissedRoute.coordinator as? Presentable else {
                     completion()
                     return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
@@ -186,13 +188,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 coordinator.dismiss(animated: context.isAnimated, completion: completion)
             }
         } else {
-            let dismissedRoute = context.dismissedRoutes.first!
             assert(context.dismissedRoutes.count == 1)
 
-            if dismissedRoute.route == .outOfTime {
-                guard let coordinator = dismissedRoute.coordinator as? OutOfTimeCoordinator else {
+            switch dismissedRoute.route {
+            case .outOfTime, .welcome:
+                guard let coordinator = dismissedRoute.coordinator as? Poppable else {
                     completion()
-                    return assertionFailure("Unhandled coordinator for \(dismissedRoute.route)")
+                    return assertionFailure("Expected presentable coordinator for \(dismissedRoute.route)")
                 }
 
                 coordinator.popFromNavigationStack(
@@ -201,19 +203,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
                 )
 
                 coordinator.removeFromParent()
-            } else if dismissedRoute.route == .welcome {
-                guard let coordinator = dismissedRoute.coordinator as? WelcomeCoordinator else {
-                    completion()
-                    return assertionFailure("Unhandled coordinator for \(dismissedRoute.route)")
-                }
 
-                coordinator.popFromNavigationStack(
-                    animated: context.isAnimated,
-                    completion: completion
-                )
-
-                coordinator.removeFromParent()
-            } else {
+            default:
                 assertionFailure("Unhandled dismissal for \(dismissedRoute.route)")
                 completion()
             }
@@ -579,11 +570,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinishPayment = { [weak self] _ in
-            guard let self else { return }
+            guard let self = self else { return }
 
             if shouldDismissOutOfTime() {
                 router.dismiss(.outOfTime, animated: true)
-
                 continueFlow(animated: true)
             }
         }
@@ -628,10 +618,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         !(tunnelManager.deviceState.accountData?.isExpired ?? false)
     }
 
-    private func presentSelectLocation(
-        animated: Bool,
-        completion: @escaping (Coordinator) -> Void
-    ) {
+    private func presentSelectLocation(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = makeSelectLocationCoordinator(forModalPresentation: true)
         coordinator.start()
 
@@ -660,6 +647,29 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         coordinator.start(animated: animated)
 
         beginHorizontalFlow(animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentAlert(
+        animated: Bool,
+        context: RoutePresentationContext<RouteType>,
+        completion: @escaping (Coordinator) -> Void
+    ) {
+        guard let metadata = context.metadata as? AlertMetadata else {
+            assertionFailure("Could not get AlertMetadata from RoutePresentationContext.")
+            return
+        }
+
+        let coordinator = AlertCoordinator(presentation: metadata.presentation)
+
+        coordinator.didFinish = { [weak self] in
+            self?.router.dismiss(context.route)
+        }
+
+        coordinator.start()
+
+        metadata.context.presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }

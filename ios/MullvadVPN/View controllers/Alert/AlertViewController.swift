@@ -1,5 +1,5 @@
 //
-//  CustomAlertController.swift
+//  AlertViewController.swift
 //  MullvadVPN
 //
 //  Created by Jon Petersson on 2023-05-19.
@@ -8,41 +8,40 @@
 
 import UIKit
 
-class CustomAlertViewController: UIViewController {
+enum AlertActionStyle {
+    case `default`
+    case destructive
+
+    fileprivate var buttonStyle: AppButton.Style {
+        switch self {
+        case .default:
+            return .default
+        case .destructive:
+            return .danger
+        }
+    }
+}
+
+enum AlertIcon {
+    case alert
+    case info
+    case spinner
+
+    fileprivate var image: UIImage? {
+        switch self {
+        case .alert:
+            return UIImage(named: "IconAlert")?.withTintColor(.dangerColor)
+        case .info:
+            return UIImage(named: "IconInfo")?.withTintColor(.white)
+        default:
+            return nil
+        }
+    }
+}
+
+class AlertViewController: UIViewController {
     typealias Handler = () -> Void
-
-    enum Icon {
-        case alert
-        case info
-        case spinner
-
-        fileprivate var image: UIImage? {
-            switch self {
-            case .alert:
-                return UIImage(named: "IconAlert")?.withTintColor(.dangerColor)
-            case .info:
-                return UIImage(named: "IconInfo")?.withTintColor(.white)
-            default:
-                return nil
-            }
-        }
-    }
-
-    enum ActionStyle {
-        case `default`
-        case destructive
-
-        fileprivate var buttonStyle: AppButton.Style {
-            switch self {
-            case .default:
-                return .default
-            case .destructive:
-                return .danger
-            }
-        }
-    }
-
-    var didDismiss: (() -> Void)?
+    var onDismiss: Handler?
 
     private let containerView: UIStackView = {
         let view = UIStackView()
@@ -59,7 +58,7 @@ class CustomAlertViewController: UIViewController {
 
     private var handlers = [UIButton: Handler]()
 
-    init(header: String? = nil, title: String? = nil, message: String? = nil, icon: Icon? = nil) {
+    init(header: String? = nil, title: String? = nil, message: String? = nil, icon: AlertIcon? = nil) {
         super.init(nibName: nil, bundle: nil)
 
         setUp(header: header, title: title, icon: icon) {
@@ -67,7 +66,7 @@ class CustomAlertViewController: UIViewController {
         }
     }
 
-    init(header: String? = nil, title: String? = nil, attributedMessage: NSAttributedString?, icon: Icon? = nil) {
+    init(header: String? = nil, title: String? = nil, attributedMessage: NSAttributedString?, icon: AlertIcon? = nil) {
         super.init(nibName: nil, bundle: nil)
 
         setUp(header: header, title: title, icon: icon) {
@@ -80,7 +79,7 @@ class CustomAlertViewController: UIViewController {
     }
 
     // This code runs before viewDidLoad(). As such, no implicit calls to self.view should be made before this point.
-    private func setUp(header: String?, title: String?, icon: Icon?, addMessageCallback: () -> Void) {
+    private func setUp(header: String?, title: String?, icon: AlertIcon?, addMessageCallback: () -> Void) {
         modalPresentationStyle = .overFullScreen
         modalTransitionStyle = .crossDissolve
 
@@ -121,7 +120,7 @@ class CustomAlertViewController: UIViewController {
         }
     }
 
-    func addAction(title: String, style: ActionStyle, handler: (() -> Void)? = nil) {
+    func addAction(title: String, style: AlertActionStyle, handler: (() -> Void)? = nil) {
         // The presence of a button should reset any custom button margin to default.
         containerView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.bottom
 
@@ -191,12 +190,12 @@ class CustomAlertViewController: UIViewController {
         containerView.addArrangedSubview(label)
     }
 
-    private func addIcon(_ icon: Icon) {
+    private func addIcon(_ icon: AlertIcon) {
         let iconView = icon == .spinner ? getSpinnerView() : getImageView(for: icon)
         containerView.addArrangedSubview(iconView)
     }
 
-    private func getImageView(for icon: Icon) -> UIView {
+    private func getImageView(for icon: AlertIcon) -> UIView {
         let imageView = UIImageView()
         let imageContainerView = UIView()
 
@@ -228,13 +227,11 @@ class CustomAlertViewController: UIViewController {
     }
 
     @objc private func didTapButton(_ button: AppButton) {
-        dismiss(animated: true) { [self] in
-            if let handler = handlers.removeValue(forKey: button) {
-                handler()
-            }
-            didDismiss?()
-            didDismiss = nil
-            handlers.removeAll()
+        if let handler = handlers.removeValue(forKey: button) {
+            handler()
         }
+
+        handlers.removeAll()
+        onDismiss?()
     }
 }
