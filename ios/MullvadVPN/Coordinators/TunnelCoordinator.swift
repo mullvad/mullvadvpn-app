@@ -12,7 +12,6 @@ import UIKit
 class TunnelCoordinator: Coordinator {
     private let tunnelManager: TunnelManager
     private let controller: TunnelViewController
-    private let alertPresenter = AlertPresenter()
 
     private var tunnelObserver: TunnelObserver?
 
@@ -59,40 +58,39 @@ class TunnelCoordinator: Coordinator {
     }
 
     private func showCancelTunnelAlert() {
-        let alertController = CustomAlertViewController(
-            title: nil,
+        let presentation = AlertPresentation(
+            icon: .alert,
             message: NSLocalizedString(
                 "CANCEL_TUNNEL_ALERT_MESSAGE",
                 tableName: "Main",
                 value: "If you disconnect now, you won’t be able to secure your connection until the device is online.",
                 comment: ""
             ),
-            icon: .alert
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION",
+                        tableName: "Main",
+                        value: "Disconnect",
+                        comment: ""
+                    ),
+                    style: .destructive,
+                    handler: { [weak self] in
+                        self?.tunnelManager.stopTunnel()
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CANCEL_TUNNEL_ALERT_CANCEL_ACTION",
+                        tableName: "Main",
+                        value: "Cancel",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "CANCEL_TUNNEL_ALERT_DISCONNECT_ACTION",
-                tableName: "Main",
-                value: "Disconnect",
-                comment: ""
-            ),
-            style: .destructive,
-            handler: { [weak self] in
-                self?.tunnelManager.stopTunnel()
-            }
-        )
-
-        alertController.addAction(
-            title: NSLocalizedString(
-                "CANCEL_TUNNEL_ALERT_CANCEL_ACTION",
-                tableName: "Main",
-                value: "Cancel",
-                comment: ""
-            ),
-            style: .default
-        )
-
-        alertPresenter.enqueue(alertController, presentingController: rootViewController)
+        applicationRouter?.present(.alert(presentation), animated: true)
     }
 }
