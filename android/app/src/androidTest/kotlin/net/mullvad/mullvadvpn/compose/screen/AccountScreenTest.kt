@@ -9,8 +9,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import net.mullvad.mullvadvpn.compose.state.AccountUiState
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
+import net.mullvad.mullvadvpn.viewmodel.AccountViewModelState
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -30,7 +30,7 @@ class AccountScreenTest {
         composeTestRule.setContent {
             AccountScreen(
                 uiState =
-                    AccountUiState(
+                    AccountViewModelState(
                         deviceName = DUMMY_DEVICE_NAME,
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
@@ -54,7 +54,7 @@ class AccountScreenTest {
         composeTestRule.setContent {
             AccountScreen(
                 uiState =
-                    AccountUiState(
+                    AccountViewModelState(
                         deviceName = DUMMY_DEVICE_NAME,
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
@@ -79,7 +79,7 @@ class AccountScreenTest {
         composeTestRule.setContent {
             AccountScreen(
                 uiState =
-                    AccountUiState(
+                    AccountViewModelState(
                         deviceName = DUMMY_DEVICE_NAME,
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
@@ -104,7 +104,7 @@ class AccountScreenTest {
         composeTestRule.setContent {
             AccountScreen(
                 uiState =
-                    AccountUiState(
+                    AccountViewModelState(
                         deviceName = DUMMY_DEVICE_NAME,
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
