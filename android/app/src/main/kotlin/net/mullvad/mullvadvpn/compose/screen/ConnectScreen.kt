@@ -15,15 +15,20 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
@@ -36,9 +41,11 @@ import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
@@ -47,12 +54,18 @@ private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 @Composable
 fun PreviewConnectScreen() {
     val state = ConnectUiState.INITIAL
-    AppTheme { ConnectScreen(state) }
+    AppTheme {
+        ConnectScreen(
+            uiState = state,
+            viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+        )
+    }
 }
 
 @Composable
 fun ConnectScreen(
     uiState: ConnectUiState,
+    viewActions: SharedFlow<ConnectViewModel.ViewAction>,
     onDisconnectClick: () -> Unit = {},
     onReconnectClick: () -> Unit = {},
     onConnectClick: () -> Unit = {},
@@ -60,8 +73,17 @@ fun ConnectScreen(
     onSwitchLocationClick: () -> Unit = {},
     onToggleTunnelInfo: () -> Unit = {},
     onUpdateVersionClick: () -> Unit = {},
-    onShowAccountClick: () -> Unit = {}
+    onManageAccountClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    LaunchedEffect(key1 = Unit) {
+        viewActions.collect { viewAction ->
+            if (viewAction is ConnectViewModel.ViewAction.OpenAccountManagementPageInBrowser) {
+                context.openAccountPageInBrowser(viewAction.token)
+            }
+        }
+    }
+
     val scrollState = rememberScrollState()
     var lastConnectionActionTimestamp by remember { mutableLongStateOf(0L) }
 
@@ -85,7 +107,7 @@ fun ConnectScreen(
         Notification(
             connectNotificationState = uiState.connectNotificationState,
             onClickUpdateVersion = onUpdateVersionClick,
-            onClickShowAccount = onShowAccountClick
+            onClickShowAccount = onManageAccountClick
         )
         Spacer(modifier = Modifier.weight(1f))
         if (
