@@ -155,13 +155,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         )
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: { transportProvider },
+            transportProvider: transportProvider,
             addressCache: addressCache
         )
 
         urlRequestProxy = URLRequestProxy(
             dispatchQueue: dispatchQueue,
-            transportProvider: { transportProvider }
+            transportProvider: transportProvider
         )
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()

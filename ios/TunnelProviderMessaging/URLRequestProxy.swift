@@ -15,14 +15,14 @@ public final class URLRequestProxy {
     /// Serial queue used for synchronizing access to class members.
     private let dispatchQueue: DispatchQueue
 
-    private let transportProvider: () -> RESTTransport?
+    private let transportProvider: RESTTransportProvider
 
     /// List of all proxied network requests bypassing VPN.
     private var proxiedRequests: [UUID: Cancellable] = [:]
 
     public init(
         dispatchQueue: DispatchQueue,
-        transportProvider: @escaping () -> RESTTransport?
+        transportProvider: RESTTransportProvider
     ) {
         self.dispatchQueue = dispatchQueue
         self.transportProvider = transportProvider
@@ -33,7 +33,8 @@ public final class URLRequestProxy {
         completionHandler: @escaping (ProxyURLResponse) -> Void
     ) {
         dispatchQueue.async {
-            guard let transportProvider = self.transportProvider() else { return }
+            guard let transportProvider = self.transportProvider.makeTransport() else { return }
+
             // The task sent by `transport.sendRequest` comes in an already resumed state
             let task = transportProvider.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
                 guard let self else { return }
@@ -46,6 +47,7 @@ public final class URLRequestProxy {
                     completionHandler(response)
                 }
             }
+
             // All tasks should have unique identifiers, but if not, cancel the task scheduled
             // earlier.
             let oldTask = self.addRequest(identifier: proxyRequest.id, task: task)
