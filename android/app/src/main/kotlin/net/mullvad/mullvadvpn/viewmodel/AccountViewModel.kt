@@ -9,11 +9,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.AccountUiState
+import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import org.joda.time.DateTime
 
 class AccountViewModel(
     private var accountRepository: AccountRepository,
@@ -30,22 +32,14 @@ class AccountViewModel(
                 deviceState,
                 accountExpiry ->
                 AccountUiState(
-                    deviceName = deviceState.deviceName() ?: "",
-                    accountNumber = deviceState.token() ?: "",
+                    deviceName = deviceState.deviceName(),
+                    accountNumber = deviceState.token(),
                     accountExpiry = accountExpiry.date()
                 )
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                AccountUiState(deviceName = "", accountNumber = "", accountExpiry = null)
-            )
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
     val uiState =
-        vmState.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(),
-            AccountUiState(deviceName = "", accountNumber = "", accountExpiry = null)
-        )
+        vmState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
 
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
@@ -69,5 +63,20 @@ class AccountViewModel(
 
     sealed class ViewAction {
         data class OpenAccountManagementPageInBrowser(val token: String) : ViewAction()
+    }
+}
+
+data class AccountUiState(
+    val deviceName: String?,
+    val accountNumber: String?,
+    val accountExpiry: DateTime?
+) {
+    companion object {
+        fun default() =
+            AccountUiState(
+                deviceName = DeviceState.Unknown.deviceName(),
+                accountNumber = DeviceState.Unknown.token(),
+                accountExpiry = AccountExpiry.Missing.date()
+            )
     }
 }
