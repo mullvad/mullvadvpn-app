@@ -217,4 +217,7 @@
     <string name="custom_port_dialog_remove">Remove custom port</string>
     <string name="custom_port_dialog_valid_ranges">Valid ranges: %s</string>
     <string name="custom_port_dialog_placeholder">Enter port</string>
+    <string name="device_name_info_part1">This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</string>
+    <string name="device_name_info_part2">You can have up to 5 devices logged in on one Mullvad account.</string>
+    <string name="device_name_info_part3">If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.</string>
 </resources>

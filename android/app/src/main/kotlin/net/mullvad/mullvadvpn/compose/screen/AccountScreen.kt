@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,6 +38,7 @@ import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
 import net.mullvad.mullvadvpn.compose.state.AccountUiState
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
@@ -51,7 +56,8 @@ private fun PreviewAccountScreen() {
             AccountUiState(
                 deviceName = "Test Name",
                 accountNumber = "1234123412341234",
-                accountExpiry = null
+                accountExpiry = null,
+                showDeviceInfoDialog = false
             ),
         viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
     )
@@ -62,6 +68,8 @@ private fun PreviewAccountScreen() {
 fun AccountScreen(
     uiState: AccountUiState,
     viewActions: SharedFlow<AccountViewModel.ViewAction>,
+    onDeviceNameInfoClick: () -> Unit = {},
+    onDismissInfoClick: () -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
@@ -70,6 +78,10 @@ fun AccountScreen(
     val context = LocalContext.current
     val state = rememberCollapsingToolbarScaffoldState()
     val progress = state.toolbarState.progress
+
+    if (uiState.showDeviceInfoDialog) {
+        DeviceNameInfoDialog(onDismissInfoClick)
+    }
 
     CollapsingToolbarScaffold(
         backgroundColor = MaterialTheme.colorScheme.background,
@@ -118,12 +130,21 @@ fun AccountScreen(
                 text = stringResource(id = R.string.device_name),
                 modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
             )
-
-            InformationView(
-                content = uiState.deviceName.capitalizeFirstCharOfEachWord(),
-                whenMissing = MissingPolicy.SHOW_SPINNER
-            )
-
+            Row {
+                InformationView(
+                    content = uiState.deviceName.capitalizeFirstCharOfEachWord(),
+                    whenMissing = MissingPolicy.SHOW_SPINNER
+                )
+                Icon(
+                    modifier =
+                        Modifier.clickable { onDeviceNameInfoClick() }
+                            .padding(start = Dimens.mediumPadding, end = Dimens.mediumPadding)
+                            .align(Alignment.CenterVertically),
+                    painter = painterResource(id = R.drawable.icon_info),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.inverseSurface
+                )
+            }
             Text(
                 style = MaterialTheme.typography.labelMedium,
                 text = stringResource(id = R.string.account_number),
