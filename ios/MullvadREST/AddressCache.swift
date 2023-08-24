@@ -113,17 +113,24 @@ extension REST {
             return cache.updatedAt
         }
 
-        /// Initializes the cache by reading the a cached file on disk.
+        /// Initializes cache by reading it from file on disk.
         ///
         /// If no cache file is present, a default API endpoint will be selected instead.
         public func loadFromFile() {
-            // The first time the application is ran, this statement will fail as there is no cache. This is fine.
-            // The cache will be filled when either `getCurrentEndpoint` or `setEndpoints()` are called.
-            do {
-                cache = try fileCache.read()
-            } catch {
-                logger.debug("Initialized cache with default API endpoint.")
-                cache = Self.defaultCachedAddresses
+            cacheLock.withLock {
+                // The first time the application is ran, this statement will fail as there is no cache. This is fine.
+                // The cache will be filled when either `getCurrentEndpoint()` or `setEndpoints()` are called.
+                do {
+                    cache = try fileCache.read()
+                } catch {
+                    // Log all errors except when file is not on disk.
+                    if (error as? CocoaError)?.code != .fileReadNoSuchFile {
+                        logger.error(error: error, message: "Failed to load address cache from disk.")
+                    }
+
+                    logger.debug("Initialized cache with default API endpoint.")
+                    cache = Self.defaultCachedAddresses
+                }
             }
         }
     }
