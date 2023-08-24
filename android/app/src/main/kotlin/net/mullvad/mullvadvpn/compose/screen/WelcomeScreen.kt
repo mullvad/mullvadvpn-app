@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.dialog.InfoDialog
+import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
@@ -47,7 +47,6 @@ import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
-import net.mullvad.mullvadvpn.ui.extension.copyToClipboard
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 
 @Preview
@@ -253,17 +252,7 @@ fun DeviceNameRow(deviceName: String?) {
             )
         }
         if (showDeviceNameDialog) {
-            InfoDialog(
-                message =
-                    buildString {
-                        appendLine(stringResource(id = R.string.device_name_info_first_paragraph))
-                        appendLine()
-                        appendLine(stringResource(id = R.string.device_name_info_second_paragraph))
-                        appendLine()
-                        appendLine(stringResource(id = R.string.device_name_info_third_paragraph))
-                    },
-                onDismiss = { showDeviceNameDialog = false }
-            )
+            DeviceNameInfoDialog { showDeviceNameDialog = false }
         }
     }
 }
