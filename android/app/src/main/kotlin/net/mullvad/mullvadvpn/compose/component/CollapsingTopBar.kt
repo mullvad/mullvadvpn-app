@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,20 +27,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.MullvadDarkBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite60
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
 private fun PreviewTopBar() {
-    CollapsingTopBar(
-        backgroundColor = MullvadDarkBlue,
-        onBackClicked = {},
-        title = "View title",
-        progress = 1.0f,
-        backTitle = "Back",
-        modifier = Modifier.height(102.dp)
-    )
+    AppTheme {
+        CollapsingTopBar(
+            backgroundColor = MaterialTheme.colorScheme.secondary,
+            onBackClicked = {},
+            title = "View title",
+            progress = 1.0f,
+            modifier = Modifier.height(102.dp)
+        )
+    }
 }
 
 @Composable
@@ -50,17 +49,14 @@ fun CollapsingTopBar(
     onBackClicked: () -> Unit,
     title: String,
     progress: Float,
-    backTitle: String,
     modifier: Modifier,
     backIcon: Int? = null,
     shouldRotateBackButtonDown: Boolean = false
 ) {
     val expandedToolbarHeight = dimensionResource(id = R.dimen.expanded_toolbar_height)
     val iconSize = dimensionResource(id = R.dimen.icon_size)
-    val iconPadding = dimensionResource(id = R.dimen.small_padding)
     val sideMargin = dimensionResource(id = R.dimen.side_margin)
     val verticalMargin = dimensionResource(id = R.dimen.cell_label_vertical_padding)
-    val textSize = dimensionResource(id = R.dimen.text_small).value.sp
     val maxTopPadding = 48
     val minTopPadding = 14
     val maxTitleSize = 30
@@ -76,7 +72,7 @@ fun CollapsingTopBar(
         colors =
             ButtonDefaults.buttonColors(
                 contentColor = Color.White,
-                containerColor = MullvadDarkBlue
+                containerColor = backgroundColor
             ),
         shape = MaterialTheme.shapes.small
     ) {
@@ -87,13 +83,6 @@ fun CollapsingTopBar(
                 Modifier.rotate(if (shouldRotateBackButtonDown) 270f else 0f)
                     .width(iconSize)
                     .height(iconSize)
-        )
-        Spacer(modifier = Modifier.width(iconPadding).fillMaxHeight())
-        Text(
-            text = backTitle,
-            color = MullvadWhite60,
-            fontWeight = FontWeight.Bold,
-            fontSize = textSize
         )
     }
 

@@ -81,7 +81,6 @@ fun SettingsScreen(
                 title = stringResource(id = R.string.settings),
                 progress = progress,
                 modifier = scaffoldModifier,
-                backTitle = String(),
                 shouldRotateBackButtonDown = true
             )
         },
