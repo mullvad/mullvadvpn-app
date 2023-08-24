@@ -39,6 +39,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    api_access_method::AccessMethod,
     auth_failed::AuthFailed,
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -248,6 +249,8 @@ pub enum DaemonCommand {
     ListCustomLists(ResponseTx<Vec<CustomList>, Error>),
     /// Get custom list
     GetCustomList(ResponseTx<CustomList, Error>, String),
+    /// Get API access methods
+    GetApiAccessMethods(ResponseTx<Vec<AccessMethod>, Error>),
     /// Create custom list
     CreateCustomList(ResponseTx<(), Error>, String),
     /// Delete custom list
@@ -1038,6 +1041,7 @@ where
                 self.on_rename_custom_list(tx, name, new_name).await
             }
             GetVersionInfo(tx) => self.on_get_version_info(tx),
+            GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2243,6 +2247,11 @@ where
             .await
             .map_err(Error::CustomListError);
         Self::oneshot_send(tx, result, "rename_custom_list response");
+    }
+
+    fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<AccessMethod>, Error>) {
+        let result = Ok(self.settings.api_access_methods.api_access_methods.clone());
+        Self::oneshot_send(tx, result, "get_api_access_methods response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

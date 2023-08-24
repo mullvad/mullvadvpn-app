@@ -1,4 +1,5 @@
 use crate::{
+    api_access_method,
     custom_list::CustomListsSettings,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint,
@@ -76,6 +77,9 @@ pub struct Settings {
     /// All of the custom relay lists
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub custom_lists: CustomListsSettings,
+    /// API access methods.
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub api_access_methods: api_access_method::Settings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -136,6 +140,7 @@ impl Default for Settings {
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
             custom_lists: CustomListsSettings::default(),
+            api_access_methods: api_access_method::Settings::default(),
         }
     }
 }

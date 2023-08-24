@@ -76,6 +76,9 @@ service ManagementService {
   rpc UpdateCustomListLocation(CustomListLocationUpdate) returns (google.protobuf.Empty) {}
   rpc RenameCustomList(CustomListRename) returns (google.protobuf.Empty) {}
 
+  // API Access methods
+  rpc GetApiAccessMethods(google.protobuf.Empty) returns (ApiAccessMethods) {}
+
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
@@ -344,6 +347,12 @@ message CustomLists { repeated CustomList custom_lists = 1; }
 
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
+message ApiAccessMethod { string name = 1; }
+
+message ApiAccessMethods { repeated ApiAccessMethod api_access_methods = 1; }
+
+message ApiAccessMethodSettings { repeated ApiAccessMethod api_access_methods = 1; }
+
 message Settings {
   RelaySettings relay_settings = 1;
   BridgeSettings bridge_settings = 2;
@@ -356,6 +365,7 @@ message Settings {
   SplitTunnelSettings split_tunnel = 9;
   ObfuscationSettings obfuscation_settings = 10;
   CustomListSettings custom_lists = 11;
+  ApiAccessMethodSettings api_access_methods = 12;
 }
 
 message SplitTunnelSettings {
