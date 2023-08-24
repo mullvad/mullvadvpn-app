@@ -9,7 +9,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import net.mullvad.mullvadvpn.compose.state.AccountUiState
+import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.junit.Before
 import org.junit.Rule
