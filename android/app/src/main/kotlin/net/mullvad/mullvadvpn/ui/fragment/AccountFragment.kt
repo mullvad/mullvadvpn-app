@@ -36,10 +36,9 @@ class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
                         enterTransitionEndAction = vm.enterTransitionEndAction,
                         onRedeemVoucherClick = { openRedeemVoucherFragment() },
                         onManageAccountClick = vm::onManageAccountClick,
-                        onLogoutClick = vm::onLogoutClick
-                    ) {
-                        activity?.onBackPressed()
-                    }
+                        onLogoutClick = vm::onLogoutClick,
+                        onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() }
+                    )
                 }
             }
         }

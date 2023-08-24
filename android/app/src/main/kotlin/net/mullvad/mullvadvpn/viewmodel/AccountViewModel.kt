@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.AccountUiState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -30,22 +29,14 @@ class AccountViewModel(
                 deviceState,
                 accountExpiry ->
                 AccountUiState(
-                    deviceName = deviceState.deviceName() ?: "",
-                    accountNumber = deviceState.token() ?: "",
+                    deviceName = deviceState.deviceName(),
+                    accountNumber = deviceState.token(),
                     accountExpiry = accountExpiry.date()
                 )
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                AccountUiState(deviceName = "", accountNumber = "", accountExpiry = null)
-            )
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
     val uiState =
-        vmState.stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(),
-            AccountUiState(deviceName = "", accountNumber = "", accountExpiry = null)
-        )
+        vmState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
 
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
