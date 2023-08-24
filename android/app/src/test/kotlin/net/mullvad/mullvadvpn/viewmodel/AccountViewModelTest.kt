@@ -73,7 +73,7 @@ class AccountViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             var result = awaitItem()
-            assertEquals("", result.deviceName)
+            assertEquals(null, result.deviceName)
             deviceState.value = DeviceState.LoggedIn(accountAndDevice = dummyAccountAndDevice)
             result = awaitItem()
             assertEquals(DUMMY_DEVICE_NAME, result.accountNumber)
