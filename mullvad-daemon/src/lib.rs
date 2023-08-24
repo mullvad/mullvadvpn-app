@@ -39,6 +39,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    api_access_method::AccessMethod,
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -249,6 +250,8 @@ pub enum DaemonCommand {
     RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
     GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
+    /// Get API access methods
+    GetApiAccessMethods(ResponseTx<Vec<AccessMethod>, Error>),
     /// Create custom list
     CreateCustomList(ResponseTx<mullvad_types::custom_list::Id, Error>, String),
     /// Delete custom list
@@ -1030,6 +1033,7 @@ where
             DeleteCustomList(tx, id) => self.on_delete_custom_list(tx, id).await,
             UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx),
+            GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2202,6 +2206,11 @@ where
     async fn on_update_custom_list(&mut self, tx: ResponseTx<(), Error>, new_list: CustomList) {
         let result = self.update_custom_list(new_list).await;
         Self::oneshot_send(tx, result, "update_custom_list response");
+    }
+
+    fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<AccessMethod>, Error>) {
+        let result = Ok(self.settings.api_access_methods.api_access_methods.clone());
+        Self::oneshot_send(tx, result, "get_api_access_methods response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
