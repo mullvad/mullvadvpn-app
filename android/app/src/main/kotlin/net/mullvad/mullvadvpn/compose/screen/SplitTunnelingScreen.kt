@@ -106,8 +106,7 @@ fun SplitTunnelingScreen(
                 onBackClicked = { onBackClick() },
                 title = stringResource(id = R.string.split_tunneling),
                 progress = progress,
-                modifier = scaffoldModifier,
-                backTitle = stringResource(id = R.string.settings)
+                modifier = scaffoldModifier
             )
         },
     ) {

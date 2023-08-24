@@ -89,7 +89,6 @@ fun AccountScreen(
                 title = stringResource(id = R.string.settings_account),
                 progress = progress,
                 modifier = scaffoldModifier,
-                backTitle = String(),
                 shouldRotateBackButtonDown = true
             )
         },

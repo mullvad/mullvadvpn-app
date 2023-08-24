@@ -280,8 +280,7 @@ fun VpnSettingsScreen(
                 onBackClicked = { onBackClick() },
                 title = stringResource(id = R.string.settings_vpn),
                 progress = progress,
-                modifier = scaffoldModifier,
-                backTitle = stringResource(id = R.string.settings)
+                modifier = scaffoldModifier
             )
         },
     ) {
