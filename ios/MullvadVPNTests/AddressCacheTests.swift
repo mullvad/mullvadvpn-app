@@ -68,18 +68,17 @@ final class AddressCacheTests: XCTestCase {
 
         let firstIPEndpoint = try XCTUnwrap(ipAddresses.first)
 
-        let fileCache = MockFileCache<REST.CachedAddresses>()
+        let fileCache = MockFileCache<REST.StoredAddressCache>()
         let addressCache = REST.AddressCache(canWriteToCache: true, fileCache: fileCache)
         addressCache.setEndpoints(ipAddresses)
 
         let fileState = fileCache.getState()
-        XCTAssertTrue(fileState.isExists)
-        guard case let .exists(cachedAddresses) = fileState else {
+        guard case let .exists(storedAddressCache) = fileState else {
             XCTFail("State is expected to contain cached addresses.")
             return
         }
 
-        XCTAssertEqual(cachedAddresses.endpoints.count, 1)
+        XCTAssertEqual(storedAddressCache.endpoint, firstIPEndpoint)
         XCTAssertEqual(addressCache.getCurrentEndpoint(), firstIPEndpoint)
     }
 
@@ -88,7 +87,7 @@ final class AddressCacheTests: XCTestCase {
         let addressCache = REST.AddressCache(
             canWriteToCache: true,
             fileCache: MockFileCache(initialState: .exists(
-                REST.CachedAddresses(updatedAt: fixedDate, endpoints: [apiEndpoint])
+                REST.StoredAddressCache(updatedAt: fixedDate, endpoint: apiEndpoint)
             ))
         )
         addressCache.loadFromFile()
@@ -98,7 +97,7 @@ final class AddressCacheTests: XCTestCase {
     }
 
     func testCacheWritesToDiskWhenSettingNewEndpoints() throws {
-        let fileCache = MockFileCache<REST.CachedAddresses>()
+        let fileCache = MockFileCache<REST.StoredAddressCache>()
         let addressCache = REST.AddressCache(canWriteToCache: true, fileCache: fileCache)
 
         XCTAssertEqual(fileCache.getState(), .fileNotFound)
@@ -107,32 +106,22 @@ final class AddressCacheTests: XCTestCase {
         let fileState = fileCache.getState()
         XCTAssertTrue(fileState.isExists)
 
-        guard case let .exists(cachedAddresses) = fileState else {
+        guard case let .exists(storedAddressCache) = fileState else {
             XCTFail("State is expected to contain cached addresses.")
             return
         }
 
-        XCTAssertEqual(cachedAddresses.endpoints, [addressCache.getCurrentEndpoint()])
-        XCTAssertEqual(cachedAddresses.updatedAt, addressCache.getLastUpdateDate())
+        XCTAssertEqual(storedAddressCache.endpoint, addressCache.getCurrentEndpoint())
+        XCTAssertEqual(storedAddressCache.updatedAt, addressCache.getLastUpdateDate())
     }
 
     func testGetCurrentEndpointReadsFromCacheWhenReadOnly() throws {
         let addressCache = REST.AddressCache(
             canWriteToCache: false,
             fileCache: MockFileCache(initialState: .exists(
-                REST.CachedAddresses(updatedAt: Date(), endpoints: [apiEndpoint])
+                REST.StoredAddressCache(updatedAt: Date(), endpoint: apiEndpoint)
             ))
         )
         XCTAssertEqual(addressCache.getCurrentEndpoint(), apiEndpoint)
-    }
-
-    func testGetCurrentEndpointHasDefaultEndpointIfCacheIsEmpty() throws {
-        let addressCache = REST.AddressCache(
-            canWriteToCache: false,
-            fileCache: MockFileCache(initialState: .exists(REST.CachedAddresses(updatedAt: Date(), endpoints: [])))
-        )
-        addressCache.loadFromFile()
-
-        XCTAssertEqual(addressCache.getCurrentEndpoint(), REST.defaultAPIEndpoint)
     }
 }
