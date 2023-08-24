@@ -58,6 +58,9 @@
     <string name="device_inactive_title">Laite ei ole aktiivinen</string>
     <string name="device_inactive_unblock_warning">Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta.</string>
     <string name="device_name">Laitteen nimi</string>
+    <string name="device_name_info_part1">Tämä on laitteelle annettu nimi. Jokainen Mullvad-tilille kirjautunut laite saa yksilöllisen nimen, jonka avulla sen voi tunnistaa laitteiden hallinnassa sovelluksessa tai verkkosivustolla.</string>
+    <string name="device_name_info_part2">Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta.</string>
+    <string name="device_name_info_part3">Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi.</string>
     <string name="disconnect">Katkaise yhteys</string>
     <string name="disconnecting">Katkaistaan yhteyttä</string>
     <string name="dismiss">Jätä huomiotta</string>

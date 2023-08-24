@@ -58,6 +58,9 @@
     <string name="device_inactive_title">Gerät ist inaktiv</string>
     <string name="device_inactive_unblock_warning">Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben.</string>
     <string name="device_name">Gerätename</string>
+    <string name="device_name_info_part1">Dies ist der dem Gerät zugewiesene Name. Jedes Gerät, das in einem Mullvad-Konto angemeldet ist, erhält einen eindeutigen Namen, mit dem Sie es identifizieren können, wenn Sie Ihre Geräte in der App oder auf der Website verwalten.</string>
+    <string name="device_name_info_part2">Es sind pro Mullvad-Konto bis zu 5 angemeldete Geräte möglich.</string>
+    <string name="device_name_info_part3">Wenn Sie sich abmelden, werden das Gerät und der Gerätename entfernt. Wenn Sie sich wieder anmelden, erhält das Gerät einen neuen Namen.</string>
     <string name="disconnect">Verbindung trennen</string>
     <string name="disconnecting">Verbindung wird getrennt</string>
     <string name="dismiss">Ausblenden</string>

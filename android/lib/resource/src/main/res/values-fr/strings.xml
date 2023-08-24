@@ -58,6 +58,9 @@
     <string name="device_inactive_title">L\'appareil est inactif</string>
     <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>
     <string name="device_name">Nom de l\'appareil</string>
+    <string name="device_name_info_part1">Il s\'agit du nom attribué à l\'appareil. Chaque appareil connecté à un compte Mullvad reçoit un nom unique qui vous aide à l\'identifier lorsque vous gérez vos appareils dans l\'application ou sur le site Web.</string>
+    <string name="device_name_info_part2">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
+    <string name="device_name_info_part3">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
     <string name="disconnect">Déconnexion</string>
     <string name="disconnecting">Déconnexion en cours</string>
     <string name="dismiss">Ignorer</string>
