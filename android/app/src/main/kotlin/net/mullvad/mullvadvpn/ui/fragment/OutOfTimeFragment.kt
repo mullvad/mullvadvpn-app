@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
@@ -137,7 +138,7 @@ class OutOfTimeFragment : BaseFragment() {
     private fun CoroutineScope.launchExpiryPolling() = launch {
         while (true) {
             accountRepository.fetchAccountExpiry()
-            delay(POLL_INTERVAL)
+            delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
         }
     }
 
