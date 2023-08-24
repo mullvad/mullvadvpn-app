@@ -30,7 +30,7 @@ class AccountScreenTest {
         composeTestRule.setContent {
             AccountScreen(
                 uiState =
-                    AccountUiState(
+                    AccountUiState.DefaultUiState(
                         deviceName = DUMMY_DEVICE_NAME,
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
@@ -54,7 +54,7 @@ class AccountScreenTest {
         composeTestRule.setContent {
             AccountScreen(
                 uiState =
-                    AccountUiState(
+                    AccountUiState.DefaultUiState(
                         deviceName = DUMMY_DEVICE_NAME,
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
@@ -79,7 +79,7 @@ class AccountScreenTest {
         composeTestRule.setContent {
             AccountScreen(
                 uiState =
-                    AccountUiState(
+                    AccountUiState.DefaultUiState(
                         deviceName = DUMMY_DEVICE_NAME,
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
@@ -104,7 +104,7 @@ class AccountScreenTest {
         composeTestRule.setContent {
             AccountScreen(
                 uiState =
-                    AccountUiState(
+                    AccountUiState.DefaultUiState(
                         deviceName = DUMMY_DEVICE_NAME,
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
