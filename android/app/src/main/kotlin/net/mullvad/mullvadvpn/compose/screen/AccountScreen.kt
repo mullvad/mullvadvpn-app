@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
@@ -34,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.AccountUiState
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -149,21 +151,23 @@ fun AccountScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            ActionButton(
-                text = stringResource(id = R.string.manage_account),
-                onClick = { onManageAccountClick() },
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
-                    ),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-            )
+            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                ActionButton(
+                    text = stringResource(id = R.string.manage_account),
+                    onClick = { onManageAccountClick() },
+                    modifier =
+                        Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.screenVerticalMargin
+                        ),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
+                )
+            }
 
             ActionButton(
                 text = stringResource(id = R.string.redeem_voucher),
