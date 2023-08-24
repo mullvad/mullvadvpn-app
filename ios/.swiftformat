@@ -59,7 +59,7 @@ redundantRawValues,               \
 redundantType,                    \
 redundantVoidReturnType,          \
 semicolons,                       \
-sortedImports,                    \
+sortImports,                      \
 spaceAroundBraces,                \
 spaceAroundBrackets,              \
 spaceAroundComments,              \
