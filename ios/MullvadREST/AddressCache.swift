@@ -30,7 +30,7 @@ extension REST {
         /// The default set of endpoints to use as a fallback mechanism
         private static let defaultCachedAddresses = CachedAddresses(
             updatedAt: Date(timeIntervalSince1970: 0),
-            endpoints: [REST.defaultAPIEndpoint]
+            endpoint: REST.defaultAPIEndpoint
         )
 
         // MARK: - Public API
@@ -54,23 +54,19 @@ extension REST {
         /// When running from the Network Extension, this method will read from the cache before returning.
         /// - Returns: The latest available endpoint, or a default endpoint if no endpoints are available
         public func getCurrentEndpoint() -> AnyIPEndpoint {
-            cacheLock.lock()
-            defer { cacheLock.unlock() }
-            var currentEndpoint = cache.endpoints.first ?? REST.defaultAPIEndpoint
-
-            // Reload from disk cache when in the Network Extension as there is no `AddressCacheTracker` running
-            // there
-            if canWriteToCache == false {
-                do {
-                    cache = try fileCache.read()
-                    if let firstEndpoint = cache.endpoints.first {
-                        currentEndpoint = firstEndpoint
+            cacheLock.withLock {
+                // Reload from disk cache when in the Network Extension as there is no `AddressCacheTracker` running
+                // there
+                if canWriteToCache == false {
+                    do {
+                        cache = try fileCache.read()
+                    } catch {
+                        logger.error(error: error, message: "Failed to read address cache from disk.")
                     }
-                } catch {
-                    logger.error(error: error, message: "Failed to read address cache from disk.")
                 }
+
+                return cache.endpoint
             }
-            return currentEndpoint
         }
 
         /// Updates the available endpoints to use
@@ -79,27 +75,20 @@ extension REST {
         /// This method will only modify the on disk cache when running from the UI process.
         /// - Parameter endpoints: The new endpoints to use for API requests
         public func setEndpoints(_ endpoints: [AnyIPEndpoint]) {
-            cacheLock.lock()
-            defer { cacheLock.unlock() }
+            cacheLock.withLock {
+                guard let firstEndpoint = endpoints.first else { return }
 
-            guard let firstEndpoint = endpoints.first else { return }
-            if Set(cache.endpoints) == Set(endpoints) {
-                cache.updatedAt = Date()
-            } else {
-                cache = CachedAddresses(
-                    updatedAt: Date(),
-                    endpoints: [firstEndpoint]
-                )
-            }
+                cache = CachedAddresses(updatedAt: Date(), endpoint: firstEndpoint)
 
-            guard canWriteToCache else { return }
-            do {
-                try fileCache.write(cache)
-            } catch {
-                logger.error(
-                    error: error,
-                    message: "Failed to write address cache after setting new endpoints."
-                )
+                guard canWriteToCache else { return }
+                do {
+                    try fileCache.write(cache)
+                } catch {
+                    logger.error(
+                        error: error,
+                        message: "Failed to write address cache after setting new endpoints."
+                    )
+                }
             }
         }
 
@@ -107,10 +96,7 @@ extension REST {
         ///
         /// - Returns: The `Date` when the cache was last updated at
         public func getLastUpdateDate() -> Date {
-            cacheLock.lock()
-            defer { cacheLock.unlock() }
-
-            return cache.updatedAt
+            return cacheLock.withLock { cache.updatedAt }
         }
 
         /// Initializes cache by reading it from file on disk.
@@ -139,7 +125,7 @@ extension REST {
         /// Date when the cached addresses were last updated.
         var updatedAt: Date
 
-        /// API endpoints.
-        var endpoints: [AnyIPEndpoint]
+        /// API endpoint.
+        var endpoint: AnyIPEndpoint
     }
 }

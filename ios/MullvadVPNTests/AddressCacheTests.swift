@@ -73,13 +73,12 @@ final class AddressCacheTests: XCTestCase {
         addressCache.setEndpoints(ipAddresses)
 
         let fileState = fileCache.getState()
-        XCTAssertTrue(fileState.isExists)
         guard case let .exists(cachedAddresses) = fileState else {
             XCTFail("State is expected to contain cached addresses.")
             return
         }
 
-        XCTAssertEqual(cachedAddresses.endpoints.count, 1)
+        XCTAssertEqual(cachedAddresses.endpoint, firstIPEndpoint)
         XCTAssertEqual(addressCache.getCurrentEndpoint(), firstIPEndpoint)
     }
 
@@ -88,7 +87,7 @@ final class AddressCacheTests: XCTestCase {
         let addressCache = REST.AddressCache(
             canWriteToCache: true,
             fileCache: MockFileCache(initialState: .exists(
-                REST.CachedAddresses(updatedAt: fixedDate, endpoints: [apiEndpoint])
+                REST.CachedAddresses(updatedAt: fixedDate, endpoint: apiEndpoint)
             ))
         )
         addressCache.loadFromFile()
@@ -112,7 +111,7 @@ final class AddressCacheTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(cachedAddresses.endpoints, [addressCache.getCurrentEndpoint()])
+        XCTAssertEqual(cachedAddresses.endpoint, addressCache.getCurrentEndpoint())
         XCTAssertEqual(cachedAddresses.updatedAt, addressCache.getLastUpdateDate())
     }
 
@@ -120,19 +119,9 @@ final class AddressCacheTests: XCTestCase {
         let addressCache = REST.AddressCache(
             canWriteToCache: false,
             fileCache: MockFileCache(initialState: .exists(
-                REST.CachedAddresses(updatedAt: Date(), endpoints: [apiEndpoint])
+                REST.CachedAddresses(updatedAt: Date(), endpoint: apiEndpoint)
             ))
         )
         XCTAssertEqual(addressCache.getCurrentEndpoint(), apiEndpoint)
-    }
-
-    func testGetCurrentEndpointHasDefaultEndpointIfCacheIsEmpty() throws {
-        let addressCache = REST.AddressCache(
-            canWriteToCache: false,
-            fileCache: MockFileCache(initialState: .exists(REST.CachedAddresses(updatedAt: Date(), endpoints: [])))
-        )
-        addressCache.loadFromFile()
-
-        XCTAssertEqual(addressCache.getCurrentEndpoint(), REST.defaultAPIEndpoint)
     }
 }
