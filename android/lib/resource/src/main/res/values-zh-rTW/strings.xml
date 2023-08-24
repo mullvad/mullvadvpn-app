@@ -58,9 +58,9 @@
     <string name="device_inactive_title">裝置處於非活動狀態</string>
     <string name="device_inactive_unblock_warning">若前往登入，則會在此裝置上解除對網際網路的封鎖。</string>
     <string name="device_name">裝置名稱</string>
-    <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
-    <string name="device_name_info_second_paragraph">一個 Mulvad 帳戶最多可以登入 5 台裝置。</string>
-    <string name="device_name_info_third_paragraph">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</string>
+    <string name="device_name_info_part1">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
+    <string name="device_name_info_part2">一個 Mulvad 帳戶最多可以登入 5 台裝置。</string>
+    <string name="device_name_info_part3">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</string>
     <string name="disconnect">中斷連線</string>
     <string name="disconnecting">正在中斷連線</string>
     <string name="dismiss">取消</string>

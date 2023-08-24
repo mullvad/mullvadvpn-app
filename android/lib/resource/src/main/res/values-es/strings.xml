@@ -58,9 +58,9 @@
     <string name="device_inactive_title">El dispositivo está inactivo</string>
     <string name="device_inactive_unblock_warning">Al iniciar la sesión, se desbloqueará el acceso a Internet en este dispositivo.</string>
     <string name="device_name">Nombre del dispositivo</string>
-    <string name="device_name_info_first_paragraph">Este es el nombre asignado al dispositivo. Cada dispositivo conectado a una cuenta de Mullvad recibe un nombre único que ayuda a identificarlo cuando gestiona sus dispositivos en la aplicación o en el sitio web.</string>
-    <string name="device_name_info_second_paragraph">Puede tener hasta 5 dispositivos conectados a una cuenta de Mullvad.</string>
-    <string name="device_name_info_third_paragraph">Si cierra sesión, se quita el dispositivo y el nombre del dispositivo. Cuando vuelve a iniciar sesión, el dispositivo recibirá un nombre nuevo.</string>
+    <string name="device_name_info_part1">Este es el nombre asignado al dispositivo. Cada dispositivo conectado a una cuenta de Mullvad recibe un nombre único que ayuda a identificarlo cuando gestiona sus dispositivos en la aplicación o en el sitio web.</string>
+    <string name="device_name_info_part2">Puede tener hasta 5 dispositivos conectados a una cuenta de Mullvad.</string>
+    <string name="device_name_info_part3">Si cierra sesión, se quita el dispositivo y el nombre del dispositivo. Cuando vuelve a iniciar sesión, el dispositivo recibirá un nombre nuevo.</string>
     <string name="disconnect">Desconectar</string>
     <string name="disconnecting">Desconectando</string>
     <string name="dismiss">Descartar</string>

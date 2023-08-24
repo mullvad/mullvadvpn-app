@@ -58,9 +58,9 @@
     <string name="device_inactive_title">デバイスが無効です</string>
     <string name="device_inactive_unblock_warning">ログインに進むと、このデバイスのインターネットのブロックが解除されます。</string>
     <string name="device_name">デバイス名</string>
-    <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
-    <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
-    <string name="device_name_info_third_paragraph">ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。</string>
+    <string name="device_name_info_part1">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
+    <string name="device_name_info_part2">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
+    <string name="device_name_info_part3">ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。</string>
     <string name="disconnect">接続解除</string>
     <string name="disconnecting">接続解除中</string>
     <string name="dismiss">閉じる</string>
