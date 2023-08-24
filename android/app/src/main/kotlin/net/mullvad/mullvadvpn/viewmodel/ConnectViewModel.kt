@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.model.AccountExpiry
@@ -29,6 +32,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
@@ -44,6 +48,9 @@ class ConnectViewModel(
     private val isVersionInfoNotificationEnabled: Boolean,
     accountRepository: AccountRepository,
 ) : ViewModel() {
+    private val _viewActions = MutableSharedFlow<ViewAction>(extraBufferCapacity = 1)
+    val viewActions = _viewActions.asSharedFlow()
+
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
@@ -188,6 +195,20 @@ class ConnectViewModel(
 
     fun onCancelClick() {
         serviceConnectionManager.connectionProxy()?.disconnect()
+    }
+
+    fun onManageAccountClick() {
+        viewModelScope.launch {
+            _viewActions.tryEmit(
+                ViewAction.OpenAccountManagementPageInBrowser(
+                    serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
+                )
+            )
+        }
+    }
+
+    sealed interface ViewAction {
+        data class OpenAccountManagementPageInBrowser(val token: String) : ViewAction
     }
 
     companion object {
