@@ -22,19 +22,15 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.paintNavigationBar
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ErrorStateCause
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     // Injected dependencies
     private val connectViewModel: ConnectViewModel by viewModel()
-    private val serviceConnectionManager: ServiceConnectionManager by inject()
 
     private lateinit var headerBar: HeaderBar
 
@@ -62,6 +58,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 val state = connectViewModel.uiState.collectAsState().value
                 ConnectScreen(
                     uiState = state,
+                    viewActions = connectViewModel.viewActions,
                     onDisconnectClick = connectViewModel::onDisconnectClick,
                     onReconnectClick = connectViewModel::onReconnectClick,
                     onConnectClick = connectViewModel::onConnectClick,
@@ -69,7 +66,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                     onSwitchLocationClick = { openSwitchLocationScreen() },
                     onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion,
                     onUpdateVersionClick = { openDownloadUrl() },
-                    onShowAccountClick = { openAccountUrl() }
+                    onManageAccountClick = connectViewModel::onManageAccountClick
                 )
             }
         }
@@ -94,17 +91,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 )
                 .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
         requireContext().startActivity(intent)
-    }
-
-    private fun openAccountUrl() {
-        // TODO Move this to the viewmodel
-        lifecycleScope.launch {
-            serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
-                val url = getString(R.string.account_url)
-                val ready = Uri.parse("$url?token=$token")
-                requireContext().startActivity(Intent(Intent.ACTION_VIEW, ready))
-            }
-        }
     }
 
     private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
