@@ -4,6 +4,7 @@ use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    api_access_method::AccessMethod,
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
@@ -160,6 +161,19 @@ impl MullvadProxyClient {
             .map_err(Error::Rpc)?
             .into_inner();
         mullvad_types::relay_list::RelayList::try_from(list).map_err(Error::InvalidResponse)
+    }
+
+    pub async fn get_api_access_methods(&mut self) -> Result<Vec<AccessMethod>> {
+        Ok(self
+            .0
+            .get_api_access_methods(())
+            .await
+            .map_err(Error::Rpc)?
+            .into_inner()
+            .api_access_methods
+            .iter()
+            .map(From::from)
+            .collect())
     }
 
     pub async fn update_relay_locations(&mut self) -> Result<()> {
