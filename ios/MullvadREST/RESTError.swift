@@ -122,9 +122,21 @@ extension REST {
         }
     }
 
-    public struct NoTransportError: LocalizedError {
+    public enum InternalTransportError: LocalizedError {
+        /// Programmer error. Indicates that REST framework is not configured with any transport.
+        case noTransport
+
+        /// Indicates that the transport returned something else but `HTTPURLResponse` upon success.
+        /// Likely a programmer error.
+        case invalidResponse(URLResponse?)
+
         public var errorDescription: String? {
-            "Transport is not configured."
+            switch self {
+            case .noTransport:
+                return "Transport is not configured."
+            case let .invalidResponse(response):
+                return "Received invalid response. Expected HTTPURLResponse, got \(response.map { "\($0.self)" } ?? "(nil)")."
+            }
         }
     }
 }
