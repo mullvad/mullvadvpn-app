@@ -42,6 +42,9 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
             custom_lists: Some(proto::CustomListSettings::from(
                 settings.custom_lists.clone(),
             )),
+            api_access_methods: Some(proto::ApiAccessMethodSettings::from(
+                &settings.api_access_methods,
+            )),
         }
     }
 }
@@ -140,6 +143,12 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing custom lists settings",
                 ))?;
+        let api_access_methods_settings =
+            settings
+                .api_access_methods
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing api access methods settings",
+                ))?;
         #[cfg(windows)]
         let split_tunnel = settings
             .split_tunnel
@@ -171,6 +180,9 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             custom_lists: mullvad_types::custom_list::CustomListsSettings::try_from(
                 custom_lists_settings,
             )?,
+            api_access_methods: mullvad_types::api_access_method::Settings::from(
+                api_access_methods_settings,
+            ),
         })
     }
 }
