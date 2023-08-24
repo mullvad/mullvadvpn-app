@@ -96,7 +96,7 @@ fun ConnectScreen(
                         .testTag(CIRCULAR_PROGRESS_INDICATOR)
             )
         }
-        Spacer(modifier = Modifier.height(Dimens.smallPadding))
+        Spacer(modifier = Modifier.height(Dimens.mediumPadding))
         ConnectionStatusText(state = uiState.tunnelRealState)
         Text(
             text = uiState.location?.country ?: "",
