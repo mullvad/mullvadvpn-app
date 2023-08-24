@@ -106,10 +106,11 @@ fun CustomPortDialog(
                 CustomPortTextField(
                     value = port.value,
                     onSubmit = { input ->
-                        if (input.isNotEmpty()) {
+                        if (
+                            input.isNotEmpty() &&
+                                allowedPortRanges.isPortInValidRanges(input.toInt())
+                        ) {
                             onSave(input)
-                        } else {
-                            onReset()
                         }
                     },
                     onValueChanged = { input -> port.value = input },
