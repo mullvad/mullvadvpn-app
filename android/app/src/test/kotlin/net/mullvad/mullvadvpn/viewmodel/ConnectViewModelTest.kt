@@ -9,8 +9,11 @@ import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.TestCoroutineRule
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
@@ -28,6 +31,8 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
+import net.mullvad.talpid.tunnel.ErrorState
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import net.mullvad.talpid.util.EventNotifier
 import org.junit.After
 import org.junit.Before
@@ -256,6 +261,29 @@ class ConnectViewModelTest {
             every { mockServiceConnectionManager.connectionProxy() } returns mockConnectionProxy
             viewModel.onCancelClick()
             verify { mockConnectionProxy.disconnect() }
+        }
+
+    @Test
+    fun testOutOfTimeViewAction() =
+        runTest(testCoroutineRule.testDispatcher) {
+            // Arrange
+            val errorStateCause = ErrorStateCause.AuthFailed("[EXPIRED_ACCOUNT]")
+            val tunnelRealStateTestItem = TunnelState.Error(ErrorState(errorStateCause, true))
+            val deferred = async { viewModel.viewActions.first() }
+
+            // Act
+            viewModel.uiState.test {
+                awaitItem()
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                locationSlot.captured.invoke(mockLocation)
+                relaySlot.captured.invoke(mockk(), mockk())
+                eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
+                awaitItem()
+            }
+
+            // Assert
+            assertIs<ConnectViewModel.ViewAction.OpenOutOfTimeView>(deferred.await())
         }
 
     companion object {
