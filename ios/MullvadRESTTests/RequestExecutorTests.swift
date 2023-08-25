@@ -17,7 +17,7 @@ final class RequestExecutorTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        let transportProvider = AnyTransportProvider {
+        let transportProvider = REST.AnyTransportProvider {
             return AnyTransport {
                 return Response(delay: 1, statusCode: 200, value: TimeResponse(dateTime: Date()))
             }

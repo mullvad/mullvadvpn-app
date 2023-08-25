@@ -12,14 +12,16 @@ public protocol RESTTransportProvider {
     func makeTransport() -> RESTTransport?
 }
 
-public struct AnyTransportProvider: RESTTransportProvider {
-    private let block: () -> RESTTransport?
+extension REST {
+    public struct AnyTransportProvider: RESTTransportProvider {
+        private let block: () -> RESTTransport?
 
-    public init(_ block: @escaping () -> RESTTransport?) {
-        self.block = block
-    }
+        public init(_ block: @escaping () -> RESTTransport?) {
+            self.block = block
+        }
 
-    public func makeTransport() -> RESTTransport? {
-        return block()
+        public func makeTransport() -> RESTTransport? {
+            return block()
+        }
     }
 }
