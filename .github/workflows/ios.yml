@@ -84,11 +84,11 @@ jobs:
 
       - name: Run tests
         run: |
-          NSUnbufferedIO=YES set -o pipefail && \
-            xcodebuild -project MullvadVPN.xcodeproj \
-              -scheme MullvadVPN \
-              -testPlan MullvadVPNCI \
-              -destination "platform=iOS Simulator,OS=16.4,name=iPhone 14" \
-              -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-              test 2>&1 | xcbeautify
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPN \
+            -testPlan MullvadVPNCI \
+            -destination "platform=iOS Simulator,OS=16.4,name=iPhone 14" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            test 2>&1 | xcbeautify
         working-directory: ios/
