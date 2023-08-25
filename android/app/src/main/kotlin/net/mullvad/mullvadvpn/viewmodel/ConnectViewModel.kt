@@ -40,6 +40,7 @@ import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 
 @OptIn(FlowPreview::class)
@@ -83,6 +84,9 @@ class ConnectViewModel(
                     tunnelRealState,
                     accountExpiry,
                     isTunnelInfoExpanded ->
+                    if (tunnelRealState.isTunnelErrorStateDueToExpiredAccount()) {
+                        _viewActions.tryEmit(ViewAction.OpenOutOfTimeView)
+                    }
                     ConnectUiState(
                         location =
                             when (tunnelRealState) {
@@ -178,6 +182,12 @@ class ConnectViewModel(
         return this.date()?.isBefore(threeDaysFromNow) == true
     }
 
+    private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
+        return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
+            ?.isCausedByExpiredAccount()
+            ?: false
+    }
+
     fun toggleTunnelInfoExpansion() {
         _isTunnelInfoExpanded.value = _isTunnelInfoExpanded.value.not()
     }
@@ -210,6 +220,8 @@ class ConnectViewModel(
 
     sealed interface ViewAction {
         data class OpenAccountManagementPageInBrowser(val token: String) : ViewAction
+
+        data object OpenOutOfTimeView : ViewAction
     }
 
     companion object {

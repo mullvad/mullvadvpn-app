@@ -74,13 +74,19 @@ fun ConnectScreen(
     onSwitchLocationClick: () -> Unit = {},
     onToggleTunnelInfo: () -> Unit = {},
     onUpdateVersionClick: () -> Unit = {},
-    onManageAccountClick: () -> Unit = {}
+    onManageAccountClick: () -> Unit = {},
+    onOpenOutOfTimeScreen: () -> Unit = {}
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = Unit) {
         viewActions.collect { viewAction ->
-            if (viewAction is ConnectViewModel.ViewAction.OpenAccountManagementPageInBrowser) {
-                context.openAccountPageInBrowser(viewAction.token)
+            when (viewAction) {
+                is ConnectViewModel.ViewAction.OpenAccountManagementPageInBrowser -> {
+                    context.openAccountPageInBrowser(viewAction.token)
+                }
+                is ConnectViewModel.ViewAction.OpenOutOfTimeView -> {
+                    onOpenOutOfTimeScreen()
+                }
             }
         }
     }
