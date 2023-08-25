@@ -236,11 +236,15 @@
 		58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E272943527300D5980C /* SystemNotificationProvider.swift */; };
 		58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E292943545A00D5980C /* NotificationManagerDelegate.swift */; };
 		58B43C1925F77DB60002C8C3 /* TunnelControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B43C1825F77DB60002C8C3 /* TunnelControlView.swift */; };
+		58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B4656F2A98C53300467203 /* RequestExecutorTests.swift */; };
 		58B8644629C7972F005E107C /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B93A1226C3F13600A55733 /* TunnelState.swift */; };
 		58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B993B02608A34500BA7811 /* LoginContentView.swift */; };
 		58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB142489139B00095626 /* RESTError+Display.swift */; };
 		58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */; };
+		58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */; };
+		58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */; };
+		58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
 		58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */; };
 		58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */; };
@@ -1198,11 +1202,15 @@
 		58B26E272943527300D5980C /* SystemNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotificationProvider.swift; sourceTree = "<group>"; };
 		58B26E292943545A00D5980C /* NotificationManagerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManagerDelegate.swift; sourceTree = "<group>"; };
 		58B43C1825F77DB60002C8C3 /* TunnelControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlView.swift; sourceTree = "<group>"; };
+		58B4656F2A98C53300467203 /* RequestExecutorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestExecutorTests.swift; sourceTree = "<group>"; };
 		58B93A1226C3F13600A55733 /* TunnelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelState.swift; sourceTree = "<group>"; };
 		58B993B02608A34500BA7811 /* LoginContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginContentView.swift; sourceTree = "<group>"; };
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		58B9EB142489139B00095626 /* RESTError+Display.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RESTError+Display.swift"; sourceTree = "<group>"; };
 		58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProvider.swift; sourceTree = "<group>"; };
+		58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyTransport.swift; sourceTree = "<group>"; };
+		58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeServerProxy.swift; sourceTree = "<group>"; };
+		58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCache.swift; sourceTree = "<group>"; };
 		58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTracker.swift; sourceTree = "<group>"; };
 		58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationConfiguration.swift; sourceTree = "<group>"; };
 		58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInputGroupView.swift; sourceTree = "<group>"; };
@@ -2214,6 +2222,16 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
+		58BDEB9E2A98F6B400F578F2 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */,
+				58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */,
+				58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
 		58C774C929AB543C003A1A56 /* Containers */ = {
 			isa = PBXGroup;
 			children = (
@@ -2507,6 +2525,8 @@
 				58FBFBF0291630700020E046 /* DurationTests.swift */,
 				58FBFBE8291622580020E046 /* ExponentialBackoffTests.swift */,
 				A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */,
+				58B4656F2A98C53300467203 /* RequestExecutorTests.swift */,
+				58BDEB9E2A98F6B400F578F2 /* Mocks */,
 			);
 			path = MullvadRESTTests;
 			sourceTree = "<group>";
@@ -4033,9 +4053,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */,
 				A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
 				58FBFBF1291630700020E046 /* DurationTests.swift in Sources */,
+				58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */,
+				58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */,
+				58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
