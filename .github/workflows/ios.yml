@@ -36,6 +36,7 @@ jobs:
 
       - name: Run swiftlint
         run: |
+          swiftlint --version
           swiftlint --reporter github-actions-logging
         working-directory: ios
 
