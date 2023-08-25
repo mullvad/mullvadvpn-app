@@ -2,12 +2,15 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
@@ -31,9 +34,14 @@ import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.ErrorStateCause
 
+@OptIn(FlowPreview::class)
 class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionManager) :
     ViewModel() {
+    private val _viewActions = MutableSharedFlow<ViewAction>(extraBufferCapacity = 1)
+    val viewActions = _viewActions.asSharedFlow()
+
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
@@ -64,6 +72,9 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
                     tunnelUiState,
                     tunnelRealState,
                     isTunnelInfoExpanded ->
+                    if (tunnelRealState.isTunnelErrorStateDueToExpiredAccount()) {
+                        _viewActions.tryEmit(ViewAction.OpenOutOfTimeView)
+                    }
                     ConnectUiState(
                         location =
                             when (tunnelRealState) {
@@ -123,6 +134,12 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
     private fun ConnectionProxy.tunnelRealStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onStateChange)
 
+    private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
+        return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
+            ?.isCausedByExpiredAccount()
+            ?: false
+    }
+
     fun toggleTunnelInfoExpansion() {
         _isTunnelInfoExpanded.value = _isTunnelInfoExpanded.value.not()
     }
@@ -141,6 +158,10 @@ class ConnectViewModel(private val serviceConnectionManager: ServiceConnectionMa
 
     fun onCancelClick() {
         serviceConnectionManager.connectionProxy()?.disconnect()
+    }
+
+    sealed interface ViewAction {
+        data object OpenOutOfTimeView : ViewAction
     }
 
     companion object {

@@ -32,7 +32,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
-import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -95,12 +94,14 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 val state = connectViewModel.uiState.collectAsState().value
                 ConnectScreen(
                     uiState = state,
+                    viewActions = connectViewModel.viewActions,
                     onDisconnectClick = connectViewModel::onDisconnectClick,
                     onReconnectClick = connectViewModel::onReconnectClick,
                     onConnectClick = connectViewModel::onConnectClick,
                     onCancelClick = connectViewModel::onCancelClick,
                     onSwitchLocationClick = { openSwitchLocationScreen() },
-                    onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion
+                    onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion,
+                    onOpenOutOfTimeScreen = ::openOutOfTimeScreen
                 )
             }
         }
@@ -143,10 +144,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     private fun updateTunnelState(realState: TunnelState) {
         headerBar.tunnelState = realState
-
-        if (realState.isTunnelErrorStateDueToExpiredAccount()) {
-            openOutOfTimeScreen()
-        }
     }
 
     private fun openSwitchLocationScreen() {
@@ -164,17 +161,9 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun openOutOfTimeScreen() {
-        jobTracker.newUiJob("openOutOfTimeScreen") {
-            parentFragmentManager.beginTransaction().apply {
-                replace(R.id.main_fragment, OutOfTimeFragment())
-                commitAllowingStateLoss()
-            }
+        parentFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, OutOfTimeFragment())
+            commitAllowingStateLoss()
         }
-    }
-
-    private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
-        return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
-            ?.isCausedByExpiredAccount()
-            ?: false
     }
 }
