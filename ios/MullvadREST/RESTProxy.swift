@@ -103,7 +103,7 @@ extension REST {
         }
     }
 
-    /// Network request executor that supports either callback or async based execution flows.
+    /// Network request executor that supports block-based and async execution flows.
     private struct RequestExecutor<Success, ConfigurationType: ProxyConfiguration>: RESTRequestExecutor {
         let operationFactory: NetworkOperationFactory<Success, ConfigurationType>
         let operationQueue: AsyncOperationQueue
