@@ -27,6 +27,11 @@ Line wrap the file at 100 chars.                                              Th
 - Allow deleting account in account view.
 - Add new account flow
 
+### Fixed
+- Invalidate API IP address cache to fix connectivity issues for some of devices updating from 
+  2023.2 or earlier.
+
+
 ## [2023.3 - 2023-07-15]
 ### Added
 - Add search functionality to location selection view.
