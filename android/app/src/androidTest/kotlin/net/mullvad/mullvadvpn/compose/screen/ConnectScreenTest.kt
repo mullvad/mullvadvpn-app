@@ -9,6 +9,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -18,6 +21,7 @@ import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.net.TransportProtocol
 import net.mullvad.talpid.net.TunnelEndpoint
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -44,7 +48,12 @@ class ConnectScreenTest {
     @Test
     fun testDefaultState() {
         // Arrange
-        composeTestRule.setContent { ConnectScreen(uiState = ConnectUiState.INITIAL) }
+        composeTestRule.setContent {
+            ConnectScreen(
+                uiState = ConnectUiState.INITIAL,
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+            )
+        }
 
         // Assert
         composeTestRule.apply {
@@ -69,7 +78,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -101,7 +111,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -131,7 +142,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -161,7 +173,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -192,7 +205,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -223,7 +237,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -256,7 +271,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -289,7 +305,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -318,7 +335,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -350,7 +368,8 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -383,6 +402,7 @@ class ConnectScreenTest {
                         showLocation = false,
                         isTunnelInfoExpanded = false
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onSwitchLocationClick = mockedClickHandler
             )
         }
@@ -413,6 +433,7 @@ class ConnectScreenTest {
                         showLocation = false,
                         isTunnelInfoExpanded = false
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onDisconnectClick = mockedClickHandler
             )
         }
@@ -443,6 +464,7 @@ class ConnectScreenTest {
                         showLocation = false,
                         isTunnelInfoExpanded = false
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onReconnectClick = mockedClickHandler
             )
         }
@@ -472,6 +494,7 @@ class ConnectScreenTest {
                         showLocation = false,
                         isTunnelInfoExpanded = false
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onConnectClick = mockedClickHandler
             )
         }
@@ -501,6 +524,7 @@ class ConnectScreenTest {
                         showLocation = false,
                         isTunnelInfoExpanded = false
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onCancelClick = mockedClickHandler
             )
         }
@@ -531,6 +555,7 @@ class ConnectScreenTest {
                         showLocation = false,
                         isTunnelInfoExpanded = false
                     ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow(),
                 onToggleTunnelInfo = mockedClickHandler
             )
         }
@@ -567,7 +592,8 @@ class ConnectScreenTest {
                         outAddress = mockOutAddress,
                         showLocation = false,
                         isTunnelInfoExpanded = true
-                    )
+                    ),
+                viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
             )
         }
 
@@ -578,5 +604,22 @@ class ConnectScreenTest {
             onNodeWithText("In $mockHost:$mockPort UDP").assertExists()
             onNodeWithText("Out $mockOutAddress").assertExists()
         }
+    }
+
+    @Test
+    fun testOpenOutOfTimeScreen() {
+        // Arrange
+        val mockedOpenScreenHandler: () -> Unit = mockk(relaxed = true)
+        composeTestRule.setContent {
+            ConnectScreen(
+                uiState = ConnectUiState.INITIAL,
+                viewActions = MutableStateFlow(ConnectViewModel.ViewAction.OpenOutOfTimeView),
+                onOpenOutOfTimeScreen = mockedOpenScreenHandler
+            )
+        }
+
+        // Assert
+        // Assert
+        verify { mockedOpenScreenHandler.invoke() }
     }
 }
