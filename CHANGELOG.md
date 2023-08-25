@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 #### Android
 - Migrate welcome view to compose.
+- Move out of time evaluation to connect view model.
 
 ### Removed
 #### Windows
