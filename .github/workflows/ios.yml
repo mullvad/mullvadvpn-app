@@ -25,6 +25,7 @@ jobs:
         run: |
           swiftformat --version
           swiftformat --lint .
+        working-directory: ios
 
   swiftlint:
     name: Run swiftlint
@@ -36,6 +37,7 @@ jobs:
       - name: Run swiftlint
         run: |
           swiftlint --reporter github-actions-logging
+        working-directory: ios
 
   test:
     name: Unit tests
