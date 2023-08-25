@@ -240,14 +240,13 @@
 		58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B993B02608A34500BA7811 /* LoginContentView.swift */; };
 		58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB142489139B00095626 /* RESTError+Display.swift */; };
 		58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */; };
+		58BDEB9F2A99068300F578F2 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5C522A7C97F00A6173D /* RelayCacheTracker.swift */; };
 		58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */; };
 		58C3F4F92964B08300D72515 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3F4F82964B08300D72515 /* MapViewController.swift */; };
 		58C3FA662A38549D006A450A /* MockFileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3FA652A38549D006A450A /* MockFileCache.swift */; };
 		58C3FA682A385C89006A450A /* FileCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3FA672A385C89006A450A /* FileCacheTests.swift */; };
-		58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
-		58C76A092A33850E00100D75 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
 		58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C774BD29A7A249003A1A56 /* CustomNavigationController.swift */; };
 		58C7A43E2A863F470060C66F /* PacketTunnelCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C7A4362A863F440060C66F /* PacketTunnelCore.framework */; platformFilter = ios; };
@@ -1667,6 +1666,7 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
+				58C76A072A33850E00100D75 /* ApplicationTarget.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
@@ -2137,7 +2137,6 @@
 			isa = PBXGroup;
 			children = (
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
-				58C76A072A33850E00100D75 /* ApplicationTarget.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -3761,7 +3760,6 @@
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
 				7A9CCCB42A96302800DD6A34 /* TermsOfServiceCoordinator.swift in Sources */,
 				5867771629097C5B006F721F /* ProductState.swift in Sources */,
-				58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */,
 				F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */,
 				585E820327F3285E00939F0E /* SendStoreReceiptOperation.swift in Sources */,
 				5820676426E771DB00655B05 /* TunnelManagerErrors.swift in Sources */,
@@ -3889,7 +3887,6 @@
 				580F8B8428197884002E0998 /* TunnelSettingsV2.swift in Sources */,
 				06410E08292D117800AFC18C /* SettingsStore.swift in Sources */,
 				A92ECC222A77FFAF0052F1B1 /* TunnelSettings.swift in Sources */,
-				58C76A092A33850E00100D75 /* ApplicationTarget.swift in Sources */,
 				583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
 				06410DFF292CF16C00AFC18C /* KeychainSettingsStore.swift in Sources */,
@@ -3967,6 +3964,7 @@
 				58D22416294C90210029F5F8 /* PacketTunnelRelay.swift in Sources */,
 				58D22417294C90210029F5F8 /* FixedWidthInteger+Arithmetics.swift in Sources */,
 				58D22418294C90210029F5F8 /* PacketTunnelErrorWrapper.swift in Sources */,
+				58BDEB9F2A99068300F578F2 /* ApplicationTarget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

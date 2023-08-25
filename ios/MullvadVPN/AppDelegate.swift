@@ -55,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let containerURL = ApplicationConfiguration.containerURL
 
-        addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
+        addressCache = REST.AddressCache(appTarget: .mainApp, cacheDirectory: containerURL)
         addressCache.loadFromFile()
 
         proxyFactory = REST.ProxyFactory.makeProxyFactory(

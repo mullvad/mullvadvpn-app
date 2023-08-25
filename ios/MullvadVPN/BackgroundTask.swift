@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 /**
  Background tasks defined by the app.

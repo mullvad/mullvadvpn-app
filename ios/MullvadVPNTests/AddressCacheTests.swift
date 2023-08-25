@@ -18,7 +18,7 @@ final class AddressCacheTests: XCTestCase {
 
     func testAddressCacheHasDefaultEndpoint() {
         let addressCache = REST.AddressCache(
-            canWriteToCache: false,
+            appTarget: .packetTunnel,
             fileCache: MockFileCache(initialState: .fileNotFound)
         )
         XCTAssertEqual(addressCache.getCurrentEndpoint(), REST.defaultAPIEndpoint)
@@ -26,7 +26,7 @@ final class AddressCacheTests: XCTestCase {
 
     func testSetEndpoints() throws {
         let addressCache = REST.AddressCache(
-            canWriteToCache: false,
+            appTarget: .packetTunnel,
             fileCache: MockFileCache(initialState: .fileNotFound)
         )
 
@@ -36,7 +36,7 @@ final class AddressCacheTests: XCTestCase {
 
     func testSetEndpointsUpdatesDateWhenSettingSameAddress() throws {
         let addressCache = REST.AddressCache(
-            canWriteToCache: false,
+            appTarget: .packetTunnel,
             fileCache: MockFileCache(initialState: .fileNotFound)
         )
         addressCache.setEndpoints([apiEndpoint])
@@ -50,7 +50,7 @@ final class AddressCacheTests: XCTestCase {
 
     func testSetEndpointsDoesNotDoAnythingIfSettingEmptyEndpoints() throws {
         let addressCache = REST.AddressCache(
-            canWriteToCache: false,
+            appTarget: .packetTunnel,
             fileCache: MockFileCache(initialState: .fileNotFound)
         )
         addressCache.loadFromFile()
@@ -69,7 +69,7 @@ final class AddressCacheTests: XCTestCase {
         let firstIPEndpoint = try XCTUnwrap(ipAddresses.first)
 
         let fileCache = MockFileCache<REST.StoredAddressCache>()
-        let addressCache = REST.AddressCache(canWriteToCache: true, fileCache: fileCache)
+        let addressCache = REST.AddressCache(appTarget: .mainApp, fileCache: fileCache)
         addressCache.setEndpoints(ipAddresses)
 
         let fileState = fileCache.getState()
@@ -85,7 +85,7 @@ final class AddressCacheTests: XCTestCase {
     func testCacheReadsFromFile() throws {
         let fixedDate = Date()
         let addressCache = REST.AddressCache(
-            canWriteToCache: true,
+            appTarget: .mainApp,
             fileCache: MockFileCache(initialState: .exists(
                 REST.StoredAddressCache(updatedAt: fixedDate, endpoint: apiEndpoint)
             ))
@@ -98,7 +98,7 @@ final class AddressCacheTests: XCTestCase {
 
     func testCacheWritesToDiskWhenSettingNewEndpoints() throws {
         let fileCache = MockFileCache<REST.StoredAddressCache>()
-        let addressCache = REST.AddressCache(canWriteToCache: true, fileCache: fileCache)
+        let addressCache = REST.AddressCache(appTarget: .mainApp, fileCache: fileCache)
 
         XCTAssertEqual(fileCache.getState(), .fileNotFound)
         addressCache.setEndpoints([apiEndpoint])
@@ -117,7 +117,7 @@ final class AddressCacheTests: XCTestCase {
 
     func testGetCurrentEndpointReadsFromCacheWhenReadOnly() throws {
         let addressCache = REST.AddressCache(
-            canWriteToCache: false,
+            appTarget: .packetTunnel,
             fileCache: MockFileCache(initialState: .exists(
                 REST.StoredAddressCache(updatedAt: Date(), endpoint: apiEndpoint)
             ))

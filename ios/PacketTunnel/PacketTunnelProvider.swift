@@ -138,7 +138,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         tunnelLogger = Logger(label: "WireGuard")
 
         let containerURL = ApplicationConfiguration.containerURL
-        let addressCache = REST.AddressCache(canWriteToCache: false, cacheDirectory: containerURL)
+        let addressCache = REST.AddressCache(appTarget: .packetTunnel, cacheDirectory: containerURL)
         addressCache.loadFromFile()
 
         relayCache = RelayCache(cacheDirectory: containerURL)

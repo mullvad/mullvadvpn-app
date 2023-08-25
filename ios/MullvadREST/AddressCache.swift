@@ -24,8 +24,8 @@ extension REST {
         /// Lock used for synchronizing access to instance members.
         private let cacheLock = NSLock()
 
-        /// Whether address cache can be written to.
-        private let canWriteToCache: Bool
+        /// Indicates which target requested access address cache. Main bundle has read/write access to cache, while packet tunnel can only read.
+        private let appTarget: ApplicationTarget
 
         /// The default endpoint to use as a fallback mechanism.
         private static let defaultStoredCache = StoredAddressCache(
@@ -36,17 +36,17 @@ extension REST {
         // MARK: - Public API
 
         /// Designated initializer.
-        public init(canWriteToCache: Bool, cacheDirectory: URL) {
+        public init(appTarget: ApplicationTarget, cacheDirectory: URL) {
             fileCache = FileCache(
                 fileURL: cacheDirectory.appendingPathComponent("api-ip-address.json", isDirectory: false)
             )
-            self.canWriteToCache = canWriteToCache
+            self.appTarget = appTarget
         }
 
         /// Initializer that accepts a file cache implementation and can be used in tests.
-        init(canWriteToCache: Bool, fileCache: some FileCacheProtocol<StoredAddressCache>) {
+        init(appTarget: ApplicationTarget, fileCache: some FileCacheProtocol<StoredAddressCache>) {
             self.fileCache = fileCache
-            self.canWriteToCache = canWriteToCache
+            self.appTarget = appTarget
         }
 
         /// Returns the latest available endpoint
@@ -55,17 +55,21 @@ extension REST {
         /// - Returns: The latest available endpoint, or a default endpoint if no endpoints are available
         public func getCurrentEndpoint() -> AnyIPEndpoint {
             cacheLock.withLock {
-                // Reload from disk cache when in the Network Extension as there is no `AddressCacheTracker` running
-                // there
-                if canWriteToCache == false {
+                switch appTarget {
+                case .mainApp:
+                    return cache.endpoint
+
+                case .packetTunnel:
+                    // Reload from disk cache when in the Network Extension as there is no `AddressCacheTracker` running
+                    // there
                     do {
                         cache = try fileCache.read()
                     } catch {
                         logger.error(error: error, message: "Failed to read address cache from disk.")
                     }
-                }
 
-                return cache.endpoint
+                    return cache.endpoint
+                }
             }
         }
 
@@ -80,14 +84,19 @@ extension REST {
 
                 cache = StoredAddressCache(updatedAt: Date(), endpoint: firstEndpoint)
 
-                guard canWriteToCache else { return }
-                do {
-                    try fileCache.write(cache)
-                } catch {
-                    logger.error(
-                        error: error,
-                        message: "Failed to write address cache after setting new endpoints."
-                    )
+                switch appTarget {
+                case .mainApp:
+                    do {
+                        try fileCache.write(cache)
+                    } catch {
+                        logger.error(
+                            error: error,
+                            message: "Failed to write address cache after setting new endpoints."
+                        )
+                    }
+
+                case .packetTunnel:
+                    break
                 }
             }
         }

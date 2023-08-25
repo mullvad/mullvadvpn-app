@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import enum MullvadTypes.ApplicationTarget
 import struct Network.IPv4Address
 
 enum ApplicationConfiguration {

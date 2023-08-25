@@ -8,11 +8,11 @@
 
 import Foundation
 
-enum ApplicationTarget: CaseIterable {
+public enum ApplicationTarget: CaseIterable {
     case mainApp, packetTunnel
 
     /// Returns target bundle identifier.
-    var bundleIdentifier: String {
+    public var bundleIdentifier: String {
         let mainBundleIdentifier = Bundle.main.object(forInfoDictionaryKey: "MainApplicationIdentifier") as! String
         switch self {
         case .mainApp:
