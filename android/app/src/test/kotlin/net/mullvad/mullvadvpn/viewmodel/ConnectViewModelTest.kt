@@ -11,8 +11,10 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
@@ -36,6 +38,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.talpid.tunnel.ErrorState
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.ReadableInstant
@@ -402,6 +405,29 @@ class ConnectViewModelTest {
                 assertIs<ConnectViewModel.ViewAction.OpenAccountManagementPageInBrowser>(action)
                 assertEquals(mockToken, action.token)
             }
+        }
+
+    @Test
+    fun testOutOfTimeViewAction() =
+        runTest(testCoroutineRule.testDispatcher) {
+            // Arrange
+            val errorStateCause = ErrorStateCause.AuthFailed("[EXPIRED_ACCOUNT]")
+            val tunnelRealStateTestItem = TunnelState.Error(ErrorState(errorStateCause, true))
+            val deferred = async { viewModel.viewActions.first() }
+
+            // Act
+            viewModel.uiState.test {
+                awaitItem()
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                locationSlot.captured.invoke(mockLocation)
+                relaySlot.captured.invoke(mockk(), mockk())
+                eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
+                awaitItem()
+            }
+
+            // Assert
+            assertIs<ConnectViewModel.ViewAction.OpenOutOfTimeView>(deferred.await())
         }
 
     companion object {
