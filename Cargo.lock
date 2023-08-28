@@ -3628,6 +3628,7 @@ dependencies = [
  "tokio",
  "tonic-build",
  "triggered",
+ "trust-dns-proto",
  "trust-dns-server",
  "which",
  "widestring",
