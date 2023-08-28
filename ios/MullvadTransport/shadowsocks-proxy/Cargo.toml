@@ -12,9 +12,7 @@ crate-type = [ "rlib", "staticlib" ]
 bench = false
 
 [dependencies]
-shadowsocks-service.git = "https://github.com/mullvad/shadowsocks-rust"
-shadowsocks-service.rev = "c45980bb22d0d50ac888813c59a1edf0cff14a36"
-shadowsocks-service.features = [ "local", "stream-cipher", "local-http", "local-tunnel" ]
+shadowsocks-service.workspace = true
 
 tokio = { workspace = true }
 log = "0.4"
