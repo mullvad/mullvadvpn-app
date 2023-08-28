@@ -1,5 +1,6 @@
 use anyhow::Result;
 use mullvad_management_interface::MullvadProxyClient;
+use mullvad_types::api_access_method::AccessMethod;
 use std::net::IpAddr;
 
 use clap::Subcommand;
@@ -17,11 +18,11 @@ impl Proxy {
         match self {
             Proxy::Api(cmd) => match cmd {
                 ApiCommands::List => {
-                    println!("Listing the API access methods: ..");
+                    //println!("Listing the API access methods: ..");
                     Self::list().await?;
                 }
                 ApiCommands::Add(cmd) => {
-                    println!("Adding custom proxy: {:?}", cmd);
+                    //println!("Adding custom proxy");
                     Self::add(cmd).await?;
                 }
             },
@@ -41,34 +42,10 @@ impl Proxy {
 
     /// Add a custom API access method.
     async fn add(cmd: AddCustomCommands) -> Result<()> {
-        let mut _rpc = MullvadProxyClient::new().await?;
-        match cmd {
-            AddCustomCommands::Socks5(variant) => match variant {
-                Socks5AddCommands::Local {
-                    local_port,
-                    remote_ip,
-                    remote_port,
-                } => {
-                    println!("Adding LOCAL SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}")
-                }
-                Socks5AddCommands::Remote {
-                    remote_ip,
-                    remote_port,
-                    username,
-                    password,
-                } => println!(
-                    "Adding REMOTE SOCKS5-proxy: {username:?}+{password:?} @ {remote_ip}:{remote_port}"
-                ),
-            },
-            AddCustomCommands::Shadowsocks {
-                remote_ip,
-                remote_port,
-                password,
-                cipher,
-            } => println!(
-                "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
-            ),
-        }
+        let mut rpc = MullvadProxyClient::new().await?;
+        // TODO: Do NOT `unwrap`.
+        let proxy = AccessMethod::try_from(cmd.clone()).unwrap();
+        rpc.add_access_method(proxy).await?;
         Ok(())
     }
 }
@@ -129,4 +106,60 @@ pub enum Socks5AddCommands {
         #[arg(requires = "username")]
         password: Option<String>,
     },
+}
+
+/// Implement conversios from CLI types to Daemon types.
+///
+/// Since these are not supposed to be used outside of the CLI,
+/// we define them in a hidden-away module.
+mod conversions {
+    use mullvad_types::api_access_method::AccessMethod;
+
+    use super::{AddCustomCommands, Socks5AddCommands};
+
+    impl TryFrom<AddCustomCommands> for AccessMethod {
+        // TODO: Use some other Error type than String!
+        type Error = String;
+
+        fn try_from(value: AddCustomCommands) -> Result<Self, Self::Error> {
+            Ok(match value {
+                AddCustomCommands::Socks5(variant) => match variant {
+                    Socks5AddCommands::Local {
+                        local_port,
+                        remote_ip,
+                        remote_port,
+                    } => {
+                        println!("Adding LOCAL SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
+                        Self {
+                            name: "SOCKS5 [local]({remote_ip}:{remote_port})".to_string(),
+                        }
+                    }
+                    Socks5AddCommands::Remote {
+                        remote_ip,
+                        remote_port,
+                        username,
+                        password,
+                    } => {
+                        println!("Adding REMOTE SOCKS5-proxy: {username:?}+{password:?} @ {remote_ip}:{remote_port}");
+                        Self {
+                            name: "SOCKS5 [remote]({remote_ip}:{remote_port})".to_string(),
+                        }
+                    }
+                },
+                AddCustomCommands::Shadowsocks {
+                    remote_ip,
+                    remote_port,
+                    password,
+                    cipher,
+                } => {
+                    println!(
+                "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
+                    );
+                    Self {
+                        name: "Shadowsocks ({remote_ip}:{remote_port})".to_string(),
+                    }
+                }
+            })
+        }
+    }
 }

@@ -1,4 +1,4 @@
-/// Implements conversions for the auxilliary AccessMethod Settings data type.
+/// Implements conversions for the auxilliary proto AccessMethod type to the internal AccessMethod data type.
 mod settings {
     use crate::types::proto;
     use mullvad_types::api_access_method;
@@ -32,6 +32,12 @@ mod settings {
                     })
                     .collect(),
             }
+        }
+    }
+
+    impl From<proto::ApiAccessMethodAdd> for api_access_method::AccessMethod {
+        fn from(value: proto::ApiAccessMethodAdd) -> Self {
+            Self { name: value.name }
         }
     }
 }
