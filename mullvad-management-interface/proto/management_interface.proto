@@ -78,6 +78,9 @@ service ManagementService {
 
   // API Access methods
   rpc GetApiAccessMethods(google.protobuf.Empty) returns (ApiAccessMethods) {}
+  rpc AddApiAccessMethod(ApiAccessMethodAdd) returns (google.protobuf.Empty) {
+    // Can I return something useful here instead of Empty?
+  }
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -352,6 +355,9 @@ message ApiAccessMethod { string name = 1; }
 message ApiAccessMethods { repeated ApiAccessMethod api_access_methods = 1; }
 
 message ApiAccessMethodSettings { repeated ApiAccessMethod api_access_methods = 1; }
+
+
+message ApiAccessMethodAdd { string name = 1; }
 
 message Settings {
   RelaySettings relay_settings = 1;

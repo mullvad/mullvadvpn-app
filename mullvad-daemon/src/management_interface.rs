@@ -634,6 +634,21 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn add_api_access_method(
+        &self,
+        request: Request<types::ApiAccessMethodAdd>,
+    ) -> ServiceResult<()> {
+        log::debug!("add_api_access_method");
+        let access_method =
+            mullvad_types::api_access_method::AccessMethod::from(request.into_inner());
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AddApiAccessMethod(tx, access_method))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
         log::debug!("create_custom_list");
         let (tx, rx) = oneshot::channel();
