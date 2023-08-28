@@ -44,9 +44,6 @@ function getTunnelProtocolFilter(
     endpointTypes.push('bridge');
   } else if (tunnelProtocol === 'any') {
     endpointTypes.push('wireguard');
-    if (!relaySettings?.wireguard.useMultihop) {
-      endpointTypes.push('openvpn');
-    }
   } else {
     endpointTypes.push(tunnelProtocol);
   }
