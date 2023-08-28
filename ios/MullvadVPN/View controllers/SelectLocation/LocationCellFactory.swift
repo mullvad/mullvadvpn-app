@@ -43,7 +43,7 @@ final class LocationCellFactory: CellFactoryProtocol {
         cell.locationLabel.text = node.displayName
         cell.showsCollapseControl = node.isCollapsible
         cell.isExpanded = node.showsChildren
-        cell.didCollapseHandler = { [weak self] cell in
+        cell.didCollapseHandler = { [weak self] _ in
             self?.delegate?.collapseCell(for: item)
         }
     }

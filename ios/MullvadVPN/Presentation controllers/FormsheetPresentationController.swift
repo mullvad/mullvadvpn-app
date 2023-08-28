@@ -114,7 +114,7 @@ class FormSheetPresentationController: UIPresentationController {
         }
 
         if let transitionCoordinator = presentingViewController.transitionCoordinator {
-            transitionCoordinator.animate { context in
+            transitionCoordinator.animate { _ in
                 revealDimmingView()
             }
         } else {
@@ -136,7 +136,7 @@ class FormSheetPresentationController: UIPresentationController {
         }
 
         if let transitionCoordinator = presentingViewController.transitionCoordinator {
-            transitionCoordinator.animate { context in
+            transitionCoordinator.animate { _ in
                 fadeDimmingView()
             }
         } else {
@@ -166,7 +166,7 @@ class FormSheetPresentationController: UIPresentationController {
         NotificationCenter.default.post(
             name: Self.willChangeFullScreenPresentation,
             object: presentedViewController,
-            userInfo: [Self.isFullScreenUserInfoKey: NSNumber(booleanLiteral: currentIsInFullScreen)]
+            userInfo: [Self.isFullScreenUserInfoKey: NSNumber(value: currentIsInFullScreen)]
         )
     }
 

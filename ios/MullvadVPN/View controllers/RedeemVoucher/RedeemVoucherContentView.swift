@@ -301,7 +301,7 @@ final class RedeemVoucherContentView: UIView {
     private func addKeyboardResponder() {
         keyboardResponder = AutomaticKeyboardResponder(
             targetView: self,
-            handler: { [weak self] targetView, offset in
+            handler: { [weak self] _, offset in
                 guard let self else { return }
                 guard self.textField.isFirstResponder else { return }
                 self.bottomsOfButtonsConstraint?.constant = -offset

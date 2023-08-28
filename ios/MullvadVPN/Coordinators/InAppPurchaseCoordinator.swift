@@ -29,7 +29,7 @@ class InAppPurchaseCoordinator: Coordinator, Presentable {
 
     func start(accountNumber: String, product: SKProduct) {
         interactor.purchase(accountNumber: accountNumber, product: product)
-        interactor.didFinishPayment = { [weak self] interactor, paymentEvent in
+        interactor.didFinishPayment = { [weak self] _, paymentEvent in
             guard let self else { return }
             switch paymentEvent {
             case let .finished(value):

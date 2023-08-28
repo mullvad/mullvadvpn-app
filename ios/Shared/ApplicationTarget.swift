@@ -13,7 +13,11 @@ enum ApplicationTarget: CaseIterable {
 
     /// Returns target bundle identifier.
     var bundleIdentifier: String {
-        let mainBundleIdentifier = Bundle.main.object(forInfoDictionaryKey: "MainApplicationIdentifier") as! String
+        let key = "MainApplicationIdentifier"
+        guard let mainBundleIdentifier = Bundle.main.object(forInfoDictionaryKey: key) as? String else {
+            assertionFailure("Unexpected value for : \(key)")
+            return ""
+        }
         switch self {
         case .mainApp:
             return mainBundleIdentifier

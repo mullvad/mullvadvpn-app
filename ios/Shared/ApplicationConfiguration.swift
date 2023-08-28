@@ -12,7 +12,12 @@ import struct Network.IPv4Address
 enum ApplicationConfiguration {
     /// Shared container security group identifier.
     static var securityGroupIdentifier: String {
-        Bundle.main.object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as! String
+        let key = "ApplicationSecurityGroupIdentifier"
+        guard let value = Bundle.main.object(forInfoDictionaryKey: key) as? String else {
+            assertionFailure("Unexpected value for : \(key)")
+            return ""
+        }
+        return value
     }
 
     /// Container URL for security group.

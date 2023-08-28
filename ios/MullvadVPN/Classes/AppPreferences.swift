@@ -9,7 +9,7 @@
 import Foundation
 
 protocol AppPreferencesDataSource {
-    var isShownOnboarding: Bool { set get }
+    var isShownOnboarding: Bool { get set }
     var isAgreedToTermsOfService: Bool { get set }
     var lastSeenChangeLogVersion: String { get set }
 }
