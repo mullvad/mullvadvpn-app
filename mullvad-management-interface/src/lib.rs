@@ -129,7 +129,7 @@ pub use client::MullvadProxyClient;
 
 pub type ServerJoinHandle = tokio::task::JoinHandle<Result<(), Error>>;
 
-pub async fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
+pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
     service: T,
     abort_rx: F,
 ) -> std::result::Result<ServerJoinHandle, Error> {

@@ -857,7 +857,7 @@ where
                 self.handle_new_app_version_info(app_version_info);
             }
             DeviceEvent(event) => self.handle_device_event(event).await,
-            DeviceMigrationEvent(event) => self.handle_device_migration_event(event).await,
+            DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
@@ -988,19 +988,19 @@ where
             Reconnect(tx) => self.on_reconnect(tx),
             GetState(tx) => self.on_get_state(tx),
             GetCurrentLocation(tx) => self.on_get_current_location(tx).await,
-            CreateNewAccount(tx) => self.on_create_new_account(tx).await,
-            GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token).await,
+            CreateNewAccount(tx) => self.on_create_new_account(tx),
+            GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
             GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx).await,
-            SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher).await,
+            SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher),
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
             LoginAccount(tx, account_token) => self.on_login_account(tx, account_token),
             LogoutAccount(tx) => self.on_logout_account(tx),
-            GetDevice(tx) => self.on_get_device(tx).await,
-            UpdateDevice(tx) => self.on_update_device(tx).await,
-            ListDevices(tx, account_token) => self.on_list_devices(tx, account_token).await,
+            GetDevice(tx) => self.on_get_device(tx),
+            UpdateDevice(tx) => self.on_update_device(tx),
+            ListDevices(tx, account_token) => self.on_list_devices(tx, account_token),
             RemoveDevice(tx, account_token, device_id) => {
-                self.on_remove_device(tx, account_token, device_id).await
+                self.on_remove_device(tx, account_token, device_id)
             }
             GetAccountHistory(tx) => self.on_get_account_history(tx),
             ClearAccountHistory(tx) => self.on_clear_account_history(tx).await,
@@ -1028,7 +1028,7 @@ where
                 self.on_set_wireguard_rotation_interval(tx, interval).await
             }
             GetSettings(tx) => self.on_get_settings(tx),
-            RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
+            RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx),
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
             ListCustomLists(tx) => self.on_list_custom_lists(tx),
             GetCustomList(tx, name) => self.on_get_custom_list(tx, name),
@@ -1040,7 +1040,7 @@ where
             RenameCustomList(tx, name, new_name) => {
                 self.on_rename_custom_list(tx, name, new_name).await
             }
-            GetVersionInfo(tx) => self.on_get_version_info(tx).await,
+            GetVersionInfo(tx) => self.on_get_version_info(tx),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -1054,13 +1054,13 @@ where
             #[cfg(target_os = "linux")]
             ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
             #[cfg(windows)]
-            AddSplitTunnelApp(tx, path) => self.on_add_split_tunnel_app(tx, path).await,
+            AddSplitTunnelApp(tx, path) => self.on_add_split_tunnel_app(tx, path),
             #[cfg(windows)]
-            RemoveSplitTunnelApp(tx, path) => self.on_remove_split_tunnel_app(tx, path).await,
+            RemoveSplitTunnelApp(tx, path) => self.on_remove_split_tunnel_app(tx, path),
             #[cfg(windows)]
-            ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx).await,
+            ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx),
             #[cfg(windows)]
-            SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled).await,
+            SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled),
             #[cfg(windows)]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
             #[cfg(target_os = "windows")]
@@ -1136,7 +1136,7 @@ where
         }
     }
 
-    async fn handle_device_migration_event(
+    fn handle_device_migration_event(
         &mut self,
         result: Result<PrivateAccountAndDevice, device::Error>,
     ) {
@@ -1286,7 +1286,7 @@ where
         }
     }
 
-    async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
+    fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = async {
@@ -1316,7 +1316,7 @@ where
         });
     }
 
-    async fn on_get_account_data(
+    fn on_get_account_data(
         &mut self,
         tx: ResponseTx<AccountData, mullvad_api::rest::Error>,
         account_token: AccountToken,
@@ -1354,11 +1354,7 @@ where
         }
     }
 
-    async fn on_submit_voucher(
-        &mut self,
-        tx: ResponseTx<VoucherSubmission, Error>,
-        voucher: String,
-    ) {
+    fn on_submit_voucher(&mut self, tx: ResponseTx<VoucherSubmission, Error>, voucher: String) {
         let manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
@@ -1414,7 +1410,7 @@ where
         });
     }
 
-    async fn on_get_device(&mut self, tx: ResponseTx<DeviceState, Error>) {
+    fn on_get_device(&mut self, tx: ResponseTx<DeviceState, Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
@@ -1429,7 +1425,7 @@ where
         });
     }
 
-    async fn on_update_device(&mut self, tx: ResponseTx<(), Error>) {
+    fn on_update_device(&mut self, tx: ResponseTx<(), Error>) {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = match account_manager.validate_device().await {
@@ -1444,7 +1440,7 @@ where
         });
     }
 
-    async fn on_list_devices(&self, tx: ResponseTx<Vec<Device>, Error>, token: AccountToken) {
+    fn on_list_devices(&self, tx: ResponseTx<Vec<Device>, Error>, token: AccountToken) {
         let service = self.account_manager.device_service.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
@@ -1458,7 +1454,7 @@ where
         });
     }
 
-    async fn on_remove_device(
+    fn on_remove_device(
         &mut self,
         tx: ResponseTx<(), Error>,
         account_token: AccountToken,
@@ -1504,7 +1500,7 @@ where
         Self::oneshot_send(tx, result, "clear_account_history response");
     }
 
-    async fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
+    fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
         if self.app_version_info.is_none() {
             log::debug!("No version cache found. Fetching new info");
             let mut handle = self.version_updater_handle.clone();
@@ -1624,7 +1620,7 @@ where
 
     /// Update the split app paths in both the settings and tunnel
     #[cfg(windows)]
-    async fn set_split_tunnel_paths(
+    fn set_split_tunnel_paths(
         &mut self,
         tx: ResponseTx<(), Error>,
         response_msg: &'static str,
@@ -1690,7 +1686,7 @@ where
     }
 
     #[cfg(windows)]
-    async fn on_add_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
+    fn on_add_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
         let settings = self.settings.to_settings();
 
         let mut new_list = settings.split_tunnel.apps.clone();
@@ -1701,12 +1697,11 @@ where
             "add_split_tunnel_app response",
             settings,
             ExcludedPathsUpdate::SetPaths(new_list),
-        )
-        .await;
+        );
     }
 
     #[cfg(windows)]
-    async fn on_remove_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
+    fn on_remove_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
         let settings = self.settings.to_settings();
 
         let mut new_list = settings.split_tunnel.apps.clone();
@@ -1717,12 +1712,11 @@ where
             "remove_split_tunnel_app response",
             settings,
             ExcludedPathsUpdate::SetPaths(new_list),
-        )
-        .await;
+        );
     }
 
     #[cfg(windows)]
-    async fn on_clear_split_tunnel_apps(&mut self, tx: ResponseTx<(), Error>) {
+    fn on_clear_split_tunnel_apps(&mut self, tx: ResponseTx<(), Error>) {
         let settings = self.settings.to_settings();
         let new_list = HashSet::new();
         self.set_split_tunnel_paths(
@@ -1730,20 +1724,18 @@ where
             "clear_split_tunnel_apps response",
             settings,
             ExcludedPathsUpdate::SetPaths(new_list),
-        )
-        .await;
+        );
     }
 
     #[cfg(windows)]
-    async fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, state: bool) {
+    fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, state: bool) {
         let settings = self.settings.to_settings();
         self.set_split_tunnel_paths(
             tx,
             "set_split_tunnel_state response",
             settings,
             ExcludedPathsUpdate::SetState(state),
-        )
-        .await;
+        );
     }
 
     #[cfg(windows)]
@@ -2215,7 +2207,7 @@ where
         }
     }
 
-    async fn on_rotate_wireguard_key(&self, tx: ResponseTx<(), Error>) {
+    fn on_rotate_wireguard_key(&self, tx: ResponseTx<(), Error>) {
         let manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = manager

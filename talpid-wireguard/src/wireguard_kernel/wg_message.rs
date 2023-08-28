@@ -758,7 +758,7 @@ mod test {
                 Endpoint(InetAddr::from_std(&"192.168.40.2:9797".parse().unwrap())),
                 AllowedIps(
                     [AllowedIpMessage(
-                        vec![
+                        [
                             CidrMask(32),
                             AddressFamily(2),
                             IpAddr(Ipv4Addr::new(192, 168, 39, 2).into()),
@@ -834,7 +834,7 @@ mod test {
                 PeerNla::Flags(WGPEER_F_REPLACE_ALLOWEDIPS),
                 AllowedIps(
                     [AllowedIpMessage(
-                        vec![
+                        [
                             AddressFamily(2),
                             IpAddr(Ipv4Addr::new(192, 168, 39, 2).into()),
                             CidrMask(32),

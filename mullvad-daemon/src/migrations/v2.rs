@@ -64,7 +64,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
-fn version_matches(settings: &mut serde_json::Value) -> bool {
+fn version_matches(settings: &serde_json::Value) -> bool {
     settings
         .get("settings_version")
         .map(|version| version == SettingsVersion::V2 as u64)

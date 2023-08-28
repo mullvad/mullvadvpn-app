@@ -143,8 +143,7 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
 pub unsafe fn get_final_path_name_by_handle(raw_handle: HANDLE) -> Result<OsString, io::Error> {
     let buffer_size =
         GetFinalPathNameByHandleW(raw_handle, ptr::null_mut(), 0u32, VOLUME_NAME_NT) as usize;
-    let mut buffer = Vec::new();
-    buffer.resize(buffer_size, 0);
+    let mut buffer = vec![0; buffer_size];
 
     let status = GetFinalPathNameByHandleW(
         raw_handle,
