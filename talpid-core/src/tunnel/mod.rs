@@ -121,7 +121,7 @@ impl TunnelMonitor {
     }
 
     fn start_wireguard_tunnel<L>(
-        params: &mut wireguard_types::TunnelParameters,
+        params: &wireguard_types::TunnelParameters,
         log: Option<path::PathBuf>,
         args: TunnelArgs<'_, L>,
     ) -> Result<Self>

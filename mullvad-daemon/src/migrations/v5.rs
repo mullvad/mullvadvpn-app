@@ -171,7 +171,7 @@ fn create_migrated_obfuscation_settings(port: Constraint<u16>) -> ObfuscationSet
     }
 }
 
-fn version_matches(settings: &mut serde_json::Value) -> bool {
+fn version_matches(settings: &serde_json::Value) -> bool {
     settings
         .get("settings_version")
         .map(|version| version == SettingsVersion::V5 as u64)

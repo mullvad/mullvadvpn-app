@@ -250,11 +250,11 @@ impl DnsSettings {
             .map(|array_ptr| unsafe { CFType::wrap_under_get_rule(*array_ptr) })
             .and_then(|array| array.downcast::<CFArray>())
             .and_then(Self::parse_cf_array_to_strings)
-            .unwrap_or(Vec::new())
+            .unwrap_or_default()
     }
 
     pub fn address_set(&self) -> BTreeSet<String> {
-        BTreeSet::from_iter(self.server_addresses().into_iter())
+        BTreeSet::from_iter(self.server_addresses())
     }
 
     pub fn interface_config(&self, interface_path: &str) -> Result<Vec<IpAddr>> {

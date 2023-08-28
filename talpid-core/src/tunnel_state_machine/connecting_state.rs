@@ -97,7 +97,7 @@ impl ConnectingState {
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
-        route_manager: &mut RouteManager,
+        route_manager: &RouteManager,
         retry_attempt: u32,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
@@ -590,7 +590,7 @@ impl TunnelState for ConnectingState {
                         &shared_values.log_dir,
                         &shared_values.resource_dir,
                         shared_values.tun_provider.clone(),
-                        &mut shared_values.route_manager,
+                        &shared_values.route_manager,
                         retry_attempt,
                     );
                     let params = connecting_state.tunnel_parameters.clone();

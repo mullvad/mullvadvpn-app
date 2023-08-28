@@ -120,7 +120,7 @@ fn migrate_udp2tcp_port_443(settings: &mut serde_json::Value) -> Option<()> {
     None
 }
 
-fn version_matches(settings: &mut serde_json::Value) -> bool {
+fn version_matches(settings: &serde_json::Value) -> bool {
     settings
         .get("settings_version")
         .map(|version| version == SettingsVersion::V6 as u64)

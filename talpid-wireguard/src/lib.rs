@@ -318,7 +318,7 @@ impl WireguardMonitor {
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
         let tunnel_fut = async move {
-            let mut tunnel = moved_tunnel;
+            let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
@@ -358,7 +358,7 @@ impl WireguardMonitor {
             let psk_obfs_sender = close_obfs_sender.clone();
             if psk_negotiation {
                 Self::psk_negotiation(
-                    &mut tunnel,
+                    &tunnel,
                     &mut config,
                     args.retry_attempt,
                     args.on_event.clone(),
@@ -433,7 +433,7 @@ impl WireguardMonitor {
 
     #[allow(clippy::too_many_arguments)]
     async fn psk_negotiation<F>(
-        tunnel: &mut Arc<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel: &Arc<Mutex<Option<Box<dyn Tunnel>>>>,
         config: &mut Config,
         retry_attempt: u32,
         on_event: F,
