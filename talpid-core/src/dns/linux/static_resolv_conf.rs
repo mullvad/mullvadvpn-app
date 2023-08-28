@@ -35,11 +35,11 @@ pub struct StaticResolvConf {
 }
 
 impl StaticResolvConf {
-    pub async fn new() -> Result<Self> {
+    pub fn new() -> Result<Self> {
         restore_from_backup()?;
 
         let state = Arc::new(Mutex::new(None));
-        let watcher = DnsWatcher::start(state.clone()).await?;
+        let watcher = DnsWatcher::start(state.clone())?;
 
         Ok(StaticResolvConf {
             state,
@@ -112,7 +112,7 @@ impl Drop for DnsWatcher {
 }
 
 impl DnsWatcher {
-    async fn start(state: Arc<Mutex<Option<State>>>) -> Result<Self> {
+    fn start(state: Arc<Mutex<Option<State>>>) -> Result<Self> {
         let mut watcher = Inotify::init().map_err(Error::WatchResolvConf)?;
         let mut mask = WatchMask::empty();
         // Documentation for the meaning of these masks can be found in `man inotify`
