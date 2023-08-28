@@ -2936,6 +2936,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58CE5E72224146210008646E /* Build configuration list for PBXNativeTarget "MullvadVPN" */;
 			buildPhases = (
+				580E3F212A9860F20061809D /* Run SwiftLint */,
 				58CE5E5C224146200008646E /* Sources */,
 				58CE5E5D224146200008646E /* Frameworks */,
 				58CE5E5E224146200008646E /* Resources */,
@@ -2970,6 +2971,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58CE5E82224146470008646E /* Build configuration list for PBXNativeTarget "PacketTunnel" */;
 			buildPhases = (
+				580E3F222A9861990061809D /* Run SwiftLint */,
 				58CE5E75224146470008646E /* Sources */,
 				58CE5E76224146470008646E /* Frameworks */,
 				58CE5E77224146470008646E /* Resources */,
@@ -3441,6 +3443,44 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "exec > $PROJECT_DIR/relays-prebuild.log 2>&1\n\n$PROJECT_DIR/relays-prebuild.sh\n";
+		};
+		580E3F212A9860F20061809D /* Run SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftLint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+		580E3F222A9861990061809D /* Run SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run SwiftLint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 		584023262A406C01007B27AC /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
