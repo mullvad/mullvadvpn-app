@@ -71,6 +71,12 @@ enum Cli {
     #[clap(subcommand)]
     Relay(relay::Relay),
 
+    /// Manage use of proxies (SOCKS proxies and Shadowsocks) for reaching the API.
+    /// Can make the daemon connect to the the Mullvad API via one of the
+    /// Mullvad bridge servers or a custom proxy.
+    #[clap(subcommand)]
+    Proxy(proxy::Proxy),
+
     /// Manage use of obfuscation protocols for WireGuard.
     /// Can make WireGuard traffic look like something else on the network.
     /// Helps circumvent censorship and to establish a tunnel when on restricted networks
@@ -134,6 +140,7 @@ async fn main() -> Result<()> {
         Cli::Dns(cmd) => cmd.handle().await,
         Cli::Lan(cmd) => cmd.handle().await,
         Cli::Obfuscation(cmd) => cmd.handle().await,
+        Cli::Proxy(cmd) => cmd.handle().await,
         Cli::Version => version::print().await,
         Cli::FactoryReset => reset::handle().await,
         Cli::Relay(cmd) => cmd.handle().await,

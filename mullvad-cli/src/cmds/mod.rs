@@ -10,6 +10,7 @@ pub mod dns;
 pub mod lan;
 pub mod lockdown;
 pub mod obfuscation;
+pub mod proxy;
 pub mod relay;
 pub mod relay_constraints;
 pub mod reset;
