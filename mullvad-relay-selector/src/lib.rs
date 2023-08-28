@@ -98,7 +98,7 @@ impl ParsedRelays {
             relay_list
                 .wireguard
                 .udp2tcp_ports
-                .extend(UDP2TCP_PORTS.into_iter());
+                .extend(UDP2TCP_PORTS);
         }
 
         let mut relays = Vec::new();

@@ -330,7 +330,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             #[cfg(windows)]
             Box::new(wintun),
         )
-        .await
     }
 
     #[cfg(windows)]
@@ -382,7 +381,7 @@ struct OpenVpnTunnelInitArgs {
 }
 
 impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
-    async fn new_internal<L>(
+    fn new_internal<L>(
         mut cmd: C,
         init_args: OpenVpnTunnelInitArgs,
         on_event: L,
@@ -401,7 +400,6 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         let tunnel_close_rx = init_args.tunnel_close_rx;
 
         let (server_join_handle, ipc_path) = event_server::start(on_event, event_server_abort_rx)
-            .await
             .map_err(Error::EventDispatcherError)?;
 
         #[cfg(windows)]
@@ -1061,7 +1059,7 @@ mod event_server {
         }
     }
 
-    pub async fn start<L>(
+    pub fn start<L>(
         event_proxy: L,
         abort_rx: triggered::Listener,
     ) -> std::result::Result<(tokio::task::JoinHandle<Result<(), Error>>, String), Error>

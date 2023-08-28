@@ -438,7 +438,7 @@ impl ProblemReport {
 
     fn redact_guids(input: &str) -> Cow<'_, str> {
         static RE: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r#"(?i)\{?[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\}?"#)
+            Regex::new(r"(?i)\{?[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\}?")
                 .unwrap()
         });
         RE.replace_all(input, "[REDACTED]")
