@@ -6,6 +6,7 @@ export enum RoutePath {
   main = '/main',
   redeemVoucher = '/main/voucher/redeem',
   voucherSuccess = '/main/voucher/success/:newExpiry/:secondsAdded',
+  expired = '/main/expired',
   timeAdded = '/main/time-added',
   setupFinished = '/main/setup-finished',
   settings = '/settings',

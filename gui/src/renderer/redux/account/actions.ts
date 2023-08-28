@@ -1,3 +1,4 @@
+import { hasExpired } from '../../../shared/account-expiry';
 import { AccountDataError, AccountToken, IDevice } from '../../../shared/daemon-rpc-types';
 
 interface IStartLoginAction {
@@ -77,6 +78,7 @@ interface IUpdateAccountHistoryAction {
 interface IUpdateAccountExpiryAction {
   type: 'UPDATE_ACCOUNT_EXPIRY';
   expiry?: string;
+  expired: boolean;
 }
 
 interface IUpdateDevicesAction {
@@ -214,6 +216,7 @@ function updateAccountExpiry(expiry?: string): IUpdateAccountExpiryAction {
   return {
     type: 'UPDATE_ACCOUNT_EXPIRY',
     expiry,
+    expired: expiry !== undefined && hasExpired(expiry),
   };
 }
 
