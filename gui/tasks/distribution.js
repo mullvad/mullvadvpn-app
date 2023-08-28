@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
 const { Arch } = require('electron-builder');
-const { notarize } = require('electron-notarize');
+const { notarize } = require('@electron/notarize');
 const { execFileSync } = require('child_process');
 
 const noCompression = process.argv.includes('--no-compression');
