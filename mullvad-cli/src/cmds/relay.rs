@@ -554,8 +554,7 @@ impl Relay {
             let mut rpc = MullvadProxyClient::new().await?;
             Self::get_openvpn_constraints(&mut rpc).await?
         };
-        openvpn_constraints.port =
-            parse_transport_port(port, protocol, &openvpn_constraints.port);
+        openvpn_constraints.port = parse_transport_port(port, protocol, &openvpn_constraints.port);
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
             openvpn_constraints: Some(openvpn_constraints),

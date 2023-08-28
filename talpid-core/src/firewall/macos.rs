@@ -157,12 +157,10 @@ impl Firewall {
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 rules.append(&mut self.get_block_dns_rules()?);
 
-                rules.extend(
-                    self.get_allow_tunnel_rules(
-                        tunnel.interface.as_str(),
-                        &AllowedTunnelTraffic::All,
-                    )?,
-                );
+                rules.extend(self.get_allow_tunnel_rules(
+                    tunnel.interface.as_str(),
+                    &AllowedTunnelTraffic::All,
+                )?);
 
                 if *allow_lan {
                     rules.append(&mut self.get_allow_lan_rules()?);
