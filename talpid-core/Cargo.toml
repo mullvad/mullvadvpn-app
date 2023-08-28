@@ -47,7 +47,8 @@ talpid-dbus = { path = "../talpid-dbus" }
 [target.'cfg(target_os = "macos")'.dependencies]
 pfctl = "0.4.4"
 system-configuration = "0.5.1"
-trust-dns-server = { version = "0.22.0", features = ["resolver"] }
+trust-dns-server = { version = "0.23.0", features = ["resolver"] }
+trust-dns-proto = "0.23.0"
 subslice = "0.2"
 async-trait = "0.1"
 

@@ -13,17 +13,17 @@ use futures::{
 };
 
 use once_cell::sync::Lazy;
+use trust_dns_proto::{
+    op::LowerQuery,
+    rr::{LowerName, RecordType},
+};
 use trust_dns_server::{
     authority::{
         EmptyLookup, LookupObject, MessageRequest, MessageResponse, MessageResponseBuilder,
     },
-    client::{
-        op::LowerQuery,
-        rr::{LowerName, RecordType},
-    },
     proto::{
         op::{header::MessageType, op_code::OpCode, Header},
-        rr::{domain::Name, record_data::RData, Record},
+        rr::{domain::Name, rdata, record_data::RData, Record},
     },
     resolver::lookup::Lookup,
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
@@ -162,7 +162,7 @@ impl FilteringResolver {
             return_query.query_type(),
             TTL_SECONDS,
         );
-        return_record.set_data(Some(RData::A(RESOLVED_ADDR)));
+        return_record.set_data(Some(RData::A(rdata::A(RESOLVED_ADDR))));
 
         let lookup = Lookup::new_with_deadline(
             return_query,
