@@ -1,6 +1,7 @@
 #![deny(rust_2018_idioms)]
 #![recursion_limit = "512"]
 
+mod access_methods;
 pub mod account_history;
 mod api;
 #[cfg(not(target_os = "android"))]
@@ -171,6 +172,9 @@ pub enum Error {
     #[error(display = "A list with that name does not exist")]
     CustomListNotFound,
 
+    #[error(display = "Access method error")]
+    AccessMethodError(#[error(source)] access_methods::Error),
+
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
     GroupIdError(#[error(source)] io::Error),
@@ -250,14 +254,16 @@ pub enum DaemonCommand {
     RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
     GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
-    /// Get API access methods
-    GetApiAccessMethods(ResponseTx<Vec<AccessMethod>, Error>),
     /// Create custom list
     CreateCustomList(ResponseTx<mullvad_types::custom_list::Id, Error>, String),
     /// Delete custom list
     DeleteCustomList(ResponseTx<(), Error>, mullvad_types::custom_list::Id),
     /// Update a custom list with a given id
     UpdateCustomList(ResponseTx<(), Error>, CustomList),
+    /// Get API access methods
+    GetApiAccessMethods(ResponseTx<Vec<AccessMethod>, Error>),
+    /// Add API access methods
+    AddApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1034,6 +1040,7 @@ where
             UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
+            AddApiAccessMethod(tx, method) => self.on_add_api_access_method(tx, method).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2211,6 +2218,14 @@ where
     fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<AccessMethod>, Error>) {
         let result = Ok(self.settings.api_access_methods.api_access_methods.clone());
         Self::oneshot_send(tx, result, "get_api_access_methods response");
+    }
+
+    async fn on_add_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: AccessMethod) {
+        let result = self
+            .add_access_method(method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "add_api_access_method response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
