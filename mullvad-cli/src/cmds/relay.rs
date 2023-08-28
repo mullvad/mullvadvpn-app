@@ -555,7 +555,7 @@ impl Relay {
             Self::get_openvpn_constraints(&mut rpc).await?
         };
         openvpn_constraints.port =
-            parse_transport_port(port, protocol, &mut openvpn_constraints.port);
+            parse_transport_port(port, protocol, &openvpn_constraints.port);
 
         Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
             openvpn_constraints: Some(openvpn_constraints),
@@ -656,7 +656,7 @@ impl Relay {
 fn parse_transport_port(
     port: Option<Constraint<u16>>,
     protocol: Option<Constraint<TransportProtocol>>,
-    current_constraint: &mut Constraint<TransportPort>,
+    current_constraint: &Constraint<TransportPort>,
 ) -> Constraint<TransportPort> {
     let port = match port {
         Some(port) => port,

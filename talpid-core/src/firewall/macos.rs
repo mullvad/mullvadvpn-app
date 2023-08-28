@@ -130,8 +130,7 @@ impl Firewall {
 
                 if let Some(tunnel) = tunnel {
                     rules.extend(
-                        self.get_allow_tunnel_rules(&tunnel.interface, allowed_tunnel_traffic)?
-                            .into_iter(),
+                        self.get_allow_tunnel_rules(&tunnel.interface, allowed_tunnel_traffic)?,
                     );
                 }
 
@@ -162,8 +161,7 @@ impl Firewall {
                     self.get_allow_tunnel_rules(
                         tunnel.interface.as_str(),
                         &AllowedTunnelTraffic::All,
-                    )?
-                    .into_iter(),
+                    )?,
                 );
 
                 if *allow_lan {

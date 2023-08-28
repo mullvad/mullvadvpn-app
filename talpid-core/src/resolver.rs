@@ -197,7 +197,7 @@ struct ResolverImpl {
 impl ResolverImpl {
     fn build_response<'a>(
         message: &'a MessageRequest,
-        lookup: &'a mut Box<dyn LookupObject>,
+        lookup: &'a Box<dyn LookupObject>,
     ) -> LookupResponse<'a> {
         let mut response_header = Header::new();
         response_header.set_id(message.id());
@@ -221,10 +221,10 @@ impl ResolverImpl {
             let query = message.query();
             let (lookup_tx, lookup_rx) = oneshot::channel();
             let _ = tx.send((query.clone(), lookup_tx)).await;
-            let mut lookup_result: Box<dyn LookupObject> = lookup_rx
+            let lookup_result: Box<dyn LookupObject> = lookup_rx
                 .await
                 .unwrap_or_else(|_| Box::new(EmptyLookup) as Box<dyn LookupObject>);
-            let response = Self::build_response(message, &mut lookup_result);
+            let response = Self::build_response(message, &lookup_result);
 
             if let Err(err) = response_handler.send_response(response).await {
                 log::error!("Failed to send response: {}", err);
@@ -296,7 +296,7 @@ mod test {
             vec![],
             NameServerConfigGroup::from_ips_clear(&[Ipv4Addr::LOCALHOST.into()], port, true),
         );
-        TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default()).unwrap()
+        TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
     }
 
     #[test]
