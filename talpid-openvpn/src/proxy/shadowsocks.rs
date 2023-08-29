@@ -82,10 +82,10 @@ impl ShadowsocksProxyMonitor {
             config.outbound_fwmark = settings.fwmark;
         }
 
+        std::mem::drop(sock);
         let srv = local::Server::new(config).await?;
 
         let (fut, server_abort_handle) = abortable(async move {
-            let _ = sock;
             let result = srv.run().await;
             if let Err(error) = &result {
                 log::error!(
