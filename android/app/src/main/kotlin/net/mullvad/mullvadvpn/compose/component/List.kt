@@ -19,10 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
@@ -109,7 +111,10 @@ fun ListItem(
                 Text(
                     text = subText,
                     style = MaterialTheme.typography.listItemSubText,
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color =
+                        MaterialTheme.colorScheme.onPrimary
+                            .copy(alpha = AlphaDescription)
+                            .compositeOver(background)
                 )
             }
         }
