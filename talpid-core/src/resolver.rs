@@ -197,7 +197,7 @@ struct ResolverImpl {
 impl ResolverImpl {
     fn build_response<'a>(
         message: &'a MessageRequest,
-        lookup: &'a Box<dyn LookupObject>,
+        lookup: &'a dyn LookupObject,
     ) -> LookupResponse<'a> {
         let mut response_header = Header::new();
         response_header.set_id(message.id());
@@ -224,7 +224,7 @@ impl ResolverImpl {
             let lookup_result: Box<dyn LookupObject> = lookup_rx
                 .await
                 .unwrap_or_else(|_| Box::new(EmptyLookup) as Box<dyn LookupObject>);
-            let response = Self::build_response(message, &lookup_result);
+            let response = Self::build_response(message, lookup_result.as_ref());
 
             if let Err(err) = response_handler.send_response(response).await {
                 log::error!("Failed to send response: {}", err);
