@@ -156,7 +156,7 @@ function build_ref {
 
     local build_args=(--optimize --sign)
     if [[ "$(uname -s)" == "Darwin" ]]; then
-        build_args+=(--universal)
+        build_args+=(--universal --notarize)
     fi
 
     artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
