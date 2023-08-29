@@ -1272,15 +1272,17 @@ mod tests {
     #[test]
     fn sets_plugin() {
         let builder = TestOpenVpnBuilder::default();
-        let _runtime = new_runtime().unwrap();
+        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args_plugin_log("./my_test_plugin".into(), None);
-        let _ = OpenVpnMonitor::new_internal(
-            builder.clone(),
-            openvpn_init_args,
-            TestOpenvpnEventProxy {},
-            #[cfg(windows)]
-            Box::new(TestWintunContext {}),
-        );
+        let _ = runtime.block_on(async {
+            OpenVpnMonitor::new_internal(
+                builder.clone(),
+                openvpn_init_args,
+                TestOpenvpnEventProxy {},
+                #[cfg(windows)]
+                Box::new(TestWintunContext {}),
+            )
+        });
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
             *builder.plugin.lock()
@@ -1290,16 +1292,18 @@ mod tests {
     #[test]
     fn sets_log() {
         let builder = TestOpenVpnBuilder::default();
-        let _runtime = new_runtime().unwrap();
+        let runtime = new_runtime().unwrap();
         let openvpn_init_args =
             create_init_args_plugin_log("".into(), Some(PathBuf::from("./my_test_log_file")));
-        let _ = OpenVpnMonitor::new_internal(
-            builder.clone(),
-            openvpn_init_args,
-            TestOpenvpnEventProxy {},
-            #[cfg(windows)]
-            Box::new(TestWintunContext {}),
-        );
+        let _ = runtime.block_on(async {
+            OpenVpnMonitor::new_internal(
+                builder.clone(),
+                openvpn_init_args,
+                TestOpenvpnEventProxy {},
+                #[cfg(windows)]
+                Box::new(TestWintunContext {}),
+            )
+        });
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
             *builder.log.lock()
@@ -1312,16 +1316,19 @@ mod tests {
             process_handle: Some(TestProcessHandle(0)),
             ..Default::default()
         };
-        let _runtime = new_runtime().unwrap();
+        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
-        let testee = OpenVpnMonitor::new_internal(
-            builder,
-            openvpn_init_args,
-            TestOpenvpnEventProxy {},
-            #[cfg(windows)]
-            Box::new(TestWintunContext {}),
-        )
-        .unwrap();
+        let testee = runtime
+            .block_on(async {
+                OpenVpnMonitor::new_internal(
+                    builder,
+                    openvpn_init_args,
+                    TestOpenvpnEventProxy {},
+                    #[cfg(windows)]
+                    Box::new(TestWintunContext {}),
+                )
+            })
+            .unwrap();
         assert!(testee.wait().is_ok());
     }
 
@@ -1331,16 +1338,19 @@ mod tests {
             process_handle: Some(TestProcessHandle(1)),
             ..Default::default()
         };
-        let _runtime = new_runtime().unwrap();
+        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
-        let testee = OpenVpnMonitor::new_internal(
-            builder,
-            openvpn_init_args,
-            TestOpenvpnEventProxy {},
-            #[cfg(windows)]
-            Box::new(TestWintunContext {}),
-        )
-        .unwrap();
+        let testee = runtime
+            .block_on(async move {
+                OpenVpnMonitor::new_internal(
+                    builder,
+                    openvpn_init_args,
+                    TestOpenvpnEventProxy {},
+                    #[cfg(windows)]
+                    Box::new(TestWintunContext {}),
+                )
+            })
+            .unwrap();
         assert!(testee.wait().is_err());
     }
 
@@ -1350,16 +1360,19 @@ mod tests {
             process_handle: Some(TestProcessHandle(1)),
             ..Default::default()
         };
-        let _runtime = new_runtime().unwrap();
+        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
-        let testee = OpenVpnMonitor::new_internal(
-            builder,
-            openvpn_init_args,
-            TestOpenvpnEventProxy {},
-            #[cfg(windows)]
-            Box::new(TestWintunContext {}),
-        )
-        .unwrap();
+        let testee = runtime
+            .block_on(async {
+                OpenVpnMonitor::new_internal(
+                    builder,
+                    openvpn_init_args,
+                    TestOpenvpnEventProxy {},
+                    #[cfg(windows)]
+                    Box::new(TestWintunContext {}),
+                )
+            })
+            .unwrap();
 
         testee.close_handle().close().unwrap();
         assert!(testee.wait().is_ok());
@@ -1368,16 +1381,19 @@ mod tests {
     #[test]
     fn failed_process_start() {
         let builder = TestOpenVpnBuilder::default();
-        let _runtime = new_runtime().unwrap();
+        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
-        let result = OpenVpnMonitor::new_internal(
-            builder,
-            openvpn_init_args,
-            TestOpenvpnEventProxy {},
-            #[cfg(windows)]
-            Box::new(TestWintunContext {}),
-        )
-        .unwrap();
+        let result = runtime
+            .block_on(async {
+                OpenVpnMonitor::new_internal(
+                    builder,
+                    openvpn_init_args,
+                    TestOpenvpnEventProxy {},
+                    #[cfg(windows)]
+                    Box::new(TestWintunContext {}),
+                )
+            })
+            .unwrap();
         match result.wait() {
             Err(Error::StartProcessError) => (),
             _ => panic!("Wrong error"),
