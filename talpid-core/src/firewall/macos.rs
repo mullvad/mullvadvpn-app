@@ -6,7 +6,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
 };
 use subslice::SubsliceExt;
-use talpid_types::net::{self, AllowedTunnelTraffic};
+use talpid_types::net::{self, AllowedTunnelTraffic, TransportProtocol};
 
 pub use pfctl::Error;
 
@@ -280,15 +280,21 @@ impl Firewall {
     fn get_allow_relay_rule(&self, relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
 
-        self.create_rule_builder(FilterRuleAction::Pass)
+        let mut rule_builder = self.create_rule_builder(FilterRuleAction::Pass);
+
+        rule_builder
             .direction(pfctl::Direction::Out)
             .to(relay_endpoint.address)
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(Self::get_tcp_flags())
             .user(Uid::from(super::ROOT_UID))
-            .quick(true)
-            .build()
+            .quick(true);
+
+        if relay_endpoint.protocol == TransportProtocol::Tcp {
+            rule_builder.tcp_flags(Self::get_tcp_flags());
+        }
+
+        rule_builder.build()
     }
 
     /// Produces a rule that allows traffic to flow to the API. Allows the app to reach the API in
@@ -332,13 +338,21 @@ impl Firewall {
         &self,
         action: FilterRuleAction,
         tunnel_interface: &str,
+        protocol: Option<TransportProtocol>,
     ) -> pfctl::FilterRuleBuilder {
         let mut rule_builder = self.create_rule_builder(action);
         rule_builder
             .quick(true)
             .interface(tunnel_interface)
-            .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(Self::get_tcp_flags());
+            .keep_state(pfctl::StatePolicy::Keep);
+
+        if let Some(protocol) = protocol {
+            if protocol == TransportProtocol::Tcp {
+                rule_builder.tcp_flags(Self::get_tcp_flags());
+            }
+            rule_builder.proto(as_pfctl_proto(protocol));
+        }
+
         rule_builder
     }
 
@@ -349,28 +363,37 @@ impl Firewall {
     ) -> Result<Vec<pfctl::FilterRule>> {
         Ok(match allowed_traffic {
             AllowedTunnelTraffic::One(endpoint) => {
-                let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
-                let pfctl_proto = as_pfctl_proto(endpoint.protocol);
-                base_rule = base_rule.to(endpoint.address).proto(pfctl_proto);
+                let mut base_rule = self.base_rule(
+                    FilterRuleAction::Pass,
+                    tunnel_interface,
+                    Some(endpoint.protocol),
+                );
+                base_rule.to(endpoint.address);
                 vec![base_rule.build()?]
             }
             AllowedTunnelTraffic::Two(endpoint1, endpoint2) => {
                 let mut rules = Vec::with_capacity(2);
 
-                let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
-                let pfctl_proto = as_pfctl_proto(endpoint1.protocol);
-                base_rule = base_rule.to(endpoint1.address).proto(pfctl_proto);
+                let mut base_rule = self.base_rule(
+                    FilterRuleAction::Pass,
+                    tunnel_interface,
+                    Some(endpoint1.protocol),
+                );
+                base_rule.to(endpoint1.address);
                 rules.push(base_rule.build()?);
 
-                let mut base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
-                let pfctl_proto = as_pfctl_proto(endpoint2.protocol);
-                base_rule = base_rule.to(endpoint2.address).proto(pfctl_proto);
+                let mut base_rule = self.base_rule(
+                    FilterRuleAction::Pass,
+                    tunnel_interface,
+                    Some(endpoint2.protocol),
+                );
+                base_rule.to(endpoint2.address);
                 rules.push(base_rule.build()?);
 
                 rules
             }
             AllowedTunnelTraffic::All => {
-                let base_rule = &mut self.base_rule(FilterRuleAction::Pass, tunnel_interface);
+                let base_rule = self.base_rule(FilterRuleAction::Pass, tunnel_interface, None);
                 vec![base_rule.build()?]
             }
             AllowedTunnelTraffic::None => {
