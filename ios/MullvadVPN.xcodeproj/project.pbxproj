@@ -2581,9 +2581,9 @@
 		7A83C3FC2A55B39500DFB83A /* TestPlans */ = {
 			isa = PBXGroup;
 			children = (
-				7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */,
 				7A83C3FE2A55B72E00DFB83A /* MullvadVPNApp.xctestplan */,
 				7A83C4002A55B81A00DFB83A /* MullvadVPNCI.xctestplan */,
+				7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */,
 			);
 			path = TestPlans;
 			sourceTree = "<group>";

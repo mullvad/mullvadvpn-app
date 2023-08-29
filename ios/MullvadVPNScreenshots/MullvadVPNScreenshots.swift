@@ -71,6 +71,7 @@ class MullvadVPNScreenshots: XCTestCase {
         if cityCell.exists {
             cityCell.tap()
         } else {
+            _ = countryCell.buttons["CollapseButton"].waitForExistence(timeout: 5)
             countryCell.buttons["CollapseButton"].tap()
             cityCell.tap()
         }
