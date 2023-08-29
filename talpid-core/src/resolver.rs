@@ -296,7 +296,7 @@ mod test {
             vec![],
             NameServerConfigGroup::from_ips_clear(&[Ipv4Addr::LOCALHOST.into()], port, true),
         );
-        TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default()).unwrap()
+        TokioAsyncResolver::tokio(resolver_config, ResolverOpts::default())
     }
 
     #[test]
