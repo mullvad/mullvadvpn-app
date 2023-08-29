@@ -161,6 +161,9 @@
          <TestPlanReference
             reference = "container:TestPlans/MullvadVPNCI.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/MullvadVPNScreenshots.xctestplan">
+         </TestPlanReference>
       </TestPlans>
       <Testables>
          <TestableReference

@@ -30,11 +30,14 @@
       systemAttachmentLifetime = "keepNever">
       <TestPlans>
          <TestPlanReference
-            reference = "container:TestPlans/MullvadVPNApp.xctestplan"
-            default = "YES">
+            reference = "container:TestPlans/MullvadVPNApp.xctestplan">
          </TestPlanReference>
          <TestPlanReference
             reference = "container:TestPlans/MullvadVPNCI.xctestplan">
+         </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/MullvadVPNScreenshots.xctestplan"
+            default = "YES">
          </TestPlanReference>
       </TestPlans>
       <Testables>
@@ -67,15 +70,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "58D0C79223F1CE7000FE9BA7"
-            BuildableName = "MullvadVPNScreenshots.xctest"
-            BlueprintName = "MullvadVPNScreenshots"
-            ReferencedContainer = "container:MullvadVPN.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
