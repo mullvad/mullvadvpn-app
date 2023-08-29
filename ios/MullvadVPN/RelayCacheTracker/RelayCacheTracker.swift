@@ -15,8 +15,8 @@ import RelayCache
 import UIKit
 
 final class RelayCacheTracker {
-    /// Relay update interval (in seconds).
-    static let relayUpdateInterval: TimeInterval = 60 * 60
+    /// Relay update interval.
+    static let relayUpdateInterval: Duration = .hours(1)
 
     /// Tracker log.
     private let logger = Logger(label: "RelayCacheTracker")
@@ -161,7 +161,7 @@ final class RelayCacheTracker {
             return now
         }
 
-        let nextUpdate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval)
+        let nextUpdate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval.timeInterval)
 
         return max(nextUpdate, Date())
     }
@@ -220,7 +220,7 @@ final class RelayCacheTracker {
 
         timerSource.schedule(
             wallDeadline: startTime,
-            repeating: .seconds(Int(Self.relayUpdateInterval))
+            repeating: Self.relayUpdateInterval.timeInterval
         )
         timerSource.activate()
 

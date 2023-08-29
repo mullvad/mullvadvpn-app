@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 extension REST {
     public struct RetryStrategy {

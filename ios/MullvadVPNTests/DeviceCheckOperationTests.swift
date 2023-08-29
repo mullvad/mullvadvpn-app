@@ -453,11 +453,11 @@ private enum TimeSinceLastKeyRotation {
         case .zero:
             return .zero
         case .retryInterval:
-            return -WgKeyRotation.retryInterval
+            return -WgKeyRotation.retryInterval.timeInterval
         case .closeToRetryInterval:
-            return -WgKeyRotation.retryInterval + 1
+            return -WgKeyRotation.retryInterval.timeInterval + 1
         case .packetTunnelCooldownInterval:
-            return -WgKeyRotation.packetTunnelCooldownInterval
+            return -WgKeyRotation.packetTunnelCooldownInterval.timeInterval
         }
     }
 }

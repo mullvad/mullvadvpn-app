@@ -7,6 +7,7 @@
 //
 
 @testable import MullvadREST
+import MullvadTypes
 import XCTest
 
 final class ExponentialBackoffTests: XCTestCase {
@@ -22,8 +23,8 @@ final class ExponentialBackoffTests: XCTestCase {
         var backoff = ExponentialBackoff(initial: .milliseconds(.max - 1), multiplier: 2)
 
         XCTAssertEqual(backoff.next(), .milliseconds(.max - 1))
-        XCTAssertEqual(backoff.next(), .seconds(.max))
-        XCTAssertEqual(backoff.next(), .seconds(.max))
+        XCTAssertEqual(backoff.next(), .milliseconds(.max))
+        XCTAssertEqual(backoff.next(), .milliseconds(.max))
     }
 
     func testMaximumBound() {
@@ -51,7 +52,7 @@ final class ExponentialBackoffTests: XCTestCase {
     }
 
     func testJitter() {
-        let initial = REST.Duration.milliseconds(500)
+        let initial: Duration = .milliseconds(500)
         var iterator = Jittered(ExponentialBackoff(initial: initial, multiplier: 3))
 
         XCTAssertGreaterThanOrEqual(iterator.next()!, initial)

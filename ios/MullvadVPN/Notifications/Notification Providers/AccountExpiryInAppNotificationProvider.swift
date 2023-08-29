@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider {
     private var accountExpiry: Date?
@@ -49,7 +50,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
         formatter.maximumUnitCount = 1
 
         let duration: String?
-        if accountExpiry.timeIntervalSince(now) < 60 {
+        if accountExpiry.timeIntervalSince(now) < .minutes(1) {
             duration = NSLocalizedString(
                 "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_LESS_THAN_ONE_MINUTE",
                 value: "Less than a minute",
