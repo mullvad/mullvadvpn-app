@@ -35,28 +35,16 @@ impl ShadowsocksProxyMonitor {
     }
 
     async fn start_inner(settings: &ShadowsocksProxySettings) -> io::Result<Self> {
-        // TODO: Patch shadowsocks so the bound address can be obtained afterwards.
-        let addr = SocketAddrV4::new(Ipv4Addr::LOCALHOST, 0);
-        let sock = Socket::new(
-            Domain::IPV4,
-            socket2::Type::STREAM,
-            Some(socket2::Protocol::TCP),
-        )?;
-        sock.set_reuse_address(true)?;
-        sock.bind(&SockAddr::from(addr))?;
-
-        let bound_addr = sock
-            .local_addr()?
-            .as_socket_ipv4()
-            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "missing IPv4 address"))?;
-
         let mut config = Config::new(ConfigType::Local);
 
         config.fast_open = true;
 
         let mut local = LocalConfig::new(ProtocolType::Socks);
         local.mode = Mode::TcpOnly;
-        local.addr = Some(ServerAddr::SocketAddr(SocketAddr::from(bound_addr)));
+        local.addr = Some(ServerAddr::SocketAddr(SocketAddr::from((
+            Ipv4Addr::LOCALHOST,
+            0,
+        ))));
 
         config
             .local
@@ -83,9 +71,9 @@ impl ShadowsocksProxyMonitor {
         }
 
         let srv = local::Server::new(config).await?;
+        let listener_addr = Self::get_listener_addr(&srv)?;
 
         let (fut, server_abort_handle) = abortable(async move {
-            let _ = sock;
             let result = srv.run().await;
             if let Err(error) = &result {
                 log::error!(
@@ -98,10 +86,19 @@ impl ShadowsocksProxyMonitor {
         let server_join_handle = tokio::spawn(fut);
 
         Ok(Self {
-            port: bound_addr.port(),
+            port: listener_addr.port(),
             server_join_handle: Some(server_join_handle),
             server_abort_handle,
         })
+    }
+
+    fn get_listener_addr(srv: &local::Server) -> io::Result<SocketAddr> {
+        let no_addr_err = || io::Error::new(io::ErrorKind::Other, "Missing listener address");
+        let socks_server = srv.socks_servers().get(0).ok_or_else(no_addr_err)?;
+        socks_server
+            .tcp_server()
+            .ok_or_else(no_addr_err)?
+            .local_addr()
     }
 }
 
