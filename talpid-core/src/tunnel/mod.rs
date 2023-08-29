@@ -121,7 +121,8 @@ impl TunnelMonitor {
     }
 
     fn start_wireguard_tunnel<L>(
-        #[cfg(target_os = "macos")] params: &wireguard_types::TunnelParameters,
+        #[cfg(not(any(target_os = "linux", target_os = "windows")))]
+        params: &wireguard_types::TunnelParameters,
         #[cfg(any(target_os = "linux", target_os = "windows"))]
         params: &mut wireguard_types::TunnelParameters,
         log: Option<path::PathBuf>,

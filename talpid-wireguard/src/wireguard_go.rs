@@ -91,7 +91,7 @@ impl WgGoTunnel {
             wgTurnOn(
                 #[cfg(not(target_os = "android"))]
                 mtu,
-                wg_config_str.as_ptr(),
+                wg_config_str.as_ptr() as _,
                 tunnel_fd,
                 Some(wg_go_logging_callback),
                 logging_context.0 as *mut c_void,
@@ -383,7 +383,7 @@ impl Tunnel for WgGoTunnel {
         #[cfg(target_os = "android")]
         let tun_provider = self.tun_provider.clone();
         Box::pin(async move {
-            let status = unsafe { wgSetConfig(handle, wg_config_str.as_ptr()) };
+            let status = unsafe { wgSetConfig(handle, wg_config_str.as_ptr() as _) };
             if status != 0 {
                 return Err(TunnelError::SetConfigError);
             }
