@@ -17,6 +17,7 @@ struct AlertMetadata {
 struct AlertAction {
     let title: String
     let style: AlertActionStyle
+    var accessibilityID: String?
     var handler: (() -> Void)?
 }
 

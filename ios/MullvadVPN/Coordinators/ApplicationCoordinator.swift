@@ -1008,10 +1008,3 @@ fileprivate extension AppPreferencesDataSource {
 
     // swiftlint:disable:next file_length
 }
-
-private protocol Poppable: Presentable {
-    func popFromNavigationStack(
-        animated: Bool,
-        completion: () -> Void
-    )
-}
