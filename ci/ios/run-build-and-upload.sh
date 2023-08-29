@@ -7,7 +7,6 @@
 # reachable via SSH without a password via the SSH key located in
 # ~/.ssh/ios-vm-key.
 
-
 set -eu -o pipefail
 
 # Add SSH key for iOS build VMs to be able to SSH into them without user interaction
@@ -23,6 +22,5 @@ MULLVAD_CHECKOUT_DIR="${MULLVAD_CHECKOUT_DIR:-mullvadvpn-app}"
 bash run-in-vm.sh "ios-build" "$(pwd)/build-app.sh" "build:${MULLVAD_CHECKOUT_DIR}"
 mkdir -p build-output
 cp "${MULLVAD_CHECKOUT_DIR}/ios/Build/MullvadVPN.ipa" build-output/MullvadVPN.ipa
-
 
 bash run-in-vm.sh "ios-upload" "$(pwd)/upload-app.sh" "build-output:build-output"
