@@ -17,6 +17,9 @@ languages([
 # The name of the scheme which contains the UI Tests
 scheme("MullvadVPNScreenshots")
 
+# The name of the test plan which contains the UI Tests
+testplan("MullvadVPNScreenshots")
+
 # Where should the resulting screenshots be stored?
 output_directory("./Screenshots")
 

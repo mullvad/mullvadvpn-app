@@ -21,16 +21,16 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
-        "identifier" : "58B0A29F238EE67E00BC001D",
-        "name" : "MullvadVPNTests"
+        "identifier" : "58FBFBE5291622580020E046",
+        "name" : "MullvadRESTTests"
       }
     },
     {
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
-        "identifier" : "58FBFBE5291622580020E046",
-        "name" : "MullvadRESTTests"
+        "identifier" : "58B0A29F238EE67E00BC001D",
+        "name" : "MullvadVPNTests"
       }
     },
     {
@@ -58,6 +58,7 @@
       }
     },
     {
+      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
         "identifier" : "7A88DCD62A8FABBE00D2FF0E",
