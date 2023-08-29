@@ -26,27 +26,31 @@ Line wrap the file at 100 chars.                                              Th
 - Add customizable relay lists to the CLI on desktop. Custom lists can be managed through
   `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
 
+### Changed
 #### Android
-- Add UDP-over-TCP.
-- Prevent incoming connections from outside the VPN in Android 11+ when Local Network Sharing
-  is turned off.
+- Migrate welcome view to compose.
+
+
+## [android/2023.6-beta1] - 2023-08-29
+
+### Added
+#### Android
 - Add quantum resistant tunneling.
-- Add search for select location.
-- Add the ability to set a custom wireguard port.
+- Add UDP-over-TCP WireGuard obfuscation.
+- Improve how the Android firewall handles incoming connections on Android 11+ devices.
+- Add search bar to the Select location view.
+- Add settings entry to configure WireGuard port by either using a predefined or custom port.
 
 ### Changed
 #### Android
-- Rename "Advanced settings" to "VPN Settings".
-- Move the "Split tunneling" menu item up a level from "VPN settings" to "Settings".
-- Migrate split tunneling view to compose.
-- Migrate select Location view to compose.
-- Migrate settings view to compose.
-- Migrate account view to compose.
-- Migrate welcome view to compose.
+- Combine the "Preferences" and "Account" settings sub-menus into a single one called
+  "VPN Settings".
+- Make "Split tunneling" more accessible by placing it directly in the main settings menu.
+- Migrate multiple views to Compose and MVVM (Settings, Account, Split tunneling, Select location).
 
 ### Fixed
 #### Android
-- Fix connection header flickering.
+- Reduce flickering in the main/connect view.
 
 
 ## [android/2023.5] - 2023-08-02
