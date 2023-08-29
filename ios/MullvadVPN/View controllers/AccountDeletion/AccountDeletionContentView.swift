@@ -72,7 +72,9 @@ class AccountDeletionContentView: UIView {
             "TIP_TEXT",
             tableName: "Account",
             value: """
-            This logs out all devices using this account and all VPN access will be denied even if there is time left on the account. Enter the last 4 digits of the account number and hit OK if you really want to delete the account :
+            This logs out all devices using this account and all \
+            VPN access will be denied even if there is time left on the account. \
+            Enter the last 4 digits of the account number and hit OK if you really want to delete the account :
             """,
             comment: ""
         )
@@ -338,7 +340,7 @@ class AccountDeletionContentView: UIView {
     private func addKeyboardResponder() {
         keyboardResponder = AutomaticKeyboardResponder(
             targetView: self,
-            handler: { [weak self] targetView, offset in
+            handler: { [weak self] _, offset in
                 guard let self else { return }
                 self.bottomsOfButtonsConstraint?.constant = self.accountTextField.isFirstResponder ? -offset : 0
                 self.layoutIfNeeded()
