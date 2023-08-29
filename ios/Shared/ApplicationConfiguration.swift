@@ -12,6 +12,7 @@ import struct Network.IPv4Address
 enum ApplicationConfiguration {
     /// Shared container security group identifier.
     static var securityGroupIdentifier: String {
+        // swiftlint:disable:next force_cast
         Bundle.main.object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") as! String
     }
 

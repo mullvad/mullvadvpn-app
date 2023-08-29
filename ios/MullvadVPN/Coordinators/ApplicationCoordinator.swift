@@ -238,8 +238,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
              making payment. It will dismiss itself once done.
              */
             if dismissedRoute.route == .outOfTime {
-                let coordinator = dismissedRoute.coordinator as! OutOfTimeCoordinator
-
+                guard let coordinator = dismissedRoute.coordinator as? OutOfTimeCoordinator else {
+                    return false
+                }
                 return !coordinator.isMakingPayment
             }
 
@@ -254,8 +255,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     ) {
         switch context.route {
         case let .settings(subRoute):
-            let coordinator = context.presentedRoute.coordinator as! SettingsCoordinator
-
+            guard let coordinator = context.presentedRoute.coordinator as? SettingsCoordinator else { return }
             if let subRoute {
                 coordinator.navigate(
                     to: subRoute,
@@ -501,7 +501,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func presentTOS(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = TermsOfServiceCoordinator(navigationController: horizontalFlowController)
 
-        coordinator.didFinish = { [weak self] coordinator in
+        coordinator.didFinish = { [weak self] _ in
             self?.appPreferences.isAgreedToTermsOfService = true
             self?.continueFlow(animated: true)
         }
@@ -517,7 +517,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = ChangeLogCoordinator(interactor: ChangeLogInteractor())
 
-        coordinator.didFinish = { [weak self] coordinator in
+        coordinator.didFinish = { [weak self] _ in
             self?.appPreferences.markChangeLogSeen()
             self?.router.dismiss(.changelog)
         }
@@ -552,7 +552,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             tunnelManager: tunnelManager
         )
 
-        coordinator.didFinish = { [weak self] coordinator in
+        coordinator.didFinish = { [weak self] _ in
             self?.logoutRevokedDevice()
         }
 
@@ -571,7 +571,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             tunnelManager: tunnelManager
         )
 
-        coordinator.didFinishPayment = { [weak self] coordinator in
+        coordinator.didFinishPayment = { [weak self] _ in
             guard let self else { return }
 
             if shouldDismissOutOfTime() {
@@ -596,7 +596,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             tunnelManager: tunnelManager
         )
 
-        coordinator.didFinish = { [weak self] coordinator in
+        coordinator.didFinish = { [weak self] _ in
             guard let self else { return }
             appPreferences.isShownOnboarding = true
             router.dismiss(.welcome, animated: false)
@@ -634,7 +634,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             devicesProxy: devicesProxy
         )
 
-        coordinator.didFinish = { [weak self] coordinator in
+        coordinator.didFinish = { [weak self] _ in
             self?.continueFlow(animated: true)
         }
         coordinator.didCreateAccount = { [weak self] in
@@ -670,7 +670,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             relayCacheTracker: relayCacheTracker
         )
 
-        selectLocationCoordinator.didFinish = { [weak self] coordinator, relay in
+        selectLocationCoordinator.didFinish = { [weak self] _, _ in
             if isModalPresentation {
                 self?.router.dismiss(.selectLocation, animated: true)
             }
@@ -690,7 +690,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             interactor: accountInteractor
         )
 
-        coordinator.didFinish = { [weak self] coordinator, reason in
+        coordinator.didFinish = { [weak self] _, reason in
             self?.didDismissAccount(reason)
         }
 
@@ -732,11 +732,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             interactorFactory: interactorFactory
         )
 
-        coordinator.didFinish = { [weak self] coordinator in
+        coordinator.didFinish = { [weak self] _ in
             self?.router.dismissAll(.settings, animated: true)
         }
 
-        coordinator.willNavigate = { [weak self] coordinator, from, to in
+        coordinator.willNavigate = { [weak self] _, _, to in
             if to == .root {
                 self?.onShowSettings?()
             }
@@ -758,7 +758,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func addTunnelObserver() {
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState, previousDeviceState in
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 self?.deviceStateDidChange(deviceState, previousDeviceState: previousDeviceState)
             })
 

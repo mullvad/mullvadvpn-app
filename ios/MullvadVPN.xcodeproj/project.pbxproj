@@ -491,6 +491,9 @@
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
 		F0C6FA812A66E23300F521F0 /* DeleteAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */; };
 		F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */; };
+		F0DA87472A9CB9A2006044F1 /* AccountExpiryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */; };
+		F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */; };
+		F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */; };
 		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
 		F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */; };
 		F0E8CC0A2A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */; };
@@ -1380,6 +1383,9 @@
 		F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountOperation.swift; sourceTree = "<group>"; };
 		F0C6FA822A6A729500F521F0 /* InAppPurchaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseCoordinator.swift; sourceTree = "<group>"; };
 		F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseInteractor.swift; sourceTree = "<group>"; };
+		F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryRow.swift; sourceTree = "<group>"; };
+		F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeviceRow.swift; sourceTree = "<group>"; };
+		F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountNumberRow.swift; sourceTree = "<group>"; };
 		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
 		F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewController.swift; sourceTree = "<group>"; };
 		F0E8CC092A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedContentView.swift; sourceTree = "<group>"; };
@@ -1911,6 +1917,9 @@
 				7A1A26422A2612AE00B978AA /* PaymentAlertPresenter.swift */,
 				5867771329097BCD006F721F /* PaymentState.swift */,
 				5867771529097C5B006F721F /* ProductState.swift */,
+				F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */,
+				F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */,
+				F0DA874A2A9CBACB006044F1 /* AccountNumberRow.swift */,
 			);
 			path = Account;
 			sourceTree = "<group>";
@@ -3780,6 +3789,7 @@
 				7A9CCCB92A96302800DD6A34 /* SelectLocationCoordinator.swift in Sources */,
 				58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
+				F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
 				F0E8E4C52A60499100ED26A3 /* AccountDeletionViewController.swift in Sources */,
@@ -3818,6 +3828,7 @@
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				7A9CCCBE2A96302800DD6A34 /* AccountDeletionCoordinator.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
+				F0DA87472A9CB9A2006044F1 /* AccountExpiryRow.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
 				58CC40EF24A601900019D96E /* ObserverList.swift in Sources */,
@@ -3879,6 +3890,7 @@
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
+				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
