@@ -13,6 +13,7 @@ private let animationDuration: Duration = .milliseconds(250)
 
 final class AccountInputGroupView: UIView {
     private let minimumAccountTokenLength = 10
+    private var showsLastUsedAccountRow = false
 
     enum Style {
         case normal, error, authenticating
@@ -22,6 +23,7 @@ final class AccountInputGroupView: UIView {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "IconArrow"), for: .normal)
+        button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         button.accessibilityLabel = NSLocalizedString(
             "ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "AccountInput",
@@ -63,7 +65,7 @@ final class AccountInputGroupView: UIView {
         textField.keyboardType = .numberPad
         textField.returnKeyType = .done
         textField.enablesReturnKeyAutomatically = false
-
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return textField
     }()
 
@@ -77,7 +79,6 @@ final class AccountInputGroupView: UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white
-
         return view
     }()
 
@@ -86,11 +87,8 @@ final class AccountInputGroupView: UIView {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .white.withAlphaComponent(0.8)
         view.accessibilityElementsHidden = true
-
         return view
     }()
-
-    private var showsLastUsedAccountRow = false
 
     private let lastUsedAccountButton: UIButton = {
         let button = UIButton(type: .system)
@@ -100,6 +98,7 @@ final class AccountInputGroupView: UIView {
         button.contentHorizontalAlignment = .leading
         button.contentEdgeInsets = UIMetrics.textFieldMargins
         button.setTitleColor(UIColor.AccountTextField.NormalState.textColor, for: .normal)
+        button.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         button.accessibilityLabel = NSLocalizedString(
             "LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
             tableName: "AccountInput",
@@ -114,6 +113,7 @@ final class AccountInputGroupView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "IconCloseSml"), for: .normal)
         button.imageView?.tintColor = .primaryColor.withAlphaComponent(0.4)
+        button.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         button.accessibilityLabel = NSLocalizedString(
             "REMOVE_LAST_USED_ACCOUNT_ACCESSIBILITY_LABEL",
             tableName: "AccountInput",
@@ -126,16 +126,12 @@ final class AccountInputGroupView: UIView {
     let contentView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
-        view.translatesAutoresizingMaskIntoConstraints = false
-
         return view
     }()
 
     private(set) var loginState = LoginState.default
-
     private let borderRadius = CGFloat(8)
     private let borderWidth = CGFloat(2)
-
     private var lastUsedAccount: String?
 
     private var borderColor: UIColor {
@@ -181,7 +177,6 @@ final class AccountInputGroupView: UIView {
 
     private let borderLayer = AccountInputBorderLayer()
     private let contentLayerMask = CALayer()
-
     private var lastUsedAccountVisibleConstraint: NSLayoutConstraint!
     private var lastUsedAccountHiddenConstraint: NSLayoutConstraint!
 
@@ -189,87 +184,68 @@ final class AccountInputGroupView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        addSubview(contentView)
-        contentView.addSubview(topRowView)
-        contentView.addSubview(separator)
-        contentView.addSubview(bottomRowView)
-        topRowView.addSubview(privateTextField)
-        topRowView.addSubview(sendButton)
-        bottomRowView.addSubview(lastUsedAccountButton)
-        bottomRowView.addSubview(removeLastUsedAccountButton)
-
-        privateTextField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        sendButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-
-        lastUsedAccountButton.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        removeLastUsedAccountButton.setContentCompressionResistancePriority(
-            .defaultHigh,
-            for: .horizontal
-        )
-
-        lastUsedAccountVisibleConstraint = heightAnchor
-            .constraint(equalTo: contentView.heightAnchor)
-        lastUsedAccountHiddenConstraint = heightAnchor.constraint(equalTo: topRowView.heightAnchor)
-
-        NSLayoutConstraint.activate([
-            lastUsedAccountHiddenConstraint,
-
-            contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-
-            topRowView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            topRowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            topRowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            topRowView.bottomAnchor.constraint(equalTo: separator.topAnchor),
-
-            separator.topAnchor.constraint(equalTo: topRowView.bottomAnchor),
-            separator.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            separator.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            separator.heightAnchor.constraint(equalToConstant: borderWidth),
-
-            bottomRowView.topAnchor.constraint(equalTo: separator.bottomAnchor),
-            bottomRowView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
-            bottomRowView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            bottomRowView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-
-            privateTextField.topAnchor.constraint(equalTo: topRowView.topAnchor),
-            privateTextField.leadingAnchor.constraint(equalTo: topRowView.leadingAnchor),
-            privateTextField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor),
-            privateTextField.bottomAnchor.constraint(equalTo: topRowView.bottomAnchor),
-
-            sendButton.topAnchor.constraint(equalTo: topRowView.topAnchor),
-            sendButton.trailingAnchor.constraint(equalTo: topRowView.trailingAnchor),
-            sendButton.bottomAnchor.constraint(equalTo: topRowView.bottomAnchor),
-            sendButton.widthAnchor.constraint(equalTo: sendButton.heightAnchor),
-
-            lastUsedAccountButton.topAnchor.constraint(equalTo: bottomRowView.topAnchor),
-            lastUsedAccountButton.bottomAnchor.constraint(equalTo: bottomRowView.bottomAnchor),
-            lastUsedAccountButton.leadingAnchor.constraint(equalTo: bottomRowView.leadingAnchor),
-            lastUsedAccountButton.trailingAnchor
-                .constraint(equalTo: removeLastUsedAccountButton.leadingAnchor),
-
-            removeLastUsedAccountButton.topAnchor.constraint(equalTo: bottomRowView.topAnchor),
-            removeLastUsedAccountButton.bottomAnchor
-                .constraint(equalTo: bottomRowView.bottomAnchor),
-            removeLastUsedAccountButton.trailingAnchor
-                .constraint(equalTo: bottomRowView.trailingAnchor),
-            removeLastUsedAccountButton.widthAnchor.constraint(equalTo: sendButton.widthAnchor),
-        ])
-
-        backgroundColor = UIColor.clear
-        borderLayer.lineWidth = borderWidth
-        borderLayer.fillColor = UIColor.clear.cgColor
-        contentView.layer.mask = contentLayerMask
-
-        layer.insertSublayer(borderLayer, at: 0)
-
+        configUI()
+        setAppearance()
+        addActions()
         updateAppearance()
         updateTextFieldEnabled()
         updateSendButtonAppearance(animated: false)
         updateKeyboardReturnKeyEnabled()
+        addTextFieldNotificationObservers()
+        addAccessibilityNotificationObservers()
+    }
 
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func configUI() {
+        addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview(.all().excluding(.bottom))
+        }
+
+        contentView.addConstrainedSubviews([topRowView, separator, bottomRowView]) {
+            topRowView.pinEdgesToSuperview(.all().excluding(.bottom))
+            topRowView.bottomAnchor.constraint(equalTo: separator.topAnchor)
+
+            separator.pinEdgesToSuperview(.all().excluding([.bottom, .top]))
+            separator.topAnchor.constraint(equalTo: topRowView.bottomAnchor)
+            separator.heightAnchor.constraint(equalToConstant: borderWidth)
+
+            bottomRowView.topAnchor.constraint(equalTo: separator.bottomAnchor)
+            bottomRowView.pinEdgesToSuperview(.all().excluding(.top))
+        }
+
+        topRowView.addConstrainedSubviews([privateTextField, sendButton]) {
+            privateTextField.trailingAnchor.constraint(equalTo: sendButton.leadingAnchor)
+            privateTextField.pinEdgesToSuperview(.all().excluding(.trailing))
+
+            sendButton.pinEdgesToSuperview(.all().excluding(.leading))
+            sendButton.widthAnchor.constraint(equalTo: sendButton.heightAnchor)
+        }
+
+        bottomRowView.addConstrainedSubviews([lastUsedAccountButton, removeLastUsedAccountButton]) {
+            lastUsedAccountButton.pinEdgesToSuperview(.all().excluding(.trailing))
+            lastUsedAccountButton.trailingAnchor.constraint(equalTo: removeLastUsedAccountButton.leadingAnchor)
+
+            removeLastUsedAccountButton.pinEdgesToSuperview(.all().excluding(.leading))
+            removeLastUsedAccountButton.widthAnchor.constraint(equalTo: sendButton.widthAnchor)
+        }
+
+        lastUsedAccountVisibleConstraint = heightAnchor.constraint(equalTo: contentView.heightAnchor)
+        lastUsedAccountHiddenConstraint = heightAnchor.constraint(equalTo: topRowView.heightAnchor)
+        lastUsedAccountHiddenConstraint.isActive = true
+    }
+
+    private func setAppearance() {
+        backgroundColor = UIColor.clear
+        borderLayer.lineWidth = borderWidth
+        borderLayer.fillColor = UIColor.clear.cgColor
+        contentView.layer.mask = contentLayerMask
+        layer.insertSublayer(borderLayer, at: 0)
+    }
+
+    private func addActions() {
         lastUsedAccountButton.addTarget(
             self,
             action: #selector(didTapLastUsedAccount),
@@ -282,13 +258,7 @@ final class AccountInputGroupView: UIView {
             for: .touchUpInside
         )
 
-        addTextFieldNotificationObservers()
-        addAccessibilityNotificationObservers()
         sendButton.addTarget(self, action: #selector(handleSendButton(_:)), for: .touchUpInside)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     func setLoginState(_ state: LoginState, animated: Bool) {
@@ -548,9 +518,8 @@ final class AccountInputGroupView: UIView {
 
     private func backgroundMaskImage(borderPath: UIBezierPath) -> UIImage {
         let renderer = UIGraphicsImageRenderer(bounds: borderPath.bounds)
-        return renderer.image { ctx in
+        return renderer.image { _ in
             borderPath.fill()
-
             // strip out any overlapping pixels between the border and the background
             borderPath.stroke(with: .clear, alpha: 0)
         }

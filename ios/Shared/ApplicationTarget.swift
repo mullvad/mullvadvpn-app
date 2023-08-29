@@ -13,7 +13,9 @@ enum ApplicationTarget: CaseIterable {
 
     /// Returns target bundle identifier.
     var bundleIdentifier: String {
-        let mainBundleIdentifier = Bundle.main.object(forInfoDictionaryKey: "MainApplicationIdentifier") as! String
+        let key = "MainApplicationIdentifier"
+        // swiftlint:disable:next force_cast
+        let mainBundleIdentifier = Bundle.main.object(forInfoDictionaryKey: key) as! String
         switch self {
         case .mainApp:
             return mainBundleIdentifier

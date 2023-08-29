@@ -18,7 +18,7 @@ extension NSRegularExpression {
           (25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.
           (25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b
         """#
-
+        // swiftlint:disable:next force_try
         return try! NSRegularExpression(pattern: pattern, options: [.allowCommentsAndWhitespace])
     }
 
@@ -46,7 +46,7 @@ extension NSRegularExpression {
             (25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])           # 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33 (IPv4-Embedded IPv6 Address)
             )
         """#
-
+        // swiftlint:disable:next force_try
         return try! NSRegularExpression(pattern: pattern, options: [.allowCommentsAndWhitespace])
     }
 }

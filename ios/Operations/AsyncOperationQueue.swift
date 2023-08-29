@@ -73,7 +73,7 @@ private final class ExclusivityManager {
 
             operationsByCategory[category] = operations
 
-            operation.onFinish { [weak self] op, error in
+            operation.onFinish { [weak self] op, _ in
                 self?.removeOperation(op, categories: categories)
             }
         }

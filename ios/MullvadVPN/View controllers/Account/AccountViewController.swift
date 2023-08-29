@@ -57,27 +57,7 @@ class AccountViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         view.backgroundColor = .secondaryColor
-
-        let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.addSubview(contentView)
-        view.addSubview(scrollView)
-
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.bottomAnchor
-                .constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-        ])
 
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
@@ -96,15 +76,54 @@ class AccountViewController: UIViewController {
             self?.copyAccountToken()
         }
 
+        contentView.accountDeviceRow.infoButtonAction = { [weak self] in
+            self?.actionHandler?(.deviceInfo)
+        }
+
+        interactor.didReceiveDeviceState = { [weak self] deviceState in
+            self?.updateView(from: deviceState)
+        }
+
+        interactor.didReceivePaymentEvent = { [weak self] event in
+            self?.didReceivePaymentEvent(event)
+        }
+        configUI()
+        addActions()
+        updateView(from: interactor.deviceState)
+        applyViewState(animated: false)
+        requestStoreProductsIfCan()
+    }
+
+    // MARK: - Private
+
+    private func requestStoreProductsIfCan() {
+        if StorePaymentManager.canMakePayments {
+            requestStoreProducts()
+        } else {
+            setProductState(.cannotMakePurchases, animated: false)
+        }
+    }
+
+    private func configUI() {
+        let scrollView = UIScrollView()
+
+        view.addConstrainedSubviews([scrollView]) {
+            scrollView.pinEdgesToSuperview()
+        }
+
+        scrollView.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview(.all().excluding(.bottom))
+            contentView.bottomAnchor.constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor)
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        }
+    }
+
+    private func addActions() {
         contentView.redeemVoucherButton.addTarget(
             self,
             action: #selector(redeemVoucher),
             for: .touchUpInside
         )
-
-        contentView.accountDeviceRow.infoButtonAction = { [weak self] in
-            self?.actionHandler?(.deviceInfo)
-        }
 
         contentView.restorePurchasesButton.addTarget(
             self,
@@ -119,26 +138,7 @@ class AccountViewController: UIViewController {
         contentView.logoutButton.addTarget(self, action: #selector(logOut), for: .touchUpInside)
 
         contentView.deleteButton.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
-
-        interactor.didReceiveDeviceState = { [weak self] deviceState in
-            self?.updateView(from: deviceState)
-        }
-
-        interactor.didReceivePaymentEvent = { [weak self] event in
-            self?.didReceivePaymentEvent(event)
-        }
-
-        updateView(from: interactor.deviceState)
-        applyViewState(animated: false)
-
-        if StorePaymentManager.canMakePayments {
-            requestStoreProducts()
-        } else {
-            setProductState(.cannotMakePurchases, animated: false)
-        }
     }
-
-    // MARK: - Private
 
     private func requestStoreProducts() {
         let productKind = StoreSubscription.thirtyDays
