@@ -25,6 +25,8 @@ log_header "Building Mullvad VPN $PRODUCT_VERSION"
 OPTIMIZE="false"
 # If the produced binaries should be signed (Windows + macOS only)
 SIGN="false"
+# If the produced app and pkg should be notarized by apple (macOS only)
+NOTARIZE="false"
 # If a macOS build should create an installer artifact working on both
 # Intel and Apple Silicon Macs
 UNIVERSAL="false"
@@ -33,6 +35,7 @@ while [[ "$#" -gt 0 ]]; do
     case $1 in
         --optimize) OPTIMIZE="true";;
         --sign)     SIGN="true";;
+        --notarize) NOTARIZE="true";;
         --universal)
             if [[ "$(uname -s)" != "Darwin" ]]; then
                 log_error "--universal only works on macOS"
@@ -127,6 +130,10 @@ else
     export CSC_IDENTITY_AUTO_DISCOVERY=false
 fi
 
+if [[ "$NOTARIZE" == "true" ]]; then
+    NPM_PACK_ARGS+=(--notarize)
+fi
+
 if [[ "$IS_RELEASE" == "true" ]]; then
     log_info "Removing old Rust build artifacts..."
     cargo clean
@@ -136,11 +143,6 @@ if [[ "$IS_RELEASE" == "true" ]]; then
 else
     # Allow dev builds to override which API server to use at runtime.
     CARGO_ARGS+=(--features api-override)
-
-    if [[ "$(uname -s)" == "Darwin" ]]; then
-        log_info "Disabling Apple notarization of installer in dev build"
-        NPM_PACK_ARGS+=(--no-apple-notarization)
-    fi
 fi
 
 # Make Windows builds include a manifest in the daemon binary declaring it must
