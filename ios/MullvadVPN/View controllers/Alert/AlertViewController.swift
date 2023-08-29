@@ -120,14 +120,15 @@ class AlertViewController: UIViewController {
         }
     }
 
-    func addAction(title: String, style: AlertActionStyle, handler: (() -> Void)? = nil) {
+    func addAction(title: String, style: AlertActionStyle, accessibilityId: String?, handler: (() -> Void)? = nil) {
         // The presence of a button should reset any custom button margin to default.
         containerView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.bottom
 
         let button = AppButton(style: style.buttonStyle)
 
-        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
         button.setTitle(title, for: .normal)
+        button.accessibilityIdentifier = accessibilityId
+        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
 
         containerView.addArrangedSubview(button)
         handler.flatMap { handlers[button] = $0 }
