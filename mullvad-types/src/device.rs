@@ -3,7 +3,6 @@ use chrono::{DateTime, Utc};
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use talpid_types::net::wireguard::PublicKey;
 
 /// UUID for a device.
@@ -21,7 +20,6 @@ pub struct Device {
     pub name: DeviceName,
     #[cfg_attr(target_os = "android", jnix(map = "|key| *key.as_bytes()"))]
     pub pubkey: PublicKey,
-    pub ports: Vec<DevicePort>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub hijack_dns: bool,
     #[cfg_attr(target_os = "android", jnix(map = "|expiry| expiry.to_string()"))]
@@ -46,21 +44,6 @@ impl Device {
 
     pub fn eq_id(&self, other: &Device) -> bool {
         self.id == other.id
-    }
-}
-
-/// Ports associated with a device.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub struct DevicePort {
-    /// Port identifier.
-    pub id: String,
-}
-
-impl fmt::Display for DevicePort {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.id)
     }
 }
 

@@ -112,9 +112,6 @@ impl Account {
                     println!("Device id      : {}", device.device.id);
                     println!("Device pubkey  : {}", device.device.pubkey);
                     println!("Device created : {}", device.device.created,);
-                    for port in device.device.ports {
-                        println!("Device port    : {port}");
-                    }
                 }
                 let expiry = rpc.get_account_data(device.account_token).await?;
                 println!(
@@ -156,9 +153,6 @@ impl Account {
                     "Created   : {}",
                     device.created.with_timezone(&chrono::Local)
                 );
-                for port in device.ports {
-                    println!("Port      : {port}");
-                }
             } else {
                 println!("{}", device.pretty_name());
             }

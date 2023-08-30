@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use http::{Method, StatusCode};
 use mullvad_types::{
     account::AccountToken,
-    device::{Device, DeviceId, DeviceName, DevicePort},
+    device::{Device, DeviceId, DeviceName},
 };
 use std::future::Future;
 use talpid_types::net::wireguard;
@@ -23,7 +23,6 @@ struct DeviceResponse {
     pubkey: wireguard::PublicKey,
     ipv4_address: ipnetwork::Ipv4Network,
     ipv6_address: ipnetwork::Ipv6Network,
-    ports: Vec<DevicePort>,
     hijack_dns: bool,
     created: DateTime<Utc>,
 }
@@ -73,7 +72,6 @@ impl DevicesProxy {
                 pubkey,
                 ipv4_address,
                 ipv6_address,
-                ports,
                 hijack_dns,
                 created,
                 ..
@@ -84,7 +82,6 @@ impl DevicesProxy {
                     id,
                     name,
                     pubkey,
-                    ports,
                     hijack_dns,
                     created,
                 },
