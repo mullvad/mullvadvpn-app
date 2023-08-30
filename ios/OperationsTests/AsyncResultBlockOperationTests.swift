@@ -20,7 +20,7 @@ final class AsyncResultBlockOperationTests: XCTestCase {
             finish(.success(true))
         }
 
-        operation.onFinish { op, error in
+        operation.onFinish { op, _ in
             XCTAssertEqual(op.result?.value, true)
             expectation.fulfill()
         }

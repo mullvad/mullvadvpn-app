@@ -66,7 +66,7 @@ final class SelectLocationViewController: UIViewController {
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        coordinator.animate(alongsideTransition: nil) { context in
+        coordinator.animate(alongsideTransition: nil) { _ in
             guard let indexPath = self.dataSource?.indexPathForSelectedRelay() else { return }
 
             self.tableView.scrollToRow(at: indexPath, at: .middle, animated: false)

@@ -18,7 +18,7 @@ class OperationConditionTests: XCTestCase {
             expectOperationToExecute.fulfill()
         }
 
-        let blockCondition = BlockCondition { op, completion in
+        let blockCondition = BlockCondition { _, completion in
             expectConditionEvaluation.fulfill()
             completion(true)
         }
@@ -42,7 +42,7 @@ class OperationConditionTests: XCTestCase {
             expectOperationToNeverExecute.fulfill()
         }
 
-        let blockCondition = BlockCondition { op, completion in
+        let blockCondition = BlockCondition { _, completion in
             expectConditionEvaluation.fulfill()
             completion(false)
         }

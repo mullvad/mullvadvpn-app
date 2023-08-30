@@ -111,7 +111,7 @@ class AutomaticKeyboardResponder {
         presentationFrameObserver = containerView.observe(
             \.frame,
             options: [.new],
-            changeHandler: { [weak self] containingView, change in
+            changeHandler: { [weak self] _, _ in
                 guard let self,
                       let keyboardFrameValue = lastKeyboardRect else { return }
 

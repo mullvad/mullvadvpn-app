@@ -19,13 +19,13 @@ class OperationObserverTests: XCTestCase {
 
         let operation = AsyncBlockOperation {}
         operation.addBlockObserver(OperationBlockObserver(
-            didAttach: { op in
+            didAttach: { _ in
                 expectDidAttach.fulfill()
-            }, didStart: { op in
+            }, didStart: { _ in
                 expectDidStart.fulfill()
-            }, didCancel: { op in
+            }, didCancel: { _ in
                 expectDidCancel.fulfill()
-            }, didFinish: { op, error in
+            }, didFinish: { _, _ in
                 expectDidFinish.fulfill()
             }
         ))
@@ -46,13 +46,13 @@ class OperationObserverTests: XCTestCase {
 
         let operation = AsyncBlockOperation {}
         operation.addBlockObserver(OperationBlockObserver(
-            didAttach: { op in
+            didAttach: { _ in
                 expectDidAttach.fulfill()
-            }, didStart: { op in
+            }, didStart: { _ in
                 expectDidStart.fulfill()
-            }, didCancel: { op in
+            }, didCancel: { _ in
                 expectDidCancel.fulfill()
-            }, didFinish: { op, error in
+            }, didFinish: { _, _ in
                 expectDidFinish.fulfill()
             }
         ))

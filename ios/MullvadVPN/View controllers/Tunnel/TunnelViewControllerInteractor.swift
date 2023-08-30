@@ -27,10 +27,10 @@ final class TunnelViewControllerInteractor {
         self.tunnelManager = tunnelManager
 
         let tunnelObserver = TunnelBlockObserver(
-            didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
+            didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
                 self?.didUpdateTunnelStatus?(tunnelStatus)
             },
-            didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
+            didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 self?.didUpdateDeviceState?(deviceState, previousDeviceState)
             }
         )

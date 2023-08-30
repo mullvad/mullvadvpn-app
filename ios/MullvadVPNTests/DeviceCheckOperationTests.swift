@@ -22,7 +22,7 @@ class DeviceCheckOperationTests: XCTestCase {
         let currentKey = PrivateKey()
         let remoteService = MockRemoteService(
             initialKey: currentKey.publicKey,
-            getAccount: { accountNumber in
+            getAccount: { _ in
                 Account.mock(expiry: .distantPast)
             }
         )
@@ -53,7 +53,7 @@ class DeviceCheckOperationTests: XCTestCase {
 
         let remoteService = MockRemoteService(
             initialKey: currentKey.publicKey,
-            getAccount: { accountNumber in
+            getAccount: { _ in
                 throw REST.Error.unhandledResponse(404, REST.ServerErrorResponse(code: .invalidAccount))
             }
         )
@@ -84,7 +84,7 @@ class DeviceCheckOperationTests: XCTestCase {
 
         let remoteService = MockRemoteService(
             initialKey: currentKey.publicKey,
-            getDevice: { accountNumber, deviceIdentifier in
+            getDevice: { _, _ in
                 throw REST.Error.unhandledResponse(404, REST.ServerErrorResponse(code: .deviceNotFound))
             }
         )
@@ -245,7 +245,7 @@ class DeviceCheckOperationTests: XCTestCase {
         let nextKey = PrivateKey()
 
         let remoteService = MockRemoteService(
-            rotateDeviceKey: { accountNumber, identifier, publicKey in
+            rotateDeviceKey: { _, _, _ in
                 throw URLError(.badURL)
             }
         )
@@ -280,7 +280,7 @@ class DeviceCheckOperationTests: XCTestCase {
         )
 
         let remoteService = MockRemoteService(
-            rotateDeviceKey: { accountNumber, identifier, publicKey in
+            rotateDeviceKey: { _, _, _ in
                 // Overwrite device state before returning the result from key rotation to simulate the race condition
                 // in the underlying storage.
                 try deviceStateAccessor.write(

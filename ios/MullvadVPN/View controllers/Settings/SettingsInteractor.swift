@@ -22,7 +22,7 @@ final class SettingsInteractor {
         self.tunnelManager = tunnelManager
 
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] manager, deviceState, previousDeviceState in
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, _ in
                 self?.didUpdateDeviceState?(deviceState)
             })
 

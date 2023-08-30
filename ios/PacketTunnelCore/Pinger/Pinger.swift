@@ -65,7 +65,7 @@ public final class Pinger: PingerProtocol {
             SOCK_DGRAM,
             IPPROTO_ICMP,
             CFSocketCallBackType.readCallBack.rawValue,
-            { socket, callbackType, address, data, info in
+            { socket, callbackType, _, _, info in
                 guard let socket, let info, callbackType == .readCallBack else {
                     return
                 }

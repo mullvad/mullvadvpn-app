@@ -107,7 +107,7 @@ class LoginContentView: UIView {
 
         keyboardResponder = AutomaticKeyboardResponder(
             targetView: self,
-            handler: { [weak self] view, adjustment in
+            handler: { [weak self] _, adjustment in
                 self?.contentContainerBottomConstraint?.constant = adjustment
 
                 self?.layoutIfNeeded()

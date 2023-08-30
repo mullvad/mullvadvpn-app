@@ -59,7 +59,7 @@ class TCPConnection {
             nwConnection.receive(
                 minimumIncompleteLength: minimumLength,
                 maximumLength: maximumLength
-            ) { content, contentContext, isComplete, error in
+            ) { content, _, isComplete, error in
                 if let error {
                     continuation.resume(throwing: error)
                 } else if let content {

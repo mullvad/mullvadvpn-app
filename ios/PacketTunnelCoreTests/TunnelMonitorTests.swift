@@ -18,7 +18,7 @@ final class TunnelMonitorTests: XCTestCase {
         let connectionLostExpectation = expectation(description: "Should not report connection loss")
         connectionLostExpectation.isInverted = true
 
-        let pinger = MockPinger(networkStatsReporting: networkCounters) { destination, sequence in
+        let pinger = MockPinger(networkStatsReporting: networkCounters) { _, _ in
             return .sendReply()
         }
 
@@ -49,7 +49,7 @@ final class TunnelMonitorTests: XCTestCase {
 
     func testInitialConnectionTimings() {
         // Setup pinger so that it never receives any replies.
-        let pinger = MockPinger(networkStatsReporting: networkCounters) { destination, sequence in
+        let pinger = MockPinger(networkStatsReporting: networkCounters) { _, _ in
             return .ignore
         }
 

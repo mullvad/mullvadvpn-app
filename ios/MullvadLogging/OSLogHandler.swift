@@ -63,7 +63,7 @@ public struct OSLogHandler: LogHandler {
         line: UInt
     ) {
         let mergedMetadata = self.metadata
-            .merging(metadata ?? [:]) { lhs, rhs -> Logging.Logger.MetadataValue in
+            .merging(metadata ?? [:]) { _, rhs -> Logging.Logger.MetadataValue in
                 rhs
             }
         let prettyMetadata = Self.formatMetadata(mergedMetadata)

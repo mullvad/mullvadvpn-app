@@ -124,7 +124,7 @@ class CustomTextView: UITextView {
             forName: NSTextStorage.didProcessEditingNotification,
             object: textStorage,
             queue: OperationQueue.main
-        ) { [weak self] note in
+        ) { [weak self] _ in
             self?.updatePlaceholderVisibility()
         }
 

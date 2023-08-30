@@ -22,7 +22,7 @@ final class RevokedDeviceInteractor {
         self.tunnelManager = tunnelManager
 
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateTunnelStatus: { [weak self] manager, tunnelStatus in
+            TunnelBlockObserver(didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
                 self?.didUpdateTunnelStatus?(tunnelStatus)
             })
 

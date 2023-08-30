@@ -41,7 +41,7 @@ class TunnelCoordinator: Coordinator {
 
     func start() {
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, _, _ in
                 self?.updateVisibility(animated: true)
             })
 
