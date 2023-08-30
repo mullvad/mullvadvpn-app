@@ -963,8 +963,7 @@ unsafe fn deserialize_buffer<T>(buffer: &[u8]) -> T {
 }
 
 fn buffer_to_osstring(buffer: &[u8]) -> OsString {
-    let mut out_buf = Vec::new();
-    out_buf.resize((buffer.len() + 1) / mem::size_of::<u16>(), 0u16);
+    let mut out_buf = vec![0u16; (buffer.len() + 1) / mem::size_of::<u16>()];
 
     // SAFETY: `out_buf` contains enough bytes to store all of `buffer`.
     unsafe {
