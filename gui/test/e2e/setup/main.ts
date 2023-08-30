@@ -48,7 +48,6 @@ class ApplicationMain {
       device: {
         id: '1234',
         name: 'Testing Mole',
-        ports: [],
         created: new Date(),
       },
     },

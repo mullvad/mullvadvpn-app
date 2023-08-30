@@ -295,7 +295,6 @@ export default class AppRenderer {
 
   public submitVoucher = (code: string) => IpcRendererEventChannel.account.submitVoucher(code);
   public updateAccountData = () => IpcRendererEventChannel.account.updateData();
-  public getDeviceState = () => IpcRendererEventChannel.account.getDeviceState();
   public removeDevice = (device: IDeviceRemoval) =>
     IpcRendererEventChannel.account.removeDevice(device);
   public connectTunnel = () => IpcRendererEventChannel.tunnel.connect();
@@ -850,14 +849,7 @@ export default class AppRenderer {
         break;
       case 'revoked': {
         this.loginScheduler.cancel();
-
-        const oldAccountState = this.reduxStore.getState().account;
-        if (oldAccountState.loggingOut) {
-          reduxAccount.loggedOut();
-        } else {
-          reduxAccount.deviceRevoked();
-        }
-
+        reduxAccount.deviceRevoked();
         this.resetNavigation();
         break;
       }

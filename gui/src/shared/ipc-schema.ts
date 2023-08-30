@@ -189,7 +189,6 @@ export const ipcSchema = {
     getWwwAuthToken: invoke<void, string>(),
     submitVoucher: invoke<string, VoucherResponse>(),
     updateData: send<void>(),
-    getDeviceState: invoke<void, DeviceState>(),
     listDevices: invoke<AccountToken, Array<IDevice>>(),
     removeDevice: invoke<IDeviceRemoval, void>(),
   },
