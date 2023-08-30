@@ -1054,13 +1054,13 @@ where
             #[cfg(target_os = "linux")]
             ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
             #[cfg(windows)]
-            AddSplitTunnelApp(tx, path) => self.on_add_split_tunnel_app(tx, path).await,
+            AddSplitTunnelApp(tx, path) => self.on_add_split_tunnel_app(tx, path),
             #[cfg(windows)]
-            RemoveSplitTunnelApp(tx, path) => self.on_remove_split_tunnel_app(tx, path).await,
+            RemoveSplitTunnelApp(tx, path) => self.on_remove_split_tunnel_app(tx, path),
             #[cfg(windows)]
-            ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx).await,
+            ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx),
             #[cfg(windows)]
-            SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled).await,
+            SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled),
             #[cfg(windows)]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
             #[cfg(target_os = "windows")]
@@ -1620,7 +1620,7 @@ where
 
     /// Update the split app paths in both the settings and tunnel
     #[cfg(windows)]
-    async fn set_split_tunnel_paths(
+    fn set_split_tunnel_paths(
         &mut self,
         tx: ResponseTx<(), Error>,
         response_msg: &'static str,
@@ -1686,7 +1686,7 @@ where
     }
 
     #[cfg(windows)]
-    async fn on_add_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
+    fn on_add_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
         let settings = self.settings.to_settings();
 
         let mut new_list = settings.split_tunnel.apps.clone();
@@ -1697,12 +1697,11 @@ where
             "add_split_tunnel_app response",
             settings,
             ExcludedPathsUpdate::SetPaths(new_list),
-        )
-        .await;
+        );
     }
 
     #[cfg(windows)]
-    async fn on_remove_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
+    fn on_remove_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
         let settings = self.settings.to_settings();
 
         let mut new_list = settings.split_tunnel.apps.clone();
@@ -1713,12 +1712,11 @@ where
             "remove_split_tunnel_app response",
             settings,
             ExcludedPathsUpdate::SetPaths(new_list),
-        )
-        .await;
+        );
     }
 
     #[cfg(windows)]
-    async fn on_clear_split_tunnel_apps(&mut self, tx: ResponseTx<(), Error>) {
+    fn on_clear_split_tunnel_apps(&mut self, tx: ResponseTx<(), Error>) {
         let settings = self.settings.to_settings();
         let new_list = HashSet::new();
         self.set_split_tunnel_paths(
@@ -1726,20 +1724,18 @@ where
             "clear_split_tunnel_apps response",
             settings,
             ExcludedPathsUpdate::SetPaths(new_list),
-        )
-        .await;
+        );
     }
 
     #[cfg(windows)]
-    async fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, state: bool) {
+    fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, state: bool) {
         let settings = self.settings.to_settings();
         self.set_split_tunnel_paths(
             tx,
             "set_split_tunnel_state response",
             settings,
             ExcludedPathsUpdate::SetState(state),
-        )
-        .await;
+        );
     }
 
     #[cfg(windows)]
