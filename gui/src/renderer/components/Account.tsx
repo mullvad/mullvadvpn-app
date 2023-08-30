@@ -1,21 +1,13 @@
 import {
-  createContext,
-  ReactNode,
   useCallback,
-  useContext,
   useEffect,
-  useMemo,
-  useState,
 } from 'react';
 
 import { links } from '../../config.json';
 import { formatDate, hasExpired } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
-import { useBoolean } from '../lib/utilityHooks';
-import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
 import {
   AccountContainer,
@@ -26,27 +18,20 @@ import {
   AccountRowValue,
   DeviceRowValue,
   StyledDeviceNameRow,
-  StyledSpinnerContainer,
 } from './AccountStyles';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import DeviceInfoButton from './DeviceInfoButton';
-import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import { RedeemVoucherButton } from './RedeemVoucher';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-type DialogStage = 'checking-ports' | 'confirm' | undefined;
-
 export default function Account() {
   return (
-    <LogoutContextProvider>
-      <AccountComponent />
-    </LogoutContextProvider>
+    <AccountComponent />
   );
 }
 
@@ -55,7 +40,7 @@ function AccountComponent() {
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const { updateAccountData, openLinkWithAuth } = useAppContext();
 
-  const { onTryLogout } = useLogoutContext();
+  const { logout } = useAppContext();
 
   const onBuyMore = useCallback(async () => {
     await openLinkWithAuth(links.purchase);
@@ -128,60 +113,15 @@ function AccountComponent() {
 
                 <RedeemVoucherButton />
 
-                <AppButton.RedButton onClick={onTryLogout}>
+                <AppButton.RedButton onClick={logout}>
                   {messages.pgettext('account-view', 'Log out')}
                 </AppButton.RedButton>
               </AppButton.ButtonGroup>
             </Footer>
           </AccountContainer>
         </SettingsContainer>
-
-        <LogoutDialog />
       </Layout>
     </BackAction>
-  );
-}
-
-function LogoutDialog() {
-  const { dialogStage, dialogVisible, onConfirmLogout, onCancelLogout } = useLogoutContext();
-
-  const modalType = dialogStage === 'checking-ports' ? undefined : ModalAlertType.warning;
-
-  const message =
-    dialogStage === 'checking-ports' ? (
-      <StyledSpinnerContainer>
-        <ImageView source="icon-spinner" width={60} height={60} />
-      </StyledSpinnerContainer>
-    ) : (
-      <ModalMessage>
-        {
-          // TRANSLATORS: This is is a further explanation of what happens when logging out.
-          messages.pgettext(
-            'device-management',
-            'The ports forwarded to this device will be deleted if you log out.',
-          )
-        }
-      </ModalMessage>
-    );
-
-  const buttons =
-    dialogStage === 'checking-ports'
-      ? []
-      : [
-          <AppButton.RedButton key="logout" onClick={onConfirmLogout}>
-            {
-              // TRANSLATORS: Confirmation button when logging out
-              messages.pgettext('device-management', 'Log out anyway')
-            }
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={onCancelLogout}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
-        ];
-  return (
-    <ModalAlert isOpen={dialogVisible} type={modalType} buttons={buttons}>
-      {message}
-    </ModalAlert>
   );
 }
 
@@ -223,69 +163,3 @@ function FormattedAccountExpiry(props: { expiry?: string; locale: string }) {
     );
   }
 }
-
-type LogoutContextType = {
-  dialogStage: DialogStage;
-  dialogVisible: boolean;
-  onConfirmLogout: () => void;
-  onCancelLogout: () => void;
-  onTryLogout: () => Promise<void>;
-};
-
-const LogoutContext = createContext<LogoutContextType | undefined>(undefined);
-
-const LogoutContextProvider = ({ children }: { children: ReactNode }) => {
-  const { cancelLogout, prepareLogout } = useActions(account);
-  const { logout, getDeviceState } = useAppContext();
-
-  const [dialogStage, setDialogStage] = useState<DialogStage>();
-  const [dialogVisible, showDialog, hideDialog] = useBoolean(false);
-
-  const onConfirmLogout = useCallback(async () => {
-    hideDialog();
-    await logout();
-  }, []);
-
-  const onTryLogout = useCallback(async () => {
-    showDialog();
-    setDialogStage('checking-ports');
-    prepareLogout();
-
-    const deviceState = await getDeviceState();
-
-    if (
-      deviceState?.type === 'logged in' &&
-      deviceState.accountAndDevice.device?.ports !== undefined &&
-      deviceState.accountAndDevice.device.ports.length > 0
-    ) {
-      setDialogStage('confirm');
-    } else {
-      await onConfirmLogout();
-    }
-  }, [onConfirmLogout, prepareLogout]);
-
-  const onCancelLogout = useCallback(() => {
-    cancelLogout();
-    hideDialog();
-  }, [cancelLogout]);
-
-  const value: LogoutContextType = useMemo(
-    () => ({
-      dialogStage,
-      dialogVisible,
-      onConfirmLogout,
-      onCancelLogout,
-      onTryLogout,
-    }),
-    [dialogVisible, dialogStage, onConfirmLogout, onCancelLogout, onTryLogout],
-  );
-  return <LogoutContext.Provider value={value}>{children}</LogoutContext.Provider>;
-};
-
-const useLogoutContext = () => {
-  const context = useContext(LogoutContext);
-  if (!context) {
-    throw new Error('useAccount must be used within an LogoutContextProvider');
-  }
-  return context;
-};
