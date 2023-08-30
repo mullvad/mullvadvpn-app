@@ -1612,7 +1612,6 @@ function convertFromDevice(device: grpcTypes.Device): IDevice {
 
   return {
     ...asObject,
-    ports: asObject.portsList.map((port) => port.id),
     created: created,
   };
 }
