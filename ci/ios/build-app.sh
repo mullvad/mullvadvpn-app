@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Buildscript to run inside a build VM to build a new IPA for the iOS app.
 
+set -eu
+
 # This single path really screws with XCode and wireguard-go's makefiles, which
 # really do not like the whitespace. Thus, the build source is copied to a
 # non-whitespaced `~/build`, built there and the resulting `MullvadVPN.ipa` is
 # copied back.
-set -eu
-
 VM_BUILD_DIR="/Volumes/My Shared Files/build"
 
 security unlock-keychain -p 'build'
