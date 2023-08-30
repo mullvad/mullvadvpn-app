@@ -162,6 +162,8 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 portsString
             )
 
+        #if DEBUG
+
         case .wireGuardObfuscation:
             message = NSLocalizedString(
                 "PREFERENCES_WIRE_GUARD_OBFUSCATION_GENERAL",
@@ -177,6 +179,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 value: "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
                 comment: ""
             )
+        #endif
         default:
             assertionFailure("No matching InfoButtonItem")
         }
