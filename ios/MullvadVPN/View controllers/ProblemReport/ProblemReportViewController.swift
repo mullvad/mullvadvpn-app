@@ -453,7 +453,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
                 self.messageTextView.roundCorners = false
 
                 self.view.layoutIfNeeded()
-            }) { completed in
+            }) { _ in
                 self.isMessageTextViewExpanded = true
 
                 self.textViewKeyboardResponder?.updateContentInsets()
@@ -476,7 +476,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
                 self.messageTextView.roundCorners = true
 
                 self.view.layoutIfNeeded()
-            }) { completed in
+            }) { _ in
                 // Revert the content adjustment behavior
                 self.messageTextView.contentInsetAdjustmentBehavior = .never
 
@@ -568,7 +568,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
             to: submissionOverlayView,
             duration: 0.25,
             options: [.showHideTransitionViews, .transitionCrossDissolve]
-        ) { success in
+        ) { _ in
             // success
         }
     }
@@ -583,7 +583,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
             to: scrollView,
             duration: 0.25,
             options: [.showHideTransitionViews, .transitionCrossDissolve]
-        ) { success in
+        ) { _ in
             // success
             self.submissionOverlayView.removeFromSuperview()
         }

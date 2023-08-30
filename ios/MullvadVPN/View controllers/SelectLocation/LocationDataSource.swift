@@ -62,7 +62,7 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         )
         self.locationCellFactory = locationCellFactory
 
-        super.init(tableView: tableView) { tableView, indexPath, itemIdentifier in
+        super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             locationCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
         }
 

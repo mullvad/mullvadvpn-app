@@ -98,7 +98,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
             self?.didReceivePaymentEvent(event)
         }
 
-        interactor.didReceiveTunnelStatus = { [weak self] tunnelStatus in
+        interactor.didReceiveTunnelStatus = { [weak self] _ in
             self?.setNeedsHeaderBarStyleAppearanceUpdate()
             self?.applyViewState()
         }

@@ -30,7 +30,7 @@ final class PreferencesInteractor {
         self.relayCacheTracker = relayCacheTracker
 
         tunnelObserver =
-            TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] manager, newSettings in
+            TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] _, newSettings in
                 self?.tunnelSettingsDidChange?(newSettings)
             })
     }

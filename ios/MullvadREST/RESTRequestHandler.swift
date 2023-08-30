@@ -30,7 +30,7 @@ extension REST {
         let authorizationProvider: RESTAuthorizationProvider?
 
         init(createURLRequest: @escaping (AnyIPEndpoint) throws -> REST.Request) {
-            _createURLRequest = { endpoint, authorization in
+            _createURLRequest = { endpoint, _ in
                 try createURLRequest(endpoint)
             }
             authorizationProvider = nil

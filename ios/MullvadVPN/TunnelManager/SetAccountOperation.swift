@@ -101,7 +101,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     private func startLogoutFlow(completion: @escaping () -> Void) {
         switch interactor.deviceState {
         case let .loggedIn(accountData, deviceData):
-            deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [self] error in
+            deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [self] _ in
                 unsetDeviceState(completion: completion)
             }
 

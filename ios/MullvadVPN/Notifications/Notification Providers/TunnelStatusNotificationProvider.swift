@@ -40,10 +40,10 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
             didLoadConfiguration: { [weak self] tunnelManager in
                 self?.handleTunnelStatus(tunnelManager.tunnelStatus)
             },
-            didUpdateTunnelStatus: { [weak self] tunnelManager, tunnelStatus in
+            didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
                 self?.handleTunnelStatus(tunnelStatus)
             },
-            didFailWithError: { [weak self] tunnelManager, error in
+            didFailWithError: { [weak self] _, error in
                 self?.tunnelManagerError = error
             }
         )

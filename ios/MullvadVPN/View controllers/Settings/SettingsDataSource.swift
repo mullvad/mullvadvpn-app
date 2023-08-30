@@ -59,7 +59,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         let settingsCellFactory = SettingsCellFactory(tableView: tableView, interactor: interactor)
         self.settingsCellFactory = settingsCellFactory
 
-        super.init(tableView: tableView) { tableView, indexPath, itemIdentifier in
+        super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             settingsCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
         }
 
@@ -67,7 +67,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         registerClasses()
         updateDataSnapshot()
 
-        interactor.didUpdateDeviceState = { [weak self] deviceState in
+        interactor.didUpdateDeviceState = { [weak self] _ in
             self?.updateDataSnapshot()
         }
         storedAccountData = interactor.deviceState.accountData

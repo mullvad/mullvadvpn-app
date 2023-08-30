@@ -48,7 +48,7 @@ public struct CustomFormatLogHandler: LogHandler {
         line: UInt
     ) {
         let mergedMetadata = self.metadata
-            .merging(metadata ?? [:]) { lhs, rhs -> Logger.MetadataValue in
+            .merging(metadata ?? [:]) { _, rhs -> Logger.MetadataValue in
                 rhs
             }
         let prettyMetadata = Self.formatMetadata(mergedMetadata)

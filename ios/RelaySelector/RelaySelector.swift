@@ -302,12 +302,12 @@ protocol AnyRelay {
 extension REST.ServerRelay: AnyRelay {}
 extension REST.BridgeRelay: AnyRelay {}
 
-fileprivate struct RelayWithLocation<T: AnyRelay> {
+private struct RelayWithLocation<T: AnyRelay> {
     let relay: T
     let serverLocation: Location
 }
 
-fileprivate struct RelayWithDistance<T: AnyRelay> {
+private struct RelayWithDistance<T: AnyRelay> {
     let relay: T
     let distance: Double
 }

@@ -34,7 +34,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
 
         let stylingOptions = MarkdownStylingOptions(font: .systemFont(ofSize: 14.0))
 
-        return NSAttributedString(markdownString: string, options: stylingOptions) { markdownType, string in
+        return NSAttributedString(markdownString: string, options: stylingOptions) { markdownType, _ in
             switch markdownType {
             case .bold:
                 return [.foregroundColor: UIColor.InAppNotificationBanner.titleColor]
@@ -81,7 +81,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
 
     private func addObservers() {
         tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] tunnelManager, deviceState, previousDeviceState in
+            TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 if previousDeviceState == .loggedOut,
                    case .loggedIn = deviceState {
                     self?.isNewDeviceRegistered = true

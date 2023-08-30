@@ -216,7 +216,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         )
         self.preferencesCellFactory = preferencesCellFactory
 
-        super.init(tableView: tableView) { tableView, indexPath, itemIdentifier in
+        super.init(tableView: tableView) { _, indexPath, itemIdentifier in
             preferencesCellFactory.makeCell(for: itemIdentifier, indexPath: indexPath)
         }
 

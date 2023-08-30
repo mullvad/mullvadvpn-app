@@ -253,7 +253,7 @@ class DeviceManagementContentView: UIView {
                     showHideViews()
                     self?.deviceStackView.layoutIfNeeded()
                 },
-                completion: { isComplete in
+                completion: { _ in
                     removeViews()
                 }
             )
