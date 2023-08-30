@@ -53,13 +53,6 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
                         id = R.string.max_devices_confirm_removal_description,
                         device.name.capitalizeFirstCharOfEachWord()
                     )
-                    .let { introText ->
-                        if (device.ports.isNotEmpty()) {
-                            introText.plus(" " + stringResource(id = R.string.port_removal_notice))
-                        } else {
-                            introText
-                        }
-                    }
 
             HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
         },

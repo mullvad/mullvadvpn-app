@@ -59,7 +59,6 @@ fun PreviewDeviceListScreen() {
                                         id = "ID",
                                         name = "Name",
                                         pubkey = ByteArray(10),
-                                        ports = ArrayList(),
                                         created = "2002-12-12"
                                     ),
                                 isLoading = false
