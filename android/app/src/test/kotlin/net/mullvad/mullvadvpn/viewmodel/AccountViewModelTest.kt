@@ -42,7 +42,6 @@ class AccountViewModelTest {
                 id = "fake_id",
                 name = "fake_name",
                 pubkey = byteArrayOf(),
-                ports = ArrayList(),
                 created = "mock_date"
             )
         )
