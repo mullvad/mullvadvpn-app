@@ -3652,7 +3652,6 @@ dependencies = [
  "prost",
  "shadowsocks-service",
  "shell-escape",
- "socket2 0.5.3",
  "talpid-routing",
  "talpid-tunnel",
  "talpid-types",

@@ -2,8 +2,7 @@ pub use std::io;
 
 use async_trait::async_trait;
 use futures::future::{abortable, AbortHandle, Aborted};
-use socket2::{Domain, SockAddr, Socket};
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
+use std::net::{Ipv4Addr, SocketAddr};
 use tokio::task::JoinHandle;
 
 use shadowsocks_service::{

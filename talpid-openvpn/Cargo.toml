@@ -28,7 +28,6 @@ tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 shadowsocks-service = { workspace = true,  features = [ "local", "stream-cipher" ] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
-socket2 = { version = "0.5.3" }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
 tonic = { workspace = true }
