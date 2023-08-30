@@ -260,8 +260,8 @@ impl ConnectingState {
     }
 
     fn reset_routes(
-        #[cfg(not(target_os = "linux"))] shared_values: &SharedTunnelStateValues,
-        #[cfg(target_os = "linux")] shared_values: &mut SharedTunnelStateValues,
+        #[cfg(target_os = "windows")] shared_values: &SharedTunnelStateValues,
+        #[cfg(not(target_os = "windows"))] shared_values: &mut SharedTunnelStateValues,
     ) {
         if let Err(error) = shared_values.route_manager.clear_routes() {
             log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
