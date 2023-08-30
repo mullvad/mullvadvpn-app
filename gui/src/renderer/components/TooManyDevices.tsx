@@ -298,17 +298,6 @@ function Device(props: IDeviceProps) {
             ),
           )}
         </ModalMessage>
-        {props.device.ports && props.device.ports.length > 0 && (
-          <ModalMessage>
-            {
-              // TRANSLATORS: Further information about consequences of logging out device.
-              messages.pgettext(
-                'device-management',
-                'This will delete all forwarded ports. Local settings will be saved.',
-              )
-            }
-          </ModalMessage>
-        )}
       </ModalAlert>
       <ModalAlert
         isOpen={error}

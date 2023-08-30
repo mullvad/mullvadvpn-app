@@ -18,7 +18,6 @@ export interface IAccountReduxState {
   accountHistory?: AccountToken;
   expiry?: string; // ISO8601
   status: LoginState;
-  loggingOut: boolean;
 }
 
 const initialState: IAccountReduxState = {
@@ -28,7 +27,6 @@ const initialState: IAccountReduxState = {
   accountHistory: undefined,
   expiry: undefined,
   status: { type: 'none', deviceRevoked: false },
-  loggingOut: false,
 };
 
 export default function (
@@ -59,23 +57,12 @@ export default function (
         ...state,
         status: { type: 'too many devices', method: 'existing_account' },
       };
-    case 'PREPARE_LOG_OUT':
-      return {
-        ...state,
-        loggingOut: true,
-      };
-    case 'CANCEL_LOGOUT':
-      return {
-        ...state,
-        loggingOut: false,
-      };
     case 'LOGGED_OUT':
       return {
         ...state,
         status: { type: 'none', deviceRevoked: false },
         accountToken: undefined,
         expiry: undefined,
-        loggingOut: false,
       };
     case 'RESET_LOGIN_ERROR':
       return {

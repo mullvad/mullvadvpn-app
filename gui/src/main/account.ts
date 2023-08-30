@@ -91,15 +91,6 @@ export default class Account {
       void this.updateAccountHistory();
     });
 
-    IpcMainEventChannel.account.handleGetDeviceState(async () => {
-      try {
-        await this.daemonRpc.updateDevice();
-      } catch (e) {
-        const error = e as Error;
-        log.warn(`Failed to update device info: ${error.message}`);
-      }
-      return this.daemonRpc.getDevice();
-    });
     IpcMainEventChannel.account.handleListDevices((accountToken: AccountToken) => {
       return this.daemonRpc.listDevices(accountToken);
     });
