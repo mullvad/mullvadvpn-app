@@ -23,4 +23,4 @@ IOS_PROVISIONING_PROFILES_DIR=~/provisioning-profiles \
     PATH=/usr/local/go/bin:$PATH \
     bash build.sh
 
-cp "$HOME/build/ios/Build/MullvadVPN.ipa" "/Volumes/My Shared Files/build/ios/Build/"
+cp "$HOME/build/ios/Build/MullvadVPN.ipa" "${VM_BUILD_DIR}/ios/Build/"
