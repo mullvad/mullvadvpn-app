@@ -10,17 +10,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Verify environment configuration
 ###########################################
 
-if [[ -z ${IOS_APPLE_ID-} ]]; then
-    echo "The variable IOS_APPLE_ID is not set."
-    exit 1
-fi
-
-if [[ -z ${IOS_APPLE_ID_PASSWORD-} ]]; then
-    echo "The variable IOS_APPLE_ID_PASSWORD is not set."
-    read -sp "IOS_APPLE_ID_PASSWORD = " IOS_APPLE_ID_PASSWORD
-    echo ""
-    export IOS_APPLE_ID_PASSWORD
-fi
 
 # Provisioning profiles directory
 if [[ -z ${IOS_PROVISIONING_PROFILES_DIR-} ]]; then
@@ -122,20 +111,3 @@ xcodebuild \
     -archivePath "$XCODE_ARCHIVE_DIR" \
     -exportOptionsPlist "$EXPORT_OPTIONS_PATH" \
     -exportPath "$BUILD_OUTPUT_DIR"
-
-
-###########################################
-# Deploy to AppStore
-###########################################
-
-if [[ "${1:-""}" == "--deploy" ]]; then
-    xcrun altool \
-        --upload-app --verbose \
-        --type ios \
-        --file "$IPA_PATH" \
-        --username "$IOS_APPLE_ID" \
-        --password "$IOS_APPLE_ID_PASSWORD"
-else
-    echo "Deployment to AppStore will not be performed."
-    echo "Run with --deploy to upload the binary."
-fi
