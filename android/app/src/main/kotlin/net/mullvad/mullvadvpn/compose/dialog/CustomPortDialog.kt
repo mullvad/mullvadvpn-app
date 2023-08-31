@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
-import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
 import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
@@ -119,7 +118,7 @@ fun CustomPortDialog(
                     isValidValue =
                         port.value.isNotEmpty() &&
                             allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0),
-                    modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG)
+                    maxCharLength = 5
                 )
                 Spacer(modifier = Modifier.height(Dimens.smallPadding))
                 Text(
