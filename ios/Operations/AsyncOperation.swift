@@ -117,7 +117,7 @@ open class AsyncOperation: Operation {
         _error
     }
 
-    override public final var isReady: Bool {
+    dynamic override public final var isReady: Bool {
         stateLock.lock()
         defer { stateLock.unlock() }
 
@@ -238,44 +238,21 @@ open class AsyncOperation: Operation {
 
     public let dispatchQueue: DispatchQueue
 
+    private var isReadyObserver: NSKeyValueObservation?
     public init(dispatchQueue: DispatchQueue? = nil) {
         self.dispatchQueue = dispatchQueue ?? DispatchQueue(label: "AsyncOperation.dispatchQueue")
         super.init()
 
-        addObserver(
-            self,
-            forKeyPath: #keyPath(isReady),
-            options: [],
-            context: &Self.observerContext
-        )
-    }
-
-    deinit {
-        removeObserver(self, forKeyPath: #keyPath(isReady), context: &Self.observerContext)
+        isReadyObserver = observe(\.isReady, options: []) { operation, _ in
+            operation.checkReadiness()
+            // Clear the observer when the operation is finished to avoid leaking memory
+            if operation.state == .finished {
+                operation.isReadyObserver = nil
+            }
+        }
     }
 
     // MARK: - KVO
-
-    private static var observerContext = 0
-
-    override public func observeValue(
-        forKeyPath keyPath: String?,
-        of object: Any?,
-        change: [NSKeyValueChangeKey: Any]?,
-        context: UnsafeMutableRawPointer?
-    ) {
-        if context == &Self.observerContext {
-            checkReadiness()
-            return
-        }
-
-        super.observeValue(
-            forKeyPath: keyPath,
-            of: object,
-            change: change,
-            context: context
-        )
-    }
 
     @objc class func keyPathsForValuesAffectingIsReady() -> Set<String> {
         [#keyPath(state)]
