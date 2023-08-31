@@ -48,14 +48,14 @@ mod connectivity_check;
 mod logging;
 mod ping_monitor;
 mod stats;
-#[cfg(unix)]
+#[cfg(wireguard_go)]
 mod wireguard_go;
 #[cfg(target_os = "linux")]
 pub(crate) mod wireguard_kernel;
 #[cfg(windows)]
 mod wireguard_nt;
 
-#[cfg(unix)]
+#[cfg(wireguard_go)]
 use self::wireguard_go::WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
@@ -770,7 +770,7 @@ impl WireguardMonitor {
                 .map_err(Error::TunnelError)
         }
 
-        #[cfg(not(target_os = "windows"))]
+        #[cfg(wireguard_go)]
         {
             let routes =
                 Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);

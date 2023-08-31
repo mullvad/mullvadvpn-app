@@ -20,6 +20,9 @@ fn main() {
     };
 
     println!("cargo:rustc-link-lib{link_type}=wg");
+
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
+    println!("cargo:rustc-cfg=wireguard_go");
 }
 
 fn declare_libs_dir(base: &str) {
