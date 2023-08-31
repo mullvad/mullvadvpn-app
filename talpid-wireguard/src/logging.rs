@@ -47,9 +47,9 @@ pub fn clean_up_logging(ordinal: u32) {
 pub enum LogLevel {
     #[cfg_attr(windows, allow(dead_code))]
     Verbose,
-    #[cfg_attr(not(windows), allow(dead_code))]
+    #[cfg_attr(wireguard_go, allow(dead_code))]
     Info,
-    #[cfg_attr(not(windows), allow(dead_code))]
+    #[cfg_attr(wireguard_go, allow(dead_code))]
     Warning,
     Error,
 }
