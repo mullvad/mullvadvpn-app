@@ -336,8 +336,8 @@ function notarizeMac(notarizePath) {
   return notarize({
     appBundleId: config.appId,
     appPath: notarizePath,
-    appleId: process.env.NOTARIZE_APPLE_ID,
-    appleIdPassword: process.env.NOTARIZE_APPLE_ID_PASSWORD,
+    keychain: process.env.NOTARIZE_KEYCHAIN,
+    keychainProfile: process.env.NOTARIZE_KEYCHAIN_PROFILE,
   });
 }
 
