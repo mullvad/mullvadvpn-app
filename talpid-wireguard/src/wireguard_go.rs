@@ -322,10 +322,10 @@ mod stats {
 
     #[derive(err_derive::Error, Debug, PartialEq)]
     pub enum Error {
-        #[error(display = "Failed to parse peer pubkey from string \"_0\"")]
+        #[error(display = "Failed to parse peer pubkey from string \"{}\"", _0)]
         PubKeyParse(String, #[error(source)] hex::FromHexError),
 
-        #[error(display = "Failed to parse integer from string \"_0\"")]
+        #[error(display = "Failed to parse integer from string \"{}\"", _0)]
         IntParse(String, #[error(source)] std::num::ParseIntError),
     }
 
