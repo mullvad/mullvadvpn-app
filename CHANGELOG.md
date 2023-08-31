@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Migrate welcome view to compose.
 
+#### Linux
+- Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.
+
 ### Removed
 #### Windows
 - Remove wireguard-go (userspace WireGuard) support.
