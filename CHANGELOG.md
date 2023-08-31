@@ -30,6 +30,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Migrate welcome view to compose.
 
+### Removed
+#### Windows
+- Remove wireguard-go (userspace WireGuard) support.
+
 
 ## [android/2023.6-beta1] - 2023-08-29
 
@@ -100,9 +104,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Removed
 - Remove the CLI subcommand `mullvad relay set hostname`.
-
-#### Windows
-- Remove wireguard-go (userspace WireGuard) support.
 
 
 ## [2023.4] - 2023-06-27
