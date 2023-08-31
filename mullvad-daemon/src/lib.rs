@@ -292,9 +292,6 @@ pub enum DaemonCommand {
     /// Returns all processes currently being excluded from the tunnel
     #[cfg(windows)]
     GetSplitTunnelProcesses(ResponseTx<Vec<ExcludedProcess>, split_tunnel::Error>),
-    /// Toggle wireguard-nt on or off
-    #[cfg(target_os = "windows")]
-    UseWireGuardNt(ResponseTx<(), Error>, bool),
     /// Notify the split tunnel monitor that a volume was mounted or dismounted
     #[cfg(target_os = "windows")]
     CheckVolumes(ResponseTx<(), Error>),
@@ -1064,8 +1061,6 @@ where
             #[cfg(windows)]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
             #[cfg(target_os = "windows")]
-            UseWireGuardNt(tx, state) => self.on_use_wireguard_nt(tx, state).await,
-            #[cfg(target_os = "windows")]
             CheckVolumes(tx) => self.on_check_volumes(tx),
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
@@ -1750,41 +1745,6 @@ where
                 .get_processes(),
             "get_split_tunnel_processes response",
         );
-    }
-
-    #[cfg(windows)]
-    async fn on_use_wireguard_nt(&mut self, tx: ResponseTx<(), Error>, state: bool) {
-        match self
-            .settings
-            .update(move |settings| settings.tunnel_options.wireguard.use_wireguard_nt = state)
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "use_wireguard_nt response");
-                if settings_changed {
-                    self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options)
-                        .await;
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
-                        log::info!("Initiating tunnel restart");
-                        self.reconnect_tunnel();
-                    }
-                }
-            }
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Unable to save settings")
-                );
-                Self::oneshot_send(
-                    tx,
-                    Err(Error::SettingsError(error)),
-                    "use_wireguard_nt response",
-                );
-            }
-        }
     }
 
     #[cfg(windows)]

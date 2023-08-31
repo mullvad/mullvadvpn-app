@@ -1,6 +1,5 @@
 use once_cell::sync::Lazy;
 use parking_lot::Mutex;
-use std::ffi::{c_char, c_void};
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path};
 
 static LOG_MUTEX: Lazy<Mutex<HashMap<u32, fs::File>>> = Lazy::new(|| Mutex::new(HashMap::new()));
@@ -45,10 +44,12 @@ pub fn clean_up_logging(ordinal: u32) {
     map.remove(&ordinal);
 }
 
-#[allow(dead_code)]
 pub enum LogLevel {
+    #[cfg_attr(windows, allow(dead_code))]
     Verbose,
+    #[cfg_attr(wireguard_go, allow(dead_code))]
     Info,
+    #[cfg_attr(wireguard_go, allow(dead_code))]
     Warning,
     Error,
 }
@@ -70,7 +71,6 @@ impl AsRef<str> for LogLevel {
     }
 }
 
-#[cfg(windows)]
 pub fn log(context: u32, level: LogLevel, tag: &str, msg: &str) {
     let mut map = LOG_MUTEX.lock();
     if let Some(logfile) = map.get_mut(&{ context }) {
@@ -88,38 +88,3 @@ fn log_inner(logfile: &mut fs::File, level: LogLevel, tag: &str, msg: &str) {
         msg,
     );
 }
-
-// Callback that receives messages from WireGuard
-pub unsafe extern "system" fn wg_go_logging_callback(
-    level: WgLogLevel,
-    msg: *const c_char,
-    context: *mut c_void,
-) {
-    let mut map = LOG_MUTEX.lock();
-    if let Some(logfile) = map.get_mut(&(context as u32)) {
-        let managed_msg = if !msg.is_null() {
-            #[cfg(not(target_os = "windows"))]
-            let m = std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string();
-            #[cfg(target_os = "windows")]
-            let m = std::ffi::CStr::from_ptr(msg)
-                .to_string_lossy()
-                .to_string()
-                .replace('\n', "\r\n");
-            m
-        } else {
-            "Logging message from WireGuard is NULL".to_string()
-        };
-
-        let level = match level {
-            WG_GO_LOG_VERBOSE => LogLevel::Verbose,
-            _ => LogLevel::Error,
-        };
-        log_inner(logfile, level, "wireguard-go", &managed_msg);
-    }
-}
-
-pub type WgLogLevel = u32;
-// wireguard-go supports log levels 0 through 3 with 3 being the most verbose
-// const WG_GO_LOG_SILENT: WgLogLevel = 0;
-// const WG_GO_LOG_ERROR: WgLogLevel = 1;
-const WG_GO_LOG_VERBOSE: WgLogLevel = 2;

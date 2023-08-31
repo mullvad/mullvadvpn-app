@@ -23,7 +23,7 @@ on your platform please submit an issue or a pull request.
 
     Install the `msi` hosted here: https://github.com/volta-cli/volta
 
-- Install Go (ideally version `1.18`) by following the [official
+- (Not Windows) Install Go (ideally version `1.18`) by following the [official
   instructions](https://golang.org/doc/install).  Newer versions may work
   too.
 
@@ -101,11 +101,6 @@ The host has to have the following installed:
 
 - `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
   You are recommended to use [Git for Windows].
-
-- `mingw` is required for CGo.
-  The latest [`mingw-w64`](https://github.com/niXman/mingw-builds-binaries/releases) build works
-  well. Specifically, you'll need one of the releases labeled `x86_64`, `win32`, and `msvcrt`,
-  such as <https://github.com/niXman/mingw-builds-binaries/releases/download/13.1.0-rt_v11-rev1/x86_64-13.1.0-release-win32-seh-msvcrt-rt_v11-rev1.7z>.
 
 - The `x86` target is required for building some NSIS plugins:
 

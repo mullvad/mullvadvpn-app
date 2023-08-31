@@ -2,42 +2,31 @@ use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
-use crate::logging::{clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel};
-#[cfg(windows)]
-use futures::SinkExt;
+use crate::logging::{clean_up_logging, initialize_logging};
+use ipnetwork::IpNetwork;
 use std::{
     ffi::{c_char, c_void, CStr},
     future::Future,
     path::Path,
     pin::Pin,
 };
-#[cfg(windows)]
+use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::BoxedError;
 use zeroize::Zeroize;
-#[cfg(not(windows))]
-use {ipnetwork::IpNetwork, talpid_tunnel::tun_provider::TunProvider};
-
-#[cfg(target_os = "windows")]
-use std::ffi::CString;
 
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider;
 
-#[cfg(not(target_os = "windows"))]
-use {
-    std::{
-        net::IpAddr,
-        os::unix::io::{AsRawFd, RawFd},
-    },
-    talpid_tunnel::tun_provider::{Tun, TunConfig},
+use std::{
+    net::IpAddr,
+    os::unix::io::{AsRawFd, RawFd},
 };
+use talpid_tunnel::tun_provider::{Tun, TunConfig};
 
 type Result<T> = std::result::Result<T, TunnelError>;
 
-#[cfg(not(target_os = "windows"))]
 use std::sync::{Arc, Mutex};
 
-#[cfg(not(target_os = "windows"))]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 struct LoggingContext(u32);
@@ -53,20 +42,14 @@ pub struct WgGoTunnel {
     handle: Option<i32>,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
-    #[cfg(not(target_os = "windows"))]
     _tunnel_device: Tun,
     // context that maps to fs::File instance, used with logging callback
     _logging_context: LoggingContext,
-    #[cfg(target_os = "windows")]
-    _route_callback_handle: Option<talpid_routing::CallbackHandle>,
-    #[cfg(target_os = "windows")]
-    setup_handle: tokio::task::JoinHandle<()>,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
 }
 
 impl WgGoTunnel {
-    #[cfg(not(target_os = "windows"))]
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
@@ -93,7 +76,7 @@ impl WgGoTunnel {
                 mtu,
                 wg_config_str.as_ptr() as _,
                 tunnel_fd,
-                Some(wg_go_logging_callback),
+                Some(logging::wg_go_logging_callback),
                 logging_context.0 as *mut c_void,
             )
         };
@@ -113,139 +96,6 @@ impl WgGoTunnel {
         })
     }
 
-    #[cfg(target_os = "windows")]
-    pub fn start_tunnel(
-        config: &Config,
-        log_path: Option<&Path>,
-        route_manager_handle: talpid_routing::RouteManagerHandle,
-        mut done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
-        runtime: &tokio::runtime::Handle,
-    ) -> Result<Self> {
-        use talpid_types::ErrorExt;
-
-        let route_callback_handle = runtime
-            .block_on(
-                route_manager_handle.add_default_route_change_callback(Box::new(
-                    WgGoTunnel::default_route_changed_callback,
-                )),
-            )
-            .ok();
-        if route_callback_handle.is_none() {
-            log::warn!("Failed to register default route callback");
-        }
-
-        let wg_config_str = config.to_userspace_format();
-        let iface_name: String = "Mullvad".to_string();
-        let cstr_iface_name =
-            CString::new(iface_name.as_bytes()).map_err(TunnelError::InterfaceNameError)?;
-        let logging_context = initialize_logging(log_path)
-            .map(LoggingContext)
-            .map_err(TunnelError::LoggingError)?;
-
-        let mut alias_ptr = std::ptr::null_mut();
-        let mut interface_luid = 0u64;
-
-        let handle = unsafe {
-            wgTurnOn(
-                cstr_iface_name.as_ptr(),
-                config.mtu as i64,
-                wg_config_str.as_ptr(),
-                &mut alias_ptr,
-                &mut interface_luid,
-                Some(wg_go_logging_callback),
-                logging_context.0 as *mut c_void,
-            )
-        };
-        check_wg_status(handle)?;
-
-        let actual_iface_name = {
-            let actual_iface_name_c = unsafe { CStr::from_ptr(alias_ptr) };
-            let actual_iface_name = actual_iface_name_c
-                .to_str()
-                .map_err(|_| TunnelError::InvalidAlias)?
-                .to_string();
-            unsafe { wgFreePtr(alias_ptr as *mut c_void) };
-            actual_iface_name
-        };
-
-        log::debug!("Adapter alias: {}", actual_iface_name);
-
-        let has_ipv6 = config.tunnel.addresses.iter().any(|addr| addr.is_ipv6());
-        let setup_handle = tokio::spawn(async move {
-            use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
-            let luid = NET_LUID_LH {
-                Value: interface_luid,
-            };
-            log::debug!("Waiting for tunnel IP interfaces to arrive");
-
-            let prepare_interfaces = async move {
-                talpid_windows_net::wait_for_interfaces(luid, true, has_ipv6).await?;
-
-                if let Err(error) =
-                    talpid_tunnel::network_interface::initialize_interfaces(luid, None)
-                {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to set tunnel interface metric"),
-                    );
-                }
-
-                Ok(())
-            };
-
-            let _ = done_tx
-                .send(
-                    prepare_interfaces
-                        .await
-                        .map_err(|error| BoxedError::new(TunnelError::SetupIpInterfaces(error))),
-                )
-                .await;
-            log::debug!("Waiting for tunnel IP interfaces: Done");
-        });
-
-        Ok(WgGoTunnel {
-            interface_name: actual_iface_name,
-            handle: Some(handle),
-            setup_handle,
-            _logging_context: logging_context,
-            _route_callback_handle: route_callback_handle,
-        })
-    }
-
-    // Callback to be used to rebind the tunnel sockets when the default route changes
-    #[cfg(target_os = "windows")]
-    pub fn default_route_changed_callback(
-        event_type: crate::routing::EventType<'_>,
-        address_family: talpid_windows_net::AddressFamily,
-    ) {
-        use crate::routing::EventType::*;
-        use windows_sys::Win32::NetworkManagement::IpHelper::ConvertInterfaceLuidToIndex;
-
-        let iface_idx: u32 = match event_type {
-            Updated(default_route) => {
-                let mut iface_idx = 0u32;
-                let iface_luid = default_route.iface;
-                let status = unsafe { ConvertInterfaceLuidToIndex(&iface_luid, &mut iface_idx) };
-                if status != 0 {
-                    log::error!(
-                        "Failed to convert interface LUID to interface index: {}: {}",
-                        status,
-                        std::io::Error::last_os_error()
-                    );
-                    return;
-                }
-                iface_idx
-            }
-            // if there is no new default route, specify 0 as the interface index
-            Removed => 0,
-            // ignore interface updates that don't affect the interface to use
-            UpdatedDetails(_) => return,
-        };
-
-        unsafe { wgRebindTunnelSocket(address_family.to_af_family(), iface_idx) };
-    }
-
-    #[cfg(not(target_os = "windows"))]
     fn create_tunnel_config(config: &Config, routes: impl Iterator<Item = IpNetwork>) -> TunConfig {
         let mut dns_servers = vec![IpAddr::V4(config.ipv4_gateway)];
         dns_servers.extend(config.ipv6_gateway.map(IpAddr::V6));
@@ -287,8 +137,6 @@ impl WgGoTunnel {
     }
 
     fn stop_tunnel(&mut self) -> Result<()> {
-        #[cfg(windows)]
-        self.setup_handle.abort();
         if let Some(handle) = self.handle.take() {
             let status = unsafe { wgTurnOff(handle) };
             if status < 0 {
@@ -298,7 +146,6 @@ impl WgGoTunnel {
         Ok(())
     }
 
-    #[cfg(not(target_os = "windows"))]
     fn get_tunnel(
         tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,
@@ -355,7 +202,7 @@ impl Tunnel for WgGoTunnel {
 
         let result =
             Stats::parse_config_str(config_str.to_str().expect("Go strings are always UTF-8"))
-                .map_err(TunnelError::StatsError);
+                .map_err(|error| TunnelError::StatsError(BoxedError::new(error)));
         unsafe {
             // Zeroing out config string to not leave private key in memory.
             let slice = std::slice::from_raw_parts_mut(
@@ -420,11 +267,7 @@ fn check_wg_status(wg_code: i32) -> Result<()> {
     }
 }
 
-#[cfg(unix)]
 pub type Fd = std::os::unix::io::RawFd;
-
-pub type LoggingCallback =
-    unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 
 const ERROR_GENERAL_FAILURE: i32 = -1;
 const ERROR_INTERMITTENT_FAILURE: i32 = -2;
@@ -435,12 +278,12 @@ extern "C" {
     ///
     /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
     /// Negative return values signify errors. All error codes are opaque.
-    #[cfg(not(any(target_os = "android", target_os = "windows")))]
+    #[cfg(not(target_os = "android"))]
     fn wgTurnOn(
         mtu: isize,
         settings: *const i8,
         fd: Fd,
-        logging_callback: Option<LoggingCallback>,
+        logging_callback: Option<logging::LoggingCallback>,
         logging_context: *mut c_void,
     ) -> i32;
 
@@ -449,19 +292,7 @@ extern "C" {
     fn wgTurnOn(
         settings: *const i8,
         fd: Fd,
-        logging_callback: Option<LoggingCallback>,
-        logging_context: *mut c_void,
-    ) -> i32;
-
-    // Windows
-    #[cfg(target_os = "windows")]
-    fn wgTurnOn(
-        iface_name: *const i8,
-        mtu: i64,
-        settings: *const i8,
-        iface_name_out: *mut *mut c_char,
-        iface_luid_out: *mut u64,
-        logging_callback: Option<LoggingCallback>,
+        logging_callback: Option<logging::LoggingCallback>,
         logging_context: *mut c_void,
     ) -> i32;
 
@@ -484,8 +315,147 @@ extern "C" {
     // Returns the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
     fn wgGetSocketV6(handle: i32) -> Fd;
+}
 
-    // Rebind tunnel socket when network interfaces change
-    #[cfg(target_os = "windows")]
-    fn wgRebindTunnelSocket(family: u16, interfaceIndex: u32);
+mod stats {
+    use super::{Stats, StatsMap};
+
+    #[derive(err_derive::Error, Debug, PartialEq)]
+    pub enum Error {
+        #[error(display = "Failed to parse peer pubkey from string \"{}\"", _0)]
+        PubKeyParse(String, #[error(source)] hex::FromHexError),
+
+        #[error(display = "Failed to parse integer from string \"{}\"", _0)]
+        IntParse(String, #[error(source)] std::num::ParseIntError),
+    }
+
+    impl Stats {
+        pub fn parse_config_str(config: &str) -> std::result::Result<StatsMap, Error> {
+            let mut map = StatsMap::new();
+
+            let mut peer = None;
+            let mut tx_bytes = None;
+            let mut rx_bytes = None;
+
+            // parts iterates over keys and values
+            let parts = config.split('\n').filter_map(|line| {
+                let mut pair = line.split('=');
+                let key = pair.next()?;
+                let value = pair.next()?;
+                Some((key, value))
+            });
+
+            for (key, value) in parts {
+                match key {
+                    "public_key" => {
+                        let mut buffer = [0u8; 32];
+                        hex::decode_to_slice(value, &mut buffer)
+                            .map_err(|err| Error::PubKeyParse(value.to_string(), err))?;
+                        peer = Some(buffer);
+                        tx_bytes = None;
+                        rx_bytes = None;
+                    }
+                    "rx_bytes" => {
+                        rx_bytes = Some(
+                            value
+                                .trim()
+                                .parse()
+                                .map_err(|err| Error::IntParse(value.to_string(), err))?,
+                        );
+                    }
+                    "tx_bytes" => {
+                        tx_bytes = Some(
+                            value
+                                .trim()
+                                .parse()
+                                .map_err(|err| Error::IntParse(value.to_string(), err))?,
+                        );
+                    }
+
+                    _ => continue,
+                }
+
+                if let (Some(peer_val), Some(tx_bytes_val), Some(rx_bytes_val)) =
+                    (peer, tx_bytes, rx_bytes)
+                {
+                    map.insert(
+                        peer_val,
+                        Self {
+                            tx_bytes: tx_bytes_val,
+                            rx_bytes: rx_bytes_val,
+                        },
+                    );
+                    peer = None;
+                    tx_bytes = None;
+                    rx_bytes = None;
+                }
+            }
+            Ok(map)
+        }
+    }
+
+    #[cfg(test)]
+    mod test {
+        use super::super::stats::{Error, Stats};
+
+        #[test]
+        fn test_parsing() {
+            let valid_input = "private_key=0000000000000000000000000000000000000000000000000000000000000000\npublic_key=0000000000000000000000000000000000000000000000000000000000000000\npreshared_key=0000000000000000000000000000000000000000000000000000000000000000\nprotocol_version=1\nendpoint=000.000.000.000:00000\nlast_handshake_time_sec=1578420649\nlast_handshake_time_nsec=369416131\ntx_bytes=2740\nrx_bytes=2396\npersistent_keepalive_interval=0\nallowed_ip=0.0.0.0/0\n";
+            let pubkey = [0u8; 32];
+
+            let stats = Stats::parse_config_str(valid_input).expect("Failed to parse valid input");
+            assert_eq!(stats.len(), 1);
+            let actual_keys: Vec<[u8; 32]> = stats.keys().cloned().collect();
+            assert_eq!(actual_keys, [pubkey]);
+            assert_eq!(stats[&pubkey].rx_bytes, 2396);
+            assert_eq!(stats[&pubkey].tx_bytes, 2740);
+        }
+
+        #[test]
+        fn test_parsing_invalid_input() {
+            let invalid_input = "private_key=0000000000000000000000000000000000000000000000000000000000000000\npublic_key=0000000000000000000000000000000000000000000000000000000000000000\npreshared_key=0000000000000000000000000000000000000000000000000000000000000000\nprotocol_version=1\nendpoint=000.000.000.000:00000\nlast_handshake_time_sec=1578420649\nlast_handshake_time_nsec=369416131\ntx_bytes=27error40\npersistent_keepalive_interval=0\nallowed_ip=0.0.0.0/0\n";
+            let invalid_str = "27error40".to_string();
+            let int_err = invalid_str.parse::<u64>().unwrap_err();
+
+            assert_eq!(
+                Stats::parse_config_str(invalid_input),
+                Err(Error::IntParse(invalid_str, int_err))
+            );
+        }
+    }
+}
+
+mod logging {
+    use super::super::logging::{log, LogLevel};
+    use std::ffi::{c_char, c_void};
+
+    // Callback that receives messages from WireGuard
+    pub unsafe extern "system" fn wg_go_logging_callback(
+        level: WgLogLevel,
+        msg: *const c_char,
+        context: *mut c_void,
+    ) {
+        let managed_msg = if !msg.is_null() {
+            std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string()
+        } else {
+            "Logging message from WireGuard is NULL".to_string()
+        };
+
+        let level = match level {
+            WG_GO_LOG_VERBOSE => LogLevel::Verbose,
+            _ => LogLevel::Error,
+        };
+
+        log(context as u32, level, "wireguard-go", &managed_msg);
+    }
+
+    // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
+    // const WG_GO_LOG_SILENT: WgLogLevel = 0;
+    // const WG_GO_LOG_ERROR: WgLogLevel = 1;
+    const WG_GO_LOG_VERBOSE: WgLogLevel = 2;
+
+    pub type WgLogLevel = u32;
+
+    pub type LoggingCallback =
+        unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: *mut c_void);
 }

@@ -946,9 +946,9 @@ impl Tunnel for WgNtTunnel {
             let (_interface, peers) = device.get_config().map_err(|error| {
                 log::error!(
                     "{}",
-                    error.display_chain_with_msg("Failed to obtain wg-nt tunnel config")
+                    error.display_chain_with_msg("Failed to obtain tunnel config")
                 );
-                super::TunnelError::StatsError(super::stats::Error::NoTunnelConfig)
+                super::TunnelError::GetConfigError
             })?;
             for (peer, _allowed_ips) in &peers {
                 map.insert(
@@ -961,9 +961,8 @@ impl Tunnel for WgNtTunnel {
             }
             Ok(map)
         } else {
-            Err(super::TunnelError::StatsError(
-                super::stats::Error::NoTunnelDevice,
-            ))
+            log::error!("Failed to obtain tunnel stats as device no longer exists");
+            Err(super::TunnelError::GetConfigError)
         }
     }
 
@@ -1027,7 +1026,6 @@ mod tests {
         ipv4_gateway: "0.0.0.0".parse().unwrap(),
         ipv6_gateway: None,
         mtu: 0,
-        use_wireguard_nt: true,
         obfuscator_config: None,
     });
 

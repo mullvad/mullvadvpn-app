@@ -24,9 +24,6 @@ pub struct Config {
     /// Enable IPv6 routing rules
     #[cfg(target_os = "linux")]
     pub enable_ipv6: bool,
-    /// Temporary switch for wireguard-nt
-    #[cfg(target_os = "windows")]
-    pub use_wireguard_nt: bool,
     /// Obfuscator config to be used for reaching the relay.
     pub obfuscator_config: Option<ObfuscatorConfig>,
 }
@@ -121,8 +118,6 @@ impl Config {
             fwmark: connection_config.fwmark,
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
-            #[cfg(target_os = "windows")]
-            use_wireguard_nt: wg_options.use_wireguard_nt,
             obfuscator_config,
         })
     }
