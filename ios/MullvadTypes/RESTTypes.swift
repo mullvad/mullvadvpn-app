@@ -13,16 +13,12 @@ import class WireGuardKitTypes.PublicKey
 public struct Account: Codable, Equatable {
     public let id: String
     public let expiry: Date
-    public let maxPorts: Int
-    public let canAddPorts: Bool
     public let maxDevices: Int
     public let canAddDevices: Bool
 
-    public init(id: String, expiry: Date, maxPorts: Int, canAddPorts: Bool, maxDevices: Int, canAddDevices: Bool) {
+    public init(id: String, expiry: Date, maxDevices: Int, canAddDevices: Bool) {
         self.id = id
         self.expiry = expiry
-        self.maxPorts = maxPorts
-        self.canAddPorts = canAddPorts
         self.maxDevices = maxDevices
         self.canAddDevices = canAddDevices
     }
@@ -36,11 +32,10 @@ public struct Device: Codable, Equatable {
     public let created: Date
     public let ipv4Address: IPAddressRange
     public let ipv6Address: IPAddressRange
-    public let ports: [Port]
 
     private enum CodingKeys: String, CodingKey {
         case hijackDNS = "hijackDns"
-        case id, name, pubkey, created, ipv4Address, ipv6Address, ports
+        case id, name, pubkey, created, ipv4Address, ipv6Address
     }
 
     public init(
@@ -50,8 +45,7 @@ public struct Device: Codable, Equatable {
         hijackDNS: Bool,
         created: Date,
         ipv4Address: IPAddressRange,
-        ipv6Address: IPAddressRange,
-        ports: [Port]
+        ipv6Address: IPAddressRange
     ) {
         self.id = id
         self.name = name
@@ -60,14 +54,5 @@ public struct Device: Codable, Equatable {
         self.created = created
         self.ipv4Address = ipv4Address
         self.ipv6Address = ipv6Address
-        self.ports = ports
-    }
-}
-
-public struct Port: Codable, Equatable {
-    public let id: String
-
-    public init(id: String) {
-        self.id = id
     }
 }

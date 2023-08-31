@@ -110,8 +110,7 @@ private extension Device {
             hijackDNS: false,
             created: Date(),
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
-            ipv6Address: IPAddressRange(from: "::ff/64")!,
-            ports: []
+            ipv6Address: IPAddressRange(from: "::ff/64")!
         )
     }
 }
