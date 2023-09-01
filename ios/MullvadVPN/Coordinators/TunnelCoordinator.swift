@@ -9,11 +9,15 @@
 import Routing
 import UIKit
 
-class TunnelCoordinator: Coordinator {
+class TunnelCoordinator: Coordinator, Presenting {
     private let tunnelManager: TunnelManager
     private let controller: TunnelViewController
 
     private var tunnelObserver: TunnelObserver?
+
+    var presentationContext: UIViewController {
+        controller
+    }
 
     var rootViewController: UIViewController {
         controller
@@ -59,6 +63,7 @@ class TunnelCoordinator: Coordinator {
 
     private func showCancelTunnelAlert() {
         let presentation = AlertPresentation(
+            id: "main-cancel-tunnel-alert",
             icon: .alert,
             message: NSLocalizedString(
                 "CANCEL_TUNNEL_ALERT_MESSAGE",
@@ -91,6 +96,7 @@ class TunnelCoordinator: Coordinator {
             ]
         )
 
-        applicationRouter?.present(.alert(presentation), animated: true)
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 }
