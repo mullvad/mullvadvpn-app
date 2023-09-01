@@ -14,9 +14,9 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.TestCoroutineRule
-import net.mullvad.mullvadvpn.assertLists
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange

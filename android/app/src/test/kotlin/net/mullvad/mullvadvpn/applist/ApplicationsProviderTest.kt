@@ -7,7 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verifyAll
-import net.mullvad.mullvadvpn.assertLists
+import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import org.junit.After
 import org.junit.Test
 
