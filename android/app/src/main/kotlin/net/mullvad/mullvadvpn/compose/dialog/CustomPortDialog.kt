@@ -12,10 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
 import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
@@ -75,7 +77,7 @@ fun CustomPortDialog(
                         ),
                     isEnabled =
                         port.value.isNotEmpty() &&
-                            allowedPortRanges.isPortInValidRanges(port.value.toInt())
+                            allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0)
                 )
                 if (showReset) {
                     ActionButton(
@@ -108,7 +110,7 @@ fun CustomPortDialog(
                     onSubmit = { input ->
                         if (
                             input.isNotEmpty() &&
-                                allowedPortRanges.isPortInValidRanges(input.toInt())
+                                allowedPortRanges.isPortInValidRanges(input.toIntOrNull() ?: 0)
                         ) {
                             onSave(input)
                         }
@@ -116,7 +118,9 @@ fun CustomPortDialog(
                     onValueChanged = { input -> port.value = input },
                     isValidValue =
                         port.value.isNotEmpty() &&
-                            allowedPortRanges.isPortInValidRanges(port.value.toInt())
+                            allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0),
+                    maxCharLength = 5,
+                    modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG)
                 )
                 Spacer(modifier = Modifier.height(Dimens.smallPadding))
                 Text(
