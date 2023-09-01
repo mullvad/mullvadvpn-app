@@ -29,10 +29,6 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var presentationContext: UIViewController {
-        navigationController
-    }
-
     var didFinish: ((AccountCoordinator, AccountDismissReason) -> Void)?
 
     init(
@@ -48,7 +44,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
 
         let accountController = AccountViewController(
             interactor: interactor,
-            errorPresenter: PaymentAlertPresenter(coordinator: self)
+            errorPresenter: PaymentAlertPresenter(alertContext: self)
         )
 
         accountController.actionHandler = handleViewControllerAction
@@ -133,18 +129,24 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     // MARK: - Alerts
 
     private func logOut() {
-        let presentation = AlertPresentation(icon: .spinner, message: nil, buttons: [])
+        let presentation = AlertPresentation(
+            icon: .spinner,
+            message: nil,
+            buttons: []
+        )
+
+        let alertPresenter = AlertPresenter(context: self)
 
         interactor.logout {
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
                 guard let self else { return }
 
-                applicationRouter?.dismiss(.alert(presentation), animated: true)
+                alertPresenter.dismissAlert(animated: true)
                 self.didFinish?(self, .userLoggedOut)
             }
         }
 
-        applicationRouter?.present(.alert(presentation))
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     private func showAccountDeviceInfo() {
@@ -176,6 +178,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
             )]
         )
 
-        applicationRouter?.present(.alert(presentation), animated: true)
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 }

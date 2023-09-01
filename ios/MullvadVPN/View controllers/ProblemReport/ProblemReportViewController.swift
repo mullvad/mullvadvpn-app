@@ -44,7 +44,11 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         textLabel.text = NSLocalizedString(
             "SUBHEAD_LABEL",
             tableName: "ProblemReport",
-            value: "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.",
+            value: """
+            To help you more effectively, your app’s log file will be attached to \
+            this message. Your data will remain secure and private, as it is anonymised \
+            before being sent over an encrypted channel.
+            """,
             comment: ""
         )
         return textLabel
@@ -83,7 +87,10 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         textView.placeholder = NSLocalizedString(
             "DESCRIPTION_TEXTVIEW_PLACEHOLDER",
             tableName: "ProblemReport",
-            value: "To assist you better, please write in English or Swedish and include which country you are connecting from.",
+            value: """
+            To assist you better, please write in English or Swedish and \
+            include which country you are connecting from.
+            """,
             comment: ""
         )
         textView.contentInsetAdjustmentBehavior = .never

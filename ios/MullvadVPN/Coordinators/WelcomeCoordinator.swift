@@ -26,10 +26,6 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var presentationContext: UIViewController {
-        navigationController
-    }
-
     init(
         navigationController: RootContainerViewController,
         storePaymentManager: StorePaymentManager,
@@ -117,7 +113,8 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
             ]
         )
 
-        applicationRouter?.present(.alert(presentation), animated: true)
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
@@ -150,7 +147,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         )
 
         coordinator.didCancel = { [weak self] coordinator in
-            guard let self else { return }
+            guard let self = self else { return }
             navigationController.popViewController(animated: true)
             coordinator.removeFromParent()
         }

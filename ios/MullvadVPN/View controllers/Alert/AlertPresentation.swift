@@ -7,6 +7,12 @@
 //
 
 import Foundation
+import Routing
+
+struct AlertMetadata {
+    let presentation: AlertPresentation
+    let context: Presenting
+}
 
 struct AlertAction {
     let title: String
@@ -24,7 +30,7 @@ struct AlertPresentation: Identifiable, CustomDebugStringConvertible {
     let buttons: [AlertAction]
 
     var debugDescription: String {
-        id.uuidString
+        return id.uuidString
     }
 }
 

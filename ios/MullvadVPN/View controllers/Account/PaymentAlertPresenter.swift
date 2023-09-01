@@ -10,7 +10,7 @@ import MullvadREST
 import Routing
 
 struct PaymentAlertPresenter {
-    let coordinator: Coordinator
+    let alertContext: any Presenting
 
     func showAlertForError(
         _ error: StorePaymentManagerError,
@@ -31,7 +31,8 @@ struct PaymentAlertPresenter {
             ]
         )
 
-        coordinator.applicationRouter?.present(.alert(presentation), animated: true)
+        let presenter = AlertPresenter(context: alertContext)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     func showAlertForResponse(
@@ -58,7 +59,8 @@ struct PaymentAlertPresenter {
             ]
         )
 
-        coordinator.applicationRouter?.present(.alert(presentation), animated: true)
+        let presenter = AlertPresenter(context: alertContext)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     private func okButtonTextForKey(_ key: String) -> String {

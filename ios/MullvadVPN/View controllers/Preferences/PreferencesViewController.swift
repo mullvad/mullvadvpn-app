@@ -145,8 +145,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
         case .wireGuardPorts:
             let portsString = humanReadablePortRepresentation(
-                interactor.cachedRelays?.relays.wireguard
-                    .portRanges ?? []
+                interactor.cachedRelays?.relays.wireguard.portRanges ?? []
             )
 
             message = String(
@@ -166,7 +165,6 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             )
 
         #if DEBUG
-
         case .wireGuardObfuscation:
             message = NSLocalizedString(
                 "PREFERENCES_WIRE_GUARD_OBFUSCATION_GENERAL",
@@ -183,6 +181,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 comment: ""
             )
         #endif
+
         default:
             assertionFailure("No matching InfoButtonItem")
         }
