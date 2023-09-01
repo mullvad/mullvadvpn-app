@@ -53,10 +53,11 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
     /**
      Enqueue route for presetnation.
      */
-    public func present(_ route: RouteType, animated: Bool = true) {
+    public func present(_ route: RouteType, animated: Bool = true, metadata: Any? = nil) {
         enqueue(PendingRoute(
             operation: .present(route),
-            animated: animated
+            animated: animated,
+            metadata: metadata
         ))
     }
 
@@ -93,6 +94,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
     private func presentRoute(
         _ route: RouteType,
         animated: Bool,
+        metadata: Any?,
         completion: @escaping (PendingPresentationResult) -> Void
     ) {
         /**
@@ -117,7 +119,15 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
         }
 
         /**
-         Drop duplicate routes.
+         Queue duplicate non-exclusive routes.
+         */
+        if !route.isExclusive, modalStack.contains(route.routeGroup) {
+            completion(.blockedByModalContext)
+            return
+        }
+
+        /**
+         Drop duplicate exclusive routes.
          */
         if route.isExclusive, modalStack.contains(route.routeGroup) {
             completion(.drop)
@@ -145,7 +155,9 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
          Consult with delegate whether the route should still be presented.
          */
         if delegate.applicationRouter(self, shouldPresent: route) {
-            delegate.applicationRouter(self, route: route, animated: animated) { coordinator in
+            let context = RoutePresentationContext(route: route, isAnimated: animated, metadata: metadata)
+
+            delegate.applicationRouter(self, presentWithContext: context, animated: animated) { coordinator in
                 /*
                  Synchronize router when modal controllers are removed by swipe.
                  */
@@ -265,7 +277,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
     private func processPendingRoutes(skipRouteGroups: Set<RouteType.RouteGroupType> = []) {
         isProcessingPendingRoutes = true
 
-        let pendingRoute = pendingRoutes.first { pendingRoute in
+        let pendingRoute = pendingRoutes.last { pendingRoute in
             !skipRouteGroups.contains(pendingRoute.operation.routeGroup)
         }
 
@@ -276,7 +288,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
 
         switch pendingRoute.operation {
         case let .present(route):
-            presentRoute(route, animated: pendingRoute.animated) { result in
+            presentRoute(route, animated: pendingRoute.animated, metadata: pendingRoute.metadata) { result in
                 switch result {
                 case .success, .drop:
                     self.finishPendingRoute(pendingRoute)

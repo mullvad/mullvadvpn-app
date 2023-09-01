@@ -100,6 +100,15 @@ public protocol Presenting: Coordinator {
     var presentationContext: UIViewController { get }
 }
 
+extension Presenting where Self: Presentable {
+    /**
+     View controller providing modal presentation context.
+     */
+    public var presentationContext: UIViewController {
+        return presentedViewController
+    }
+}
+
 extension Presenting {
     /**
      Present child coordinator.
@@ -134,11 +143,21 @@ extension Presenting {
 
         addChild(child)
 
-        presentationContext.present(
+        topmostPresentationContext(from: presentationContext).present(
             child.presentedViewController,
             animated: animated,
             completion: completion
         )
+    }
+
+    private func topmostPresentationContext(from: UIViewController) -> UIViewController {
+        var context = presentationContext
+
+        while let childContext = context.presentedViewController, context != childContext {
+            context = childContext
+        }
+
+        return context
     }
 }
 
