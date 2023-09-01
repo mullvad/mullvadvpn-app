@@ -10,7 +10,7 @@ import Foundation
 import Routing
 
 class RouterBlockDelegate<RouteType: AppRouteProtocol>: ApplicationRouterDelegate {
-    var handleRoute: ((RouteType, Bool, (Coordinator) -> Void) -> Void)?
+    var handleRoute: ((RoutePresentationContext<RouteType>, Bool, (Coordinator) -> Void) -> Void)?
     var handleDismiss: ((RouteDismissalContext<RouteType>, () -> Void) -> Void)?
     var shouldPresent: ((RouteType) -> Bool)?
     var shouldDismiss: ((RouteDismissalContext<RouteType>) -> Bool)?
@@ -18,11 +18,11 @@ class RouterBlockDelegate<RouteType: AppRouteProtocol>: ApplicationRouterDelegat
 
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
-        route: RouteType,
+        presentWithContext context: RoutePresentationContext<RouteType>,
         animated: Bool,
         completion: @escaping (Coordinator) -> Void
     ) {
-        handleRoute?(route, animated, completion) ?? completion(Coordinator())
+        handleRoute?(context, animated, completion) ?? completion(Coordinator())
     }
 
     func applicationRouter(

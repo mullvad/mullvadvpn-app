@@ -1,5 +1,5 @@
 //
-//  CustomAlertController.swift
+//  AlertViewController.swift
 //  MullvadVPN
 //
 //  Created by Jon Petersson on 2023-05-19.

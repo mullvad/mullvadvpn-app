@@ -79,6 +79,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
     private func showContentBlockerInfo(with message: String) {
         let presentation = AlertPresentation(
+            id: "preferences-content-blockers-alert",
             icon: .info,
             message: message,
             buttons: [
@@ -153,8 +154,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
         case .wireGuardPorts:
             let portsString = humanReadablePortRepresentation(
-                interactor.cachedRelays?.relays.wireguard
-                    .portRanges ?? []
+                interactor.cachedRelays?.relays.wireguard.portRanges ?? []
             )
 
             message = String(
