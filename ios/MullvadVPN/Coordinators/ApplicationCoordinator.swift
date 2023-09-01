@@ -16,8 +16,7 @@ import UIKit
  Application coordinator managing split view and two navigation contexts.
  */
 final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
-    UISplitViewControllerDelegate, ApplicationRouterDelegate,
-    NotificationManagerDelegate {
+    UISplitViewControllerDelegate, ApplicationRouterDelegate, NotificationManagerDelegate {
     typealias RouteType = AppRoute
 
     /**
@@ -120,11 +119,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
-        route: AppRoute,
+        presentWithContext context: RoutePresentationContext<RouteType>,
         animated: Bool,
         completion: @escaping (Coordinator) -> Void
     ) {
-        switch route {
+        switch context.route {
         case .account:
             presentAccount(animated: animated, completion: completion)
 
@@ -155,8 +154,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .welcome:
             presentWelcome(animated: animated, completion: completion)
 
-        case let .alert(presentation):
-            presentAlert(presentation: presentation, animated: animated, completion: completion)
+        case .alert:
+            presentAlert(animated: animated, context: context, completion: completion)
         }
     }
 
@@ -564,11 +563,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinishPayment = { [weak self] _ in
-            guard let self else { return }
+            guard let self = self else { return }
 
             if shouldDismissOutOfTime() {
                 router.dismiss(.outOfTime, animated: true)
-
                 continueFlow(animated: true)
             }
         }
@@ -589,7 +587,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinish = { [weak self] _ in
-            guard let self else { return }
+            guard let self = self else { return }
             appPreferences.isShownOnboarding = true
             router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
@@ -607,10 +605,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         !(tunnelManager.deviceState.accountData?.isExpired ?? false)
     }
 
-    private func presentSelectLocation(
-        animated: Bool,
-        completion: @escaping (Coordinator) -> Void
-    ) {
+    private func presentSelectLocation(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = makeSelectLocationCoordinator(forModalPresentation: true)
         coordinator.start()
 
@@ -642,19 +637,24 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func presentAlert(
-        presentation: AlertPresentation,
         animated: Bool,
+        context: RoutePresentationContext<RouteType>,
         completion: @escaping (Coordinator) -> Void
     ) {
-        let coordinator = AlertCoordinator(presentation: presentation)
+        guard let metadata = context.metadata as? AlertMetadata else {
+            assertionFailure("Could not get AlertMetadata from RoutePresentationContext.")
+            return
+        }
+
+        let coordinator = AlertCoordinator(presentation: metadata.presentation)
 
         coordinator.didFinish = { [weak self] in
-            self?.router.dismiss(.alert(presentation))
+            self?.router.dismiss(context.route)
         }
 
         coordinator.start()
 
-        presentChild(coordinator, animated: animated) {
+        metadata.context.presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }

@@ -31,6 +31,8 @@ line_length:
   ignores_interpolated_strings: true
   warning: 120
   error: 300
+cyclomatic_complexity:
+  ignores_case_statements: true
 
 type_name:
   min_length: 4

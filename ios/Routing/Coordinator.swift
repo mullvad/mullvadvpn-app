@@ -100,6 +100,15 @@ public protocol Presenting: Coordinator {
     var presentationContext: UIViewController { get }
 }
 
+extension Presenting where Self: Presentable {
+    /**
+     View controller providing modal presentation context.
+     */
+    public var presentationContext: UIViewController {
+        return presentedViewController
+    }
+}
+
 extension Presenting {
     /**
      Present child coordinator.
@@ -112,6 +121,11 @@ extension Presenting {
         configuration: ModalPresentationConfiguration = ModalPresentationConfiguration(),
         completion: (() -> Void)? = nil
     ) {
+        assert(
+            presentationContext.presentedViewController == nil,
+            "Presenting context (\(presentationContext)) is already presenting another controller."
+        )
+
         var configuration = configuration
 
         configuration.notifyInteractiveDismissal { [weak child] in
