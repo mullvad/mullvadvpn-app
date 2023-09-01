@@ -27,6 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
     private var tunnelObserver: TunnelObserver?
 
     private var appDelegate: AppDelegate {
+        // swiftlint:disable:next force_cast
         UIApplication.shared.delegate as! AppDelegate
     }
 
@@ -185,7 +186,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
     // MARK: - SettingsMigrationUIHandler
 
     func showMigrationError(_ error: Error, completionHandler: @escaping () -> Void) {
+        guard let appCoordinator else {
+            completionHandler()
+            return
+        }
+
         let presentation = AlertPresentation(
+            id: "settings-migration-error-alert",
             title: NSLocalizedString(
                 "ALERT_TITLE",
                 tableName: "SettingsMigrationUI",
@@ -204,7 +211,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             ]
         )
 
-        appCoordinator?.router.present(.alert(presentation), animated: true) ?? completionHandler()
+        let presenter = AlertPresenter(context: appCoordinator)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     private static func migrationErrorReason(_ error: Error) -> String {

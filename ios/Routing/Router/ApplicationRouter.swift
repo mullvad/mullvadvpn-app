@@ -93,6 +93,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
     private func presentRoute(
         _ route: RouteType,
         animated: Bool,
+        metadata: Any?,
         completion: @escaping (PendingPresentationResult) -> Void
     ) {
         /**
@@ -145,7 +146,9 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
          Consult with delegate whether the route should still be presented.
          */
         if delegate.applicationRouter(self, shouldPresent: route) {
-            delegate.applicationRouter(self, route: route, animated: animated) { coordinator in
+            let context = RoutePresentationContext(route: route, isAnimated: animated, metadata: metadata)
+
+            delegate.applicationRouter(self, presentWithContext: context, animated: animated) { coordinator in
                 /*
                  Synchronize router when modal controllers are removed by swipe.
                  */
@@ -276,7 +279,7 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
 
         switch pendingRoute.operation {
         case let .present(route):
-            presentRoute(route, animated: pendingRoute.animated) { result in
+            presentRoute(route, animated: pendingRoute.animated, metadata: pendingRoute.metadata) { result in
                 switch result {
                 case .success, .drop:
                     self.finishPendingRoute(pendingRoute)
@@ -371,5 +374,15 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
                 modalStack.insert(group, at: 0)
             }
         }
+    }
+}
+
+extension ApplicationRouter {
+    public func presentAlert(route: RouteType, metadata: Any) {
+        enqueue(PendingRoute(
+            operation: .present(route),
+            animated: true,
+            metadata: metadata
+        ))
     }
 }

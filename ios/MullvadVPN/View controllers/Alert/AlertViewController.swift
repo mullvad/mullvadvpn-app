@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum AlertActionStyle {
+enum AlertActionStyle: Codable {
     case `default`
     case destructive
 
@@ -22,7 +22,7 @@ enum AlertActionStyle {
     }
 }
 
-enum AlertIcon {
+enum AlertIcon: Codable {
     case alert
     case info
     case spinner
