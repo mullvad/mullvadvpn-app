@@ -9,8 +9,6 @@
 import Foundation
 import NetworkExtension
 
-#if targetEnvironment(simulator)
-
 protocol VPNTunnelProviderManagerProtocol: Equatable {
     associatedtype SelfType: VPNTunnelProviderManagerProtocol
     associatedtype ConnectionType: VPNConnectionProtocol
@@ -32,6 +30,8 @@ protocol VPNTunnelProviderManagerProtocol: Equatable {
 extension NEVPNConnection: VPNConnectionProtocol {}
 extension NETunnelProviderSession: VPNTunnelProviderSessionProtocol {}
 extension NETunnelProviderManager: VPNTunnelProviderManagerProtocol {}
+
+#if targetEnvironment(simulator)
 
 class SimulatorTunnelProviderDelegate {
     var connection: SimulatorVPNConnection?

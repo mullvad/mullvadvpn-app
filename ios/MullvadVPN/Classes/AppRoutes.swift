@@ -92,9 +92,10 @@ enum AppRoute: AppRouteProtocol {
     case changelog
 
     /**
-     Alert route.
+     Alert route. Alert id must be a unique string in order to produce a unique route
+     that distinguishes between different kinds of alerts.
      */
-    case alert(AlertPresentation)
+    case alert(_ alertId: String)
 
     /**
      Routes that are part of primary horizontal navigation group.

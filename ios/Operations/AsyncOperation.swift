@@ -71,7 +71,6 @@ open class AsyncOperation: Operation {
         get {
             stateLock.lock()
             defer { stateLock.unlock() }
-
             return _state
         }
         set(newState) {
@@ -88,7 +87,6 @@ open class AsyncOperation: Operation {
         get {
             stateLock.lock()
             defer { stateLock.unlock() }
-
             return __isCancelled
         }
         set {
@@ -182,7 +180,6 @@ open class AsyncOperation: Operation {
     public final var conditions: [OperationCondition] {
         operationLock.lock()
         defer { operationLock.unlock() }
-
         return _conditions
     }
 
