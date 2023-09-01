@@ -75,6 +75,10 @@ class AccountDeviceRow: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func setButtons(enabled: Bool) {
+        infoButton.isEnabled = enabled
+    }
+
     @objc private func didTapInfoButton() {
         infoButtonAction?()
     }

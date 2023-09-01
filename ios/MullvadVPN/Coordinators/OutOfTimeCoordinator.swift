@@ -9,12 +9,16 @@
 import Routing
 import UIKit
 
-class OutOfTimeCoordinator: Coordinator, OutOfTimeViewControllerDelegate {
+class OutOfTimeCoordinator: Coordinator, Presenting, OutOfTimeViewControllerDelegate {
     let navigationController: RootContainerViewController
     let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
 
     var didFinishPayment: ((OutOfTimeCoordinator) -> Void)?
+
+    var presentationContext: UIViewController {
+        navigationController
+    }
 
     private(set) var isMakingPayment = false
     private var viewController: OutOfTimeViewController?
@@ -42,7 +46,7 @@ class OutOfTimeCoordinator: Coordinator, OutOfTimeViewControllerDelegate {
 
         let controller = OutOfTimeViewController(
             interactor: interactor,
-            errorPresenter: PaymentAlertPresenter(coordinator: self)
+            errorPresenter: PaymentAlertPresenter(alertContext: self)
         )
 
         controller.delegate = self

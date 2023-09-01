@@ -13,7 +13,7 @@ import UIKit
  Enum type describing groups of routes. Each group is a modal layer with horizontal navigation
  inside with exception where primary navigation is a part of root controller on iPhone.
  */
-enum AppRouteGroup: String, AppRouteGroupProtocol {
+enum AppRouteGroup: AppRouteGroupProtocol {
     /**
      Primary horizontal navigation group.
      */
@@ -40,9 +40,9 @@ enum AppRouteGroup: String, AppRouteGroupProtocol {
     case changelog
 
     /**
-     Alert group.
+     Alert group. Alert id should match the id of the alert being contained.
      */
-    case alert
+    case alert(_ alertId: String)
 
     var isModal: Bool {
         switch self {
@@ -92,9 +92,10 @@ enum AppRoute: AppRouteProtocol {
     case changelog
 
     /**
-     Alert route.
+     Alert route. Alert id must be a unique string in order to produce a unique route
+     that distinguishes between different kinds of alerts.
      */
-    case alert(AlertPresentation)
+    case alert(_ alertId: String)
 
     /**
      Routes that are part of primary horizontal navigation group.
@@ -130,8 +131,8 @@ enum AppRoute: AppRouteProtocol {
             return .account
         case .settings:
             return .settings
-        case .alert:
-            return .alert
+        case let .alert(id):
+            return .alert(id)
         }
     }
 }

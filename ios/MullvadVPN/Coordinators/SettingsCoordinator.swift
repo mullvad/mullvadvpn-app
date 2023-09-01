@@ -32,10 +32,6 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         navigationController
     }
 
-    var presentationContext: UIViewController {
-        navigationController
-    }
-
     var willNavigate: ((
         _ coordinator: SettingsCoordinator,
         _ from: SettingsNavigationRoute?,
@@ -159,13 +155,13 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         case .preferences:
             return PreferencesViewController(
                 interactor: interactorFactory.makePreferencesInteractor(),
-                alertPresenter: AlertPresenter(coordinator: self)
+                alertPresenter: AlertPresenter(context: self)
             )
 
         case .problemReport:
             return ProblemReportViewController(
                 interactor: interactorFactory.makeProblemReportInteractor(),
-                alertPresenter: AlertPresenter(coordinator: self)
+                alertPresenter: AlertPresenter(context: self)
             )
 
         case .faq:

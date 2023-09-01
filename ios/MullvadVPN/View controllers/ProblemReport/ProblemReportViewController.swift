@@ -45,8 +45,9 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
             "SUBHEAD_LABEL",
             tableName: "ProblemReport",
             value: """
-            To help you more effectively, your app’s log file will be attached to this message. \
-            Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.
+            To help you more effectively, your app’s log file will be attached to \
+            this message. Your data will remain secure and private, as it is anonymised \
+            before being sent over an encrypted channel.
             """,
             comment: ""
         )
@@ -87,8 +88,8 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
             "DESCRIPTION_TEXTVIEW_PLACEHOLDER",
             tableName: "ProblemReport",
             value: """
-            To assist you better, please write in English or Swedish and include \
-            which country you are connecting from.
+            To assist you better, please write in English or Swedish and \
+            include which country you are connecting from.
             """,
             comment: ""
         )
@@ -466,6 +467,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
     private func presentEmptyEmailConfirmationAlert(completion: @escaping (Bool) -> Void) {
         let presentation = AlertPresentation(
+            id: "problem-report-alert",
             icon: .alert,
             message: NSLocalizedString(
                 "EMPTY_EMAIL_ALERT_MESSAGE",

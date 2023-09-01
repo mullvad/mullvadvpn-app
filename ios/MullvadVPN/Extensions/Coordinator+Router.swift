@@ -11,10 +11,10 @@ import Routing
 
 extension Coordinator {
     var applicationRouter: ApplicationRouter<AppRoute>? {
-        var appCoordinator: Coordinator? = self
+        var appCoordinator = self
 
-        while appCoordinator?.parent != nil {
-            appCoordinator = appCoordinator?.parent
+        while let parentCoordinator = appCoordinator.parent {
+            appCoordinator = parentCoordinator
         }
 
         return (appCoordinator as? ApplicationCoordinator)?.router

@@ -28,10 +28,6 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var presentationContext: UIViewController {
-        navigationController
-    }
-
     init(
         navigationController: RootContainerViewController,
         storePaymentManager: StorePaymentManager,
@@ -88,7 +84,7 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
 extension WelcomeCoordinator: WelcomeViewControllerDelegate {
     func didRequestToShowInfo(controller: WelcomeViewController) {
         let message = NSLocalizedString(
-            "WELCOME_DEVICE_CONCEPET_TEXT_DIALOG",
+            "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
             tableName: "Welcome",
             value:
             """
@@ -105,6 +101,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         )
 
         let presentation = AlertPresentation(
+            id: "welcome-device-name-alert",
             icon: .info,
             message: message,
             buttons: [
@@ -120,7 +117,8 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
             ]
         )
 
-        applicationRouter?.present(.alert(presentation), animated: true)
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
@@ -157,7 +155,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         )
 
         coordinator.didCancel = { [weak self] coordinator in
-            guard let self else { return }
+            guard let self = self else { return }
             navigationController.popViewController(animated: true)
             coordinator.removeFromParent()
         }

@@ -13,7 +13,7 @@ import Operations
 import Routing
 import UIKit
 
-final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegate {
+final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewControllerDelegate {
     private let tunnelManager: TunnelManager
     private let devicesProxy: REST.DevicesProxy
 
@@ -25,6 +25,9 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
     var didCreateAccount: (() -> Void)?
 
     var preferredAccountNumberPublisher: AnyPublisher<String, Never>?
+    var presentationContext: UIViewController {
+        navigationController
+    }
 
     let navigationController: RootContainerViewController
 
@@ -119,11 +122,12 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
         )
         let controller = DeviceManagementViewController(
             interactor: interactor,
-            alertPresenter: AlertPresenter(coordinator: self)
+            alertPresenter: AlertPresenter(context: self)
         )
         controller.delegate = self
+
         controller.fetchDevices(animateUpdates: false) { [weak self] result in
-            guard let self else { return }
+            guard let self = self else { return }
 
             switch result {
             case .success:
