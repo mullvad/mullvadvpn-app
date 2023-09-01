@@ -10,7 +10,8 @@ include(
     ":lib:model",
     ":lib:resource",
     ":lib:talpid",
-    ":lib:theme"
+    ":lib:theme",
+    ":lib:common-test"
 )
 include(
     ":test",

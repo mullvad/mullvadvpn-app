@@ -99,6 +99,7 @@ object Dependencies {
         const val resourceLib = ":lib:resource"
         const val talpidLib = ":lib:talpid"
         const val themeLib = ":lib:theme"
+        const val commonTestLib = ":lib:common-test"
     }
 
     object Plugin {

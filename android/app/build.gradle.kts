@@ -269,6 +269,7 @@ dependencies {
     leakCanaryImplementation(Dependencies.leakCanary)
 
     // Test dependencies
+    testImplementation(project(Dependencies.Mullvad.commonTestLib))
     testImplementation(Dependencies.Koin.test)
     testImplementation(Dependencies.Kotlin.test)
     testImplementation(Dependencies.KotlinX.coroutinesTest)
