@@ -89,7 +89,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         completionHandler: ((Result<Void, Error>) -> Void)? = nil
     ) {
         interactor.getDevices { [weak self] result in
-            guard let self else { return }
+            guard let self = self else { return }
 
             if let devices = result.value {
                 setDevices(devices, animated: animateUpdates)
@@ -130,7 +130,9 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                 return
             }
 
-            deleteDevice(identifier: device.id) { error in
+            deleteDevice(identifier: device.id) { [weak self] error in
+                guard let self = self else { return }
+
                 if let error {
                     self.showErrorAlert(
                         title: NSLocalizedString(
@@ -158,6 +160,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     private func showErrorAlert(title: String, error: Error) {
         let presentation = AlertPresentation(
+            id: "delete-device-error-alert",
             title: title,
             message: getErrorDescription(error),
             buttons: [
@@ -181,6 +184,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         completion: @escaping (_ shouldDelete: Bool) -> Void
     ) {
         let presentation = AlertPresentation(
+            id: "logout-confirmation-alert",
             icon: .alert,
             message: String(
                 format: NSLocalizedString(
@@ -223,7 +227,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     private func deleteDevice(identifier: String, completionHandler: @escaping (Error?) -> Void) {
         interactor.deleteDevice(identifier) { [weak self] completion in
-            guard let self else { return }
+            guard let self = self else { return }
 
             switch completion {
             case .success:
