@@ -108,6 +108,11 @@ class AccountNumberRow: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func setButtons(enabled: Bool) {
+        showHideButton.isEnabled = enabled
+        copyButton.isEnabled = enabled
+    }
+
     // MARK: - Private
 
     private func updateView() {

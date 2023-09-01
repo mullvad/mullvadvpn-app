@@ -190,6 +190,8 @@ class AccountViewController: UIViewController {
         contentView.purchaseButton.isLoading = productState.isFetching
 
         purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled
+        contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
+        contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
         contentView.restorePurchasesButton.isEnabled = isInteractionEnabled
         contentView.logoutButton.isEnabled = isInteractionEnabled
         contentView.redeemVoucherButton.isEnabled = isInteractionEnabled

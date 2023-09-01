@@ -11,9 +11,16 @@ import Foundation
 /**
  Struct describing a routing request for presentation or dismissal.
  */
-struct PendingRoute<RouteType: AppRouteProtocol>: Equatable {
+struct PendingRoute<RouteType: AppRouteProtocol> {
     var operation: RouteOperation<RouteType>
     var animated: Bool
+    var metadata: Any?
+}
+
+extension PendingRoute: Equatable {
+    static func == (lhs: PendingRoute<RouteType>, rhs: PendingRoute<RouteType>) -> Bool {
+        lhs.operation == rhs.operation
+    }
 }
 
 /**
@@ -159,6 +166,26 @@ public struct RouteDismissalContext<RouteType: AppRouteProtocol> {
      Whether transition is animated.
      */
     public var isAnimated: Bool
+}
+
+/**
+ Struct holding information used by delegate to perform presentation of a specific route.
+ */
+public struct RoutePresentationContext<RouteType: AppRouteProtocol> {
+    /**
+     Route that's being presented.
+     */
+    public var route: RouteType
+
+    /**
+     Whether transition is animated.
+     */
+    public var isAnimated: Bool
+
+    /**
+     Metadata associated with the route.
+     */
+    public var metadata: Any?
 }
 
 /**
