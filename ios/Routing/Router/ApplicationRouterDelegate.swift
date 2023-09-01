@@ -19,7 +19,7 @@ public protocol ApplicationRouterDelegate<RouteType>: AnyObject {
      */
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
-        route: RouteType,
+        presentWithContext context: RoutePresentationContext<RouteType>,
         animated: Bool,
         completion: @escaping (Coordinator) -> Void
     )
