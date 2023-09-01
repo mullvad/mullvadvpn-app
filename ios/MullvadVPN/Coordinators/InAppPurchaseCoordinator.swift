@@ -11,12 +11,16 @@ import Routing
 import StoreKit
 import UIKit
 
-class InAppPurchaseCoordinator: Coordinator, Presentable {
+class InAppPurchaseCoordinator: Coordinator, Presenting, Presentable {
     private let navigationController: RootContainerViewController
     private let interactor: InAppPurchaseInteractor
 
     var didFinish: ((InAppPurchaseCoordinator) -> Void)?
     var didCancel: ((InAppPurchaseCoordinator) -> Void)?
+
+    var presentationContext: UIViewController {
+        navigationController
+    }
 
     var presentedViewController: UIViewController {
         navigationController
@@ -50,6 +54,7 @@ class InAppPurchaseCoordinator: Coordinator, Presentable {
 
             case let .failure(failure):
                 let presentation = AlertPresentation(
+                    id: "in-app-purchase-error-alert",
                     icon: .alert,
                     message: failure.error.localizedDescription,
                     buttons: [
@@ -69,7 +74,8 @@ class InAppPurchaseCoordinator: Coordinator, Presentable {
                     ]
                 )
 
-                applicationRouter?.present(.alert(presentation), animated: true)
+                let presenter = AlertPresenter(context: self)
+                presenter.showAlert(presentation: presentation, animated: true)
             }
         }
     }

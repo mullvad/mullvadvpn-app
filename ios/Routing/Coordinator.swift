@@ -108,6 +108,7 @@ extension Presenting {
      */
     public func presentChild(
         _ child: some Presentable,
+        context: (any Presenting)? = nil,
         animated: Bool,
         configuration: ModalPresentationConfiguration = ModalPresentationConfiguration(),
         completion: (() -> Void)? = nil
@@ -134,7 +135,7 @@ extension Presenting {
 
         addChild(child)
 
-        presentationContext.present(
+        (context?.presentationContext ?? presentationContext).present(
             child.presentedViewController,
             animated: animated,
             completion: completion

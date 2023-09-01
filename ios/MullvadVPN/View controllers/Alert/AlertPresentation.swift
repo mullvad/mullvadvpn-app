@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Routing
 
 struct AlertAction {
     let title: String
@@ -15,7 +16,7 @@ struct AlertAction {
 }
 
 struct AlertPresentation: Identifiable, CustomDebugStringConvertible {
-    let id = UUID()
+    let id: String
 
     var header: String?
     var icon: AlertIcon?
@@ -24,7 +25,7 @@ struct AlertPresentation: Identifiable, CustomDebugStringConvertible {
     let buttons: [AlertAction]
 
     var debugDescription: String {
-        id.uuidString
+        return id
     }
 }
 

@@ -155,8 +155,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         case .welcome:
             presentWelcome(animated: animated, completion: completion)
 
-        case let .alert(presentation):
-            presentAlert(presentation: presentation, animated: animated, completion: completion)
+        case let .alert(presentation, context):
+            presentAlert(presentation: presentation, context: context, animated: animated, completion: completion)
         }
     }
 
@@ -564,11 +564,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinishPayment = { [weak self] _ in
-            guard let self else { return }
+            guard let self = self else { return }
 
             if shouldDismissOutOfTime() {
                 router.dismiss(.outOfTime, animated: true)
-
                 continueFlow(animated: true)
             }
         }
@@ -589,7 +588,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinish = { [weak self] _ in
-            guard let self else { return }
+            guard let self = self else { return }
             appPreferences.isShownOnboarding = true
             router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
@@ -643,18 +642,20 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func presentAlert(
         presentation: AlertPresentation,
+        context: Coordinator,
         animated: Bool,
         completion: @escaping (Coordinator) -> Void
     ) {
         let coordinator = AlertCoordinator(presentation: presentation)
 
         coordinator.didFinish = { [weak self] in
-            self?.router.dismiss(.alert(presentation))
+            self?.router.dismiss(.alert(presentation, context))
         }
 
         coordinator.start()
 
-        presentChild(coordinator, animated: animated) {
+        let context = (context as? (any Presenting))
+        presentChild(coordinator, context: context, animated: animated) {
             completion(coordinator)
         }
     }

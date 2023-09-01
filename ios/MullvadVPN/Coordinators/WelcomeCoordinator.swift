@@ -102,6 +102,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         )
 
         let presentation = AlertPresentation(
+            id: "welcome-device-name-alert",
             icon: .info,
             message: message,
             buttons: [
@@ -117,7 +118,8 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
             ]
         )
 
-        applicationRouter?.present(.alert(presentation), animated: true)
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 
     func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
@@ -150,7 +152,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         )
 
         coordinator.didCancel = { [weak self] coordinator in
-            guard let self else { return }
+            guard let self = self else { return }
             navigationController.popViewController(animated: true)
             coordinator.removeFromParent()
         }

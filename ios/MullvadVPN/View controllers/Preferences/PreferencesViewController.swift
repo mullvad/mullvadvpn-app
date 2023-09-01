@@ -79,6 +79,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
     private func showContentBlockerInfo(with message: String) {
         let presentation = AlertPresentation(
+            id: "preferences-content-blockers-alert",
             icon: .info,
             message: message,
             buttons: [
@@ -131,7 +132,11 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             message = NSLocalizedString(
                 "PREFERENCES_CONTENT_BLOCKERS_GENERAL",
                 tableName: "ContentBlockers",
-                value: "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. This might cause issues on certain websites, services, and programs.",
+                value: """
+                    When this feature is enabled it stops the device from contacting certain \
+                    domains or websites known for distributing ads, malware, trackers and more. \
+                    This might cause issues on certain websites, services, and programs.
+                """,
                 comment: ""
             )
 
@@ -139,14 +144,16 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             message = NSLocalizedString(
                 "PREFERENCES_CONTENT_BLOCKERS_MALWARE",
                 tableName: "ContentBlockers",
-                value: "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.",
+                value: """
+                    Warning: The malware blocker is not an anti-virus and should not be treated as such, \
+                    this is just an extra layer of protection.
+                """,
                 comment: ""
             )
 
         case .wireGuardPorts:
             let portsString = humanReadablePortRepresentation(
-                interactor.cachedRelays?.relays.wireguard
-                    .portRanges ?? []
+                interactor.cachedRelays?.relays.wireguard.portRanges ?? []
             )
 
             message = String(
@@ -166,12 +173,15 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             )
 
         #if DEBUG
-
         case .wireGuardObfuscation:
             message = NSLocalizedString(
                 "PREFERENCES_WIRE_GUARD_OBFUSCATION_GENERAL",
                 tableName: "WireGuardObfuscation",
-                value: "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked.",
+                value: """
+                    Obfuscation hides the WireGuard traffic inside another protocol. \
+                    It can be used to help circumvent censorship and other types of filtering, \
+                    where a plain WireGuard connect would be blocked.
+                """,
                 comment: ""
             )
 
@@ -183,6 +193,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 comment: ""
             )
         #endif
+
         default:
             assertionFailure("No matching InfoButtonItem")
         }

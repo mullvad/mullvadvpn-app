@@ -94,7 +94,7 @@ enum AppRoute: AppRouteProtocol {
     /**
      Alert route.
      */
-    case alert(AlertPresentation)
+    case alert(AlertPresentation, Coordinator)
 
     /**
      Routes that are part of primary horizontal navigation group.
