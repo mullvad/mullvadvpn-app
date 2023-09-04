@@ -13,6 +13,9 @@ use windows_sys::Win32::System::{
 #[allow(non_camel_case_types)]
 type RTL_OSVERSIONINFOEXW = OSVERSIONINFOEXW;
 
+const WINDOWS_UNKNOWN_STR: &str = "Windows N/A";
+const BUILD_UNKNOWN_STR: &str = "N/A";
+
 pub fn version() -> String {
     let (major, build) = WindowsVersion::new()
         .map(|version_info| {
@@ -21,7 +24,7 @@ pub fn version() -> String {
                 version_info.build_number().to_string(),
             )
         })
-        .unwrap_or_else(|_| ("N/A".to_string(), "N/A".to_string()));
+        .unwrap_or_else(|_| (WINDOWS_UNKNOWN_STR.to_owned(), BUILD_UNKNOWN_STR.to_owned()));
 
     format!("{} Build {}", major, build)
 }
@@ -29,7 +32,7 @@ pub fn version() -> String {
 pub fn short_version() -> String {
     WindowsVersion::new()
         .map(|version| version.windows_version_string())
-        .unwrap_or("Windows N/A".into())
+        .unwrap_or(WINDOWS_UNKNOWN_STR.to_owned())
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
