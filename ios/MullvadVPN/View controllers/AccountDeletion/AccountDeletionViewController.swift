@@ -95,6 +95,7 @@ extension AccountDeletionViewController: AccountDeletionContentViewDelegate {
     func didTapDeleteButton(contentView: AccountDeletionContentView, button: AppButton) {
         switch interactor.validate(input: contentView.lastPartOfAccountNumber) {
         case let .success(accountNumber):
+            contentView.isEditing = false
             submit(accountNumber: accountNumber)
         case let .failure(error):
             contentView.state = .failure(error)
