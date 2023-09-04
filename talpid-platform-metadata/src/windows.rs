@@ -13,9 +13,6 @@ use windows_sys::Win32::System::{
 #[allow(non_camel_case_types)]
 type RTL_OSVERSIONINFOEXW = OSVERSIONINFOEXW;
 
-const WINDOWS_UNKNOWN_STR: &str = "Windows N/A";
-const BUILD_UNKNOWN_STR: &str = "N/A";
-
 pub fn version() -> String {
     let (major, build) = WindowsVersion::new()
         .map(|version_info| {
@@ -24,15 +21,15 @@ pub fn version() -> String {
                 version_info.build_number().to_string(),
             )
         })
-        .unwrap_or_else(|_| (WINDOWS_UNKNOWN_STR.to_owned(), BUILD_UNKNOWN_STR.to_owned()));
+        .unwrap_or_else(|_| ("N/A".to_owned(), "N/A".to_owned()));
 
-    format!("{} Build {}", major, build)
+    format!("Windows {} Build {}", major, build)
 }
 
 pub fn short_version() -> String {
     WindowsVersion::new()
         .map(|version| version.windows_version_string())
-        .unwrap_or(WINDOWS_UNKNOWN_STR.to_owned())
+        .unwrap_or("Windows N/A".to_owned())
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
@@ -79,12 +76,9 @@ impl WindowsVersion {
         // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ns-wdm-_osversioninfoexw
         // NOTE: This does not deduce which Windows Server version is running.
         if u32::from(self.inner.wProductType) != VER_NT_WORKSTATION {
-            return "Windows Server".to_owned();
+            return "Server".to_owned();
         }
-        format!("Windows {}", self.version_number())
-    }
 
-    fn version_number(&self) -> String {
         // Check https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions#Personal_computer_versions 'Release version' column
         // for the correct NT versions for specific windows releases.
         match (self.major_version(), self.minor_version()) {
