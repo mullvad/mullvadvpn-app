@@ -37,6 +37,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Remove wireguard-go (userspace WireGuard) support.
 
+### Fixed
+#### macOS
+- Fix default route being missing after waking from hibernation.
+
 
 ## [android/2023.6-beta1] - 2023-08-29
 
