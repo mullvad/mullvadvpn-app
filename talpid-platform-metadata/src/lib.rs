@@ -15,6 +15,3 @@ mod imp;
 mod imp;
 
 pub use self::imp::{extra_metadata, short_version, version};
-
-#[cfg(target_os = "windows")]
-pub use self::imp::WindowsVersion;
