@@ -923,7 +923,10 @@ export default class AppRenderer {
       const prevPath = this.history.location.pathname as RoutePath;
       const nextPath = expired ? RoutePath.expired : RoutePath.timeAdded;
       const transition = this.getNavigationTransition(prevPath, nextPath);
-      this.history.replaceRoot(nextPath, { transition });
+
+      if (!this.loginScheduler.isRunning) {
+        this.history.replaceRoot(nextPath, { transition });
+      }
     }
   }
 
