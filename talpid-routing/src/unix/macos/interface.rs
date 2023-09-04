@@ -43,8 +43,7 @@ pub async fn get_best_default_route(
         // Get interface ID
         let index = match if_nametoindex(iface_bytes.as_c_str()) {
             Ok(index) => index,
-            Err(error) => {
-                log::error!("Failed to get index of network interface: {error}");
+            Err(_error) => {
                 continue;
             }
         };
