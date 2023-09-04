@@ -114,11 +114,7 @@ class SelectLocationCell: UITableViewCell {
         collapseButton.accessibilityIdentifier = "CollapseButton"
         collapseButton.isAccessibilityElement = false
         collapseButton.tintColor = .white
-        collapseButton.addTarget(
-            self,
-            action: #selector(handleCollapseButton(_:)),
-            for: .touchUpInside
-        )
+        collapseButton.addTarget(self, action: #selector(handleCollapseButton(_:)), for: .touchUpInside)
 
         [locationLabel, tickImageView, statusIndicator, collapseButton].forEach { subview in
             subview.translatesAutoresizingMaskIntoConstraints = false
@@ -132,8 +128,7 @@ class SelectLocationCell: UITableViewCell {
         setLayoutMargins()
 
         NSLayoutConstraint.activate([
-            tickImageView.leadingAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+            tickImageView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             tickImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 
             statusIndicator.widthAnchor.constraint(equalToConstant: kRelayIndicatorSize),
@@ -148,8 +143,7 @@ class SelectLocationCell: UITableViewCell {
             locationLabel.trailingAnchor.constraint(lessThanOrEqualTo: collapseButton.leadingAnchor)
                 .withPriority(.defaultHigh),
             locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            locationLabel.bottomAnchor
-                .constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
+            locationLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
 
             collapseButton.widthAnchor
                 .constraint(

@@ -75,8 +75,7 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
 
         // Since removing separator alone makes no sense, this computation extends the string range
         // to include the digit preceding a separator.
-        if replacementString.isEmpty, emptySelection,
-           !formattedString.isEmpty {
+        if replacementString.isEmpty, emptySelection, !formattedString.isEmpty {
             let precedingDigitIndex = formattedString
                 .prefix(through: stringRange.lowerBound)
                 .lastIndex { isAllowed($0) } ?? formattedString.startIndex
@@ -85,19 +84,13 @@ class InputTextFormatter: NSObject, UITextFieldDelegate, UITextPasteDelegate {
         }
 
         // Replace the given range within a formatted string
-        let newString = formattedString.replacingCharacters(
-            in: stringRange,
-            with: replacementString
-        )
+        let newString = formattedString.replacingCharacters(in: stringRange, with: replacementString)
 
         // Number of digits within a string
         var numDigits = 0
 
         // Insertion location within the input string
-        let insertionLocation = formattedString.distance(
-            from: formattedString.startIndex,
-            to: stringRange.lowerBound
-        )
+        let insertionLocation = formattedString.distance(from: formattedString.startIndex, to: stringRange.lowerBound)
 
         // Original caret location based on insertion location + number of characters added
         let originalCaretPosition = insertionLocation + replacementString.count

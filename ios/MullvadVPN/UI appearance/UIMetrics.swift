@@ -53,6 +53,20 @@ enum UIMetrics {
         static let textFieldContentInsets = UIEdgeInsets(top: 8, left: 24, bottom: 8, right: 24)
         static let textFieldNonEditingContentInsetLeft: CGFloat = 40
     }
+
+    /// Group of constants related to in-app notifications banner.
+    enum InAppBannerNotification {
+        /// Layout margins for contents presented within the banner.
+        static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
+
+        /// Size of little round severity indicator.
+        static let indicatorSize = CGSize(width: 12, height: 12)
+    }
+
+    enum DisconnectSplitButton {
+        static let secondaryButtonPhone = CGSize(width: 42, height: 42)
+        static let secondaryButtonPad = CGSize(width: 52, height: 52)
+    }
 }
 
 extension UIMetrics {
@@ -82,15 +96,6 @@ extension UIMetrics {
 
     /// Common cell indentation width
     static let cellIndentationWidth: CGFloat = 16
-
-    /// Group of constants related to in-app notifications banner.
-    enum InAppBannerNotification {
-        /// Layout margins for contents presented within the banner.
-        static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
-
-        /// Size of little round severity indicator.
-        static let indicatorSize = CGSize(width: 12, height: 12)
-    }
 
     /// Spacing used in stack views of buttons
     static let interButtonSpacing: CGFloat = 16

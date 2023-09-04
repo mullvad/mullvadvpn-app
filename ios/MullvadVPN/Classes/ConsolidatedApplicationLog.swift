@@ -176,6 +176,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
 
     private static func redactAccountNumber(string: String) -> String {
         redact(
+            // swiftlint:disable:next force_try
             regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
             string: string,
             replacementString: kRedactedAccountPlaceholder

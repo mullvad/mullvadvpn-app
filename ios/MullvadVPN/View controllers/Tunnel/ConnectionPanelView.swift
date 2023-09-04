@@ -75,7 +75,7 @@ class ConnectionPanelView: UIView {
         inAddressRow.translatesAutoresizingMaskIntoConstraints = false
         outAddressRow.translatesAutoresizingMaskIntoConstraints = false
 
-        // TODO: Unhide it when we have out address
+        // Remove this line when we have out address
         outAddressRow.isHidden = true
 
         inAddressRow.title = NSLocalizedString(

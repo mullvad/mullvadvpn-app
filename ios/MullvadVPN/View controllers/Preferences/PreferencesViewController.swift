@@ -117,6 +117,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         interactor.setDNSSettings(dnsSettings)
     }
 
+    // swiftlint:disable:next function_body_length
     func preferencesDataSource(
         _ dataSource: PreferencesDataSource,
         showInfo item: PreferencesDataSource.InfoButtonItem?
@@ -128,7 +129,11 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             message = NSLocalizedString(
                 "PREFERENCES_CONTENT_BLOCKERS_GENERAL",
                 tableName: "ContentBlockers",
-                value: "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more. This might cause issues on certain websites, services, and programs.",
+                value: """
+                When this feature is enabled it stops the device from contacting certain \
+                domains or websites known for distributing ads, malware, trackers and more. \
+                This might cause issues on certain websites, services, and programs.
+                """,
                 comment: ""
             )
 
@@ -136,7 +141,10 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             message = NSLocalizedString(
                 "PREFERENCES_CONTENT_BLOCKERS_MALWARE",
                 tableName: "ContentBlockers",
-                value: "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.",
+                value: """
+                Warning: The malware blocker is not an anti-virus and should not \
+                be treated as such, this is just an extra layer of protection.
+                """,
                 comment: ""
             )
 
@@ -163,12 +171,15 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             )
 
         #if DEBUG
-
         case .wireGuardObfuscation:
             message = NSLocalizedString(
                 "PREFERENCES_WIRE_GUARD_OBFUSCATION_GENERAL",
                 tableName: "WireGuardObfuscation",
-                value: "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked.",
+                value: """
+                Obfuscation hides the WireGuard traffic inside another protocol. \
+                It can be used to help circumvent censorship and other types of filtering, \
+                where a plain WireGuard connect would be blocked.
+                """,
                 comment: ""
             )
 
@@ -180,6 +191,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 comment: ""
             )
         #endif
+
         default:
             assertionFailure("No matching InfoButtonItem")
         }

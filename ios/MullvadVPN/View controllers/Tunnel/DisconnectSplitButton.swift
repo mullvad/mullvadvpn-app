@@ -11,12 +11,11 @@ import UIKit
 
 class DisconnectSplitButton: UIView {
     private var secondaryButtonSize: CGSize {
-        // TODO: make it less hardcoded
         switch traitCollection.userInterfaceIdiom {
         case .phone:
-            return CGSize(width: 42, height: 42)
+            return UIMetrics.DisconnectSplitButton.secondaryButtonPhone
         case .pad:
-            return CGSize(width: 52, height: 52)
+            return UIMetrics.DisconnectSplitButton.secondaryButtonPad
         default:
             return .zero
         }

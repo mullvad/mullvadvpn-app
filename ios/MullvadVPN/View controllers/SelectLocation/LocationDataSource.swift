@@ -518,4 +518,6 @@ private extension [RelayLocation] {
             locations.contains(location)
         })
     }
+
+    // swiftlint:disable:next file_length
 }
