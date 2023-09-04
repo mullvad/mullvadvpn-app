@@ -27,6 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
     private var tunnelObserver: TunnelObserver?
 
     private var appDelegate: AppDelegate {
+        // swiftlint:disable:next force_cast
         UIApplication.shared.delegate as! AppDelegate
     }
 

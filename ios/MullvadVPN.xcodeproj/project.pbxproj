@@ -4077,7 +4077,6 @@
 				58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */,
 				A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
-				58FBFBF1291630700020E046 /* DurationTests.swift in Sources */,
 				58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */,
 				58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */,
 				58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */,

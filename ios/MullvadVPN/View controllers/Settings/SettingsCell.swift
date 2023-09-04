@@ -80,11 +80,7 @@ class SettingsCell: UITableViewCell {
         contentView.backgroundColor = .clear
 
         infoButton.isHidden = true
-        infoButton.addTarget(
-            self,
-            action: #selector(handleInfoButton(_:)),
-            for: .touchUpInside
-        )
+        infoButton.addTarget(self, action: #selector(handleInfoButton(_:)), for: .touchUpInside)
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 17)

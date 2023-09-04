@@ -567,4 +567,6 @@ private extension AccountVerdict {
         }
         return false
     }
+
+    // swiftlint:disable:next file_length
 }

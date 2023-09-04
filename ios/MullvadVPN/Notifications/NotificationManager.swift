@@ -207,7 +207,10 @@ final class NotificationManager: NotificationProviderDelegate {
             }
         }
 
-        // Invalidate in-app notification
+        invalidateInAppNotification(notificationProvider)
+    }
+
+    private func invalidateInAppNotification(_ notificationProvider: NotificationProvider) {
         if let notificationProvider = notificationProvider as? InAppNotificationProvider {
             var newNotificationDescriptors = inAppNotificationDescriptors
 

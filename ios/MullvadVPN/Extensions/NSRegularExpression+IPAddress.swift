@@ -22,6 +22,7 @@ extension NSRegularExpression {
         return try! NSRegularExpression(pattern: pattern, options: [.allowCommentsAndWhitespace])
     }
 
+    // swiftlint:disable line_length
     static var ipv6RegularExpression: NSRegularExpression {
         // Regular expression obtained from:
         // https://stackoverflow.com/a/17871737
@@ -49,4 +50,5 @@ extension NSRegularExpression {
         // swiftlint:disable:next force_try
         return try! NSRegularExpression(pattern: pattern, options: [.allowCommentsAndWhitespace])
     }
+    // swiftlint:enable line_length
 }

@@ -35,7 +35,8 @@ line_length:
 type_name:
   min_length: 4
   max_length:
-    error: 50
+    warning: 50
+    error: 60
   excluded: iPhone  # excluded via string
   allowed_symbols: ["_"]  # these are allowed in type names
 identifier_name:
@@ -47,3 +48,7 @@ identifier_name:
     - URL
     - GlobalAPIKey
 reporter: "xcode"
+nesting:
+  type_level:
+    warning: 2
+    error: 4

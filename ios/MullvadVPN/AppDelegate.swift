@@ -405,7 +405,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let initTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { finish in
             self.tunnelManager.loadConfiguration { error in
-                // TODO: avoid throwing fatal error and show the problem report UI instead.
                 if let error {
                     fatalError(error.localizedDescription)
                 }

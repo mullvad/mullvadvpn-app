@@ -43,7 +43,10 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         textLabel.text = NSLocalizedString(
             "SUBHEAD_LABEL",
             tableName: "ProblemReport",
-            value: "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.",
+            value: """
+            To help you more effectively, your app’s log file will be attached to this message. \
+            Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.
+            """,
             comment: ""
         )
         return textLabel
@@ -82,7 +85,10 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         textView.placeholder = NSLocalizedString(
             "DESCRIPTION_TEXTVIEW_PLACEHOLDER",
             tableName: "ProblemReport",
-            value: "To assist you better, please write in English or Swedish and include which country you are connecting from.",
+            value: """
+            To assist you better, please write in English or Swedish and include \
+            which country you are connecting from.
+            """,
             comment: ""
         )
         textView.contentInsetAdjustmentBehavior = .never
@@ -453,14 +459,14 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
                 self.messageTextView.roundCorners = false
 
                 self.view.layoutIfNeeded()
-            }) { _ in
+            }, completion: { _ in
                 self.isMessageTextViewExpanded = true
 
                 self.textViewKeyboardResponder?.updateContentInsets()
 
                 // Tell accessibility engine to scan the new layout
                 UIAccessibility.post(notification: .layoutChanged, argument: nil)
-            }
+            })
 
         } else {
             // Re-enable the large title
@@ -476,7 +482,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
                 self.messageTextView.roundCorners = true
 
                 self.view.layoutIfNeeded()
-            }) { _ in
+            }, completion: { _ in
                 // Revert the content adjustment behavior
                 self.messageTextView.contentInsetAdjustmentBehavior = .never
 
@@ -487,7 +493,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
                 // Tell accessibility engine to scan the new layout
                 UIAccessibility.post(notification: .layoutChanged, argument: nil)
-            }
+            })
         }
     }
 
@@ -504,7 +510,10 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         let message = NSLocalizedString(
             "EMPTY_EMAIL_ALERT_MESSAGE",
             tableName: "ProblemReport",
-            value: "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.",
+            value: """
+            You are about to send the problem report without a way for us to get back to you. \
+            If you want an answer to your report you will have to enter an email address.
+            """,
             comment: ""
         )
 
