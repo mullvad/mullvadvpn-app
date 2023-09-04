@@ -37,6 +37,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Remove wireguard-go (userspace WireGuard) support.
 
+### Fixed
+#### Windows
+- Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
+
 
 ## [android/2023.6-beta1] - 2023-08-29
 
