@@ -6,11 +6,12 @@ use std::{
 };
 use windows_sys::Win32::System::{
     LibraryLoader::{GetModuleHandleW, GetProcAddress},
-    SystemInformation::OSVERSIONINFOW,
+    SystemInformation::OSVERSIONINFOEXW,
+    SystemServices::VER_NT_WORKSTATION,
 };
 
 #[allow(non_camel_case_types)]
-type RTL_OSVERSIONINFOW = OSVERSIONINFOW;
+type RTL_OSVERSIONINFOEXW = OSVERSIONINFOEXW;
 
 pub fn version() -> String {
     let (major, build) = WindowsVersion::new()
@@ -22,14 +23,14 @@ pub fn version() -> String {
         })
         .unwrap_or_else(|_| ("N/A".to_string(), "N/A".to_string()));
 
-    format!("Windows {} Build {}", major, build)
+    format!("{} Build {}", major, build)
 }
 
 pub fn short_version() -> String {
     let version_string = WindowsVersion::new()
         .map(|version| version.windows_version_string())
         .unwrap_or("N/A".into());
-    format!("Windows {}", version_string)
+    format!("{}", version_string)
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
@@ -37,7 +38,7 @@ pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
 }
 
 pub struct WindowsVersion {
-    inner: RTL_OSVERSIONINFOW,
+    inner: RTL_OSVERSIONINFOEXW,
 }
 
 impl WindowsVersion {
@@ -56,10 +57,10 @@ impl WindowsVersion {
         let function_address = unsafe { GetProcAddress(ntdll, b"RtlGetVersion\0" as *const u8) }
             .ok_or_else(io::Error::last_os_error)?;
 
-        let rtl_get_version: extern "stdcall" fn(*mut RTL_OSVERSIONINFOW) =
+        let rtl_get_version: extern "stdcall" fn(*mut RTL_OSVERSIONINFOEXW) =
             unsafe { *(&function_address as *const _ as *const _) };
 
-        let mut version_info: MaybeUninit<RTL_OSVERSIONINFOW> = mem::MaybeUninit::zeroed();
+        let mut version_info: MaybeUninit<RTL_OSVERSIONINFOEXW> = mem::MaybeUninit::zeroed();
         unsafe {
             (*version_info.as_mut_ptr()).dwOSVersionInfoSize =
                 mem::size_of_val(&version_info) as u32;
@@ -72,6 +73,16 @@ impl WindowsVersion {
     }
 
     pub fn windows_version_string(&self) -> String {
+        // `wProductType != VER_NT_WORKSTATION` implies that OS is Windows Server
+        // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ns-wdm-_osversioninfoexw
+        // NOTE: This does not deduce which Windows Server version is running.
+        if u32::from(self.inner.wProductType) != VER_NT_WORKSTATION {
+            return "Windows Server".to_owned();
+        }
+        format!("Windows {}", self.version_number())
+    }
+
+    fn version_number(&self) -> String {
         // Check https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions#Personal_computer_versions 'Release version' column
         // for the correct NT versions for specific windows releases.
         match (self.major_version(), self.minor_version()) {
