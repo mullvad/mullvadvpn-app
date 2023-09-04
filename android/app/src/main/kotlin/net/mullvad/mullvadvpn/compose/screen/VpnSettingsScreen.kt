@@ -102,7 +102,6 @@ private fun PreviewVpnSettings() {
                     customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
                 ),
             onMtuCellClick = {},
-            onMtuInputChange = {},
             onSaveMtuClick = {},
             onRestoreMtuClick = {},
             onCancelMtuDialogClick = {},
@@ -146,8 +145,7 @@ fun VpnSettingsScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     uiState: VpnSettingsUiState,
     onMtuCellClick: () -> Unit = {},
-    onMtuInputChange: (String) -> Unit = {},
-    onSaveMtuClick: () -> Unit = {},
+    onSaveMtuClick: (Int) -> Unit = {},
     onRestoreMtuClick: () -> Unit = {},
     onCancelMtuDialogClick: () -> Unit = {},
     onToggleAutoConnect: (Boolean) -> Unit = {},
@@ -186,9 +184,8 @@ fun VpnSettingsScreen(
     when (uiState) {
         is VpnSettingsUiState.MtuDialogUiState -> {
             MtuDialog(
-                mtuValue = uiState.mtuEditValue,
-                onMtuValueChanged = { onMtuInputChange(it) },
-                onSave = { onSaveMtuClick() },
+                mtuInitial = uiState.mtuEditValue.toIntOrNull(),
+                onSave = { onSaveMtuClick(it) },
                 onRestoreDefaultValue = { onRestoreMtuClick() },
                 onDismiss = { onCancelMtuDialogClick() }
             )
