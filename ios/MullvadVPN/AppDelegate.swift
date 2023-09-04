@@ -49,25 +49,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-        configureLogging()
-
-        logger = Logger(label: "AppDelegate")
-
         let containerURL = ApplicationConfiguration.containerURL
+
+        configureLogging()
 
         addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
         addressCache.loadFromFile()
 
-        proxyFactory = REST.ProxyFactory.makeProxyFactory(
-            transportProvider: REST.AnyTransportProvider { [weak self] in
-                return self?.transportMonitor.makeTransport()
-            },
-            addressCache: addressCache
-        )
-
-        apiProxy = proxyFactory.createAPIProxy()
-        accountsProxy = proxyFactory.createAccountsProxy()
-        devicesProxy = proxyFactory.createDevicesProxy()
+        setUpProxies(containerURL: containerURL)
 
         let relayCache = RelayCache(cacheDirectory: containerURL)
         relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
@@ -93,6 +82,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         relayConstraintsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
             constraintsUpdater.onNewConstraints?(settings.relayConstraints)
         })
+        tunnelManager.addObserver(relayConstraintsObserver)
 
         storePaymentManager = StorePaymentManager(
             application: application,
@@ -110,23 +100,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             shadowsocksCache: shadowsocksCache,
             constraintsUpdater: constraintsUpdater
         )
-
-        tunnelManager.addObserver(relayConstraintsObserver)
-
-        transportMonitor = TransportMonitor(
-            tunnelManager: tunnelManager,
-            tunnelStore: tunnelStore,
-            transportProvider: transportProvider
-        )
-
-        #if targetEnvironment(simulator)
-        // Configure mock tunnel provider on simulator
-        simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
-            relayCacheTracker: relayCacheTracker,
-            transportProvider: transportProvider
-        )
-        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
-        #endif
+        setUpTransportMonitor(transportProvider: transportProvider)
+        setUpSimulatorHost(transportProvider: transportProvider)
 
         registerBackgroundTasks()
         setupPaymentHandler()
@@ -136,6 +111,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         startInitialization(application: application)
 
         return true
+    }
+
+    private func setUpProxies(containerURL: URL) {
+        proxyFactory = REST.ProxyFactory.makeProxyFactory(
+            transportProvider: REST.AnyTransportProvider { [weak self] in
+                return self?.transportMonitor.makeTransport()
+            },
+            addressCache: addressCache
+        )
+
+        apiProxy = proxyFactory.createAPIProxy()
+        accountsProxy = proxyFactory.createAccountsProxy()
+        devicesProxy = proxyFactory.createDevicesProxy()
+    }
+
+    private func setUpTransportMonitor(transportProvider: TransportProvider) {
+        transportMonitor = TransportMonitor(
+            tunnelManager: tunnelManager,
+            tunnelStore: tunnelStore,
+            transportProvider: transportProvider
+        )
+    }
+
+    private func setUpSimulatorHost(transportProvider: TransportProvider) {
+        #if targetEnvironment(simulator)
+        // Configure mock tunnel provider on simulator
+        simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
+            relayCacheTracker: relayCacheTracker,
+            transportProvider: transportProvider
+        )
+        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
+        #endif
     }
 
     // MARK: - UISceneSession lifecycle
@@ -318,6 +325,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
         loggerBuilder.install()
+
+        logger = Logger(label: "AppDelegate")
     }
 
     private func addApplicationNotifications(application: UIApplication) {
@@ -360,8 +369,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func startInitialization(application: UIApplication) {
         let wipeSettingsOperation = getWipeSettingsOperation()
+        let loadTunnelStoreOperation = getLoadTunnelStoreOperation()
+        let migrateSettingsOperation = getMigrateSettingsOperation(application: application)
+        let initTunnelManagerOperation = getInitTunnelManagerOperation()
 
-        let loadTunnelStoreOperation = AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
+        migrateSettingsOperation.addDependencies([wipeSettingsOperation, loadTunnelStoreOperation])
+        initTunnelManagerOperation.addDependency(migrateSettingsOperation)
+
+        operationQueue.addOperations(
+            [
+                wipeSettingsOperation,
+                loadTunnelStoreOperation,
+                migrateSettingsOperation,
+                initTunnelManagerOperation,
+            ],
+            waitUntilFinished: false
+        )
+    }
+
+    private func getLoadTunnelStoreOperation() -> AsyncBlockOperation {
+        AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
             tunnelStore.loadPersistentTunnels { [self] error in
                 if let error {
                     logger.error(
@@ -372,8 +399,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 finish(nil)
             }
         }
+    }
 
-        let migrateSettingsOperation = AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
+    private func getMigrateSettingsOperation(application: UIApplication) -> AsyncBlockOperation {
+        AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
             migrationManager
                 .migrateSettings(store: SettingsManager.store, proxyFactory: proxyFactory) { [self] migrationResult in
                     switch migrationResult {
@@ -387,8 +416,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                         finish(nil)
 
                     case let .failure(error):
-                        let migrationUIHandler = application.connectedScenes.first { $0 is SettingsMigrationUIHandler }
-                            as? SettingsMigrationUIHandler
+                        let migrationUIHandler = application.connectedScenes
+                            .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
 
                         if let migrationUIHandler {
                             migrationUIHandler.showMigrationError(error) {
@@ -400,12 +429,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     }
                 }
         }
+    }
 
-        migrateSettingsOperation.addDependencies([wipeSettingsOperation, loadTunnelStoreOperation])
-
-        let initTunnelManagerOperation = AsyncBlockOperation(dispatchQueue: .main) { finish in
+    private func getInitTunnelManagerOperation() -> AsyncBlockOperation {
+        AsyncBlockOperation(dispatchQueue: .main) { finish in
             self.tunnelManager.loadConfiguration { error in
-                // TODO: avoid throwing fatal error and show the problem report UI instead.
                 if let error {
                     fatalError(error.localizedDescription)
                 }
@@ -418,17 +446,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 finish(nil)
             }
         }
-        initTunnelManagerOperation.addDependency(migrateSettingsOperation)
-
-        operationQueue.addOperations(
-            [
-                wipeSettingsOperation,
-                loadTunnelStoreOperation,
-                migrateSettingsOperation,
-                initTunnelManagerOperation,
-            ],
-            waitUntilFinished: false
-        )
     }
 
     /// Returns an operation that acts on two conditions:
@@ -492,4 +509,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     ) {
         completionHandler([.list, .banner, .sound])
     }
+
+    // swiftlint:disable:next file_length
 }

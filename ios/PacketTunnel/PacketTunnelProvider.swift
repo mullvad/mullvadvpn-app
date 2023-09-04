@@ -125,18 +125,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override init() {
-        var loggerBuilder = LoggerBuilder()
-        let pid = ProcessInfo.processInfo.processIdentifier
-        loggerBuilder.metadata["pid"] = .string("\(pid)")
-        loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.logFileURL(for: .packetTunnel))
-        #if DEBUG
-        loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
-        #endif
-        loggerBuilder.install()
-
-        providerLogger = Logger(label: "PacketTunnelProvider")
-        tunnelLogger = Logger(label: "WireGuard")
-
         let containerURL = ApplicationConfiguration.containerURL
         let addressCache = REST.AddressCache(canWriteToCache: false, cacheDirectory: containerURL)
         addressCache.loadFromFile()
@@ -166,7 +154,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         accountsProxy = proxyFactory.createAccountsProxy()
         devicesProxy = proxyFactory.createDevicesProxy()
 
+        providerLogger = Logger(label: "PacketTunnelProvider")
+        tunnelLogger = Logger(label: "WireGuard")
+
         super.init()
+
+        configureLogging()
 
         adapter = WireGuardAdapter(
             with: self,
@@ -287,10 +280,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             do {
                 message = try TunnelProviderMessage(messageData: messageData)
             } catch {
-                self.providerLogger.error(
-                    error: error,
-                    message: "Failed to decode the app message."
-                )
+                self.providerLogger.error(error: error, message: "Failed to decode the app message.")
 
                 completionHandler?(nil)
                 return
@@ -302,9 +292,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             case let .reconnectTunnel(appSelectorResult):
                 self.providerLogger.debug("Reconnecting the tunnel...")
 
-                let nextRelay: NextRelay = (appSelectorResult ?? self.selectorResult)
-                    .map { .set($0) } ?? .automatic
-
+                let nextRelay: NextRelay = (appSelectorResult ?? self.selectorResult).map { .set($0) } ?? .automatic
                 self.reconnectTunnel(to: nextRelay, shouldStopTunnelMonitor: true)
 
                 completionHandler?(nil)
@@ -418,6 +406,20 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     // MARK: - Private
+
+    private func configureLogging() {
+        var loggerBuilder = LoggerBuilder()
+        let pid = ProcessInfo.processInfo.processIdentifier
+
+        loggerBuilder.metadata["pid"] = .string("\(pid)")
+        loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.logFileURL(for: .packetTunnel))
+
+        #if DEBUG
+        loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
+        #endif
+
+        loggerBuilder.install()
+    }
 
     private func startTunnelReconnectionTimer(reconnectionDelay: Duration) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
@@ -763,4 +765,6 @@ extension PacketTunnelErrorWrapper {
             return nil
         }
     }
+
+    // swiftlint:disable:next file_length
 }

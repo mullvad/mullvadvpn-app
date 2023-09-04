@@ -216,10 +216,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                 let result = result.inspectError { error in
                     guard !error.isOperationCancellationError else { return }
 
-                    logger.error(
-                        error: error,
-                        message: "Failed to create new account."
-                    )
+                    logger.error(error: error, message: "Failed to create new account.")
                 }.map { newAccountData -> StoredAccountData in
                     logger.debug("Created new account.")
 
@@ -322,10 +319,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
             dispatchQueue.async { [self] in
                 // Ignore error but log it.
                 if let error {
-                    logger.error(
-                        error: error,
-                        message: "Failed to remove VPN configuration."
-                    )
+                    logger.error(error: error, message: "Failed to remove VPN configuration.")
                 }
 
                 interactor.setTunnel(nil, shouldRefreshTunnelState: false)
@@ -338,11 +332,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     /// Create new private key and create new device via API.
     private func createDevice(accountNumber: String, completion: @escaping (Result<NewDevice, Error>) -> Void) {
         let privateKey = PrivateKey()
-
-        let request = REST.CreateDeviceRequest(
-            publicKey: privateKey.publicKey,
-            hijackDNS: false
-        )
+        let request = REST.CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
 
         logger.debug("Create device...")
 

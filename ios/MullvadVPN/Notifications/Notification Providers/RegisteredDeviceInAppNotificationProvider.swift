@@ -58,7 +58,7 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
             action: .init(
                 image: .init(named: "IconCloseSml"),
                 handler: { [weak self] in
-                    guard let self else { return }
+                    guard let self = self else { return }
                     isNewDeviceRegistered = false
                     sendAction()
                     invalidate()

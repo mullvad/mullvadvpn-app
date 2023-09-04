@@ -484,54 +484,141 @@ class RootContainerViewController: UIViewController {
         // hide in-App notificationBanner when the container decides to keep it invisible
         isNavigationBarHidden = (targetViewController as? RootContainment)?.prefersNotificationBarHidden ?? false
 
-        let finishTransition = {
-            /*
-             Finish transition appearance.
-             Note this has to be done before the call to `didMove(to:)` or `removeFromParent()`
-             otherwise `endAppearanceTransition()` will fire `didMove(to:)` twice.
-             */
-            if shouldHandleAppearanceEvents {
-                if let targetViewController,
-                   sourceViewController != targetViewController {
-                    self.endChildControllerTransition(targetViewController)
-                }
+        configureViewControllers(
+            viewControllersToAdd: viewControllersToAdd,
+            newViewControllers: newViewControllers,
+            targetViewController: targetViewController,
+            viewControllersToRemove: viewControllersToRemove
+        )
 
-                if let sourceViewController,
-                   sourceViewController != targetViewController {
-                    self.endChildControllerTransition(sourceViewController)
-                }
-            }
+        beginTransition(
+            shouldHandleAppearanceEvents: shouldHandleAppearanceEvents,
+            targetViewController: targetViewController,
+            shouldAnimate: shouldAnimate,
+            sourceViewController: sourceViewController
+        )
 
-            // Notify the added controllers that they finished a transition into the container
-            for child in viewControllersToAdd {
-                child.didMove(toParent: self)
-            }
-
-            // Remove the controllers that transitioned out of the container
-            // The call to removeFromParent() automatically calls child.didMove()
-            for child in viewControllersToRemove {
-                child.view.removeFromSuperview()
-                child.removeFromParent()
-            }
-
-            // Remove the source controller from view hierarchy
-            if sourceViewController != targetViewController {
-                sourceViewController?.view.removeFromSuperview()
-            }
-
-            self.updateInterfaceOrientation(attemptRotateToDeviceOrientation: true)
-            self.updateAccessibilityElementsAndNotifyScreenChange()
+        let finishTransition = { [weak self] in
+            self?.onTransitionEnd(
+                shouldHandleAppearanceEvents: shouldHandleAppearanceEvents,
+                sourceViewController: sourceViewController,
+                targetViewController: targetViewController,
+                viewControllersToAdd: viewControllersToAdd,
+                viewControllersToRemove: viewControllersToRemove
+            )
 
             completion?()
         }
 
-        let alongSideAnimations = {
-            self.updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
-            self.updateHeaderBarHiddenFromChildPreferences(animated: shouldAnimate)
-            self.updateNotificationBarHiddenFromChildPreferences()
-            self.updateDeviceInfoBarHiddenFromChildPreferences()
+        let alongSideAnimations = { [weak self] in
+            guard let self = self else { return }
+
+            updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
+            updateHeaderBarHiddenFromChildPreferences(animated: shouldAnimate)
+            updateNotificationBarHiddenFromChildPreferences()
+            updateDeviceInfoBarHiddenFromChildPreferences()
         }
 
+        if shouldAnimate {
+            CATransaction.begin()
+            CATransaction.setCompletionBlock {
+                finishTransition()
+            }
+
+            animateTransition(
+                sourceViewController: sourceViewController,
+                newViewControllers: newViewControllers,
+                targetViewController: targetViewController,
+                isUnwinding: isUnwinding,
+                alongSideAnimations: alongSideAnimations
+            )
+
+            CATransaction.commit()
+        } else {
+            alongSideAnimations()
+            finishTransition()
+        }
+    }
+
+    private func animateTransition(
+        sourceViewController: UIViewController?,
+        newViewControllers: [UIViewController],
+        targetViewController: UIViewController?,
+        isUnwinding: Bool,
+        alongSideAnimations: () -> Void
+    ) {
+        let transition = CATransition()
+        transition.duration = 0.35
+        transition.type = .push
+
+        // Pick the animation movement direction
+        let sourceIndex = sourceViewController.flatMap { newViewControllers.firstIndex(of: $0) }
+        let targetIndex = targetViewController.flatMap { newViewControllers.firstIndex(of: $0) }
+
+        switch (sourceIndex, targetIndex) {
+        case let (.some(lhs), .some(rhs)):
+            transition.subtype = lhs > rhs ? .fromLeft : .fromRight
+        case (.none, .some):
+            transition.subtype = isUnwinding ? .fromLeft : .fromRight
+        default:
+            transition.subtype = .fromRight
+        }
+
+        transitionContainer.layer.add(transition, forKey: "transition")
+        alongSideAnimations()
+    }
+
+    private func onTransitionEnd(
+        shouldHandleAppearanceEvents: Bool,
+        sourceViewController: UIViewController?,
+        targetViewController: UIViewController?,
+        viewControllersToAdd: [UIViewController],
+        viewControllersToRemove: [UIViewController]
+    ) {
+        /*
+         Finish transition appearance.
+         Note this has to be done before the call to `didMove(to:)` or `removeFromParent()`
+         otherwise `endAppearanceTransition()` will fire `didMove(to:)` twice.
+         */
+        if shouldHandleAppearanceEvents {
+            if let targetViewController,
+               sourceViewController != targetViewController {
+                self.endChildControllerTransition(targetViewController)
+            }
+
+            if let sourceViewController,
+               sourceViewController != targetViewController {
+                self.endChildControllerTransition(sourceViewController)
+            }
+        }
+
+        // Notify the added controllers that they finished a transition into the container
+        for child in viewControllersToAdd {
+            child.didMove(toParent: self)
+        }
+
+        // Remove the controllers that transitioned out of the container
+        // The call to removeFromParent() automatically calls child.didMove()
+        for child in viewControllersToRemove {
+            child.view.removeFromSuperview()
+            child.removeFromParent()
+        }
+
+        // Remove the source controller from view hierarchy
+        if sourceViewController != targetViewController {
+            sourceViewController?.view.removeFromSuperview()
+        }
+
+        self.updateInterfaceOrientation(attemptRotateToDeviceOrientation: true)
+        self.updateAccessibilityElementsAndNotifyScreenChange()
+    }
+
+    private func configureViewControllers(
+        viewControllersToAdd: [UIViewController],
+        newViewControllers: [UIViewController],
+        targetViewController: UIViewController?,
+        viewControllersToRemove: [UIViewController]
+    ) {
         // Add new child controllers. The call to addChild() automatically calls child.willMove()
         // Children have to be registered in the container for Storyboard unwind segues to function
         // properly, however the child controller views don't have to be added immediately, and
@@ -558,8 +645,14 @@ class RootContainerViewController: UIViewController {
         }
 
         viewControllers = newViewControllers
+    }
 
-        // Begin appearance transition
+    private func beginTransition(
+        shouldHandleAppearanceEvents: Bool,
+        targetViewController: UIViewController?,
+        shouldAnimate: Bool,
+        sourceViewController: UIViewController?
+    ) {
         if shouldHandleAppearanceEvents {
             if let sourceViewController,
                sourceViewController != targetViewController {
@@ -578,38 +671,6 @@ class RootContainerViewController: UIViewController {
                 )
             }
             setNeedsStatusBarAppearanceUpdate()
-        }
-
-        if shouldAnimate {
-            CATransaction.begin()
-            CATransaction.setCompletionBlock {
-                finishTransition()
-            }
-
-            let transition = CATransition()
-            transition.duration = 0.35
-            transition.type = .push
-
-            // Pick the animation movement direction
-            let sourceIndex = sourceViewController.flatMap { newViewControllers.firstIndex(of: $0) }
-            let targetIndex = targetViewController.flatMap { newViewControllers.firstIndex(of: $0) }
-
-            switch (sourceIndex, targetIndex) {
-            case let (.some(lhs), .some(rhs)):
-                transition.subtype = lhs > rhs ? .fromLeft : .fromRight
-            case (.none, .some):
-                transition.subtype = isUnwinding ? .fromLeft : .fromRight
-            default:
-                transition.subtype = .fromRight
-            }
-
-            transitionContainer.layer.add(transition, forKey: "transition")
-            alongSideAnimations()
-
-            CATransaction.commit()
-        } else {
-            alongSideAnimations()
-            finishTransition()
         }
     }
 
@@ -840,4 +901,6 @@ extension RootContainerViewController {
         presentationContainerAccountButton?.isHidden = !configuration.showsAccountButton
         headerBarView.update(configuration: configuration)
     }
+
+    // swiftlint:disable:next file_length
 }

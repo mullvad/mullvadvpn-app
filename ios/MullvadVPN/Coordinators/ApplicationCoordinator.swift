@@ -572,7 +572,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinishPayment = { [weak self] _ in
-            guard let self else { return }
+            guard let self = self else { return }
 
             if shouldDismissOutOfTime() {
                 router.dismiss(.outOfTime, animated: true)
@@ -597,7 +597,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinish = { [weak self] _ in
-            guard let self else { return }
+            guard let self = self else { return }
             appPreferences.isShownOnboarding = true
             router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
@@ -979,4 +979,6 @@ fileprivate extension AppPreferencesDataSource {
     mutating func markChangeLogSeen() {
         self.lastSeenChangeLogVersion = Bundle.main.shortVersion
     }
+
+    // swiftlint:disable:next file_length
 }

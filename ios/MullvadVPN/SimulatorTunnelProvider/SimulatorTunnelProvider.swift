@@ -423,4 +423,5 @@ final class SimulatorTunnelProviderManager: NSObject, VPNTunnelProviderManagerPr
     }
 }
 
+// swiftlint:disable:next file_length
 #endif

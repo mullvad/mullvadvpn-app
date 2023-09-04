@@ -75,14 +75,11 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
 
     func setRelays(_ response: REST.ServerRelaysResponse) {
         let rootNode = Self.makeRootNode()
-        var nodeByLocation = [RelayLocation: Node]()
+        nodeByLocation.removeAll()
 
         for relay in response.wireguard.relays {
-            guard case let .city(
-                countryCode,
-                cityCode
-            ) = RelayLocation(dashSeparatedString: relay.location),
-                let serverLocation = response.locations[relay.location] else { continue }
+            guard case let .city(countryCode, cityCode) = RelayLocation(dashSeparatedString: relay.location),
+                  let serverLocation = response.locations[relay.location] else { continue }
 
             let relayLocation = RelayLocation.hostname(countryCode, cityCode, relay.hostname)
 
@@ -92,52 +89,21 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
                 }
 
                 // Maintain the `showsChildren` state when transitioning between relay lists
-                let wasShowingChildren = nodeByLocation[ascendantOrSelf]?
-                    .showsChildren ?? false
+                let wasShowingChildren = nodeByLocation[ascendantOrSelf]?.showsChildren ?? false
 
-                let node: Node
-                switch ascendantOrSelf {
-                case .country:
-                    node = Node(
-                        type: .country,
-                        location: ascendantOrSelf,
-                        displayName: serverLocation.country,
-                        showsChildren: wasShowingChildren,
-                        isActive: true,
-                        children: []
-                    )
-                    rootNode.addChild(node)
-
-                case let .city(countryCode, _):
-                    node = Node(
-                        type: .city,
-                        location: ascendantOrSelf,
-                        displayName: serverLocation.city,
-                        showsChildren: wasShowingChildren,
-                        isActive: true,
-                        children: []
-                    )
-                    nodeByLocation[.country(countryCode)]!.addChild(node)
-
-                case let .hostname(countryCode, cityCode, _):
-                    node = Node(
-                        type: .relay,
-                        location: ascendantOrSelf,
-                        displayName: relay.hostname,
-                        showsChildren: false,
-                        isActive: relay.active,
-                        children: []
-                    )
-                    nodeByLocation[.city(countryCode, cityCode)]!.addChild(node)
-                }
-
+                let node = createNode(
+                    ascendantOrSelf: ascendantOrSelf,
+                    serverLocation: serverLocation,
+                    relay: relay,
+                    rootNode: rootNode,
+                    wasShowingChildren: wasShowingChildren
+                )
                 nodeByLocation[ascendantOrSelf] = node
             }
         }
 
         rootNode.sortChildrenRecursive()
         rootNode.computeActiveChildrenRecursive()
-        self.nodeByLocation = nodeByLocation
         locationList = rootNode.flatRelayLocationList()
 
         filterRelays(by: currentSearchString)
@@ -190,6 +156,53 @@ final class LocationDataSource: UITableViewDiffableDataSource<Int, RelayLocation
         updateDataSnapshot(with: filteredLocations, reloadExisting: true) { [weak self] in
             self?.scrollToTop(animated: false)
         }
+    }
+
+    private func createNode(
+        ascendantOrSelf: RelayLocation,
+        serverLocation: REST.ServerLocation,
+        relay: REST.ServerRelay,
+        rootNode: Node,
+        wasShowingChildren: Bool
+    ) -> Node {
+        let node: Node
+
+        switch ascendantOrSelf {
+        case .country:
+            node = Node(
+                type: .country,
+                location: ascendantOrSelf,
+                displayName: serverLocation.country,
+                showsChildren: wasShowingChildren,
+                isActive: true,
+                children: []
+            )
+            rootNode.addChild(node)
+
+        case let .city(countryCode, _):
+            node = Node(
+                type: .city,
+                location: ascendantOrSelf,
+                displayName: serverLocation.city,
+                showsChildren: wasShowingChildren,
+                isActive: true,
+                children: []
+            )
+            nodeByLocation[.country(countryCode)]!.addChild(node)
+
+        case let .hostname(countryCode, cityCode, _):
+            node = Node(
+                type: .relay,
+                location: ascendantOrSelf,
+                displayName: relay.hostname,
+                showsChildren: false,
+                isActive: relay.active,
+                children: []
+            )
+            nodeByLocation[.city(countryCode, cityCode)]!.addChild(node)
+        }
+
+        return node
     }
 
     private func updateDataSnapshot(
@@ -518,4 +531,6 @@ private extension [RelayLocation] {
             locations.contains(location)
         })
     }
+
+    // swiftlint:disable:next file_length
 }

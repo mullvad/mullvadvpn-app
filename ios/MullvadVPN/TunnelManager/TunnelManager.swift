@@ -506,7 +506,7 @@ final class TunnelManager: StorePaymentObserver {
 
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] result in
-            guard let self else { return }
+            guard let self = self else { return }
 
             updatePrivateKeyRotationTimer()
 
@@ -755,7 +755,6 @@ final class TunnelManager: StorePaymentObserver {
                 }
 
             case .invalid:
-                // TODO: handle invalid account in some way?
                 break
             }
         }

@@ -141,7 +141,7 @@ class LoginViewController: UIViewController, RootContainment {
         }
 
         contentView.accountInputGroup.setOnReturnKey { [weak self] _ in
-            guard let self else { return true }
+            guard let self = self else { return true }
 
             return attemptLogin()
         }
@@ -433,4 +433,6 @@ private extension LoginState {
             return .hidden
         }
     }
+
+    // swiftlint:disable:next file_length
 }

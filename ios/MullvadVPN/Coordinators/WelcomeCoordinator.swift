@@ -146,7 +146,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         )
 
         coordinator.didCancel = { [weak self] coordinator in
-            guard let self else { return }
+            guard let self = self else { return }
             navigationController.popViewController(animated: true)
             coordinator.removeFromParent()
         }

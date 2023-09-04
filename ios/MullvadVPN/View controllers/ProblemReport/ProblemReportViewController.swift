@@ -43,7 +43,10 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         textLabel.text = NSLocalizedString(
             "SUBHEAD_LABEL",
             tableName: "ProblemReport",
-            value: "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.",
+            value: """
+            To help you more effectively, your app’s log file will be attached to this message. \
+            Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.
+            """,
             comment: ""
         )
         return textLabel
@@ -82,7 +85,9 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         textView.placeholder = NSLocalizedString(
             "DESCRIPTION_TEXTVIEW_PLACEHOLDER",
             tableName: "ProblemReport",
-            value: "To assist you better, please write in English or Swedish and include which country you are connecting from.",
+            value: """
+            To assist you better, please write in English or Swedish and include which country you are connecting from.
+            """,
             comment: ""
         )
         textView.contentInsetAdjustmentBehavior = .never
@@ -221,19 +226,8 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         messageTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
         messageTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
-        textFieldsHolder.addSubview(emailTextField)
-        textFieldsHolder.addSubview(messagePlaceholder)
-        textFieldsHolder.addSubview(messageTextView)
-
-        view.addSubview(scrollView)
-        scrollView.addSubview(containerView)
-        containerView.addSubview(subheaderLabel)
-        containerView.addSubview(textFieldsHolder)
-        containerView.addSubview(buttonsStackView)
-
         addConstraints()
         registerForNotifications()
-
         loadPersistentViewModel()
     }
 
@@ -339,88 +333,55 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
     }
 
     private func addConstraints() {
-        activeMessageTextViewConstraints = [
-            messageTextView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            messageTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            messageTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            messageTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ]
+        activeMessageTextViewConstraints =
+            messageTextView.pinEdgesToSuperview(.all().excluding(.top)) +
+            messageTextView.pinEdges(PinnableEdges([.top(0)]), to: view.safeAreaLayoutGuide)
 
-        inactiveMessageTextViewConstraints = [
-            messageTextView.topAnchor.constraint(
-                equalTo: emailTextField.bottomAnchor,
-                constant: 12
-            ),
-            messageTextView.leadingAnchor.constraint(equalTo: textFieldsHolder.leadingAnchor),
-            messageTextView.trailingAnchor.constraint(equalTo: textFieldsHolder.trailingAnchor),
-            messageTextView.bottomAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor),
-        ]
+        inactiveMessageTextViewConstraints =
+            messageTextView.pinEdges(.all().excluding(.top), to: textFieldsHolder) +
+            [messageTextView.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 12)]
 
-        var constraints = [
-            subheaderLabel.topAnchor
-                .constraint(equalTo: containerView.layoutMarginsGuide.topAnchor),
-            subheaderLabel.leadingAnchor
-                .constraint(equalTo: containerView.layoutMarginsGuide.leadingAnchor),
-            subheaderLabel.trailingAnchor
-                .constraint(equalTo: containerView.layoutMarginsGuide.trailingAnchor),
+        textFieldsHolder.addSubview(emailTextField)
+        textFieldsHolder.addSubview(messagePlaceholder)
+        textFieldsHolder.addSubview(messageTextView)
 
-            textFieldsHolder.topAnchor.constraint(
-                equalTo: subheaderLabel.bottomAnchor,
-                constant: 24
-            ),
-            textFieldsHolder.leadingAnchor
-                .constraint(equalTo: containerView.layoutMarginsGuide.leadingAnchor),
-            textFieldsHolder.trailingAnchor
-                .constraint(equalTo: containerView.layoutMarginsGuide.trailingAnchor),
+        scrollView.addSubview(containerView)
+        containerView.addSubview(subheaderLabel)
+        containerView.addSubview(textFieldsHolder)
+        containerView.addSubview(buttonsStackView)
 
-            buttonsStackView.topAnchor.constraint(
-                equalTo: textFieldsHolder.bottomAnchor,
-                constant: 18
-            ),
-            buttonsStackView.leadingAnchor
-                .constraint(equalTo: containerView.layoutMarginsGuide.leadingAnchor),
-            buttonsStackView.trailingAnchor
-                .constraint(equalTo: containerView.layoutMarginsGuide.trailingAnchor),
-            buttonsStackView.bottomAnchor
-                .constraint(equalTo: containerView.layoutMarginsGuide.bottomAnchor),
+        view.addConstrainedSubviews([scrollView]) {
+            inactiveMessageTextViewConstraints
 
-            emailTextField.topAnchor.constraint(equalTo: textFieldsHolder.topAnchor),
-            emailTextField.leadingAnchor.constraint(equalTo: textFieldsHolder.leadingAnchor),
-            emailTextField.trailingAnchor.constraint(equalTo: textFieldsHolder.trailingAnchor),
+            subheaderLabel.pinEdges(.all().excluding(.bottom), to: containerView.layoutMarginsGuide)
 
-            messagePlaceholder.topAnchor.constraint(
-                equalTo: emailTextField.bottomAnchor,
-                constant: 12
-            ),
-            messagePlaceholder.leadingAnchor.constraint(equalTo: textFieldsHolder.leadingAnchor),
-            messagePlaceholder.trailingAnchor.constraint(equalTo: textFieldsHolder.trailingAnchor),
-            messagePlaceholder.bottomAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor),
-            messagePlaceholder.heightAnchor.constraint(equalTo: messageTextView.heightAnchor),
+            textFieldsHolder.pinEdges(PinnableEdges([.leading(0), .trailing(0)]), to: containerView.layoutMarginsGuide)
+            textFieldsHolder.topAnchor.constraint(equalTo: subheaderLabel.bottomAnchor, constant: 24)
 
-            scrollView.frameLayoutGuide.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.frameLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scrollView.frameLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.frameLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            buttonsStackView.pinEdges(.all().excluding(.top), to: containerView.layoutMarginsGuide)
+            buttonsStackView.topAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor, constant: 18)
 
-            scrollView.contentLayoutGuide.topAnchor.constraint(equalTo: containerView.topAnchor),
-            scrollView.contentLayoutGuide.bottomAnchor
-                .constraint(equalTo: containerView.bottomAnchor),
-            scrollView.contentLayoutGuide.leadingAnchor
-                .constraint(equalTo: containerView.leadingAnchor),
-            scrollView.contentLayoutGuide.trailingAnchor
-                .constraint(equalTo: containerView.trailingAnchor),
+            emailTextField.pinEdges(.all().excluding(.bottom), to: textFieldsHolder)
 
-            scrollView.contentLayoutGuide.widthAnchor
-                .constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
+            messagePlaceholder.pinEdges(.all().excluding(.top), to: textFieldsHolder)
+            messagePlaceholder.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 12)
+            messagePlaceholder.heightAnchor.constraint(equalTo: messageTextView.heightAnchor)
+
+            scrollView.frameLayoutGuide.topAnchor.constraint(equalTo: view.topAnchor)
+            scrollView.frameLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            scrollView.frameLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+            scrollView.frameLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+
+            scrollView.contentLayoutGuide.topAnchor.constraint(equalTo: containerView.topAnchor)
+            scrollView.contentLayoutGuide.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            scrollView.contentLayoutGuide.leadingAnchor.constraint(equalTo: containerView.leadingAnchor)
+            scrollView.contentLayoutGuide.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
+            scrollView.contentLayoutGuide.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor)
             scrollView.contentLayoutGuide.heightAnchor
-                .constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.heightAnchor),
+                .constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.heightAnchor)
 
-            messageTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 150),
-        ]
-
-        constraints.append(contentsOf: inactiveMessageTextViewConstraints)
-
-        NSLayoutConstraint.activate(constraints)
+            messageTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 150)
+        }
     }
 
     private func setDescriptionFieldExpanded(_ isExpanded: Bool) {
@@ -453,14 +414,14 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
                 self.messageTextView.roundCorners = false
 
                 self.view.layoutIfNeeded()
-            }) { _ in
+            }, completion: { _ in
                 self.isMessageTextViewExpanded = true
 
                 self.textViewKeyboardResponder?.updateContentInsets()
 
                 // Tell accessibility engine to scan the new layout
                 UIAccessibility.post(notification: .layoutChanged, argument: nil)
-            }
+            })
 
         } else {
             // Re-enable the large title
@@ -476,7 +437,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
                 self.messageTextView.roundCorners = true
 
                 self.view.layoutIfNeeded()
-            }) { _ in
+            }, completion: { _ in
                 // Revert the content adjustment behavior
                 self.messageTextView.contentInsetAdjustmentBehavior = .never
 
@@ -487,7 +448,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
                 // Tell accessibility engine to scan the new layout
                 UIAccessibility.post(notification: .layoutChanged, argument: nil)
-            }
+            })
         }
     }
 
@@ -504,7 +465,10 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         let message = NSLocalizedString(
             "EMPTY_EMAIL_ALERT_MESSAGE",
             tableName: "ProblemReport",
-            value: "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.",
+            value: """
+            You are about to send the problem report without a way for us to get back to you. \
+            If you want an answer to your report you will have to enter an email address.
+            """,
             comment: ""
         )
 
@@ -718,4 +682,6 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         messageTextView.becomeFirstResponder()
         return false
     }
+
+    // swiftlint:disable:next file_length
 }

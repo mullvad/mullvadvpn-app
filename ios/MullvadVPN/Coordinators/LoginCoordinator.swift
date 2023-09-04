@@ -108,7 +108,7 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
         let controller = DeviceManagementViewController(interactor: interactor)
         controller.delegate = self
         controller.fetchDevices(animateUpdates: false) { [weak self] result in
-            guard let self else { return }
+            guard let self = self else { return }
 
             switch result {
             case .success:

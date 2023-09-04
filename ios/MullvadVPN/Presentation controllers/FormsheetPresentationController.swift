@@ -177,7 +177,7 @@ class FormSheetPresentationController: UIPresentationController {
         keyboardResponder = AutomaticKeyboardResponder(
             targetView: presentedView,
             handler: { [weak self] view, adjustment in
-                guard let self,
+                guard let self = self,
                       let containerView,
                       !isInFullScreenPresentation else { return }
                 let frame = view.frame

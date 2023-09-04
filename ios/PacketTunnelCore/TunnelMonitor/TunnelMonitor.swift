@@ -101,65 +101,12 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         func evaluateConnection(now: Date, pingTimeout: Duration) -> ConnectionEvaluation {
             switch connectionState {
             case .connecting:
-                if now.timeIntervalSince(timeoutReference) >= pingTimeout {
-                    return .pingTimeout
-                }
-
-                guard let lastRequestDate = pingStats.lastRequestDate else {
-                    return .sendInitialPing
-                }
-
-                if now.timeIntervalSince(lastRequestDate) >= pingDelay {
-                    return .sendNextPing
-                }
-
+                return handleConnectingState(now: now)
             case .connected:
-                if now.timeIntervalSince(timeoutReference) >= pingTimeout, !isHeartbeatSuspended {
-                    return .pingTimeout
-                }
-
-                guard let lastRequestDate = pingStats.lastRequestDate else {
-                    return .sendInitialPing
-                }
-
-                let timeSinceLastPing = now.timeIntervalSince(lastRequestDate)
-                if let lastReplyDate = pingStats.lastReplyDate,
-                   lastRequestDate.timeIntervalSince(lastReplyDate) >= heartbeatReplyTimeout,
-                   timeSinceLastPing >= pingDelay, !isHeartbeatSuspended {
-                    return .retryHeartbeatPing
-                }
-
-                guard let lastSeenRx, let lastSeenTx else { return .ok }
-
-                let rxTimeElapsed = now.timeIntervalSince(lastSeenRx)
-                let txTimeElapsed = now.timeIntervalSince(lastSeenTx)
-
-                if timeSinceLastPing >= heartbeatPingInterval {
-                    // Send heartbeat if traffic is flowing.
-                    if rxTimeElapsed <= trafficFlowTimeout || txTimeElapsed <= trafficFlowTimeout {
-                        return .sendHeartbeatPing
-                    }
-
-                    if !isHeartbeatSuspended {
-                        return .suspendHeartbeat
-                    }
-                }
-
-                if timeSinceLastPing >= pingDelay {
-                    if txTimeElapsed >= trafficTimeout || rxTimeElapsed >= trafficTimeout {
-                        return .trafficTimeout
-                    }
-
-                    if lastSeenTx > lastSeenRx, rxTimeElapsed >= inboundTrafficTimeout {
-                        return .inboundTrafficTimeout
-                    }
-                }
-
+                return handleConnectedState(now: now, pingTimeout: pingTimeout)
             default:
-                break
+                return .ok
             }
-
-            return .ok
         }
 
         func getPingTimeout() -> Duration {
@@ -205,6 +152,67 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             timeoutReference = now
 
             return pingTimestamp
+        }
+
+        private func handleConnectingState(now: Date) -> ConnectionEvaluation {
+            if now.timeIntervalSince(timeoutReference) >= pingTimeout {
+                return .pingTimeout
+            }
+
+            guard let lastRequestDate = pingStats.lastRequestDate else {
+                return .sendInitialPing
+            }
+
+            if now.timeIntervalSince(lastRequestDate) >= pingDelay {
+                return .sendNextPing
+            }
+
+            return .ok
+        }
+
+        private func handleConnectedState(now: Date, pingTimeout: Duration) -> ConnectionEvaluation {
+            if now.timeIntervalSince(timeoutReference) >= pingTimeout, !isHeartbeatSuspended {
+                return .pingTimeout
+            }
+
+            guard let lastRequestDate = pingStats.lastRequestDate else {
+                return .sendInitialPing
+            }
+
+            let timeSinceLastPing = now.timeIntervalSince(lastRequestDate)
+            if let lastReplyDate = pingStats.lastReplyDate,
+               lastRequestDate.timeIntervalSince(lastReplyDate) >= heartbeatReplyTimeout,
+               timeSinceLastPing >= pingDelay, !isHeartbeatSuspended {
+                return .retryHeartbeatPing
+            }
+
+            guard let lastSeenRx, let lastSeenTx else { return .ok }
+
+            let rxTimeElapsed = now.timeIntervalSince(lastSeenRx)
+            let txTimeElapsed = now.timeIntervalSince(lastSeenTx)
+
+            if timeSinceLastPing >= heartbeatPingInterval {
+                // Send heartbeat if traffic is flowing.
+                if rxTimeElapsed <= trafficFlowTimeout || txTimeElapsed <= trafficFlowTimeout {
+                    return .sendHeartbeatPing
+                }
+
+                if !isHeartbeatSuspended {
+                    return .suspendHeartbeat
+                }
+            }
+
+            if timeSinceLastPing >= pingDelay {
+                if txTimeElapsed >= trafficTimeout || rxTimeElapsed >= trafficTimeout {
+                    return .trafficTimeout
+                }
+
+                if lastSeenTx > lastSeenRx, rxTimeElapsed >= inboundTrafficTimeout {
+                    return .inboundTrafficTimeout
+                }
+            }
+
+            return .ok
         }
     }
 
@@ -262,7 +270,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
         self.pinger = pinger
         self.pinger.onReply = { [weak self] reply in
-            guard let self else { return }
+            guard let self = self else { return }
 
             switch reply {
             case let .success(sender, sequenceNumber):
@@ -635,4 +643,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             return nil
         }
     }
+
+    // swiftlint:disable:next file_length
 }

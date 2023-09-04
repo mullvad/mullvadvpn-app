@@ -890,7 +890,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.didCollapseHandler = { [weak self] header in
-            guard let self else { return }
+            guard let self = self else { return }
 
             var snapshot = snapshot()
             if header.isExpanded {
@@ -918,7 +918,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.didCollapseHandler = { [weak self] header in
-            guard let self else { return }
+            guard let self = self else { return }
 
             var snapshot = snapshot()
             if header.isExpanded {

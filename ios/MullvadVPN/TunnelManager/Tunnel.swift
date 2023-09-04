@@ -108,9 +108,9 @@ final class Tunnel: Equatable {
     }
 
     func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
-        let session = tunnelProvider.connection as! VPNTunnelProviderSessionProtocol
+        let session = tunnelProvider.connection as? VPNTunnelProviderSessionProtocol
 
-        try session.sendProviderMessage(messageData, responseHandler: responseHandler)
+        try session?.sendProviderMessage(messageData, responseHandler: responseHandler)
     }
 
     func setConfiguration(_ configuration: TunnelConfiguration) {

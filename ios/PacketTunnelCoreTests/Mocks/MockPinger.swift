@@ -60,7 +60,7 @@ class MockPinger: PingerProtocol {
         switch decideOutcome(address, nextSequenceId) {
         case let .sendReply(reply, delay):
             DispatchQueue.main.asyncAfter(wallDeadline: .now() + delay) { [weak self] in
-                guard let self else { return }
+                guard let self = self else { return }
 
                 networkStatsReporting.reportBytesReceived(UInt64(icmpPacketSize))
 

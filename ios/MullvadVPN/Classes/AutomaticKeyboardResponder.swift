@@ -21,7 +21,9 @@ class AutomaticKeyboardResponder {
     init<T: UIView>(targetView: T, handler: @escaping (T, CGFloat) -> Void) {
         self.targetView = targetView
         self.handler = { view, adjustment in
-            handler(view as! T, adjustment)
+            if let view = view as? T {
+                handler(view, adjustment)
+            }
         }
 
         NotificationCenter.default.addObserver(
@@ -112,7 +114,7 @@ class AutomaticKeyboardResponder {
             \.frame,
             options: [.new],
             changeHandler: { [weak self] _, _ in
-                guard let self,
+                guard let self = self,
                       let keyboardFrameValue = lastKeyboardRect else { return }
 
                 adjustContentInsets(convertedKeyboardFrameEnd: keyboardFrameValue)
