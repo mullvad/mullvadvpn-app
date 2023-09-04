@@ -118,7 +118,7 @@ final class TunnelMonitorTests: XCTestCase {
                 }
 
             case .connectionEstablished:
-                XCTFail()
+                XCTFail("Connection should fail.")
 
             case .networkReachabilityChanged:
                 break

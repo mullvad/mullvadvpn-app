@@ -840,4 +840,6 @@ extension RootContainerViewController {
         presentationContainerAccountButton?.isHidden = !configuration.showsAccountButton
         headerBarView.update(configuration: configuration)
     }
+
+    // swiftlint:disable:next file_length
 }

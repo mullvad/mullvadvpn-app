@@ -979,4 +979,6 @@ fileprivate extension AppPreferencesDataSource {
     mutating func markChangeLogSeen() {
         self.lastSeenChangeLogVersion = Bundle.main.shortVersion
     }
+
+    // swiftlint:disable:next file_length
 }

@@ -552,4 +552,6 @@ private class AccountInputBorderLayer: CAShapeLayer {
         }
         return super.defaultAction(forKey: event)
     }
+
+    // swiftlint:disable:next file_length
 }

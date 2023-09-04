@@ -395,6 +395,7 @@
 		7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */; };
 		7A307AD92A8CD8DA0017618B /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307AD82A8CD8DA0017618B /* Duration.swift */; };
 		7A307ADB2A8F56DF0017618B /* Duration+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */; };
+		7A3353972AAA0F8600F0A71C /* OperationBlockObserverSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */; };
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
 		7A42DECD2A09064C00B209BE /* SelectableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
@@ -1311,6 +1312,7 @@
 		7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITextField+Appearance.swift"; sourceTree = "<group>"; };
 		7A307AD82A8CD8DA0017618B /* Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Duration.swift; sourceTree = "<group>"; };
 		7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+Extensions.swift"; sourceTree = "<group>"; };
+		7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationBlockObserverSupport.swift; sourceTree = "<group>"; };
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSettingsCell.swift; sourceTree = "<group>"; };
 		7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunch.swift; sourceTree = "<group>"; };
@@ -2456,8 +2458,9 @@
 				581813A628E09DF2002817DE /* MutuallyExclusive.swift */,
 				581813A028E09DBB002817DE /* NoCancelledDependenciesCondition.swift */,
 				581813A228E09DCD002817DE /* NoFailedDependenciesCondition.swift */,
-				5840BE34279EDB16002836BA /* OperationError.swift */,
+				7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */,
 				589D28772846250500F9A7B3 /* OperationCondition.swift */,
+				5840BE34279EDB16002836BA /* OperationError.swift */,
 				589D28792846250500F9A7B3 /* OperationObserver.swift */,
 				58059DDD28468158002B1049 /* OutputOperation.swift */,
 				5842102D282D3FC200F24E46 /* ResultBlockOperation.swift */,
@@ -4010,6 +4013,7 @@
 				58D223BB294C8A630029F5F8 /* NoCancelledDependenciesCondition.swift in Sources */,
 				58D223B3294C8A630029F5F8 /* OperationObserver.swift in Sources */,
 				58D223B7294C8A630029F5F8 /* MutuallyExclusive.swift in Sources */,
+				7A3353972AAA0F8600F0A71C /* OperationBlockObserverSupport.swift in Sources */,
 				58D223B2294C8A630029F5F8 /* OperationError.swift in Sources */,
 				58D223AF294C8A630029F5F8 /* NoFailedDependenciesCondition.swift in Sources */,
 				58D223B9294C8A630029F5F8 /* AsyncOperationQueue.swift in Sources */,
@@ -4077,7 +4081,6 @@
 				58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */,
 				A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
-				58FBFBF1291630700020E046 /* DurationTests.swift in Sources */,
 				58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */,
 				58BDEB9B2A98F58600F578F2 /* TimeServerProxy.swift in Sources */,
 				58BDEB992A98F4ED00F578F2 /* AnyTransport.swift in Sources */,
