@@ -216,6 +216,7 @@ function AllowLan() {
                 'It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:',
               )}
               <LanIpRanges>
+                <li>100.64.0.0/10</li>
                 <li>10.0.0.0/8</li>
                 <li>172.16.0.0/12</li>
                 <li>192.168.0.0/16</li>
