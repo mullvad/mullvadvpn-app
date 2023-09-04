@@ -14,7 +14,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -36,12 +37,10 @@ import net.mullvad.mullvadvpn.lib.theme.MullvadWhite20
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite60
 import net.mullvad.mullvadvpn.util.isValidMtu
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MtuDialog(
-    mtuValue: String,
-    onMtuValueChanged: (String) -> Unit,
-    onSave: () -> Unit,
+    mtuInitial: Int?,
+    onSave: (Int) -> Unit,
     onRestoreDefaultValue: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -55,8 +54,10 @@ fun MtuDialog(
     val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
     val textBigSize = dimensionResource(id = R.dimen.text_big).value.sp
 
+    val mtu = remember { mutableStateOf(mtuInitial?.toString() ?: "") }
+
     val textFieldFocusRequester = FocusRequester()
-    val isValidMtu = mtuValue.toIntOrNull()?.isValidMtu() == true
+    val isValidMtu = mtu.value.toIntOrNull()?.isValidMtu() == true
 
     Dialog(
         // Fix for https://issuetracker.google.com/issues/221643630
@@ -80,12 +81,12 @@ fun MtuDialog(
                     Modifier.wrapContentSize().clickable { textFieldFocusRequester.requestFocus() }
                 ) {
                     MtuTextField(
-                        value = mtuValue,
-                        onValueChanged = { newMtuValue -> onMtuValueChanged(newMtuValue) },
+                        value = mtu.value,
+                        onValueChanged = { newMtuValue -> mtu.value = newMtuValue },
                         onFocusChange = {},
                         onSubmit = { newMtuValue ->
                             if (newMtuValue.toIntOrNull()?.isValidMtu() == true) {
-                                onSave()
+                                onSave(newMtuValue.toIntOrNull() ?: 0)
                             }
                         },
                         isEnabled = true,
@@ -121,7 +122,7 @@ fun MtuDialog(
                             disabledContainerColor = MullvadWhite20
                         ),
                     enabled = isValidMtu,
-                    onClick = { onSave() },
+                    onClick = { onSave(mtu.value.toIntOrNull() ?: 0) },
                     shape = MaterialTheme.shapes.small
                 ) {
                     Text(text = stringResource(R.string.submit_button), fontSize = textMediumSize)
@@ -138,7 +139,7 @@ fun MtuDialog(
                             containerColor = MullvadBlue,
                             contentColor = MullvadWhite
                         ),
-                    onClick = { onRestoreDefaultValue() },
+                    onClick = onRestoreDefaultValue,
                     shape = MaterialTheme.shapes.small
                 ) {
                     Text(
@@ -158,7 +159,7 @@ fun MtuDialog(
                             containerColor = MullvadBlue,
                             contentColor = Color.White
                         ),
-                    onClick = { onDismiss() },
+                    onClick = onDismiss,
                     shape = MaterialTheme.shapes.small
                 ) {
                     Text(text = stringResource(R.string.cancel), fontSize = textMediumSize)
