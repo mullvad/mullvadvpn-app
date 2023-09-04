@@ -8,7 +8,7 @@ type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, err_derive::Error)]
 pub enum Error {
-    #[error(display = "Failed to open routing socket")]
+    #[error(display = "Routing socket error: {}", _0)]
     RoutingSocket(routing_socket::Error),
     #[error(display = "Invalid message")]
     InvalidMessage(data::Error),
