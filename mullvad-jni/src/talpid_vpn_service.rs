@@ -171,6 +171,7 @@ fn is_public_ip(addr: IpAddr) -> bool {
     // A non-exhaustive list of non-public subnets
     let publicly_unroutable_subnets: Vec<IpNetwork> = vec![
         // IPv4 local networks
+        "100.64.0.0/10".parse().unwrap(),
         "10.0.0.0/8".parse().unwrap(),
         "172.16.0.0/12".parse().unwrap(),
         "192.168.0.0/16".parse().unwrap(),
