@@ -187,9 +187,17 @@ class AccountDeletionContentView: UIView {
         }
     }
 
-    var isEditing = false {
-        didSet {
-            _ = isEditing ? accountTextField.becomeFirstResponder() : accountTextField.resignFirstResponder()
+    var isEditing: Bool {
+        get {
+            accountTextField.isEditing
+        }
+        set {
+            guard accountTextField.isFirstResponder != newValue else { return }
+            if newValue {
+                accountTextField.becomeFirstResponder()
+            } else {
+                accountTextField.resignFirstResponder()
+            }
         }
     }
 

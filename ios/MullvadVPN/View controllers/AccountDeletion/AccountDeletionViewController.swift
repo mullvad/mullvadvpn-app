@@ -42,27 +42,17 @@ class AccountDeletionViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        enableEditing()
+        contentView.isEditing = true
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        disableEditing()
+        contentView.isEditing = false
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         contentView.isEditing = false
         super.viewWillTransition(to: size, with: coordinator)
-    }
-
-    private func enableEditing() {
-        guard !contentView.isEditing else { return }
-        contentView.isEditing = true
-    }
-
-    private func disableEditing() {
-        guard contentView.isEditing else { return }
-        contentView.isEditing = false
     }
 
     private func configureUI() {
@@ -95,6 +85,7 @@ extension AccountDeletionViewController: AccountDeletionContentViewDelegate {
     func didTapDeleteButton(contentView: AccountDeletionContentView, button: AppButton) {
         switch interactor.validate(input: contentView.lastPartOfAccountNumber) {
         case let .success(accountNumber):
+            contentView.isEditing = false
             submit(accountNumber: accountNumber)
         case let .failure(error):
             contentView.state = .failure(error)
