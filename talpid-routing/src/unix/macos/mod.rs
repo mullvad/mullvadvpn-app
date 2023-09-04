@@ -254,14 +254,14 @@ impl RouteManagerImpl {
                     }
                 }
 
-                if let Err(error) = self.handle_route_change(route).await {
+                if let Err(error) = self.handle_route_change(route, true).await {
                     log::error!("Failed to process route change: {error}");
                 }
             }
             Ok(RouteSocketMessage::AddRoute(route))
             | Ok(RouteSocketMessage::ChangeRoute(route)) => {
                 // Refresh routes that are using the default interface
-                if let Err(error) = self.handle_route_change(route).await {
+                if let Err(error) = self.handle_route_change(route, false).await {
                     log::error!("Failed to process route change: {error}");
                 }
             }
@@ -274,7 +274,11 @@ impl RouteManagerImpl {
     }
 
     /// Update routes that use the non-tunnel default interface
-    async fn handle_route_change(&mut self, route: data::RouteMessage) -> Result<()> {
+    async fn handle_route_change(
+        &mut self,
+        route: data::RouteMessage,
+        is_deletion: bool,
+    ) -> Result<()> {
         // Ignore routes that aren't default routes
         if !route.is_default().map_err(Error::InvalidData)? {
             return Ok(());
@@ -288,7 +292,7 @@ impl RouteManagerImpl {
                 let tun_gateway_link_addr =
                     tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
 
-                if new_gateway_link_addr == tun_gateway_link_addr {
+                if new_gateway_link_addr == tun_gateway_link_addr && !is_deletion {
                     return Ok(());
                 }
             }
