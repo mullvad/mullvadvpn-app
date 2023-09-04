@@ -4,6 +4,7 @@ use std::{
     os::unix::prelude::{FromRawFd, RawFd},
     pin::Pin,
     task::{ready, Context, Poll},
+    time::Duration,
 };
 
 use nix::{
@@ -29,9 +30,13 @@ pub enum Error {
     Read(io::Error),
     #[error(display = "Received a message that's too small")]
     MessageTooSmall(usize),
+    #[error(display = "Failed to receive response to route message")]
+    ResponseTimeout,
 }
 
 type Result<T> = std::result::Result<T, Error>;
+
+const RESPONSE_TIMEOUT: Duration = Duration::from_secs(10);
 
 /// Wraps a `PF_ROUTE` socket, keeps track of sent message IDs, and facilitates sending and
 /// receiving [route socket messages](#RouteMessage)
@@ -73,7 +78,9 @@ impl RoutingSocket {
     ) -> Result<Vec<u8>> {
         let (msg, seq) = self.next_route_msg(message, message_type);
         match self.socket.write(&msg).await {
-            Ok(_) => self.wait_for_response(seq).await,
+            Ok(_) => tokio::time::timeout(RESPONSE_TIMEOUT, self.wait_for_response(seq))
+                .await
+                .map_err(|_| Error::ResponseTimeout)?,
             Err(err) => Err(Error::Write(err)),
         }
     }
