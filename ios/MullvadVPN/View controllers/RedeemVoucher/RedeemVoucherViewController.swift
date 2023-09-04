@@ -64,30 +64,20 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        enableEditing()
+        contentView.isEditing = true
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        disableEditing()
+        contentView.isEditing = false
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        self.contentView.isEditing = false
+        contentView.isEditing = false
         super.viewWillTransition(to: size, with: coordinator)
     }
 
     // MARK: - private functions
-
-    private func enableEditing() {
-        guard !self.contentView.isEditing else { return }
-        self.contentView.isEditing = true
-    }
-
-    private func disableEditing() {
-        guard contentView.isEditing else { return }
-        self.contentView.isEditing = false
-    }
 
     private func addActions() {
         contentView.redeemAction = { [weak self] code in

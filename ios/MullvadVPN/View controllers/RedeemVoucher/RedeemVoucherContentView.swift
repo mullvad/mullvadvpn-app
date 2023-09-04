@@ -192,9 +192,13 @@ final class RedeemVoucherContentView: UIView {
         }
     }
 
-    var isEditing = false {
-        didSet {
-            if isEditing {
+    var isEditing: Bool {
+        get {
+            textField.isEditing
+        }
+        set {
+            guard textField.isFirstResponder != newValue else { return }
+            if newValue {
                 textField.becomeFirstResponder()
             } else {
                 textField.resignFirstResponder()
