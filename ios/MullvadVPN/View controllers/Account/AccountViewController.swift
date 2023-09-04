@@ -192,6 +192,8 @@ class AccountViewController: UIViewController {
         purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled
         contentView.restorePurchasesButton.isEnabled = isInteractionEnabled
         contentView.logoutButton.isEnabled = isInteractionEnabled
+        contentView.redeemVoucherButton.isEnabled = isInteractionEnabled
+        contentView.deleteButton.isEnabled = isInteractionEnabled
 
         view.isUserInteractionEnabled = isInteractionEnabled
         isModalInPresentation = !isInteractionEnabled
@@ -265,7 +267,6 @@ class AccountViewController: UIViewController {
         }
 
         setPaymentState(.restoringPurchases, animated: true)
-
         _ = interactor.restorePurchases(for: accountData.number) { [weak self] completion in
             guard let self else { return }
 
