@@ -918,7 +918,9 @@ export default class AppRenderer {
       expiry !== undefined &&
       expiry !== previousExpiry &&
       ((state.account.status.expiredState === undefined && expired) ||
-        (state.account.status.expiredState === 'expired' && !expired))
+        (state.account.status.expiredState === 'expired' && !expired)) &&
+      // If the login navigation is already scheduled no navigation is needed
+      !this.loginScheduler.isRunning
     ) {
       const prevPath = this.history.location.pathname as RoutePath;
       const nextPath = expired ? RoutePath.expired : RoutePath.timeAdded;

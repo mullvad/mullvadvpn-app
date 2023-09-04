@@ -54,7 +54,7 @@ test('App should create account', async () => {
   await expect(title).toHaveText('Account created');
   await expect(subtitle).toHaveText('Logged in');
 
-  expect(await util.waitForNavigation()).toEqual(RoutePath.main);
+  expect(await util.waitForNavigation()).toEqual(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Congrats!');
@@ -121,7 +121,7 @@ test('App should log in to expired account', async () => {
   await expect(title).toHaveText('Logged in');
   await expect(subtitle).toHaveText('Valid account number');
 
-  expect(await util.waitForNavigation()).toEqual(RoutePath.main);
+  expect(await util.waitForNavigation()).toEqual(RoutePath.expired);
 
   const outOfTimeTitle = page.getByTestId('title');
   await expect(outOfTimeTitle).toHaveText('Out of time');
