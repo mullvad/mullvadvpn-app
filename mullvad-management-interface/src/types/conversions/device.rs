@@ -9,11 +9,6 @@ impl TryFrom<proto::Device> for mullvad_types::device::Device {
             id: device.id,
             name: device.name,
             pubkey: bytes_to_pubkey(&device.pubkey)?,
-            ports: device
-                .ports
-                .into_iter()
-                .map(mullvad_types::device::DevicePort::from)
-                .collect(),
             hijack_dns: device.hijack_dns,
             created: chrono::DateTime::from_utc(
                 chrono::NaiveDateTime::from_timestamp_opt(
@@ -38,11 +33,6 @@ impl From<mullvad_types::device::Device> for proto::Device {
             id: device.id,
             name: device.name,
             pubkey: device.pubkey.as_bytes().to_vec(),
-            ports: device
-                .ports
-                .into_iter()
-                .map(proto::DevicePort::from)
-                .collect(),
             hijack_dns: device.hijack_dns,
             created: Some(Timestamp {
                 seconds: device.created.timestamp(),
@@ -83,12 +73,6 @@ impl TryFrom<proto::DeviceState> for mullvad_types::device::DeviceState {
                 Ok(mullvad_types::device::DeviceState::LoggedOut)
             }
         }
-    }
-}
-
-impl From<mullvad_types::device::DevicePort> for proto::DevicePort {
-    fn from(port: mullvad_types::device::DevicePort) -> Self {
-        proto::DevicePort { id: port.id }
     }
 }
 
@@ -209,11 +193,5 @@ impl From<Vec<mullvad_types::device::Device>> for proto::DeviceList {
         proto::DeviceList {
             devices: devices.into_iter().map(proto::Device::from).collect(),
         }
-    }
-}
-
-impl From<proto::DevicePort> for mullvad_types::device::DevicePort {
-    fn from(port: proto::DevicePort) -> Self {
-        mullvad_types::device::DevicePort { id: port.id }
     }
 }

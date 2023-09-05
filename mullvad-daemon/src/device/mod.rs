@@ -8,8 +8,7 @@ use mullvad_api::rest;
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     device::{
-        AccountAndDevice, Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceName, DevicePort,
-        DeviceState,
+        AccountAndDevice, Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceName, DeviceState,
     },
     wireguard::{self, RotationInterval, WireguardData},
 };
@@ -160,7 +159,6 @@ pub struct PrivateDevice {
     pub id: DeviceId,
     pub name: DeviceName,
     pub wg_data: wireguard::WireguardData,
-    pub ports: Vec<DevicePort>,
     // FIXME: Reasonable default to avoid migration code for the field,
     // as it was previously missing.
     // This attribute may be removed once upgrades from `2022.2-beta1`
@@ -190,7 +188,6 @@ impl PrivateDevice {
             id: device.id,
             name: device.name,
             wg_data,
-            ports: device.ports,
             hijack_dns: device.hijack_dns,
             created: device.created,
         })
@@ -203,7 +200,6 @@ impl PrivateDevice {
             return Err(Error::InvalidDevice);
         }
         self.id = device.id;
-        self.ports = device.ports;
         self.name = device.name;
         self.hijack_dns = device.hijack_dns;
         self.created = device.created;
@@ -215,7 +211,6 @@ impl From<PrivateDevice> for Device {
     fn from(device: PrivateDevice) -> Self {
         Device {
             id: device.id,
-            ports: device.ports,
             pubkey: device.wg_data.private_key.public_key(),
             name: device.name,
             hijack_dns: device.hijack_dns,
