@@ -12,6 +12,14 @@
         <item quantity="one">Queda 1 año</item>
         <item quantity="other">Quedan %1$d años</item>
     </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">El crédito de la cuenta caduca en un día</item>
+        <item quantity="other">El crédito de la cuenta caduca en %1$d días</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">El crédito de la cuenta caduca en una hora</item>
+        <item quantity="other">El crédito de la cuenta caduca en %1$d horas</item>
+    </plurals>
     <plurals name="days_ago">
         <item quantity="one">hace un día</item>
         <item quantity="other">hace %1$d días</item>
@@ -31,13 +39,5 @@
     <plurals name="hours_ago">
         <item quantity="one">hace una hora</item>
         <item quantity="other">hace %1$d horas</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_days">
-        <item quantity="one">El crédito de la cuenta caduca en un día</item>
-        <item quantity="other">El crédito de la cuenta caduca en %1$d días</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_hours">
-        <item quantity="one">El crédito de la cuenta caduca en una hora</item>
-        <item quantity="other">El crédito de la cuenta caduca en %1$d horas</item>
     </plurals>
 </resources>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s is toegevoegd, account betaald tot %(expiry)s."
@@ -45,33 +45,11 @@ msgid_plural "%d years left"
 msgstr[0] "1 jaar resterend"
 msgstr[1] "%d jaar resterend"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "een dag geleden"
-msgstr[1] "%d dagen geleden"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "een minuut geleden"
-msgstr[1] "%d minuten geleden"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "een maand geleden"
-msgstr[1] "%d maanden geleden"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "een jaar geleden"
-msgstr[1] "%d jaar geleden"
-
 msgid "Account paid until %(expiry)s."
 msgstr "Account betaald tot %(expiry)s."
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "een uur geleden"
-msgstr[1] "%d uur geleden"
+msgid "Account settings"
+msgstr "Accountinstellingen"
 
 msgid "Any"
 msgstr "Elke"
@@ -165,9 +143,6 @@ msgstr "Naar systeeminstellingen"
 msgid "Got it!"
 msgstr "Begrepen!"
 
-msgid "Invalid account number"
-msgstr "Ongeldig accountnummer"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -179,9 +154,6 @@ msgstr "minder dan een dag"
 
 msgid "less than a day left"
 msgstr "minder dan een dag over"
-
-msgid "less than a minute ago"
-msgstr "minder dan een minuut geleden"
 
 msgid "Next"
 msgstr "Volgende"
@@ -245,6 +217,10 @@ msgstr "NIET-BEVEILIGDE VERBINDING"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, weergave geladen"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "Melding sluiten"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -476,6 +452,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "Doorgaan met aanmelden"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "Gemaakt: %(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "Apparaat is niet actief"
@@ -483,6 +466,14 @@ msgstr "Apparaat is niet actief"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "Apparaatnaam"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "Apparaatnaam: %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -495,6 +486,10 @@ msgstr "Ga naar aanmelden"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven."
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "Als u zich afmeldt, worden het apparaat en de apparaatnaam verwijderd. Wanneer u zich weer aanmeldt, krijgt het apparaat een nieuwe naam."
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -516,10 +511,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "De naar dit apparaat doorgestuurde poorten worden verwijderd als u zich afmeldt."
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "Dit is de naam die aan het apparaat is toegewezen. Elk apparaat dat is aangemeld op een Mullvad-account, krijgt een unieke naam waarmee u het kunt identificeren wanneer u uw apparaten beheert in de app of op de website."
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "Hiermee worden alle doorgestuurde poorten verwijderd. De lokale instellingen worden opgeslagen."
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "Resterende tijd: %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -531,6 +534,10 @@ msgstr "Te veel apparaten"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "Ja, apparaat afmelden"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account."
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -614,6 +621,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "NETWERKVERKEER KAN LEKKEN"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "NIEUW APPARAAT GEMAAKT"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Sluit en herstart de app."
 
@@ -636,6 +647,10 @@ msgstr "NIET-ONDERSTEUNDE VERSIE"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "UPDATE BESCHIKBAAR"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "Welkom, dit apparaat heet nu <b>%(deviceName)s</b>. Zie voor meer informatie de infoknop in Account."
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -685,9 +700,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "Account aanmaken mislukt"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "Ophalen van lijst van apparaten mislukt"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "Upgrade voltooien."
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "Ongeldig accountnummer"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -715,6 +742,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "Een moment geduld"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "Te veel apparaten"
@@ -1029,11 +1058,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "Wanneer u verbonden bent, wordt uw verkeer omgeleid via twee veilige locaties, het ingangspunt en het uitgangspunt (dit moeten twee verschillende VPN-servers zijn)."
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "Account"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "App is niet gesynchroniseerd. Sluit en start opnieuw."
@@ -1041,10 +1065,6 @@ msgstr "App is niet gesynchroniseerd. Sluit en start opnieuw."
 msgctxt "settings-view"
 msgid "App version"
 msgstr "Appversie"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "GEEN TIJD MEER"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1619,9 +1639,6 @@ msgstr "Accounttijdherinneringen"
 msgid "Add DNS server"
 msgstr "DNS-server toevoegen"
 
-msgid "Advanced"
-msgstr "Geavanceerd"
-
 msgid "Agree and continue"
 msgstr "Akkoord en doorgaan"
 
@@ -1637,9 +1654,14 @@ msgstr "Altijd-aan VPN toegewezen aan andere app"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Altijd-aan VPN is mogelijk ingeschakeld voor een andere app"
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "Let op: deze instelling kan niet worden gebruikt in combinatie met <b>Aangepaste DNS-server gebruiken</b>."
+
 msgid "Blocking internet (device offline)"
-msgstr "Internet blokkeren (apparaat offline)"
+msgstr "Internet wordt geblokkeerd (apparaat offline)"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "Wijzigingen in DNS-gerelateerde instellingen worden mogelijk niet onmiddellijk van kracht vanwege gecachete resultaten."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-accountnummer gekopieerd naar klembord"
@@ -1653,6 +1675,12 @@ msgstr "Kritieke fout (uw aandacht is vereist)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Aangepaste DNS-serveradressen %s zijn ongeldig"
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "DNS-instellingen worden mogelijk niet onmiddellijk van kracht"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "Schakel alle <b>%s</b> hierboven uit om deze instelling te activeren."
+
 msgid "Enable"
 msgstr "Inschakelen"
 
@@ -1662,25 +1690,21 @@ msgstr "Voer MTU in"
 msgid "Excluded applications"
 msgstr "Uitgesloten toepassingen"
 
-msgid "Failed to fetch list of devices"
-msgstr "Ophalen van lijst van apparaten mislukt"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installeer Mullvad VPN (%s) om up-to-date te blijven"
 
+msgid "Manage account"
+msgstr "Account beheren"
+
 msgid "Mullvad account number"
 msgstr "Mullvad-accountnummer"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "Beschrijf uw probleem in het Engels of Zweeds."
 
 msgid "Preferences"
 msgstr "Voorkeuren"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "Privacy"
 
@@ -1719,6 +1743,9 @@ msgstr "De lokale DNS-server werkt niet tenzij u \"Lokale netwerken delen\" insc
 
 msgid "This address has already been entered."
 msgstr "Dit adres is al ingevoerd."
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Dit kan problemen veroorzaken met bepaalde websites, diensten en apps."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Om er zeker van te zijn dat u de meest veilige versie hebt en om u te informeren over eventuele problemen met de huidige versie die wordt uitgevoerd, voert de app automatisch versiecontroles uit. Daarbij worden de appversie en de Android-systeemversie naar de servers van Mullvad gestuurd. Mullvad houdt tellers bij over gebruiksaantallen van appversies en Android-versies. De gegevens worden nooit opgeslagen of gebruikt op een manier die u kan identificeren.\\n\\nAls de functie split tunneling wordt gebruikt, dan vraagt de app uw systeem om een lijst van alle geïnstalleerde apps. Deze lijst wordt alleen opgehaald in de split-tunneling-weergave. De lijst van geïnstalleerde apps wordt nooit verzonden vanaf het apparaat."
@@ -1762,11 +1789,17 @@ msgstr "Wanneer u verbonden bent, wordt uw daadwerkelijke locatie gemaskeerd met
 msgid "WireGuard MTU"
 msgstr "WireGuard-MTU"
 
+msgid "WireGuard obfuscation"
+msgstr "WireGuard-obfuscatie"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "U LEKT MOGELIJK NETWERKVERKEER"
 
 msgid "You are running an unsupported app version."
 msgstr "U gebruikt een niet-ondersteunde versie van de app."
+
+msgid "less than a minute ago"
+msgstr "minder dan een minuut geleden"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1777,4 +1810,29 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Accountkrediet verloopt over een uur"
 msgstr[1] "Accountkrediet verloopt over %d uur"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "een dag geleden"
+msgstr[1] "%d dagen geleden"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "een minuut geleden"
+msgstr[1] "%d minuten geleden"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "een maand geleden"
+msgstr[1] "%d maanden geleden"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "een jaar geleden"
+msgstr[1] "%d jaar geleden"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "een uur geleden"
+msgstr[1] "%d uur geleden"
 
