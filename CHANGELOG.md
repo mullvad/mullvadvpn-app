@@ -41,6 +41,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
 
+#### macOS
+- Ensure that the default tunnel route is added back after waking from hibernation. Previously, the
+  tunnel became unusable despite the app appearing to be connected.
+
 
 ## [android/2023.6-beta1] - 2023-08-29
 

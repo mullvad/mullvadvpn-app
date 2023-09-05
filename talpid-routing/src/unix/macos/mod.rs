@@ -254,14 +254,14 @@ impl RouteManagerImpl {
                     }
                 }
 
-                if let Err(error) = self.handle_route_change(route).await {
+                if let Err(error) = self.handle_route_change(route, true).await {
                     log::error!("Failed to process route change: {error}");
                 }
             }
             Ok(RouteSocketMessage::AddRoute(route))
             | Ok(RouteSocketMessage::ChangeRoute(route)) => {
                 // Refresh routes that are using the default interface
-                if let Err(error) = self.handle_route_change(route).await {
+                if let Err(error) = self.handle_route_change(route, false).await {
                     log::error!("Failed to process route change: {error}");
                 }
             }
@@ -273,8 +273,24 @@ impl RouteManagerImpl {
         }
     }
 
-    /// Update routes that use the non-tunnel default interface
-    async fn handle_route_change(&mut self, route: data::RouteMessage) -> Result<()> {
+    /// Handle changes to the routing table. Specifically, when a default route is added, modified,
+    /// or deleted:
+    ///
+    /// * Replace the default route with a default route for the tunnel interface (i.e., one whose
+    ///   gateway is set to the link address of the tunnel interface).
+    /// * At the same time, update the route used by non-tunnel interfaces to reach the relay/VPN
+    ///   server. The gateway of the relay route is set to the first interface in the network
+    ///   service order that has a working ifscoped default route.
+    ///
+    /// # Arguments
+    ///
+    /// * `route_is_being_deleted` - A boolean that should be set to `true` if `route` is being
+    ///   deleted. This should be `false` if the route is being modified or added.
+    async fn handle_route_change(
+        &mut self,
+        route: data::RouteMessage,
+        route_is_being_deleted: bool,
+    ) -> Result<()> {
         // Ignore routes that aren't default routes
         if !route.is_default().map_err(Error::InvalidData)? {
             return Ok(());
@@ -288,7 +304,7 @@ impl RouteManagerImpl {
                 let tun_gateway_link_addr =
                     tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
 
-                if new_gateway_link_addr == tun_gateway_link_addr {
+                if new_gateway_link_addr == tun_gateway_link_addr && !route_is_being_deleted {
                     return Ok(());
                 }
             }
