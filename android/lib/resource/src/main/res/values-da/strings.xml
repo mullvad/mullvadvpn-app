@@ -189,6 +189,7 @@
     <string name="view_logs">Se app-logfiler</string>
     <string name="virtual_adapter_problem">Fejl ved virtuel adapter</string>
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
+    <string name="voucher_success_title">Indløsning af kuponen lykkedes.</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev nægtet, da tunnelen blev oprettet. Prøv at oprette forbindelse igen.</string>
     <string name="vpn_permission_error_notification_message">Altid-til VPN er måske aktiveret for en anden app</string>
     <string name="vpn_permission_error_notification_title">VPN-tilladelsesfejl</string>

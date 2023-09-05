@@ -189,6 +189,7 @@
     <string name="view_logs">檢視應用程式日誌</string>
     <string name="virtual_adapter_problem">虛擬配接器錯誤</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
+    <string name="voucher_success_title">憑證已成功兌換。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
     <string name="vpn_permission_error_notification_message">可能已為另一個應用程式啟用了「始終啟用 VPN」</string>
     <string name="vpn_permission_error_notification_title">VPN 權限錯誤</string>

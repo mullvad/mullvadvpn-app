@@ -189,6 +189,7 @@
     <string name="view_logs">アプリのログを表示</string>
     <string name="virtual_adapter_problem">仮想アダプタのエラー</string>
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
+    <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
     <string name="vpn_permission_denied_error">トンネルを作成中にVPNへのアクセスが拒否されました。もう一度接続してみてください。</string>
     <string name="vpn_permission_error_notification_message">Always-on VPNが別のアプリで有効になっている可能性があります</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>

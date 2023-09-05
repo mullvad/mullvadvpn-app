@@ -189,6 +189,7 @@
     <string name="view_logs">Visa appens loggar</string>
     <string name="virtual_adapter_problem">Fel med virtuell adapter</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
+    <string name="voucher_success_title">Kupongen har lösts in.</string>
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
     <string name="vpn_permission_error_notification_message">VPN som alltid är på kan ha aktiverats för annan app</string>
     <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
