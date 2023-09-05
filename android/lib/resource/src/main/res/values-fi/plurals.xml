@@ -12,6 +12,14 @@
         <item quantity="one">1 vuosi jäljellä</item>
         <item quantity="other">%1$d vuotta jäljellä</item>
     </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Tilin käyttöaika päättyy vuorokauden kuluttua</item>
+        <item quantity="other">Tilin käyttöaika päättyy %1$d vuorokauden kuluttua</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Tilin käyttöaika päättyy tunnin kuluttua</item>
+        <item quantity="other">Tilin käyttöaika päättyy %1$d tunnin kuluttua</item>
+    </plurals>
     <plurals name="days_ago">
         <item quantity="one">1 päivä sitten</item>
         <item quantity="other">%1$d päivää sitten</item>
@@ -31,13 +39,5 @@
     <plurals name="hours_ago">
         <item quantity="one">tunti sitten</item>
         <item quantity="other">%1$d tuntia sitten</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_days">
-        <item quantity="one">Tilin käyttöaika päättyy vuorokauden kuluttua</item>
-        <item quantity="other">Tilin käyttöaika päättyy %1$d vuorokauden kuluttua</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_hours">
-        <item quantity="one">Tilin käyttöaika päättyy tunnin kuluttua</item>
-        <item quantity="other">Tilin käyttöaika päättyy %1$d tunnin kuluttua</item>
     </plurals>
 </resources>

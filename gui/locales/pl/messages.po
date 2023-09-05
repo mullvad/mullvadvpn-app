@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "Dodano %(duration)s, konto opłacone do %(expiry)s."
@@ -57,43 +57,11 @@ msgstr[1] "Pozostały %d lata"
 msgstr[2] "Pozostało %d lat"
 msgstr[3] "Pozostało %d roku"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "dzień temu"
-msgstr[1] "%d dni temu"
-msgstr[2] "%d dni temu"
-msgstr[3] "%d dnia temu"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "minutę temu"
-msgstr[1] "%d minuty temu"
-msgstr[2] "%d minut temu"
-msgstr[3] "%d minuty temu"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "miesiąc temu"
-msgstr[1] "%d miesiące temu"
-msgstr[2] "%d miesięcy temu"
-msgstr[3] "%d miesiąca temu"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "rok temu"
-msgstr[1] "%d lata temu"
-msgstr[2] "%d lat temu"
-msgstr[3] "%d roku temu"
-
 msgid "Account paid until %(expiry)s."
 msgstr "Konto opłacone do %(expiry)s."
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "godzinę temu"
-msgstr[1] "%d godziny temu"
-msgstr[2] "%d godzin temu"
-msgstr[3] "%d godzuny temu"
+msgid "Account settings"
+msgstr "Ustawienia konta"
 
 msgid "Any"
 msgstr "Dowolny"
@@ -187,9 +155,6 @@ msgstr "Przejdź do sekcji Ustawienia systemowe"
 msgid "Got it!"
 msgstr "Jasne!"
 
-msgid "Invalid account number"
-msgstr "Nieprawidłowy numer konta"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -201,9 +166,6 @@ msgstr "mniej niż jeden dzień"
 
 msgid "less than a day left"
 msgstr "pozostał mniej niż jeden dzień"
-
-msgid "less than a minute ago"
-msgstr "mniej niż minutę temu"
 
 msgid "Next"
 msgstr "Dalej"
@@ -267,6 +229,10 @@ msgstr "NIEZABEZPIECZONE POŁĄCZENIE"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, załadowano widok"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "Zamknij powiadomienie"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -498,6 +464,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "Kontynuuj logowanie"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "Utworzono: %(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "Urządzenie nieaktywne"
@@ -505,6 +478,14 @@ msgstr "Urządzenie nieaktywne"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "Nazwa urządzenia"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "Nazwa urządzenia: %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -517,6 +498,10 @@ msgstr "Przejdź do logowania"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "Przejście do logowania odblokuje Internet na tym urządzeniu."
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "Przy wylogowaniu urządzenie i jego nazwa zostają usunięte. Po ponownym zalogowaniu urządzenie otrzymuje nową nazwę."
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -538,10 +523,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "Porty przekierowane do tego urządzenia zostaną usunięte po wylogowaniu."
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "Jest to nazwa przypisana do urządzenia. Każde urządzenie zalogowane na koncie Mullvad otrzymuje unikalną nazwę, która pozwala zidentyfikować je podczas zarządzania urządzeniami w aplikacji lub za pośrednictwem witryny internetowej."
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "Spowoduje to usunięcie wszystkich przekierowanych portów. Ustawienia lokalne zostaną zapisane."
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "Pozostało: %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -553,6 +546,10 @@ msgstr "Zbyt wiele urządzeń"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "Tak, wyloguj urządzenie"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "Na jednym koncie Mullvad może być zalogowanych maksymalnie 5 urządzeń."
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -636,6 +633,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "RUCH SIECIOWY MOŻE WYCIEKAĆ"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "UTWORZONO NOWE URZĄDZENIE"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Zamknij i uruchom ponownie aplikację."
 
@@ -658,6 +659,10 @@ msgstr "WERSJA NIEOBSŁUGIWANA"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "DOSTĘPNA JEST AKTUALIZACJA"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "Witaj, to urządzenie nazywa się teraz <b>%(deviceName)s</b>. Więcej szczegółów znajdziesz, korzystając z przycisku Informacje na koncie."
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -707,9 +712,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "Nie można utworzyć konta"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "Nie udało się pobrać listy urządzeń"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "Kończenie uaktualnienia."
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "Nieprawidłowy numer konta"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -737,6 +754,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "Czekaj"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "Zbyt wiele urządzeń"
@@ -1051,11 +1070,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "Podczas połączenia ruch będzie kierowany przez dwie bezpieczne lokalizacje, punkt wejściowy i punkt wyjściowy (muszą to być dwa różne serwery VPN)."
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "Konto"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Aplikacja nie jest zsynchronizowana. Zamknij ją, a następnie uruchom ponownie."
@@ -1063,10 +1077,6 @@ msgstr "Aplikacja nie jest zsynchronizowana. Zamknij ją, a następnie uruchom p
 msgctxt "settings-view"
 msgid "App version"
 msgstr "Wersja aplikacji"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "KONIEC CZASU"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1641,9 +1651,6 @@ msgstr "Przypomnienia o czasie na koncie"
 msgid "Add DNS server"
 msgstr "Dodaj serwer DNS"
 
-msgid "Advanced"
-msgstr "Zaawansowane"
-
 msgid "Agree and continue"
 msgstr "Zaakceptuj i kontynuuj"
 
@@ -1659,9 +1666,14 @@ msgstr "Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji"
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "Uwaga: tego ustawienia nie można używać w połączeniu z opcją <b>Użyj niestandardowego serwera DNS</b>."
+
 msgid "Blocking internet (device offline)"
 msgstr "Blokowanie Internetu (urządzenie rozłączone)"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "Zmiany w ustawieniach związanych z usługą DNS mogą nie zostać wprowadzone natychmiast ze względu na zbuforowane wyniki."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Skopiowano numer konta Mullvad do schowka"
@@ -1675,6 +1687,12 @@ msgstr "Błąd krytyczny (wymagana uwaga)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Niestandardowe adresy serwerów DNS %s są nieprawidłowe"
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "Ustawienia usługi DNS mogą nie zostać zastosowane natychmiast"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "Aby aktywować to ustawienie, wyłącz powyżej wszystkie <b>%s</b>."
+
 msgid "Enable"
 msgstr "Włącz"
 
@@ -1684,25 +1702,21 @@ msgstr "Wprowadź MTU"
 msgid "Excluded applications"
 msgstr "Wykluczone aplikacje"
 
-msgid "Failed to fetch list of devices"
-msgstr "Nie udało się pobrać listy urządzeń"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "Przejście do logowania odblokuje Internet na tym urządzeniu."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Aby być na bieżąco, zainstaluj Mullvad VPN (%s)"
 
+msgid "Manage account"
+msgstr "Zarządzaj kontem"
+
 msgid "Mullvad account number"
 msgstr "Numer konta Mullvad"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "Opisz problem w języku angielskim lub szwedzkim."
 
 msgid "Preferences"
 msgstr "Preferencje"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "Prywatność"
 
@@ -1741,6 +1755,9 @@ msgstr "Lokalny serwer DNS nie będzie działał, dopóki nie włączysz opcji �
 
 msgid "This address has already been entered."
 msgstr "Ten adres został już wprowadzony."
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Może to powodować problemy z niektórymi witrynami internetowymi, usługami i aplikacjami."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Aby upewnić się, że masz najbezpieczniejszą wersję i poinformować Cię o wszelkich problemach z aktualnie uruchomioną wersją, aplikacja automatycznie sprawdza wersję. Powoduje to wysłanie wersji aplikacji i wersji systemu Android na serwery Mullvad. Mullvad prowadzi liczniki używanych wersji aplikacji i wersji systemu Android. Dane te nigdy nie są przechowywane ani wykorzystywane w żaden sposób umożlwiiający zidentyfikowanie Ciebie.\\n\\nJeśli używana jest funkcja dzielonego tunelowania, aplikacja wysyła do systemu zapytanie o listę wszystkich zainstalowanych aplikacji. Lista ta jest pobierana wyłącznie w widoku dzielonego tunelowania. Lista zainstalowanych aplikacji nigdy nie jest wysyłana z urządzenia."
@@ -1784,11 +1801,17 @@ msgstr "Podczas połączenia Twoja prawdziwa lokalizacja jest maskowana prywatn�
 msgid "WireGuard MTU"
 msgstr "MTU WireGuard"
 
+msgid "WireGuard obfuscation"
+msgstr "Zaciemnianie WireGuard"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "TWÓJ RUCH SIECIOWY MOŻE WYCIEKAĆ"
 
 msgid "You are running an unsupported app version."
 msgstr "Używasz nieobsługiwanej wersji aplikacji."
+
+msgid "less than a minute ago"
+msgstr "mniej niż minutę temu"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1803,4 +1826,39 @@ msgstr[0] "Doładowanie konta wygasa za 1 godzinę"
 msgstr[1] "Doładowanie konta wygasa za %d godziny"
 msgstr[2] "Doładowanie konta wygasa za %d godzin"
 msgstr[3] "Doładowanie konta wygasa za %d godziny"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "dzień temu"
+msgstr[1] "%d dni temu"
+msgstr[2] "%d dni temu"
+msgstr[3] "%d dnia temu"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "minutę temu"
+msgstr[1] "%d minuty temu"
+msgstr[2] "%d minut temu"
+msgstr[3] "%d minuty temu"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "miesiąc temu"
+msgstr[1] "%d miesiące temu"
+msgstr[2] "%d miesięcy temu"
+msgstr[3] "%d miesiąca temu"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "rok temu"
+msgstr[1] "%d lata temu"
+msgstr[2] "%d lat temu"
+msgstr[3] "%d roku temu"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "godzinę temu"
+msgstr[1] "%d godziny temu"
+msgstr[2] "%d godzin temu"
+msgstr[3] "%d godzuny temu"
 

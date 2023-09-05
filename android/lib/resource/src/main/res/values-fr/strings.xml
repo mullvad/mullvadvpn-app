@@ -46,9 +46,11 @@
     <string name="copied_to_clipboard">Copié dans le presse-papiers</string>
     <string name="copy_account_number">Copier le numéro de compte</string>
     <string name="create_account">Créer un compte</string>
+    <string name="created_x">Création : %1$s</string>
     <string name="creating_new_account">Création du compte…</string>
     <string name="creating_secure_connection">CRÉATION D\'UNE CONNEXION SÉCURISÉE</string>
     <string name="critical_error">Erreur critique (votre attention est requise)</string>
+    <string name="custom_dns_disable_mode_subtitle">Désactivez tous les &lt;b&gt;%1$s&lt;/b&gt; ci-dessus pour activer ce paramètre.</string>
     <string name="custom_dns_footer">Activez pour ajouter au moins un serveur DNS.</string>
     <string name="custom_dns_hint">Saisir l\'IP</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
@@ -59,9 +61,11 @@
     <string name="disconnect">Déconnexion</string>
     <string name="disconnecting">Déconnexion en cours</string>
     <string name="dismiss">Ignorer</string>
+    <string name="dns_content_blockers_custom_dns_warning">Attention : ce paramètre ne peut pas être utilisé en combinaison avec &lt;b&gt;Utiliser un serveur DNS personnalisé&lt;/b&gt;.</string>
     <string name="dns_content_blockers_info">Lorsque cette fonctionnalité est activée, elle empêche l\'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus.</string>
     <string name="dns_content_blockers_subtitle">Désactivez &lt;b&gt;%1$s&lt;/b&gt; ci-dessous pour activer ces paramètres.</string>
     <string name="dns_content_blockers_title">Bloqueurs de contenu DNS</string>
+    <string name="dns_content_blockers_warning">Cela peut causer des problèmes sur certains sites Web, services et applications.</string>
     <string name="dont_have_an_account">Vous n\'avez pas de numéro de compte ?</string>
     <string name="duplicate_address_warning">Cette adresse a déjà été saisie.</string>
     <string name="edit_message">Modifier le message</string>
@@ -105,6 +109,7 @@
     <string name="login_fail_title">Échec de la connexion</string>
     <string name="login_title">Connexion</string>
     <string name="malware_info">Avertissement : le bloqueur de malware n\'est pas un anti-virus et ne doit pas être traité comme tel, il s\'agit juste d\'une couche de protection supplémentaire.</string>
+    <string name="manage_account">Générer le compte</string>
     <string name="max_devices_confirm_removal_description">Voulez-vous vraiment déconnecter &lt;b&gt;%1$s&lt;/b&gt; ?</string>
     <string name="max_devices_resolved_description">Vous pouvez maintenant continuer la connexion sur cet appareil.</string>
     <string name="max_devices_resolved_title">Super !</string>
@@ -116,6 +121,7 @@
     <string name="not_blocking_internet">VOUS POURRIEZ AVOIR DES FUITES DE TRAFIC RÉSEAU</string>
     <string name="obfuscation_info">La dissimulation cache le trafic WireGuard à l\'intérieur d\'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d\'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</string>
     <string name="obfuscation_on_udp_over_tcp">Activé (UDP sur TCP)</string>
+    <string name="obfuscation_title">Obfuscation WireGuard</string>
     <string name="off">Désactivé</string>
     <string name="on">Activé</string>
     <string name="out_address">Sortante</string>
@@ -154,6 +160,8 @@
     <string name="set_firewall_policy_error">Impossible d\'appliquer les règles du pare-feu. Merci de résoudre le problème ou d\'envoyer un rapport de problème.</string>
     <string name="settings">Paramètres</string>
     <string name="settings_account">Compte</string>
+    <string name="settings_changes_effect_warning_content_blocker">Les modifications apportées aux paramètres liés au DNS peuvent ne pas prendre effet immédiatement en raison de la mise en cache des résultats.</string>
+    <string name="settings_changes_effect_warning_short">Les paramètres DNS peuvent ne pas être immédiatement pris en compte</string>
     <string name="settings_preferences">Préférences</string>
     <string name="settings_vpn">Paramètres VPN</string>
     <string name="show_account_number">Afficher le numéro de compte</string>
