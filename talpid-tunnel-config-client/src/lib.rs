@@ -13,7 +13,7 @@ mod kyber;
 
 #[allow(clippy::derive_partial_eq_without_eq)]
 mod proto {
-    tonic::include_proto!("tunnel_config");
+    tonic::include_proto!("ephemeralpeer");
 }
 
 use libc::setsockopt;
@@ -34,6 +34,7 @@ use sys::*;
 pub enum Error {
     GrpcConnectError(tonic::transport::Error),
     GrpcError(tonic::Status),
+    MissingCiphertexts,
     InvalidCiphertextLength {
         algorithm: &'static str,
         actual: usize,
@@ -51,6 +52,7 @@ impl std::fmt::Display for Error {
         match self {
             GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
             GrpcError(status) => write!(f, "RPC failed: {status}"),
+            MissingCiphertexts => write!(f, "Found no ciphertexts in response"),
             InvalidCiphertextLength {
                 algorithm,
                 actual,
@@ -77,7 +79,7 @@ impl std::error::Error for Error {
     }
 }
 
-type RelayConfigService = proto::post_quantum_secure_client::PostQuantumSecureClient<Channel>;
+type RelayConfigService = proto::ephemeral_peer_client::EphemeralPeerClient<Channel>;
 
 /// Port used by the tunnel config service.
 pub const CONFIG_SERVICE_PORT: u16 = 1337;
@@ -93,72 +95,118 @@ pub const CONFIG_SERVICE_PORT: u16 = 1337;
 ///    handshake to work even if there is fragmentation.
 const CONFIG_CLIENT_MTU: u16 = 576;
 
-/// Generates a new WireGuard key pair and negotiates a PSK with the relay in a PQ-safe
-/// manner. This creates a peer on the relay with the new WireGuard pubkey and PSK,
-/// which can then be used to establish a PQ-safe tunnel to the relay.
-// TODO: consider binding to the tunnel interface here, on non-windows platforms
-pub async fn push_pq_key(
+pub struct EphemeralPeer {
+    pub psk: Option<PresharedKey>,
+}
+
+/// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
+pub async fn request_ephemeral_peer(
     service_address: IpAddr,
-    wg_pubkey: PublicKey,
-    wg_psk_pubkey: PublicKey,
-) -> Result<PresharedKey, Error> {
-    let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
-    let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
+    parent_pubkey: PublicKey,
+    ephemeral_pubkey: PublicKey,
+    enable_post_quantum: bool,
+    enable_daita: bool,
+) -> Result<EphemeralPeer, Error> {
+    request_ephemeral_peer_with_opts(
+        service_address,
+        parent_pubkey,
+        ephemeral_pubkey,
+        enable_post_quantum,
+        enable_daita,
+    )
+    .await
+}
+
+pub async fn request_ephemeral_peer_with_opts(
+    service_address: IpAddr,
+    parent_pubkey: PublicKey,
+    ephemeral_pubkey: PublicKey,
+    enable_post_quantum: bool,
+    enable_daita: bool,
+) -> Result<EphemeralPeer, Error> {
+    let (pq_request, kem_secrets) = if enable_post_quantum {
+        let (cme_kem_pubkey, cme_kem_secret) = classic_mceliece::generate_keys().await;
+        let kyber_keypair = kyber::keypair(&mut rand::thread_rng());
+
+        (
+            Some(proto::PostQuantumRequestV1 {
+                kem_pubkeys: vec![
+                    proto::KemPubkeyV1 {
+                        algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
+                        key_data: cme_kem_pubkey.as_array().to_vec(),
+                    },
+                    proto::KemPubkeyV1 {
+                        algorithm_name: kyber::ALGORITHM_NAME.to_owned(),
+                        key_data: kyber_keypair.public.to_vec(),
+                    },
+                ],
+            }),
+            Some((cme_kem_secret, kyber_keypair.secret)),
+        )
+    } else {
+        (None, None)
+    };
+
+    let daita = Some(proto::DaitaRequestV1 {
+        activate_daita: enable_daita,
+    });
 
     let mut client = new_client(service_address).await?;
     let response = client
-        .psk_exchange_v1(proto::PskRequestV1 {
-            wg_pubkey: wg_pubkey.as_bytes().to_vec(),
-            wg_psk_pubkey: wg_psk_pubkey.as_bytes().to_vec(),
-            kem_pubkeys: vec![
-                proto::KemPubkeyV1 {
-                    algorithm_name: classic_mceliece::ALGORITHM_NAME.to_owned(),
-                    key_data: cme_kem_pubkey.as_array().to_vec(),
-                },
-                proto::KemPubkeyV1 {
-                    algorithm_name: kyber::ALGORITHM_NAME.to_owned(),
-                    key_data: kyber_keypair.public.to_vec(),
-                },
-            ],
+        .register_peer_v1(proto::EphemeralPeerRequestV1 {
+            wg_parent_pubkey: parent_pubkey.as_bytes().to_vec(),
+            wg_ephemeral_peer_pubkey: ephemeral_pubkey.as_bytes().to_vec(),
+            post_quantum: pq_request,
+            daita,
         })
         .await
         .map_err(Error::GrpcError)?;
 
-    let ciphertexts = response.into_inner().ciphertexts;
+    let psk = if let Some((cme_kem_secret, kyber_secret)) = kem_secrets {
+        let ciphertexts = response
+            .into_inner()
+            .post_quantum
+            .ok_or(Error::MissingCiphertexts)?
+            .ciphertexts;
 
-    // Unpack the ciphertexts into one per KEM without needing to access them by index.
-    let [cme_ciphertext, kyber_ciphertext] = <&[Vec<u8>; 2]>::try_from(ciphertexts.as_slice())
-        .map_err(|_| Error::InvalidCiphertextCount {
-            actual: ciphertexts.len(),
-        })?;
+        // Unpack the ciphertexts into one per KEM without needing to access them by index.
+        let [cme_ciphertext, kyber_ciphertext] = <&[Vec<u8>; 2]>::try_from(ciphertexts.as_slice())
+            .map_err(|_| Error::InvalidCiphertextCount {
+                actual: ciphertexts.len(),
+            })?;
 
-    // Store the PSK data on the heap. So it can be passed around and then zeroized on drop without
-    // being stored in a bunch of places on the stack.
-    let mut psk_data = Box::new([0u8; 32]);
+        // Store the PSK data on the heap. So it can be passed around and then zeroized on drop without
+        // being stored in a bunch of places on the stack.
+        let mut psk_data = Box::new([0u8; 32]);
 
-    // Decapsulate Classic McEliece and mix into PSK
-    {
-        let mut shared_secret = classic_mceliece::decapsulate(&cme_kem_secret, cme_ciphertext)?;
-        xor_assign(&mut psk_data, shared_secret.as_array());
+        // Decapsulate Classic McEliece and mix into PSK
+        {
+            let mut shared_secret = classic_mceliece::decapsulate(&cme_kem_secret, cme_ciphertext)?;
+            xor_assign(&mut psk_data, shared_secret.as_array());
 
-        // This should happen automatically due to `SharedSecret` implementing ZeroizeOnDrop. But
-        // doing it explicitly provides a stronger guarantee that it's not accidentally
-        // removed.
-        shared_secret.zeroize();
-    }
-    // Decapsulate Kyber and mix into PSK
-    {
-        let mut shared_secret = kyber::decapsulate(kyber_keypair.secret, kyber_ciphertext)?;
-        xor_assign(&mut psk_data, &shared_secret);
+            // This should happen automatically due to `SharedSecret` implementing ZeroizeOnDrop. But
+            // doing it explicitly provides a stronger guarantee that it's not accidentally
+            // removed.
+            shared_secret.zeroize();
+        }
+        // Decapsulate Kyber and mix into PSK
+        {
+            let mut shared_secret = kyber::decapsulate(kyber_secret, kyber_ciphertext)?;
+            xor_assign(&mut psk_data, &shared_secret);
 
-        // The shared secret is sadly stored in an array on the stack. So we can't get any
-        // guarantees that it's not copied around on the stack. The best we can do here
-        // is to zero out the version we have and hope the compiler optimizes out copies.
-        // https://github.com/Argyle-Software/kyber/issues/59
-        shared_secret.zeroize();
-    }
+            // The shared secret is sadly stored in an array on the stack. So we can't get any
+            // guarantees that it's not copied around on the stack. The best we can do here
+            // is to zero out the version we have and hope the compiler optimizes out copies.
+            // https://github.com/Argyle-Software/kyber/issues/59
+            shared_secret.zeroize();
+        }
 
-    Ok(PresharedKey::from(psk_data))
+        Some(PresharedKey::from(psk_data))
+    } else {
+        None
+    };
+
+    Ok(EphemeralPeer { psk })
 }
 
 /// Performs `dst = dst ^ src`.

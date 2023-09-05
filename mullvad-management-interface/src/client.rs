@@ -2,6 +2,8 @@
 
 use crate::types;
 use futures::{Stream, StreamExt};
+#[cfg(target_os = "windows")]
+use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -339,6 +341,16 @@ impl MullvadProxyClient {
         let state = types::QuantumResistantState::from(state);
         self.0
             .set_quantum_resistant_tunnel(state)
+            .await
+            .map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    #[cfg(target_os = "windows")]
+    pub async fn set_daita_settings(&mut self, settings: DaitaSettings) -> Result<()> {
+        let settings = types::DaitaSettings::from(settings);
+        self.0
+            .set_daita_settings(settings)
             .await
             .map_err(Error::Rpc)?;
         Ok(())

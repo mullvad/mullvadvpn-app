@@ -152,6 +152,7 @@ const config = {
         from: distAssets('binaries/x86_64-pc-windows-msvc/wireguard-nt/mullvad-wireguard.dll'),
         to: '.',
       },
+      { from: distAssets('maybenot_machines'), to: '.' },
     ],
   },
 

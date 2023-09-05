@@ -303,6 +303,8 @@ struct WireGuardRelay {
     #[serde(flatten)]
     relay: Relay,
     public_key: wireguard::PublicKey,
+    #[serde(default)]
+    daita: bool,
 }
 
 impl WireGuardRelay {
@@ -312,6 +314,7 @@ impl WireGuardRelay {
             location,
             relay_list::RelayEndpointData::Wireguard(relay_list::WireguardRelayEndpointData {
                 public_key: self.public_key,
+                daita: self.daita,
             }),
         )
     }

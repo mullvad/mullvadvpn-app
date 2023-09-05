@@ -55,6 +55,12 @@ impl FromStr for QuantumResistantState {
 #[error("Not a valid state")]
 pub struct QuantumResistantStateParseError;
 
+#[cfg(target_os = "windows")]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq)]
+pub struct DaitaSettings {
+    pub enabled: bool,
+}
+
 /// Contains account specific wireguard data
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct WireguardData {
@@ -201,6 +207,9 @@ pub struct TunnelOptions {
     pub mtu: Option<u16>,
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
+    /// Configure DAITA
+    #[cfg(target_os = "windows")]
+    pub daita: DaitaSettings,
     /// Interval used for automatic key rotation
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub rotation_interval: Option<RotationInterval>,
@@ -212,6 +221,8 @@ impl Default for TunnelOptions {
         TunnelOptions {
             mtu: None,
             quantum_resistant: QuantumResistantState::Auto,
+            #[cfg(target_os = "windows")]
+            daita: DaitaSettings::default(),
             rotation_interval: None,
         }
     }
@@ -226,6 +237,8 @@ impl TunnelOptions {
                 QuantumResistantState::On => true,
                 QuantumResistantState::Off => false,
             },
+            #[cfg(target_os = "windows")]
+            daita: self.daita.enabled,
         }
     }
 }
