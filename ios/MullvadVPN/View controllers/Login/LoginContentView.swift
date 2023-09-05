@@ -133,84 +133,43 @@ class LoginContentView: UIView {
         footerContainer.addSubview(footerLabel)
         footerContainer.addSubview(createAccountButton)
 
-        addSubview(contentContainer)
-        addSubview(footerContainer)
-
         let contentContainerBottomConstraint = bottomAnchor
             .constraint(equalTo: contentContainer.bottomAnchor)
         self.contentContainerBottomConstraint = contentContainerBottomConstraint
 
-        NSLayoutConstraint.activate([
-            contentContainer.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-            contentContainer.leadingAnchor.constraint(equalTo: leadingAnchor),
-            contentContainer.trailingAnchor.constraint(equalTo: trailingAnchor),
-            contentContainerBottomConstraint,
+        addConstrainedSubviews([contentContainer, footerContainer]) {
+            contentContainer.pinEdges(PinnableEdges([.top(0)]), to: safeAreaLayoutGuide)
+            contentContainer.pinEdgesToSuperview(PinnableEdges([.leading(0), .trailing(0)]))
+            contentContainerBottomConstraint
 
-            footerContainer.leadingAnchor.constraint(equalTo: leadingAnchor),
-            footerContainer.trailingAnchor.constraint(equalTo: trailingAnchor),
-            footerContainer.bottomAnchor.constraint(equalTo: bottomAnchor),
+            footerContainer.pinEdgesToSuperview(.all().excluding(.top))
+            footerLabel.pinEdges(.all().excluding(.bottom), to: footerContainer.layoutMarginsGuide)
 
-            footerLabel.topAnchor.constraint(equalTo: footerContainer.layoutMarginsGuide.topAnchor),
-            footerLabel.leadingAnchor
-                .constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
-            footerLabel.trailingAnchor
-                .constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
+            createAccountButton.topAnchor.constraint(equalToSystemSpacingBelow: footerLabel.bottomAnchor, multiplier: 1)
+            createAccountButton.pinEdges(.all().excluding(.top), to: footerContainer.layoutMarginsGuide)
 
-            createAccountButton.topAnchor.constraint(
-                equalToSystemSpacingBelow: footerLabel.bottomAnchor,
-                multiplier: 1
-            ),
-            createAccountButton.leadingAnchor
-                .constraint(equalTo: footerContainer.layoutMarginsGuide.leadingAnchor),
-            createAccountButton.trailingAnchor
-                .constraint(equalTo: footerContainer.layoutMarginsGuide.trailingAnchor),
-            createAccountButton.bottomAnchor
-                .constraint(equalTo: footerContainer.layoutMarginsGuide.bottomAnchor),
+            statusActivityView.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor)
 
-            statusActivityView.centerXAnchor.constraint(equalTo: contentContainer.centerXAnchor),
-            formContainer.topAnchor.constraint(
-                equalTo: statusActivityView.bottomAnchor,
-                constant: 30
-            ),
-            formContainer.centerYAnchor.constraint(
-                equalTo: contentContainer.centerYAnchor,
-                constant: -20
-            ),
-            formContainer.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor),
-            formContainer.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor),
-            formContainer.bottomAnchor.constraint(equalTo: accountInputGroupWrapper.bottomAnchor),
+            formContainer.topAnchor.constraint(equalTo: statusActivityView.bottomAnchor, constant: 30)
+            formContainer.centerYAnchor.constraint(equalTo: contentContainer.centerYAnchor, constant: -20)
+            formContainer.pinEdges(PinnableEdges([.leading(0), .trailing(0)]), to: contentContainer)
+            formContainer.pinEdges(PinnableEdges([.bottom(0)]), to: accountInputGroupWrapper)
 
-            titleLabel.topAnchor.constraint(equalTo: formContainer.topAnchor),
-            titleLabel.leadingAnchor
-                .constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
-            titleLabel.trailingAnchor
-                .constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
+            titleLabel.pinEdges(.all().excluding(.bottom), to: formContainer.layoutMarginsGuide)
 
-            messageLabel.topAnchor.constraint(
-                equalToSystemSpacingBelow: titleLabel.bottomAnchor,
-                multiplier: 1
-            ),
-            messageLabel.leadingAnchor
-                .constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
-            messageLabel.trailingAnchor
-                .constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
+            messageLabel.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1)
+            messageLabel.pinEdges(PinnableEdges([.leading(0), .trailing(0)]), to: formContainer.layoutMarginsGuide)
 
             accountInputGroupWrapper.topAnchor.constraint(
                 equalToSystemSpacingBelow: messageLabel.bottomAnchor,
                 multiplier: 1
-            ),
-            accountInputGroupWrapper.leadingAnchor
-                .constraint(equalTo: formContainer.layoutMarginsGuide.leadingAnchor),
-            accountInputGroupWrapper.trailingAnchor
-                .constraint(equalTo: formContainer.layoutMarginsGuide.trailingAnchor),
-            accountInputGroupWrapper.heightAnchor
-                .constraint(equalTo: accountInputGroup.contentView.heightAnchor),
-
-            accountInputGroup.topAnchor.constraint(equalTo: accountInputGroupWrapper.topAnchor),
-            accountInputGroup.leadingAnchor
-                .constraint(equalTo: accountInputGroupWrapper.leadingAnchor),
-            accountInputGroup.trailingAnchor
-                .constraint(equalTo: accountInputGroupWrapper.trailingAnchor),
-        ])
+            )
+            accountInputGroupWrapper.pinEdges(
+                PinnableEdges([.leading(0), .trailing(0)]),
+                to: formContainer.layoutMarginsGuide
+            )
+            accountInputGroupWrapper.heightAnchor.constraint(equalTo: accountInputGroup.contentView.heightAnchor)
+            accountInputGroup.pinEdges(.all().excluding(.bottom), to: accountInputGroupWrapper)
+        }
     }
 }
