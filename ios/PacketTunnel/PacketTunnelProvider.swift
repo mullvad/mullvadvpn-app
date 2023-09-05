@@ -127,11 +127,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     override init() {
         var loggerBuilder = LoggerBuilder()
         let pid = ProcessInfo.processInfo.processIdentifier
+
         loggerBuilder.metadata["pid"] = .string("\(pid)")
         loggerBuilder.addFileOutput(fileURL: ApplicationConfiguration.logFileURL(for: .packetTunnel))
+
         #if DEBUG
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
+
         loggerBuilder.install()
 
         providerLogger = Logger(label: "PacketTunnelProvider")
@@ -168,22 +171,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         super.init()
 
-        adapter = WireGuardAdapter(
-            with: self,
-            shouldHandleReasserting: false,
-            logHandler: { [weak self] logLevel, message in
-                self?.dispatchQueue.async {
-                    self?.tunnelLogger.log(level: logLevel.loggerLevel, "\(message)")
-                }
-            }
-        )
+        adapter = createWireGuardAdapter()
 
-        tunnelMonitor = TunnelMonitor(
-            eventQueue: dispatchQueue,
-            pinger: Pinger(replyQueue: dispatchQueue),
-            tunnelDeviceInfo: WgAdapterDeviceInfo(adapter: adapter),
-            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self)
-        )
+        tunnelMonitor = createTunnelMonitor(wireGuardAdapter: adapter)
         tunnelMonitor.onEvent = { [weak self] event in
             self?.handleTunnelMonitorEvent(event)
         }
@@ -287,10 +277,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             do {
                 message = try TunnelProviderMessage(messageData: messageData)
             } catch {
-                self.providerLogger.error(
-                    error: error,
-                    message: "Failed to decode the app message."
-                )
+                self.providerLogger.error(error: error, message: "Failed to decode the app message.")
 
                 completionHandler?(nil)
                 return
@@ -302,9 +289,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             case let .reconnectTunnel(appSelectorResult):
                 self.providerLogger.debug("Reconnecting the tunnel...")
 
-                let nextRelay: NextRelay = (appSelectorResult ?? self.selectorResult)
-                    .map { .set($0) } ?? .automatic
-
+                let nextRelay: NextRelay = (appSelectorResult ?? self.selectorResult).map { .set($0) } ?? .automatic
                 self.reconnectTunnel(to: nextRelay, shouldStopTunnelMonitor: true)
 
                 completionHandler?(nil)
@@ -418,6 +403,27 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     // MARK: - Private
+
+    private func createWireGuardAdapter() -> WireGuardAdapter {
+        return WireGuardAdapter(
+            with: self,
+            shouldHandleReasserting: false,
+            logHandler: { [weak self] logLevel, message in
+                self?.dispatchQueue.async {
+                    self?.tunnelLogger.log(level: logLevel.loggerLevel, "\(message)")
+                }
+            }
+        )
+    }
+
+    private func createTunnelMonitor(wireGuardAdapter: WireGuardAdapter) -> TunnelMonitor {
+        return TunnelMonitor(
+            eventQueue: dispatchQueue,
+            pinger: Pinger(replyQueue: dispatchQueue),
+            tunnelDeviceInfo: WgAdapterDeviceInfo(adapter: wireGuardAdapter),
+            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self)
+        )
+    }
 
     private func startTunnelReconnectionTimer(reconnectionDelay: Duration) {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
