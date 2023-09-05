@@ -39,7 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 #### macOS
-- Fix default route being missing after waking from hibernation.
+- Ensure that the default tunnel route is added back after waking from hibernation. Previously, the
+  tunnel became unusable despite the app appearing to be connected.
 
 
 ## [android/2023.6-beta1] - 2023-08-29
