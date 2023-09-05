@@ -223,6 +223,49 @@ class ConnectViewModelTest {
         }
 
     @Test
+    fun testLocationUpdateFilteredCountry() =
+        // Arrange
+        runTest(testCoroutineRule.testDispatcher) {
+            val locationTestItem =
+                GeoIpLocation(
+                    ipv4 = mockk(relaxed = true),
+                    ipv6 = mockk(relaxed = true),
+                    country = "SW",
+                    city = "gb",
+                    hostname = "Ho"
+                )
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                locationSlot.captured.invoke(locationTestItem)
+                relaySlot.captured.invoke(mockk(), mockk())
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun testLocationUpdateNullLocation() =
+        // Arrange
+        runTest(testCoroutineRule.testDispatcher) {
+            val locationTestItem = null
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+                locationSlot.captured.invoke(locationTestItem)
+                relaySlot.captured.invoke(mockk(), mockk())
+                expectNoEvents()
+                val result = awaitItem()
+                assertEquals(locationTestItem, result.location)
+            }
+        }
+
+    @Test
     fun testOnDisconnectClick() =
         runTest(testCoroutineRule.testDispatcher) {
             val mockConnectionProxy: ConnectionProxy = mockk(relaxed = true)
