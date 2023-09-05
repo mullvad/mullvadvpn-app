@@ -122,6 +122,7 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
                     "mullvad_daemon.management_interface/WireguardRelayEndpointData",
                     proto::WireguardRelayEndpointData {
                         public_key: data.public_key.as_bytes().to_vec(),
+                        daita: data.daita,
                     },
                 )),
                 _ => None,
@@ -236,6 +237,7 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
                 MullvadEndpointData::Wireguard(
                     mullvad_types::relay_list::WireguardRelayEndpointData {
                         public_key: bytes_to_pubkey(&data.public_key)?,
+                        daita: data.daita,
                     },
                 )
             }

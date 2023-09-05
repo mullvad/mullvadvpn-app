@@ -54,6 +54,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                             "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                         )
                         .unwrap(),
+                        daita: false,
                     }),
                     location: None,
                 },
@@ -71,6 +72,7 @@ static RELAYS: Lazy<RelayList> = Lazy::new(|| RelayList {
                             "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                         )
                         .unwrap(),
+                        daita: false,
                     }),
                     location: None,
                 },
@@ -414,6 +416,7 @@ fn test_wireguard_entry() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            daita: false,
                         }),
                         location: None,
                     },
@@ -431,6 +434,7 @@ fn test_wireguard_entry() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            daita: false,
                         }),
                         location: None,
                     },
@@ -932,6 +936,7 @@ fn test_include_in_country() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            daita: false,
                         }),
                         location: None,
                     },
@@ -949,6 +954,7 @@ fn test_include_in_country() {
                                 "BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=",
                             )
                             .unwrap(),
+                            daita: false,
                         }),
                         location: None,
                     },
