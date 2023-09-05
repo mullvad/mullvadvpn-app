@@ -181,6 +181,7 @@
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
+    <string name="voucher_success_title">Le bon a bien été échangé.</string>
     <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
     <string name="vpn_permission_error_notification_message">« Toujours exiger un VPN » est peut-être activé pour une autre application</string>
     <string name="vpn_permission_error_notification_title">Erreur de permission VPN</string>

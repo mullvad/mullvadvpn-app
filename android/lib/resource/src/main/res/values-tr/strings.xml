@@ -181,6 +181,7 @@
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="virtual_adapter_problem">Sanal adaptör hatası</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
+    <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
     <string name="vpn_permission_denied_error">Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin.</string>
     <string name="vpn_permission_error_notification_message">Her zaman açık VPN başka bir uygulama için etkinleştirilebilir</string>
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>

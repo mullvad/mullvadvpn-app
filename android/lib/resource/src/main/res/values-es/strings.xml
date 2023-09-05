@@ -181,6 +181,7 @@
     <string name="view_logs">Ver registros de la aplicación</string>
     <string name="virtual_adapter_problem">Error del adaptador virtual</string>
     <string name="voucher_already_used">El código del cupón ya se ha usado.</string>
+    <string name="voucher_success_title">El cupón se canjeó correctamente.</string>
     <string name="vpn_permission_denied_error">Se denegó el permiso para usar una conexión VPN al crear el túnel. Intente volver a establecer la conexión.</string>
     <string name="vpn_permission_error_notification_message">La VPN siempre activa podría estar habilitada en otra aplicación</string>
     <string name="vpn_permission_error_notification_title">Error en la autorización de la VPN</string>

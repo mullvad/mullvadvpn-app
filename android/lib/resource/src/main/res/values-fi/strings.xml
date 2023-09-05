@@ -181,6 +181,7 @@
     <string name="view_logs">Tarkastele sovelluslokeja</string>
     <string name="virtual_adapter_problem">Virtuaalisovittimen virhe</string>
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
+    <string name="voucher_success_title">Kupongin lunastus onnistui.</string>
     <string name="vpn_permission_denied_error">VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen.</string>
     <string name="vpn_permission_error_notification_message">Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle</string>
     <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
