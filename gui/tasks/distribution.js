@@ -2,11 +2,11 @@ const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
 const { Arch } = require('electron-builder');
-const { notarize } = require('electron-notarize');
+const { notarize } = require('@electron/notarize');
 const { execFileSync } = require('child_process');
 
 const noCompression = process.argv.includes('--no-compression');
-const noAppleNotarization = process.argv.includes('--no-apple-notarization');
+const shouldNotarize = process.argv.includes('--notarize');
 
 const universal = process.argv.includes('--universal');
 const release = process.argv.includes('--release');
@@ -305,7 +305,7 @@ function packMac() {
         return Promise.resolve();
       },
       afterAllArtifactBuild: async (buildResult) => {
-        if (!noAppleNotarization) {
+        if (shouldNotarize) {
           // buildResult.artifactPaths[0] contains the path to the pkg.
           await notarizeMac(buildResult.artifactPaths[0]);
         }
@@ -322,7 +322,7 @@ function packMac() {
         const appOutDir = context.appOutDir;
         appOutDirs.push(appOutDir);
 
-        if (!noAppleNotarization) {
+        if (shouldNotarize) {
           const appName = context.packager.appInfo.productFilename;
           return notarizeMac(path.join(appOutDir, `${appName}.app`));
         }
@@ -336,8 +336,8 @@ function notarizeMac(notarizePath) {
   return notarize({
     appBundleId: config.appId,
     appPath: notarizePath,
-    appleId: process.env.NOTARIZE_APPLE_ID,
-    appleIdPassword: process.env.NOTARIZE_APPLE_ID_PASSWORD,
+    keychain: process.env.NOTARIZE_KEYCHAIN,
+    keychainProfile: process.env.NOTARIZE_KEYCHAIN_PROFILE,
   });
 }
 

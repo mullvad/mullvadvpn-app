@@ -32,15 +32,19 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
       ```
 
    * *macOS only*:
-      * `NOTARIZE_APPLE_ID` - The AppleId to use when notarizing the app. Only needed on release builds
-      * `NOTARIZE_APPLE_ID_PASSWORD` - The AppleId password for the account in `NOTARIZE_APPLE_ID`.
-         Don't use the real AppleId password! Instead create an app specific password and add that to
-         your keyring. See this documentation: https://github.com/electron/electron-notarize#safety-when-using-appleidpassword
+      * `NOTARIZE_KEYCHAIN` - The keychain in which the profile is stored
+      * `NOTARIZE_KEYCHAIN_PROFILE` - The name of the notarytool profile containing the credentials.
+         The credentials include Apple-ID, app specific password and team ID. Don't use the real
+         AppleId password! Instead create an app specific password and add that to your keyring. See
+         this documentation:
+         https://github.com/electron/electron-notarize#safety-when-using-appleidpassword
 
-         Summary:
-         1. Generate app specific password on Apple's AppleId management portal.
-         2. Run `security add-generic-password -a "<apple_id>" -w <app_specific_password> -s "something_something"`
-         3. Set `NOTARIZE_APPLE_ID_PASSWORD="@keychain:something_something"`.
+         Create the notarytool profile:
+         1. Generate app specific password on Apple's AppleId management portal
+         2. Run `xcrun notarytool store-credentials <profile name> --keychain <keychain path>`.
+            Leave the first prompt empty and than fill in the rest with the credentials mentioned
+            above
+         3. Set `NOTARIZE_KEYCHAIN` and `NOTARIZE_KEYCHAIN_PROFILE` to the values specified in 2
 
 1. Run `./build.sh` on each computer/platform where you want to create a release artifact. This will
     do the following for you:
