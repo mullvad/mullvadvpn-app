@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "已添加 %(duration)s，帐户到期时间为 %(expiry)s。"
@@ -39,28 +39,11 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "剩余 %d 年"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d 天前"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d 分钟前"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d 个月前"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d 年前"
-
 msgid "Account paid until %(expiry)s."
 msgstr "帐户到期时间为 %(expiry)s。"
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d 小时前"
+msgid "Account settings"
+msgstr "帐户设置"
 
 msgid "Any"
 msgstr "任何"
@@ -154,9 +137,6 @@ msgstr "前往“系统设置”"
 msgid "Got it!"
 msgstr "知道了！"
 
-msgid "Invalid account number"
-msgstr "帐号无效"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -168,9 +148,6 @@ msgstr "不足 1 天"
 
 msgid "less than a day left"
 msgstr "剩余时间不足 1 天"
-
-msgid "less than a minute ago"
-msgstr "不到 1 分钟前"
 
 msgid "Next"
 msgstr "下一步"
@@ -234,6 +211,10 @@ msgstr "未受保护的连接"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s，已加载视图"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "关闭通知"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -465,6 +446,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "继续登录"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "创建日期：%(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "设备处于非活动状态"
@@ -472,6 +460,14 @@ msgstr "设备处于非活动状态"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "设备名称"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "设备名称：%(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -484,6 +480,10 @@ msgstr "前往登录"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "前往登录将在此设备上解除阻止 Internet。"
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "如果您退出登录，设备和设备名称将被移除。当您再次登录时，设备将获得新名称。"
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -505,10 +505,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "如果您退出，转发到此设备的端口将被删除。"
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "这是为设备分配的名称。每台登录 Mulvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。"
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "这将删除所有转发的端口。将保存本地设置。"
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "剩余时间：%(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -520,6 +528,10 @@ msgstr "设备过多"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "是，退出设备"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "一个 Mulvad 帐户最多可以登录 5 台设备。"
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -603,6 +615,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "网络流量可能正在泄漏"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "已创建新设备"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "请退出后重新启动应用。"
 
@@ -625,6 +641,10 @@ msgstr "不受支持的版本"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "有可用更新"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "欢迎，此设备现在名为 <b>%(deviceName)s</b>。有关详情，请点击“帐户”中的信息按钮。"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -674,9 +694,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "无法创建帐户"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "无法获取设备列表"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "即将完成升级。"
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "帐号无效"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -704,6 +736,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "请稍候"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "设备过多"
@@ -1018,11 +1052,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "连接时，您的流量将经过两个安全位置，即入口点和出口点（需要是两个不同的 VPN 服务器）。"
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "帐户"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "应用不同步。请退出并重新启动。"
@@ -1030,10 +1059,6 @@ msgstr "应用不同步。请退出并重新启动。"
 msgctxt "settings-view"
 msgid "App version"
 msgstr "应用版本"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "已没有时间"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1608,9 +1633,6 @@ msgstr "帐户时间提醒"
 msgid "Add DNS server"
 msgstr "添加 DNS 服务器"
 
-msgid "Advanced"
-msgstr "高级"
-
 msgid "Agree and continue"
 msgstr "同意并继续"
 
@@ -1626,9 +1648,14 @@ msgstr "“始终启用 VPN”已分配给其他应用"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "可能为另一个应用启用了“始终启用 VPN”"
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "注意：此设置不能与<b>使用自定义 DNS 服务器</b>结合使用。"
+
 msgid "Blocking internet (device offline)"
-msgstr "阻止网络（设备离线）"
+msgstr "正在阻止网络（设备离线）"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "已将 Mullvad 帐号复制到剪贴板"
@@ -1642,6 +1669,12 @@ msgstr "严重错误（需要注意）"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "自定义 DNS 服务器地址 %s 无效"
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "DNS 设置可能不会立即生效"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "禁用上方的所有 <b>%s</b>以激活此设置。"
+
 msgid "Enable"
 msgstr "启用"
 
@@ -1651,25 +1684,21 @@ msgstr "输入 MTU"
 msgid "Excluded applications"
 msgstr "排除的应用程序"
 
-msgid "Failed to fetch list of devices"
-msgstr "无法获取设备列表"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "前往登录将在此设备上解除阻止互联网。"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "安装 Mullvad VPN (%s) 以保持最新状态"
 
+msgid "Manage account"
+msgstr "管理帐户"
+
 msgid "Mullvad account number"
 msgstr "Mullvad 帐号"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "请用英语或瑞典语描述您的问题。"
 
 msgid "Preferences"
 msgstr "偏好设置"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "隐私"
 
@@ -1708,6 +1737,9 @@ msgstr "除非您在“偏好设置”下启用“本地网络共享”，否则
 
 msgid "This address has already been entered."
 msgstr "此地址已输入过。"
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "这可能会导致某些网站、服务和应用出现问题。"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "为确保您使用的是最安全的版本并通知您当前运行版本存在的任何问题，应用会自动执行版本检查。此操作会将应用版本和 Android 系统版本发送到 Mullvad 服务器。Mullvad 会统计使用的应用版本和 Android 版本。数据绝不会通过任何可识别您身份的方式存储或使用。\\n\\n如果使用拆分隧道功能，则应用会对您的系统进行查询，以获取所有已安装应用程序的列表。此列表仅在拆分隧道视图中检索。已安装应用程序的列表绝不会从设备发出。"
@@ -1751,11 +1783,17 @@ msgstr "连接时，将使用所选区域中一个私密且安全的位置隐藏
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard obfuscation"
+msgstr "WireGuard 混淆"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "您的网络流量可能在泄露"
 
 msgid "You are running an unsupported app version."
 msgstr "您正在运行不受支持的应用版本。"
+
+msgid "less than a minute ago"
+msgstr "不到 1 分钟前"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1764,4 +1802,24 @@ msgstr[0] "帐户额度将在 %d 天后到期"
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "帐户额度将在 %d 小时后到期"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d 天前"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d 分钟前"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d 个月前"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d 年前"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d 小时前"
 

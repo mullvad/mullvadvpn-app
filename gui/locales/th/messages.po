@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
@@ -39,28 +39,11 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "คงเหลือ %d ปี"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d วันก่อน"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d นาทีก่อน"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d เดือนก่อน"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d ปีก่อน"
-
 msgid "Account paid until %(expiry)s."
 msgstr "บัญชีได้ชำระเงินจนถึง %(expiry)s"
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d ชั่วโมงก่อน"
+msgid "Account settings"
+msgstr "การตั้งค่าบัญชี"
 
 msgid "Any"
 msgstr "อะไรก็ได้"
@@ -154,9 +137,6 @@ msgstr "ไปที่การตั้งค่าระบบ"
 msgid "Got it!"
 msgstr "รับทราบ!"
 
-msgid "Invalid account number"
-msgstr "หมายเลขบัญชีไม่ถูกต้อง"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -168,9 +148,6 @@ msgstr "น้อยกว่าหนึ่งวัน"
 
 msgid "less than a day left"
 msgstr "เหลือเวลาน้อยกว่าหนึ่งวัน"
-
-msgid "less than a minute ago"
-msgstr "น้อยกว่าหนึ่งนาทีก่อน"
 
 msgid "Next"
 msgstr "ถัดไป"
@@ -234,6 +211,10 @@ msgstr "การเชื่อมต่อที่ไม่ปลอดภั
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s โหลดมุมมองแล้ว"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "ปิดการแจ้งเตือน"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -465,6 +446,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "เข้าสู่ระบบต่อ"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "วันที่สร้าง: %(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "อุปกรณ์ไม่ได้ใช้งาน"
@@ -472,6 +460,14 @@ msgstr "อุปกรณ์ไม่ได้ใช้งาน"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "ชื่ออุปกรณ์"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "ชื่ออุปกรณ์: %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -484,6 +480,10 @@ msgstr "ไปเข้าสู่ระบบ"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้"
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่"
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -505,10 +505,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "พอร์ตที่ส่งต่อไปยังอุปกรณ์นี้จะถูกลบหากคุณออกจากระบบ"
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "นี่เป็นชื่อที่มอบหมายให้กับอุปกรณ์ อุปกรณ์แต่ละเครื่องที่ลงชื่อเข้าใช้บนบัญชี Mullvad จะได้รับชื่อเฉพาะ ที่จะช่วยคุณระบุอุปกรณ์ ในขณะที่คุณจัดการอุปกรณ์ของคุณในแอปหรือบนเว็บไซต์"
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "นี่จะเป็นการลบพอร์ตที่ส่งต่อทั้งหมด และการตั้งค่าบนอุปกรณ์จะได้รับการบันทึกไว้"
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "เหลือเวลา: %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -520,6 +528,10 @@ msgstr "มีอุปกรณ์มากเกินไป"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "ใช่ นำอุปกรณ์ออกจากระบบ"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "คุณสามารถลงชื่อเข้าใช้อุปกรณ์ได้สูงสุด 5 เครื่อง กับบัญชี Mullvad หนึ่งบัญชี"
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -603,6 +615,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "การรับส่งข้อมูลทางเครือข่ายอาจรั่วไหล"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "สร้างอุปกรณ์ใหม่แล้ว"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "โปรดออกและเปิดแอปขึ้นมาใหม่"
 
@@ -625,6 +641,10 @@ msgstr "เวอร์ชันที่ไม่รองรับ"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "มีการอัปเดตให้ใช้งาน"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "ยินดีต้อนรับ ขณะนี้อุปกรณ์นี้จะมีชื่อว่า <b>%(deviceName)s</b> สำหรับข้อมูลเพิ่มเติม โปรดกดปุ่มข้อมูลในบัญชี"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -674,9 +694,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "ไม่สามารถสร้างบัญชีได้"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "ไม่สามารถดึงรายการอุปกรณ์มาได้"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "กำลังอัปเกรดให้เสร็จสิ้น"
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "หมายเลขบัญชีไม่ถูกต้อง"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -704,6 +736,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "โปรดรอ"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "มีอุปกรณ์มากเกินไป"
@@ -891,7 +925,7 @@ msgstr "โหมดบริดจ์"
 #. %(openvpn)s - will be replaced with OpenVPN
 msgctxt "openvpn-settings-view"
 msgid "Helps circumvent censorship, by routing your traffic through a bridge server before reaching an %(openvpn)s server. Obfuscation is added to make fingerprinting harder."
-msgstr "ช่วยหลบเลี่ยงการเซ็นเซอร์ โดยกำหนดเส้นทางการรับส่งข้อมูลของคุณผ่านเซิร์ฟเวอร์บริดจ์ ก่อนที่จะไปถึงเซิร์ฟเวอร์ %(openvpn)s โดยมีการเพิ่มข้อมูลที่คลุมเครือ เพื่อทำให้สร้างลายนิ้วมือได้ยากขึ้น"
+msgstr "ช่วยหลบเลี่ยงการเซ็นเซอร์ โดยกำหนดเส้นทางการรับส่งข้อมูลของคุณผ่านเซิร์ฟเวอร์บริดจ์ ก่อนที่จะไปถึงเซิร์ฟเวอร์ %(openvpn)s โดยมีการเพิ่มการทำให้ข้อมูลยุ่งเหยิงเข้าไป เพื่อทำให้สร้างลายนิ้วมือได้ยากขึ้น"
 
 msgctxt "openvpn-settings-view"
 msgid "Mssfix"
@@ -1018,11 +1052,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "ในขณะที่เชื่อมต่อ การรับส่งข้อมูลของคุณจะได้รับการกำหนดเส้นทางไปยังตำแหน่งที่ตั้งที่ปลอดภัยสองแห่ง จุดทางเข้าและจุดทางออก (ต้องเป็นเซิร์ฟเวอร์ VPN 2 เซิร์ฟเวอร์ที่แตกต่างกัน)"
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "บัญชี"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "แอปไม่ได้รับการซิงค์ โปรดออกและเปิดแอปใหม่"
@@ -1030,10 +1059,6 @@ msgstr "แอปไม่ได้รับการซิงค์ โปร�
 msgctxt "settings-view"
 msgid "App version"
 msgstr "เวอร์ชันแอป"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "หมดเวลา"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1539,11 +1564,11 @@ msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
-msgstr "ข้อมูลที่คลุมเครือ"
+msgstr "การทำให้ข้อมูลยุ่งเหยิง"
 
 msgctxt "wireguard-settings-view"
 msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
-msgstr "ข้อมูลที่คลุมเครือจะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้"
+msgstr "การทำให้ข้อมูลยุ่งเหยิง จะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้"
 
 msgctxt "wireguard-settings-view"
 msgid "On (UDP-over-TCP)"
@@ -1594,7 +1619,7 @@ msgstr "พอร์ต UDP-ผ่าน-TCP"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
-msgstr "พอร์ต TCP ใดที่โพรโทคอลข้อมูลที่คลุมเครือ UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN"
+msgstr "พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN"
 
 msgid "Account credit expires in a few minutes"
 msgstr "เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที"
@@ -1607,9 +1632,6 @@ msgstr "การแจ้งเตือนเวลาบัญชี"
 
 msgid "Add DNS server"
 msgstr "เพิ่มเซิร์ฟเวอร์ DNS"
-
-msgid "Advanced"
-msgstr "ขั้นสูง"
 
 msgid "Agree and continue"
 msgstr "ยอมรับและดำเนินการต่อ"
@@ -1626,9 +1648,14 @@ msgstr "Always-on VPN ได้รับการมอบหมายไปย�
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Always-on VPN อาจได้รับการเปิดใช้งานสำหรับแอปอื่น"
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ<b>การใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</b>ได้"
+
 msgid "Blocking internet (device offline)"
 msgstr "กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว"
@@ -1642,6 +1669,12 @@ msgstr "ข้อผิดพลาดร้ายแรง (คุณจำเ�
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "ที่อยู่เซิร์ฟเวอร์ DNS %s ที่กำหนดเองไม่ถูกต้อง"
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "การตั้งค่า DNS อาจไม่มีผลทันที"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "ปิดใช้งาน <b>%s</b> ด้านบนทั้งหมด เพื่อเปิดใช้การตั้งค่านี้"
+
 msgid "Enable"
 msgstr "เปิดใช้งาน"
 
@@ -1651,25 +1684,21 @@ msgstr "ป้อน MTU"
 msgid "Excluded applications"
 msgstr "แอปพลิเคชันที่แยกออก"
 
-msgid "Failed to fetch list of devices"
-msgstr "ไม่สามารถดึงรายการอุปกรณ์มาได้"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ"
 
+msgid "Manage account"
+msgstr "จัดการบัญชี"
+
 msgid "Mullvad account number"
 msgstr "หมายเลขบัญชี Mullvad"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "โปรดอธิบายปัญหาของคุณในภาษาอังกฤษหรือสวีเดน"
 
 msgid "Preferences"
 msgstr "การกำหนดค่า"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "ความเป็นส่วนตัว"
 
@@ -1708,6 +1737,9 @@ msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไ�
 
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "นี่อาจก่อให้เกิดปัญหากับบางเว็บไซต์ บริการ และแอปได้"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "แอปจะดำเนินการตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้มั่นใจว่า คุณมีเวอร์ชันที่ปลอดภัยที่สุด และแจ้งปัญหาใดๆ เกี่ยวกับเวอร์ชันปัจจุบันที่ใช้อยู่ให้คุณทราบ การดำเนินการนี้จะส่งเวอร์ชันแอป และเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullvad โดย Mullvad จะเก็บหมายเลขเวอร์ชันแอปที่ใช้ และเวอร์ชัน Andriod เอาไว้ และข้อมูลจะได้รับการจัดเก็บ หรือใช้ในรูปแบบที่ไม่สามารถระบุตัวตนของคุณได้\\n\\nหากมีการใช้งานคุณสมบัติการแยกอุโมงค์อยู่ แอปจะสอบถามระบบของคุณ เพื่อดูรายการแอปพลิเคชันที่ติดตั้งทั้งหมด รายการนี้จะได้รับข้อมูลที่อยู่ในมุมมองการแยกอุโมงค์เท่านั้น โดยจะไม่มีการส่งรายการแอปพลิเคชันที่ติดตั้งออกไปจากอุปกรณ์"
@@ -1751,11 +1783,17 @@ msgstr "ในขณะที่เชื่อมต่อ ตำแหน่�
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard obfuscation"
+msgstr "การทำให้ข้อมูลยุ่งเหยิงของ WireGuard"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่"
 
 msgid "You are running an unsupported app version."
 msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน"
+
+msgid "less than a minute ago"
+msgstr "น้อยกว่าหนึ่งนาทีก่อน"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1764,4 +1802,24 @@ msgstr[0] "เครดิตของบัญชีจะหมดอายุ
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "เครดิตของบัญชีจะหมดอายุใน %d ชั่วโมง"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d วันก่อน"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d นาทีก่อน"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d เดือนก่อน"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d ปีก่อน"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d ชั่วโมงก่อน"
 
