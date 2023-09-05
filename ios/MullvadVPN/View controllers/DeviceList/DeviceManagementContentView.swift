@@ -195,21 +195,7 @@ class DeviceManagementContentView: UIView {
         difference.forEach { change in
             switch change {
             case let .insert(offset, model, _):
-                let view = DeviceRowView(viewModel: model)
-
-                view.isHidden = true
-                view.alpha = 0
-
-                view.deleteHandler = { [weak self] _ in
-                    view.showsActivityIndicator = true
-
-                    self?.handleDeviceDeletion?(view.viewModel) {
-                        view.showsActivityIndicator = false
-                    }
-                }
-
-                viewsToAdd.append((view, offset))
-
+                viewsToAdd.append((createDeviceRowView(from: model), offset))
             case let .remove(offset, _, _):
                 viewsToRemove.append(deviceStackView.arrangedSubviews[offset])
             }
@@ -226,41 +212,58 @@ class DeviceManagementContentView: UIView {
             }
         }
 
-        let showHideViews = {
-            viewsToRemove.forEach { view in
-                view.alpha = 0
-                view.isHidden = true
-            }
-
-            viewsToAdd.forEach { item in
-                item.view.alpha = 1
-                item.view.isHidden = false
-            }
-        }
-
-        let removeViews = {
-            viewsToRemove.forEach { view in
-                view.removeFromSuperview()
-            }
-        }
-
         if animated {
             UIView.animate(
                 withDuration: 0.25,
                 delay: 0,
                 options: [.curveEaseInOut],
                 animations: { [weak self] in
-                    showHideViews()
+                    self?.showHideViews(viewsToAdd: viewsToAdd, viewsToRemove: viewsToRemove)
                     self?.deviceStackView.layoutIfNeeded()
                 },
-                completion: { _ in
-                    removeViews()
+                completion: { [weak self] _ in
+                    self?.removeViews(viewsToRemove: viewsToRemove)
                 }
             )
         } else {
-            showHideViews()
-            removeViews()
+            showHideViews(viewsToAdd: viewsToAdd, viewsToRemove: viewsToRemove)
+            removeViews(viewsToRemove: viewsToRemove)
         }
+    }
+
+    private func showHideViews(viewsToAdd: [(view: UIView, offset: Int)], viewsToRemove: [UIView]) {
+        viewsToRemove.forEach { view in
+            view.alpha = 0
+            view.isHidden = true
+        }
+
+        viewsToAdd.forEach { item in
+            item.view.alpha = 1
+            item.view.isHidden = false
+        }
+    }
+
+    private func removeViews(viewsToRemove: [UIView]) {
+        viewsToRemove.forEach { view in
+            view.removeFromSuperview()
+        }
+    }
+
+    private func createDeviceRowView(from model: DeviceViewModel) -> DeviceRowView {
+        let view = DeviceRowView(viewModel: model)
+
+        view.isHidden = true
+        view.alpha = 0
+
+        view.deleteHandler = { [weak self] _ in
+            view.showsActivityIndicator = true
+
+            self?.handleDeviceDeletion?(view.viewModel) {
+                view.showsActivityIndicator = false
+            }
+        }
+
+        return view
     }
 
     private func updateView() {
