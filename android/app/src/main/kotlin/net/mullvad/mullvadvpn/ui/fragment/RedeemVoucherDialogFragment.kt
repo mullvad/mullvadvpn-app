@@ -12,9 +12,13 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.EditText
 import android.widget.TextView
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.DialogFragment
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.screen.RedeemVoucherDialogScreen
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.VoucherSubmissionError
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -22,9 +26,9 @@ import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
 import net.mullvad.mullvadvpn.ui.widget.Button
-import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
-import org.joda.time.DateTime
+import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 const val FULL_VOUCHER_CODE_LENGTH = "XXXX-XXXX-XXXX-XXXX".length
 
@@ -40,9 +44,11 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     private lateinit var errorMessage: TextView
     private lateinit var voucherInput: EditText
 
-    private var accountExpiry: DateTime? = null
     private var redeemButton: Button? = null
     private var voucherRedeemer: VoucherRedeemer? = null
+
+    private val vm by viewModel<VoucherDialogViewModel>()
+    private lateinit var voucherDialog: Dialog
 
     private var voucherInputIsValid = false
         set(value) {
@@ -59,10 +65,6 @@ class RedeemVoucherDialogFragment : DialogFragment() {
             voucherRedeemer = connection?.voucherRedeemer
         }
 
-        jobTracker.newUiJob("updateExpiry") {
-            accountRepository.accountExpiryState.collect { accountExpiry = it.date() }
-        }
-
         updateRedeemButton()
     }
 
@@ -71,43 +73,57 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.redeem_voucher, container, false)
+        //        val view = inflater.inflate(R.layout.redeem_voucher, container, false)
+        //
+        //        voucherInput =
+        //            view.findViewById<EditText>(R.id.voucher_code).apply {
+        //                addTextChangedListener(ValidVoucherCodeChecker())
+        //            }
+        //
+        //        SegmentedInputFormatter(voucherInput, '-').apply {
+        //            allCaps = true
+        //
+        //            isValidInputCharacter = { character ->
+        //                ('A' <= character && character <= 'Z') || ('0' <= character && character
+        // <= '9')
+        //            }
+        //        }
+        //
+        //        redeemButton =
+        //            view.findViewById<Button>(R.id.redeem).apply {
+        //                setEnabled(false)
+        //
+        //                setOnClickAction("action", jobTracker) { submitVoucher() }
+        //            }
+        //
+        //        errorMessage = view.findViewById(R.id.error)
+        //
+        //        view.findViewById<Button>(R.id.cancel).setOnClickAction("action", jobTracker) {
+        //            activity?.onBackPressed()
+        //        }
+        //
+        //        return view
 
-        voucherInput =
-            view.findViewById<EditText>(R.id.voucher_code).apply {
-                addTextChangedListener(ValidVoucherCodeChecker())
-            }
-
-        SegmentedInputFormatter(voucherInput, '-').apply {
-            allCaps = true
-
-            isValidInputCharacter = { character ->
-                ('A' <= character && character <= 'Z') || ('0' <= character && character <= '9')
+        return inflater.inflate(R.layout.fragment_compose, container, false).apply {
+            findViewById<ComposeView>(R.id.compose_view).setContent {
+                AppTheme {
+                    val state = vm.uiState.collectAsState().value
+                    RedeemVoucherDialogScreen(
+                        uiState = state,
+                        onRedeem = { vm.onRedeem(it) },
+                        onDismiss = { onDismiss(voucherDialog!!) }
+                    )
+                }
             }
         }
-
-        redeemButton =
-            view.findViewById<Button>(R.id.redeem).apply {
-                isEnabled = false
-
-                setOnClickAction("action", jobTracker) { submitVoucher() }
-            }
-
-        errorMessage = view.findViewById(R.id.error)
-
-        view.findViewById<Button>(R.id.cancel).setOnClickAction("action", jobTracker) {
-            activity?.onBackPressed()
-        }
-
-        return view
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialog = super.onCreateDialog(savedInstanceState)
+        voucherDialog = super.onCreateDialog(savedInstanceState)
 
-        dialog.window?.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))
+        voucherDialog.window?.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))
 
-        return dialog
+        return voucherDialog
     }
 
     override fun onStart() {
@@ -130,7 +146,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     private fun updateRedeemButton() {
-        redeemButton?.isEnabled = voucherInputIsValid && voucherRedeemer != null
+        redeemButton?.setEnabled(voucherInputIsValid && voucherRedeemer != null)
     }
 
     private suspend fun submitVoucher() {
