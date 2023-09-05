@@ -47,23 +47,7 @@ class MapConnectionStatusOperation: AsyncOperation {
 
         switch connectionStatus {
         case .connecting:
-            switch tunnelState {
-            case .connecting:
-                break
-
-            default:
-                interactor.updateTunnelStatus { tunnelStatus in
-                    tunnelStatus.state = .connecting(nil)
-                }
-            }
-
-            fetchTunnelStatus(tunnel: tunnel) { packetTunnelStatus in
-                if packetTunnelStatus.isNetworkReachable {
-                    return packetTunnelStatus.tunnelRelay.map { .connecting($0) }
-                } else {
-                    return .waitingForConnectivity(.noConnection)
-                }
-            }
+            handleConnectingState(tunnelState, tunnel)
             return
 
         case .reasserting:
@@ -87,36 +71,10 @@ class MapConnectionStatusOperation: AsyncOperation {
             return
 
         case .disconnected:
-            switch tunnelState {
-            case .pendingReconnect:
-                logger.debug("Ignore disconnected state when pending reconnect.")
-
-            case .disconnecting(.reconnect):
-                logger.debug("Restart the tunnel on disconnect.")
-                interactor.updateTunnelStatus { tunnelStatus in
-                    tunnelStatus = TunnelStatus()
-                    tunnelStatus.state = .pendingReconnect
-                }
-                interactor.startTunnel()
-
-            default:
-                setTunnelDisconnectedStatus()
-            }
+            handleDisconnectedState(tunnelState)
 
         case .disconnecting:
-            switch tunnelState {
-            case .disconnecting:
-                break
-            default:
-                interactor.updateTunnelStatus { tunnelStatus in
-                    let packetTunnelStatus = tunnelStatus.packetTunnelStatus
-
-                    tunnelStatus = TunnelStatus()
-                    tunnelStatus.state = packetTunnelStatus.isNetworkReachable
-                        ? .disconnecting(.nothing)
-                        : .waitingForConnectivity(.noNetwork)
-                }
-            }
+            handleDisconnectionState(tunnelState)
 
         case .invalid:
             setTunnelDisconnectedStatus()
@@ -130,6 +88,60 @@ class MapConnectionStatusOperation: AsyncOperation {
 
     override func operationDidCancel() {
         request?.cancel()
+    }
+
+    private func handleConnectingState(_ tunnelState: TunnelState, _ tunnel: Tunnel) {
+        switch tunnelState {
+        case .connecting:
+            break
+
+        default:
+            interactor.updateTunnelStatus { tunnelStatus in
+                tunnelStatus.state = .connecting(nil)
+            }
+        }
+
+        fetchTunnelStatus(tunnel: tunnel) { packetTunnelStatus in
+            if packetTunnelStatus.isNetworkReachable {
+                return packetTunnelStatus.tunnelRelay.map { .connecting($0) }
+            } else {
+                return .waitingForConnectivity(.noConnection)
+            }
+        }
+    }
+
+    private func handleDisconnectionState(_ tunnelState: TunnelState) {
+        switch tunnelState {
+        case .disconnecting:
+            break
+        default:
+            interactor.updateTunnelStatus { tunnelStatus in
+                let packetTunnelStatus = tunnelStatus.packetTunnelStatus
+
+                tunnelStatus = TunnelStatus()
+                tunnelStatus.state = packetTunnelStatus.isNetworkReachable
+                    ? .disconnecting(.nothing)
+                    : .waitingForConnectivity(.noNetwork)
+            }
+        }
+    }
+
+    private func handleDisconnectedState(_ tunnelState: TunnelState) {
+        switch tunnelState {
+        case .pendingReconnect:
+            logger.debug("Ignore disconnected state when pending reconnect.")
+
+        case .disconnecting(.reconnect):
+            logger.debug("Restart the tunnel on disconnect.")
+            interactor.updateTunnelStatus { tunnelStatus in
+                tunnelStatus = TunnelStatus()
+                tunnelStatus.state = .pendingReconnect
+            }
+            interactor.startTunnel()
+
+        default:
+            setTunnelDisconnectedStatus()
+        }
     }
 
     private func setTunnelDisconnectedStatus() {
