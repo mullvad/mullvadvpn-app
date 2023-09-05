@@ -612,6 +612,11 @@ mod test {
         ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
             Box::pin(async { Ok(()) })
         }
+
+        #[cfg(target_os = "windows")]
+        fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
+            Ok(())
+        }
     }
 
     fn mock_monitor(

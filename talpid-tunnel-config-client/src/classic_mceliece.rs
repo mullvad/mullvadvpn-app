@@ -1,6 +1,5 @@
-use classic_mceliece_rust::{
-    keypair_boxed, Ciphertext, PublicKey, SecretKey, SharedSecret, CRYPTO_CIPHERTEXTBYTES,
-};
+use classic_mceliece_rust::{keypair_boxed, Ciphertext, CRYPTO_CIPHERTEXTBYTES};
+pub use classic_mceliece_rust::{PublicKey, SecretKey, SharedSecret};
 
 /// The `keypair_boxed` function needs just under 1 MiB of stack in debug
 /// builds. Even though it probably works to run it directly on the main

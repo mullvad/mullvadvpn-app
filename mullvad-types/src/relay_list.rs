@@ -232,6 +232,9 @@ struct PortRange {
 pub struct WireguardRelayEndpointData {
     /// Public key used by the relay peer
     pub public_key: wireguard::PublicKey,
+    /// Whether the server supports DAITA
+    #[serde(default)]
+    pub daita: bool,
 }
 
 #[derive(Debug, Default, Clone, Deserialize, Serialize)]

@@ -174,6 +174,17 @@ fn format_relay_connection(
         "\nQuantum resistant tunnel: no"
     };
 
+    #[cfg(target_os = "windows")]
+    let daita = if !verbose {
+        ""
+    } else if endpoint.daita {
+        "\nDAITA: yes"
+    } else {
+        "\nDAITA: no"
+    };
+    #[cfg(not(target_os = "windows"))]
+    let daita = "";
+
     let mut bridge_type = String::new();
     let mut obfuscator_type = String::new();
     if verbose {
@@ -186,7 +197,7 @@ fn format_relay_connection(
     }
 
     format!(
-        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{quantum_resistant}{bridge_type}{obfuscator_type}",
+        "{exit_endpoint}{first_hop}{bridge}{obfuscator}{tunnel_type}{quantum_resistant}{daita}{bridge_type}{obfuscator_type}",
         first_hop = first_hop.unwrap_or_default(),
         bridge = bridge.unwrap_or_default(),
         obfuscator = obfuscator.unwrap_or_default(),

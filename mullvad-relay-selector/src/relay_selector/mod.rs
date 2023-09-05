@@ -99,6 +99,7 @@ pub struct RelaySelector {
 pub struct SelectorConfig {
     // Normal relay settings
     pub relay_settings: RelaySettings,
+    pub additional_constraints: AdditionalRelayConstraints,
     pub custom_lists: CustomListsSettings,
     pub relay_overrides: Vec<RelayOverride>,
     // Wireguard specific data
@@ -106,6 +107,20 @@ pub struct SelectorConfig {
     // OpenVPN specific data
     pub bridge_state: BridgeState,
     pub bridge_settings: BridgeSettings,
+}
+
+/// Extra relay constraints not specified in `relay_settings`.
+#[derive(Default, Debug, Clone, Eq, PartialEq)]
+pub struct AdditionalRelayConstraints {
+    pub wireguard: AdditionalWireguardConstraints,
+}
+
+/// Constraints to use when selecting WireGuard servers
+#[derive(Default, Debug, Clone, Eq, PartialEq)]
+pub struct AdditionalWireguardConstraints {
+    /// If true, select WireGuard relays that support DAITA. If false, select any
+    /// server.
+    pub daita: bool,
 }
 
 /// Values which affect the choice of relay but are only known at runtime.
@@ -273,6 +288,7 @@ impl Default for SelectorConfig {
         let default_settings = Settings::default();
         SelectorConfig {
             relay_settings: default_settings.relay_settings,
+            additional_constraints: default_settings.additional_constraints,
             bridge_settings: default_settings.bridge_settings,
             obfuscation_settings: default_settings.obfuscation_settings,
             bridge_state: default_settings.bridge_state,

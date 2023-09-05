@@ -9,14 +9,14 @@ use futures::SinkExt;
 use ipnetwork::IpNetwork;
 use once_cell::sync::{Lazy, OnceCell};
 use std::{
-    ffi::CStr,
+    ffi::{c_uchar, CStr},
     fmt,
     future::Future,
-    io, mem,
-    mem::MaybeUninit,
+    io,
+    mem::{self, MaybeUninit},
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::RawHandle,
-    path::Path,
+    path::{Path, PathBuf},
     pin::Pin,
     ptr,
     sync::{Arc, Mutex},
@@ -37,6 +37,8 @@ use windows_sys::{
         },
     },
 };
+
+mod daita;
 
 static WG_NT_DLL: OnceCell<WgNtDll> = OnceCell::new();
 static ADAPTER_TYPE: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
@@ -159,12 +161,23 @@ pub enum Error {
     /// Failed to parse data returned by the driver
     #[error("Failed to parse data returned by wireguard-nt")]
     InvalidConfigData,
+
+    /// DAITA machinist failed
+    #[error("Failed to enable DAITA on tunnel device")]
+    EnableTunnelDaita(#[source] io::Error),
+
+    /// DAITA machinist failed
+    #[error("Failed to initialize DAITA machinist")]
+    InitializeMachinist(#[source] daita::Error),
 }
 
 pub struct WgNtTunnel {
+    resource_dir: PathBuf,
+    config: Arc<Mutex<Config>>,
     device: Option<Arc<WgNtAdapter>>,
     interface_name: String,
     setup_handle: tokio::task::JoinHandle<()>,
+    daita_handle: Option<daita::MachinistHandle>,
     _logger_handle: LoggerHandle,
 }
 
@@ -305,6 +318,7 @@ bitflags! {
         const REPLACE_ALLOWED_IPS = 0b00100000;
         const REMOVE = 0b01000000;
         const UPDATE = 0b10000000;
+        const HAS_CONSTANT_PACKET_SIZE = 0b100000000;
     }
 }
 
@@ -322,6 +336,7 @@ struct WgPeer {
     rx_bytes: u64,
     last_handshake: u64,
     allowed_ips_count: u32,
+    constant_packet_size: c_uchar,
 }
 
 #[derive(Clone, Copy)]
@@ -446,7 +461,7 @@ impl WgNtTunnel {
         let device = Some(device2.clone());
 
         let setup_future = setup_ip_listener(
-            device2,
+            device2.clone(),
             u32::from(config.mtu),
             config.tunnel.addresses.iter().any(|addr| addr.is_ipv6()),
         );
@@ -457,16 +472,49 @@ impl WgNtTunnel {
         });
 
         Ok(WgNtTunnel {
+            resource_dir: resource_dir.to_owned(),
+            config: Arc::new(Mutex::new(config.clone())),
             device,
             interface_name,
             setup_handle,
+            daita_handle: None,
             _logger_handle: logger_handle,
         })
     }
 
     fn stop_tunnel(&mut self) {
         self.setup_handle.abort();
+        if let Some(daita_handle) = self.daita_handle.take() {
+            let _ = daita_handle.close();
+        }
         let _ = self.device.take();
+    }
+
+    fn spawn_machinist(&mut self) -> Result<()> {
+        if let Some(handle) = self.daita_handle.take() {
+            log::info!("Stopping previous DAITA machines");
+            let _ = handle.close();
+        }
+
+        let Some(device) = self.device.clone() else {
+            log::debug!("Tunnel is stopped; not starting machines");
+            return Ok(());
+        };
+
+        let config = self.config.lock().unwrap();
+
+        log::info!("Initializing DAITA for wireguard device");
+        let session = daita::Session::from_adapter(device).map_err(Error::EnableTunnelDaita)?;
+        self.daita_handle = Some(
+            daita::Machinist::spawn(
+                &self.resource_dir,
+                session,
+                config.entry_peer.public_key.clone(),
+                config.mtu,
+            )
+            .map_err(Error::InitializeMachinist)?,
+        );
+        Ok(())
     }
 }
 
@@ -622,6 +670,11 @@ struct WgNtDll {
     func_set_adapter_state: WireGuardSetStateFn,
     func_set_logger: WireGuardSetLoggerFn,
     func_set_adapter_logging: WireGuardSetAdapterLoggingFn,
+
+    func_daita_activate: daita::bindings::WireGuardDaitaActivateFn,
+    func_daita_event_data_available_event: daita::bindings::WireGuardDaitaEventDataAvailableEventFn,
+    func_daita_receive_events: daita::bindings::WireGuardDaitaReceiveEventsFn,
+    func_daita_send_action: daita::bindings::WireGuardDaitaSendActionFn,
 }
 
 unsafe impl Send for WgNtDll {}
@@ -692,6 +745,30 @@ impl WgNtDll {
                 *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardSetAdapterLogging\0").unwrap(),
+                )?) as *const _ as *const _)
+            },
+            func_daita_activate: unsafe {
+                *((&get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardDaitaActivate\0").unwrap(),
+                )?) as *const _ as *const _)
+            },
+            func_daita_event_data_available_event: unsafe {
+                *((&get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardDaitaEventDataAvailableEvent\0").unwrap(),
+                )?) as *const _ as *const _)
+            },
+            func_daita_receive_events: unsafe {
+                *((&get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardDaitaReceiveEvents\0").unwrap(),
+                )?) as *const _ as *const _)
+            },
+            func_daita_send_action: unsafe {
+                *((&get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardDaitaSendAction\0").unwrap(),
                 )?) as *const _ as *const _)
             },
         })
@@ -790,6 +867,52 @@ impl WgNtDll {
         }
         Ok(())
     }
+
+    pub unsafe fn daita_activate(
+        &self,
+        adapter: RawHandle,
+        events_capacity: usize,
+        actions_capacity: usize,
+    ) -> io::Result<()> {
+        if (self.func_daita_activate)(adapter, events_capacity, actions_capacity) == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
+    pub unsafe fn daita_event_data_available_event(
+        &self,
+        adapter: RawHandle,
+    ) -> io::Result<RawHandle> {
+        let ready_event = (self.func_daita_event_data_available_event)(adapter);
+        if ready_event.is_null() {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(ready_event)
+    }
+
+    pub unsafe fn daita_receive_events(
+        &self,
+        adapter: RawHandle,
+        events: *mut daita::Event,
+    ) -> io::Result<usize> {
+        let num_events = (self.func_daita_receive_events)(adapter, events);
+        if num_events == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(num_events)
+    }
+
+    pub unsafe fn daita_send_action(
+        &self,
+        adapter: RawHandle,
+        action: *const daita::Action,
+    ) -> io::Result<()> {
+        if (self.func_daita_send_action)(adapter, action) == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
 }
 
 impl Drop for WgNtDll {
@@ -816,11 +939,13 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
     buffer.extend(as_uninit_byte_slice(&header));
 
     for peer in config.peers() {
-        let flags = if peer.psk.is_some() {
-            WgPeerFlag::HAS_PRESHARED_KEY | WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT
-        } else {
-            WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT
-        };
+        let mut flags = WgPeerFlag::HAS_PUBLIC_KEY
+            | WgPeerFlag::HAS_ENDPOINT
+            | WgPeerFlag::HAS_CONSTANT_PACKET_SIZE;
+        if peer.psk.is_some() {
+            flags |= WgPeerFlag::HAS_PRESHARED_KEY;
+        }
+        let constant_packet_size = if peer.constant_packet_size { 1 } else { 0 };
         let wg_peer = WgPeer {
             flags,
             reserved: 0,
@@ -836,6 +961,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
             rx_bytes: 0,
             last_handshake: 0,
             allowed_ips_count: u32::try_from(peer.allowed_ips.len()).unwrap(),
+            constant_packet_size,
         };
 
         buffer.extend(as_uninit_byte_slice(&wg_peer));
@@ -960,19 +1086,32 @@ impl Tunnel for WgNtTunnel {
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
         let device = self.device.clone();
+        let current_config = self.config.clone();
 
         Box::pin(async move {
             let Some(device) = device else {
                 log::error!("Failed to set config: No tunnel device");
                 return Err(super::TunnelError::SetConfigError);
             };
-            device.set_config(&config).map_err(|error| {
+            let mut current_config = current_config.lock().unwrap();
+            *current_config = config;
+            device.set_config(&current_config).map_err(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to set wg-nt tunnel config")
                 );
                 super::TunnelError::SetConfigError
             })
+        })
+    }
+
+    fn start_daita(&mut self) -> std::result::Result<(), crate::TunnelError> {
+        self.spawn_machinist().map_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to start DAITA for wg-nt tunnel")
+            );
+            super::TunnelError::SetConfigError
         })
     }
 }
@@ -984,7 +1123,6 @@ pub fn as_uninit_byte_slice<T: Copy + Sized>(value: &T) -> &[mem::MaybeUninit<u8
 #[cfg(test)]
 mod tests {
     use super::*;
-    use once_cell::sync::Lazy;
     use talpid_types::net::wireguard;
 
     #[derive(Debug, Eq, PartialEq, Clone, Copy)]
@@ -1009,12 +1147,16 @@ mod tests {
             allowed_ips: vec!["1.3.3.0/24".parse().unwrap()],
             endpoint: "1.2.3.4:1234".parse().unwrap(),
             psk: None,
+            #[cfg(target_os = "windows")]
+            constant_packet_size: false,
         },
         exit_peer: None,
         ipv4_gateway: "0.0.0.0".parse().unwrap(),
         ipv6_gateway: None,
         mtu: 0,
         obfuscator_config: None,
+        daita: false,
+        quantum_resistant: false,
     });
 
     static WG_STRUCT_CONFIG: Lazy<Interface> = Lazy::new(|| Interface {
@@ -1026,7 +1168,9 @@ mod tests {
             peers_count: 1,
         },
         p0: WgPeer {
-            flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
+            flags: WgPeerFlag::HAS_PUBLIC_KEY
+                | WgPeerFlag::HAS_ENDPOINT
+                | WgPeerFlag::HAS_CONSTANT_PACKET_SIZE,
             reserved: 0,
             public_key: *WG_PUBLIC_KEY.as_bytes(),
             preshared_key: [0; WIREGUARD_KEY_LENGTH],
@@ -1039,6 +1183,8 @@ mod tests {
             rx_bytes: 0,
             last_handshake: 0,
             allowed_ips_count: 1,
+            #[cfg(target_os = "windows")]
+            constant_packet_size: 0,
         },
         p0_allowed_ip_0: WgAllowedIp {
             address: WgIpAddr::from("1.3.3.0".parse::<Ipv4Addr>().unwrap()),

@@ -12,6 +12,7 @@ members = [
     "ios/MullvadREST/Transport/Shadowsocks/shadowsocks-proxy",
     "ios/TunnelObfuscation/tunnel-obfuscator-proxy",
     "mullvad-api",
+    "mullvad-daemon",
     "mullvad-cli",
     "mullvad-daemon",
     "mullvad-exclude",
