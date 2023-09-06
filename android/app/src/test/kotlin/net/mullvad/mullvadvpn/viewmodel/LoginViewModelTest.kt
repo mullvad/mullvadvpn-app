@@ -11,7 +11,7 @@ import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.lib.ipc.Event
@@ -45,7 +45,7 @@ class LoginViewModelTest {
 
     @Before
     fun setup() {
-        Dispatchers.setMain(TestCoroutineDispatcher())
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
 
         every { mockedAccountRepository.accountCreationEvents } returns accountCreationTestEvents
@@ -59,7 +59,7 @@ class LoginViewModelTest {
             LoginViewModel(
                 mockedAccountRepository,
                 mockedDeviceRepository,
-                TestCoroutineDispatcher()
+                UnconfinedTestDispatcher()
             )
     }
 
