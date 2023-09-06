@@ -115,6 +115,7 @@ class LoginContentView: UIView {
         )
 
         addSubviews()
+        addObservers()
     }
 
     required init?(coder: NSCoder) {
@@ -212,5 +213,24 @@ class LoginContentView: UIView {
             accountInputGroup.trailingAnchor
                 .constraint(equalTo: accountInputGroupWrapper.trailingAnchor),
         ])
+    }
+
+    private func addObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didChangePreferredAccountNumber(_:)),
+            name: CreateAccountVoucherCoordinator.didChangePreferredAccountNumber,
+            object: nil
+        )
+    }
+
+    @objc private func didChangePreferredAccountNumber(_ notification: Notification) {
+        guard let preferredAccountNumber = notification
+            .userInfo?[
+                CreateAccountVoucherCoordinator.preferredAccountNumberUserInfoKey
+            ] as? String else {
+            return
+        }
+        self.accountInputGroup.setAccount(preferredAccountNumber)
     }
 }

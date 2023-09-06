@@ -133,6 +133,15 @@ final class RedeemVoucherContentView: UIView {
         return stackView
     }()
 
+    var viewForInputingAccountNumberAsVoucher: UIView? {
+        didSet {
+            viewForInputingAccountNumberAsVoucher.flatMap {
+                voucherCodeStackView.addArrangedSubview($0)
+                voucherCodeStackView.setCustomSpacing(UIMetrics.padding16, after: statusStack)
+            }
+        }
+    }
+
     private var text: String {
         switch state {
         case let .failure(error):
@@ -292,7 +301,8 @@ final class RedeemVoucherContentView: UIView {
     }
 
     @objc private func redeemButtonTapped(_ sender: AppButton) {
-        guard let code = textField.text, !code.isEmpty else {
+        let code = textField.parsedToken
+        guard !code.isEmpty else {
             return
         }
         redeemAction?(code)

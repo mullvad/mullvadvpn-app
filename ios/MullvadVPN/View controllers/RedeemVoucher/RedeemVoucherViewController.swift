@@ -16,16 +16,16 @@ protocol RedeemVoucherViewControllerDelegate: AnyObject {
         with response: REST.SubmitVoucherResponse
     )
     func redeemVoucherDidCancel(_ controller: RedeemVoucherViewController)
+    func viewForInputingAccountNumberAsVoucher(_ controller: RedeemVoucherViewController) -> UIView?
 }
 
 class RedeemVoucherViewController: UIViewController, UINavigationControllerDelegate, RootContainment {
     private let contentView = RedeemVoucherContentView()
-    private var voucherTask: Cancellable?
-    private var interactor: RedeemVoucherInteractor?
+    private var interactor: RedeemVoucherProtocol?
 
     weak var delegate: RedeemVoucherViewControllerDelegate?
 
-    init(interactor: RedeemVoucherInteractor) {
+    init(interactor: RedeemVoucherProtocol) {
         super.init(nibName: nil, bundle: nil)
         self.interactor = interactor
     }
@@ -93,16 +93,17 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         view.addConstrainedSubviews([contentView]) {
             contentView.pinEdgesToSuperview(.all())
         }
+        contentView.viewForInputingAccountNumberAsVoucher = delegate?.viewForInputingAccountNumberAsVoucher(self)
     }
 
     private func submit(code: String) {
         contentView.state = .verifying
-        voucherTask = interactor?.redeemVoucher(code: code, completion: { [weak self] result in
+        contentView.isEditing = false
+        interactor?.redeemVoucher(code: code, completion: { [weak self] result in
             guard let self else { return }
             switch result {
             case let .success(value):
                 contentView.state = .success
-                contentView.isEditing = false
                 delegate?.redeemVoucherDidSucceed(self, with: value)
             case let .failure(error):
                 contentView.state = .failure(error)
@@ -113,7 +114,7 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     private func cancel() {
         contentView.isEditing = false
 
-        voucherTask?.cancel()
+        interactor?.cancelAll()
 
         delegate?.redeemVoucherDidCancel(self)
     }
