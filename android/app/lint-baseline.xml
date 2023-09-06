@@ -90,17 +90,6 @@
     </issue>
 
     <issue
-        id="ScrollViewSize"
-        message="This LinearLayout should use `android:layout_height=&quot;wrap_content&quot;`"
-        errorLine1="                      android:layout_height=&quot;match_parent&quot;"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/welcome.xml"
-            line="14"
-            column="23"/>
-    </issue>
-
-    <issue
         id="DefaultLocale"
         message="Implicitly using the default locale is a common source of bugs: Use `toUpperCase(Locale)` instead. For strings meant to be internal use `Locale.ROOT`, otherwise `Locale.getDefault()`."
         errorLine1="                    input.replace(index, index + 1, character.toString().toUpperCase())"
@@ -109,50 +98,6 @@
             file="src/main/kotlin/net/mullvad/mullvadvpn/util/SegmentedInputFormatter.kt"
             line="117"
             column="74"/>
-    </issue>
-
-    <issue
-        id="DuplicateIncludedIds"
-        message="Duplicate id @+id/widgetBarrier, defined or included multiple times in layout/list_item_action.xml: [layout/list_item_action.xml defines @+id/widgetBarrier, layout/list_item_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier]"
-        errorLine1="    &lt;include layout=&quot;@layout/list_item_base&quot; />"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/list_item_action.xml"
-            line="7"
-            column="5"
-            message="Duplicate id @+id/widgetBarrier, defined or included multiple times in layout/list_item_action.xml: [layout/list_item_action.xml defines @+id/widgetBarrier, layout/list_item_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier]"/>
-        <location
-            file="src/main/res/layout/list_item_action.xml"
-            line="23"
-            column="47"
-            message="Defined here"/>
-        <location
-            file="src/main/res/layout/list_item_base.xml"
-            line="38"
-            column="47"
-            message="Defined here, included via layout/list_item_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier"/>
-    </issue>
-
-    <issue
-        id="DuplicateIncludedIds"
-        message="Duplicate id @+id/widgetBarrier, defined or included multiple times in layout/list_item_two_action.xml: [layout/list_item_two_action.xml defines @+id/widgetBarrier, layout/list_item_two_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier]"
-        errorLine1="        &lt;include layout=&quot;@layout/list_item_base&quot; />"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/list_item_two_action.xml"
-            line="16"
-            column="9"
-            message="Duplicate id @+id/widgetBarrier, defined or included multiple times in layout/list_item_two_action.xml: [layout/list_item_two_action.xml defines @+id/widgetBarrier, layout/list_item_two_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier]"/>
-        <location
-            file="src/main/res/layout/list_item_two_action.xml"
-            line="34"
-            column="47"
-            message="Defined here"/>
-        <location
-            file="src/main/res/layout/list_item_base.xml"
-            line="38"
-            column="47"
-            message="Defined here, included via layout/list_item_two_action.xml => layout/list_item_base.xml defines @+id/widgetBarrier"/>
     </issue>
 
     <issue
@@ -307,17 +252,6 @@
             file="src/main/res/layout/login.xml"
             line="28"
             column="20"/>
-    </issue>
-
-    <issue
-        id="Overdraw"
-        message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/AppTheme`)"
-        errorLine1="                android:background=&quot;?android:attr/selectableItemBackground&quot;>"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notification_banner.xml"
-            line="8"
-            column="17"/>
     </issue>
 
     <issue
@@ -604,28 +538,6 @@
             file="src/main/res/layout/login.xml"
             line="48"
             column="18"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="        &lt;ImageView android:id=&quot;@+id/notification_status&quot;"
-        errorLine2="         ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notification_banner.xml"
-            line="15"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="    &lt;ImageView android:id=&quot;@+id/notification_icon&quot;"
-        errorLine2="     ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notification_banner.xml"
-            line="43"
-            column="6"/>
     </issue>
 
     <issue
