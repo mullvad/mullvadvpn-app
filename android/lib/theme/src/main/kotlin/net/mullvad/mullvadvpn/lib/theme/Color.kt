@@ -33,10 +33,6 @@ val MullvadRed = Color(0xFFE34039)
 @Deprecated(
     "Deprecated for external usage and will be marked as internal in the future. Use material colors instead."
 )
-val MullvadHelmetYellow = Color(0xFFFFD524)
-@Deprecated(
-    "Deprecated for external usage and will be marked as internal in the future. Use material colors instead."
-)
 val MullvadWhite = Color(0xFFFFFFFF)
 @Deprecated(
     "Deprecated for external usage and will be marked as internal in the future. Use material colors instead."
