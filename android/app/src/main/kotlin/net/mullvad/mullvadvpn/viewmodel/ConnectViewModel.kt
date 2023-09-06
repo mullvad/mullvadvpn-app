@@ -134,7 +134,8 @@ class ConnectViewModel(
                 awaitClose { onNewLocation = null }
             }
             // Filter out empty or short-name country representations.
-            .filter { it?.let { location -> location.country.length > 2 } ?: false }
+            // We want to keep null location to handle those situations
+            .filter { it?.let { location -> location.country.length > 2 } ?: true }
 
     private fun RelayListListener.relayListCallbackFlow() = callbackFlow {
         onRelayCountriesChange = { _, item -> this.trySend(item) }
