@@ -508,7 +508,10 @@ impl RouteManagerImpl {
             }
         }
 
-        // Reset default route
+        // Horrible workaround: The RTM_ADD message that adds back the non-tunnel default route is
+        // ignored when sent as the tunnel interface is destroyed.
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+
         if let Err(error) = self
             .set_default_route_ifscope(true, false)
             .await
