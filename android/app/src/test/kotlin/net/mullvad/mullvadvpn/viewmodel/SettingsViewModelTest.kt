@@ -89,9 +89,14 @@ class SettingsViewModelTest {
                 isOutdated = false,
                 isSupported = true
             )
+        every { mockAppVersionInfoCache.version } returns "1.0"
+        every { mockAppVersionInfoCache.isSupported } returns true
+        every { mockAppVersionInfoCache.isOutdated } returns false
 
         // Act, Assert
         viewModel.uiState.test {
+            awaitItem() // Wait for initial value
+
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             versionInfo.value = versionInfoTestItem

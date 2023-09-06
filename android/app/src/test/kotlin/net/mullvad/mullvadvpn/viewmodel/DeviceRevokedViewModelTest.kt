@@ -13,7 +13,7 @@ import io.mockk.verify
 import io.mockk.verifyOrder
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -48,7 +48,7 @@ class DeviceRevokedViewModelTest {
             DeviceRevokedViewModel(
                 mockedServiceConnectionManager,
                 mockedAccountRepository,
-                TestCoroutineDispatcher()
+                UnconfinedTestDispatcher()
             )
     }
 
