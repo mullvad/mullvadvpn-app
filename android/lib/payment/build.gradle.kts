@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.lib.billing"
+    namespace = "net.mullvad.mullvadvpn.lib.payment"
     compileSdk = Versions.Android.compileSdkVersion
 
     defaultConfig {
@@ -41,29 +41,4 @@ android {
 dependencies {
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
-
-    implementation(Dependencies.Koin.core)
-    implementation(Dependencies.Koin.android)
-
-    //Billing library
-    implementation(Dependencies.billingClient)
-
-    //Model
-    implementation(project(Dependencies.Mullvad.modelLib))
-
-    //IPC
-    implementation(project(Dependencies.Mullvad.ipcLib))
-
-    //Payment library
-    implementation(project(Dependencies.Mullvad.paymentLib))
-
-    //Tests
-    androidTestImplementation(project(Dependencies.Mullvad.commonTestLib))
-    androidTestImplementation(Dependencies.MockK.android)
-    androidTestImplementation(Dependencies.Kotlin.test)
-    androidTestImplementation(Dependencies.KotlinX.coroutinesTest)
-    androidTestImplementation(Dependencies.turbine)
-    androidTestImplementation(Dependencies.junit)
-    androidTestImplementation(Dependencies.AndroidX.espressoContrib)
-    androidTestImplementation(Dependencies.AndroidX.espressoCore)
 }
