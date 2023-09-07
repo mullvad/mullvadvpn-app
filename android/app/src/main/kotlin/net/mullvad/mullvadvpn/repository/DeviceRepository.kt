@@ -57,6 +57,7 @@ class DeviceRepository(
         deviceListEvents
             .map {
                 if (it is DeviceListEvent.Available) {
+                    cachedDeviceList.value = DeviceList.Available(it.devices)
                     DeviceList.Available(it.devices)
                 } else {
                     DeviceList.Error
