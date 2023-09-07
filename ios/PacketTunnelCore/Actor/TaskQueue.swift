@@ -26,20 +26,42 @@ final actor TaskQueue {
         operation: @escaping () async throws -> Output
     ) async throws -> Output {
         let previousTask = currentTask
-
-        let newTask = Task(priority: priority) {
+        let nextTask = Task(priority: priority) {
             await previousTask?.task.waitForCompletion()
 
             return try await operation()
         }
 
-        currentTask = SerialTask(kind: kind, task: newTask)
+        setCurrent(SerialTask(kind: kind, task: nextTask))
 
-        if let previousTask, kind.shouldCancel(previousTask.kind) {
-            previousTask.task.cancel()
+        return try await nextTask.value
+    }
+
+    public func add<Output>(
+        kind: TaskKind,
+        priority: TaskPriority? = nil,
+        operation: @escaping () async -> Output
+    ) async -> Output {
+        let previousTask = currentTask
+        let nextTask = Task(priority: priority) {
+            await previousTask?.task.waitForCompletion()
+
+            return await operation()
         }
 
-        return try await newTask.value
+        setCurrent(SerialTask(kind: kind, task: nextTask))
+
+        return await nextTask.value
+    }
+
+    private func setCurrent(_ nextTask: SerialTask) {
+        let previousTask = currentTask
+
+        currentTask = nextTask
+
+        if let previousTask, nextTask.kind.shouldCancel(previousTask.kind) {
+            previousTask.task.cancel()
+        }
     }
 }
 
