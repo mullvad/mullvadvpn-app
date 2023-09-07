@@ -103,6 +103,8 @@ object Dependencies {
         const val talpidLib = ":lib:talpid"
         const val themeLib = ":lib:theme"
         const val commonTestLib = ":lib:common-test"
+        const val billingLib = ":lib:billing"
+        const val paymentLib = ":lib:payment"
     }
 
     object Plugin {
