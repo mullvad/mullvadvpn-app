@@ -294,6 +294,7 @@ dependencies {
     implementation(project(Dependencies.Mullvad.resourceLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
     implementation(project(Dependencies.Mullvad.themeLib))
+    implementation(project(Dependencies.Mullvad.paymentLib))
 
     implementation(Dependencies.androidMaterial)
     implementation(Dependencies.commonsValidator)

@@ -9,7 +9,8 @@ include(
     ":lib:talpid",
     ":lib:theme",
     ":lib:common-test",
-    ":lib:billing"
+    ":lib:billing",
+    ":lib:payment"
 )
 
 include(":test", ":test:common", ":test:e2e", ":test:mockapi")
