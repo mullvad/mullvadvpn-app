@@ -4,8 +4,10 @@ use futures::{channel::mpsc, future::FutureExt, stream::StreamExt};
 use ipnetwork::IpNetwork;
 use nix::sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage};
 use std::{
+    cmp::min,
     collections::{BTreeMap, HashSet},
     net::{Ipv4Addr, Ipv6Addr},
+    time::Duration,
 };
 use talpid_types::ErrorExt;
 use watch::RoutingTable;
@@ -66,6 +68,7 @@ pub struct RouteManagerImpl {
     v4_default_route: Option<data::RouteMessage>,
     v6_default_route: Option<data::RouteMessage>,
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
+    restore_default_routes_hack: bool,
 }
 
 impl RouteManagerImpl {
@@ -82,6 +85,7 @@ impl RouteManagerImpl {
             v4_default_route: None,
             v6_default_route: None,
             default_route_listeners: vec![],
+            restore_default_routes_hack: false,
         })
     }
 
@@ -108,6 +112,42 @@ impl RouteManagerImpl {
             });
 
         loop {
+            // Restoring the default routes during cleanup sometimes fails, so repeat this a few
+            // times until we have default routes. Route manager commands are blocked until we're
+            // done.
+            if self.restore_default_routes_hack {
+                const RESTORE_HACK_INITIAL_INTERVAL: Duration = Duration::from_millis(50);
+                const RESTORE_HACK_INTERVAL_MULTIPLIER: u32 = 5;
+                const RESTORE_HACK_MAX_INTERVAL: Duration = Duration::from_secs(3);
+
+                let mut sleep_interval = RESTORE_HACK_INITIAL_INTERVAL;
+
+                loop {
+                    tokio::time::sleep(sleep_interval).await;
+
+                    if self.try_restore_default_routes().await {
+                        log::debug!("Default routes restored");
+                        break;
+                    }
+
+                    if sleep_interval >= RESTORE_HACK_MAX_INTERVAL {
+                        log::error!("Failed to restore default routes");
+                        break;
+                    }
+
+                    sleep_interval =
+                        match sleep_interval.checked_mul(RESTORE_HACK_INTERVAL_MULTIPLIER) {
+                            Some(ivl) => min(RESTORE_HACK_MAX_INTERVAL, ivl),
+                            None => {
+                                log::error!("Failed to restore default routes");
+                                break;
+                            }
+                        }
+                }
+
+                self.restore_default_routes_hack = false;
+            }
+
             futures::select_biased! {
                 route_message = self.routing_table.next_message().fuse() => {
                     self.handle_route_message(route_message).await;
@@ -508,17 +548,8 @@ impl RouteManagerImpl {
             }
         }
 
-        // Horrible workaround: The RTM_ADD message that adds back the non-tunnel default route is
-        // ignored when sent as the tunnel interface is destroyed.
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-
-        if let Err(error) = self
-            .set_default_route_ifscope(true, false)
-            .await
-            .and(self.set_default_route_ifscope(false, false).await)
-        {
-            log::error!("Failed to restore default routes: {error}");
-        }
+        self.try_restore_default_routes().await;
+        self.restore_default_routes_hack = true;
 
         // We have already removed the applied default routes
         self.v4_tunnel_default_route = None;
@@ -527,6 +558,34 @@ impl RouteManagerImpl {
         self.non_tunnel_routes.clear();
 
         Ok(())
+    }
+
+    async fn try_restore_default_routes(&mut self) -> bool {
+        let v4_done = if let Some(route) = &mut self.v4_default_route {
+            let _ = std::mem::replace(route, route.clone().set_ifscope(0));
+            if let Err(error) = self.routing_table.add_route(route).await {
+                log::trace!("Failed to add non-ifscope v4 route: {error}");
+            }
+
+            // Check if there is a default route now
+            let message = RouteMessage::new_route(v4_default().into());
+            matches!(self.routing_table.get_route(&message).await, Ok(Some(_)))
+        } else {
+            true
+        };
+        let v6_done = if let Some(route) = &mut self.v6_default_route {
+            let _ = std::mem::replace(route, route.clone().set_ifscope(0));
+            if let Err(error) = self.routing_table.add_route(route).await {
+                log::trace!("Failed to add non-ifscope v6 route: {error}");
+            }
+
+            // Check if there is a default route now
+            let message = RouteMessage::new_route(v6_default().into());
+            matches!(self.routing_table.get_route(&message).await, Ok(Some(_)))
+        } else {
+            true
+        };
+        v4_done && v6_done
     }
 }
 
