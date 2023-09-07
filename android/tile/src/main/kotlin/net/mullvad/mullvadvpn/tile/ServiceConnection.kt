@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.DispatchingFlow
 import net.mullvad.mullvadvpn.lib.common.util.bindServiceFlow
@@ -81,7 +80,7 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
     }
 
     private suspend fun connect(context: Context) {
-        val intent = Intent().apply { setClassName(MULLVAD_PACKAGE_NAME, VPN_SERVICE_CLASS) }
+        val intent = Intent().apply { setClassName(context.packageName, VPN_SERVICE_CLASS) }
 
         context
             .bindServiceFlow(intent)

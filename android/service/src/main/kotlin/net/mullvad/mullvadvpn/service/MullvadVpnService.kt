@@ -16,7 +16,6 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_QUIT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.DefaultApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
@@ -267,7 +266,7 @@ class MullvadVpnService : TalpidVpnService() {
     private fun openUi() {
         val intent =
             Intent().apply {
-                setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
+                setClassName(applicationContext.packageName, MAIN_ACTIVITY_CLASS)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }

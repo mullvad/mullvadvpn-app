@@ -9,7 +9,6 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
@@ -115,7 +114,7 @@ class TunnelStateNotification(val context: Context) {
     fun build(): Notification {
         val intent =
             Intent().apply {
-                setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
+                setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                 action = Intent.ACTION_MAIN
             }
@@ -139,7 +138,7 @@ class TunnelStateNotification(val context: Context) {
     private fun buildAction(): NotificationCompat.Action {
         val action = TunnelStateNotificationAction.from(tunnelState)
         val label = context.getString(action.text)
-        val intent = Intent(action.key).setPackage(MULLVAD_PACKAGE_NAME)
+        val intent = Intent(action.key).setPackage(context.packageName)
         val pendingIntent =
             PendingIntent.getForegroundService(
                 context,

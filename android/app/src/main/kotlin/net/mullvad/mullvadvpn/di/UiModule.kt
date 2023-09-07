@@ -89,4 +89,4 @@ val uiModule = module {
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
-const val APP_PREFERENCES_NAME = "net.mullvad.mullvadvpn.app_preferences"
+const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
