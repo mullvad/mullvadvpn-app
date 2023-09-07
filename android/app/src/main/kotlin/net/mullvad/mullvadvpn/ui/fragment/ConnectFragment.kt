@@ -24,7 +24,6 @@ import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.paintNavigationBar
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
-import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class ConnectFragment : BaseFragment(), NavigationBarPainter {
@@ -66,7 +65,8 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                     onSwitchLocationClick = { openSwitchLocationScreen() },
                     onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion,
                     onUpdateVersionClick = { openDownloadUrl() },
-                    onManageAccountClick = connectViewModel::onManageAccountClick
+                    onManageAccountClick = connectViewModel::onManageAccountClick,
+                    onOpenOutOfTimeScreen = ::openOutOfTimeScreen
                 )
             }
         }
@@ -103,10 +103,6 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
 
     private fun updateTunnelState(realState: TunnelState) {
         headerBar.tunnelState = realState
-
-        if (realState.isTunnelErrorStateDueToExpiredAccount()) {
-            openOutOfTimeScreen()
-        }
     }
 
     private fun openSwitchLocationScreen() {
@@ -124,17 +120,9 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
     }
 
     private fun openOutOfTimeScreen() {
-        jobTracker.newUiJob("openOutOfTimeScreen") {
-            parentFragmentManager.beginTransaction().apply {
-                replace(R.id.main_fragment, OutOfTimeFragment())
-                commitAllowingStateLoss()
-            }
+        parentFragmentManager.beginTransaction().apply {
+            replace(R.id.main_fragment, OutOfTimeFragment())
+            commitAllowingStateLoss()
         }
-    }
-
-    private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
-        return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
-            ?.isCausedByExpiredAccount()
-            ?: false
     }
 }

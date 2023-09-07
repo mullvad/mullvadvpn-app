@@ -820,4 +820,20 @@ class ConnectScreenTest {
         // Assert
         composeTestRule.apply { onNodeWithTag(SCROLLABLE_COLUMN_TEST_TAG).assertDoesNotExist() }
     }
+
+    @Test
+    fun testOpenOutOfTimeScreen() {
+        // Arrange
+        val mockedOpenScreenHandler: () -> Unit = mockk(relaxed = true)
+        composeTestRule.setContent {
+            ConnectScreen(
+                uiState = ConnectUiState.INITIAL,
+                viewActions = MutableStateFlow(ConnectViewModel.ViewAction.OpenOutOfTimeView),
+                onOpenOutOfTimeScreen = mockedOpenScreenHandler
+            )
+        }
+
+        // Assert
+        verify { mockedOpenScreenHandler.invoke() }
+    }
 }
