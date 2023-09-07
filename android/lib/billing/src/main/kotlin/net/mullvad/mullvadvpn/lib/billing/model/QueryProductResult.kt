@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.lib.billing.model
 
-interface QueryProductResult {
+sealed interface QueryProductResult {
     data class Ok(val products: List<BillingProduct>) : QueryProductResult
 
     data object BillingUnavailable: QueryProductResult
