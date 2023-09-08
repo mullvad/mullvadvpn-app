@@ -30,6 +30,4 @@ extension OperationBlockObserverSupport where Self: AsyncOperation {
     public func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
         addObserver(observer)
     }
-
-    // swiftlint:disable:next file_length
 }
