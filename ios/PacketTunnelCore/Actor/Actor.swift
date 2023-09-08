@@ -72,8 +72,8 @@ public actor PacketTunnelActor {
         await waitUntilConnected()
     }
 
-    public func stop() async throws {
-        try await taskQueue.add(kind: .stop) { [self] in
+    public func stop() async {
+        await taskQueue.add(kind: .stop) { [self] in
             switch state {
             case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
                 state = .disconnecting(connState)
