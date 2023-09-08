@@ -23,12 +23,11 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
-use parking_lot::RwLock;
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
     convert::{TryFrom, TryInto},
-    sync::Arc,
+    sync::{Arc, Mutex},
     time::Duration,
 };
 use talpid_types::ErrorExt;
@@ -44,7 +43,7 @@ pub enum Error {
 
 struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
-    subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
+    subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -102,7 +101,7 @@ impl ManagementService for ManagementServiceImpl {
     async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
-        let mut subscriptions = self.subscriptions.write();
+        let mut subscriptions = self.subscriptions.lock().unwrap();
         subscriptions.push(tx);
 
         Ok(Response::new(UnboundedReceiverStream::new(rx)))
@@ -881,7 +880,7 @@ impl ManagementInterfaceServer {
     pub fn start(
         tunnel_tx: DaemonCommandSender,
     ) -> Result<(String, ManagementInterfaceEventBroadcaster), Error> {
-        let subscriptions = Arc::<RwLock<Vec<EventsListenerSender>>>::default();
+        let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
         let socket_path = mullvad_paths::get_rpc_socket_path()
             .to_string_lossy()
@@ -917,7 +916,7 @@ impl ManagementInterfaceServer {
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
-    subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
+    subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     _close_handle: mpsc::Sender<()>,
 }
 
@@ -981,8 +980,7 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
 
 impl ManagementInterfaceEventBroadcaster {
     fn notify(&self, value: types::DaemonEvent) {
-        let mut subscriptions = self.subscriptions.write();
-        // TODO: using write-lock everywhere. use a mutex instead?
+        let mut subscriptions = self.subscriptions.lock().unwrap();
         subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
     }
 }
