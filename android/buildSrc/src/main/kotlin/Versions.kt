@@ -3,8 +3,8 @@ object Versions {
     const val jodaTime = "2.12.5"
     const val junit = "4.13.2"
     const val jvmTarget = "17"
-    const val kotlin = "1.9.0"
-    const val kotlinCompilerExtensionVersion = "1.5.1"
+    const val kotlin = "1.9.10"
+    const val kotlinCompilerExtensionVersion = "1.5.3"
     const val kotlinx = "1.7.3"
     const val leakCanary = "2.12"
     // Make sure the following issue has been fixed before upgrading mockk:
@@ -39,7 +39,7 @@ object Versions {
     }
 
     object Compose {
-        const val base = "1.5.0-rc01"
+        const val base = "1.5.0"
         const val composeCollapsingToolbar = "2.3.5"
         const val constrainLayout = "1.0.1"
         const val foundation = base
