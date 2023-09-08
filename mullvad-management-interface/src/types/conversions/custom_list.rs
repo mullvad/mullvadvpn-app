@@ -88,16 +88,16 @@ impl TryFrom<proto::CustomListLocationUpdate>
                     .location
                     .ok_or(FromProtobufTypeError::InvalidArgument("missing location"))?,
             );
-        match proto::custom_list_location_update::State::from_i32(custom_list.state) {
-            Some(proto::custom_list_location_update::State::Add) => Ok(Self::Add {
+        match proto::custom_list_location_update::State::try_from(custom_list.state) {
+            Ok(proto::custom_list_location_update::State::Add) => Ok(Self::Add {
                 name: custom_list.name,
                 location,
             }),
-            Some(proto::custom_list_location_update::State::Remove) => Ok(Self::Remove {
+            Ok(proto::custom_list_location_update::State::Remove) => Ok(Self::Remove {
                 name: custom_list.name,
                 location,
             }),
-            None => Err(FromProtobufTypeError::InvalidArgument("incorrect state")),
+            Err(_) => Err(FromProtobufTypeError::InvalidArgument("incorrect state")),
         }
     }
 }

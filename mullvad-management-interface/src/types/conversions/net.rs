@@ -69,12 +69,12 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                             )?,
                             protocol: try_transport_protocol_from_i32(proxy_ep.protocol)?,
                         },
-                        proxy_type: match proto::ProxyType::from_i32(proxy_ep.proxy_type) {
-                            Some(proto::ProxyType::Shadowsocks) => {
+                        proxy_type: match proto::ProxyType::try_from(proxy_ep.proxy_type) {
+                            Ok(proto::ProxyType::Shadowsocks) => {
                                 talpid_net::proxy::ProxyType::Shadowsocks
                             }
-                            Some(proto::ProxyType::Custom) => talpid_net::proxy::ProxyType::Custom,
-                            None => {
+                            Ok(proto::ProxyType::Custom) => talpid_net::proxy::ProxyType::Custom,
+                            Err(_) => {
                                 return Err(FromProtobufTypeError::InvalidArgument(
                                     "unknown proxy type",
                                 ))
@@ -97,13 +97,13 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                             ),
                             protocol: try_transport_protocol_from_i32(obfs_ep.protocol)?,
                         },
-                        obfuscation_type: match proto::ObfuscationType::from_i32(
+                        obfuscation_type: match proto::ObfuscationType::try_from(
                             obfs_ep.obfuscation_type,
                         ) {
-                            Some(proto::ObfuscationType::Udp2tcp) => {
+                            Ok(proto::ObfuscationType::Udp2tcp) => {
                                 talpid_net::ObfuscationType::Udp2Tcp
                             }
-                            None => {
+                            Err(_) => {
                                 return Err(FromProtobufTypeError::InvalidArgument(
                                     "unknown obfuscation type",
                                 ))
@@ -177,10 +177,10 @@ impl From<proto::IpVersion> for proto::IpVersionConstraint {
 pub fn try_tunnel_type_from_i32(
     tunnel_type: i32,
 ) -> Result<talpid_types::net::TunnelType, FromProtobufTypeError> {
-    match proto::TunnelType::from_i32(tunnel_type) {
-        Some(proto::TunnelType::Openvpn) => Ok(talpid_types::net::TunnelType::OpenVpn),
-        Some(proto::TunnelType::Wireguard) => Ok(talpid_types::net::TunnelType::Wireguard),
-        None => Err(FromProtobufTypeError::InvalidArgument(
+    match proto::TunnelType::try_from(tunnel_type) {
+        Ok(proto::TunnelType::Openvpn) => Ok(talpid_types::net::TunnelType::OpenVpn),
+        Ok(proto::TunnelType::Wireguard) => Ok(talpid_types::net::TunnelType::Wireguard),
+        Err(_) => Err(FromProtobufTypeError::InvalidArgument(
             "invalid tunnel protocol",
         )),
     }
@@ -189,9 +189,7 @@ pub fn try_tunnel_type_from_i32(
 pub fn try_transport_protocol_from_i32(
     protocol: i32,
 ) -> Result<talpid_types::net::TransportProtocol, FromProtobufTypeError> {
-    Ok(proto::TransportProtocol::from_i32(protocol)
-        .ok_or(FromProtobufTypeError::InvalidArgument(
-            "invalid transport protocol",
-        ))?
+    Ok(proto::TransportProtocol::try_from(protocol)
+        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid transport protocol"))?
         .into())
 }

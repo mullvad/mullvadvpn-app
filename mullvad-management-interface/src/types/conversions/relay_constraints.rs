@@ -17,10 +17,10 @@ impl TryFrom<&proto::WireguardConstraints>
         use talpid_types::net;
 
         let ip_version = match &constraints.ip_version {
-            Some(constraint) => match proto::IpVersion::from_i32(constraint.protocol) {
-                Some(proto::IpVersion::V4) => Some(net::IpVersion::V4),
-                Some(proto::IpVersion::V6) => Some(net::IpVersion::V6),
-                None => {
+            Some(constraint) => match proto::IpVersion::try_from(constraint.protocol) {
+                Ok(proto::IpVersion::V4) => Some(net::IpVersion::V4),
+                Ok(proto::IpVersion::V6) => Some(net::IpVersion::V6),
+                Err(_) => {
                     return Err(FromProtobufTypeError::InvalidArgument(
                         "invalid ip protocol version",
                     ))
@@ -660,11 +660,11 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
         use mullvad_types::relay_constraints::SelectedObfuscation;
         use proto::obfuscation_settings::SelectedObfuscation as IpcSelectedObfuscation;
         let selected_obfuscation =
-            match IpcSelectedObfuscation::from_i32(settings.selected_obfuscation) {
-                Some(IpcSelectedObfuscation::Auto) => SelectedObfuscation::Auto,
-                Some(IpcSelectedObfuscation::Off) => SelectedObfuscation::Off,
-                Some(IpcSelectedObfuscation::Udp2tcp) => SelectedObfuscation::Udp2Tcp,
-                None => {
+            match IpcSelectedObfuscation::try_from(settings.selected_obfuscation) {
+                Ok(IpcSelectedObfuscation::Auto) => SelectedObfuscation::Auto,
+                Ok(IpcSelectedObfuscation::Off) => SelectedObfuscation::Off,
+                Ok(IpcSelectedObfuscation::Udp2tcp) => SelectedObfuscation::Udp2Tcp,
+                Err(_) => {
                     return Err(FromProtobufTypeError::InvalidArgument(
                         "invalid selected obfuscator",
                     ));
@@ -709,17 +709,17 @@ impl TryFrom<proto::BridgeState> for mullvad_types::relay_constraints::BridgeSta
     type Error = FromProtobufTypeError;
 
     fn try_from(state: proto::BridgeState) -> Result<Self, Self::Error> {
-        match proto::bridge_state::State::from_i32(state.state) {
-            Some(proto::bridge_state::State::Auto) => {
+        match proto::bridge_state::State::try_from(state.state) {
+            Ok(proto::bridge_state::State::Auto) => {
                 Ok(mullvad_types::relay_constraints::BridgeState::Auto)
             }
-            Some(proto::bridge_state::State::On) => {
+            Ok(proto::bridge_state::State::On) => {
                 Ok(mullvad_types::relay_constraints::BridgeState::On)
             }
-            Some(proto::bridge_state::State::Off) => {
+            Ok(proto::bridge_state::State::Off) => {
                 Ok(mullvad_types::relay_constraints::BridgeState::Off)
             }
-            None => Err(FromProtobufTypeError::InvalidArgument(
+            Err(_) => Err(FromProtobufTypeError::InvalidArgument(
                 "invalid bridge state",
             )),
         }
@@ -758,11 +758,9 @@ pub fn try_providers_constraint_from_proto(
 pub fn try_ownership_constraint_from_i32(
     ownership: i32,
 ) -> Result<Constraint<mullvad_types::relay_constraints::Ownership>, FromProtobufTypeError> {
-    proto::Ownership::from_i32(ownership)
+    proto::Ownership::try_from(ownership)
         .map(ownership_constraint_from_proto)
-        .ok_or(FromProtobufTypeError::InvalidArgument(
-            "invalid ownership argument",
-        ))
+        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid ownership argument"))
 }
 
 pub fn ownership_constraint_from_proto(
