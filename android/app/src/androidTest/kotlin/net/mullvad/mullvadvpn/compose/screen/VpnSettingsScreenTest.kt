@@ -17,6 +17,7 @@ import io.mockk.verifyAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
+import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
@@ -811,6 +812,33 @@ class VpnSettingsScreenTest {
 
         // Assert
         verify { onWireguardPortSelected.invoke(Constraint.Only(Port(4000))) }
+    }
+
+    @Test
+    fun testShowWireguardCustomPortDialogInvalidInt() {
+        // Input a number to make sure that a too long number does not show and it does not crash
+        // the app
+
+        // Arrange
+        composeTestRule.setContent {
+            VpnSettingsScreen(
+                uiState =
+                    VpnSettingsUiState.CustomPortDialogUiState(
+                        availablePortRanges = listOf(PortRange(53, 53), PortRange(120, 121))
+                    ),
+                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+            )
+        }
+
+        // Act
+        composeTestRule
+            .onNodeWithTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG)
+            .performTextInput("21474836471")
+
+        // Assert
+        composeTestRule
+            .onNodeWithTagAndText(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG, "21474836471")
+            .assertDoesNotExist()
     }
 
     companion object {
