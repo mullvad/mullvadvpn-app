@@ -113,7 +113,7 @@ impl Drop for DnsWatcher {
 
 impl DnsWatcher {
     fn start(state: Arc<Mutex<Option<State>>>) -> Result<Self> {
-        let mut watcher = Inotify::init().map_err(Error::WatchResolvConf)?;
+        let watcher = Inotify::init().map_err(Error::WatchResolvConf)?;
         let mut mask = WatchMask::empty();
         // Documentation for the meaning of these masks can be found in `man inotify`
         //
@@ -137,7 +137,7 @@ impl DnsWatcher {
     }
 
     async fn event_loop(
-        mut watcher: Inotify,
+        watcher: Inotify,
         mut cancel_listener: Listener,
         state: &Arc<Mutex<Option<State>>>,
     ) {
