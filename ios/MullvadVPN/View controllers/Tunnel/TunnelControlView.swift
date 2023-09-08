@@ -649,4 +649,6 @@ private extension TunnelState {
             return []
         }
     }
+
+    // swiftlint:disable:next file_length
 }

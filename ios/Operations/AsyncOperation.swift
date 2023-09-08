@@ -392,35 +392,12 @@ open class AsyncOperation: Operation {
     }
 }
 
+extension AsyncOperation: OperationBlockObserverSupport {}
+
 extension Operation {
     public func addDependencies(_ dependencies: [Operation]) {
         for dependency in dependencies {
             addDependency(dependency)
         }
-    }
-}
-
-public protocol OperationBlockObserverSupport {}
-extension AsyncOperation: OperationBlockObserverSupport {}
-
-extension OperationBlockObserverSupport where Self: AsyncOperation {
-    /// Add observer responding to cancellation event.
-    public func onCancel(_ fn: @escaping (Self) -> Void) {
-        addBlockObserver(OperationBlockObserver(didCancel: fn))
-    }
-
-    /// Add observer responding to finish event.
-    public func onFinish(_ fn: @escaping (Self, Error?) -> Void) {
-        addBlockObserver(OperationBlockObserver(didFinish: fn))
-    }
-
-    /// Add observer responding to start event.
-    public func onStart(_ fn: @escaping (Self) -> Void) {
-        addBlockObserver(OperationBlockObserver(didStart: fn))
-    }
-
-    /// Add block-based observer.
-    public func addBlockObserver(_ observer: OperationBlockObserver<Self>) {
-        addObserver(observer)
     }
 }

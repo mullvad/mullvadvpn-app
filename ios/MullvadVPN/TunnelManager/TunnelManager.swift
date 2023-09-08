@@ -755,7 +755,6 @@ final class TunnelManager: StorePaymentObserver {
                 }
 
             case .invalid:
-                // TODO: handle invalid account in some way?
                 break
             }
         }

@@ -53,7 +53,8 @@ enum CustomDNSPrecondition {
                         "CUSTOM_DNS_NO_DNS_ENTRIES_EDITING_OFF_FOOTNOTE",
                         tableName: "Preferences",
                         value: "Tap **Edit** to add at least one DNS server.",
-                        comment: "Foot note displayed if there are no DNS entries, but table view is not in editing mode."
+                        comment:
+                        "Foot note displayed if there are no DNS entries, but table view is not in editing mode."
                     ),
                     options: MarkdownStylingOptions(font: preferredFont)
                 )
@@ -65,7 +66,10 @@ enum CustomDNSPrecondition {
                     "CUSTOM_DNS_DISABLE_CONTENT_BLOCKERS_FOOTNOTE",
                     tableName: "Preferences",
                     value: "Disable all content blockers (under VPN settings) to activate this setting.",
-                    comment: "Foot note displayed when custom DNS cannot be enabled, because content blockers should be disabled first."
+                    comment: """
+                    Foot note displayed when custom DNS cannot be enabled, because content blockers should be \
+                    disabled first.
+                    """
                 ),
                 attributes: [.font: preferredFont]
             )

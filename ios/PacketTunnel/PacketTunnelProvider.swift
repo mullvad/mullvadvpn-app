@@ -763,4 +763,6 @@ extension PacketTunnelErrorWrapper {
             return nil
         }
     }
+
+    // swiftlint:disable:next file_length
 }

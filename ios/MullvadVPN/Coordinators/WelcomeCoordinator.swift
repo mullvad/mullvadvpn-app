@@ -96,7 +96,7 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         """
         let alertController = CustomAlertViewController(
             message: NSLocalizedString(
-                "WELCOME_DEVICE_CONCEPET_TEXT_DIALOG",
+                "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
                 tableName: "Welcome",
                 value: message,
                 comment: ""

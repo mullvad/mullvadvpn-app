@@ -635,4 +635,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             return nil
         }
     }
+
+    // swiftlint:disable:next file_length
 }

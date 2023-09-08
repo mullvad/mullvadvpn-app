@@ -17,9 +17,6 @@ final class ProblemReportInteractor {
 
     private lazy var consolidatedLog: ConsolidatedApplicationLog = {
         let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
-
-        // TODO: make sure we redact old tokens
-
         let redactStrings = [tunnelManager.deviceState.accountData?.number].compactMap { $0 }
 
         let report = ConsolidatedApplicationLog(
