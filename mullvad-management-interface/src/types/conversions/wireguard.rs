@@ -1,5 +1,6 @@
 use super::FromProtobufTypeError;
 use crate::types::proto;
+use chrono::TimeZone;
 use prost_types::Timestamp;
 
 impl From<mullvad_types::wireguard::PublicKey> for proto::PublicKey {
@@ -29,7 +30,7 @@ impl TryFrom<proto::PublicKey> for mullvad_types::wireguard::PublicKey {
         Ok(mullvad_types::wireguard::PublicKey {
             key: talpid_types::net::wireguard::PublicKey::try_from(public_key.key.as_slice())
                 .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid wireguard key"))?,
-            created: chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc),
+            created: chrono::Utc.from_utc_datetime(&ndt),
         })
     }
 }

@@ -1,4 +1,5 @@
 use crate::types;
+use chrono::TimeZone;
 use mullvad_types::account::{AccountData, VoucherSubmission};
 
 use super::FromProtobufTypeError;
@@ -27,7 +28,7 @@ impl TryFrom<types::VoucherSubmission> for VoucherSubmission {
                 .unwrap();
 
         Ok(VoucherSubmission {
-            new_expiry: chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc),
+            new_expiry: chrono::Utc.from_utc_datetime(&ndt),
             time_added: submission.seconds_added,
         })
     }
@@ -55,7 +56,7 @@ impl TryFrom<types::AccountData> for AccountData {
             chrono::NaiveDateTime::from_timestamp_opt(expiry.seconds, expiry.nanos as u32).unwrap();
 
         Ok(AccountData {
-            expiry: chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc),
+            expiry: chrono::Utc.from_utc_datetime(&ndt),
         })
     }
 }
