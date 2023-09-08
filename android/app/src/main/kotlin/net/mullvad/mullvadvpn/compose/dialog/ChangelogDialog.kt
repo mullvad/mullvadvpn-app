@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -39,13 +39,16 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
             )
         },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement =
+                    Arrangement.spacedBy(dimensionResource(id = R.dimen.small_padding))
+            ) {
                 Text(
                     text = stringResource(R.string.changes_dialog_subtitle),
                     fontSize = 18.sp,
                     color = Color.White,
-                    modifier =
-                        Modifier.padding(vertical = dimensionResource(id = R.dimen.medium_padding))
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 changesList.forEach { changeItem -> ChangeListItem(text = changeItem) }
@@ -55,7 +58,6 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
             Button(
                 modifier =
                     Modifier.wrapContentHeight()
-                        .padding(all = dimensionResource(id = R.dimen.medium_padding))
                         .defaultMinSize(minHeight = dimensionResource(id = R.dimen.button_height))
                         .fillMaxWidth(),
                 colors =

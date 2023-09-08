@@ -149,7 +149,6 @@ fun ListItem(
 
 @Composable
 fun ChangeListItem(text: String) {
-    val smallPadding = Dimens.smallPadding
 
     ConstraintLayout {
         val (bullet, changeLog) = createRefs()
@@ -170,7 +169,7 @@ fun ChangeListItem(text: String) {
             modifier =
                 Modifier.absolutePadding(left = Dimens.mediumPadding).constrainAs(changeLog) {
                     top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom, margin = smallPadding)
+                    bottom.linkTo(parent.bottom)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 }
