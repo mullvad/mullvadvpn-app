@@ -166,13 +166,13 @@ private fun NotificationBanner(
         modifier =
             Modifier.fillMaxWidth()
                 .background(color = MaterialTheme.colorScheme.background)
+                .then(onClick?.let { Modifier.clickable(onClick = onClick) } ?: Modifier)
                 .padding(
                     start = Dimens.notificationBannerStartPadding,
                     end = Dimens.notificationBannerEndPadding,
                     top = Dimens.smallPadding,
                     bottom = Dimens.smallPadding
                 )
-                .then(onClick?.let { Modifier.clickable(onClick = onClick) } ?: Modifier)
                 .animateContentSize()
                 .testTag(NOTIFICATION_BANNER)
     ) {
