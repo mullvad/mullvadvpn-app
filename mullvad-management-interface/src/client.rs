@@ -505,9 +505,7 @@ impl MullvadProxyClient {
 
     pub async fn add_access_method(&mut self, access_method: AccessMethod) -> Result<()> {
         self.0
-            .add_api_access_method(types::ApiAccessMethodAdd {
-                name: access_method.name,
-            })
+            .add_api_access_method(types::ApiAccessMethod::from(access_method))
             .await
             .map_err(Error::Rpc)
             .map(drop)

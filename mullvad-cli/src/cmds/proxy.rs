@@ -98,7 +98,6 @@ pub enum Socks5AddCommands {
         remote_ip: IpAddr,
         /// The port of the remote proxy server
         remote_port: u16,
-
         /// Username for authentication
         #[arg(requires = "password")]
         username: Option<String>,
@@ -108,16 +107,16 @@ pub enum Socks5AddCommands {
     },
 }
 
-/// Implement conversios from CLI types to Daemon types.
+/// Implement conversions from CLI types to Daemon types.
 ///
 /// Since these are not supposed to be used outside of the CLI,
 /// we define them in a hidden-away module.
 mod conversions {
-    use mullvad_types::api_access_method::AccessMethod;
+    use mullvad_types::api_access_method as daemon_types;
 
     use super::{AddCustomCommands, Socks5AddCommands};
 
-    impl TryFrom<AddCustomCommands> for AccessMethod {
+    impl TryFrom<AddCustomCommands> for daemon_types::AccessMethod {
         // TODO: Use some other Error type than String!
         type Error = String;
 
@@ -130,9 +129,15 @@ mod conversions {
                         remote_port,
                     } => {
                         println!("Adding LOCAL SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
-                        Self {
-                            name: "SOCKS5 [local]({remote_ip}:{remote_port})".to_string(),
-                        }
+                        let socks_proxy = daemon_types::Socks5::Local(
+                            daemon_types::Socks5Local::from_args(
+                                remote_ip.to_string(),
+                                remote_port,
+                                local_port,
+                            )
+                            .unwrap(),
+                        );
+                        daemon_types::AccessMethod::Socks5(socks_proxy)
                     }
                     Socks5AddCommands::Remote {
                         remote_ip,
@@ -141,9 +146,14 @@ mod conversions {
                         password,
                     } => {
                         println!("Adding REMOTE SOCKS5-proxy: {username:?}+{password:?} @ {remote_ip}:{remote_port}");
-                        Self {
-                            name: "SOCKS5 [remote]({remote_ip}:{remote_port})".to_string(),
-                        }
+                        let socks_proxy = daemon_types::Socks5::Remote(
+                            daemon_types::Socks5Remote::from_args(
+                                remote_ip.to_string(),
+                                remote_port,
+                            )
+                            .unwrap(),
+                        );
+                        daemon_types::AccessMethod::Socks5(socks_proxy)
                     }
                 },
                 AddCustomCommands::Shadowsocks {
@@ -155,9 +165,14 @@ mod conversions {
                     println!(
                 "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
                     );
-                    Self {
-                        name: "Shadowsocks ({remote_ip}:{remote_port})".to_string(),
-                    }
+                    let shadowsocks_proxy = daemon_types::Shadowsocks::from_args(
+                        remote_ip.to_string(),
+                        remote_port,
+                        cipher,
+                        password,
+                    )
+                    .unwrap();
+                    daemon_types::AccessMethod::Shadowsocks(shadowsocks_proxy)
                 }
             })
         }

@@ -15,10 +15,9 @@ impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub async fn add_access_method(&mut self, method: AccessMethod) -> Result<(), Error> {
+    pub async fn add_access_method(&mut self, access_method: AccessMethod) -> Result<(), Error> {
         self.settings
             .update(|settings| {
-                let access_method = AccessMethod { name: method.name };
                 settings
                     .api_access_methods
                     .api_access_methods

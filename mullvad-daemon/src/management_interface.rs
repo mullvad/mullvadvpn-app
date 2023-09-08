@@ -636,7 +636,7 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn add_api_access_method(
         &self,
-        request: Request<types::ApiAccessMethodAdd>,
+        request: Request<types::ApiAccessMethod>,
     ) -> ServiceResult<()> {
         log::debug!("add_api_access_method");
         let access_method =

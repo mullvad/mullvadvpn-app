@@ -78,7 +78,7 @@ service ManagementService {
 
   // API Access methods
   rpc GetApiAccessMethods(google.protobuf.Empty) returns (ApiAccessMethods) {}
-  rpc AddApiAccessMethod(ApiAccessMethodAdd) returns (google.protobuf.Empty) {
+  rpc AddApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
 
@@ -350,14 +350,37 @@ message CustomLists { repeated CustomList custom_lists = 1; }
 
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
-message ApiAccessMethod { string name = 1; }
+message ApiAccessMethod {
+  message Socks5Local {
+    string ip = 1;
+    uint32 port = 2;
+    uint32 local_port = 3;
+  }
+  message Socks5Remote {
+    string ip = 1;
+    uint32 port = 2;
+  }
+  message Socks5 {
+    oneof Socks5type {
+      Socks5Local local = 1;
+      Socks5Remote remote = 2;
+    }
+  }
+  message Shadowsocks {
+    string ip = 1;
+    uint32 port = 2;
+    string password = 3;
+    string cipher = 4;
+  }
+  oneof access_method {
+    Socks5 socks5 = 1;
+    Shadowsocks shadowsocks = 2;
+  }
+}
 
 message ApiAccessMethods { repeated ApiAccessMethod api_access_methods = 1; }
 
 message ApiAccessMethodSettings { repeated ApiAccessMethod api_access_methods = 1; }
-
-
-message ApiAccessMethodAdd { string name = 1; }
 
 message Settings {
   RelaySettings relay_settings = 1;
