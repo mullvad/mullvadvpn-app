@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun PreviewUdpOverTcpPortInfoDialog() {
+private fun PreviewUdpOverTcpPortInfoDialog() {
     UdpOverTcpPortInfoDialog(onDismiss = {})
 }
 

@@ -38,7 +38,7 @@ import net.mullvad.mullvadvpn.viewmodel.StagedDns
 
 @Preview
 @Composable
-fun PreviewDnsDialog() {
+private fun PreviewDnsDialog() {
     DnsDialog(
         stagedDns = StagedDns.NewDns(CustomDnsItem.default(), StagedDns.ValidationResult.Success),
         isAllowLanEnabled = true,

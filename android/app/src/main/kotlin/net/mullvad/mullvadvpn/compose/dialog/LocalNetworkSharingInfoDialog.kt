@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.compose.component.textResource
 
 @Preview
 @Composable
-fun PreviewLocalNetworkSharingInfoDialog() {
+private fun PreviewLocalNetworkSharingInfoDialog() {
     LocalNetworkSharingInfoDialog(onDismiss = {})
 }
 

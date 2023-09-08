@@ -34,7 +34,7 @@ import net.mullvad.mullvadvpn.model.Device
 
 @Preview
 @Composable
-fun PreviewShowDeviceRemovalDialog() {
+private fun PreviewShowDeviceRemovalDialog() {
     ShowDeviceRemovalDialog(
         onDismiss = {},
         onConfirm = {},
