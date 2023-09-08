@@ -250,7 +250,7 @@ public actor PacketTunnelActor {
         )
 
         // Update tunnel adapter configration
-        try await tunnelAdapter.update(configuration: configurationBuilder.makeConfiguration())
+        try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
 
         // Resume tunnel monitoring and se IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: selectedRelay.endpoint.ipv4Gateway)
