@@ -27,7 +27,6 @@ class VpnSettingsFragment : BaseFragment() {
                     VpnSettingsScreen(
                         uiState = state,
                         onMtuCellClick = vm::onMtuCellClick,
-                        onMtuInputChange = vm::onMtuInputChange,
                         onSaveMtuClick = vm::onSaveMtuClick,
                         onRestoreMtuClick = vm::onRestoreMtuClick,
                         onCancelMtuDialogClick = vm::onCancelDialogClick,

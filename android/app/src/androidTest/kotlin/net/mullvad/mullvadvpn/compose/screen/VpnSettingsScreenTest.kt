@@ -13,7 +13,6 @@ import androidx.compose.ui.test.performTextInput
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import io.mockk.verifyAll
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
@@ -134,11 +133,9 @@ class VpnSettingsScreenTest {
     @Test
     fun testMtuDialogTextInput() {
         // Arrange
-        val mockedInputHandler: (String) -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
             VpnSettingsScreen(
                 uiState = VpnSettingsUiState.MtuDialogUiState(mtuEditValue = EMPTY_STRING),
-                onMtuInputChange = mockedInputHandler,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
@@ -147,13 +144,13 @@ class VpnSettingsScreenTest {
         composeTestRule.onNodeWithText(EMPTY_STRING).performTextInput(VALID_DUMMY_MTU_VALUE)
 
         // Assert
-        verifyAll { mockedInputHandler.invoke(VALID_DUMMY_MTU_VALUE) }
+        composeTestRule.onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
     }
 
     @Test
     fun testMtuDialogSubmitOfValidValue() {
         // Arrange
-        val mockedSubmitHandler: () -> Unit = mockk(relaxed = true)
+        val mockedSubmitHandler: (Int) -> Unit = mockk(relaxed = true)
         composeTestRule.setContent {
             VpnSettingsScreen(
                 uiState = VpnSettingsUiState.MtuDialogUiState(mtuEditValue = VALID_DUMMY_MTU_VALUE),
@@ -166,7 +163,7 @@ class VpnSettingsScreenTest {
         composeTestRule.onNodeWithText("Submit").assertIsEnabled().performClick()
 
         // Assert
-        verify { mockedSubmitHandler.invoke() }
+        verify { mockedSubmitHandler.invoke(VALID_DUMMY_MTU_VALUE.toInt()) }
     }
 
     @Test
