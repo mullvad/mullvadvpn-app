@@ -478,6 +478,7 @@
 		A9EC20E82A5D3A8C0040D56E /* CoordinatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */; };
 		A9EC20F02A5D79ED0040D56E /* TunnelObfuscation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A9EC20F42A5D96030040D56E /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EC20F32A5D96030040D56E /* Midpoint.swift */; };
+		A9F360342AAB626300F53531 /* VPNConnectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */; };
 		E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */; };
 		E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */; };
 		E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E158B35F285381C60002F069 /* String+AccountFormatting.swift */; };
@@ -1372,6 +1373,7 @@
 		A9EC20E52A5C488D0040D56E /* Haversine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Haversine.swift; sourceTree = "<group>"; };
 		A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatesTests.swift; sourceTree = "<group>"; };
 		A9EC20F32A5D96030040D56E /* Midpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Midpoint.swift; sourceTree = "<group>"; };
+		A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNConnectionProtocol.swift; sourceTree = "<group>"; };
 		E1187ABA289BBB850024E748 /* OutOfTimeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeViewController.swift; sourceTree = "<group>"; };
 		E1187ABB289BBB850024E748 /* OutOfTimeContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeContentView.swift; sourceTree = "<group>"; };
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
@@ -1751,6 +1753,7 @@
 				5803B4B12940A48700C23744 /* TunnelStore.swift */,
 				5842102F282D8A3C00F24E46 /* UpdateAccountDataOperation.swift */,
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
+				A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */,
 				581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */,
 			);
 			path = TunnelManager;
@@ -3756,6 +3759,7 @@
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */,
 				58FF2C03281BDE02009EF542 /* SettingsManager.swift in Sources */,
+				A9F360342AAB626300F53531 /* VPNConnectionProtocol.swift in Sources */,
 				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
