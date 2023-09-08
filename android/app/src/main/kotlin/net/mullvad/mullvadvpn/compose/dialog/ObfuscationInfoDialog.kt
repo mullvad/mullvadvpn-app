@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun PreviewObfuscationInfoDialog() {
+private fun PreviewObfuscationInfoDialog() {
     ObfuscationInfoDialog(onDismiss = {})
 }
 

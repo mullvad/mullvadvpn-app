@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun PreviewCustomDnsInfoDialog() {
+private fun PreviewCustomDnsInfoDialog() {
     CustomDnsInfoDialog(onDismiss = {})
 }
 
