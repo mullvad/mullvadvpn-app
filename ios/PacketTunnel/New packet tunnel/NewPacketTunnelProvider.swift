@@ -75,11 +75,12 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func startTunnel(options: [String: NSObject]? = nil) async throws {
-        print("startTunnel")
+        let startOptions = parseStartOptions(options ?? [:])
+        try await actor.start(options: startOptions)
     }
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
-        print("stopTunnel")
+        await actor.stop()
     }
 
     override func handleAppMessage(_ messageData: Data) async -> Data? {
@@ -141,5 +142,23 @@ extension NewPacketTunnelProvider {
             providerLogger.error(error: error, message: "Failed to decode the app message.")
             return nil
         }
+    }
+
+    private func parseStartOptions(_ options: [String: NSObject]) -> StartOptions {
+        let tunnelOptions = PacketTunnelOptions(rawOptions: options)
+        var parsedOptions = StartOptions(launchSource: tunnelOptions.isOnDemand() ? .onDemand : .app)
+
+        do {
+            if let selectorResult = try tunnelOptions.getSelectorResult() {
+                parsedOptions.launchSource = .app
+                parsedOptions.selectorResult = selectorResult
+            } else {
+                parsedOptions.launchSource = tunnelOptions.isOnDemand() ? .onDemand : .system
+            }
+        } catch {
+            providerLogger.error(error: error, message: "Failed to decode relay selector result passed from the app.")
+        }
+
+        return parsedOptions
     }
 }
