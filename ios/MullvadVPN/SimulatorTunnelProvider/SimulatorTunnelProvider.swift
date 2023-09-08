@@ -6,23 +6,10 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-#if targetEnvironment(simulator)
-
 import Foundation
 import NetworkExtension
 
-protocol VPNConnectionProtocol: NSObject {
-    var status: NEVPNStatus { get }
-    var connectedDate: Date? { get }
-
-    func startVPNTunnel() throws
-    func startVPNTunnel(options: [String: NSObject]?) throws
-    func stopVPNTunnel()
-}
-
-protocol VPNTunnelProviderSessionProtocol {
-    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws
-}
+#if targetEnvironment(simulator)
 
 protocol VPNTunnelProviderManagerProtocol: Equatable {
     associatedtype SelfType: VPNTunnelProviderManagerProtocol
