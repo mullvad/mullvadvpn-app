@@ -29,15 +29,16 @@ struct WgAdapter: TunnelAdapterProtocol {
     }
 
     func start(configuration: TunnelAdapterConfiguration) async throws {
-        try await adapter.start(tunnelConfiguration: configuration.asWgConfig)
+        let wgConfig = configuration.asWgConfig
+        do {
+            try await adapter.update(tunnelConfiguration: wgConfig)
+        } catch WireGuardAdapterError.invalidState {
+            try await adapter.start(tunnelConfiguration: wgConfig)
+        }
     }
 
     func stop() async throws {
         try await adapter.stop()
-    }
-
-    func update(configuration: TunnelAdapterConfiguration) async throws {
-        try await adapter.update(tunnelConfiguration: configuration.asWgConfig)
     }
 }
 
@@ -56,8 +57,7 @@ extension WgAdapter: TunnelDeviceInfoProtocol {
             dispatchGroup.leave()
         }
 
-        guard case .success = dispatchGroup.wait(wallTimeout: .now() + .seconds(1))
-        else { throw StatsError.timeout }
+        guard case .success = dispatchGroup.wait(wallTimeout: .now() + 1) else { throw StatsError.timeout }
         guard let result else { throw StatsError.nilValue }
         guard let newStats = WgStats(from: result) else { throw StatsError.parse }
 
@@ -70,7 +70,7 @@ extension WgAdapter: TunnelDeviceInfoProtocol {
         var errorDescription: String? {
             switch self {
             case .timeout:
-                return "adapter.getRuntimeConfiguration timeout."
+                return "adapter.getRuntimeConfiguration() timeout."
             case .nilValue:
                 return "Received nil string for stats."
             case .parse:

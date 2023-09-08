@@ -16,14 +16,11 @@ import class WireGuardKitTypes.PublicKey
 
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
 public protocol TunnelAdapterProtocol {
-    /// Start tunnel adapter with the given configuration.
+    /// Start tunnel adapter or update active configuration.
     func start(configuration: TunnelAdapterConfiguration) async throws
 
     /// Stop tunnel adapter with the given configuration.
     func stop() async throws
-
-    /// Update tunnel adapter configuration.
-    func update(configuration: TunnelAdapterConfiguration) async throws
 }
 
 /// Struct describing tunnel adapter configuration.
