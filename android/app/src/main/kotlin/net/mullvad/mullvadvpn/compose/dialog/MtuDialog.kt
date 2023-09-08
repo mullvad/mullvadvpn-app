@@ -39,7 +39,7 @@ import net.mullvad.mullvadvpn.util.isValidMtu
 
 @Preview
 @Composable
-fun PreviewMtuDialog() {
+private fun PreviewMtuDialog() {
     MtuDialog(
         mtuValue = "1234",
         onMtuValueChanged = {},

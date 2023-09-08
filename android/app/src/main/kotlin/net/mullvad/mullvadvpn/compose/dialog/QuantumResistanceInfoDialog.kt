@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.R
 
 @Preview
 @Composable
-fun PreviewQuantumResistanceInfoDialog() {
+private fun PreviewQuantumResistanceInfoDialog() {
     QuantumResistanceInfoDialog(onDismiss = {})
 }
 
