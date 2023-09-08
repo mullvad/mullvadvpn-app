@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.shareIn
@@ -132,14 +131,10 @@ class ConnectViewModel(
             .debounce(UI_STATE_DEBOUNCE_DURATION_MILLIS)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
-    private fun LocationInfoCache.locationCallbackFlow() =
-        callbackFlow {
-                onNewLocation = { this.trySend(it) }
-                awaitClose { onNewLocation = null }
-            }
-            // Filter out empty or short-name country representations.
-            // We want to keep null location to handle those situations
-            .filter { it?.let { location -> location.country.length > 2 } ?: true }
+    private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
+        onNewLocation = { this.trySend(it) }
+        awaitClose { onNewLocation = null }
+    }
 
     private fun RelayListListener.relayListCallbackFlow() = callbackFlow {
         onRelayCountriesChange = { _, item -> this.trySend(item) }

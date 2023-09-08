@@ -63,7 +63,9 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
                     when (newState.actionAfterDisconnect) {
                         ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
                         ActionAfterDisconnect.Block -> location = null
-                        ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
+                        ActionAfterDisconnect.Reconnect -> {
+                            lastKnownRealLocation?.let { location = it }
+                        }
                     }
                 }
                 is TunnelState.Error -> location = null
