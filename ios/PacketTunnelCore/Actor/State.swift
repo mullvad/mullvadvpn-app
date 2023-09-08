@@ -150,4 +150,28 @@ extension State {
             return nil
         }
     }
+
+    /// Calls `body` with `ConnectionState` if the state contains it. Otherwise returns `State` as is.
+    public func mapConnectionState(_ body: (inout ConnectionState) -> Void) -> State {
+        switch self {
+        case var .connected(connState):
+            body(&connState)
+            return .connected(connState)
+
+        case var .connecting(connState):
+            body(&connState)
+            return .connecting(connState)
+
+        case var .reconnecting(connState):
+            body(&connState)
+            return .reconnecting(connState)
+
+        case var .disconnecting(connState):
+            body(&connState)
+            return .disconnecting(connState)
+
+        case .disconnected, .initial, .error:
+            return self
+        }
+    }
 }

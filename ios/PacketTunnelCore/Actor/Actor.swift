@@ -364,27 +364,8 @@ public actor PacketTunnelActor {
     }
 
     private func onNetworkReachibilityChange(_ isNetworkReachable: Bool) async {
-        let networkReachability: NetworkReachability = isNetworkReachable ? .reachable : .unreachable
-
-        switch state {
-        case var .connected(connState):
-            connState.networkReachability = networkReachability
-            state = .connected(connState)
-
-        case var .connecting(connState):
-            connState.networkReachability = networkReachability
-            state = .connecting(connState)
-
-        case var .disconnecting(connState):
-            connState.networkReachability = networkReachability
-            state = .disconnecting(connState)
-
-        case var .reconnecting(connState):
-            connState.networkReachability = networkReachability
-            state = .reconnecting(connState)
-
-        case .initial, .error, .disconnected:
-            break
+        state = state.mapConnectionState { connState in
+            connState.networkReachability = isNetworkReachable ? .reachable : .unreachable
         }
     }
 
