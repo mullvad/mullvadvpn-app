@@ -2008,7 +2008,6 @@ dependencies = [
  "nix 0.23.1",
  "objc",
  "once_cell",
- "parking_lot",
  "regex",
  "serde",
  "serde_json",
