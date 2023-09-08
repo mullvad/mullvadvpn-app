@@ -3467,7 +3467,7 @@ dependencies = [
  "widestring",
  "windows-service",
  "windows-sys 0.48.0",
- "winreg 0.7.0",
+ "winreg 0.51.0",
 ]
 
 [[package]]
@@ -3510,7 +3510,7 @@ dependencies = [
  "uuid",
  "widestring",
  "windows-sys 0.48.0",
- "winreg 0.7.0",
+ "winreg 0.51.0",
 ]
 
 [[package]]
@@ -4525,18 +4525,19 @@ dependencies = [
 
 [[package]]
 name = "winreg"
-version = "0.7.0"
+version = "0.50.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0120db82e8a1e0b9fb3345a539c478767c0048d842860994d96113d5b667bd69"
+checksum = "524e57b2c537c0f9b1e69f1965311ec12182b4122e45035b1508cd24d2adadb1"
 dependencies = [
- "winapi",
+ "cfg-if",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
 name = "winreg"
-version = "0.50.0"
+version = "0.51.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "524e57b2c537c0f9b1e69f1965311ec12182b4122e45035b1508cd24d2adadb1"
+checksum = "937f3df7948156640f46aacef17a70db0de5917bda9c92b0f751f3a955b588fc"
 dependencies = [
  "cfg-if",
  "windows-sys 0.48.0",

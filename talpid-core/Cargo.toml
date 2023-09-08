@@ -56,7 +56,7 @@ async-trait = "0.1"
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"
 widestring = "1.0"
-winreg = { version = "0.7", features = ["transactions"] }
+winreg = { version = "0.51", features = ["transactions"] }
 memoffset = "0.6"
 windows-service = "0.6.0"
 talpid-windows-net = { path = "../talpid-windows-net" }
