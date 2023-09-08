@@ -125,7 +125,8 @@ impl DnsWatcher {
         mask.insert(WatchMask::MOVE_SELF);
 
         watcher
-            .add_watch(RESOLV_CONF_PATH, mask)
+            .watches()
+            .add(RESOLV_CONF_PATH, mask)
             .map_err(Error::WatchResolvConf)?;
 
         let (cancel_trigger, cancel_listener) = trigger();
@@ -143,7 +144,7 @@ impl DnsWatcher {
         const EVENT_BUFFER_SIZE: usize = 1024;
         let mut buffer = [0; EVENT_BUFFER_SIZE];
         let mut events = watcher
-            .event_stream(&mut buffer)
+            .into_event_stream(&mut buffer)
             .expect("Could not read events for resolv.conf");
 
         loop {
