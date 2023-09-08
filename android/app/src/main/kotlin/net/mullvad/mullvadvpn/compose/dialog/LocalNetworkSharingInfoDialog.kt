@@ -2,8 +2,15 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.textResource
+
+@Preview
+@Composable
+fun PreviewLocalNetworkSharingInfoDialog() {
+    LocalNetworkSharingInfoDialog(onDismiss = {})
+}
 
 @Composable
 fun LocalNetworkSharingInfoDialog(onDismiss: () -> Unit) {

@@ -21,6 +21,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -35,6 +36,18 @@ import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite20
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite60
 import net.mullvad.mullvadvpn.util.isValidMtu
+
+@Preview
+@Composable
+fun PreviewMtuDialog() {
+    MtuDialog(
+        mtuValue = "1234",
+        onMtuValueChanged = {},
+        onSave = {},
+        onRestoreDefaultValue = {},
+        onDismiss = {}
+    )
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
