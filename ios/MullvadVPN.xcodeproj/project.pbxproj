@@ -417,6 +417,7 @@
 		58FE25EE2AA7764E003D1918 /* MockTunnelAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */; };
 		58FE25F02AA77664003D1918 /* MockRelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */; };
 		58FE25F22AA77674003D1918 /* MockSettingsReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F12AA77674003D1918 /* MockSettingsReader.swift */; };
+		58FE25F42AA9D730003D1918 /* Actor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F32AA9D730003D1918 /* Actor+.swift */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */; };
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
@@ -1381,6 +1382,7 @@
 		58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelAdapter.swift; sourceTree = "<group>"; };
 		58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRelaySelector.swift; sourceTree = "<group>"; };
 		58FE25F12AA77674003D1918 /* MockSettingsReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSettingsReader.swift; sourceTree = "<group>"; };
+		58FE25F32AA9D730003D1918 /* Actor+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+.swift"; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNScreenshots.xctestplan; sourceTree = "<group>"; };
@@ -2173,6 +2175,7 @@
 			isa = PBXGroup;
 			children = (
 				58E9C3852A4EF1CB00CFDEAC /* Actor.swift */,
+				58FE25F32AA9D730003D1918 /* Actor+.swift */,
 				5824030C2A811B0000163DE8 /* State.swift */,
 				583E60952A9F6D0800DC61EF /* ConfigurationBuilder.swift */,
 				58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */,
@@ -3912,6 +3915,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58FE25F42AA9D730003D1918 /* Actor+.swift in Sources */,
 				58FE25DF2AA72A9B003D1918 /* RelaySelectorProtocol.swift in Sources */,
 				58C9B8C32ABB23A500040B46 /* PacketTunnelStatus.swift in Sources */,
 				58C9B8C42ABB23A500040B46 /* PacketTunnelRelay.swift in Sources */,

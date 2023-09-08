@@ -13,7 +13,7 @@ import NetworkExtension
 import struct RelaySelector.RelaySelectorResult
 
 public actor PacketTunnelActor {
-    @Published private(set) var state: State = .initial
+    @Published private(set) public var state: State = .initial
 
     private let logger = Logger(label: "PacketTunnelActor")
     private let taskQueue = TaskQueue()
