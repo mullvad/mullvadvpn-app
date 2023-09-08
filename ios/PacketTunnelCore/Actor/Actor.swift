@@ -59,6 +59,17 @@ public actor PacketTunnelActor {
                 await setErrorState(with: error)
             }
         }
+
+        /*
+         Wait until the state moved to `.connected`.
+
+         Note that this `await` call happens outside of `taskQueue` to avoid blocking it, so that calls to `reconnect()`
+         can execute freely.
+
+         This is mostly done so that packet tunnel provider could return from `startTunnel()` only once the tunnel is
+         fully connected which should transition it from `NEVPNStatus.connecting` → `NEVPNStatus.connected`.
+         */
+        await waitUntilConnected()
     }
 
     public func stop() async throws {
