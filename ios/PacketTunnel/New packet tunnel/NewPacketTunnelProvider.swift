@@ -97,8 +97,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
             return nil
 
         case .getTunnelStatus:
-            // TODO: return PacketTunnelStatus
-            return nil
+            return await encodeReply(actor.state.packetTunnelStatus)
 
         case .privateKeyRotation:
             // TODO: tell actor that key rotation has happened
@@ -160,5 +159,39 @@ extension NewPacketTunnelProvider {
         }
 
         return parsedOptions
+    }
+}
+
+extension State {
+    var packetTunnelStatus: PacketTunnelStatus {
+        var status = PacketTunnelStatus()
+
+        switch self {
+        case let .connecting(connState),
+             let .connected(connState),
+             let .reconnecting(connState),
+             let .disconnecting(connState):
+            switch connState.networkReachability {
+            case .reachable:
+                status.isNetworkReachable = true
+            case .unreachable:
+                status.isNetworkReachable = false
+            case .undetermined:
+                // TODO: fix me
+                status.isNetworkReachable = true
+            }
+
+            status.numberOfFailedAttempts = connState.connectionAttemptCount
+            status.tunnelRelay = connState.selectedRelay.packetTunnelRelay
+
+        case .disconnected, .initial:
+            break
+
+        case let .error(blockedState):
+            // Later?
+            status.lastErrors = []
+        }
+
+        return status
     }
 }
