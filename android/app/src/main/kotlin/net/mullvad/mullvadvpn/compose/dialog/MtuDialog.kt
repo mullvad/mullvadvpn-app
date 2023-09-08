@@ -9,54 +9,45 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
 import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
 import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
-import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadDarkBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite20
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite60
+import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
+import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.isValidMtu
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MtuDialog(
-    mtuValue: String,
-    onMtuValueChanged: (String) -> Unit,
-    onSave: () -> Unit,
+    mtuInitial: Int?,
+    onSave: (Int) -> Unit,
     onRestoreDefaultValue: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val buttonSize = dimensionResource(id = R.dimen.button_height)
-    val mediumPadding = dimensionResource(id = R.dimen.medium_padding)
     val dialogPadding = 20.dp
     val midPadding = 10.dp
     val smallPadding = 5.dp
 
-    val textSmallSize = dimensionResource(id = R.dimen.text_small).value.sp
-    val textMediumSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
-    val textBigSize = dimensionResource(id = R.dimen.text_big).value.sp
+    val mtu = remember { mutableStateOf(mtuInitial?.toString() ?: "") }
 
     val textFieldFocusRequester = FocusRequester()
-    val isValidMtu = mtuValue.toIntOrNull()?.isValidMtu() == true
+    val isValidMtu = mtu.value.toIntOrNull()?.isValidMtu() == true
 
     Dialog(
         // Fix for https://issuetracker.google.com/issues/221643630
@@ -67,25 +58,26 @@ fun MtuDialog(
                 Modifier
                     // Related to the fix for https://issuetracker.google.com/issues/221643630
                     .fillMaxWidth(0.8f)
-                    .background(color = MullvadDarkBlue)
+                    .background(color = MaterialTheme.colorScheme.background)
                     .padding(dialogPadding)
             ) {
                 Text(
                     text = stringResource(id = R.string.wireguard_mtu),
-                    color = Color.White,
-                    fontSize = textBigSize
+                    color = MaterialTheme.colorScheme.onBackground,
+                    style = MaterialTheme.typography.headlineSmall
                 )
 
                 Box(
                     Modifier.wrapContentSize().clickable { textFieldFocusRequester.requestFocus() }
                 ) {
                     MtuTextField(
-                        value = mtuValue,
-                        onValueChanged = { newMtuValue -> onMtuValueChanged(newMtuValue) },
+                        value = mtu.value,
+                        onValueChanged = { newMtuValue -> mtu.value = newMtuValue },
                         onFocusChange = {},
                         onSubmit = { newMtuValue ->
-                            if (newMtuValue.toIntOrNull()?.isValidMtu() == true) {
-                                onSave()
+                            val mtuInt = newMtuValue.toIntOrNull()
+                            if (mtuInt?.isValidMtu() == true) {
+                                onSave(mtuInt)
                             }
                         },
                         isEnabled = true,
@@ -105,64 +97,64 @@ fun MtuDialog(
                             MTU_MIN_VALUE,
                             MTU_MAX_VALUE
                         ),
-                    fontSize = textSmallSize,
-                    color = MullvadWhite60,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
                     modifier = Modifier.padding(top = smallPadding)
                 )
 
-                Button(
+                ActionButton(
                     modifier =
-                        Modifier.padding(top = mediumPadding).height(buttonSize).fillMaxWidth(),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MullvadBlue,
-                            contentColor = MullvadWhite,
-                            disabledContentColor = MullvadWhite60,
-                            disabledContainerColor = MullvadWhite20
-                        ),
-                    enabled = isValidMtu,
-                    onClick = { onSave() },
-                    shape = MaterialTheme.shapes.small
-                ) {
-                    Text(text = stringResource(R.string.submit_button), fontSize = textMediumSize)
-                }
-
-                Button(
-                    modifier =
-                        Modifier.padding(top = mediumPadding)
-                            .height(buttonSize)
-                            .defaultMinSize(minHeight = buttonSize)
+                        Modifier.padding(top = Dimens.mediumPadding)
+                            .height(Dimens.buttonHeight)
                             .fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = MullvadBlue,
-                            contentColor = MullvadWhite
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            disabledContentColor =
+                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
+                            disabledContainerColor =
+                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)
                         ),
-                    onClick = { onRestoreDefaultValue() },
-                    shape = MaterialTheme.shapes.small
-                ) {
-                    Text(
-                        text = stringResource(R.string.reset_to_default_button),
-                        fontSize = textMediumSize
-                    )
-                }
+                    isEnabled = isValidMtu,
+                    text = stringResource(R.string.submit_button),
+                    onClick = {
+                        val mtuInt = mtu.value.toIntOrNull()
+                        if (mtuInt?.isValidMtu() == true) {
+                            onSave(mtuInt)
+                        }
+                    }
+                )
 
-                Button(
+                ActionButton(
                     modifier =
-                        Modifier.padding(top = mediumPadding)
-                            .height(buttonSize)
-                            .defaultMinSize(minHeight = buttonSize)
+                        Modifier.padding(top = Dimens.mediumPadding)
+                            .height(Dimens.buttonHeight)
+                            .defaultMinSize(minHeight = Dimens.buttonHeight)
                             .fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
-                            containerColor = MullvadBlue,
-                            contentColor = Color.White
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                         ),
-                    onClick = { onDismiss() },
-                    shape = MaterialTheme.shapes.small
-                ) {
-                    Text(text = stringResource(R.string.cancel), fontSize = textMediumSize)
-                }
+                    text = stringResource(R.string.reset_to_default_button),
+                    onClick = onRestoreDefaultValue
+                )
+
+                ActionButton(
+                    modifier =
+                        Modifier.padding(top = Dimens.mediumPadding)
+                            .height(Dimens.buttonHeight)
+                            .defaultMinSize(minHeight = Dimens.buttonHeight)
+                            .fillMaxWidth(),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                    text = stringResource(R.string.cancel),
+                    onClick = onDismiss
+                )
             }
         }
     )

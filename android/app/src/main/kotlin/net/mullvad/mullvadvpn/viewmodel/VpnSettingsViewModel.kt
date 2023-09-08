@@ -109,18 +109,11 @@ class VpnSettingsViewModel(
         dialogState.update { VpnSettingsDialogState.MtuDialog(vmState.value.mtuValue) }
     }
 
-    fun onMtuInputChange(value: String) {
-        dialogState.update { VpnSettingsDialogState.MtuDialog(value) }
-    }
-
-    fun onSaveMtuClick() =
+    fun onSaveMtuClick(mtuValue: Int) =
         viewModelScope.launch(dispatcher) {
-            val dialog = dialogState.value as? VpnSettingsDialogState.MtuDialog
-            dialog
-                ?.mtuEditValue
-                ?.toIntOrNull()
-                ?.takeIf { it.isValidMtu() }
-                ?.let { mtu -> repository.setWireguardMtu(mtu) }
+            if (mtuValue.isValidMtu()) {
+                repository.setWireguardMtu(mtuValue)
+            }
             hideDialog()
         }
 
