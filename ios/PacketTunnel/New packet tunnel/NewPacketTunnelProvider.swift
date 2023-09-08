@@ -104,6 +104,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
             return nil
 
         case let .reconnectTunnel(selectorResult):
+            try? await actor.reconnect(to: selectorResult)
             return nil
         }
     }
