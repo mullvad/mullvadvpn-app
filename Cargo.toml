@@ -49,6 +49,8 @@ tower = "0.4"
 prost = "0.12.0"
 prost-types = "0.12.0"
 
+err-derive = "0.3.1"
+
 shadowsocks = { version = "1.16" }
 shadowsocks-service = { version = "1.16" }
 
