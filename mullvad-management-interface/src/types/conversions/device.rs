@@ -46,9 +46,8 @@ impl TryFrom<proto::DeviceState> for mullvad_types::device::DeviceState {
     type Error = FromProtobufTypeError;
 
     fn try_from(state: proto::DeviceState) -> Result<Self, FromProtobufTypeError> {
-        let state_type = proto::device_state::State::from_i32(state.state).ok_or(
-            FromProtobufTypeError::InvalidArgument("invalid device state"),
-        )?;
+        let state_type = proto::device_state::State::try_from(state.state)
+            .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid device state"))?;
 
         match state_type {
             proto::device_state::State::LoggedIn => {
@@ -112,8 +111,8 @@ impl TryFrom<proto::DeviceEvent> for mullvad_types::device::DeviceEvent {
     type Error = FromProtobufTypeError;
 
     fn try_from(event: proto::DeviceEvent) -> Result<Self, Self::Error> {
-        let cause = proto::device_event::Cause::from_i32(event.cause)
-            .ok_or(FromProtobufTypeError::InvalidArgument("invalid event"))?;
+        let cause = proto::device_event::Cause::try_from(event.cause)
+            .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid event"))?;
         let cause = mullvad_types::device::DeviceEventCause::from(cause);
 
         let new_state = mullvad_types::device::DeviceState::try_from(event.new_state.ok_or(
