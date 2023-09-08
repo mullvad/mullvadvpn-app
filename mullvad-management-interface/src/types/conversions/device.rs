@@ -1,4 +1,5 @@
 use crate::types::{conversions::bytes_to_pubkey, proto, FromProtobufTypeError};
+use chrono::TimeZone;
 use prost_types::Timestamp;
 
 impl TryFrom<proto::Device> for mullvad_types::device::Device {
@@ -10,8 +11,8 @@ impl TryFrom<proto::Device> for mullvad_types::device::Device {
             name: device.name,
             pubkey: bytes_to_pubkey(&device.pubkey)?,
             hijack_dns: device.hijack_dns,
-            created: chrono::DateTime::from_utc(
-                chrono::NaiveDateTime::from_timestamp_opt(
+            created: chrono::Utc.from_utc_datetime(
+                &chrono::NaiveDateTime::from_timestamp_opt(
                     device
                         .created
                         .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -21,7 +22,6 @@ impl TryFrom<proto::Device> for mullvad_types::device::Device {
                     0,
                 )
                 .unwrap(),
-                chrono::Utc,
             ),
         })
     }
