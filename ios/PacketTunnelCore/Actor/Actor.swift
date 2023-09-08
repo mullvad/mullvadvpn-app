@@ -261,19 +261,13 @@ public actor PacketTunnelActor {
     private func setErrorState(with error: Error) async {
         switch state {
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
-            state = .error(BlockedState(
+            let blockedState = BlockedState(
                 error: error,
                 keyPolicy: connState.keyPolicy,
                 priorState: state.priorState!
-            ))
-
-            do {
-                let configurationBuilder = ConfigurationBuilder(usedKeyPolicy: connState.keyPolicy)
-
-                try await tunnelAdapter.update(configuration: configurationBuilder.makeConfiguration())
-            } catch {
-                logger.error(error: error, message: "Unable to configure the tunnel for error state.")
-            }
+            )
+            state = .error(blockedState)
+            await configureAdapterForErrorState(keyPolicy: blockedState.keyPolicy)
 
         case .initial:
             // Start a recovery task that will attempt to restart the tunnel periodically.
@@ -284,20 +278,14 @@ public actor PacketTunnelActor {
             // TODO: only start the recovery task if the error is filesystem/Keychain permission related.
             let recoveryTask = startRecoveryTask()
 
-            state = .error(BlockedState(
+            let blockedState = BlockedState(
                 error: error,
                 keyPolicy: .useCurrent,
                 recoveryTask: AutoCancellingTask(recoveryTask),
                 priorState: state.priorState!
-            ))
-
-            do {
-                let configurationBuilder = ConfigurationBuilder(usedKeyPolicy: .useCurrent)
-
-                try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
-            } catch {
-                logger.error(error: error, message: "Unable to configure the tunnel for error state.")
-            }
+            )
+            state = .error(blockedState)
+            await configureAdapterForErrorState(keyPolicy: blockedState.keyPolicy)
 
         case var .error(blockedState):
             blockedState.error = error
@@ -305,6 +293,16 @@ public actor PacketTunnelActor {
 
         case .disconnecting, .disconnected:
             break
+        }
+    }
+
+    private func configureAdapterForErrorState(keyPolicy: UsedKeyPolicy) async {
+        do {
+            let configurationBuilder = ConfigurationBuilder(usedKeyPolicy: keyPolicy)
+
+            try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
+        } catch {
+            logger.error(error: error, message: "Unable to configure the tunnel for error state.")
         }
     }
 
