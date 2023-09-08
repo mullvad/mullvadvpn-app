@@ -81,7 +81,8 @@ impl IphlpApi {
         }
 
         // This function is loaded at runtime since it may be unavailable. See the module-level docs.
-        // TODO: `windows_sys` can be used directly when support for Windows 10, 2004, is dropped.
+        // TODO: `windows_sys` can be used directly when support for versions older than Windows 10,
+        // 2004, is dropped.
         let set_interface_dns_settings =
             unsafe { GetProcAddress(module, s!("SetInterfaceDnsSettings")) };
         let set_interface_dns_settings = set_interface_dns_settings.ok_or_else(|| {
