@@ -22,7 +22,7 @@ public enum TunnelMonitorEvent {
     case networkReachabilityChanged(_ isNetworkReachable: Bool)
 }
 
-public protocol TunnelMonitorProtocol {
+public protocol TunnelMonitorProtocol: AnyObject {
     /// Event handler that starts receiving events after the call to `start(probeAddress:)`.
     var onEvent: ((TunnelMonitorEvent) -> Void)? { get set }
 

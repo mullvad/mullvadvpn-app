@@ -19,7 +19,7 @@ public actor PacketTunnelActor {
     private let taskQueue = TaskQueue()
 
     private let tunnelAdapter: TunnelAdapterProtocol
-    private var tunnelMonitor: TunnelMonitorProtocol
+    private let tunnelMonitor: TunnelMonitorProtocol
     private let relaySelector: RelaySelectorProtocol
     private let settingsReader: SettingsReaderProtocol
 
@@ -33,6 +33,14 @@ public actor PacketTunnelActor {
         self.tunnelMonitor = tunnelMonitor
         self.relaySelector = relaySelector
         self.settingsReader = settingsReader
+
+        tunnelMonitor.onEvent = { [weak self] event in
+            guard let self else { return }
+
+            Task {
+                await self.handleMonitorEvent(event)
+            }
+        }
     }
 
     public func start(options: StartOptions) async throws {
@@ -127,13 +135,6 @@ public actor PacketTunnelActor {
         try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
 
         // Configure and start tunnel monitor by pinging a relay gateway IP (usually 10.x.x.x range)
-        tunnelMonitor.onEvent = { [weak self] event in
-            guard let self = self else { return }
-
-            Task {
-                await self.handleMonitorEvent(event)
-            }
-        }
         tunnelMonitor.start(probeAddress: selectedRelay.endpoint.ipv4Gateway)
     }
 
