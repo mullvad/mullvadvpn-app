@@ -125,12 +125,8 @@ impl PidManager {
     pub fn remove(&self, pid: i32) -> Result<(), Error> {
         // FIXME: We remove PIDs from our cgroup here by adding
         //        them to the parent cgroup. This seems wrong.
-        let exclusions_path = self.net_cls_path.join("cgroup.procs");
-
-        let mut file = fs::OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(exclusions_path)
+        let mut file = self
+            .open_parent_cgroup_handle()
             .map_err(Error::RemoveCGroupPid)?;
 
         file.write_all(pid.to_string().as_bytes())
@@ -160,13 +156,23 @@ impl PidManager {
 
     /// Removes all PIDs from the Cgroup.
     pub fn clear(&self) -> Result<(), Error> {
-        // TODO: reuse file handle
         let pids = self.list()?;
 
+        let mut file = self
+            .open_parent_cgroup_handle()
+            .map_err(Error::RemoveCGroupPid)?;
         for pid in pids {
-            self.remove(pid)?;
+            file.write_all(pid.to_string().as_bytes())
+                .map_err(Error::RemoveCGroupPid)?;
         }
 
         Ok(())
+    }
+
+    fn open_parent_cgroup_handle(&self) -> io::Result<fs::File> {
+        fs::OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(self.net_cls_path.join("cgroup.procs"))
     }
 }
