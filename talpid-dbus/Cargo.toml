@@ -11,6 +11,6 @@ publish.workspace = true
 dbus = "0.9"
 err-derive = { workspace = true }
 once_cell = "1.13"
-log = "0.4"
+log = { workspace = true }
 libc = "0.2"
 tokio = { workspace = true, features = ["rt"] }

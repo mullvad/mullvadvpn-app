@@ -23,7 +23,7 @@ nix = "0.23"
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5", features = ["derive"] }
-log = "0.4"
+log = { workspace = true }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 tun = "0.5.1"

@@ -20,7 +20,7 @@ err-derive = { workspace = true }
 futures = "0.3"
 ipnetwork = "0.16"
 jnix = { version = "0.5", features = ["derive"] }
-log = "0.4"
+log = { workspace = true }
 log-panics = "2"
 nix = "0.23"
 rand = "0.8.5"

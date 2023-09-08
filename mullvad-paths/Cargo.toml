@@ -12,7 +12,7 @@ publish.workspace = true
 err-derive = { workspace = true }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
-log = "0.4"
+log = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 widestring = "1.0"
