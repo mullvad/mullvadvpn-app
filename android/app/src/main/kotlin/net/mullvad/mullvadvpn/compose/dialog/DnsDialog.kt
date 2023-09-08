@@ -21,6 +21,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -33,9 +34,22 @@ import net.mullvad.mullvadvpn.lib.theme.MullvadRed
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite20
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite60
+import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.StagedDns
 
-@OptIn(ExperimentalComposeUiApi::class)
+@Preview
+@Composable
+fun PreviewDnsDialog() {
+    DnsDialog(
+        stagedDns = StagedDns.NewDns(CustomDnsItem.default(), StagedDns.ValidationResult.Success),
+        isAllowLanEnabled = true,
+        onIpAddressChanged = {},
+        onAttemptToSave = {},
+        onRemove = {},
+        onDismiss = {}
+    )
+}
+
 @Composable
 fun DnsDialog(
     stagedDns: StagedDns,
