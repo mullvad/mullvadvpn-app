@@ -1,10 +1,9 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -58,7 +57,6 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
         text = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(top = verticalSpacing)
             ) {
                 Text(
                     text = message,
@@ -66,9 +64,10 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
                     fontStyle = FontStyle.Normal,
                     textAlign = TextAlign.Start,
-                    modifier = Modifier.padding(bottom = verticalSpacing).fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
                 if (additionalInfo != null) {
+                    Spacer(modifier = Modifier.height(verticalSpacing))
                     HtmlText(
                         htmlFormattedString = additionalInfo,
                         textColor = colorResource(id = R.color.white).toArgb(),
@@ -82,8 +81,6 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
             Button(
                 modifier =
                     Modifier.wrapContentHeight()
-                        .padding(all = dimensionResource(id = R.dimen.medium_padding))
-                        .defaultMinSize(minHeight = dimensionResource(id = R.dimen.button_height))
                         .fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(
