@@ -108,9 +108,13 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
-    override func sleep() async {}
+    override func sleep() async {
+        await actor.onSleep()
+    }
 
-    override func wake() {}
+    override func wake() {
+        actor.onWake()
+    }
 }
 
 extension NewPacketTunnelProvider {

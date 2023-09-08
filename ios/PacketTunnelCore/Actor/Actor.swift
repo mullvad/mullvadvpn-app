@@ -103,6 +103,14 @@ public actor PacketTunnelActor {
         try await reconnect(to: selectorResult, shouldStopTunnelMonitor: true)
     }
 
+    public nonisolated func onWake() {
+        tunnelMonitor.onWake()
+    }
+
+    public func onSleep() {
+        tunnelMonitor.onSleep()
+    }
+
     // MARK: - Private: Start tunnel
 
     private func tryStart(
