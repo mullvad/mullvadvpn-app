@@ -367,11 +367,7 @@ public actor PacketTunnelActor {
             logger.debug("Recover connection. Picking next relay...")
 
             // Tunnel monitor should already be paused at this point.
-            do {
-                try await reconnect(to: nil, shouldStopTunnelMonitor: false)
-            } catch {
-                // TODO: handle errors
-            }
+            try? await reconnect(to: nil, shouldStopTunnelMonitor: false)
 
         case .initial, .disconnected, .disconnecting, .error:
             break
