@@ -66,8 +66,6 @@ public actor PacketTunnelActor {
             switch state {
             case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
                 state = .disconnecting(connState)
-
-                tunnelMonitor.onEvent = nil
                 tunnelMonitor.stop()
 
                 // Fallthrough to stop adapter and shift to `.disconnected` state.
