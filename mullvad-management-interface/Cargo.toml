@@ -10,7 +10,7 @@ publish.workspace = true
 
 [dependencies]
 chrono = { workspace = true }
-err-derive = "0.3.1"
+err-derive = { workspace = true }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
