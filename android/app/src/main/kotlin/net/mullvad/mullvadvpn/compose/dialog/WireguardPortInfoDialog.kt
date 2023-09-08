@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.util.asString
 
 @Preview
 @Composable
-fun PreviewWireguardPortInfoDialog() {
+private fun PreviewWireguardPortInfoDialog() {
     WireguardPortInfoDialog(portRanges = listOf(PortRange(1, 2)), onDismiss = {})
 }
 
