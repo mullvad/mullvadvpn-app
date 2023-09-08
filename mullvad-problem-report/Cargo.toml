@@ -12,7 +12,7 @@ publish.workspace = true
 dirs = "5.0.1"
 err-derive = { workspace = true }
 once_cell = "1.13"
-log = "0.4"
+log = { workspace = true }
 regex = "1.0"
 uuid = { version = "1.4.1", features = ["v4"] }
 tokio = { workspace = true, features = ["rt"] }

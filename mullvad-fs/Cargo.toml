@@ -9,7 +9,7 @@ edition.workspace = true
 publish.workspace = true
 
 [dependencies]
-log = "0.4"
+log = { workspace = true }
 tokio = { workspace = true, features = ["fs", "rt"] }
 uuid = { version = "1.4.1", features = ["v4"] }
 

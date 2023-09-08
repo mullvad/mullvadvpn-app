@@ -21,7 +21,7 @@ prost-types = { workspace = true }
 parity-tokio-ipc = "0.9"
 futures = "0.3"
 tokio = { workspace = true, features =  ["rt"] }
-log = "0.4"
+log = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
