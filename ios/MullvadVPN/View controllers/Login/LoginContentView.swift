@@ -115,6 +115,7 @@ class LoginContentView: UIView {
         )
 
         addSubviews()
+        addObservers()
     }
 
     required init?(coder: NSCoder) {
@@ -171,5 +172,24 @@ class LoginContentView: UIView {
             accountInputGroupWrapper.heightAnchor.constraint(equalTo: accountInputGroup.contentView.heightAnchor)
             accountInputGroup.pinEdges(.all().excluding(.bottom), to: accountInputGroupWrapper)
         }
+    }
+
+    private func addObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didChangePreferredAccountNumber(_:)),
+            name: RedeemVoucherInteractor.didChangePreferredAccountNumber,
+            object: nil
+        )
+    }
+
+    @objc private func didChangePreferredAccountNumber(_ notification: Notification) {
+        guard let preferredAccountNumber = notification
+            .userInfo?[
+                RedeemVoucherInteractor.preferredAccountNumberUserInfoKey
+            ] as? String else {
+            return
+        }
+        self.accountInputGroup.setAccount(preferredAccountNumber)
     }
 }
