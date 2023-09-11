@@ -85,6 +85,8 @@ class WelcomeViewModel(
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onUiStateChange)
 
+    fun onCopyAccountClick() {}
+
     fun onSitePaymentClick() {
         viewModelScope.launch {
             _viewActions.tryEmit(
