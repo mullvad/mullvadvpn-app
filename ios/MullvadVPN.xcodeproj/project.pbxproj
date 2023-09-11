@@ -81,6 +81,7 @@
 		582AE3102440A6CA00E6733A /* InputTextFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE30F2440A6CA00E6733A /* InputTextFormatter.swift */; };
 		582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1AE229566420055B6EF /* SettingsCell.swift */; };
 		582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B0229569620055B6EF /* UINavigationBar+Appearance.swift */; };
+		58342C042AAB61FB003BA12D /* State+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58342C032AAB61FB003BA12D /* State+.swift */; };
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
@@ -1112,6 +1113,7 @@
 		582BB1AE229566420055B6EF /* SettingsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
 		582BB1B0229569620055B6EF /* UINavigationBar+Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationBar+Appearance.swift"; sourceTree = "<group>"; };
 		582FFA82290A84E700895745 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		58342C032AAB61FB003BA12D /* State+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "State+.swift"; sourceTree = "<group>"; };
 		5835B7CB233B76CB0096D79F /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		5838318A27C40A3900000571 /* Pinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pinger.swift; sourceTree = "<group>"; };
 		583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStateAccessor.swift; sourceTree = "<group>"; };
@@ -2177,6 +2179,7 @@
 				58E9C3852A4EF1CB00CFDEAC /* Actor.swift */,
 				58FE25F32AA9D730003D1918 /* Actor+.swift */,
 				5824030C2A811B0000163DE8 /* State.swift */,
+				58342C032AAB61FB003BA12D /* State+.swift */,
 				583E60952A9F6D0800DC61EF /* ConfigurationBuilder.swift */,
 				58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */,
 				58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */,
@@ -3941,6 +3944,7 @@
 				58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */,
 				58FE25D82AA72A8F003D1918 /* ConfigurationBuilder.swift in Sources */,
 				58FE25DE2AA72A95003D1918 /* DispatchSource+.swift in Sources */,
+				58342C042AAB61FB003BA12D /* State+.swift in Sources */,
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
 				58FE25D92AA72A8F003D1918 /* AutoCancellingTask.swift in Sources */,
 				58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */,

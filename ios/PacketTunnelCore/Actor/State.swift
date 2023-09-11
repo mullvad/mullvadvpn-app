@@ -120,58 +120,20 @@ public struct BlockedState {
     public var priorState: StatePriorToBlockedState
 }
 
-public enum ReconnectionSource {
-    case connectionState(ConnectionState)
-    case blockedState(BlockedState)
-}
-
 public enum StatePriorToBlockedState {
     case initial, connecting, connected, reconnecting
+}
+
+/**
+ Target state the actor should transition into upon request to either start (connect) or reconnect.
+ */
+public enum TargetStateForReconnect {
+    // TODO: pick a better name for enum!
+    case reconnecting, connecting
 }
 
 public struct DeviceRevokedError: LocalizedError {
     public var errorDescription: String? {
         return "Device is revoked."
-    }
-}
-
-extension State {
-    public var priorState: StatePriorToBlockedState? {
-        switch self {
-        case .initial:
-            return .initial
-        case .connecting:
-            return .connecting
-        case .connected:
-            return .connected
-        case .reconnecting:
-            return .reconnecting
-        case .disconnecting, .disconnected, .error:
-            return nil
-        }
-    }
-
-    /// Calls `body` with `ConnectionState` if the state contains it. Otherwise returns `State` as is.
-    public func mapConnectionState(_ body: (inout ConnectionState) -> Void) -> State {
-        switch self {
-        case var .connected(connState):
-            body(&connState)
-            return .connected(connState)
-
-        case var .connecting(connState):
-            body(&connState)
-            return .connecting(connState)
-
-        case var .reconnecting(connState):
-            body(&connState)
-            return .reconnecting(connState)
-
-        case var .disconnecting(connState):
-            body(&connState)
-            return .disconnecting(connState)
-
-        case .disconnected, .initial, .error:
-            return self
-        }
     }
 }

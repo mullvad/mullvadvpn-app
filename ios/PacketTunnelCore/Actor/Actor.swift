@@ -23,6 +23,8 @@ public actor PacketTunnelActor {
     private let relaySelector: RelaySelectorProtocol
     private let settingsReader: SettingsReaderProtocol
 
+    // MARK: - Tunnel control
+
     public init(
         tunnelAdapter: TunnelAdapterProtocol,
         tunnelMonitor: TunnelMonitorProtocol,
@@ -103,6 +105,8 @@ public actor PacketTunnelActor {
         try await reconnect(to: selectorResult, shouldStopTunnelMonitor: true)
     }
 
+    // MARK: - Sleep cycle notifications
+
     public nonisolated func onWake() {
         tunnelMonitor.onWake()
     }
@@ -111,73 +115,83 @@ public actor PacketTunnelActor {
         tunnelMonitor.onSleep()
     }
 
-    // MARK: - Private: Start tunnel
+    // MARK: - Private: Tunnel management
 
-    private func tryStart(
-        selectorResult: RelaySelectorResult? = nil,
-        keyPolicy: UsedKeyPolicy = .useCurrent
-    ) async throws {
-        // Read settings.
+    private func tryStart(selectorResult: RelaySelectorResult? = nil) async throws {
         let settings: Settings = try settingsReader.read()
 
-        // The tunnel is normally removed during logout and cannot run in such state, for simplicity treat it the same
-        // way as revoked state.
         guard case let .loggedIn(_, storedDeviceData) = settings.deviceState else {
             throw DeviceRevokedError()
         }
 
-        // Select relay. Prefer the one given to us, otherwise run relay selector.
-        let selectedRelay = try selectorResult ??
-            relaySelector.selectRelay(
+        func selectRelay() throws -> RelaySelectorResult {
+            return try selectorResult ?? relaySelector.selectRelay(
                 with: settings.tunnelSettings.relayConstraints,
                 connectionAttemptFailureCount: 0
             )
+        }
 
-        // Update actor state
-        let connectionState = ConnectionState(
-            selectedRelay: selectedRelay,
-            keyPolicy: keyPolicy,
-            networkReachability: .undetermined,
-            connectionAttemptCount: 0
-        )
-        state = .connecting(connectionState)
+        func makeConnectionState() throws -> ConnectionState? {
+            switch state {
+            case .initial:
+                return ConnectionState(
+                    selectedRelay: try selectRelay(),
+                    keyPolicy: .useCurrent,
+                    networkReachability: .undetermined,
+                    connectionAttemptCount: 0
+                )
 
-        // Configure WireGuard adapter.
+            case var .connecting(connState), var .connected(connState), var .reconnecting(connState):
+                connState.selectedRelay = try selectRelay()
+                return connState
+
+            case let .error(blockedState):
+                return ConnectionState(
+                    selectedRelay: try selectRelay(),
+                    keyPolicy: blockedState.keyPolicy,
+                    networkReachability: .undetermined,
+                    connectionAttemptCount: 0
+                )
+
+            case .disconnecting, .disconnected:
+                return nil
+            }
+        }
+
+        guard let connectionState = try makeConnectionState(),
+              let targetState = state.targetStateForReconnect else { return }
+
+        switch targetState {
+        case .connecting:
+            state = .connecting(connectionState)
+        case .reconnecting:
+            state = .reconnecting(connectionState)
+        }
+
+        let endpoint = connectionState.selectedRelay.endpoint
         let configurationBuilder = ConfigurationBuilder(
             usedKeyPolicy: connectionState.keyPolicy,
             deviceData: storedDeviceData,
             dns: settings.tunnelSettings.dnsSettings,
-            endpoint: selectedRelay.endpoint
+            endpoint: endpoint
         )
         try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
 
-        // Configure and start tunnel monitor by pinging a relay gateway IP (usually 10.x.x.x range)
-        tunnelMonitor.start(probeAddress: selectedRelay.endpoint.ipv4Gateway)
+        // Resume tunnel monitoring and se IPv4 gateway as a probe address.
+        tunnelMonitor.start(probeAddress: endpoint.ipv4Gateway)
     }
-
-    // MARK: - Private: Reconnect tunnel
 
     private func reconnect(to selectorResult: RelaySelectorResult?, shouldStopTunnelMonitor: Bool) async throws {
         try await taskQueue.add(kind: .reconnect) { [self] in
             try Task.checkCancellation()
 
-            if shouldStopTunnelMonitor {
-                tunnelMonitor.stop()
-            }
-
             do {
                 switch state {
-                case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
-                    try await tryReconnect(selectorResult: selectorResult, source: .connectionState(connState))
-
-                case let .error(blockedState):
-                    switch blockedState.priorState {
-                    case .connected, .reconnecting:
-                        try await tryReconnect(selectorResult: selectorResult, source: .blockedState(blockedState))
-
-                    case .initial, .connecting:
-                        try await tryStart(selectorResult: selectorResult, keyPolicy: blockedState.keyPolicy)
+                case .connecting, .connected, .reconnecting, .error:
+                    if shouldStopTunnelMonitor {
+                        tunnelMonitor.stop()
                     }
+                    try await tryStart(selectorResult: selectorResult)
 
                 case .disconnected, .disconnecting, .initial:
                     break
@@ -185,75 +199,11 @@ public actor PacketTunnelActor {
             } catch {
                 try Task.checkCancellation()
 
+                logger.error(error: error, message: "Failed to reconnect the tunnel.")
+
                 await setErrorState(with: error)
             }
         }
-    }
-
-    private func tryReconnect(selectorResult: RelaySelectorResult? = nil, source: ReconnectionSource) async throws {
-        // Read settings.
-        let settings: Settings = try settingsReader.read()
-
-        // The tunnel is normally removed during logout and cannot run in such state, for simplicity treat it the same
-        // way as revoked state.
-        guard case let .loggedIn(_, storedDeviceData) = settings.deviceState else {
-            throw DeviceRevokedError()
-        }
-
-        // Update actor state.
-        var connectionState: ConnectionState
-        let selectedRelay: RelaySelectorResult
-
-        switch source {
-        case let .connectionState(connState):
-            connectionState = connState
-
-            // Select next relay.
-            selectedRelay = try selectorResult ?? relaySelector.selectRelay(
-                with: settings.tunnelSettings.relayConstraints,
-                connectionAttemptFailureCount: connectionState.connectionAttemptCount
-            )
-
-            connectionState.selectedRelay = selectedRelay
-
-            // Remain in connecting state if tunnel hasn't connected yet.
-            if case .connecting = state {
-                state = .connecting(connectionState)
-            } else {
-                state = .reconnecting(connectionState)
-            }
-
-        case let .blockedState(blockedState):
-            // Select next relay.
-            selectedRelay = try selectorResult ?? relaySelector.selectRelay(
-                with: settings.tunnelSettings.relayConstraints,
-                connectionAttemptFailureCount: 0
-            )
-
-            connectionState = ConnectionState(
-                selectedRelay: selectedRelay,
-                keyPolicy: blockedState.keyPolicy,
-                networkReachability: .undetermined,
-                connectionAttemptCount: 0
-            )
-
-            // Awkward: we call tryStart() when blockedState's prior state was `.initial`.
-            state = .reconnecting(connectionState)
-        }
-
-        // Create configuration builder.
-        let configurationBuilder = ConfigurationBuilder(
-            usedKeyPolicy: connectionState.keyPolicy,
-            deviceData: storedDeviceData,
-            dns: settings.tunnelSettings.dnsSettings,
-            endpoint: selectedRelay.endpoint
-        )
-
-        // Update tunnel adapter configration
-        try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
-
-        // Resume tunnel monitoring and se IPv4 gateway as a probe address.
-        tunnelMonitor.start(probeAddress: selectedRelay.endpoint.ipv4Gateway)
     }
 
     // MARK: - Private: Error state
@@ -319,17 +269,16 @@ public actor PacketTunnelActor {
 
     private func onRecoveryTimer() async {
         try? await taskQueue.add(kind: .start) { [self] in
-            // Only proceed if the actor is still in blocked state.
-            guard case let .error(blockedState) = self.state else { return }
+            guard case .error = self.state else { return }
 
             do {
-                try await self.tryStart(keyPolicy: blockedState.keyPolicy)
+                try await tryStart()
             } catch {
                 try Task.checkCancellation()
 
-                self.logger.error(error: error, message: "Failed to start the tunnel upon recovery.")
+                logger.error(error: error, message: "Failed to start the tunnel from recovery timer.")
 
-                await self.setErrorState(with: error)
+                await setErrorState(with: error)
             }
         }
     }
