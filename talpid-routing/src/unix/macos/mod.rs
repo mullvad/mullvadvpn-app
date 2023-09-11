@@ -334,7 +334,7 @@ impl RouteManagerImpl {
 
     async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
         let best_route = interface::get_best_default_route(&mut self.routing_table, family).await;
-        log::trace!("Best route: {best_route:?}");
+        log::trace!("Best route ({family:?}): {best_route:?}");
 
         let default_route = match family {
             interface::Family::V4 => &mut self.v4_default_route,
@@ -342,13 +342,20 @@ impl RouteManagerImpl {
         };
 
         if default_route == &best_route {
-            log::trace!("Default route is unchanged");
+            log::trace!("Default route ({family:?}) is unchanged");
             return Ok(());
         }
 
         let old_route = std::mem::replace(default_route, best_route);
 
-        log::debug!("New default route: {old_route:?} -> {default_route:?}");
+        log::debug!(
+            "Default route change ({family:?}): interface {} -> {}",
+            old_route.map(|r| r.interface_index()).unwrap_or(0),
+            default_route
+                .as_ref()
+                .map(|r| r.interface_index())
+                .unwrap_or(0),
+        );
 
         let changed = default_route.is_some();
         self.notify_default_route_listeners(family, changed);
