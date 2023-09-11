@@ -53,7 +53,7 @@ public actor PacketTunnelActor {
             logger.debug("\(options.logFormat())")
 
             do {
-                try await tryStart(selectorResult: options.selectorResult)
+                try await tryStart(nextRelay: options.selectorResult.map { .preSelected($0) } ?? .random)
             } catch {
                 try Task.checkCancellation()
 
@@ -102,8 +102,8 @@ public actor PacketTunnelActor {
         }
     }
 
-    public func reconnect(to selectorResult: RelaySelectorResult?) async throws {
-        try await reconnect(to: selectorResult, shouldStopTunnelMonitor: true)
+    public func reconnect(to nextRelay: NextRelay) async throws {
+        try await reconnect(to: nextRelay, shouldStopTunnelMonitor: true)
     }
 
     // MARK: - Sleep cycle notifications
@@ -118,22 +118,21 @@ public actor PacketTunnelActor {
 
     // MARK: - Private: Tunnel management
 
-    private func tryStart(selectorResult: RelaySelectorResult? = nil) async throws {
+    private func tryStart(nextRelay: NextRelay = .random) async throws {
         let settings: Settings = try settingsReader.read()
         guard let storedDeviceData = settings.deviceState.deviceData else { throw DeviceRevokedError() }
 
-        func selectRelay() throws -> RelaySelectorResult {
-            return try selectorResult ?? relaySelector.selectRelay(
-                with: settings.tunnelSettings.relayConstraints,
-                connectionAttemptFailureCount: 0
-            )
-        }
-
         func makeConnectionState() throws -> ConnectionState? {
+            let relayConstraints = settings.tunnelSettings.relayConstraints
             switch state {
             case .initial:
                 return ConnectionState(
-                    selectedRelay: try selectRelay(),
+                    selectedRelay: try selectRelay(
+                        nextRelay: nextRelay,
+                        relayConstraints: relayConstraints,
+                        currentRelay: nil,
+                        connectionAttemptCount: 0
+                    ),
                     currentKey: storedDeviceData.wgKeyData.privateKey,
                     keyPolicy: .useCurrent,
                     networkReachability: .undetermined,
@@ -141,14 +140,24 @@ public actor PacketTunnelActor {
                 )
 
             case var .connecting(connState), var .connected(connState), var .reconnecting(connState):
-                connState.selectedRelay = try selectRelay()
+                connState.selectedRelay = try selectRelay(
+                    nextRelay: nextRelay,
+                    relayConstraints: relayConstraints,
+                    currentRelay: connState.selectedRelay,
+                    connectionAttemptCount: connState.connectionAttemptCount
+                )
                 connState.currentKey = storedDeviceData.wgKeyData.privateKey
 
                 return connState
 
             case let .error(blockedState):
                 return ConnectionState(
-                    selectedRelay: try selectRelay(),
+                    selectedRelay: try selectRelay(
+                        nextRelay: nextRelay,
+                        relayConstraints: relayConstraints,
+                        currentRelay: nil,
+                        connectionAttemptCount: 0
+                    ),
                     currentKey: storedDeviceData.wgKeyData.privateKey,
                     keyPolicy: blockedState.keyPolicy,
                     networkReachability: .undetermined,
@@ -183,7 +192,7 @@ public actor PacketTunnelActor {
         tunnelMonitor.start(probeAddress: endpoint.ipv4Gateway)
     }
 
-    private func reconnect(to selectorResult: RelaySelectorResult?, shouldStopTunnelMonitor: Bool) async throws {
+    private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         try await taskQueue.add(kind: .reconnect) { [self] in
             try Task.checkCancellation()
 
@@ -193,7 +202,7 @@ public actor PacketTunnelActor {
                     if shouldStopTunnelMonitor {
                         tunnelMonitor.stop()
                     }
-                    try await tryStart(selectorResult: selectorResult)
+                    try await tryStart(nextRelay: nextRelay)
 
                 case .disconnected, .disconnecting, .initial:
                     break
@@ -208,6 +217,31 @@ public actor PacketTunnelActor {
         }
     }
 
+    private func selectRelay(
+        nextRelay: NextRelay,
+        relayConstraints: RelayConstraints,
+        currentRelay: RelaySelectorResult?,
+        connectionAttemptCount: UInt
+    ) throws -> RelaySelectorResult {
+        switch nextRelay {
+        case .current:
+            if let currentRelay {
+                return currentRelay
+            } else {
+                fallthrough
+            }
+
+        case .random:
+            return try relaySelector.selectRelay(
+                with: relayConstraints,
+                connectionAttemptFailureCount: connectionAttemptCount
+            )
+
+        case let .preSelected(selectorResult):
+            return selectorResult
+        }
+    }
+
     // MARK: - Private: Error state
 
     private func setErrorState(with error: Error) async {
@@ -215,6 +249,7 @@ public actor PacketTunnelActor {
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
             let blockedState = BlockedState(
                 error: error,
+                currentKey: nil,
                 keyPolicy: connState.keyPolicy,
                 priorState: state.priorState!
             )
@@ -232,6 +267,7 @@ public actor PacketTunnelActor {
 
             let blockedState = BlockedState(
                 error: error,
+                currentKey: nil,
                 keyPolicy: .useCurrent,
                 recoveryTask: AutoCancellingTask(recoveryTask),
                 priorState: state.priorState!
@@ -303,13 +339,15 @@ public actor PacketTunnelActor {
     private func onHandleConnectionRecovery() async {
         switch state {
         case var .connecting(connState), var .reconnecting(connState), var .connected(connState):
+            guard let targetState = state.targetStateForReconnect else { return }
+
             // Increment attempt counter
             connState.incrementAttemptCount()
 
-            // Remain in connecting state if we haven't been able to connect in the first place.
-            if case .connecting = state {
+            switch targetState {
+            case .connecting:
                 state = .connecting(connState)
-            } else {
+            case .reconnecting:
                 state = .reconnecting(connState)
             }
 
@@ -319,8 +357,9 @@ public actor PacketTunnelActor {
 
             logger.debug("Recover connection. Picking next relay...")
 
-            // Tunnel monitor should already be paused at this point.
-            try? await reconnect(to: nil, shouldStopTunnelMonitor: false)
+            // Tunnel monitor should already be paused at this point so don't stop it to avoid reseting its internal
+            // counters.
+            try? await reconnect(to: .random, shouldStopTunnelMonitor: false)
 
         case .initial, .disconnected, .disconnecting, .error:
             break

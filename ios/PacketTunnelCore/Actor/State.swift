@@ -122,6 +122,9 @@ public struct BlockedState {
     /// Error leading to blocked state.
     public var error: Error
 
+    /// Last WG key read from setings.
+    public var currentKey: PrivateKey?
+
     /// Policy describing the current key that should be used by the tunnel.
     public var keyPolicy: KeyPolicy
 
@@ -149,4 +152,15 @@ public struct DeviceRevokedError: LocalizedError {
     public var errorDescription: String? {
         return "Device is revoked."
     }
+}
+
+public enum NextRelay {
+    /// Select next relay randomly.
+    case random
+
+    /// Use currently selected relay, fallback to random if not set.
+    case current
+
+    /// Use pre-selected relay.
+    case preSelected(RelaySelectorResult)
 }

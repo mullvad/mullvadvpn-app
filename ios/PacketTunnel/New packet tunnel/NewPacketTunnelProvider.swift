@@ -94,7 +94,6 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
 
         case let .cancelURLRequest(id):
             urlRequestProxy.cancelRequest(identifier: id)
-            return nil
 
         case .getTunnelStatus:
             return await encodeReply(actor.state.packetTunnelStatus)
@@ -104,9 +103,10 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
             return nil
 
         case let .reconnectTunnel(selectorResult):
-            try? await actor.reconnect(to: selectorResult)
-            return nil
+            try? await actor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .random)
         }
+
+        return nil
     }
 
     override func sleep() async {
