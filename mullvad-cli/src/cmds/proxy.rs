@@ -1,41 +1,47 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::api_access_method::{AccessMethod, ApiAccessMethodReplace};
+use mullvad_types::api_access_method::{
+    daemon::ApiAccessMethodReplace, AccessMethod, ObfuscationProtocol,
+};
 use std::net::IpAddr;
 
 use clap::{Args, Subcommand};
 use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
-#[derive(Subcommand, Debug)]
+#[derive(Subcommand, Debug, Clone)]
 pub enum Proxy {
-    /// Get current api settings
+    /// List the configured API proxies
+    List,
+    /// Add a custom API proxy
     #[clap(subcommand)]
-    Api(ApiCommands),
+    Add(AddCustomCommands),
+    /// Edit an API proxy
+    Edit(EditCustomCommands),
+    /// Remove an API proxy
+    Remove(RemoveCustomCommands),
 }
 
 impl Proxy {
     pub async fn handle(self) -> Result<()> {
         match self {
-            Proxy::Api(cmd) => match cmd {
-                ApiCommands::List => {
-                    //println!("Listing the API access methods: ..");
-                    Self::list().await?;
-                }
-                ApiCommands::Add(cmd) => {
-                    //println!("Adding custom proxy");
-                    Self::add(cmd).await?;
-                }
-                ApiCommands::Edit(cmd) => {
-                    // Transform human-readable index to 0-based indexing.
-                    let index = Self::zero_to_one_based_index(cmd.index)?;
-                    Self::edit(EditCustomCommands { index, ..cmd }).await?
-                }
-                ApiCommands::Remove(cmd) => {
-                    // Transform human-readable index to 0-based indexing.
-                    let index = Self::zero_to_one_based_index(cmd.index)?;
-                    Self::remove(RemoveCustomCommands { index }).await?
-                }
-            },
+            Proxy::List => {
+                //println!("Listing the API access methods: ..");
+                Self::list().await?;
+            }
+            Proxy::Add(cmd) => {
+                //println!("Adding custom proxy");
+                Self::add(cmd).await?;
+            }
+            Proxy::Edit(cmd) => {
+                // Transform human-readable index to 0-based indexing.
+                let index = Self::zero_to_one_based_index(cmd.index)?;
+                Self::edit(EditCustomCommands { index, ..cmd }).await?
+            }
+            Proxy::Remove(cmd) => {
+                // Transform human-readable index to 0-based indexing.
+                let index = Self::zero_to_one_based_index(cmd.index)?;
+                Self::remove(RemoveCustomCommands { index }).await?
+            }
         };
         Ok(())
     }
@@ -88,8 +94,13 @@ impl Proxy {
             .clone();
 
         // Create a new access method combining the new params with the previous values
-        let edited_access_method: AccessMethod = match access_method {
-            AccessMethod::Shadowsocks(shadowsocks) => {
+        let access_method = match access_method {
+            AccessMethod::BuiltIn(_) => Err(anyhow!("Can not edit built-in access method")),
+            AccessMethod::Custom(custom_access_method) => Ok(custom_access_method),
+        }?;
+
+        let edited_access_method: AccessMethod = match access_method.access_method {
+            ObfuscationProtocol::Shadowsocks(shadowsocks) => {
                 let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip()).to_string();
                 let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
                 let password = cmd.params.password.unwrap_or(shadowsocks.password);
@@ -97,7 +108,7 @@ impl Proxy {
                 mullvad_types::api_access_method::Shadowsocks::from_args(ip, port, cipher, password)
                     .map(|x| x.into())
             }
-            AccessMethod::Socks5(socks) => match socks {
+            ObfuscationProtocol::Socks5(socks) => match socks {
                 mullvad_types::api_access_method::Socks5::Local(local) => {
                     let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(local.peer.port());
@@ -132,19 +143,6 @@ impl Proxy {
             .checked_sub(1)
             .ok_or(anyhow!("Access method 0 does not exist"))
     }
-}
-
-#[derive(Subcommand, Debug, Clone)]
-pub enum ApiCommands {
-    /// List the configured API proxies
-    List,
-    /// Add a custom API proxy
-    #[clap(subcommand)]
-    Add(AddCustomCommands),
-    /// Edit an API proxy
-    Edit(EditCustomCommands),
-    /// Remove an API proxy
-    Remove(RemoveCustomCommands),
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -262,7 +260,7 @@ mod conversions {
                             )
                             .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
                         );
-                        daemon_types::AccessMethod::Socks5(socks_proxy)
+                        socks_proxy.into()
                     }
                     Socks5AddCommands::Remote {
                         remote_ip,
@@ -278,7 +276,7 @@ mod conversions {
                             )
                             .ok_or(anyhow!("Could not create a remote Socks5 api proxy"))?,
                         );
-                        daemon_types::AccessMethod::Socks5(socks_proxy)
+                        socks_proxy.into()
                     }
                 },
                 AddCustomCommands::Shadowsocks {
@@ -297,7 +295,7 @@ mod conversions {
                         password,
                     )
                     .ok_or(anyhow!("Could not create a Shadowsocks api proxy"))?;
-                    daemon_types::AccessMethod::Shadowsocks(shadowsocks_proxy)
+                    shadowsocks_proxy.into()
                 }
             })
         }
