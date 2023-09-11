@@ -265,6 +265,8 @@ pub enum DaemonCommand {
     GetApiAccessMethods(ResponseTx<Vec<AccessMethod>, Error>),
     /// Add API access methods
     AddApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
+    /// Remove an API access method
+    RemoveApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1049,6 +1051,7 @@ where
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
             AddApiAccessMethod(tx, method) => self.on_add_api_access_method(tx, method).await,
+            RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2267,6 +2270,18 @@ where
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "add_api_access_method response");
+    }
+
+    async fn on_remove_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        method: AccessMethod,
+    ) {
+        let result = self
+            .remove_access_method(method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "remove_api_access_method response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

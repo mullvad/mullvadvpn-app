@@ -511,6 +511,14 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
+    pub async fn remove_access_method(&mut self, access_method: AccessMethod) -> Result<()> {
+        self.0
+            .remove_api_access_method(types::ApiAccessMethod::from(access_method))
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
     #[cfg(target_os = "linux")]
     pub async fn get_split_tunnel_processes(&mut self) -> Result<Vec<i32>> {
         use futures::TryStreamExt;
