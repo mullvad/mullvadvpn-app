@@ -32,6 +32,25 @@ mod settings {
             }
         }
     }
+
+    impl From<api_access_method::ApiAccessMethodReplace> for proto::ApiAccessMethodReplace {
+        fn from(value: api_access_method::ApiAccessMethodReplace) -> Self {
+            proto::ApiAccessMethodReplace {
+                index: value.index as u32,
+                access_method: Some(value.access_method.into()),
+            }
+        }
+    }
+
+    impl From<proto::ApiAccessMethodReplace> for api_access_method::ApiAccessMethodReplace {
+        // TODO: Implement `TryFrom` instead, and skip the `unwrap`.
+        fn from(value: proto::ApiAccessMethodReplace) -> Self {
+            api_access_method::ApiAccessMethodReplace {
+                index: value.index as usize,
+                access_method: value.access_method.unwrap().into(),
+            }
+        }
+    }
 }
 
 /// Implements conversions for the 'main' AccessMethod data type.
