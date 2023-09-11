@@ -10,7 +10,7 @@ private const val DOT_CHAR = '\u2022'
 private const val EMPTY_STRING = ""
 private const val SPACE_CHAR = ' '
 
-class GroupedTransformationMethod() : TransformationMethod {
+class GroupedTransformationMethod : TransformationMethod {
     override fun getTransformation(source: CharSequence?, view: View?): CharSequence {
         return source?.groupWithSpaces() ?: EMPTY_STRING
     }
@@ -26,7 +26,7 @@ class GroupedTransformationMethod() : TransformationMethod {
     }
 }
 
-class GroupedPasswordTransformationMethod() : PasswordTransformationMethod() {
+class GroupedPasswordTransformationMethod : PasswordTransformationMethod() {
     override fun getTransformation(source: CharSequence?, view: View?): CharSequence {
         return if (source != null && view != null) {
             super.getTransformation(source, view)

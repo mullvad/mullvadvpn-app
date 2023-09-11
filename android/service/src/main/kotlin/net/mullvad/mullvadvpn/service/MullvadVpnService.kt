@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
-import android.net.VpnService
 import android.os.IBinder
 import android.os.Looper
 import android.util.Log
@@ -138,7 +137,7 @@ class MullvadVpnService : TalpidVpnService() {
         if (!keyguardManager.isDeviceLocked) {
             val action = intent?.action
 
-            if (action == VpnService.SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
+            if (action == SERVICE_INTERFACE || action == KEY_CONNECT_ACTION) {
                 pendingAction = PendingAction.Connect
             } else if (action == KEY_DISCONNECT_ACTION) {
                 pendingAction = PendingAction.Disconnect

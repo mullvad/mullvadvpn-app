@@ -120,8 +120,8 @@ class AccountInput : LinearLayout {
     private fun initialState() {
         input.apply {
             setTextColor(enabledTextColor)
-            setEnabled(true)
-            setFocusableInTouchMode(true)
+            isEnabled = true
+            isFocusableInTouchMode = true
             visibility = View.VISIBLE
         }
 
@@ -132,8 +132,8 @@ class AccountInput : LinearLayout {
     private fun loggingInState() {
         input.apply {
             setTextColor(disabledTextColor)
-            setEnabled(false)
-            setFocusable(false)
+            isEnabled = false
+            isFocusable = false
             visibility = View.VISIBLE
         }
 
@@ -144,8 +144,8 @@ class AccountInput : LinearLayout {
     private fun successState() {
         input.apply {
             setTextColor(disabledTextColor)
-            setEnabled(false)
-            setFocusable(false)
+            isEnabled = false
+            isFocusable = false
             visibility = View.VISIBLE
         }
 
@@ -159,8 +159,8 @@ class AccountInput : LinearLayout {
 
         input.apply {
             setTextColor(errorTextColor)
-            setEnabled(true)
-            setFocusableInTouchMode(true)
+            isEnabled = true
+            isFocusableInTouchMode = true
             visibility = View.VISIBLE
             requestFocus()
         }
@@ -168,10 +168,10 @@ class AccountInput : LinearLayout {
 
     private fun setButtonEnabled(enabled: Boolean) {
         button.apply {
-            if (enabled != isEnabled()) {
-                setEnabled(enabled)
-                setClickable(enabled)
-                setFocusable(enabled)
+            if (enabled != isEnabled) {
+                isEnabled = enabled
+                isClickable = enabled
+                isFocusable = enabled
             }
         }
     }
