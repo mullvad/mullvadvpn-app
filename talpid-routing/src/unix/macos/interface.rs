@@ -1,5 +1,9 @@
-use nix::net::if_::if_nametoindex;
-use std::ffi::CString;
+use nix::net::if_::{if_nametoindex, InterfaceFlags};
+use std::{
+    ffi::CString,
+    io,
+    net::{Ipv4Addr, Ipv6Addr},
+};
 use system_configuration::{
     core_foundation::string::CFString,
     network_configuration::{SCNetworkService, SCNetworkSet},
@@ -48,10 +52,12 @@ pub async fn get_best_default_route(
             }
         };
 
-        // Request ifscoped route for this interface
+        // Request ifscoped default route for this interface
         let route_msg = msg.clone().set_ifscope(u16::try_from(index).unwrap());
         if let Ok(Some(route)) = routing_table.get_route(&route_msg).await {
-            return Some(route);
+            if is_active_interface(&iface, family).unwrap_or(true) {
+                return Some(route);
+            }
         }
     }
 
@@ -74,4 +80,37 @@ fn network_service_order() -> Vec<String> {
                 .map(|cf_name| cf_name.to_string())
         })
         .collect::<Vec<_>>()
+}
+
+/// Return whether the given interface has an assigned (unicast) IP address.
+fn is_active_interface(interface_name: &str, family: Family) -> io::Result<bool> {
+    let required_link_flags: InterfaceFlags = InterfaceFlags::IFF_UP | InterfaceFlags::IFF_RUNNING;
+    let has_ip_addr = nix::ifaddrs::getifaddrs()?
+        .filter(|addr| (addr.flags & required_link_flags) == required_link_flags)
+        .filter(|addr| addr.interface_name == interface_name)
+        .any(|addr| {
+            if let Some(addr) = addr.address {
+                // Check if family matches; ignore if link-local address
+                match family {
+                    Family::V4 => matches!(addr.as_sockaddr_in(), Some(addr_in) if is_routable_v4(&Ipv4Addr::from(addr_in.ip()))),
+                    Family::V6 => {
+                        matches!(addr.as_sockaddr_in6(), Some(addr_in) if is_routable_v6(&addr_in.ip()))
+                    }
+                }
+            } else {
+                false
+            }
+        });
+    Ok(has_ip_addr)
+}
+
+fn is_routable_v4(addr: &Ipv4Addr) -> bool {
+    !addr.is_unspecified() && !addr.is_loopback() && !addr.is_link_local()
+}
+
+fn is_routable_v6(addr: &Ipv6Addr) -> bool {
+    !addr.is_unspecified()
+    && !addr.is_loopback()
+    // !(link local)
+    && (addr.segments()[0] & 0xffc0) != 0xfe80
 }
