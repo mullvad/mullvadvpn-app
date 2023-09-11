@@ -80,7 +80,7 @@ open class Button : FrameLayout {
 
     var showSpinner = false
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {
         loadAttributes(attributes)
@@ -105,7 +105,7 @@ open class Button : FrameLayout {
 
     override fun setEnabled(enabled: Boolean) {
         super.setEnabled(enabled)
-        button.setEnabled(enabled)
+        button.isEnabled = enabled
 
         if (enabled) {
             alpha = 1.0f
@@ -117,7 +117,7 @@ open class Button : FrameLayout {
     init {
         button.setOnClickListener {
             jobTracker?.newUiJob(clickJobName!!) {
-                setEnabled(false)
+                isEnabled = false
 
                 if (showSpinner) {
                     image.visibility = GONE
@@ -132,7 +132,7 @@ open class Button : FrameLayout {
                     image.visibility = VISIBLE
                 }
 
-                setEnabled(true)
+                isEnabled = true
             }
         }
     }
