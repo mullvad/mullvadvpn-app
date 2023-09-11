@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +38,7 @@ fun ScaffoldWithTopBar(
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val systemUiController = rememberSystemUiController()
@@ -52,8 +57,19 @@ fun ScaffoldWithTopBar(
                 isIconAndLogoVisible = isIconAndLogoVisible
             )
         },
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
+            )
+        },
         content = content
     )
+}
+
+@Composable
+fun MullvadSnackbar(snackbarData: SnackbarData) {
+    Snackbar(snackbarData = snackbarData, contentColor = MaterialTheme.colorScheme.secondary)
 }
 
 @Composable
