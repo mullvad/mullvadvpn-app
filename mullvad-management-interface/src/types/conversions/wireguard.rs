@@ -1,5 +1,6 @@
 use super::FromProtobufTypeError;
 use crate::types::proto;
+use chrono::TimeZone;
 use prost_types::Timestamp;
 
 impl From<mullvad_types::wireguard::PublicKey> for proto::PublicKey {
@@ -29,7 +30,7 @@ impl TryFrom<proto::PublicKey> for mullvad_types::wireguard::PublicKey {
         Ok(mullvad_types::wireguard::PublicKey {
             key: talpid_types::net::wireguard::PublicKey::try_from(public_key.key.as_slice())
                 .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid wireguard key"))?,
-            created: chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc),
+            created: chrono::Utc.from_utc_datetime(&ndt),
         })
     }
 }
@@ -54,17 +55,17 @@ impl TryFrom<proto::QuantumResistantState> for mullvad_types::wireguard::Quantum
     type Error = FromProtobufTypeError;
 
     fn try_from(state: proto::QuantumResistantState) -> Result<Self, Self::Error> {
-        match proto::quantum_resistant_state::State::from_i32(state.state) {
-            Some(proto::quantum_resistant_state::State::Auto) => {
+        match proto::quantum_resistant_state::State::try_from(state.state) {
+            Ok(proto::quantum_resistant_state::State::Auto) => {
                 Ok(mullvad_types::wireguard::QuantumResistantState::Auto)
             }
-            Some(proto::quantum_resistant_state::State::On) => {
+            Ok(proto::quantum_resistant_state::State::On) => {
                 Ok(mullvad_types::wireguard::QuantumResistantState::On)
             }
-            Some(proto::quantum_resistant_state::State::Off) => {
+            Ok(proto::quantum_resistant_state::State::Off) => {
                 Ok(mullvad_types::wireguard::QuantumResistantState::Off)
             }
-            None => Err(FromProtobufTypeError::InvalidArgument(
+            Err(_) => Err(FromProtobufTypeError::InvalidArgument(
                 "invalid quantum resistance state",
             )),
         }

@@ -9,7 +9,7 @@ edition.workspace = true
 publish.workspace = true
 
 [dependencies]
-log = "0.4"
+log = { workspace = true }
 rand = "0.8"
 talpid-types = { path = "../talpid-types" }
 tonic = { workspace = true }

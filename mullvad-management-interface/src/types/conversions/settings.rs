@@ -175,17 +175,15 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
 pub fn try_bridge_state_from_i32(
     bridge_state: i32,
 ) -> Result<mullvad_types::relay_constraints::BridgeState, FromProtobufTypeError> {
-    match proto::bridge_state::State::from_i32(bridge_state) {
-        Some(proto::bridge_state::State::Auto) => {
+    match proto::bridge_state::State::try_from(bridge_state) {
+        Ok(proto::bridge_state::State::Auto) => {
             Ok(mullvad_types::relay_constraints::BridgeState::Auto)
         }
-        Some(proto::bridge_state::State::On) => {
-            Ok(mullvad_types::relay_constraints::BridgeState::On)
-        }
-        Some(proto::bridge_state::State::Off) => {
+        Ok(proto::bridge_state::State::On) => Ok(mullvad_types::relay_constraints::BridgeState::On),
+        Ok(proto::bridge_state::State::Off) => {
             Ok(mullvad_types::relay_constraints::BridgeState::Off)
         }
-        None => Err(FromProtobufTypeError::InvalidArgument(
+        Err(_) => Err(FromProtobufTypeError::InvalidArgument(
             "invalid bridge state",
         )),
     }
@@ -286,10 +284,10 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
             DnsState as MullvadDnsState,
         };
 
-        let state = match proto::dns_options::DnsState::from_i32(options.state) {
-            Some(proto::dns_options::DnsState::Default) => MullvadDnsState::Default,
-            Some(proto::dns_options::DnsState::Custom) => MullvadDnsState::Custom,
-            None => {
+        let state = match proto::dns_options::DnsState::try_from(options.state) {
+            Ok(proto::dns_options::DnsState::Default) => MullvadDnsState::Default,
+            Ok(proto::dns_options::DnsState::Custom) => MullvadDnsState::Custom,
+            Err(_) => {
                 return Err(FromProtobufTypeError::InvalidArgument(
                     "invalid DNS options state",
                 ))

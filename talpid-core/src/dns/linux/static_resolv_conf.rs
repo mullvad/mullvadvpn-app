@@ -113,7 +113,7 @@ impl Drop for DnsWatcher {
 
 impl DnsWatcher {
     fn start(state: Arc<Mutex<Option<State>>>) -> Result<Self> {
-        let mut watcher = Inotify::init().map_err(Error::WatchResolvConf)?;
+        let watcher = Inotify::init().map_err(Error::WatchResolvConf)?;
         let mut mask = WatchMask::empty();
         // Documentation for the meaning of these masks can be found in `man inotify`
         //
@@ -125,7 +125,8 @@ impl DnsWatcher {
         mask.insert(WatchMask::MOVE_SELF);
 
         watcher
-            .add_watch(RESOLV_CONF_PATH, mask)
+            .watches()
+            .add(RESOLV_CONF_PATH, mask)
             .map_err(Error::WatchResolvConf)?;
 
         let (cancel_trigger, cancel_listener) = trigger();
@@ -136,14 +137,14 @@ impl DnsWatcher {
     }
 
     async fn event_loop(
-        mut watcher: Inotify,
+        watcher: Inotify,
         mut cancel_listener: Listener,
         state: &Arc<Mutex<Option<State>>>,
     ) {
         const EVENT_BUFFER_SIZE: usize = 1024;
         let mut buffer = [0; EVENT_BUFFER_SIZE];
         let mut events = watcher
-            .event_stream(&mut buffer)
+            .into_event_stream(&mut buffer)
             .expect("Could not read events for resolv.conf");
 
         loop {
