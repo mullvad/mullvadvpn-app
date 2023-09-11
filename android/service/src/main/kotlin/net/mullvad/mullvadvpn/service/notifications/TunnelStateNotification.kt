@@ -116,8 +116,8 @@ class TunnelStateNotification(val context: Context) {
         val intent =
             Intent().apply {
                 setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
-                setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                setAction(Intent.ACTION_MAIN)
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                action = Intent.ACTION_MAIN
             }
         val pendingIntent =
             PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())

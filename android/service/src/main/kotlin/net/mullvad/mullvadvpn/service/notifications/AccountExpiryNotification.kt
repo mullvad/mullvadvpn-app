@@ -108,8 +108,8 @@ class AccountExpiryNotification(
             if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
                 Intent().apply {
                     setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
-                    setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    setAction(Intent.ACTION_MAIN)
+                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+                    action = Intent.ACTION_MAIN
                 }
             } else {
                 Intent(Intent.ACTION_VIEW, url)

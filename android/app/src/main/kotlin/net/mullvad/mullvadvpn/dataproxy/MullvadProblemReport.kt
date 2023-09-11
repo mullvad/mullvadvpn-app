@@ -15,13 +15,13 @@ const val PROBLEM_REPORT_FILE = "problem_report.txt"
 
 class MullvadProblemReport {
     private sealed class Command {
-        class Collect() : Command()
+        data object Collect : Command()
 
         class Load(val logs: CompletableDeferred<String>) : Command()
 
         class Send(val result: CompletableDeferred<Boolean>) : Command()
 
-        class Delete() : Command()
+        data object Delete : Command()
     }
 
     val logDirectory = CompletableDeferred<File>()
@@ -44,7 +44,7 @@ class MullvadProblemReport {
     }
 
     fun collect() {
-        commandChannel.trySendBlocking(Command.Collect())
+        commandChannel.trySendBlocking(Command.Collect)
     }
 
     suspend fun load(): String {
@@ -64,7 +64,7 @@ class MullvadProblemReport {
     }
 
     fun deleteReportFile() {
-        commandChannel.trySendBlocking(Command.Delete())
+        commandChannel.trySendBlocking(Command.Delete)
     }
 
     private fun spawnActor() =

@@ -19,7 +19,7 @@ class BackButton : LinearLayout {
 
     private val label = container.findViewById<TextView>(R.id.label)
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {
         loadAttributes(attributes)
@@ -43,7 +43,7 @@ class BackButton : LinearLayout {
     }
 
     init {
-        setFocusable(true)
+        isFocusable = true
         isClickable = true
         gravity = Gravity.CENTER_VERTICAL or Gravity.START
         orientation = HORIZONTAL

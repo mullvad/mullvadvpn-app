@@ -65,17 +65,12 @@ internal fun BaseCell(
     minHeight: Dp = Dimens.cellHeight,
     testTag: String = ""
 ) {
-    val rowModifier =
-        Modifier.let {
-            if (isRowEnabled) {
-                it.clickable { onCellClicked() }
-            } else it
-        }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier =
-            rowModifier
+            modifier
+                .clickable(isRowEnabled, onClick = onCellClicked)
                 .wrapContentHeight()
                 .defaultMinSize(minHeight = minHeight)
                 .fillMaxWidth()
@@ -89,7 +84,7 @@ internal fun BaseCell(
 
         Spacer(modifier = Modifier.weight(1.0f))
 
-        Column(modifier = modifier.wrapContentWidth().wrapContentHeight()) { bodyView() }
+        Column(modifier = Modifier.wrapContentWidth().wrapContentHeight()) { bodyView() }
     }
 }
 

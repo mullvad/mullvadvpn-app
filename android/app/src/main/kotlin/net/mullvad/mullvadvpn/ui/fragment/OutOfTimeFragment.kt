@@ -96,11 +96,11 @@ class OutOfTimeFragment : BaseFragment() {
                 newAccount = false
 
                 setOnClickAction("openAccountPageInBrowser", jobTracker) {
-                    setEnabled(false)
+                    isEnabled = false
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
                         context.openAccountPageInBrowser(token)
                     }
-                    setEnabled(true)
+                    isEnabled = true
                 }
 
                 isEnabled = true
@@ -170,10 +170,10 @@ class OutOfTimeFragment : BaseFragment() {
 
         disconnectButton.apply {
             if (showButton) {
-                setEnabled(true)
+                isEnabled = true
                 visibility = View.VISIBLE
             } else {
-                setEnabled(false)
+                isEnabled = false
                 visibility = View.GONE
             }
         }
@@ -182,17 +182,17 @@ class OutOfTimeFragment : BaseFragment() {
     private fun updateBuyButtons() {
         val currentState = tunnelState
         val hasConnectivity = currentState is TunnelState.Disconnected
-        sitePaymentButton.setEnabled(hasConnectivity)
+        sitePaymentButton.isEnabled = hasConnectivity
 
         val isOffline =
             currentState is TunnelState.Error &&
                 currentState.errorState.cause is ErrorStateCause.IsOffline
-        redeemButton.setEnabled(!isOffline)
+        redeemButton.isEnabled = !isOffline
     }
 
     private fun checkExpiry(maybeExpiry: DateTime?) {
         maybeExpiry?.let { expiry ->
-            if (expiry.isAfterNow()) {
+            if (expiry.isAfterNow) {
                 jobTracker.newUiJob("advanceToConnectScreen") { advanceToConnectScreen() }
             }
         }
