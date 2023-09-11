@@ -1,9 +1,9 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::api_access_method::AccessMethod;
 use std::net::IpAddr;
 
-use clap::Subcommand;
+use clap::{Args, Subcommand};
 use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
 #[derive(Subcommand, Debug)]
@@ -25,6 +25,14 @@ impl Proxy {
                     //println!("Adding custom proxy");
                     Self::add(cmd).await?;
                 }
+                ApiCommands::Edit(_) => todo!(),
+                ApiCommands::Remove(cmd) => {
+                    // Transform human-readable index to 0-based indexing.
+                    match cmd.index.checked_sub(1) {
+                        Some(index) => Self::remove(RemoveCustomCommands { index, ..cmd }).await?,
+                        None => println!("Access method 0 does not exist"),
+                    }
+                }
             },
         };
         Ok(())
@@ -33,9 +41,8 @@ impl Proxy {
     /// Show all API access methods.
     async fn list() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        println!("Calling [rpc::get_api_access_methods] ..");
-        for api_access_method in rpc.get_api_access_methods().await? {
-            println!("{:?}", api_access_method);
+        for (index, api_access_method) in rpc.get_api_access_methods().await?.iter().enumerate() {
+            println!("{}. {:?}", index + 1, api_access_method);
         }
         Ok(())
     }
@@ -48,6 +55,23 @@ impl Proxy {
         rpc.add_access_method(proxy).await?;
         Ok(())
     }
+
+    /// Remove an API access method.
+    async fn remove(cmd: RemoveCustomCommands) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let access_method = rpc
+            .get_api_access_methods()
+            .await?
+            .get(cmd.index)
+            .ok_or(anyhow!(format!(
+                "Access method {} does not exist",
+                cmd.index + 1
+            )))?
+            .clone();
+        rpc.remove_access_method(access_method)
+            .await
+            .map_err(Into::<anyhow::Error>::into)
+    }
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -57,6 +81,8 @@ pub enum ApiCommands {
     /// Add a custom API proxy
     #[clap(subcommand)]
     Add(AddCustomCommands),
+    /// Remove an API proxy
+    Remove(RemoveCustomCommands),
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -79,6 +105,12 @@ pub enum AddCustomCommands {
         #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
         cipher: String,
     },
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct RemoveCustomCommands {
+    /// Which API proxy to remove
+    index: usize,
 }
 
 #[derive(Subcommand, Debug, Clone)]
