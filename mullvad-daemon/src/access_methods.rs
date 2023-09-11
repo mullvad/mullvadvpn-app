@@ -34,4 +34,24 @@ where
             })
             .map_err(Error::Settings)
     }
+
+    pub async fn remove_access_method(&mut self, access_method: AccessMethod) -> Result<(), Error> {
+        self.settings
+            .update(|settings| {
+                settings
+                    .api_access_methods
+                    .api_access_methods
+                    .retain(|x| *x != access_method);
+            })
+            .await
+            .map(|changed| {
+                if changed {
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings));
+                };
+            })
+            .map_err(Error::Settings)
+    }
 }
