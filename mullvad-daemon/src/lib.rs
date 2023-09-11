@@ -40,7 +40,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access_method::AccessMethod,
+    api_access_method::{AccessMethod, ApiAccessMethodReplace},
     auth_failed::AuthFailed,
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -267,6 +267,8 @@ pub enum DaemonCommand {
     AddApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
     /// Remove an API access method
     RemoveApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
+    /// Edit an API access method
+    ReplaceApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodReplace),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1052,6 +1054,9 @@ where
             GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
             AddApiAccessMethod(tx, method) => self.on_add_api_access_method(tx, method).await,
             RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
+            ReplaceApiAccessMethod(tx, method) => {
+                self.on_replace_api_access_method(tx, method).await
+            }
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2282,6 +2287,18 @@ where
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "remove_api_access_method response");
+    }
+
+    async fn on_replace_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        method: ApiAccessMethodReplace,
+    ) {
+        let result = self
+            .replace_access_method(method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "edit_api_access_method response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

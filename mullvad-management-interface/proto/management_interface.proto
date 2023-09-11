@@ -84,6 +84,9 @@ service ManagementService {
   rpc RemoveApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
+  rpc ReplaceApiAccessMethod(ApiAccessMethodReplace) returns (google.protobuf.Empty) {
+    // Can I return something useful here instead of Empty?
+  }
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -341,6 +344,11 @@ message CustomListLocationUpdate {
   State state = 1;
   string name = 2;
   RelayLocation location = 3;
+}
+
+message ApiAccessMethodReplace {
+  uint32 index = 1;
+  ApiAccessMethod access_method = 2;
 }
 
 message CustomList {
