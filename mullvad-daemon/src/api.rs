@@ -10,6 +10,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
+use mullvad_types::api_access_method;
 use std::{
     net::SocketAddr,
     path::PathBuf,
@@ -25,11 +26,12 @@ use talpid_types::{
     ErrorExt,
 };
 
+/// TODO: Update this comment
 /// A stream that returns the next API connection mode to use for reaching the API.
 ///
 /// When `mullvad-api` fails to contact the API, it requests a new connection mode.
 /// The API can be connected to either directly (i.e., [`ApiConnectionMode::Direct`])
-/// or from a bridge ([`ApiConnectionMode::Proxied`]).
+/// via a bridge ([`ApiConnectionMode::Proxied`]) or via any supported obfuscation protocol ([`ObfuscationProtocol`]).
 ///
 /// * Every 3rd attempt returns [`ApiConnectionMode::Direct`].
 /// * Any other attempt returns a configuration for the bridge that is closest to the selected relay
@@ -38,10 +40,9 @@ use talpid_types::{
 ///   bridge, [`ApiConnectionMode::Direct`] is returned.
 pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
-
+    /// Used for selecting a Relay when the `Bridges` access method is used.
     relay_selector: RelaySelector,
     retry_attempt: u32,
-
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
 }
 
@@ -63,35 +64,18 @@ impl Stream for ApiConnectionModeProvider {
             };
         }
 
-        // Create a new task.
-        let config = if Self::should_use_bridge(self.retry_attempt) {
-            self.relay_selector
-                .get_bridge_forced()
-                .map(|settings| match settings {
-                    ProxySettings::Shadowsocks(ss_settings) => {
-                        ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss_settings))
-                    }
-                    _ => {
-                        log::error!("Received unexpected proxy settings type");
-                        ApiConnectionMode::Direct
-                    }
-                })
-                .unwrap_or(ApiConnectionMode::Direct)
-        } else {
-            ApiConnectionMode::Direct
-        };
-
+        let connection_mode = self.new_task(self.retry_attempt);
         self.retry_attempt = self.retry_attempt.wrapping_add(1);
 
         let cache_dir = self.cache_dir.clone();
         self.current_task = Some(Box::pin(async move {
-            if let Err(error) = config.save(&cache_dir).await {
+            if let Err(error) = connection_mode.save(&cache_dir).await {
                 log::debug!(
                     "{}",
                     error.display_chain_with_msg("Failed to save API endpoint")
                 );
             }
-            config
+            connection_mode
         }));
 
         self.poll_next(cx)
@@ -112,6 +96,45 @@ impl ApiConnectionModeProvider {
 
     fn should_use_bridge(retry_attempt: u32) -> bool {
         retry_attempt % 3 > 0
+    }
+
+    fn should_use_direct(retry_attempt: u32) -> bool {
+        // TODO: Change back before comitting!
+        false
+        // !Self::should_use_bridge(retry_attempt)
+    }
+
+    /// Return a new connection mode to be used for the API connection.
+    ///
+    /// TODO: Figure out an appropriate algorithm for selecting between the available AccessMethods.
+    /// We need to be able to poll the daemon's settings to find out which access methods are available & active.
+    /// For now, we a
+    fn new_task(&self, retry_attempt: u32) -> ApiConnectionMode {
+        if Self::should_use_direct(retry_attempt) {
+            ApiConnectionMode::Direct
+        } else {
+            self.relay_selector
+                .get_bridge_forced()
+                .and_then(|settings| match settings {
+                    ProxySettings::Shadowsocks(ss_settings) => {
+                        let ss_settings: api_access_method::Shadowsocks =
+                            api_access_method::Shadowsocks::new(
+                                ss_settings.peer,
+                                ss_settings.cipher,
+                                ss_settings.password,
+                            );
+                        println!("Using bridge mode to access the API! {:?}", ss_settings);
+                        Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
+                            ss_settings,
+                        )))
+                    }
+                    _ => {
+                        log::error!("Received unexpected proxy settings type");
+                        None
+                    }
+                })
+                .unwrap_or(ApiConnectionMode::Direct)
+        }
     }
 }
 

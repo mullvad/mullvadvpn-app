@@ -1,6 +1,6 @@
 /// Implements conversions for the auxilliary proto AccessMethod type to the internal AccessMethod data type.
 mod settings {
-    use crate::types::proto;
+    use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::api_access_method;
 
     impl From<&api_access_method::Settings> for proto::ApiAccessMethodSettings {
@@ -21,20 +21,22 @@ mod settings {
         }
     }
 
-    impl From<proto::ApiAccessMethodSettings> for api_access_method::Settings {
-        fn from(settings: proto::ApiAccessMethodSettings) -> Self {
-            Self {
+    impl TryFrom<proto::ApiAccessMethodSettings> for api_access_method::Settings {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
+            Ok(Self {
                 api_access_methods: settings
                     .api_access_methods
                     .iter()
-                    .map(api_access_method::AccessMethod::from)
-                    .collect(),
-            }
+                    .map(api_access_method::AccessMethod::try_from)
+                    .collect::<Result<Vec<api_access_method::AccessMethod>, _>>()?,
+            })
         }
     }
 
-    impl From<api_access_method::ApiAccessMethodReplace> for proto::ApiAccessMethodReplace {
-        fn from(value: api_access_method::ApiAccessMethodReplace) -> Self {
+    impl From<api_access_method::daemon::ApiAccessMethodReplace> for proto::ApiAccessMethodReplace {
+        fn from(value: api_access_method::daemon::ApiAccessMethodReplace) -> Self {
             proto::ApiAccessMethodReplace {
                 index: value.index as u32,
                 access_method: Some(value.access_method.into()),
@@ -42,100 +44,142 @@ mod settings {
         }
     }
 
-    impl From<proto::ApiAccessMethodReplace> for api_access_method::ApiAccessMethodReplace {
-        // TODO: Implement `TryFrom` instead, and skip the `unwrap`.
-        fn from(value: proto::ApiAccessMethodReplace) -> Self {
-            api_access_method::ApiAccessMethodReplace {
+    impl TryFrom<proto::ApiAccessMethodReplace> for api_access_method::daemon::ApiAccessMethodReplace {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::ApiAccessMethodReplace) -> Result<Self, Self::Error> {
+            Ok(api_access_method::daemon::ApiAccessMethodReplace {
                 index: value.index as usize,
-                access_method: value.access_method.unwrap().into(),
-            }
+                access_method: value
+                    .access_method
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "Could not convert Access Method from protobuf",
+                    ))
+                    .and_then(TryInto::try_into)?,
+            })
         }
     }
 }
 
 /// Implements conversions for the 'main' AccessMethod data type.
 mod data {
-    use crate::types::proto::{self, api_access_method::socks5::Socks5type};
+    use crate::types::{
+        proto::{self, api_access_method::socks5::Socks5type},
+        FromProtobufTypeError,
+    };
     use mullvad_types::api_access_method::{
-        AccessMethod, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
+        AccessMethod, BuiltInAccessMethod, ObfuscationProtocol, Shadowsocks, Socks5, Socks5Local,
+        Socks5Remote,
     };
 
-    impl From<proto::ApiAccessMethods> for Vec<AccessMethod> {
-        fn from(api_access_methods: proto::ApiAccessMethods) -> Self {
-            api_access_methods
+    impl TryFrom<proto::ApiAccessMethods> for Vec<AccessMethod> {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::ApiAccessMethods) -> Result<Self, Self::Error> {
+            value
                 .api_access_methods
                 .iter()
-                .map(AccessMethod::from)
+                .map(AccessMethod::try_from)
                 .collect()
         }
     }
 
-    impl From<proto::ApiAccessMethod> for AccessMethod {
-        fn from(value: proto::ApiAccessMethod) -> Self {
-            // TODO: How to not unwrap?
-            match value.access_method.unwrap() {
+    impl TryFrom<proto::ApiAccessMethod> for AccessMethod {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::ApiAccessMethod) -> Result<Self, Self::Error> {
+            let access_method =
+                value
+                    .access_method
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "Could not convert Access Method from protobuf",
+                    ))?;
+            Ok(match access_method {
                 proto::api_access_method::AccessMethod::Socks5(socks) => {
                     match socks.socks5type.unwrap() {
-                        Socks5type::Local(local) => {
-                            let local_proxy = Socks5Local::from_args(
-                                local.ip,
-                                local.port as u16,
-                                local.local_port as u16,
-                            )
-                            .unwrap(); // This is dangerous territory ..
-                            AccessMethod::Socks5(Socks5::Local(local_proxy))
-                        }
+                        Socks5type::Local(local) => Socks5Local::from_args(
+                            local.ip,
+                            local.port as u16,
+                            local.local_port as u16,
+                        )
+                        .ok_or(FromProtobufTypeError::InvalidArgument(
+                            "Could not parse Socks5 (local) message from protobuf",
+                        ))?
+                        .into(),
 
                         Socks5type::Remote(remote) => {
-                            let remote_proxy =
-                                Socks5Remote::from_args(remote.ip, remote.port as u16).unwrap(); // This is dangerous territory ..
-                            AccessMethod::Socks5(Socks5::Remote(remote_proxy))
+                            Socks5Remote::from_args(remote.ip, remote.port as u16)
+                                .ok_or({
+                                    FromProtobufTypeError::InvalidArgument(
+                                        "Could not parse Socks5 (remote) message from protobuf",
+                                    )
+                                })?
+                                .into()
                         }
                     }
                 }
                 proto::api_access_method::AccessMethod::Shadowsocks(ss) => {
-                    let shadow_sock =
-                        Shadowsocks::from_args(ss.ip, ss.port as u16, ss.cipher, ss.password)
-                            .unwrap();
-                    AccessMethod::Shadowsocks(shadow_sock)
+                    Shadowsocks::from_args(ss.ip, ss.port as u16, ss.cipher, ss.password)
+                        .ok_or(FromProtobufTypeError::InvalidArgument(
+                            "Could not parse Shadowsocks message from protobuf",
+                        ))?
+                        .into()
                 }
-            }
+                proto::api_access_method::AccessMethod::Direct(_) => {
+                    BuiltInAccessMethod::Direct.into()
+                }
+                proto::api_access_method::AccessMethod::Bridges(_) => {
+                    BuiltInAccessMethod::Bridge.into()
+                }
+            })
         }
     }
 
     impl From<AccessMethod> for proto::ApiAccessMethod {
         fn from(value: AccessMethod) -> Self {
             match value {
-                AccessMethod::Shadowsocks(ss) => proto::api_access_method::Shadowsocks {
-                    ip: ss.peer.ip().to_string(),
-                    port: ss.peer.port() as u32,
-                    password: ss.password,
-                    cipher: ss.cipher,
-                }
-                .into(),
+                AccessMethod::Custom(value) => match value.access_method {
+                    ObfuscationProtocol::Shadowsocks(ss) => proto::api_access_method::Shadowsocks {
+                        ip: ss.peer.ip().to_string(),
+                        port: ss.peer.port() as u32,
+                        password: ss.password,
+                        cipher: ss.cipher,
+                    }
+                    .into(),
 
-                AccessMethod::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
-                    proto::api_access_method::Socks5Local {
-                        ip: peer.ip().to_string(),
-                        port: peer.port() as u32,
-                        local_port: port as u32,
+                    ObfuscationProtocol::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
+                        proto::api_access_method::Socks5Local {
+                            ip: peer.ip().to_string(),
+                            port: peer.port() as u32,
+                            local_port: port as u32,
+                        }
+                        .into()
                     }
-                    .into()
-                }
-                AccessMethod::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
-                    proto::api_access_method::Socks5Remote {
-                        ip: peer.ip().to_string(),
-                        port: peer.port() as u32,
+                    ObfuscationProtocol::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
+                        proto::api_access_method::Socks5Remote {
+                            ip: peer.ip().to_string(),
+                            port: peer.port() as u32,
+                        }
+                        .into()
                     }
-                    .into()
-                }
+                },
+                AccessMethod::BuiltIn(value) => match value {
+                    mullvad_types::api_access_method::BuiltInAccessMethod::Direct => {
+                        proto::api_access_method::Direct {}.into()
+                    }
+                    mullvad_types::api_access_method::BuiltInAccessMethod::Bridge => {
+                        proto::api_access_method::Bridges {}.into()
+                    }
+                },
             }
         }
     }
 
-    impl From<&proto::ApiAccessMethod> for AccessMethod {
-        fn from(value: &proto::ApiAccessMethod) -> Self {
-            AccessMethod::from(value.clone())
+    impl TryFrom<&proto::ApiAccessMethod> for AccessMethod {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: &proto::ApiAccessMethod) -> Result<Self, Self::Error> {
+            AccessMethod::try_from(value.clone())
         }
     }
 
@@ -177,6 +221,18 @@ mod data {
     impl From<proto::api_access_method::Socks5Remote> for proto::ApiAccessMethod {
         fn from(value: proto::api_access_method::Socks5Remote) -> Self {
             proto::api_access_method::socks5::Socks5type::Remote(value).into()
+        }
+    }
+
+    impl From<proto::api_access_method::Direct> for proto::ApiAccessMethod {
+        fn from(value: proto::api_access_method::Direct) -> Self {
+            proto::api_access_method::AccessMethod::Direct(value).into()
+        }
+    }
+
+    impl From<proto::api_access_method::Bridges> for proto::ApiAccessMethod {
+        fn from(value: proto::api_access_method::Bridges) -> Self {
+            proto::api_access_method::AccessMethod::Bridges(value).into()
         }
     }
 
