@@ -11,6 +11,7 @@ import MullvadLogging
 import MullvadTypes
 import NetworkExtension
 import struct RelaySelector.RelaySelectorResult
+import class WireGuardKitTypes.PrivateKey
 
 public actor PacketTunnelActor {
     @Published private(set) public var state: State = .initial
@@ -119,10 +120,7 @@ public actor PacketTunnelActor {
 
     private func tryStart(selectorResult: RelaySelectorResult? = nil) async throws {
         let settings: Settings = try settingsReader.read()
-
-        guard case let .loggedIn(_, storedDeviceData) = settings.deviceState else {
-            throw DeviceRevokedError()
-        }
+        guard let storedDeviceData = settings.deviceState.deviceData else { throw DeviceRevokedError() }
 
         func selectRelay() throws -> RelaySelectorResult {
             return try selectorResult ?? relaySelector.selectRelay(
@@ -136,6 +134,7 @@ public actor PacketTunnelActor {
             case .initial:
                 return ConnectionState(
                     selectedRelay: try selectRelay(),
+                    currentKey: storedDeviceData.wgKeyData.privateKey,
                     keyPolicy: .useCurrent,
                     networkReachability: .undetermined,
                     connectionAttemptCount: 0
@@ -143,11 +142,14 @@ public actor PacketTunnelActor {
 
             case var .connecting(connState), var .connected(connState), var .reconnecting(connState):
                 connState.selectedRelay = try selectRelay()
+                connState.currentKey = storedDeviceData.wgKeyData.privateKey
+
                 return connState
 
             case let .error(blockedState):
                 return ConnectionState(
                     selectedRelay: try selectRelay(),
+                    currentKey: storedDeviceData.wgKeyData.privateKey,
                     keyPolicy: blockedState.keyPolicy,
                     networkReachability: .undetermined,
                     connectionAttemptCount: 0
@@ -170,14 +172,14 @@ public actor PacketTunnelActor {
 
         let endpoint = connectionState.selectedRelay.endpoint
         let configurationBuilder = ConfigurationBuilder(
-            usedKeyPolicy: connectionState.keyPolicy,
-            deviceData: storedDeviceData,
+            privateKey: connectionState.activeKey,
+            interfaceAddresses: [storedDeviceData.ipv4Address, storedDeviceData.ipv6Address],
             dns: settings.tunnelSettings.dnsSettings,
             endpoint: endpoint
         )
         try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
 
-        // Resume tunnel monitoring and se IPv4 gateway as a probe address.
+        // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: endpoint.ipv4Gateway)
     }
 
@@ -217,7 +219,7 @@ public actor PacketTunnelActor {
                 priorState: state.priorState!
             )
             state = .error(blockedState)
-            await configureAdapterForErrorState(keyPolicy: blockedState.keyPolicy)
+            await configureAdapterForErrorState()
 
         case .initial:
             // Start a recovery task that will attempt to restart the tunnel periodically.
@@ -235,7 +237,7 @@ public actor PacketTunnelActor {
                 priorState: state.priorState!
             )
             state = .error(blockedState)
-            await configureAdapterForErrorState(keyPolicy: blockedState.keyPolicy)
+            await configureAdapterForErrorState()
 
         case var .error(blockedState):
             blockedState.error = error
@@ -246,10 +248,12 @@ public actor PacketTunnelActor {
         }
     }
 
-    private func configureAdapterForErrorState(keyPolicy: UsedKeyPolicy) async {
+    private func configureAdapterForErrorState() async {
         do {
-            let configurationBuilder = ConfigurationBuilder(usedKeyPolicy: keyPolicy)
-
+            let configurationBuilder = ConfigurationBuilder(
+                privateKey: PrivateKey(),
+                interfaceAddresses: []
+            )
             try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
         } catch {
             logger.error(error: error, message: "Unable to configure the tunnel for error state.")

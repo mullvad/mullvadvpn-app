@@ -71,7 +71,7 @@ public enum State {
 }
 
 /// Policy describing what WG key to use for tunnel communication.
-public enum UsedKeyPolicy {
+public enum KeyPolicy {
     /// Use current key stored in device data.
     case useCurrent
 
@@ -88,8 +88,11 @@ public struct ConnectionState {
     /// Current selected relay.
     public var selectedRelay: RelaySelectorResult
 
+    /// Last WG key read from setings.
+    public var currentKey: PrivateKey
+
     /// Policy describing the current key that should be used by the tunnel.
-    public var keyPolicy: UsedKeyPolicy
+    public var keyPolicy: KeyPolicy
 
     /// Whether network connectivity outside of tunnel is available.
     public var networkReachability: NetworkReachability
@@ -103,6 +106,16 @@ public struct ConnectionState {
         let (value, isOverflow) = connectionAttemptCount.addingReportingOverflow(1)
         connectionAttemptCount = isOverflow ? 0 : value
     }
+
+    /// Evaluates `keyPolicy` and returns the active key that should be used with tunnel adapter.
+    public var activeKey: PrivateKey {
+        switch keyPolicy {
+        case .useCurrent:
+            return currentKey
+        case let .usePrior(priorKey, _):
+            return priorKey
+        }
+    }
 }
 
 public struct BlockedState {
@@ -110,7 +123,7 @@ public struct BlockedState {
     public var error: Error
 
     /// Policy describing the current key that should be used by the tunnel.
-    public var keyPolicy: UsedKeyPolicy
+    public var keyPolicy: KeyPolicy
 
     /// Task responsible for periodically calling actor to restart the tunnel.
     /// Initiated based on the error that led to blocked state.

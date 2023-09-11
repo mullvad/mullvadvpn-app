@@ -18,8 +18,8 @@ import protocol Network.IPAddress
 
 /// Struct building tunnel adapter configuration.
 struct ConfigurationBuilder {
-    var usedKeyPolicy: UsedKeyPolicy
-    var deviceData: StoredDeviceData?
+    var privateKey: PrivateKey
+    var interfaceAddresses: [IPAddressRange]
     var dns: DNSSettings?
     var endpoint: MullvadEndpoint?
 
@@ -39,22 +39,6 @@ struct ConfigurationBuilder {
             endpoint: .ipv4(endpoint.ipv4Relay),
             publicKey: PublicKey(rawValue: endpoint.publicKey)!
         )
-    }
-
-    private var interfaceAddresses: [IPAddressRange] {
-        guard let deviceData else { return [] }
-
-        return [deviceData.ipv4Address, deviceData.ipv6Address]
-    }
-
-    private var privateKey: PrivateKey {
-        switch usedKeyPolicy {
-        case .useCurrent:
-            return deviceData?.wgKeyData.privateKey ?? PrivateKey()
-
-        case let .usePrior(priorKey, _):
-            return priorKey
-        }
     }
 
     private var dnsServers: [IPAddress] {

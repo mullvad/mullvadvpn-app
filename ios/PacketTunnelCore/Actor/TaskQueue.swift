@@ -11,7 +11,7 @@ import MullvadTypes
 
 // Kinds of tasks that actor performs.
 enum TaskKind: Equatable {
-    case start, stop, reconnect
+    case start, stop, reconnect, keyRotated
 }
 
 /// Task-based FIFO queue.
