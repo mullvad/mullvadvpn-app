@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -32,6 +33,12 @@ import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.isValidMtu
+
+@Preview
+@Composable
+private fun PreviewMtuDialog() {
+    MtuDialog(mtuInitial = 1234, onSave = {}, onRestoreDefaultValue = {}, onDismiss = {})
+}
 
 @Composable
 fun MtuDialog(
