@@ -1,6 +1,8 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod};
+use mullvad_types::api_access_method::{
+    daemon::ApiAccessMethodReplace, AccessMethod, ObfuscationProtocol,
+};
 use std::net::IpAddr;
 
 use clap::{Args, Subcommand};
@@ -88,8 +90,13 @@ impl Proxy {
             .clone();
 
         // Create a new access method combining the new params with the previous values
-        let edited_access_method: AccessMethod = match access_method {
-            AccessMethod::Shadowsocks(shadowsocks) => {
+        let access_method = match access_method {
+            AccessMethod::BuiltIn(_) => Err(anyhow!("Can not edit built-in access method")),
+            AccessMethod::Custom(custom_access_method) => Ok(custom_access_method),
+        }?;
+
+        let edited_access_method: AccessMethod = match access_method.access_method {
+            ObfuscationProtocol::Shadowsocks(shadowsocks) => {
                 let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip()).to_string();
                 let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
                 let password = cmd.params.password.unwrap_or(shadowsocks.password);
@@ -97,7 +104,7 @@ impl Proxy {
                 mullvad_types::api_access_method::Shadowsocks::from_args(ip, port, cipher, password)
                     .map(|x| x.into())
             }
-            AccessMethod::Socks5(socks) => match socks {
+            ObfuscationProtocol::Socks5(socks) => match socks {
                 mullvad_types::api_access_method::Socks5::Local(local) => {
                     let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(local.peer.port());
@@ -262,7 +269,7 @@ mod conversions {
                             )
                             .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
                         );
-                        daemon_types::AccessMethod::Socks5(socks_proxy)
+                        socks_proxy.into()
                     }
                     Socks5AddCommands::Remote {
                         remote_ip,
@@ -278,7 +285,7 @@ mod conversions {
                             )
                             .ok_or(anyhow!("Could not create a remote Socks5 api proxy"))?,
                         );
-                        daemon_types::AccessMethod::Socks5(socks_proxy)
+                        socks_proxy.into()
                     }
                 },
                 AddCustomCommands::Shadowsocks {
@@ -297,7 +304,7 @@ mod conversions {
                         password,
                     )
                     .ok_or(anyhow!("Could not create a Shadowsocks api proxy"))?;
-                    daemon_types::AccessMethod::Shadowsocks(shadowsocks_proxy)
+                    shadowsocks_proxy.into()
                 }
             })
         }

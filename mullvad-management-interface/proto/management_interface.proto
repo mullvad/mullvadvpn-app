@@ -362,6 +362,8 @@ message CustomLists { repeated CustomList custom_lists = 1; }
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
 message ApiAccessMethod {
+  message Direct {}
+  message Bridges {}
   message Socks5Local {
     string ip = 1;
     uint32 port = 2;
@@ -384,8 +386,10 @@ message ApiAccessMethod {
     string cipher = 4;
   }
   oneof access_method {
-    Socks5 socks5 = 1;
-    Shadowsocks shadowsocks = 2;
+    Direct direct = 1;
+    Bridges bridges = 2;
+    Socks5 socks5 = 3;
+    Shadowsocks shadowsocks = 4;
   }
 }
 
