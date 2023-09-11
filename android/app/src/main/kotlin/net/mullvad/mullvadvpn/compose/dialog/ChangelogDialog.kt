@@ -42,8 +42,7 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement =
-                    Arrangement.spacedBy(Dimens.smallPadding)
+                verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
             ) {
                 Text(
                     text = stringResource(R.string.changes_dialog_subtitle),
