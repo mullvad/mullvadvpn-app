@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import class WireGuardKitTypes.PrivateKey
 
 extension State {
     var priorState: StatePriorToBlockedState? {
@@ -44,6 +45,35 @@ extension State {
             return .disconnecting(connState)
 
         case .disconnected, .initial, .error:
+            return self
+        }
+    }
+
+    /// Map a pair of current key (`PrivateKey`) and key policy (`KeyPolicy`) if held in the `State` and produce new `State`.
+    /// Current key is optional because it may not be available in the error state.
+    func mapCurrentKeyAndPolicy(_ body: (_ currentKey: PrivateKey?, _ keyPolicy: KeyPolicy) -> KeyPolicy) -> State {
+        switch self {
+        case var .connected(connState):
+            connState.keyPolicy = body(connState.currentKey, connState.keyPolicy)
+            return .connected(connState)
+
+        case var .connecting(connState):
+            connState.keyPolicy = body(connState.currentKey, connState.keyPolicy)
+            return .connecting(connState)
+
+        case var .reconnecting(connState):
+            connState.keyPolicy = body(connState.currentKey, connState.keyPolicy)
+            return .reconnecting(connState)
+
+        case var .disconnecting(connState):
+            connState.keyPolicy = body(connState.currentKey, connState.keyPolicy)
+            return .disconnecting(connState)
+
+        case var .error(blockedState):
+            blockedState.keyPolicy = body(blockedState.currentKey, blockedState.keyPolicy)
+            return .error(blockedState)
+
+        case .disconnected, .initial:
             return self
         }
     }

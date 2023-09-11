@@ -99,8 +99,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
             return await encodeReply(actor.state.packetTunnelStatus)
 
         case .privateKeyRotation:
-            // TODO: tell actor that key rotation has happened
-            return nil
+            await actor.notifyKeyRotated()
 
         case let .reconnectTunnel(selectorResult):
             try? await actor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .random)

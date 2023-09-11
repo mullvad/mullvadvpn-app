@@ -106,6 +106,43 @@ public actor PacketTunnelActor {
         try await reconnect(to: nextRelay, shouldStopTunnelMonitor: true)
     }
 
+    // MARK: - Private key rotation notifications
+
+    /// Notify actor that the private key rotation took place.
+    /// When that happens the actor changes key policy to `.usePrior` in order
+    public func notifyKeyRotated() async {
+        await taskQueue.add(kind: .keyRotated) { [self] in
+            state = state.mapCurrentKeyAndPolicy { currentKey, keyPolicy in
+                // Current key may not be available in blocked state when actor couldn't read settings on startup.
+                guard let currentKey else { return keyPolicy }
+
+                switch keyPolicy {
+                case .usePrior:
+                    // It's unlikely that we'll see subsequent key rotations happen frequently.
+                    return keyPolicy
+
+                case .useCurrent:
+                    return .usePrior(currentKey, AutoCancellingTask(startSwitchKeyTask()))
+                }
+            }
+        }
+    }
+
+    /// Start a task that sleeps for 120 seconds before switching key policy to `.useCurrent` and reconnecting the tunnel with the new key.
+    private func startSwitchKeyTask() -> AnyTask {
+        return Task {
+            // Wait for key to propagate across relays.
+            try await Task.sleep(seconds: 120)
+
+            // Switch key policy to use current key.
+            state = state.mapCurrentKeyAndPolicy { _, _ in .useCurrent }
+
+            // Reconnect using the same relay.
+            // This will schedule a normal call to reconnect that will be enqueued on the task queue.
+            try await reconnect(to: .current)
+        }
+    }
+
     // MARK: - Sleep cycle notifications
 
     public nonisolated func onWake() {
