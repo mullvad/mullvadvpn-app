@@ -1,5 +1,5 @@
 use crate::{new_selector_config, settings, Daemon, EventListener};
-use mullvad_types::api_access_method::{AccessMethod, ApiAccessMethodReplace};
+use mullvad_types::api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {

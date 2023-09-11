@@ -33,8 +33,8 @@ mod settings {
         }
     }
 
-    impl From<api_access_method::ApiAccessMethodReplace> for proto::ApiAccessMethodReplace {
-        fn from(value: api_access_method::ApiAccessMethodReplace) -> Self {
+    impl From<api_access_method::daemon::ApiAccessMethodReplace> for proto::ApiAccessMethodReplace {
+        fn from(value: api_access_method::daemon::ApiAccessMethodReplace) -> Self {
             proto::ApiAccessMethodReplace {
                 index: value.index as u32,
                 access_method: Some(value.access_method.into()),
@@ -42,10 +42,10 @@ mod settings {
         }
     }
 
-    impl From<proto::ApiAccessMethodReplace> for api_access_method::ApiAccessMethodReplace {
+    impl From<proto::ApiAccessMethodReplace> for api_access_method::daemon::ApiAccessMethodReplace {
         // TODO: Implement `TryFrom` instead, and skip the `unwrap`.
         fn from(value: proto::ApiAccessMethodReplace) -> Self {
-            api_access_method::ApiAccessMethodReplace {
+            api_access_method::daemon::ApiAccessMethodReplace {
                 index: value.index as usize,
                 access_method: value.access_method.unwrap().into(),
             }
