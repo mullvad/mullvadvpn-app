@@ -17,10 +17,12 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
     private let inAppPurchaseInteractor: InAppPurchaseInteractor
+    private let accountsProxy: REST.AccountsProxy
 
     private var viewController: WelcomeViewController?
 
     var didFinish: ((WelcomeCoordinator) -> Void)?
+    var didLogout: ((WelcomeCoordinator, String) -> Void)?
 
     var presentedViewController: UIViewController {
         navigationController
@@ -33,11 +35,13 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
     init(
         navigationController: RootContainerViewController,
         storePaymentManager: StorePaymentManager,
-        tunnelManager: TunnelManager
+        tunnelManager: TunnelManager,
+        accountsProxy: REST.AccountsProxy
     ) {
         self.navigationController = navigationController
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
+        self.accountsProxy = accountsProxy
         self.inAppPurchaseInteractor = InAppPurchaseInteractor(storePaymentManager: storePaymentManager)
     }
 
@@ -140,9 +144,13 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
     }
 
     func didRequestToRedeemVoucher(controller: WelcomeViewController) {
-        let coordinator = AccountRedeemingVoucherCoordinator(
+        let coordinator = CreateAccountVoucherCoordinator(
             navigationController: navigationController,
-            interactor: RedeemVoucherInteractor(tunnelManager: tunnelManager)
+            interactor: RedeemVoucherInteractor(
+                tunnelManager: tunnelManager,
+                accountsProxy: accountsProxy,
+                verifyVoucherAsAccount: true
+            )
         )
 
         coordinator.didCancel = { [weak self] coordinator in
@@ -152,9 +160,15 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
         }
 
         coordinator.didFinish = { [weak self] coordinator in
-            coordinator.removeFromParent()
             guard let self else { return }
+            coordinator.removeFromParent()
             didFinish?(self)
+        }
+
+        coordinator.didLogout = { [weak self] coordinator, accountNumber in
+            guard let self else { return }
+            coordinator.removeFromParent()
+            didLogout?(self, accountNumber)
         }
 
         addChild(coordinator)

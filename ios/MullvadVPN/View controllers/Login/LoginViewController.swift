@@ -140,6 +140,10 @@ class LoginViewController: UIViewController, RootContainment {
             self?.attemptLogin()
         }
 
+        interactor.doSuggestPreferredAccountNumber = { [weak self] value in
+            self?.contentView.accountInputGroup.setAccount(value)
+        }
+
         contentView.accountInputGroup.setOnReturnKey { [weak self] _ in
             guard let self else { return true }
 

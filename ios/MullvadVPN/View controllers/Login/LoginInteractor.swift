@@ -14,6 +14,7 @@ final class LoginInteractor {
     private let logger = Logger(label: "LoginInteractor")
     private var tunnelObserver: TunnelObserver?
     var didCreateAccount: (() -> Void)?
+    var doSuggestPreferredAccountNumber: ((String) -> Void)?
 
     init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager

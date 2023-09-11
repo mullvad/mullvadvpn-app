@@ -28,13 +28,6 @@ final class SettingsInteractorFactory {
         self.relayCacheTracker = relayCacheTracker
     }
 
-    func makeAccountInteractor() -> AccountInteractor {
-        AccountInteractor(
-            storePaymentManager: storePaymentManager,
-            tunnelManager: tunnelManager
-        )
-    }
-
     func makePreferencesInteractor() -> PreferencesInteractor {
         PreferencesInteractor(tunnelManager: tunnelManager, relayCacheTracker: relayCacheTracker)
     }

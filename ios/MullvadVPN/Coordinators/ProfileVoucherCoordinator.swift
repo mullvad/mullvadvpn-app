@@ -1,5 +1,5 @@
 //
-//  SettingsRedeemVoucherCoordinator.swift
+//  ProfileVoucherCoordinator.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2023-06-13.
@@ -11,11 +11,12 @@ import MullvadREST
 import Routing
 import UIKit
 
-final class SettingsRedeemVoucherCoordinator: Coordinator, Presentable {
+final class ProfileVoucherCoordinator: Coordinator, Presentable {
     private let navigationController: UINavigationController
     private let viewController: RedeemVoucherViewController
-    var didFinish: ((SettingsRedeemVoucherCoordinator) -> Void)?
-    var didCancel: ((SettingsRedeemVoucherCoordinator) -> Void)?
+
+    var didFinish: ((ProfileVoucherCoordinator) -> Void)?
+    var didCancel: ((ProfileVoucherCoordinator) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -36,7 +37,7 @@ final class SettingsRedeemVoucherCoordinator: Coordinator, Presentable {
     }
 }
 
-extension SettingsRedeemVoucherCoordinator: RedeemVoucherViewControllerDelegate {
+extension ProfileVoucherCoordinator: RedeemVoucherViewControllerDelegate {
     func redeemVoucherDidSucceed(
         _ controller: RedeemVoucherViewController,
         with response: REST.SubmitVoucherResponse
@@ -51,7 +52,7 @@ extension SettingsRedeemVoucherCoordinator: RedeemVoucherViewControllerDelegate 
     }
 }
 
-extension SettingsRedeemVoucherCoordinator: AddCreditSucceededViewControllerDelegate {
+extension ProfileVoucherCoordinator: AddCreditSucceededViewControllerDelegate {
     func addCreditSucceededViewControllerDidFinish(in controller: AddCreditSucceededViewController) {
         didFinish?(self)
     }
@@ -59,7 +60,7 @@ extension SettingsRedeemVoucherCoordinator: AddCreditSucceededViewControllerDele
     func header(in controller: AddCreditSucceededViewController) -> String {
         NSLocalizedString(
             "REDEEM_VOUCHER_SUCCESS_TITLE",
-            tableName: "RedeemVoucher",
+            tableName: "ProfileRedeemVoucher",
             value: "Voucher was successfully redeemed.",
             comment: ""
         )
@@ -68,7 +69,7 @@ extension SettingsRedeemVoucherCoordinator: AddCreditSucceededViewControllerDele
     func titleForAction(in controller: AddCreditSucceededViewController) -> String {
         NSLocalizedString(
             "REDEEM_VOUCHER_DISMISS_BUTTON",
-            tableName: "RedeemVoucher",
+            tableName: "ProfileRedeemVoucher",
             value: "Got it!",
             comment: ""
         )
