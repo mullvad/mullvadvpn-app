@@ -123,10 +123,24 @@ impl From<Socks5Local> for Socks5 {
     }
 }
 
-/// TODO: Document why this is needed.
-/// Hint: Argument to protobuf rpc `ApiAccessMethodReplace`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ApiAccessMethodReplace {
-    pub index: usize,
-    pub access_method: AccessMethod,
+/// These are just extensions to the core [`AccessMethod`] datastructure which the mullvad daemon needs.
+pub mod daemon {
+    use super::*;
+
+    impl From<AccessMethod> for ApiAccessMethod {
+        fn from(value: AccessMethod) -> Self {
+            ApiAccessMethod {
+                id: Some(uuid::Uuid::new_v4().to_string()),
+                access_method: value,
+            }
+        }
+    }
+
+    /// TODO: Document why this is needed.
+    /// Hint: Argument to protobuf rpc `ApiAccessMethodReplace`.
+    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+    pub struct ApiAccessMethodReplace {
+        pub index: usize,
+        pub access_method: AccessMethod,
+    }
 }

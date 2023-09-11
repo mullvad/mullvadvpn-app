@@ -670,7 +670,9 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("edit_api_access_method");
         let access_method_replace =
-            mullvad_types::api_access_method::ApiAccessMethodReplace::from(request.into_inner());
+            mullvad_types::api_access_method::daemon::ApiAccessMethodReplace::from(
+                request.into_inner(),
+            );
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::ReplaceApiAccessMethod(
             tx,
