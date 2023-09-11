@@ -17,27 +17,4 @@ data class RelayCountry(
     override val hasChildren
         get() = cities.isNotEmpty()
 
-    fun getItem(position: Int): GetItemResult {
-        if (position == 0) {
-            return GetItemResult.Item(this)
-        }
-
-        var itemCount = 1
-        var remaining = position - 1
-
-        if (expanded) {
-            for (city in cities) {
-
-                when (val itemOrCount = city.getItem(remaining)) {
-                    is GetItemResult.Item -> return itemOrCount
-                    is GetItemResult.Count -> {
-                        remaining -= itemOrCount.count
-                        itemCount += itemOrCount.count
-                    }
-                }
-            }
-        }
-
-        return GetItemResult.Count(itemCount)
-    }
 }
