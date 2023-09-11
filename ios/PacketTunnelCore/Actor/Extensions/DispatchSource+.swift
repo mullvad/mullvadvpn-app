@@ -15,6 +15,10 @@ extension DispatchSource {
 
             timer.setEventHandler {
                 continuation.yield(Date())
+
+                if repeating == .never {
+                    continuation.finish()
+                }
             }
 
             continuation.onTermination = { _ in
