@@ -61,7 +61,7 @@ impl Shadowsocks {
     /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
     pub fn from_args(ip: String, port: u16, cipher: String, password: String) -> Option<Self> {
         let peer = SocketAddrV4::new(Ipv4Addr::from_str(&ip).ok()?, port).into();
-        Some(Self::new(peer, password, cipher))
+        Some(Self::new(peer, cipher, password))
     }
 }
 
@@ -91,4 +91,42 @@ impl Socks5Remote {
         let peer = SocketAddr::new(peer_ip, port);
         Some(Self::new(peer))
     }
+}
+
+impl From<Shadowsocks> for AccessMethod {
+    fn from(value: Shadowsocks) -> Self {
+        AccessMethod::Shadowsocks(value)
+    }
+}
+
+impl From<Socks5Remote> for AccessMethod {
+    fn from(value: Socks5Remote) -> Self {
+        AccessMethod::Socks5(value.into())
+    }
+}
+
+impl From<Socks5Local> for AccessMethod {
+    fn from(value: Socks5Local) -> Self {
+        AccessMethod::Socks5(value.into())
+    }
+}
+
+impl From<Socks5Remote> for Socks5 {
+    fn from(value: Socks5Remote) -> Self {
+        Socks5::Remote(value)
+    }
+}
+
+impl From<Socks5Local> for Socks5 {
+    fn from(value: Socks5Local) -> Self {
+        Socks5::Local(value)
+    }
+}
+
+/// TODO: Document why this is needed.
+/// Hint: Argument to protobuf rpc `ApiAccessMethodReplace`.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ApiAccessMethodReplace {
+    pub index: usize,
+    pub access_method: AccessMethod,
 }
