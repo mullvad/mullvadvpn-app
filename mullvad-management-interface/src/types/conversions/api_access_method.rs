@@ -57,7 +57,8 @@ mod settings {
 mod data {
     use crate::types::proto::{self, api_access_method::socks5::Socks5type};
     use mullvad_types::api_access_method::{
-        AccessMethod, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
+        AccessMethod, BuiltInAccessMethod, ObfuscationProtocol, Shadowsocks, Socks5, Socks5Local,
+        Socks5Remote,
     };
 
     impl From<proto::ApiAccessMethods> for Vec<AccessMethod> {
@@ -83,13 +84,13 @@ mod data {
                                 local.local_port as u16,
                             )
                             .unwrap(); // This is dangerous territory ..
-                            AccessMethod::Socks5(Socks5::Local(local_proxy))
+                            local_proxy.into()
                         }
 
                         Socks5type::Remote(remote) => {
                             let remote_proxy =
                                 Socks5Remote::from_args(remote.ip, remote.port as u16).unwrap(); // This is dangerous territory ..
-                            AccessMethod::Socks5(Socks5::Remote(remote_proxy))
+                            remote_proxy.into()
                         }
                     }
                 }
@@ -97,7 +98,13 @@ mod data {
                     let shadow_sock =
                         Shadowsocks::from_args(ss.ip, ss.port as u16, ss.cipher, ss.password)
                             .unwrap();
-                    AccessMethod::Shadowsocks(shadow_sock)
+                    shadow_sock.into()
+                }
+                proto::api_access_method::AccessMethod::Direct(_) => {
+                    BuiltInAccessMethod::Direct.into()
+                }
+                proto::api_access_method::AccessMethod::Bridges(_) => {
+                    BuiltInAccessMethod::Bridge.into()
                 }
             }
         }
@@ -106,29 +113,39 @@ mod data {
     impl From<AccessMethod> for proto::ApiAccessMethod {
         fn from(value: AccessMethod) -> Self {
             match value {
-                AccessMethod::Shadowsocks(ss) => proto::api_access_method::Shadowsocks {
-                    ip: ss.peer.ip().to_string(),
-                    port: ss.peer.port() as u32,
-                    password: ss.password,
-                    cipher: ss.cipher,
-                }
-                .into(),
+                AccessMethod::Custom(value) => match value.access_method {
+                    ObfuscationProtocol::Shadowsocks(ss) => proto::api_access_method::Shadowsocks {
+                        ip: ss.peer.ip().to_string(),
+                        port: ss.peer.port() as u32,
+                        password: ss.password,
+                        cipher: ss.cipher,
+                    }
+                    .into(),
 
-                AccessMethod::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
-                    proto::api_access_method::Socks5Local {
-                        ip: peer.ip().to_string(),
-                        port: peer.port() as u32,
-                        local_port: port as u32,
+                    ObfuscationProtocol::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
+                        proto::api_access_method::Socks5Local {
+                            ip: peer.ip().to_string(),
+                            port: peer.port() as u32,
+                            local_port: port as u32,
+                        }
+                        .into()
                     }
-                    .into()
-                }
-                AccessMethod::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
-                    proto::api_access_method::Socks5Remote {
-                        ip: peer.ip().to_string(),
-                        port: peer.port() as u32,
+                    ObfuscationProtocol::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
+                        proto::api_access_method::Socks5Remote {
+                            ip: peer.ip().to_string(),
+                            port: peer.port() as u32,
+                        }
+                        .into()
                     }
-                    .into()
-                }
+                },
+                AccessMethod::BuiltIn(value) => match value {
+                    mullvad_types::api_access_method::BuiltInAccessMethod::Direct => {
+                        proto::api_access_method::Direct {}.into()
+                    }
+                    mullvad_types::api_access_method::BuiltInAccessMethod::Bridge => {
+                        proto::api_access_method::Bridges {}.into()
+                    }
+                },
             }
         }
     }
@@ -177,6 +194,18 @@ mod data {
     impl From<proto::api_access_method::Socks5Remote> for proto::ApiAccessMethod {
         fn from(value: proto::api_access_method::Socks5Remote) -> Self {
             proto::api_access_method::socks5::Socks5type::Remote(value).into()
+        }
+    }
+
+    impl From<proto::api_access_method::Direct> for proto::ApiAccessMethod {
+        fn from(value: proto::api_access_method::Direct) -> Self {
+            proto::api_access_method::AccessMethod::Direct(value).into()
+        }
+    }
+
+    impl From<proto::api_access_method::Bridges> for proto::ApiAccessMethod {
+        fn from(value: proto::api_access_method::Bridges) -> Self {
+            proto::api_access_method::AccessMethod::Bridges(value).into()
         }
     }
 
