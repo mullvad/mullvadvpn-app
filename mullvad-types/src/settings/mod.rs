@@ -140,15 +140,7 @@ impl Default for Settings {
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
             custom_lists: CustomListsSettings::default(),
-            //api_access_methods: api_access_method::Settings::default(),
-            // TODO: Remove this v in favor of this ^ when w can add or own access methods.
-            api_access_methods: {
-                use api_access_method::{AccessMethod, Shadowsocks};
-                let mut xs = api_access_method::Settings::default();
-                let mut ys = vec![];
-                xs.api_access_methods.append(&mut ys);
-                xs
-            },
+            api_access_methods: api_access_method::Settings::default(),
         }
     }
 }
