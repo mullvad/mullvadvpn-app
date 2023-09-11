@@ -449,7 +449,9 @@ final class TunnelManager: StorePaymentObserver {
                     self?.operationQueue.cancelAllOperations()
                     self?.wipeAllUserData()
                     self?.setDeviceState(.loggedOut, persist: true)
-                    completion?(nil)
+                    DispatchQueue.main.async {
+                        completion?(nil)
+                    }
                 }
             case let .failure(error):
                 completion?(error)
