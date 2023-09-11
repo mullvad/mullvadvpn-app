@@ -253,9 +253,18 @@ class AccountDeletionContentView: UIView {
         }
     }
 
-    private var isAccountNumberLengthSatisfied: Bool {
-        let length = accountTextField.text?.count ?? 0
-        return length == 4
+    private var isInputValid: Bool {
+        guard let input = accountTextField.text,
+              let accountNumber = viewModel?.accountNumber,
+              !accountNumber.isEmpty
+        else {
+            return false
+        }
+
+        let inputLengthIsValid = input.count == 4
+        let inputMatchesAccountNumber = accountNumber.suffix(4) == input
+
+        return inputLengthIsValid && inputMatchesAccountNumber
     }
 
     weak var delegate: AccountDeletionContentViewDelegate?
@@ -334,7 +343,7 @@ class AccountDeletionContentView: UIView {
         } else {
             activityIndicator.stopAnimating()
         }
-        deleteButton.isEnabled = isDeleteButtonEnabled && isAccountNumberLengthSatisfied
+        deleteButton.isEnabled = isDeleteButtonEnabled && isInputValid
         statusLabel.text = text
         statusLabel.textColor = textColor
     }
