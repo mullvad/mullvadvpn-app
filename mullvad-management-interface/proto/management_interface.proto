@@ -81,6 +81,9 @@ service ManagementService {
   rpc AddApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
+  rpc RemoveApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
+    // Can I return something useful here instead of Empty?
+  }
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
