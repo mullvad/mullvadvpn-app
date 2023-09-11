@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::api_access_method::{AccessMethod, ApiAccessMethodReplace};
+use mullvad_types::api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod};
 use std::net::IpAddr;
 
 use clap::{Args, Subcommand};

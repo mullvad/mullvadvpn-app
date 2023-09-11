@@ -40,7 +40,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access_method::{AccessMethod, ApiAccessMethodReplace},
+    api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod},
     auth_failed::AuthFailed,
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
