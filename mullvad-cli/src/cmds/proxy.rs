@@ -50,8 +50,7 @@ impl Proxy {
     /// Add a custom API access method.
     async fn add(cmd: AddCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        // TODO: Do NOT `unwrap`.
-        let proxy = AccessMethod::try_from(cmd.clone()).unwrap();
+        let proxy = AccessMethod::try_from(cmd.clone())?;
         rpc.add_access_method(proxy).await?;
         Ok(())
     }
@@ -144,13 +143,13 @@ pub enum Socks5AddCommands {
 /// Since these are not supposed to be used outside of the CLI,
 /// we define them in a hidden-away module.
 mod conversions {
+    use anyhow::{anyhow, Error};
     use mullvad_types::api_access_method as daemon_types;
 
     use super::{AddCustomCommands, Socks5AddCommands};
 
     impl TryFrom<AddCustomCommands> for daemon_types::AccessMethod {
-        // TODO: Use some other Error type than String!
-        type Error = String;
+        type Error = Error;
 
         fn try_from(value: AddCustomCommands) -> Result<Self, Self::Error> {
             Ok(match value {
@@ -167,7 +166,7 @@ mod conversions {
                                 remote_port,
                                 local_port,
                             )
-                            .unwrap(),
+                            .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
                         );
                         daemon_types::AccessMethod::Socks5(socks_proxy)
                     }
@@ -183,7 +182,7 @@ mod conversions {
                                 remote_ip.to_string(),
                                 remote_port,
                             )
-                            .unwrap(),
+                            .ok_or(anyhow!("Could not create a remote Socks5 api proxy"))?,
                         );
                         daemon_types::AccessMethod::Socks5(socks_proxy)
                     }
@@ -203,7 +202,7 @@ mod conversions {
                         cipher,
                         password,
                     )
-                    .unwrap();
+                    .ok_or(anyhow!("Could not create a Shadowsocks api proxy"))?;
                     daemon_types::AccessMethod::Shadowsocks(shadowsocks_proxy)
                 }
             })
