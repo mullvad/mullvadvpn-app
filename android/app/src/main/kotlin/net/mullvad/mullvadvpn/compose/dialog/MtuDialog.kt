@@ -37,12 +37,7 @@ import net.mullvad.mullvadvpn.util.isValidMtu
 @Preview
 @Composable
 private fun PreviewMtuDialog() {
-    MtuDialog(
-        mtuInitial = 1234,
-        onSave = {},
-        onRestoreDefaultValue = {},
-        onDismiss = {}
-    )
+    MtuDialog(mtuInitial = 1234, onSave = {}, onRestoreDefaultValue = {}, onDismiss = {})
 }
 
 @Composable
