@@ -294,15 +294,15 @@ impl RouteManagerImpl {
                     }
                 }
 
-                if let Err(error) = self.handle_route_change(route, true).await {
+                if let Err(error) = self.handle_route_socket_message().await {
                     log::error!("Failed to process route change: {error}");
                 }
             }
-            Ok(RouteSocketMessage::AddRoute(route))
-            | Ok(RouteSocketMessage::ChangeRoute(route)) => {
-                // Refresh routes that are using the default interface
-                if let Err(error) = self.handle_route_change(route, false).await {
-                    log::error!("Failed to process route change: {error}");
+            Ok(RouteSocketMessage::AddRoute(_))
+            | Ok(RouteSocketMessage::ChangeRoute(_))
+            | Ok(RouteSocketMessage::AddAddress(_) | RouteSocketMessage::DeleteAddress(_)) => {
+                if let Err(error) = self.handle_route_socket_message().await {
+                    log::error!("Failed to process route/address change: {error}");
                 }
             }
             // ignore all other message types
@@ -313,56 +313,23 @@ impl RouteManagerImpl {
         }
     }
 
-    /// Handle changes to the routing table. Specifically, when a default route is added, modified,
-    /// or deleted:
-    ///
-    /// * Replace the default route with a default route for the tunnel interface (i.e., one whose
-    ///   gateway is set to the link address of the tunnel interface).
+    /// Handle changes to the routing table:
+    /// * Replace the unscoped default route with a default route for the tunnel interface (i.e.,
+    ///   one whose gateway is set to the link address of the tunnel interface).
     /// * At the same time, update the route used by non-tunnel interfaces to reach the relay/VPN
     ///   server. The gateway of the relay route is set to the first interface in the network
     ///   service order that has a working ifscoped default route.
-    ///
-    /// # Arguments
-    ///
-    /// * `route_is_being_deleted` - A boolean that should be set to `true` if `route` is being
-    ///   deleted. This should be `false` if the route is being modified or added.
-    async fn handle_route_change(
-        &mut self,
-        route: data::RouteMessage,
-        route_is_being_deleted: bool,
-    ) -> Result<()> {
-        // Ignore routes that aren't default routes
-        if !route.is_default().map_err(Error::InvalidData)? {
-            return Ok(());
-        }
-
-        let new_gateway_link_addr = route.gateway().and_then(|addr| addr.as_link_addr());
-
-        // Ignore the new route if it is our tunnel route, lest we create a loop
-        for tunnel_default_route in [&self.v4_tunnel_default_route, &self.v6_tunnel_default_route] {
-            if let Some(tunnel_route) = tunnel_default_route.clone() {
-                let tun_gateway_link_addr =
-                    tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
-
-                if new_gateway_link_addr == tun_gateway_link_addr && !route_is_being_deleted {
-                    return Ok(());
-                }
-            }
-        }
-
-        let ip_version = if route.is_ipv4() {
-            interface::Family::V4
-        } else {
-            interface::Family::V6
-        };
-        self.update_best_default_route(ip_version).await?;
+    async fn handle_route_socket_message(&mut self) -> Result<()> {
+        self.update_best_default_route(interface::Family::V4)
+            .await?;
+        self.update_best_default_route(interface::Family::V6)
+            .await?;
 
         // Substitute route with a tunnel route
         self.apply_tunnel_default_route().await?;
 
         // Update routes using default interface
         self.apply_non_tunnel_routes().await
-
     }
 
     async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
