@@ -369,8 +369,6 @@ mod windows {
         pub fn owner(&self) -> Option<&SID> {
             unsafe { (self.owner as *const SID).as_ref() }
         }
-
-        // TODO: Can be expanded with `group()`, `dacl()`, and `sacl()`.
     }
 
     impl Drop for SecurityInformation {
