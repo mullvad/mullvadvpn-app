@@ -70,6 +70,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private let apiProxy: REST.APIProxy
     private let devicesProxy: REST.DevicesProxy
+    private let accountsProxy: REST.AccountsProxy
     private var tunnelObserver: TunnelObserver?
     private var appPreferences: AppPreferencesDataSource
 
@@ -85,6 +86,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         relayCacheTracker: RelayCacheTracker,
         apiProxy: REST.APIProxy,
         devicesProxy: REST.DevicesProxy,
+        accountsProxy: REST.AccountsProxy,
         appPreferences: AppPreferencesDataSource
     ) {
         self.tunnelManager = tunnelManager
@@ -92,6 +94,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.relayCacheTracker = relayCacheTracker
         self.apiProxy = apiProxy
         self.devicesProxy = devicesProxy
+        self.accountsProxy = accountsProxy
         self.appPreferences = appPreferences
 
         super.init()
@@ -593,14 +596,19 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let coordinator = WelcomeCoordinator(
             navigationController: horizontalFlowController,
             storePaymentManager: storePaymentManager,
-            tunnelManager: tunnelManager
+            tunnelManager: tunnelManager,
+            accountsProxy: accountsProxy
         )
-
         coordinator.didFinish = { [weak self] _ in
             guard let self else { return }
             appPreferences.isShownOnboarding = true
             router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
+        }
+        coordinator.didLogout = { [weak self] _ in
+            guard let self else { return }
+            router.dismissAll(.primary, animated: true)
+            continueFlow(animated: true)
         }
 
         addChild(coordinator)
@@ -682,7 +690,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func presentAccount(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let accountInteractor = AccountInteractor(
             storePaymentManager: storePaymentManager,
-            tunnelManager: tunnelManager
+            tunnelManager: tunnelManager,
+            accountsProxy: accountsProxy
         )
 
         let coordinator = AccountCoordinator(

@@ -67,6 +67,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             relayCacheTracker: appDelegate.relayCacheTracker,
             apiProxy: appDelegate.apiProxy,
             devicesProxy: appDelegate.devicesProxy,
+            accountsProxy: appDelegate.accountsProxy,
             appPreferences: AppPreferences()
         )
 
