@@ -75,11 +75,12 @@ fun NormalSwitchComposeCell(
 fun HeaderSwitchComposeCell(
     title: String,
     isToggled: Boolean,
+    modifier: Modifier = Modifier,
     startPadding: Dp = Dimens.cellStartPadding,
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.primary,
     onCellClicked: (Boolean) -> Unit = {},
-    onInfoClicked: (() -> Unit)? = null
+    onInfoClicked: (() -> Unit)? = null,
 ) {
     SwitchComposeCell(
         titleView = { BaseCellTitle(title = title, style = MaterialTheme.typography.titleMedium) },
@@ -88,7 +89,8 @@ fun HeaderSwitchComposeCell(
         isEnabled = isEnabled,
         background = background,
         onCellClicked = onCellClicked,
-        onInfoClicked = onInfoClicked
+        onInfoClicked = onInfoClicked,
+        modifier,
     )
 }
 
@@ -100,9 +102,11 @@ private fun SwitchComposeCell(
     isEnabled: Boolean,
     background: Color,
     onCellClicked: (Boolean) -> Unit,
-    onInfoClicked: (() -> Unit)?
+    onInfoClicked: (() -> Unit)?,
+    modifier: Modifier = Modifier,
 ) {
     BaseCell(
+        modifier = modifier,
         title = titleView,
         isRowEnabled = isEnabled,
         bodyView = {
