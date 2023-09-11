@@ -32,7 +32,11 @@ final actor TaskQueue {
             return try await operation()
         }
 
-        setCurrent(SerialTask(kind: kind, task: nextTask))
+        currentTask = SerialTask(kind: kind, task: nextTask)
+
+        if let previousTask, kind.shouldCancel(previousTask.kind) {
+            previousTask.task.cancel()
+        }
 
         return try await nextTask.value
     }
@@ -49,19 +53,13 @@ final actor TaskQueue {
             return await operation()
         }
 
-        setCurrent(SerialTask(kind: kind, task: nextTask))
+        currentTask = SerialTask(kind: kind, task: nextTask)
 
-        return await nextTask.value
-    }
-
-    private func setCurrent(_ nextTask: SerialTask) {
-        let previousTask = currentTask
-
-        currentTask = nextTask
-
-        if let previousTask, nextTask.kind.shouldCancel(previousTask.kind) {
+        if let previousTask, kind.shouldCancel(previousTask.kind) {
             previousTask.task.cancel()
         }
+
+        return await nextTask.value
     }
 }
 
