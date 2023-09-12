@@ -21,7 +21,6 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
     private let providerLogger: Logger
     private let relayCache: RelayCache
 
-    // TODO: pass relay constraints into RelayConstraintsUpdater
     private let constraintsUpdater = RelayConstraintsUpdater()
 
     /// Request proxy used to perform URLRequests bypassing VPN.
@@ -30,6 +29,8 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
     private var adapter: WgAdapter!
     private var tunnelMonitor: TunnelMonitor!
     private var actor: PacketTunnelActor!
+
+    private var stateObserverTask: AnyTask?
 
     override init() {
         Self.configureLogging()
@@ -84,10 +85,15 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
 
     override func startTunnel(options: [String: NSObject]? = nil) async throws {
         let startOptions = parseStartOptions(options ?? [:])
+
+        startObservingActorState()
+
         try await actor.start(options: startOptions)
     }
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
+        stopObservingActorState()
+
         await actor.stop()
     }
 
@@ -172,6 +178,26 @@ extension NewPacketTunnelProvider {
 
         return parsedOptions
     }
+
+    private func startObservingActorState() {
+        stopObservingActorState()
+
+        stateObserverTask = Task {
+            let stateStream = await self.actor.states
+
+            for await newState in await stateStream {
+                // Pass relay constraints retrieved during the last read from setting into transport provider.
+                if let relayConstraints = newState.relayConstraints {
+                    constraintsUpdater.onNewConstraints?(relayConstraints)
+                }
+            }
+        }
+    }
+
+    private func stopObservingActorState() {
+        stateObserverTask?.cancel()
+        stateObserverTask = nil
+    }
 }
 
 extension State {
@@ -205,5 +231,18 @@ extension State {
         }
 
         return status
+    }
+
+    var relayConstraints: RelayConstraints? {
+        switch self {
+        case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
+            return connState.relayConstraints
+
+        case let .error(blockedState):
+            return blockedState.relayConstraints
+
+        case .initial, .disconnecting, .disconnected:
+            return nil
+        }
     }
 }
