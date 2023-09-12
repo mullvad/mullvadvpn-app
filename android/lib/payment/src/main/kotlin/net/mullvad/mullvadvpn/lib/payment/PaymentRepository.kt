@@ -3,9 +3,11 @@ package net.mullvad.mullvadvpn.lib.payment
 import kotlinx.coroutines.flow.singleOrNull
 import net.mullvad.mullvadvpn.lib.billing.BillingRepository
 import net.mullvad.mullvadvpn.lib.billing.model.BillingProduct
+import net.mullvad.mullvadvpn.lib.billing.model.BillingPurchase
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseFlowResult
 import net.mullvad.mullvadvpn.lib.billing.model.QueryProductResult
+import net.mullvad.mullvadvpn.lib.billing.model.QueryPurchasesResult
 
 class PaymentRepository(
     private val billingRepository: BillingRepository,
@@ -17,13 +19,13 @@ class PaymentRepository(
             billingPaymentAvailability = getBillingProducts()
         )
 
-    suspend fun purchaseBillingProduct(product: BillingProduct): PurchaseResult {
+    suspend fun purchaseBillingProduct(productId: String): PurchaseResult {
         // Get transaction id
         val transactionId = fetchTransactionId()
 
         val result =
             billingRepository.startPurchaseFlow(
-                productId = product.productId,
+                productId = productId,
                 transactionId = transactionId
             )
 
@@ -36,7 +38,7 @@ class PaymentRepository(
                 }
                 is PurchaseEvent.PurchaseCompleted -> {
                     // Verify towards api
-                    if (verifyPurchase()) {
+                    if (verifyPurchase(purchaseEvent.purchases.first())) {
                         PurchaseResult.PurchaseCompleted
                     } else {
                         PurchaseResult.VerificationError
@@ -54,6 +56,13 @@ class PaymentRepository(
         } else {
             // Return error
             return PurchaseResult.PurchaseError
+        }
+    }
+
+    suspend fun verifyPurchases() {
+        val result = billingRepository.queryPurchases()
+        if (result is QueryPurchasesResult.PurchaseFound) {
+            verifyPurchase(result.purchase)
         }
     }
 
@@ -77,7 +86,7 @@ class PaymentRepository(
         return "BOOPITOBOP"
     }
 
-    private fun verifyPurchase(): Boolean {
+    private fun verifyPurchase(purchase: BillingPurchase): Boolean {
         // Placeholder function
         return true
     }
