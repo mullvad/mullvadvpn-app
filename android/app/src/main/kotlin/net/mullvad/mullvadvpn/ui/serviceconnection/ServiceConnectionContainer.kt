@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.lib.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 
 // Container of classes that communicate with the service through an active connection
 //
@@ -34,7 +33,7 @@ class ServiceConnectionContainer(
     val vpnPermission = VpnPermission(connection, dispatcher)
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
-    val customDns = CustomDns(connection, settingsListener)
+    val customDns = CustomDns(connection)
     var relayListListener = RelayListListener(connection, dispatcher, settingsListener)
 
     private var listenerId: Int? = null
@@ -62,7 +61,6 @@ class ServiceConnectionContainer(
         voucherRedeemer.onDestroy()
 
         appVersionInfoCache.onDestroy()
-        customDns.onDestroy()
         relayListListener.onDestroy()
     }
 
