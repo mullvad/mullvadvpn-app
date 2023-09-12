@@ -494,6 +494,7 @@
 		F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
 		F07CFF2029F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
+		F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */; };
 		F0C6FA812A66E23300F521F0 /* DeleteAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */; };
 		F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */; };
 		F0DA87472A9CB9A2006044F1 /* AccountExpiryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */; };
@@ -1390,6 +1391,7 @@
 		F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherOperation.swift; sourceTree = "<group>"; };
 		F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisteredDeviceInAppNotificationProvider.swift; sourceTree = "<group>"; };
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
+		F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewConfiguration.swift; sourceTree = "<group>"; };
 		F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountOperation.swift; sourceTree = "<group>"; };
 		F0C6FA822A6A729500F521F0 /* InAppPurchaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseCoordinator.swift; sourceTree = "<group>"; };
 		F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseInteractor.swift; sourceTree = "<group>"; };
@@ -2617,9 +2619,10 @@
 		F028A5472A336E1900C0CAA3 /* RedeemVoucher */ = {
 			isa = PBXGroup;
 			children = (
+				F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */,
 				F028A54A2A3370FA00C0CAA3 /* RedeemVoucherContentView.swift */,
 				F028A56D2A34DCC600C0CAA3 /* RedeemVoucherInteractor.swift */,
-				F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */,
+				F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */,
 				F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */,
 				F028A5482A336E8500C0CAA3 /* VoucherTextField.swift */,
 			);
@@ -3928,6 +3931,7 @@
 				F0E8CC0A2A4EE127007ED3B4 /* SetupAccountCompletedContentView.swift in Sources */,
 				581DA2752A1E283E0046ED47 /* WgKeyRotation.swift in Sources */,
 				7A83C4022A57FAA800DFB83A /* SettingsDNSInfoCell.swift in Sources */,
+				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
 				06410DFE292CE18F00AFC18C /* KeychainSettingsStore.swift in Sources */,
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,

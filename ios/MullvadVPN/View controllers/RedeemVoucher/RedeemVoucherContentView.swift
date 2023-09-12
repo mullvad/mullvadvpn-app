@@ -180,6 +180,7 @@ final class RedeemVoucherContentView: UIView {
 
     private var keyboardResponder: AutomaticKeyboardResponder?
     private var bottomsOfButtonsConstraint: NSLayoutConstraint?
+    private let configuration: RedeemVoucherViewConfiguration
 
     // MARK: - public
 
@@ -206,12 +207,14 @@ final class RedeemVoucherContentView: UIView {
         }
     }
 
-    init() {
+    init(configuration: RedeemVoucherViewConfiguration) {
+        self.configuration = configuration
         super.init(frame: .zero)
         commonInit()
     }
 
     required init?(coder: NSCoder) {
+        self.configuration = RedeemVoucherViewConfiguration(adjustViewWhenKeyboardAppears: true)
         super.init(coder: coder)
         commonInit()
     }
@@ -221,7 +224,7 @@ final class RedeemVoucherContentView: UIView {
         configureUI()
         addButtonHandlers()
         updateUI()
-        addKeyboardResponder()
+        addKeyboardResponderIfNeeded()
         addObservers()
     }
 
@@ -302,13 +305,13 @@ final class RedeemVoucherContentView: UIView {
         updateUI()
     }
 
-    private func addKeyboardResponder() {
+    private func addKeyboardResponderIfNeeded() {
+        guard configuration.adjustViewWhenKeyboardAppears else { return }
         keyboardResponder = AutomaticKeyboardResponder(
             targetView: self,
             handler: { [weak self] _, offset in
                 guard let self else { return }
-                guard self.textField.isFirstResponder else { return }
-                self.bottomsOfButtonsConstraint?.constant = -offset
+                self.bottomsOfButtonsConstraint?.constant = isEditing ? -offset : 0
                 self.layoutIfNeeded()
             }
         )
