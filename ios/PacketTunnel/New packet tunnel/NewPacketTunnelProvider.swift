@@ -190,6 +190,18 @@ extension NewPacketTunnelProvider {
                 if let relayConstraints = newState.relayConstraints {
                     constraintsUpdater.onNewConstraints?(relayConstraints)
                 }
+
+                // Tell packet tunnel when reconnection begins.
+                // Packet tunnel moves to `NEVPNStatus.reassertingg` state once `reasserting` flag is set to `true`.
+                if case .reconnecting = newState, !self.reasserting {
+                    self.reasserting = true
+                }
+
+                // Tell packet tunnel when reconnection ends.
+                // Packet tunnel moves to `NEVPNStatus.connected` state once `reasserting` flag is set to `false`.
+                if case .connected = newState, self.reasserting {
+                    self.reasserting = false
+                }
             }
         }
     }
