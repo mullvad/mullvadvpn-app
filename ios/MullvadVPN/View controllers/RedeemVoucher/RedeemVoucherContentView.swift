@@ -14,6 +14,7 @@ enum RedeemVoucherState {
     case success
     case verifying
     case failure(Error)
+    case logout
 }
 
 final class RedeemVoucherContentView: UIView {
@@ -79,6 +80,13 @@ final class RedeemVoucherContentView: UIView {
         return label
     }()
 
+    private lazy var logoutViewForAccountNumberIsEntered: LogoutDialogueView = {
+        LogoutDialogueView { verifiedAccountView in
+            verifiedAccountView.isLoading = true
+            self.logoutAction?()
+        }
+    }()
+
     private let redeemButton: AppButton = {
         let button = AppButton(style: .success)
         button.setTitle(NSLocalizedString(
@@ -114,12 +122,14 @@ final class RedeemVoucherContentView: UIView {
             titleLabel,
             textField,
             statusStack,
+            logoutViewForAccountNumberIsEntered,
         ])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.setCustomSpacing(UIMetrics.padding16, after: titleLabel)
         stackView.setCustomSpacing(UIMetrics.padding8, after: textField)
         stackView.setCustomSpacing(UIMetrics.padding16, after: statusLabel)
+        stackView.setCustomSpacing(UIMetrics.padding24, after: statusStack)
         stackView.setContentHuggingPriority(.defaultLow, for: .vertical)
         return stackView
     }()
@@ -147,6 +157,13 @@ final class RedeemVoucherContentView: UIView {
                 value: "Verifying voucher...",
                 comment: ""
             )
+        case .logout:
+            return NSLocalizedString(
+                "REDEEM_VOUCHER_STATUS_WAITING",
+                tableName: "RedeemVoucher",
+                value: "Logging out...",
+                comment: ""
+            )
         default: return ""
         }
     }
@@ -155,7 +172,7 @@ final class RedeemVoucherContentView: UIView {
         switch state {
         case .initial, .failure:
             return true
-        case .success, .verifying:
+        case .success, .verifying, .logout:
             return false
         }
     }
@@ -171,7 +188,7 @@ final class RedeemVoucherContentView: UIView {
 
     private var isLoading: Bool {
         switch state {
-        case .verifying:
+        case .verifying, .logout:
             return true
         default:
             return false
@@ -185,6 +202,7 @@ final class RedeemVoucherContentView: UIView {
 
     var redeemAction: ((String) -> Void)?
     var cancelAction: (() -> Void)?
+    var logoutAction: (() -> Void)?
 
     var state: RedeemVoucherState = .initial {
         didSet {
@@ -203,6 +221,12 @@ final class RedeemVoucherContentView: UIView {
             } else {
                 textField.resignFirstResponder()
             }
+        }
+    }
+
+    var isLogoutDialogHidden = true {
+        didSet {
+            logoutViewForAccountNumberIsEntered.isHidden = isLogoutDialogHidden
         }
     }
 
@@ -276,6 +300,7 @@ final class RedeemVoucherContentView: UIView {
         redeemButton.isEnabled = isRedeemButtonEnabled && textField.isVoucherLengthSatisfied
         statusLabel.text = text
         statusLabel.textColor = textColor
+        logoutViewForAccountNumberIsEntered.isLoading = isLoading
     }
 
     private func addObservers() {
@@ -292,13 +317,17 @@ final class RedeemVoucherContentView: UIView {
     }
 
     @objc private func redeemButtonTapped(_ sender: AppButton) {
-        guard let code = textField.text, !code.isEmpty else {
+        let code = textField.parsedToken
+        guard !code.isEmpty else {
             return
         }
         redeemAction?(code)
     }
 
     @objc private func textDidChange() {
+        if textField.parsedToken.isEmpty {
+            isLogoutDialogHidden = true
+        }
         updateUI()
     }
 

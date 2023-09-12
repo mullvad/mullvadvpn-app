@@ -1,5 +1,5 @@
 //
-//  AccountRedeemingVoucherCoordinator.swift
+//  CreateAccountVoucherCoordinator.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2023-07-03.
@@ -10,32 +10,35 @@ import MullvadREST
 import Routing
 import UIKit
 
-public class AccountRedeemingVoucherCoordinator: Coordinator, Presentable {
+public class CreateAccountVoucherCoordinator: Coordinator {
     private let navigationController: RootContainerViewController
     private let viewController: RedeemVoucherViewController
+    private let interactor: RedeemVoucherInteractor
 
-    var didFinish: ((AccountRedeemingVoucherCoordinator) -> Void)?
-    var didCancel: ((AccountRedeemingVoucherCoordinator) -> Void)?
-
-    public var presentedViewController: UIViewController {
-        viewController
-    }
+    var didFinish: ((CreateAccountVoucherCoordinator) -> Void)?
+    var didCancel: ((CreateAccountVoucherCoordinator) -> Void)?
+    var didLogout: ((CreateAccountVoucherCoordinator, String) -> Void)?
 
     init(
         navigationController: RootContainerViewController,
         interactor: RedeemVoucherInteractor
     ) {
         self.navigationController = navigationController
+        self.interactor = interactor
         viewController = RedeemVoucherViewController(interactor: interactor)
     }
 
     func start() {
+        interactor.didLogout = { [weak self] accountNumber in
+            guard let self else { return }
+            didLogout?(self, accountNumber)
+        }
         viewController.delegate = self
         navigationController.pushViewController(viewController, animated: true)
     }
 }
 
-extension AccountRedeemingVoucherCoordinator: RedeemVoucherViewControllerDelegate {
+extension CreateAccountVoucherCoordinator: RedeemVoucherViewControllerDelegate {
     func redeemVoucherDidSucceed(_ controller: RedeemVoucherViewController, with response: REST.SubmitVoucherResponse) {
         let coordinator = AddCreditSucceededCoordinator(
             purchaseType: .redeemingVoucher,
