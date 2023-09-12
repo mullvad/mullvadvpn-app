@@ -40,5 +40,5 @@ class ChangelogViewModel(
 sealed class ChangelogDialogUiState {
     data class Show(val changes: List<String>) : ChangelogDialogUiState()
 
-    object Hide : ChangelogDialogUiState()
+    data object Hide : ChangelogDialogUiState()
 }

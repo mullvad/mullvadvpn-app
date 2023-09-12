@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.talpid.util.EventNotifier
 
 fun Animation.transitionFinished(): Flow<Unit> =
-    callbackFlow<Unit> {
+    callbackFlow {
             val transitionAnimationListener =
                 object : Animation.AnimationListener {
                     override fun onAnimationStart(animation: Animation?) {}
@@ -44,12 +44,11 @@ fun <R> Flow<ServiceConnectionState>.flatMapReadyConnectionOrDefault(
     }
 }
 
-fun <T> callbackFlowFromNotifier(notifier: EventNotifier<T>) =
-    callbackFlow<T> {
-        val handler: (T) -> Unit = { value -> trySend(value) }
-        notifier.subscribe(this, handler)
-        awaitClose { notifier.unsubscribe(this) }
-    }
+fun <T> callbackFlowFromNotifier(notifier: EventNotifier<T>) = callbackFlow {
+    val handler: (T) -> Unit = { value -> trySend(value) }
+    notifier.subscribe(this, handler)
+    awaitClose { notifier.unsubscribe(this) }
+}
 
 inline fun <T1, T2, T3, T4, T5, T6, R> combine(
     flow: Flow<T1>,

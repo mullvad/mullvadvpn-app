@@ -22,11 +22,11 @@ class LinearInterpolation {
 
     var updated = true
         get() {
-            if (field == true) {
+            return if (field) {
                 field = false
-                return true
+                true
             } else {
-                return false
+                false
             }
         }
 
