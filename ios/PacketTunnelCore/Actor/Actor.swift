@@ -137,9 +137,8 @@ public actor PacketTunnelActor {
             // Switch key policy to use current key.
             state = state.mapCurrentKeyAndPolicy { _, _ in .useCurrent }
 
-            // Reconnect using the same relay.
             // This will schedule a normal call to reconnect that will be enqueued on the task queue.
-            try await reconnect(to: .current)
+            try await reconnect(to: .random)
         }
     }
 
