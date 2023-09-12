@@ -199,27 +199,27 @@ data class VpnSettingsViewModelState(
 }
 
 sealed class VpnSettingsDialogState {
-    object NoDialog : VpnSettingsDialogState()
+    data object NoDialog : VpnSettingsDialogState()
 
     data class MtuDialog(val mtuEditValue: String) : VpnSettingsDialogState()
 
     data class DnsDialog(val stagedDns: StagedDns) : VpnSettingsDialogState()
 
-    object LocalNetworkSharingInfoDialog : VpnSettingsDialogState()
+    data object LocalNetworkSharingInfoDialog : VpnSettingsDialogState()
 
-    object ContentBlockersInfoDialog : VpnSettingsDialogState()
+    data object ContentBlockersInfoDialog : VpnSettingsDialogState()
 
-    object CustomDnsInfoDialog : VpnSettingsDialogState()
+    data object CustomDnsInfoDialog : VpnSettingsDialogState()
 
-    object MalwareInfoDialog : VpnSettingsDialogState()
+    data object MalwareInfoDialog : VpnSettingsDialogState()
 
-    object ObfuscationInfoDialog : VpnSettingsDialogState()
+    data object ObfuscationInfoDialog : VpnSettingsDialogState()
 
-    object QuantumResistanceInfoDialog : VpnSettingsDialogState()
+    data object QuantumResistanceInfoDialog : VpnSettingsDialogState()
 
-    object WireguardPortInfoDialog : VpnSettingsDialogState()
+    data object WireguardPortInfoDialog : VpnSettingsDialogState()
 
-    object CustomPortDialog : VpnSettingsDialogState()
+    data object CustomPortDialog : VpnSettingsDialogState()
 }
 
 sealed interface StagedDns {
@@ -238,11 +238,11 @@ sealed interface StagedDns {
     ) : StagedDns
 
     sealed class ValidationResult {
-        object Success : ValidationResult()
+        data object Success : ValidationResult()
 
-        object InvalidAddress : ValidationResult()
+        data object InvalidAddress : ValidationResult()
 
-        object DuplicateAddress : ValidationResult()
+        data object DuplicateAddress : ValidationResult()
     }
 
     fun isValid() = (validationResult is ValidationResult.Success)

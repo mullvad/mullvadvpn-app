@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.util
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import java.util.Locale
 
 class SegmentedInputFormatter(val input: EditText, var separator: Char) : TextWatcher {
     private var editing = false
@@ -114,7 +115,11 @@ class SegmentedInputFormatter(val input: EditText, var separator: Char) : TextWa
                 val character = input[index]
 
                 if (allCaps && character >= 'a' && character <= 'z') {
-                    input.replace(index, index + 1, character.toString().toUpperCase())
+                    input.replace(
+                        index,
+                        index + 1,
+                        character.toString().uppercase(Locale.getDefault())
+                    )
                 } else if (!isValidInputCharacter(character)) {
                     input.delete(index, index + 1)
                 } else {

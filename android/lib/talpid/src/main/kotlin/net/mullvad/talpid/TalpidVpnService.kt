@@ -82,7 +82,7 @@ open class TalpidVpnService : VpnService() {
     }
 
     private fun createTun(config: TunConfig): CreateTunResult {
-        if (VpnService.prepare(this) != null) {
+        if (prepare(this) != null) {
             // VPN permission wasn't granted
             return CreateTunResult.PermissionDenied
         }
@@ -126,7 +126,7 @@ open class TalpidVpnService : VpnService() {
 
         waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
 
-        if (!invalidDnsServerAddresses.isEmpty()) {
+        if (invalidDnsServerAddresses.isNotEmpty()) {
             return CreateTunResult.InvalidDnsServers(invalidDnsServerAddresses, tunFd)
         }
 
@@ -138,9 +138,9 @@ open class TalpidVpnService : VpnService() {
     }
 
     private fun prefixForAddress(address: InetAddress): Int {
-        when (address) {
-            is Inet4Address -> return 32
-            is Inet6Address -> return 128
+        return when (address) {
+            is Inet4Address -> 32
+            is Inet6Address -> 128
             else -> throw RuntimeException("Invalid IP address (not IPv4 nor IPv6)")
         }
     }

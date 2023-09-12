@@ -272,7 +272,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
 
     private fun loginFailure(description: String? = "") {
         title.setText(R.string.login_fail_title)
-        subtitle.setText(description)
+        subtitle.text = description
 
         loggingInStatus.visibility = View.GONE
         loginFailStatus.visibility = View.VISIBLE
