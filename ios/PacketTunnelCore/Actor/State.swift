@@ -81,7 +81,7 @@ public enum KeyPolicy {
 }
 
 /// Enum describing network availability.
-public enum NetworkReachability {
+public enum NetworkReachability: Equatable {
     case undetermined, reachable, unreachable
 }
 
