@@ -22,13 +22,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2023.4 - 2023-09-12]
 ### Added
 - Allow redeeming vouchers in account view.
 - Allow deleting account in account view.
 - Add new account flow
 
 ### Fixed
-- Invalidate API IP address cache to fix connectivity issues for some of devices updating from 
+- Invalidate API IP address cache to fix connectivity issues for some of devices updating from
   2023.2 or earlier.
 
 
