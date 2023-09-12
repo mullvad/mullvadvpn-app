@@ -77,15 +77,19 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
     }
 
     private func navigateToRedeemVoucher() {
-        let coordinator = SettingsRedeemVoucherCoordinator(
+        let coordinator = ProfileVoucherCoordinator(
             navigationController: CustomNavigationController(),
-            interactor: RedeemVoucherInteractor(tunnelManager: interactor.tunnelManager)
+            interactor: RedeemVoucherInteractor(
+                tunnelManager: interactor.tunnelManager,
+                accountsProxy: interactor.accountsProxy,
+                verifyVoucherAsAccount: false
+            )
         )
-        coordinator.didFinish = { redeemVoucherCoordinator in
-            redeemVoucherCoordinator.dismiss(animated: true)
+        coordinator.didFinish = { coordinator in
+            coordinator.dismiss(animated: true)
         }
-        coordinator.didCancel = { redeemVoucherCoordinator in
-            redeemVoucherCoordinator.dismiss(animated: true)
+        coordinator.didCancel = { coordinator in
+            coordinator.dismiss(animated: true)
         }
 
         coordinator.start()

@@ -20,14 +20,13 @@ protocol RedeemVoucherViewControllerDelegate: AnyObject {
 
 class RedeemVoucherViewController: UIViewController, UINavigationControllerDelegate, RootContainment {
     private let contentView = RedeemVoucherContentView()
-    private var voucherTask: Cancellable?
-    private var interactor: RedeemVoucherInteractor?
+    private var interactor: RedeemVoucherInteractor
 
     weak var delegate: RedeemVoucherViewControllerDelegate?
 
     init(interactor: RedeemVoucherInteractor) {
-        super.init(nibName: nil, bundle: nil)
         self.interactor = interactor
+        super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
@@ -87,6 +86,14 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         contentView.cancelAction = { [weak self] in
             self?.cancel()
         }
+
+        contentView.logoutAction = { [weak self] in
+            self?.logout()
+        }
+
+        interactor.showLogoutDialog = { [weak self] in
+            self?.contentView.isLogoutDialogHidden = false
+        }
     }
 
     private func configureUI() {
@@ -97,12 +104,12 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
 
     private func submit(code: String) {
         contentView.state = .verifying
-        voucherTask = interactor?.redeemVoucher(code: code, completion: { [weak self] result in
+        contentView.isEditing = false
+        interactor.redeemVoucher(code: code, completion: { [weak self] result in
             guard let self else { return }
             switch result {
             case let .success(value):
                 contentView.state = .success
-                contentView.isEditing = false
                 delegate?.redeemVoucherDidSucceed(self, with: value)
             case let .failure(error):
                 contentView.state = .failure(error)
@@ -113,8 +120,18 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     private func cancel() {
         contentView.isEditing = false
 
-        voucherTask?.cancel()
+        interactor.cancelAll()
 
         delegate?.redeemVoucherDidCancel(self)
+    }
+
+    private func logout() {
+        contentView.isEditing = false
+
+        contentView.state = .logout
+
+        interactor.logout { [weak self] in
+            self?.contentView.state = .initial
+        }
     }
 }
