@@ -33,6 +33,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import androidx.core.text.HtmlCompat
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -104,7 +105,7 @@ fun SelectLocationScreen(
                         .weight(weight = 1f)
                         .padding(end = Dimens.titleIconSize),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelLarge,
+                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp),
                 color = MaterialTheme.colorScheme.onPrimary
             )
         }
