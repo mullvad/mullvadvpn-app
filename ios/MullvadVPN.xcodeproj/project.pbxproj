@@ -106,6 +106,7 @@
 		585A02EB2A4B285800C6CAFF /* UDPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585A02EA2A4B285800C6CAFF /* UDPConnection.swift */; };
 		585A02ED2A4B28F300C6CAFF /* TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585A02EC2A4B28F300C6CAFF /* TCPConnection.swift */; };
 		585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */; };
+		585B1FF22AB0BC69008AD470 /* State+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585B1FF12AB0BC69008AD470 /* State+.swift */; };
 		585B4B8726D9098900555C4C /* TunnelStatusNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A94AE326CFD945001CB97C /* TunnelStatusNotificationProvider.swift */; };
 		585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585CA70E25F8C44600B47C62 /* UIMetrics.swift */; };
 		585E820327F3285E00939F0E /* SendStoreReceiptOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E820227F3285E00939F0E /* SendStoreReceiptOperation.swift */; };
@@ -1150,6 +1151,7 @@
 		585A02E82A4B283000C6CAFF /* TCPUnsafeListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPUnsafeListener.swift; sourceTree = "<group>"; };
 		585A02EA2A4B285800C6CAFF /* UDPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPConnection.swift; sourceTree = "<group>"; };
 		585A02EC2A4B28F300C6CAFF /* TCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPConnection.swift; sourceTree = "<group>"; };
+		585B1FF12AB0BC69008AD470 /* State+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "State+.swift"; sourceTree = "<group>"; };
 		585CA70E25F8C44600B47C62 /* UIMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIMetrics.swift; sourceTree = "<group>"; };
 		585DA87626B024A600B8C587 /* CachedRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedRelays.swift; sourceTree = "<group>"; };
 		585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProviderMessage.swift; sourceTree = "<group>"; };
@@ -2728,6 +2730,7 @@
 			isa = PBXGroup;
 			children = (
 				58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */,
+				585B1FF12AB0BC69008AD470 /* State+.swift */,
 				5864AF7C2A9F4DC9008BC928 /* SettingsReader.swift */,
 				582403812A827E1500163DE8 /* RelaySelectorWrapper.swift */,
 				58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */,
@@ -4220,6 +4223,7 @@
 				581DA2762A1E2FD10046ED47 /* WgKeyRotation.swift in Sources */,
 				580810E52A30E13A00B74552 /* DeviceStateAccessorProtocol.swift in Sources */,
 				580810E82A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */,
+				585B1FF22AB0BC69008AD470 /* State+.swift in Sources */,
 				58915D682A25FA080066445B /* DeviceCheckRemoteService.swift in Sources */,
 				58E9C3842A4EF15300CFDEAC /* WireGuardAdapter+Async.swift in Sources */,
 				5864AF7D2A9F4DC9008BC928 /* SettingsReader.swift in Sources */,
