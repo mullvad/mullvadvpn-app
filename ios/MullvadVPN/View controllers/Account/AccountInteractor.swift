@@ -15,6 +15,7 @@ import StoreKit
 final class AccountInteractor {
     private let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
+    let accountsProxy: REST.AccountsProxy
 
     var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
     var didReceiveDeviceState: ((DeviceState) -> Void)?
@@ -22,9 +23,14 @@ final class AccountInteractor {
     private var tunnelObserver: TunnelObserver?
     private var paymentObserver: StorePaymentObserver?
 
-    init(storePaymentManager: StorePaymentManager, tunnelManager: TunnelManager) {
+    init(
+        storePaymentManager: StorePaymentManager,
+        tunnelManager: TunnelManager,
+        accountsProxy: REST.AccountsProxy
+    ) {
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
+        self.accountsProxy = accountsProxy
 
         let tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, _ in

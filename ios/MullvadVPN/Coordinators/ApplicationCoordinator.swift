@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MullvadREST
 import MullvadTypes
 import RelayCache
@@ -43,6 +44,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
      */
     private let secondaryNavigationContainer = RootContainerViewController()
 
+    /// Posts `preferredAccountNumber` notification when user inputs the account number instead of voucher code
+    private let preferredAccountNumberSubject = PassthroughSubject<String, Never>()
+
     private lazy var secondaryRootConfiguration = ModalPresentationConfiguration(
         preferredContentSize: UIMetrics.preferredFormSheetContentSize,
         modalPresentationStyle: .custom,
@@ -70,6 +74,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private let apiProxy: REST.APIProxy
     private let devicesProxy: REST.DevicesProxy
+    private let accountsProxy: REST.AccountsProxy
     private var tunnelObserver: TunnelObserver?
     private var appPreferences: AppPreferencesDataSource
 
@@ -85,6 +90,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         relayCacheTracker: RelayCacheTracker,
         apiProxy: REST.APIProxy,
         devicesProxy: REST.DevicesProxy,
+        accountsProxy: REST.AccountsProxy,
         appPreferences: AppPreferencesDataSource
     ) {
         self.tunnelManager = tunnelManager
@@ -92,6 +98,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.relayCacheTracker = relayCacheTracker
         self.apiProxy = apiProxy
         self.devicesProxy = devicesProxy
+        self.accountsProxy = accountsProxy
         self.appPreferences = appPreferences
 
         super.init()
@@ -593,14 +600,20 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let coordinator = WelcomeCoordinator(
             navigationController: horizontalFlowController,
             storePaymentManager: storePaymentManager,
-            tunnelManager: tunnelManager
+            tunnelManager: tunnelManager,
+            accountsProxy: accountsProxy
         )
-
-        coordinator.didFinish = { [weak self] _ in
+        coordinator.didFinish = { [weak self] in
             guard let self else { return }
             appPreferences.isShownOnboarding = true
             router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
+        }
+        coordinator.didLogout = { [weak self] preferredAccountNumber in
+            guard let self else { return }
+            router.dismissAll(.primary, animated: true)
+            continueFlow(animated: true)
+            preferredAccountNumberSubject.send(preferredAccountNumber)
         }
 
         addChild(coordinator)
@@ -633,6 +646,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             tunnelManager: tunnelManager,
             devicesProxy: devicesProxy
         )
+
+        coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
 
         coordinator.didFinish = { [weak self] _ in
             self?.continueFlow(animated: true)
@@ -682,7 +697,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func presentAccount(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let accountInteractor = AccountInteractor(
             storePaymentManager: storePaymentManager,
-            tunnelManager: tunnelManager
+            tunnelManager: tunnelManager,
+            accountsProxy: accountsProxy
         )
 
         let coordinator = AccountCoordinator(

@@ -23,6 +23,10 @@ class VoucherTextField: CustomTextField, UITextFieldDelegate {
         return maxGroups * groupSize + (maxGroups - 1)
     }
 
+    var parsedToken: String {
+        inputFormatter.string
+    }
+
     var isVoucherLengthSatisfied: Bool {
         let length = text?.count ?? 0
         return length >= voucherLength

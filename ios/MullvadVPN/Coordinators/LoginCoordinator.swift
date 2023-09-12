@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MullvadREST
 import MullvadTypes
 import Operations
@@ -18,9 +19,12 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
 
     private var loginController: LoginViewController?
     private var lastLoginAction: LoginAction?
+    private var subscriptions = Set<Combine.AnyCancellable>()
 
     var didFinish: ((LoginCoordinator) -> Void)?
     var didCreateAccount: (() -> Void)?
+
+    var preferredAccountNumberPublisher: AnyPublisher<String, Never>?
 
     let navigationController: RootContainerViewController
 
@@ -41,6 +45,14 @@ final class LoginCoordinator: Coordinator, DeviceManagementViewControllerDelegat
         loginController.didFinishLogin = { [weak self] action, error in
             self?.didFinishLogin(action: action, error: error) ?? .nothing
         }
+
+        preferredAccountNumberPublisher?
+            .compactMap { $0 }
+            .sink(receiveValue: { preferredAccountNumber in
+                interactor.suggestPreferredAccountNumber?(preferredAccountNumber)
+            })
+            .store(in: &subscriptions)
+
         interactor.didCreateAccount = self.didCreateAccount
 
         navigationController.pushViewController(loginController, animated: animated)
