@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChangeListItem
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Composable
 fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () -> Unit) {
@@ -39,13 +40,15 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
             )
         },
         text = {
-            Column {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding)
+            ) {
                 Text(
                     text = stringResource(R.string.changes_dialog_subtitle),
                     fontSize = 18.sp,
                     color = Color.White,
-                    modifier =
-                        Modifier.padding(vertical = dimensionResource(id = R.dimen.medium_padding))
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 changesList.forEach { changeItem -> ChangeListItem(text = changeItem) }
@@ -55,7 +58,6 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
             Button(
                 modifier =
                     Modifier.wrapContentHeight()
-                        .padding(all = dimensionResource(id = R.dimen.medium_padding))
                         .defaultMinSize(minHeight = dimensionResource(id = R.dimen.button_height))
                         .fillMaxWidth(),
                 colors =
