@@ -547,6 +547,7 @@ public actor PacketTunnelActor {
             await onHandleConnectionRecovery()
 
         case let .networkReachabilityChanged(isNetworkReachable):
+            // TODO: monitor network outside of tunnel monitor.
             await onNetworkReachibilityChange(isNetworkReachable)
         }
     }
