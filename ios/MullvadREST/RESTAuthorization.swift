@@ -13,6 +13,7 @@ import Operations
 protocol RESTAuthorizationProvider {
     func getAuthorization(completion: @escaping (Result<REST.Authorization, Swift.Error>) -> Void)
         -> Cancellable
+    func invalidateToken(for accountNumber: String)
 }
 
 extension REST {
@@ -36,6 +37,10 @@ extension REST {
                     tokenData.accessToken
                 })
             }
+        }
+
+        func invalidateToken(for accountNumber: String) {
+            accessTokenManager.invalidateToken(for: accountNumber)
         }
     }
 }
