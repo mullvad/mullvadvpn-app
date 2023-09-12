@@ -35,7 +35,6 @@ extension PacketTunnelActor {
             switch newState {
             case .connected, .disconnected:
                 // Return once either desired or final state is reached.
-                // TODO: maybe throw CancellationError() if hit disconnected state?
                 return
 
             case .connecting, .disconnecting, .error, .initial, .reconnecting:
