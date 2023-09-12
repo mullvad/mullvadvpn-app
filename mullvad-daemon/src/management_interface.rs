@@ -640,7 +640,7 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("add_api_access_method");
         let access_method =
-            mullvad_types::api_access_method::AccessMethod::from(request.into_inner());
+            mullvad_types::api_access_method::AccessMethod::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::AddApiAccessMethod(tx, access_method))?;
         self.wait_for_result(rx)
@@ -655,7 +655,7 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("remove_api_access_method");
         let access_method =
-            mullvad_types::api_access_method::AccessMethod::from(request.into_inner());
+            mullvad_types::api_access_method::AccessMethod::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::RemoveApiAccessMethod(tx, access_method))?;
         self.wait_for_result(rx)
@@ -670,9 +670,9 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("edit_api_access_method");
         let access_method_replace =
-            mullvad_types::api_access_method::daemon::ApiAccessMethodReplace::from(
+            mullvad_types::api_access_method::daemon::ApiAccessMethodReplace::try_from(
                 request.into_inner(),
-            );
+            )?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::ReplaceApiAccessMethod(
             tx,

@@ -164,16 +164,17 @@ impl MullvadProxyClient {
     }
 
     pub async fn get_api_access_methods(&mut self) -> Result<Vec<AccessMethod>> {
-        Ok(self
-            .0
+        self.0
             .get_api_access_methods(())
             .await
             .map_err(Error::Rpc)?
             .into_inner()
             .api_access_methods
-            .iter()
-            .map(From::from)
-            .collect())
+            .into_iter()
+            .map(|access_method| {
+                AccessMethod::try_from(access_method).map_err(Error::InvalidResponse)
+            })
+            .collect()
     }
 
     pub async fn update_relay_locations(&mut self) -> Result<()> {
