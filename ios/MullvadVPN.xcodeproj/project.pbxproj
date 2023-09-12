@@ -2193,7 +2193,7 @@
 				58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */,
 				5864AF7E2A9F52BB008BC928 /* TaskQueue.swift */,
 				58ED3A132A7C199C0085CE65 /* StartOptions.swift */,
-				58F3F3612AA0848900D3B0A4 /* Extensions */,
+				58E7A0322AA075BB00C57861 /* DispatchSource+.swift */,
 				58E7A0312AA0715100C57861 /* Protocols */,
 			);
 			path = Actor;
@@ -2706,14 +2706,6 @@
 				587DCCEE287D84A500CE821E /* countries.geo.json */,
 			);
 			path = Assets;
-			sourceTree = "<group>";
-		};
-		58F3F3612AA0848900D3B0A4 /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				58E7A0322AA075BB00C57861 /* DispatchSource+.swift */,
-			);
-			path = Extensions;
 			sourceTree = "<group>";
 		};
 		58F3F3672AA0872D00D3B0A4 /* Packet tunnel */ = {
