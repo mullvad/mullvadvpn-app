@@ -23,7 +23,10 @@ final class ProfileVoucherCoordinator: Coordinator, Presentable {
         interactor: RedeemVoucherInteractor
     ) {
         self.navigationController = navigationController
-        viewController = RedeemVoucherViewController(interactor: interactor)
+        viewController = RedeemVoucherViewController(
+            configuration: RedeemVoucherViewConfiguration(adjustViewWhenKeyboardAppears: false),
+            interactor: interactor
+        )
     }
 
     var presentedViewController: UIViewController {

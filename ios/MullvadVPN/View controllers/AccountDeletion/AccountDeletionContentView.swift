@@ -359,7 +359,7 @@ class AccountDeletionContentView: UIView {
             targetView: self,
             handler: { [weak self] _, offset in
                 guard let self else { return }
-                self.bottomsOfButtonsConstraint?.constant = self.accountTextField.isFirstResponder ? -offset : 0
+                self.bottomsOfButtonsConstraint?.constant = isEditing ? -offset : 0
                 self.layoutIfNeeded()
                 self.scrollView.flashScrollIndicators()
             }
