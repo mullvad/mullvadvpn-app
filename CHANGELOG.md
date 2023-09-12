@@ -61,6 +61,16 @@ Line wrap the file at 100 chars.                                              Th
 - Remove the CLI subcommand `mullvad relay set hostname`.
 
 
+## [android/2023.6-beta2] - 2023-09-13
+
+### Fixed
+#### Android
+- Fix tunnel state and connection details sometimes getting stuck showing the wrong information.
+- Fix MTU dismiss behavior.
+- Fix DNS input crash
+- Fix inconsistent dialog padding.
+
+
 ## [android/2023.6-beta1] - 2023-08-29
 
 ### Added
