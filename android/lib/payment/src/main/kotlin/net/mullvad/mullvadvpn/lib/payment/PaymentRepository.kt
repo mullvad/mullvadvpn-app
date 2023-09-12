@@ -1,42 +1,30 @@
 package net.mullvad.mullvadvpn.lib.payment
 
-import kotlinx.coroutines.flow.singleOrNull
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.billing.BillingRepository
-import net.mullvad.mullvadvpn.lib.billing.model.BillingProduct
+import net.mullvad.mullvadvpn.lib.billing.model.BillingPurchase
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseFlowResult
 import net.mullvad.mullvadvpn.lib.billing.model.QueryProductResult
+import net.mullvad.mullvadvpn.lib.billing.model.QueryPurchasesResult
 
 class PaymentRepository(
     private val billingRepository: BillingRepository,
     private val showWebPayment: Boolean
 ) {
-    suspend fun queryAvailablePaymentTypes(): PaymentAvailability =
-        PaymentAvailability(
-            webPaymentAvailable = showWebPayment,
-            billingPaymentAvailability = getBillingProducts()
-        )
-
-    suspend fun purchaseBillingProduct(product: BillingProduct): PurchaseResult {
-        // Get transaction id
-        val transactionId = fetchTransactionId()
-
-        val result =
-            billingRepository.startPurchaseFlow(
-                productId = product.productId,
-                transactionId = transactionId
-            )
-
-        if (result is PurchaseFlowResult.Ok) {
-            // Wait for events
-            return when (val purchaseEvent = billingRepository.purchaseEvents.singleOrNull()) {
+    private val _billingPurchaseEvents =
+        billingRepository.purchaseEvents.map { event ->
+            when (event) {
                 is PurchaseEvent.Error -> {
                     // Return error
                     PurchaseResult.PurchaseError
                 }
                 is PurchaseEvent.PurchaseCompleted -> {
                     // Verify towards api
-                    if (verifyPurchase()) {
+                    if (verifyPurchase(event.purchases.first())) {
                         PurchaseResult.PurchaseCompleted
                     } else {
                         PurchaseResult.VerificationError
@@ -46,14 +34,44 @@ class PaymentRepository(
                     // Purchase aborted
                     PurchaseResult.PurchaseCancelled
                 }
-                null -> {
-                    // Return error
-                    PurchaseResult.PurchaseError
-                }
             }
-        } else {
-            // Return error
-            return PurchaseResult.PurchaseError
+        }
+    private val _purchaseResultEvents = MutableSharedFlow<PurchaseResult>(extraBufferCapacity = 1)
+    val purchaseResult =
+        combine(billingRepository.purchaseEvents, _purchaseResultEvents.asSharedFlow()) { event ->
+            event
+        }
+
+    suspend fun queryAvailablePaymentTypes(): PaymentAvailability =
+        PaymentAvailability(
+            webPaymentAvailable = showWebPayment,
+            billingPaymentAvailability = getBillingProducts()
+        )
+
+    suspend fun purchaseBillingProduct(productId: String) {
+        // Get transaction id
+        val transactionId =
+            fetchTransactionId()
+                ?: run {
+                    _purchaseResultEvents.tryEmit(PurchaseResult.PurchaseError)
+                    return
+                }
+
+        val result =
+            billingRepository.startPurchaseFlow(
+                productId = productId,
+                transactionId = transactionId
+            )
+
+        if (result !is PurchaseFlowResult.Ok) {
+            _purchaseResultEvents.tryEmit(PurchaseResult.PurchaseError)
+        }
+    }
+
+    suspend fun verifyPurchases() {
+        val result = billingRepository.queryPurchases()
+        if (result is QueryPurchasesResult.PurchaseFound) {
+            verifyPurchase(result.purchase)
         }
     }
 
@@ -72,12 +90,12 @@ class PaymentRepository(
                 BillingPaymentAvailability.Error.Other(exception = result.exception)
         }
 
-    private fun fetchTransactionId(): String {
+    private fun fetchTransactionId(): String? {
         // Placeholder function
         return "BOOPITOBOP"
     }
 
-    private fun verifyPurchase(): Boolean {
+    private fun verifyPurchase(purchase: BillingPurchase): Boolean {
         // Placeholder function
         return true
     }
