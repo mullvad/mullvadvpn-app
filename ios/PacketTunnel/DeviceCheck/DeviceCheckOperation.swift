@@ -42,7 +42,7 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
         remoteSevice: DeviceCheckRemoteServiceProtocol,
         deviceStateAccessor: DeviceStateAccessorProtocol,
         rotateImmediatelyOnKeyMismatch: Bool,
-        completionHandler: @escaping CompletionHandler
+        completionHandler: CompletionHandler? = nil
     ) {
         self.remoteService = remoteSevice
         self.deviceStateAccessor = deviceStateAccessor

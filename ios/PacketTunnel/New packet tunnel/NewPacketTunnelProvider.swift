@@ -66,11 +66,19 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self)
         )
 
+        let proxyFactory = REST.ProxyFactory.makeProxyFactory(
+            transportProvider: transportProvider,
+            addressCache: addressCache
+        )
+        let accountsProxy = proxyFactory.createAccountsProxy()
+        let devicesProxy = proxyFactory.createDevicesProxy()
+
         actor = PacketTunnelActor(
             tunnelAdapter: adapter,
             tunnelMonitor: tunnelMonitor,
             relaySelector: RelaySelectorWrapper(relayCache: relayCache),
-            settingsReader: SettingsReader()
+            settingsReader: SettingsReader(),
+            deviceChecker: DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
         )
     }
 

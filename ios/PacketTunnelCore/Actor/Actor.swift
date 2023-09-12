@@ -23,6 +23,7 @@ public actor PacketTunnelActor {
     private let tunnelMonitor: TunnelMonitorProtocol
     private let relaySelector: RelaySelectorProtocol
     private let settingsReader: SettingsReaderProtocol
+    private let deviceChecker: DeviceCheckProtocol
 
     // MARK: - Tunnel control
 
@@ -30,12 +31,14 @@ public actor PacketTunnelActor {
         tunnelAdapter: TunnelAdapterProtocol,
         tunnelMonitor: TunnelMonitorProtocol,
         relaySelector: RelaySelectorProtocol,
-        settingsReader: SettingsReaderProtocol
+        settingsReader: SettingsReaderProtocol,
+        deviceChecker: DeviceCheckProtocol
     ) {
         self.tunnelAdapter = tunnelAdapter
         self.tunnelMonitor = tunnelMonitor
         self.relaySelector = relaySelector
         self.settingsReader = settingsReader
+        self.deviceChecker = deviceChecker
 
         tunnelMonitor.onEvent = { [weak self] event in
             guard let self else { return }
@@ -61,6 +64,10 @@ public actor PacketTunnelActor {
 
                 await setErrorState(with: error)
             }
+
+            // Run device check after starting the tunnel to double check if everything is alright.
+            // This check is allowed to push new key to server if there are some issues with it.
+            startDeviceCheck(rotateKeyOnMismatch: true)
         }
 
         /*
@@ -388,7 +395,7 @@ public actor PacketTunnelActor {
             }
 
             if connState.connectionAttemptCount.isMultiple(of: 2) {
-                // TODO: start device check
+                startDeviceCheck()
             }
 
             logger.debug("Recover connection. Picking next relay...")
@@ -399,6 +406,20 @@ public actor PacketTunnelActor {
 
         case .initial, .disconnected, .disconnecting, .error:
             break
+        }
+    }
+
+    private func startDeviceCheck(rotateKeyOnMismatch: Bool = false) {
+        Task {
+            do {
+                let result = try await deviceChecker.start(rotateKeyOnMismatch: rotateKeyOnMismatch)
+
+                logger.debug("Got device check: \(result)")
+
+                // TODO: handle device check
+            } catch {
+                logger.error(error: error, message: "Failed to complete device check.")
+            }
         }
     }
 
