@@ -166,6 +166,8 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completion: @escaping CompletionHandler<Bool>
         ) -> Cancellable {
+            let accessTokenProvider = createAuthorizationProvider(accountNumber: accountNumber)
+
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
                     var path: URLPathTemplate = "devices/{id}"
@@ -187,7 +189,7 @@ extension REST {
 
                     return requestBuilder.getRequest()
                 },
-                authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber)
+                authorizationProvider: accessTokenProvider
             )
 
             let responseHandler =
@@ -196,6 +198,7 @@ extension REST {
 
                     switch statusCode {
                     case let statusCode where statusCode.isSuccess:
+                        accessTokenProvider.invalidateToken()
                         return .success(true)
 
                     case .notFound:

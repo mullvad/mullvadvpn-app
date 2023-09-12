@@ -62,5 +62,14 @@ extension REST {
 
             return operation
         }
+
+        func invalidateToken(for accountNumber: String) {
+            operationQueue.addOperation(AsyncBlockOperation(dispatchQueue: dispatchQueue) { [weak self] in
+                guard let self else {
+                    return
+                }
+                self.tokens.removeValue(forKey: accountNumber)
+            })
+        }
     }
 }
