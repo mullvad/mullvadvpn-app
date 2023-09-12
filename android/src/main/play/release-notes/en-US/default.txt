@@ -1,7 +1,4 @@
-Add quantum resistant tunneling.
-Add UDP-over-TCP WireGuard obfuscation.
-Improve how the Android firewall handles incoming connections on Android 11+ devices.
-Add search bar to the Select location view.
-Add settings entry to configure WireGuard port by either using a predefined or custom port.
-Rearrange settings menus.
-Reduce flickering in the connection view.
+Fix tunnel state and connection details sometimes getting stuck showing the wrong information.
+Fix MTU dismiss behavior.
+Fix DNS input crash.
+Fix inconsistent dialog padding.
