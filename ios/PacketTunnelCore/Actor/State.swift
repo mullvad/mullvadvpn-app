@@ -153,7 +153,6 @@ public enum StatePriorToBlockedState {
  Target state the actor should transition into upon request to either start (connect) or reconnect.
  */
 public enum TargetStateForReconnect {
-    // TODO: pick a better name for enum!
     case reconnecting, connecting
 }
 
