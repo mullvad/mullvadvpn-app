@@ -657,7 +657,7 @@ impl ManagementService for ManagementServiceImpl {
         let access_method =
             mullvad_types::api_access_method::AccessMethod::try_from(request.into_inner())?;
 
-        match access_method.get_custom() {
+        match access_method.as_custom() {
             None => Err(Status::not_found(
                 "Can not remove built-in API access mtehod",
             )),
