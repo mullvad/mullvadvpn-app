@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct MullvadTypes.RelayConstraints
 import struct RelaySelector.RelaySelectorResult
 import TunnelObfuscation
 import class WireGuardKitTypes.PrivateKey
@@ -88,6 +89,10 @@ public struct ConnectionState {
     /// Current selected relay.
     public var selectedRelay: RelaySelectorResult
 
+    /// Last relay constraints read from settings.
+    /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
+    public var relayConstraints: RelayConstraints
+
     /// Last WG key read from setings.
     public var currentKey: PrivateKey
 
@@ -121,6 +126,10 @@ public struct ConnectionState {
 public struct BlockedState {
     /// Error leading to blocked state.
     public var error: Error
+
+    /// Last relay constraints read from settings.
+    /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
+    public var relayConstraints: RelayConstraints?
 
     /// Last WG key read from setings.
     public var currentKey: PrivateKey?

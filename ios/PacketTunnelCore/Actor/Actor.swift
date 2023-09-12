@@ -176,6 +176,7 @@ public actor PacketTunnelActor {
                         currentRelay: nil,
                         connectionAttemptCount: 0
                     ),
+                    relayConstraints: relayConstraints,
                     currentKey: storedDeviceData.wgKeyData.privateKey,
                     keyPolicy: .useCurrent,
                     networkReachability: .undetermined,
@@ -201,6 +202,7 @@ public actor PacketTunnelActor {
                         currentRelay: nil,
                         connectionAttemptCount: 0
                     ),
+                    relayConstraints: relayConstraints,
                     currentKey: storedDeviceData.wgKeyData.privateKey,
                     keyPolicy: blockedState.keyPolicy,
                     networkReachability: .undetermined,
@@ -292,6 +294,7 @@ public actor PacketTunnelActor {
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
             let blockedState = BlockedState(
                 error: error,
+                relayConstraints: connState.relayConstraints,
                 currentKey: nil,
                 keyPolicy: connState.keyPolicy,
                 priorState: state.priorState!
@@ -310,6 +313,7 @@ public actor PacketTunnelActor {
 
             let blockedState = BlockedState(
                 error: error,
+                relayConstraints: nil,
                 currentKey: nil,
                 keyPolicy: .useCurrent,
                 recoveryTask: AutoCancellingTask(recoveryTask),
