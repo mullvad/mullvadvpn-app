@@ -1,5 +1,7 @@
 use crate::{new_selector_config, settings, Daemon, EventListener};
-use mullvad_types::api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod};
+use mullvad_types::api_access_method::{
+    daemon::ApiAccessMethodReplace, AccessMethod, CustomAccessMethod,
+};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -35,7 +37,11 @@ where
             .map_err(Error::Settings)
     }
 
-    pub async fn remove_access_method(&mut self, access_method: AccessMethod) -> Result<(), Error> {
+    pub async fn remove_access_method(
+        &mut self,
+        access_method: CustomAccessMethod,
+    ) -> Result<(), Error> {
+        let access_method = AccessMethod::from(access_method);
         self.settings
             .update(|settings| {
                 settings

@@ -656,12 +656,23 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("remove_api_access_method");
         let access_method =
             mullvad_types::api_access_method::AccessMethod::try_from(request.into_inner())?;
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::RemoveApiAccessMethod(tx, access_method))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
+
+        match access_method.get_custom() {
+            None => Err(Status::not_found(
+                "Can not remove built-in API access mtehod",
+            )),
+            Some(access_method) => {
+                let (tx, rx) = oneshot::channel();
+                self.send_command_to_daemon(DaemonCommand::RemoveApiAccessMethod(
+                    tx,
+                    access_method.clone(),
+                ))?;
+                self.wait_for_result(rx)
+                    .await?
+                    .map(Response::new)
+                    .map_err(map_daemon_error)
+            }
+        }
     }
 
     async fn replace_api_access_method(

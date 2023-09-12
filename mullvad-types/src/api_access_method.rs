@@ -79,6 +79,23 @@ impl Settings {
     }
 }
 
+impl AccessMethod {
+    pub fn is_custom(&self) -> bool {
+        matches!(self, AccessMethod::Custom(..))
+    }
+
+    pub fn is_builtin(&self) -> bool {
+        matches!(self, AccessMethod::BuiltIn(..))
+    }
+
+    pub fn get_custom(&self) -> Option<&CustomAccessMethod> {
+        match self {
+            AccessMethod::BuiltIn(_) => None,
+            AccessMethod::Custom(access_method) => Some(access_method),
+        }
+    }
+}
+
 impl Shadowsocks {
     pub fn new(peer: SocketAddr, cipher: String, password: String) -> Self {
         Shadowsocks {

@@ -40,7 +40,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod},
+    api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod, CustomAccessMethod},
     auth_failed::AuthFailed,
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -266,7 +266,7 @@ pub enum DaemonCommand {
     /// Add API access methods
     AddApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
     /// Remove an API access method
-    RemoveApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
+    RemoveApiAccessMethod(ResponseTx<(), Error>, CustomAccessMethod),
     /// Edit an API access method
     ReplaceApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodReplace),
     /// Get information about the currently running and latest app versions
@@ -2280,7 +2280,7 @@ where
     async fn on_remove_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        method: AccessMethod,
+        method: CustomAccessMethod,
     ) {
         let result = self
             .remove_access_method(method)
