@@ -332,8 +332,26 @@ impl RouteManagerImpl {
         self.apply_non_tunnel_routes().await
     }
 
+    /// Figure out what the best default routes to use are, and send updates to default route change
+    /// subscribers. The "best routes" are used by the tunnel device to send packets to the VPN
+    /// relay.
+    ///
+    /// If there is a tunnel device, the "best route" is the first ifscope default route found,
+    /// ordered after network service order (after filtering out interfaces without valid IP
+    /// addresses).
+    ///
+    /// If there is no tunnel device, the "best route" is the unscoped default route, whatever it
+    /// is.
     async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
-        let best_route = interface::get_best_default_route(&mut self.routing_table, family).await;
+        let use_scoped_route = (family == interface::Family::V4
+            && self.v4_tunnel_default_route.is_some())
+            || (family == interface::Family::V6 && self.v6_tunnel_default_route.is_some());
+
+        let best_route = if use_scoped_route {
+            interface::get_best_default_route(&mut self.routing_table, family).await
+        } else {
+            interface::get_unscoped_default_route(&mut self.routing_table, family).await
+        };
         log::trace!("Best route ({family:?}): {best_route:?}");
 
         let default_route = match family {

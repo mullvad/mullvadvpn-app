@@ -1,6 +1,7 @@
+use libc::{if_indextoname, IFNAMSIZ};
 use nix::net::if_::{if_nametoindex, InterfaceFlags};
 use std::{
-    ffi::CString,
+    ffi::{CStr, CString},
     io,
     net::{Ipv4Addr, Ipv6Addr},
 };
@@ -21,8 +22,60 @@ pub enum Family {
     V6,
 }
 
-/// Attempt to retrieve the best current default route.
-/// Note: The tunnel interface is not even listed in the service order, so it will be skipped.
+/// Retrieve the current unscoped default route. That is the only default route that does not have
+/// the IF_SCOPE flag set, if such a route exists.
+///
+/// # Note
+///
+/// For some reason, the socket sometimes returns a route with the IF_SCOPE flag set, if there also
+/// exists a scoped route for the same interface. This does not occur if there is no unscoped route,
+/// so we can still rely on it.
+pub async fn get_unscoped_default_route(
+    routing_table: &mut RoutingTable,
+    family: Family,
+) -> Option<RouteMessage> {
+    let destination = match family {
+        Family::V4 => super::v4_default(),
+        Family::V6 => super::v6_default(),
+    };
+
+    let mut msg = RouteMessage::new_route(Destination::Network(destination));
+    msg = msg.set_gateway_route(true);
+
+    let route = routing_table
+        .get_route(&msg)
+        .await
+        .unwrap_or_else(|error| {
+            log::error!("Failed to retrieve unscoped default route: {error}");
+            None
+        })?;
+
+    let idx = u32::from(route.interface_index());
+    if idx != 0 {
+        let mut ifname = [0u8; IFNAMSIZ];
+
+        // SAFETY: The buffer is large to contain any interface name.
+        if !unsafe { if_indextoname(idx, ifname.as_mut_ptr() as _) }.is_null() {
+            let ifname = CStr::from_bytes_until_nul(&ifname).unwrap();
+            let name = ifname.to_str().expect("expected ascii");
+
+            // Ignore the unscoped route if its interface is not "active"
+            if !is_active_interface(name, family).unwrap_or(true) {
+                return None;
+            }
+        }
+    }
+
+    Some(route)
+}
+
+/// Retrieve the best current default route. That is the first scoped default route, ordered by
+/// network service order, and with interfaces filtered out if they do not have valid IP addresses
+/// assigned.
+///
+/// # Note
+///
+/// The tunnel interface is not even listed in the service order, so it will be skipped.
 pub async fn get_best_default_route(
     routing_table: &mut RoutingTable,
     family: Family,
