@@ -10,7 +10,6 @@ use nix::sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage};
 use std::pin::Pin;
 use std::{
     collections::{BTreeMap, HashSet},
-    net::{Ipv4Addr, Ipv6Addr},
     time::Duration,
 };
 use talpid_types::ErrorExt;
@@ -159,7 +158,7 @@ impl RouteManagerImpl {
                                         device: None,
                                         ip: route.gateway_ip(),
                                     },
-                                    prefix: v4_default(),
+                                    prefix: IpNetwork::from(interface::Family::V4),
                                     metric: None,
                                 }
                             });
@@ -169,7 +168,7 @@ impl RouteManagerImpl {
                                         device: None,
                                         ip: route.gateway_ip(),
                                     },
-                                    prefix: v6_default(),
+                                    prefix: IpNetwork::from(interface::Family::V6),
                                     metric: None,
                                 }
                             });
@@ -332,8 +331,26 @@ impl RouteManagerImpl {
         self.apply_non_tunnel_routes().await
     }
 
+    /// Figure out what the best default routes to use are, and send updates to default route change
+    /// subscribers. The "best routes" are used by the tunnel device to send packets to the VPN
+    /// relay.
+    ///
+    /// If there is a tunnel device, the "best route" is the first ifscope default route found,
+    /// ordered after network service order (after filtering out interfaces without valid IP
+    /// addresses).
+    ///
+    /// If there is no tunnel device, the "best route" is the unscoped default route, whatever it
+    /// is.
     async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
-        let best_route = interface::get_best_default_route(&mut self.routing_table, family).await;
+        let use_scoped_route = (family == interface::Family::V4
+            && self.v4_tunnel_default_route.is_some())
+            || (family == interface::Family::V6 && self.v6_tunnel_default_route.is_some());
+
+        let best_route = if use_scoped_route {
+            interface::get_best_default_route(&mut self.routing_table, family).await
+        } else {
+            interface::get_unscoped_default_route(&mut self.routing_table, family).await
+        };
         log::trace!("Best route ({family:?}): {best_route:?}");
 
         let default_route = match family {
@@ -592,66 +609,32 @@ impl RouteManagerImpl {
     /// Add back unscoped default routes, if they are still missing. This function returns
     /// true when no routes had to be added.
     async fn try_restore_default_routes(&mut self) -> bool {
-        let message = RouteMessage::new_route(v4_default().into());
-        let v4_done = if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
-            true
-        } else {
-            let new_route =
-                interface::get_best_default_route(&mut self.routing_table, interface::Family::V4)
-                    .await;
-            let old_route = std::mem::replace(&mut self.v4_default_route, new_route);
-            if old_route != self.v4_default_route {
-                self.notify_default_route_listeners(
-                    interface::Family::V4,
-                    self.v4_default_route.is_some(),
-                );
-            }
-            if let Some(route) = &mut self.v4_default_route {
-                let _ = std::mem::replace(route, route.clone().set_ifscope(0));
-                if let Err(error) = self.routing_table.add_route(route).await {
-                    log::trace!("Failed to add non-ifscope v4 route: {error}");
-                }
-                false
-            } else {
+        let restore_route = |family, current_route: &mut RouteMessage| {
+            let message = RouteMessage::new_route(IpNetwork::from(family).into());
+            if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
                 true
+            } else {
+                let new_route =
+                    interface::get_best_default_route(&mut self.routing_table, family).await;
+                let old_route = std::mem::replace(current_route, new_route);
+                if old_route != current_route {
+                    self.notify_default_route_listeners(family, current_route.is_some());
+                }
+                if let Some(route) = current_route {
+                    let _ = std::mem::replace(route, route.clone().set_ifscope(0));
+                    if let Err(error) = self.routing_table.add_route(route).await {
+                        log::trace!("Failed to add non-ifscope {family} route: {error}");
+                    }
+                    false
+                } else {
+                    true
+                }
             }
         };
 
-        let message = RouteMessage::new_route(v6_default().into());
-        let v6_done = if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
-            true
-        } else {
-            let new_route =
-                interface::get_best_default_route(&mut self.routing_table, interface::Family::V6)
-                    .await;
-            let old_route = std::mem::replace(&mut self.v6_default_route, new_route);
-            if old_route != self.v6_default_route {
-                self.notify_default_route_listeners(
-                    interface::Family::V6,
-                    self.v6_default_route.is_some(),
-                );
-            }
-            if let Some(route) = &mut self.v6_default_route {
-                let _ = std::mem::replace(route, route.clone().set_ifscope(0));
-                if let Err(error) = self.routing_table.add_route(route).await {
-                    log::trace!("Failed to add non-ifscope v6 route: {error}");
-                }
-                false
-            } else {
-                true
-            }
-        };
-
-        v4_done && v6_done
+        restore_route(interface::Family::V4, &mut self.v4_default_route)
+            && restore_route(interface::Family::V6, &mut self.v6_default_route)
     }
-}
-
-fn v4_default() -> IpNetwork {
-    IpNetwork::new(Ipv4Addr::UNSPECIFIED.into(), 0).unwrap()
-}
-
-fn v6_default() -> IpNetwork {
-    IpNetwork::new(Ipv6Addr::UNSPECIFIED.into(), 0).unwrap()
 }
 
 /// Return a map from interface name to link addresses (AF_LINK)
