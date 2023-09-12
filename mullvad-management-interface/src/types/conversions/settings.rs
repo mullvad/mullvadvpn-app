@@ -178,9 +178,9 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             custom_lists: mullvad_types::custom_list::CustomListsSettings::try_from(
                 custom_lists_settings,
             )?,
-            api_access_methods: mullvad_types::api_access_method::Settings::from(
+            api_access_methods: mullvad_types::api_access_method::Settings::try_from(
                 api_access_methods_settings,
-            ),
+            )?,
         })
     }
 }
