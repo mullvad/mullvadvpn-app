@@ -94,6 +94,7 @@ extension REST {
             retryStrategy: RetryStrategy,
             completion: @escaping CompletionHandler<Void>
         ) -> Cancellable {
+            let accessTokenProvider = createAuthorizationProvider(accountNumber: accountNumber)
             let requestHandler = AnyRequestHandler(createURLRequest: { endpoint, authorization in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(
                     endpoint: endpoint,
@@ -104,13 +105,14 @@ extension REST {
                 requestBuilder.addValue(accountNumber, forHTTPHeaderField: "Mullvad-Account-Number")
 
                 return requestBuilder.getRequest()
-            }, authorizationProvider: createAuthorizationProvider(accountNumber: accountNumber))
+            }, authorizationProvider: accessTokenProvider)
 
             let responseHandler = AnyResponseHandler { response, data -> ResponseHandlerResult<Void> in
                 let statusCode = HTTPStatus(rawValue: response.statusCode)
 
                 switch statusCode {
                 case let statusCode where statusCode.isSuccess:
+                    accessTokenProvider.invalidateToken()
                     return .success(())
                 default:
                     return .unhandledResponse(
