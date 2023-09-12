@@ -389,7 +389,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             startDeviceCheck()
         }
 
-        providerLogger.debug("Recover connection. Picking next relay...")
+        providerLogger.debug("Connection lost. Picking next relay...")
 
         reconnectTunnel(to: .automatic, shouldStopTunnelMonitor: false)
     }
