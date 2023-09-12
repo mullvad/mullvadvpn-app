@@ -1,5 +1,6 @@
 use futures::Stream;
 use hyper::client::connect::Connected;
+use mullvad_types::api_access_method;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -8,9 +9,7 @@ use std::{
     pin::Pin,
     task::{self, Poll},
 };
-use talpid_types::{
-    net::openvpn::ShadowsocksProxySettings, net::openvpn::SocksProxySettings, ErrorExt,
-};
+use talpid_types::ErrorExt;
 use tokio::{
     fs,
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
@@ -18,7 +17,7 @@ use tokio::{
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ApiConnectionMode {
     /// Connect directly to the target.
     Direct,
@@ -35,10 +34,10 @@ impl fmt::Display for ApiConnectionMode {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ProxyConfig {
-    Shadowsocks(ShadowsocksProxySettings),
-    Socks(SocksProxySettings),
+    Shadowsocks(api_access_method::Shadowsocks),
+    Socks(api_access_method::Socks5),
 }
 
 impl fmt::Display for ProxyConfig {
@@ -46,10 +45,17 @@ impl fmt::Display for ProxyConfig {
         match self {
             // TODO: Do not hardcode TCP
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
-            ProxyConfig::Socks(s) => write!(f, "Socks5 {}/TCP", s.peer),
+            ProxyConfig::Socks(socks) => match socks {
+                api_access_method::Socks5::Local(s) => write!(f, "Socks5 {}/TCP", s.peer),
+                api_access_method::Socks5::Remote(s) => write!(f, "Socks5 {}/TCP", s.peer),
+            },
         }
     }
 }
+
+// The bijection between `AccessMethod` and `ApiConnectioMode`
+// impl From<AccessMehtod> for ApiConnectionMode {}
+// impl From<ApiConnectionMode> for AccessMehtod {}
 
 impl ApiConnectionMode {
     /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
@@ -117,7 +123,10 @@ impl ApiConnectionMode {
             ApiConnectionMode::Direct => None,
             ApiConnectionMode::Proxied(proxy_config) => match proxy_config {
                 ProxyConfig::Shadowsocks(ss) => Some(ss.peer),
-                ProxyConfig::Socks(s) => Some(s.peer),
+                ProxyConfig::Socks(socks) => match socks {
+                    api_access_method::Socks5::Local(s) => Some(s.peer),
+                    api_access_method::Socks5::Remote(s) => Some(s.peer),
+                },
             },
         }
     }
