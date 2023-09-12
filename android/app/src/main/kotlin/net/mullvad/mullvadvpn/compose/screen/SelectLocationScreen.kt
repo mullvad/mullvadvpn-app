@@ -27,6 +27,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -143,11 +144,9 @@ fun SelectLocationScreen(
                         CircularProgressIndicator(
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier =
-                                Modifier.size(
-                                        width = Dimens.progressIndicatorSize,
-                                        height = Dimens.progressIndicatorSize
-                                    )
-                                    .testTag(CIRCULAR_PROGRESS_INDICATOR)
+                                Modifier.size(Dimens.progressIndicatorSize)
+                                    .testTag(CIRCULAR_PROGRESS_INDICATOR),
+                            strokeCap = StrokeCap.Round
                         )
                     }
                 }

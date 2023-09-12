@@ -4,109 +4,117 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.state.LoginError
+import net.mullvad.mullvadvpn.compose.state.LoginState
+import net.mullvad.mullvadvpn.compose.state.LoginState.*
+import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.model.AccountCreationResult
+import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+
+private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
+
+sealed interface LoginSideEffect {
+    data object NavigateToWelcome : LoginSideEffect
+
+    data object NavigateToConnect : LoginSideEffect
+
+    data class TooManyDevices(val accountToken: AccountToken) : LoginSideEffect
+}
 
 class LoginViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Default)
-    val uiState: StateFlow<LoginUiState> = _uiState
+    private val _loginState = MutableStateFlow<LoginState>(Idle(null))
 
-    val accountHistory = accountRepository.accountHistoryEvents
+    private val _sideEffect = MutableSharedFlow<LoginSideEffect>(extraBufferCapacity = 1)
+    val sideEffect = _sideEffect.asSharedFlow()
 
-    sealed class LoginUiState {
-        data object Default : LoginUiState()
-
-        data object Loading : LoginUiState()
-
-        data class Success(val isOutOfTime: Boolean) : LoginUiState()
-
-        data object CreatingAccount : LoginUiState()
-
-        data object AccountCreated : LoginUiState()
-
-        data object UnableToCreateAccountError : LoginUiState()
-
-        data object InvalidAccountError : LoginUiState()
-
-        data class TooManyDevicesError(val accountToken: String) : LoginUiState()
-
-        data object TooManyDevicesMissingListError : LoginUiState()
-
-        data class OtherError(val errorMessage: String) : LoginUiState()
-
-        fun isLoading(): Boolean {
-            return this is Loading
+    private val _uiState =
+        combine(
+            accountRepository.accountHistory,
+            _loginState,
+        ) { accountHistoryState, loginState ->
+            LoginUiState(accountHistoryState.accountToken()?.let(::AccountToken), loginState)
         }
-    }
+    val uiState: StateFlow<LoginUiState> =
+        _uiState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
 
     fun clearAccountHistory() = accountRepository.clearAccountHistory()
 
-    fun clearState() {
-        _uiState.value = LoginUiState.Default
-    }
-
     fun createAccount() {
-        _uiState.value = LoginUiState.CreatingAccount
+        _loginState.value = Loading.CreatingAccount
         viewModelScope.launch(dispatcher) {
-            _uiState.value =
-                accountRepository.accountCreationEvents
-                    .onStart { accountRepository.createAccount() }
-                    .first()
-                    .mapToUiState()
+            accountRepository.createAccount().mapToUiState()?.let { _loginState.value = it }
         }
     }
 
     fun login(accountToken: String) {
-        _uiState.value = LoginUiState.Loading
+        _loginState.value = Loading.LoggingIn
         viewModelScope.launch(dispatcher) {
-            _uiState.value =
-                accountRepository.loginEvents
-                    .onStart { accountRepository.login(accountToken) }
-                    .map { it.result.mapToUiState(accountToken) }
-                    .first()
-        }
-    }
+            // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
+            // loading indicator
+            val loginDeferred = async { accountRepository.login(accountToken) }
+            delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
 
-    private fun AccountCreationResult.mapToUiState(): LoginUiState {
-        return if (this is AccountCreationResult.Success) {
-            LoginUiState.AccountCreated
-        } else {
-            LoginUiState.UnableToCreateAccountError
-        }
-    }
+            val uiState =
+                when (val result = loginDeferred.await()) {
+                    LoginResult.Ok -> {
+                        launch {
+                            delay(1000)
+                            _sideEffect.emit(LoginSideEffect.NavigateToConnect)
+                        }
+                        Success
+                    }
+                    LoginResult.InvalidAccount -> Idle(LoginError.InvalidCredentials)
+                    LoginResult.MaxDevicesReached -> {
+                        // TODO this refresh process should be handled by DeviceListScreen.
+                        val refreshResult =
+                            deviceRepository.refreshAndAwaitDeviceListWithTimeout(
+                                accountToken = accountToken,
+                                shouldClearCache = true,
+                                shouldOverrideCache = true,
+                                timeoutMillis = 5000L
+                            )
 
-    private suspend fun LoginResult.mapToUiState(accountToken: String): LoginUiState {
-        return when (this) {
-            LoginResult.Ok -> LoginUiState.Success(false)
-            LoginResult.InvalidAccount -> LoginUiState.InvalidAccountError
-            LoginResult.MaxDevicesReached -> {
-                val refreshResult =
-                    deviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                        accountToken = accountToken,
-                        shouldClearCache = true,
-                        shouldOverrideCache = true,
-                        timeoutMillis = 5000L
-                    )
-
-                if (refreshResult.isAvailable()) {
-                    LoginUiState.TooManyDevicesError(accountToken)
-                } else {
-                    LoginUiState.TooManyDevicesMissingListError
+                        if (refreshResult.isAvailable()) {
+                            // Navigate to device list
+                            _sideEffect.emit(
+                                LoginSideEffect.TooManyDevices(AccountToken(accountToken))
+                            )
+                            return@launch
+                        } else {
+                            // Failed to fetch devices list
+                            Idle(LoginError.Unknown(result.toString()))
+                        }
+                    }
+                    else -> Idle(LoginError.Unknown(result.toString()))
                 }
-            }
-            else -> LoginUiState.OtherError(errorMessage = this.toString())
+            _loginState.update { uiState }
+        }
+    }
+
+    private suspend fun AccountCreationResult.mapToUiState(): LoginState? {
+        return if (this is AccountCreationResult.Success) {
+            _sideEffect.emit(LoginSideEffect.NavigateToWelcome)
+            null
+        } else {
+            Idle(LoginError.UnableToCreateAccount)
         }
     }
 }

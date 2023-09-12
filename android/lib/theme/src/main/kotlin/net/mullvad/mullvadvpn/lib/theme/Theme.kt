@@ -22,31 +22,12 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale
 private val MullvadTypography =
     Typography(
         headlineLarge = TextStyle(fontSize = TypeScale.TextHuge, fontWeight = FontWeight.Bold),
-        headlineSmall =
-            TextStyle(
-                color = MullvadWhite,
-                fontSize = TypeScale.TextBig,
-                fontWeight = FontWeight.Bold
-            ),
-        bodySmall = TextStyle(color = MullvadWhite, fontSize = TypeScale.TextSmall),
-        titleSmall =
-            TextStyle(
-                color = MullvadWhite,
-                fontSize = TypeScale.TextMedium,
-                fontWeight = FontWeight.SemiBold
-            ),
+        headlineSmall = TextStyle(fontSize = TypeScale.TextBig, fontWeight = FontWeight.Bold),
+        bodySmall = TextStyle(fontSize = TypeScale.TextSmall),
+        titleSmall = TextStyle(fontSize = TypeScale.TextMedium, fontWeight = FontWeight.SemiBold),
         titleMedium =
-            TextStyle(
-                color = MullvadWhite,
-                fontSize = TypeScale.TextMediumPlus,
-                fontWeight = FontWeight.SemiBold
-            ),
-        labelMedium =
-            TextStyle(
-                color = MullvadWhite60,
-                fontSize = TypeScale.TextSmall,
-                fontWeight = FontWeight.SemiBold
-            ),
+            TextStyle(fontSize = TypeScale.TextMediumPlus, fontWeight = FontWeight.SemiBold),
+        labelMedium = TextStyle(fontSize = TypeScale.TextSmall, fontWeight = FontWeight.SemiBold),
         labelLarge =
             TextStyle(
                 fontWeight = FontWeight.Normal,

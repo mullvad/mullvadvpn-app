@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -161,12 +162,10 @@ fun ConnectScreen(
                                 end = Dimens.sideMargin,
                                 top = Dimens.mediumPadding
                             )
-                            .size(
-                                width = Dimens.progressIndicatorSize,
-                                height = Dimens.progressIndicatorSize
-                            )
+                            .size(Dimens.progressIndicatorSize)
                             .align(Alignment.CenterHorizontally)
-                            .testTag(CIRCULAR_PROGRESS_INDICATOR)
+                            .testTag(CIRCULAR_PROGRESS_INDICATOR),
+                    strokeCap = StrokeCap.Round
                 )
             }
             Spacer(modifier = Modifier.height(Dimens.mediumPadding))

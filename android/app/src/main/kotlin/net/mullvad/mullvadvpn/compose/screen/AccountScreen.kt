@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -111,57 +112,74 @@ fun AccountScreen(
 
         val scrollState = rememberScrollState()
 
-        Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.Start,
-            modifier =
-                Modifier.background(MaterialTheme.colorScheme.background)
-                    .fillMaxSize()
-                    .drawVerticalScrollbar(scrollState)
-                    .verticalScroll(scrollState)
-                    .animateContentSize()
-        ) {
-            Text(
-                style = MaterialTheme.typography.labelMedium,
-                text = stringResource(id = R.string.device_name),
-                modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
-            )
-
-            InformationView(
-                content = uiState.deviceName.capitalizeFirstCharOfEachWord(),
-                whenMissing = MissingPolicy.SHOW_SPINNER
-            )
-
-            Text(
-                style = MaterialTheme.typography.labelMedium,
-                text = stringResource(id = R.string.account_number),
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            Column(
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = Alignment.Start,
                 modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        top = Dimens.smallPadding
+                    Modifier.fillMaxSize()
+                        .drawVerticalScrollbar(scrollState)
+                        .verticalScroll(scrollState)
+                        .animateContentSize()
+            ) {
+                Text(
+                    style = MaterialTheme.typography.labelMedium,
+                    text = stringResource(id = R.string.device_name),
+                    modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
+                )
+
+                InformationView(
+                    content = uiState.deviceName.capitalizeFirstCharOfEachWord(),
+                    whenMissing = MissingPolicy.SHOW_SPINNER
+                )
+
+                Text(
+                    style = MaterialTheme.typography.labelMedium,
+                    text = stringResource(id = R.string.account_number),
+                    modifier =
+                        Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            top = Dimens.smallPadding
+                        )
+                )
+
+                CopyableObfuscationView(content = uiState.accountNumber)
+
+                Text(
+                    style = MaterialTheme.typography.labelMedium,
+                    text = stringResource(id = R.string.paid_until),
+                    modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
+                )
+
+                InformationView(
+                    content = uiState.accountExpiry?.toExpiryDateString() ?: "",
+                    whenMissing = MissingPolicy.SHOW_SPINNER
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                    ActionButton(
+                        text = stringResource(id = R.string.manage_account),
+                        onClick = onManageAccountClick,
+                        modifier =
+                            Modifier.padding(
+                                start = Dimens.sideMargin,
+                                end = Dimens.sideMargin,
+                                bottom = Dimens.screenVerticalMargin
+                            ),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
                     )
-            )
+                }
 
-            CopyableObfuscationView(content = uiState.accountNumber)
-
-            Text(
-                style = MaterialTheme.typography.labelMedium,
-                text = stringResource(id = R.string.paid_until),
-                modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
-            )
-
-            InformationView(
-                content = uiState.accountExpiry?.toExpiryDateString() ?: "",
-                whenMissing = MissingPolicy.SHOW_SPINNER
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
                 ActionButton(
-                    text = stringResource(id = R.string.manage_account),
-                    onClick = onManageAccountClick,
+                    text = stringResource(id = R.string.redeem_voucher),
+                    onClick = onRedeemVoucherClick,
                     modifier =
                         Modifier.padding(
                             start = Dimens.sideMargin,
@@ -174,39 +192,23 @@ fun AccountScreen(
                             containerColor = MaterialTheme.colorScheme.surface
                         )
                 )
+
+                ActionButton(
+                    text = stringResource(id = R.string.log_out),
+                    onClick = onLogoutClick,
+                    modifier =
+                        Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.screenVerticalMargin
+                        ),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                )
             }
-
-            ActionButton(
-                text = stringResource(id = R.string.redeem_voucher),
-                onClick = onRedeemVoucherClick,
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
-                    ),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
-            )
-
-            ActionButton(
-                text = stringResource(id = R.string.log_out),
-                onClick = onLogoutClick,
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
-                    ),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-            )
         }
     }
 }
