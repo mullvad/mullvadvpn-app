@@ -18,9 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -33,7 +35,10 @@ import org.koin.androidx.compose.get
 @Composable
 private fun PreviewTunnelingCell() {
     AppTheme {
-        Column(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
+        Column(
+            modifier =
+                Modifier.background(color = MaterialTheme.colorScheme.background).padding(20.dp)
+        ) {
             SplitTunnelingCell(title = "Mullvad VPN", packageName = "", isSelected = false)
             SplitTunnelingCell(title = "Mullvad VPN", packageName = "", isSelected = true)
         }
@@ -63,7 +68,11 @@ fun SplitTunnelingCell(
                 .defaultMinSize(minHeight = Dimens.listItemHeightExtra)
                 .fillMaxWidth()
                 .padding(vertical = Dimens.listItemDivider)
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(
+                    MaterialTheme.colorScheme.primaryContainer.compositeOver(
+                        MaterialTheme.colorScheme.background
+                    )
+                )
                 .clickable(onClick = onCellClicked)
     ) {
         Image(

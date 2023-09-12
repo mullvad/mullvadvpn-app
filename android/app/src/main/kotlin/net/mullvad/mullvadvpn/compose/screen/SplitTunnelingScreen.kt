@@ -183,7 +183,10 @@ fun SplitTunnelingScreen(
                             }
                         }
                         item(key = CommonContentKey.SPACER, contentType = ContentType.SPACER) {
-                            Spacer(modifier = Modifier.height(Dimens.mediumPadding))
+                            Spacer(
+                                modifier =
+                                    Modifier.animateItemPlacement().height(Dimens.mediumPadding)
+                            )
                         }
                     }
 
@@ -194,7 +197,8 @@ fun SplitTunnelingScreen(
                         HeaderSwitchComposeCell(
                             title = stringResource(id = R.string.show_system_apps),
                             isToggled = uiState.showSystemApps,
-                            onCellClicked = { newValue -> onShowSystemAppsClick(newValue) }
+                            onCellClicked = { newValue -> onShowSystemAppsClick(newValue) },
+                            modifier = Modifier.animateItemPlacement()
                         )
                     }
                     itemWithDivider(
@@ -202,6 +206,7 @@ fun SplitTunnelingScreen(
                         contentType = ContentType.HEADER
                     ) {
                         BaseCell(
+                            modifier = Modifier.animateItemPlacement(),
                             title = {
                                 Text(
                                     text = stringResource(id = R.string.all_applications),
