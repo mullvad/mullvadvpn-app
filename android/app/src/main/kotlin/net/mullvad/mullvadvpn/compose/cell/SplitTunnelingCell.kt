@@ -27,7 +27,6 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
-import org.koin.androidx.compose.get
 
 @Preview
 @Composable

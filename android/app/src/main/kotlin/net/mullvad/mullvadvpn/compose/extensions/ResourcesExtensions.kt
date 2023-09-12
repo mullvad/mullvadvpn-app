@@ -23,18 +23,14 @@ private fun getExpiryQuantityString(
         val remainingTimeInfo =
             remainingTime.toPeriodTo(accountExpiry, PeriodType.yearMonthDayTime())
 
-        if (remainingTimeInfo.years > 0) {
-            return getRemainingText(resources, R.plurals.years_left, remainingTimeInfo.years)
+        return if (remainingTimeInfo.years > 0) {
+            getRemainingText(resources, R.plurals.years_left, remainingTimeInfo.years)
         } else if (remainingTimeInfo.months >= 3) {
-            return getRemainingText(resources, R.plurals.months_left, remainingTimeInfo.months)
+            getRemainingText(resources, R.plurals.months_left, remainingTimeInfo.months)
         } else if (remainingTimeInfo.months > 0 || remainingTimeInfo.days >= 1) {
-            return getRemainingText(
-                resources,
-                R.plurals.days_left,
-                remainingTime.standardDays.toInt()
-            )
+            getRemainingText(resources, R.plurals.days_left, remainingTime.standardDays.toInt())
         } else {
-            return resources.getString(R.string.less_than_a_day_left)
+            resources.getString(R.string.less_than_a_day_left)
         }
     }
 }

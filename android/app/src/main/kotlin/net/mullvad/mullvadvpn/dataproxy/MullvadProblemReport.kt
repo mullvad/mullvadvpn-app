@@ -71,9 +71,8 @@ class MullvadProblemReport {
         GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
             try {
                 while (true) {
-                    val command = channel.receive()
 
-                    when (command) {
+                    when (val command = channel.receive()) {
                         is Command.Collect -> doCollect()
                         is Command.Load -> command.logs.complete(doLoad())
                         is Command.Send -> command.result.complete(doSend())
@@ -97,10 +96,10 @@ class MullvadProblemReport {
             doCollect()
         }
 
-        if (isCollected) {
-            return problemReportPath.await().readText()
+        return if (isCollected) {
+            problemReportPath.await().readText()
         } else {
-            return "Failed to collect logs for problem report"
+            "Failed to collect logs for problem report"
         }
     }
 

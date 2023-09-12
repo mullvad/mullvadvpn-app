@@ -16,5 +16,4 @@ data class RelayCountry(
 
     override val hasChildren
         get() = cities.isNotEmpty()
-
 }

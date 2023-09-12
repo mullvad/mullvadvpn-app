@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () -> Unit) {
     AlertDialog(
-        onDismissRequest = { onDismiss() },
+        onDismissRequest = onDismiss,
         title = {
             Text(
                 text = version,
