@@ -50,20 +50,19 @@ extension State {
             return nil
         }
     }
-}
 
-// MARK: - Logging
+    // MARK: - Logging
 
-extension State {
     func logFormat() -> String {
         switch self {
         case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
             let hostname = connState.selectedRelay.packetTunnelRelay.hostname
 
             return """
-            \(name) to \(hostname) using \(connState.keyPolicy.logFormat()), \
-            network is \(connState.networkReachability), \
-            connection \(connState.connectionAttemptCount)
+            \(name) to \(hostname), \
+            key: \(connState.keyPolicy.logFormat()), \
+            net: \(connState.networkReachability), \
+            attempt: \(connState.connectionAttemptCount)
             """
 
         case let .error(blockedState):
@@ -77,19 +76,19 @@ extension State {
     var name: String {
         switch self {
         case .connected:
-            return "connected"
+            return "Connected"
         case .connecting:
-            return "connecting"
+            return "Connecting"
         case .reconnecting:
-            return "reconnecting"
+            return "Reconnecting"
         case .disconnecting:
-            return "disconnecting"
+            return "Disconnecting"
         case .disconnected:
-            return "disconnected"
+            return "Disconnected"
         case .initial:
-            return "initial"
+            return "Initial"
         case .error:
-            return "error"
+            return "Error"
         }
     }
 }
@@ -98,9 +97,9 @@ extension KeyPolicy {
     func logFormat() -> String {
         switch self {
         case .useCurrent:
-            return "current key"
+            return "current"
         case .usePrior:
-            return "prior key"
+            return "prior"
         }
     }
 }
