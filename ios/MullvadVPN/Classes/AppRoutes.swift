@@ -62,7 +62,7 @@ enum AppRouteGroup: AppRouteGroupProtocol {
             return 1
         case .alert:
             // Alerts should always be topmost.
-            return 999
+            return .max
         }
     }
 }

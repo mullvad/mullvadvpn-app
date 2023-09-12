@@ -9,14 +9,14 @@
 import Routing
 import UIKit
 
-class OutOfTimeCoordinator: Coordinator, Presenting, OutOfTimeViewControllerDelegate {
+class OutOfTimeCoordinator: Coordinator, Presenting, OutOfTimeViewControllerDelegate, Poppable {
     let navigationController: RootContainerViewController
     let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
 
     var didFinishPayment: ((OutOfTimeCoordinator) -> Void)?
 
-    var presentationContext: UIViewController {
+    var presentedViewController: UIViewController {
         navigationController
     }
 
@@ -56,9 +56,9 @@ class OutOfTimeCoordinator: Coordinator, Presenting, OutOfTimeViewControllerDele
         navigationController.pushViewController(controller, animated: animated)
     }
 
-    func popFromNavigationStack(animated: Bool, completion: @escaping () -> Void) {
+    func popFromNavigationStack(animated: Bool, completion: (() -> Void)?) {
         guard let viewController else {
-            completion()
+            completion?()
             return
         }
 

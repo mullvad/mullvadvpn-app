@@ -137,9 +137,8 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol> {
         /**
          Check if route can be presented above the last route in the modal stack.
          */
-        if let lastRouteGroup = modalStack.last,
-           route.routeGroup.isModal,
-           route.routeGroup <= lastRouteGroup {
+        if let lastRouteGroup = modalStack.last, route.routeGroup.isModal,
+           lastRouteGroup.modalLevel >= route.routeGroup.modalLevel && route.isExclusive {
             completion(.blockedByModalContext)
             return
         }
