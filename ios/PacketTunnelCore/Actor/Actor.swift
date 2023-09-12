@@ -14,7 +14,11 @@ import struct RelaySelector.RelaySelectorResult
 import class WireGuardKitTypes.PrivateKey
 
 public actor PacketTunnelActor {
-    @Published private(set) public var state: State = .initial
+    @Published private(set) public var state: State = .initial {
+        didSet {
+            logState()
+        }
+    }
 
     private let logger = Logger(label: "PacketTunnelActor")
     private let taskQueue = TaskQueue()
@@ -119,18 +123,48 @@ public actor PacketTunnelActor {
     /// When that happens the actor changes key policy to `.usePrior` in order
     public func notifyKeyRotated() async {
         await taskQueue.add(kind: .keyRotated) { [self] in
-            state = state.mapCurrentKeyAndPolicy { currentKey, keyPolicy in
-                // Current key may not be available in blocked state when actor couldn't read settings on startup.
-                guard let currentKey else { return keyPolicy }
+            func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
+                switch connState.keyPolicy {
+                case .useCurrent:
+                    connState.keyPolicy = .usePrior(connState.currentKey, AutoCancellingTask(startSwitchKeyTask()))
+                    return true
 
-                switch keyPolicy {
                 case .usePrior:
                     // It's unlikely that we'll see subsequent key rotations happen frequently.
-                    return keyPolicy
-
-                case .useCurrent:
-                    return .usePrior(currentKey, AutoCancellingTask(startSwitchKeyTask()))
+                    return false
                 }
+            }
+
+            switch state {
+            case var .connecting(connState):
+                if mutateConnectionState(&connState) {
+                    state = .connecting(connState)
+                }
+
+            case var .connected(connState):
+                if mutateConnectionState(&connState) {
+                    state = .connected(connState)
+                }
+
+            case var .reconnecting(connState):
+                if mutateConnectionState(&connState) {
+                    state = .reconnecting(connState)
+                }
+
+            case var .error(blockedState):
+                switch blockedState.keyPolicy {
+                case .useCurrent:
+                    if let currentKey = blockedState.currentKey {
+                        blockedState.keyPolicy = .usePrior(currentKey, AutoCancellingTask(startSwitchKeyTask()))
+                        state = .error(blockedState)
+                    }
+
+                case .usePrior:
+                    break
+                }
+
+            case .initial, .disconnected, .disconnecting:
+                break
             }
         }
     }
@@ -141,8 +175,46 @@ public actor PacketTunnelActor {
             // Wait for key to propagate across relays.
             try await Task.sleep(seconds: 120)
 
+            func mutateConnectionState(_ connectionState: inout ConnectionState) -> Bool {
+                switch connectionState.keyPolicy {
+                case .useCurrent:
+                    return false
+
+                case .usePrior:
+                    connectionState.keyPolicy = .useCurrent
+                    return true
+                }
+            }
+
             // Switch key policy to use current key.
-            state = state.mapCurrentKeyAndPolicy { _, _ in .useCurrent }
+            switch state {
+            case var .connecting(connState):
+                if mutateConnectionState(&connState) {
+                    state = .connecting(connState)
+                }
+
+            case var .connected(connState):
+                if mutateConnectionState(&connState) {
+                    state = .connected(connState)
+                }
+
+            case var .reconnecting(connState):
+                if mutateConnectionState(&connState) {
+                    state = .reconnecting(connState)
+                }
+
+            case var .error(blockedState):
+                switch blockedState.keyPolicy {
+                case .useCurrent:
+                    break
+                case .usePrior:
+                    blockedState.keyPolicy = .useCurrent
+                    state = .error(blockedState)
+                }
+
+            case .disconnected, .disconnecting, .initial:
+                break
+            }
 
             // This will schedule a normal call to reconnect that will be enqueued on the task queue.
             try await reconnect(to: .random)
@@ -287,6 +359,10 @@ public actor PacketTunnelActor {
         }
     }
 
+    private func logState() {
+        logger.debug("\(state.logFormat())")
+    }
+
     // MARK: - Private: Error state
 
     private func setErrorState(with error: Error) async {
@@ -375,7 +451,6 @@ public actor PacketTunnelActor {
     private func onEstablishConnection() async {
         switch state {
         case let .connecting(connState), let .reconnecting(connState):
-            logger.debug("Connection established.")
             state = .connected(connState)
 
         case .initial, .connected, .disconnecting, .disconnected, .error:
@@ -402,8 +477,6 @@ public actor PacketTunnelActor {
                 startDeviceCheck()
             }
 
-            logger.debug("Recover connection. Picking next relay...")
-
             // Tunnel monitor should already be paused at this point so don't stop it to avoid reseting its internal
             // counters.
             try? await reconnect(to: .random, shouldStopTunnelMonitor: false)
@@ -428,8 +501,40 @@ public actor PacketTunnelActor {
     }
 
     private func onNetworkReachibilityChange(_ isNetworkReachable: Bool) async {
-        state = state.mapConnectionState { connState in
-            connState.networkReachability = isNetworkReachable ? .reachable : .unreachable
+        func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
+            let networkReachability: NetworkReachability = isNetworkReachable ? .reachable : .unreachable
+
+            if connState.networkReachability != networkReachability {
+                connState.networkReachability = networkReachability
+                return true
+            }
+
+            return false
+        }
+
+        switch state {
+        case var .connected(connState):
+            if mutateConnectionState(&connState) {
+                state = .connected(connState)
+            }
+
+        case var .connecting(connState):
+            if mutateConnectionState(&connState) {
+                state = .connecting(connState)
+            }
+
+        case var .reconnecting(connState):
+            if mutateConnectionState(&connState) {
+                state = .reconnecting(connState)
+            }
+
+        case var .disconnecting(connState):
+            if mutateConnectionState(&connState) {
+                state = .disconnecting(connState)
+            }
+
+        case .disconnected, .initial, .error:
+            break
         }
     }
 

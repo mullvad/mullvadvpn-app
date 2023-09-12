@@ -186,8 +186,6 @@ extension NewPacketTunnelProvider {
             let stateStream = await self.actor.states
 
             for await newState in stateStream {
-                self.providerLogger.debug("\(newState.logFormat())")
-
                 // Pass relay constraints retrieved during the last read from setting into transport provider.
                 if let relayConstraints = newState.relayConstraints {
                     constraintsUpdater.onNewConstraints?(relayConstraints)

@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import PacketTunnelCore
 import MullvadTypes
+import PacketTunnelCore
 
 extension State {
     var packetTunnelStatus: PacketTunnelStatus {
@@ -53,55 +53,6 @@ extension State {
 
         case .initial, .disconnecting, .disconnected:
             return nil
-        }
-    }
-
-    func logFormat() -> String {
-        switch self {
-        case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
-            let hostname = connState.selectedRelay.packetTunnelRelay.hostname
-
-            return """
-            \(name) to \(hostname) using \(connState.keyPolicy.logFormat()), \
-            network is \(connState.networkReachability), \
-            connection \(connState.connectionAttemptCount)
-            """
-
-        case let .error(blockedState):
-            return "\(name): \(blockedState.error.localizedDescription)"
-
-        case .initial, .disconnecting, .disconnected:
-            return name
-        }
-    }
-
-    var name: String {
-        switch self {
-        case .connected:
-            return "connected"
-        case .connecting:
-            return "connecting"
-        case .reconnecting:
-            return "reconnecting"
-        case .disconnecting:
-            return "disconnecting"
-        case .disconnected:
-            return "disconnected"
-        case .initial:
-            return "initial"
-        case .error:
-            return "error"
-        }
-    }
-}
-
-extension KeyPolicy {
-    func logFormat() -> String {
-        switch self {
-        case .useCurrent:
-            return "current key"
-        case .usePrior:
-            return "prior key"
         }
     }
 }
