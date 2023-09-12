@@ -12,7 +12,7 @@ import Routing
 import StoreKit
 import UIKit
 
-final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
+final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
     private let navigationController: RootContainerViewController
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
@@ -63,11 +63,11 @@ final class WelcomeCoordinator: Coordinator, Presentable, Presenting {
         navigationController.pushViewController(controller, animated: animated)
     }
 
-    func popFromNavigationStack(animated: Bool, completion: @escaping () -> Void) {
+    func popFromNavigationStack(animated: Bool, completion: (() -> Void)?) {
         guard let viewController,
               let index = navigationController.viewControllers.firstIndex(of: viewController)
         else {
-            completion()
+            completion?()
             return
         }
         navigationController.setViewControllers(
