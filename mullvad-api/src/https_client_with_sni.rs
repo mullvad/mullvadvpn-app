@@ -223,9 +223,15 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                         proxy_context: SsContext::new_shared(ServerType::Local),
                     })
                 }
-                ProxyConfig::Socks(config) => {
-                    InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
-                }
+                ProxyConfig::Socks(config) => match config {
+                    // TODO: `SocksConfig` needs to be fleshed out to accomodate Socks-proxies on localhost.
+                    mullvad_types::api_access_method::Socks5::Local(config) => {
+                        InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
+                    }
+                    mullvad_types::api_access_method::Socks5::Remote(config) => {
+                        InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
+                    }
+                },
             },
         })
     }

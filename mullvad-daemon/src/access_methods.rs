@@ -1,4 +1,7 @@
-use crate::{new_selector_config, settings, Daemon, EventListener};
+use crate::{
+    settings::{self, MadeChanges},
+    Daemon, EventListener,
+};
 use mullvad_types::api_access_method::{
     daemon::ApiAccessMethodReplace, AccessMethod, CustomAccessMethod,
 };
@@ -26,14 +29,7 @@ where
                     .push(access_method);
             })
             .await
-            .map(|changed| {
-                if changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
-                };
-            })
+            .map(|did_change| self.notify_on_change(did_change))
             .map_err(Error::Settings)
     }
 
@@ -50,14 +46,7 @@ where
                     .retain(|x| *x != access_method);
             })
             .await
-            .map(|changed| {
-                if changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
-                };
-            })
+            .map(|did_change| self.notify_on_change(did_change))
             .map_err(Error::Settings)
     }
 
@@ -72,14 +61,15 @@ where
                 access_methods.swap_remove(access_method_replace.index);
             })
             .await
-            .map(|changed| {
-                if changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
-                };
-            })
+            .map(|did_change| self.notify_on_change(did_change))
             .map_err(Error::Settings)
+    }
+
+    /// If settings were changed due to an update, notify all listeners.
+    fn notify_on_change(&mut self, settings_changed: MadeChanges) {
+        if settings_changed {
+            self.event_listener
+                .notify_settings(self.settings.to_settings());
+        };
     }
 }
