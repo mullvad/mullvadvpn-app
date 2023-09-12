@@ -85,7 +85,7 @@ fun AccountScreen(
                 )
             CollapsingTopBar(
                 backgroundColor = MaterialTheme.colorScheme.secondary,
-                onBackClicked = { onBackClick() },
+                onBackClicked = onBackClick,
                 title = stringResource(id = R.string.settings_account),
                 progress = progress,
                 modifier = scaffoldModifier,
@@ -153,7 +153,7 @@ fun AccountScreen(
             if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
                 ActionButton(
                     text = stringResource(id = R.string.manage_account),
-                    onClick = { onManageAccountClick() },
+                    onClick = onManageAccountClick,
                     modifier =
                         Modifier.padding(
                             start = Dimens.sideMargin,

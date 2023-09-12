@@ -4,6 +4,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -71,7 +72,7 @@ fun AutoResizeText(
     style: TextStyle = LocalTextStyle.current,
     maxLines: Int = Int.MAX_VALUE,
 ) {
-    var adjustedFontSize by remember { mutableStateOf(maxTextSize.value) }
+    var adjustedFontSize by remember { mutableFloatStateOf(maxTextSize.value) }
     var isReadyToDraw by remember { mutableStateOf(false) }
 
     Text(
