@@ -36,8 +36,7 @@ extension State {
             break
 
         case let .error(blockedState):
-            // TODO: pass errors to UI process
-            status.lastErrors = []
+            status.blockStateReason = blockedState.blockStateReason
         }
 
         return status

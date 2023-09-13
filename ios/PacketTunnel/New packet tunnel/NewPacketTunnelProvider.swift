@@ -192,7 +192,7 @@ extension NewPacketTunnelProvider {
                 }
 
                 // Tell packet tunnel when reconnection begins.
-                // Packet tunnel moves to `NEVPNStatus.reassertingg` state once `reasserting` flag is set to `true`.
+                // Packet tunnel moves to `NEVPNStatus.reasserting` state once `reasserting` flag is set to `true`.
                 if case .reconnecting = newState, !self.reasserting {
                     self.reasserting = true
                 }

@@ -235,7 +235,7 @@ public actor PacketTunnelActor {
 
     private func tryStart(nextRelay: NextRelay = .random) async throws {
         let settings: Settings = try settingsReader.read()
-        guard let storedDeviceData = settings.deviceState.deviceData else { throw DeviceRevokedError() }
+        guard let storedDeviceData = settings.deviceState.deviceData else { throw BlockedStateError.deviceRevoked }
 
         func makeConnectionState() throws -> ConnectionState? {
             let relayConstraints = settings.tunnelSettings.relayConstraints
@@ -489,11 +489,67 @@ public actor PacketTunnelActor {
     private func startDeviceCheck(rotateKeyOnMismatch: Bool = false) {
         Task {
             do {
-                let result = try await deviceChecker.start(rotateKeyOnMismatch: rotateKeyOnMismatch)
+                let result = try await self.deviceChecker.start(rotateKeyOnMismatch: rotateKeyOnMismatch)
 
-                logger.debug("Got device check: \(result)")
+                // TODO: maybe we need a separate task?
+                await taskQueue.add(kind: .start) {
+                    if result.accountVerdict == .invalid {
+                        await self.setErrorState(with: BlockedStateError.invalidAccount)
+                    } else if result.deviceVerdict == .revoked {
+                        await self.setErrorState(with: BlockedStateError.deviceRevoked)
+                    } else if case .succeeded = result.keyRotationStatus {
+                        // TODO: refactor this to be more logical
+                        // Tell the tunnel to reconnect using new private key if key was rotated dring device check.
+                        async let _ = self.reconnect(to: .random, shouldStopTunnelMonitor: false)
+                    }
 
-                // TODO: handle device check
+                    let rotationDate: Date
+                    switch result.keyRotationStatus {
+                    case let .attempted(date), let .succeeded(date):
+                        rotationDate = date
+                    case .noAction:
+                        return
+                    }
+
+                    func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
+                        if connState.lastKeyRotation != rotationDate {
+                            connState.lastKeyRotation = rotationDate
+                            return true
+                        }
+                        return false
+                    }
+
+                    switch self.state {
+                    case .initial, .disconnected:
+                        break
+
+                    case var .connecting(connState):
+                        if mutateConnectionState(&connState) {
+                            self.state = .connecting(connState)
+                        }
+
+                    case var .connected(connState):
+                        if mutateConnectionState(&connState) {
+                            self.state = .connected(connState)
+                        }
+
+                    case var .reconnecting(connState):
+                        if mutateConnectionState(&connState) {
+                            self.state = .reconnecting(connState)
+                        }
+
+                    case var .disconnecting(connState):
+                        if mutateConnectionState(&connState) {
+                            self.state = .reconnecting(connState)
+                        }
+
+                    case var .error(blockedState):
+                        if blockedState.lastKeyRotation != rotationDate {
+                            blockedState.lastKeyRotation = rotationDate
+                            self.state = .error(blockedState)
+                        }
+                    }
+                }
             } catch {
                 logger.error(error: error, message: "Failed to complete device check.")
             }

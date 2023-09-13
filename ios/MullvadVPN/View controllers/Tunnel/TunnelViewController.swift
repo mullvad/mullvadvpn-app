@@ -153,7 +153,7 @@ class TunnelViewController: UIViewController, RootContainment {
             mapViewController.removeLocationMarker()
             contentView.setAnimatingActivity(true)
 
-        case .waitingForConnectivity:
+        case .waitingForConnectivity, .error:
             mapViewController.removeLocationMarker()
             contentView.setAnimatingActivity(false)
 

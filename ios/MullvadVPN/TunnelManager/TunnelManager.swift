@@ -76,7 +76,7 @@ final class TunnelManager: StorePaymentObserver {
     private var _tunnelStatus = TunnelStatus()
 
     /// Last processed device check.
-    private var lastDeviceCheck: DeviceCheck?
+    private var lastPacketTunnelKeyRotation: Date?
 
     // MARK: - Initialization
 
@@ -696,9 +696,15 @@ final class TunnelManager: StorePaymentObserver {
 
         _tunnelStatus = newTunnelStatus
 
-        if let deviceCheck = newTunnelStatus.packetTunnelStatus.deviceCheck {
-            handleDeviceCheck(deviceCheck)
+        // Packet tunnel may have attempted or rotated the key.
+        // In that case we have to reload device state from Keychain as it's likely was modified by packet tunnel.
+        let newPacketTunnelKeyRotation = newTunnelStatus.packetTunnelStatus.lastKeyRotation
+        if lastPacketTunnelKeyRotation != newPacketTunnelKeyRotation {
+            lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
+            refreshDeviceState()
         }
+
+        // TODO: handle blocked state (error state). See how handleRestError() manages invalid account or revoked device.
 
         switch newTunnelStatus.state {
         case .connecting, .reconnecting:
@@ -710,7 +716,7 @@ final class TunnelManager: StorePaymentObserver {
             // Start polling tunnel status to keep connectivity status up to date.
             startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
 
-        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork):
+        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             // Stop polling tunnel status once connection moved to final state.
             cancelPollingTunnelStatus()
         }
@@ -722,53 +728,6 @@ final class TunnelManager: StorePaymentObserver {
         }
 
         return newTunnelStatus
-    }
-
-    private func handleDeviceCheck(_ deviceCheck: DeviceCheck) {
-        // Bail immediately when last device check is identical.
-        guard lastDeviceCheck != deviceCheck else { return }
-
-        // Packet tunnel may have attempted or rotated the key.
-        // In that case we have to reload device state from Keychain as it's likely was modified by packet tunnel.
-        if lastDeviceCheck?.keyRotationStatus != deviceCheck.keyRotationStatus {
-            switch deviceCheck.keyRotationStatus {
-            case .attempted, .succeeded:
-                refreshDeviceState()
-            case .noAction:
-                break
-            }
-        }
-
-        // Packet tunnel detected that device is revoked.
-        if lastDeviceCheck?.deviceVerdict != deviceCheck.deviceVerdict, deviceCheck.deviceVerdict == .revoked {
-            scheduleDeviceStateUpdate(taskName: "Set device revoked", reconnectTunnel: false) { deviceState in
-                deviceState = .revoked
-            }
-        }
-
-        // Packet tunnel received new account expiry.
-        if lastDeviceCheck?.accountVerdict != deviceCheck.accountVerdict {
-            switch deviceCheck.accountVerdict {
-            case let .expired(accountData), let .active(accountData):
-                scheduleDeviceStateUpdate(taskName: "Update account expiry", reconnectTunnel: false) { deviceState in
-                    guard case .loggedIn(var storedAccountData, let storedDeviceData) = deviceState else {
-                        return
-                    }
-
-                    if storedAccountData.identifier == accountData.id {
-                        storedAccountData.expiry = accountData.expiry
-                    }
-
-                    deviceState = .loggedIn(storedAccountData, storedDeviceData)
-                }
-
-            case .invalid:
-                break
-            }
-        }
-
-        // Save last device check.
-        lastDeviceCheck = deviceCheck
     }
 
     fileprivate func setSettings(_ settings: LatestTunnelSettings, persist: Bool) {

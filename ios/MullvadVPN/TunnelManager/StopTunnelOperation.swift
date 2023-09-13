@@ -35,7 +35,7 @@ class StopTunnelOperation: ResultOperation<Void> {
 
             finish(result: .success(()))
 
-        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection):
+        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error:
             guard let tunnel = interactor.tunnel else {
                 finish(result: .failure(UnsetTunnelError()))
                 return

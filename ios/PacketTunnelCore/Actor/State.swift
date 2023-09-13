@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import struct MullvadTypes.RelayConstraints
+import MullvadTypes
 import struct RelaySelector.RelaySelectorResult
 import TunnelObfuscation
 import class WireGuardKitTypes.PrivateKey
@@ -106,6 +106,9 @@ public struct ConnectionState {
     /// Reset to zero once connection is established.
     public var connectionAttemptCount: UInt
 
+    /// Last time packet tunnel rotated the key.
+    public var lastKeyRotation: Date?
+
     /// Increment connection attempt counter by one, wrapping to zero on overflow.
     public mutating func incrementAttemptCount() {
         let (value, isOverflow) = connectionAttemptCount.addingReportingOverflow(1)
@@ -137,12 +140,22 @@ public struct BlockedState {
     /// Policy describing the current key that should be used by the tunnel.
     public var keyPolicy: KeyPolicy
 
+    /// Last time packet tunnel rotated the key.
+    public var lastKeyRotation: Date?
+
     /// Task responsible for periodically calling actor to restart the tunnel.
     /// Initiated based on the error that led to blocked state.
     public var recoveryTask: AutoCancellingTask?
 
     /// Prior state of the actor before entering blocked state
     public var priorState: StatePriorToBlockedState
+}
+
+extension BlockedState {
+    public var blockStateReason: BlockStateReason {
+        // TODO: match error in a separate dependency
+        return .noRelaysSatisfyingConstraints
+    }
 }
 
 public enum StatePriorToBlockedState {
@@ -156,9 +169,16 @@ public enum TargetStateForReconnect {
     case reconnecting, connecting
 }
 
-public struct DeviceRevokedError: LocalizedError {
+public enum BlockedStateError: LocalizedError {
+    case deviceRevoked, invalidAccount
+
     public var errorDescription: String? {
-        return "Device is revoked."
+        switch self {
+        case .deviceRevoked:
+            return "Device is revoked."
+        case .invalidAccount:
+            return "Account is invalid."
+        }
     }
 }
 
