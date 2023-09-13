@@ -8,36 +8,40 @@ use std::net::IpAddr;
 use clap::{Args, Subcommand};
 use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
-#[derive(Subcommand, Debug)]
+#[derive(Subcommand, Debug, Clone)]
 pub enum Proxy {
-    /// Get current api settings
+    /// List the configured API proxies
+    List,
+    /// Add a custom API proxy
     #[clap(subcommand)]
-    Api(ApiCommands),
+    Add(AddCustomCommands),
+    /// Edit an API proxy
+    Edit(EditCustomCommands),
+    /// Remove an API proxy
+    Remove(RemoveCustomCommands),
 }
 
 impl Proxy {
     pub async fn handle(self) -> Result<()> {
         match self {
-            Proxy::Api(cmd) => match cmd {
-                ApiCommands::List => {
-                    //println!("Listing the API access methods: ..");
-                    Self::list().await?;
-                }
-                ApiCommands::Add(cmd) => {
-                    //println!("Adding custom proxy");
-                    Self::add(cmd).await?;
-                }
-                ApiCommands::Edit(cmd) => {
-                    // Transform human-readable index to 0-based indexing.
-                    let index = Self::zero_to_one_based_index(cmd.index)?;
-                    Self::edit(EditCustomCommands { index, ..cmd }).await?
-                }
-                ApiCommands::Remove(cmd) => {
-                    // Transform human-readable index to 0-based indexing.
-                    let index = Self::zero_to_one_based_index(cmd.index)?;
-                    Self::remove(RemoveCustomCommands { index }).await?
-                }
-            },
+            Proxy::List => {
+                //println!("Listing the API access methods: ..");
+                Self::list().await?;
+            }
+            Proxy::Add(cmd) => {
+                //println!("Adding custom proxy");
+                Self::add(cmd).await?;
+            }
+            Proxy::Edit(cmd) => {
+                // Transform human-readable index to 0-based indexing.
+                let index = Self::zero_to_one_based_index(cmd.index)?;
+                Self::edit(EditCustomCommands { index, ..cmd }).await?
+            }
+            Proxy::Remove(cmd) => {
+                // Transform human-readable index to 0-based indexing.
+                let index = Self::zero_to_one_based_index(cmd.index)?;
+                Self::remove(RemoveCustomCommands { index }).await?
+            }
         };
         Ok(())
     }
@@ -139,19 +143,6 @@ impl Proxy {
             .checked_sub(1)
             .ok_or(anyhow!("Access method 0 does not exist"))
     }
-}
-
-#[derive(Subcommand, Debug, Clone)]
-pub enum ApiCommands {
-    /// List the configured API proxies
-    List,
-    /// Add a custom API proxy
-    #[clap(subcommand)]
-    Add(AddCustomCommands),
-    /// Edit an API proxy
-    Edit(EditCustomCommands),
-    /// Remove an API proxy
-    Remove(RemoveCustomCommands),
 }
 
 #[derive(Subcommand, Debug, Clone)]
