@@ -19,12 +19,16 @@ protocol RedeemVoucherViewControllerDelegate: AnyObject {
 }
 
 class RedeemVoucherViewController: UIViewController, UINavigationControllerDelegate, RootContainment {
-    private let contentView = RedeemVoucherContentView()
+    private let contentView: RedeemVoucherContentView
     private var interactor: RedeemVoucherInteractor
 
     weak var delegate: RedeemVoucherViewControllerDelegate?
 
-    init(interactor: RedeemVoucherInteractor) {
+    init(
+        configuration: RedeemVoucherViewConfiguration,
+        interactor: RedeemVoucherInteractor
+    ) {
+        self.contentView = RedeemVoucherContentView(configuration: configuration)
         self.interactor = interactor
         super.init(nibName: nil, bundle: nil)
     }

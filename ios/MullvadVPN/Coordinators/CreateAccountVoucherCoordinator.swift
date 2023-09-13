@@ -25,7 +25,11 @@ public class CreateAccountVoucherCoordinator: Coordinator {
     ) {
         self.navigationController = navigationController
         self.interactor = interactor
-        viewController = RedeemVoucherViewController(interactor: interactor)
+
+        viewController = RedeemVoucherViewController(
+            configuration: RedeemVoucherViewConfiguration(adjustViewWhenKeyboardAppears: true),
+            interactor: interactor
+        )
     }
 
     func start() {
