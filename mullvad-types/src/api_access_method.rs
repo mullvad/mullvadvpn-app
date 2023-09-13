@@ -1,6 +1,8 @@
+use std::collections::hash_map::DefaultHasher;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
+use std::hash::{Hash, Hasher};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 
 /// Daemon settings for API access methods.
@@ -41,33 +43,33 @@ pub struct CustomAccessMethod {
     pub access_method: ObfuscationProtocol,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum ObfuscationProtocol {
     Shadowsocks(Shadowsocks),
     Socks5(Socks5),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Shadowsocks {
     pub peer: SocketAddr,
     pub password: String, // TODO: Mask the password (using special type)?
     pub cipher: String,   // Gets validated at a later stage. Is assumed to be valid.
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Socks5 {
     Local(Socks5Local),
     Remote(Socks5Remote),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Local {
     pub peer: SocketAddr,
     /// Port on localhost where the SOCKS5-proxy listens to.
     pub port: u16,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Remote {
     pub peer: SocketAddr,
 }
@@ -155,8 +157,10 @@ impl From<CustomAccessMethod> for AccessMethod {
 
 impl From<ObfuscationProtocol> for AccessMethod {
     fn from(value: ObfuscationProtocol) -> Self {
+        let mut hasher = DefaultHasher::new();
+        value.hash(&mut hasher);
         CustomAccessMethod {
-            id: uuid::Uuid::new_v4().to_string(),
+            id: hasher.finish().to_string(),
             access_method: value,
         }
         .into()
