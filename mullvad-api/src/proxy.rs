@@ -40,13 +40,28 @@ pub enum ProxyConfig {
     Socks(api_access_method::Socks5),
 }
 
+impl ProxyConfig {
+    /// Returns the remote address to reach the proxy.
+    fn get_endpoint(&self) -> SocketAddr {
+        match self {
+            ProxyConfig::Shadowsocks(ss) => ss.peer,
+            ProxyConfig::Socks(socks) => match socks {
+                api_access_method::Socks5::Local(s) => s.peer,
+                api_access_method::Socks5::Remote(s) => s.peer,
+            },
+        }
+    }
+}
+
 impl fmt::Display for ProxyConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             // TODO: Do not hardcode TCP
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
             ProxyConfig::Socks(socks) => match socks {
-                api_access_method::Socks5::Local(s) => write!(f, "Socks5 {}/TCP", s.peer),
+                api_access_method::Socks5::Local(s) => {
+                    write!(f, "Socks5 localhost:{} => {}/TCP", s.port, s.peer)
+                }
                 api_access_method::Socks5::Remote(s) => write!(f, "Socks5 {}/TCP", s.peer),
             },
         }
@@ -113,17 +128,11 @@ impl ApiConnectionMode {
         }
     }
 
-    /// Returns the remote address, or `None` for `ApiConnectionMode::Direct`.
+    /// Returns the remote address required to reach the API, or `None` for `ApiConnectionMode::Direct`.
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
             ApiConnectionMode::Direct => None,
-            ApiConnectionMode::Proxied(proxy_config) => match proxy_config {
-                ProxyConfig::Shadowsocks(ss) => Some(ss.peer),
-                ProxyConfig::Socks(socks) => match socks {
-                    api_access_method::Socks5::Local(s) => Some(s.peer),
-                    api_access_method::Socks5::Remote(s) => Some(s.peer),
-                },
-            },
+            ApiConnectionMode::Proxied(proxy_config) => Some(proxy_config.get_endpoint()),
         }
     }
 
