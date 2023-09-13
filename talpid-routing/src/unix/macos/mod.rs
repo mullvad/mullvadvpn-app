@@ -355,7 +355,14 @@ impl RouteManagerImpl {
         } else {
             interface::Family::V6
         };
-        self.update_best_default_route(ip_version).await
+        self.update_best_default_route(ip_version).await?;
+
+        // Substitute route with a tunnel route
+        self.apply_tunnel_default_route().await?;
+
+        // Update routes using default interface
+        self.apply_non_tunnel_routes().await
+
     }
 
     async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
@@ -379,11 +386,7 @@ impl RouteManagerImpl {
         let changed = default_route.is_some();
         self.notify_default_route_listeners(family, changed);
 
-        // Substitute route with a tunnel route
-        self.apply_tunnel_default_route().await?;
-
-        // Update routes using default interface
-        self.apply_non_tunnel_routes().await
+        Ok(())
     }
 
     fn notify_default_route_listeners(&mut self, family: interface::Family, changed: bool) {
@@ -427,11 +430,38 @@ impl RouteManagerImpl {
                 None => continue,
             };
 
-            log::debug!("Adding default route for tunnel");
-
             // Replace the default route with an ifscope route
             self.set_default_route_ifscope(tunnel_route.is_ipv4(), true)
                 .await?;
+
+            // Make sure there is really no other unscoped default route
+            let mut msg = RouteMessage::new_route(
+                if tunnel_route.is_ipv4() {
+                    v4_default()
+                } else {
+                    v6_default()
+                }
+                .into(),
+            );
+            msg = msg.set_gateway_route(true);
+            let old_route = self.routing_table.get_route(&msg).await;
+            if let Ok(Some(old_route)) = old_route {
+                let tun_gateway_link_addr =
+                    tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
+                let current_link_addr = old_route.gateway().and_then(|addr| addr.as_link_addr());
+                if current_link_addr
+                    .map(|addr| Some(addr) != tun_gateway_link_addr)
+                    .unwrap_or(true)
+                {
+                    log::trace!("Removing existing unscoped default route");
+                    let _ = self.routing_table.delete_route(&msg).await;
+                } else if !old_route.is_ifscope() {
+                    // NOTE: Skipping route
+                    continue;
+                }
+            }
+
+            log::debug!("Adding default route for tunnel");
             self.add_route_with_record(tunnel_route).await?;
         }
 
