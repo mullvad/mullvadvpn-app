@@ -71,5 +71,16 @@ where
             self.event_listener
                 .notify_settings(self.settings.to_settings());
         };
+
+        // TODO: Could this be replaced by message passing? Yes plz.
+        let mut connection_modes = self.connection_modes.lock().unwrap();
+        *connection_modes = self
+            .settings
+            .api_access_methods
+            .api_access_methods
+            .clone()
+            .into_iter()
+            .map(|x| (x, 1))
+            .collect();
     }
 }
