@@ -10,7 +10,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::api_access_method;
+use mullvad_types::api_access_method::{self, AccessMethod, BuiltInAccessMethod};
 use std::{
     net::SocketAddr,
     path::PathBuf,
@@ -44,6 +44,7 @@ pub struct ApiConnectionModeProvider {
     relay_selector: RelaySelector,
     retry_attempt: u32,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
+    available_modes: Arc<Mutex<Vec<(AccessMethod, usize)>>>,
 }
 
 impl Stream for ApiConnectionModeProvider {
@@ -64,7 +65,7 @@ impl Stream for ApiConnectionModeProvider {
             };
         }
 
-        let connection_mode = self.new_task(self.retry_attempt);
+        let connection_mode = self.new_task();
         self.retry_attempt = self.retry_attempt.wrapping_add(1);
 
         let cache_dir = self.cache_dir.clone();
@@ -83,57 +84,105 @@ impl Stream for ApiConnectionModeProvider {
 }
 
 impl ApiConnectionModeProvider {
-    pub(crate) fn new(cache_dir: PathBuf, relay_selector: RelaySelector) -> Self {
+    pub(crate) fn new(
+        cache_dir: PathBuf,
+        relay_selector: RelaySelector,
+        connection_modes: Arc<Mutex<Vec<(AccessMethod, usize)>>>,
+    ) -> Self {
+        // TODO: Remove this when done debugging
+        {
+            let modes = connection_modes.lock();
+            log::debug!("Daemon connection modes: {:?}", modes);
+        };
+
         Self {
             cache_dir,
-
             relay_selector,
             retry_attempt: 0,
-
             current_task: None,
+            // TODO: This datastructure already exists in the daemon! Use that one.
+            // available_modes: Box::new(
+            //     vec![
+            //         BuiltInAccessMethod::Direct.into(),
+            //         BuiltInAccessMethod::Direct.into(),
+            //         BuiltInAccessMethod::Direct.into(),
+            //         BuiltInAccessMethod::Bridge.into(),
+            //     ]
+            //     .into_iter()
+            //     .cycle(),
+            // ),
+            // available_modes: vec![
+            //     (BuiltInAccessMethod::Direct.into(), 3),
+            //     (BuiltInAccessMethod::Bridge.into(), 1),
+            // ],
+            available_modes: connection_modes,
         }
-    }
-
-    fn should_use_bridge(retry_attempt: u32) -> bool {
-        retry_attempt % 3 > 0
-    }
-
-    fn should_use_direct(retry_attempt: u32) -> bool {
-        // TODO: Change back before comitting!
-        false
-        // !Self::should_use_bridge(retry_attempt)
     }
 
     /// Return a new connection mode to be used for the API connection.
     ///
     /// TODO: Figure out an appropriate algorithm for selecting between the available AccessMethods.
     /// We need to be able to poll the daemon's settings to find out which access methods are available & active.
-    /// For now, we a
-    fn new_task(&self, retry_attempt: u32) -> ApiConnectionMode {
-        if Self::should_use_direct(retry_attempt) {
-            ApiConnectionMode::Direct
-        } else {
-            self.relay_selector
-                .get_bridge_forced()
-                .and_then(|settings| match settings {
-                    ProxySettings::Shadowsocks(ss_settings) => {
-                        let ss_settings: api_access_method::Shadowsocks =
-                            api_access_method::Shadowsocks::new(
-                                ss_settings.peer,
-                                ss_settings.cipher,
-                                ss_settings.password,
-                            );
-                        println!("Using bridge mode to access the API! {:?}", ss_settings);
-                        Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                            ss_settings,
-                        )))
-                    }
-                    _ => {
-                        log::error!("Received unexpected proxy settings type");
-                        None
-                    }
-                })
-                .unwrap_or(ApiConnectionMode::Direct)
+    /// For now, [`ApiConnectionModeProvider`] is only instanciated once during daemon startup, and does not change it's
+    /// available access methods based on any "Settings-changed" events.
+    fn new_task(&mut self) -> ApiConnectionMode {
+        use rand::distributions::WeightedIndex;
+        use rand::prelude::*;
+        // TODO: Cycle-based solution
+        // Safety: self.available_nodes is guaranteed to yield an item, as per the definition of [`std::iter::Cycle`].
+        let (access_methods, weights): (Vec<_>, Vec<_>) = {
+            let modes = self.available_modes.lock().unwrap();
+            modes.iter().cloned().unzip()
+        };
+        // Chosen by fair dice-roll.
+        let access_method = {
+            let mut rng = thread_rng();
+            let distribution = WeightedIndex::new(weights).unwrap();
+            &access_methods[distribution.sample(&mut rng)]
+        };
+        let connection_mode = self.from(access_method.clone());
+        log::debug!("New API connection mode selected: {}", connection_mode);
+        connection_mode
+    }
+
+    /// Ad-hoc version of [`std::convert::From::from`], but since some
+    /// [`ApiConnectionMode`]s require extra logic/data from
+    /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait can not be used.
+    fn from(&mut self, access_method: AccessMethod) -> ApiConnectionMode {
+        match access_method {
+            AccessMethod::BuiltIn(access_method) => match access_method {
+                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
+                BuiltInAccessMethod::Bridge => self
+                    .relay_selector
+                    .get_bridge_forced()
+                    .and_then(|settings| match settings {
+                        ProxySettings::Shadowsocks(ss_settings) => {
+                            let ss_settings: api_access_method::Shadowsocks =
+                                api_access_method::Shadowsocks::new(
+                                    ss_settings.peer,
+                                    ss_settings.cipher,
+                                    ss_settings.password,
+                                );
+                            log::debug!("Using bridge mode to access the API!");
+                            Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
+                                ss_settings,
+                            )))
+                        }
+                        _ => {
+                            log::error!("Received unexpected proxy settings type");
+                            None
+                        }
+                    })
+                    .unwrap_or(ApiConnectionMode::Direct),
+            },
+            AccessMethod::Custom(access_method) => match access_method.access_method {
+                api_access_method::ObfuscationProtocol::Shadowsocks(shadowsocks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config))
+                }
+                api_access_method::ObfuscationProtocol::Socks5(socks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config))
+                }
+            },
         }
     }
 }
@@ -170,6 +219,7 @@ impl ApiEndpointUpdaterHandle {
                     return false;
                 };
                 let (result_tx, result_rx) = oneshot::channel();
+                // TODO: Use this to update the firewall ("Punch a hole") to allow traffic to/from a Socks-proxy on localhost.
                 let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
                     get_allowed_endpoint(address),
                     result_tx,
