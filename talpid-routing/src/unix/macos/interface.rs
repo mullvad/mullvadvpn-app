@@ -23,6 +23,15 @@ pub enum Family {
     V6,
 }
 
+impl std::fmt::Display for Family {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Family::V4 => f.write_str("V4"),
+            Family::V6 => f.write_str("V6"),
+        }
+    }
+}
+
 impl From<Family> for IpNetwork {
     fn from(fam: Family) -> Self {
         match fam {
