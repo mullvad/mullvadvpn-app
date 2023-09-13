@@ -146,8 +146,6 @@ impl InnerConnectionMode {
     }
 
     /// Set up a SOCKS5-socket connection.
-    ///
-    /// TODO: Handle case where the proxy-address is `localhost`.
     async fn handle_socks_connection(
         proxy_config: SocksConfig,
         addr: &SocketAddr,
@@ -224,7 +222,6 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     })
                 }
                 ProxyConfig::Socks(config) => match config {
-                    // TODO: `SocksConfig` needs to be fleshed out to accomodate Socks-proxies on localhost.
                     mullvad_types::api_access_method::Socks5::Local(config) => {
                         InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
                     }
