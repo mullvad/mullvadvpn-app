@@ -141,7 +141,7 @@ impl ApiConnectionModeProvider {
             &access_methods[distribution.sample(&mut rng)]
         };
         let connection_mode = self.from(access_method.clone());
-        log::debug!("New API connection mode selected: {}", connection_mode);
+        log::info!("New API connection mode selected: {}", connection_mode);
         connection_mode
     }
 
@@ -163,7 +163,6 @@ impl ApiConnectionModeProvider {
                                     ss_settings.cipher,
                                     ss_settings.password,
                                 );
-                            log::debug!("Using bridge mode to access the API!");
                             Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
                                 ss_settings,
                             )))
@@ -207,7 +206,7 @@ impl ApiEndpointUpdaterHandle {
 
     pub fn callback(&self) -> impl ApiEndpointUpdateCallback {
         let tunnel_tx = self.tunnel_cmd_tx.clone();
-        move |address: SocketAddr| {
+        move |addresses: Vec<SocketAddr>| {
             let inner_tx = tunnel_tx.clone();
             async move {
                 let tunnel_tx = if let Some(Some(tunnel_tx)) = { inner_tx.lock().unwrap().as_ref() }
@@ -218,14 +217,23 @@ impl ApiEndpointUpdaterHandle {
                     log::error!("Rejecting allowed endpoint: Tunnel state machine is not running");
                     return false;
                 };
-                let (result_tx, result_rx) = oneshot::channel();
-                let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                    get_allowed_endpoint(address),
-                    result_tx,
-                ));
-                // Wait for the firewall policy to be updated.
-                let _ = result_rx.await;
-                log::debug!("API endpoint: {}", address);
+
+                // For each endpoint, add an exception to the firewall.
+                log::info!(
+                    "Making an exception in the firewall for the following API endpoint(s): {:?}",
+                    &addresses
+                );
+                // TODO(Can an `mpsc` be used instead of multiple `oneshot` channels?)
+                let _: Vec<_> = addresses
+                    .into_iter()
+                    .map(get_allowed_endpoint)
+                    .map(|endpoint| async {
+                        let (result_tx, result_rx) = oneshot::channel();
+                        let _ = tunnel_tx
+                            .unbounded_send(TunnelCommand::AllowEndpoint(endpoint, result_tx));
+                        let _ = result_rx.await;
+                    })
+                    .collect();
                 true
             }
         }
