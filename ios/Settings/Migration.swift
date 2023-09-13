@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol Migration {
+public protocol Migration {
     func migrate(
         with store: SettingsStore,
         parser: SettingsParser,

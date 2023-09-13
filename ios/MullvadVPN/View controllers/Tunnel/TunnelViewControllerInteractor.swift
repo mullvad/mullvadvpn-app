@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Settings
 
 final class TunnelViewControllerInteractor {
     private let tunnelManager: TunnelManager

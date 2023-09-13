@@ -9,6 +9,7 @@
 import MullvadREST
 import MullvadTypes
 import Operations
+import Settings
 import WireGuardKitTypes
 import XCTest
 

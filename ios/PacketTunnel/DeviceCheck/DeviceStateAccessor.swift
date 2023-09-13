@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadTypes
+import Settings
 
 /// An object that provides access to `DeviceState` used by `DeviceCheckOperation`.
 struct DeviceStateAccessor: DeviceStateAccessorProtocol {

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Settings
 
 final class TunnelBlockObserver: TunnelObserver {
     typealias DidLoadConfigurationHandler = (TunnelManager) -> Void

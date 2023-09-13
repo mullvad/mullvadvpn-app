@@ -7,6 +7,7 @@
 //
 
 import MullvadTypes
+import Settings
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 import XCTest

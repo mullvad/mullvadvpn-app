@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 import Operations
+import Settings
 
 class LoadTunnelConfigurationOperation: ResultOperation<Void> {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")

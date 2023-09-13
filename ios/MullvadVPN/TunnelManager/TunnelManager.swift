@@ -14,6 +14,7 @@ import NetworkExtension
 import Operations
 import RelayCache
 import RelaySelector
+import Settings
 import StoreKit
 import TunnelProviderMessaging
 import UIKit

@@ -10,6 +10,7 @@ import Foundation
 import MullvadTypes
 import protocol Network.IPAddress
 import RelaySelector
+import Settings
 import WireGuardKit
 
 struct PacketTunnelConfiguration {

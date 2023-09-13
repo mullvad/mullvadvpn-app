@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Settings
 import UIKit.UIColor
 import UIKit.UIFont
 

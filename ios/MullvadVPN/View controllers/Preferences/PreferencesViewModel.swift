@@ -7,6 +7,7 @@
 //
 
 import MullvadTypes
+import Settings
 import UIKit
 
 enum CustomDNSPrecondition {

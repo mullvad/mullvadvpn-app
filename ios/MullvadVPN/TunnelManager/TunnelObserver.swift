@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Settings
 
 protocol TunnelObserver: AnyObject {
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager)
