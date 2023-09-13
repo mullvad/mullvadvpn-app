@@ -428,9 +428,9 @@ impl RouteManagerImpl {
             // Make sure there is really no other unscoped default route
             let mut msg = RouteMessage::new_route(
                 if tunnel_route.is_ipv4() {
-                    v4_default()
+                    IpNetwork::from(interface::Family::V4)
                 } else {
-                    v6_default()
+                    IpNetwork::from(interface::Family::V6)
                 }
                 .into(),
             );
