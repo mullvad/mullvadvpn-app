@@ -231,12 +231,12 @@ impl<
                 }
 
                 if let Some(new_config) = self.proxy_config_provider.next().await {
-                    let endpoint = match new_config.get_endpoint() {
-                        Some(endpoint) => endpoint,
-                        None => self.address_cache.get_address().await,
+                    let endpoints = match new_config.get_endpoint() {
+                        Some(endpoints) => endpoints,
+                        None => vec![self.address_cache.get_address().await],
                     };
                     // Switch to new connection mode unless rejected by address change callback
-                    if (self.new_address_callback)(endpoint).await {
+                    if (self.new_address_callback)(endpoints).await {
                         self.connector_handle.set_connection_mode(new_config);
                     }
                 }
