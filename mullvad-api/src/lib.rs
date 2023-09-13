@@ -215,15 +215,15 @@ pub enum Error {
     ApiCheckError(#[error(source)] availability::Error),
 }
 
-/// Closure that receives the next API (real or proxy) endpoint to use for `api.mullvad.net`.
+/// Closure that receives the next API (real or proxy) endpoints to use for `api.mullvad.net`.
 /// It should return a future that determines whether to reject the new endpoint or not.
-pub trait ApiEndpointUpdateCallback: Fn(SocketAddr) -> Self::AcceptedNewEndpoint {
+pub trait ApiEndpointUpdateCallback: Fn(Vec<SocketAddr>) -> Self::AcceptedNewEndpoint {
     type AcceptedNewEndpoint: Future<Output = bool> + Send;
 }
 
 impl<U, T: Future<Output = bool> + Send> ApiEndpointUpdateCallback for U
 where
-    U: Fn(SocketAddr) -> T,
+    U: Fn(Vec<SocketAddr>) -> T,
 {
     type AcceptedNewEndpoint = T;
 }
