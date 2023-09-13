@@ -46,7 +46,9 @@ impl fmt::Display for ProxyConfig {
             // TODO: Do not hardcode TCP
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
             ProxyConfig::Socks(socks) => match socks {
-                api_access_method::Socks5::Local(s) => write!(f, "Socks5 {}/TCP", s.peer),
+                api_access_method::Socks5::Local(s) => {
+                    write!(f, "Socks5 localhost:{} => {}/TCP", s.port, s.peer)
+                }
                 api_access_method::Socks5::Remote(s) => write!(f, "Socks5 {}/TCP", s.peer),
             },
         }
@@ -113,15 +115,20 @@ impl ApiConnectionMode {
         }
     }
 
-    /// Returns the remote address, or `None` for `ApiConnectionMode::Direct`.
-    pub fn get_endpoint(&self) -> Option<SocketAddr> {
+    /// Returns the remote address(es) required to reach the API, or `None` for `ApiConnectionMode::Direct`.
+    pub fn get_endpoint(&self) -> Option<Vec<SocketAddr>> {
         match self {
             ApiConnectionMode::Direct => None,
             ApiConnectionMode::Proxied(proxy_config) => match proxy_config {
-                ProxyConfig::Shadowsocks(ss) => Some(ss.peer),
+                ProxyConfig::Shadowsocks(ss) => Some(vec![ss.peer]),
                 ProxyConfig::Socks(socks) => match socks {
-                    api_access_method::Socks5::Local(s) => Some(s.peer),
-                    api_access_method::Socks5::Remote(s) => Some(s.peer),
+                    api_access_method::Socks5::Local(s) => Some(vec![
+                        // Allow connections to Socks5-proxy on localhost ..
+                        SocketAddr::new("127.0.0.1".parse().unwrap(), s.port),
+                        // .. which redirects traffic to `peer`.
+                        s.peer,
+                    ]),
+                    api_access_method::Socks5::Remote(s) => Some(vec![s.peer]),
                 },
             },
         }
