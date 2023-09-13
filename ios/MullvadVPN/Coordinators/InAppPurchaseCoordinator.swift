@@ -11,7 +11,7 @@ import Routing
 import StoreKit
 import UIKit
 
-class InAppPurchaseCoordinator: Coordinator, Presentable {
+class InAppPurchaseCoordinator: Coordinator, Presenting, Presentable {
     private let navigationController: RootContainerViewController
     private let interactor: InAppPurchaseInteractor
 
@@ -49,23 +49,29 @@ class InAppPurchaseCoordinator: Coordinator, Presentable {
                 coordinator.start()
 
             case let .failure(failure):
-                let alertController = CustomAlertViewController(
+                let presentation = AlertPresentation(
+                    id: "in-app-purchase-error-alert",
+                    icon: .alert,
                     message: failure.error.localizedDescription,
-                    icon: .alert
+                    buttons: [
+                        AlertAction(
+                            title: NSLocalizedString(
+                                "IN_APP_PURCHASE_ERROR_DIALOG_OK_ACTION",
+                                tableName: "Welcome",
+                                value: "Got it!",
+                                comment: ""
+                            ),
+                            style: .default,
+                            handler: { [weak self] in
+                                guard let self = self else { return }
+                                self.didCancel?(self)
+                            }
+                        ),
+                    ]
                 )
 
-                alertController.addAction(
-                    title: NSLocalizedString(
-                        "IN_APP_PURCHASE_ERROR_DIALOG_OK_ACTION",
-                        tableName: "Welcome",
-                        value: "Got it!",
-                        comment: ""
-                    ),
-                    style: .default
-                )
-                presentedViewController.present(alertController, animated: true) {
-                    self.didCancel?(self)
-                }
+                let presenter = AlertPresenter(context: self)
+                presenter.showAlert(presentation: presentation, animated: true)
             }
         }
     }
