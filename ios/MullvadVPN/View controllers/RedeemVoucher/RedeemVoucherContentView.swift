@@ -40,7 +40,6 @@ final class RedeemVoucherContentView: UIView {
             comment: ""
         )
         label.textColor = .white
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         return label
     }()
@@ -61,7 +60,6 @@ final class RedeemVoucherContentView: UIView {
 
     private let activityIndicator: SpinnerActivityIndicatorView = {
         let activityIndicator = SpinnerActivityIndicatorView(style: .medium)
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.tintColor = .white
         activityIndicator.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         activityIndicator.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
@@ -111,8 +109,6 @@ final class RedeemVoucherContentView: UIView {
 
     private lazy var statusStack: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [activityIndicator, statusLabel])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
         stackView.spacing = UIMetrics.padding8
         return stackView
     }()
@@ -124,7 +120,6 @@ final class RedeemVoucherContentView: UIView {
             statusStack,
             logoutViewForAccountNumberIsEntered,
         ])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.setCustomSpacing(UIMetrics.padding16, after: titleLabel)
         stackView.setCustomSpacing(UIMetrics.padding8, after: textField)
@@ -136,7 +131,6 @@ final class RedeemVoucherContentView: UIView {
 
     private lazy var buttonsStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [redeemButton, cancelButton])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.padding16
         stackView.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -260,14 +254,15 @@ final class RedeemVoucherContentView: UIView {
 
     private func configureUI() {
         addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperviewMargins()
+            scrollView.pinEdgesToSuperview(.all(UIMetrics.SettingsRedeemVoucher.contentLayoutMargins))
         }
 
         scrollView.addConstrainedSubviews([contentHolderView]) {
             contentHolderView.pinEdgesToSuperview()
-            contentHolderView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1.0)
-            contentHolderView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor, multiplier: 1.0)
+            contentHolderView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            contentHolderView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor)
         }
+
         contentHolderView.addConstrainedSubviews([voucherCodeStackView, buttonsStackView]) {
             voucherCodeStackView.pinEdgesToSuperview(.all().excluding(.bottom))
             buttonsStackView.pinEdgesToSuperview(PinnableEdges([.leading(.zero), .trailing(.zero)]))
@@ -276,6 +271,7 @@ final class RedeemVoucherContentView: UIView {
                 constant: -UIMetrics.padding16
             )
         }
+
         bottomsOfButtonsConstraint = buttonsStackView.pinEdgesToSuperview(PinnableEdges([.bottom(.zero)])).first
         bottomsOfButtonsConstraint?.isActive = true
     }
