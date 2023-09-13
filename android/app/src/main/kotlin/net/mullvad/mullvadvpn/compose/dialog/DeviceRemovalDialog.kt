@@ -38,7 +38,7 @@ private fun PreviewShowDeviceRemovalDialog() {
     ShowDeviceRemovalDialog(
         onDismiss = {},
         onConfirm = {},
-        device = Device("test", "test", byteArrayOf(), "test")
+        device = Device("test", "test", byteArrayOf(), arrayListOf(), "test")
     )
 }
 
