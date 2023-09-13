@@ -49,6 +49,7 @@ final class TunnelManager: StorePaymentObserver {
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
     private let apiProxy: REST.APIProxy
+    private let accessTokenManager: REST.AccessTokenManager
 
     private let logger = Logger(label: "TunnelManager")
     private var nslock = NSRecursiveLock()
@@ -84,7 +85,8 @@ final class TunnelManager: StorePaymentObserver {
         relayCacheTracker: RelayCacheTracker,
         accountsProxy: REST.AccountsProxy,
         devicesProxy: REST.DevicesProxy,
-        apiProxy: REST.APIProxy
+        apiProxy: REST.APIProxy,
+        accessTokenManager: REST.AccessTokenManager
     ) {
         self.application = application
         self.tunnelStore = tunnelStore
@@ -94,6 +96,7 @@ final class TunnelManager: StorePaymentObserver {
         self.apiProxy = apiProxy
         self.operationQueue.name = "TunnelManager.operationQueue"
         self.operationQueue.underlyingQueue = internalQueue
+        self.accessTokenManager = accessTokenManager
 
         NotificationCenter.default.addObserver(
             self,
@@ -335,6 +338,7 @@ final class TunnelManager: StorePaymentObserver {
             interactor: TunnelInteractorProxy(self),
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
+            accessTokenManager: accessTokenManager,
             action: action
         )
 
@@ -438,6 +442,7 @@ final class TunnelManager: StorePaymentObserver {
         let operation = DeleteAccountOperation(
             dispatchQueue: internalQueue,
             accountsProxy: accountsProxy,
+            accessTokenManager: accessTokenManager,
             accountNumber: accountNumber
         )
 
