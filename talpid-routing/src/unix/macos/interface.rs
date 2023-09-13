@@ -1,3 +1,4 @@
+use ipnetwork::IpNetwork;
 use libc::{if_indextoname, IFNAMSIZ};
 use nix::net::if_::{if_nametoindex, InterfaceFlags};
 use std::{
@@ -22,6 +23,15 @@ pub enum Family {
     V6,
 }
 
+impl From<Family> for IpNetwork {
+    fn from(fam: Family) -> Self {
+        match fam {
+            Family::V4 => IpNetwork::new(Ipv4Addr::UNSPECIFIED.into(), 0).unwrap(),
+            Family::V6 => IpNetwork::new(Ipv6Addr::UNSPECIFIED.into(), 0).unwrap(),
+        }
+    }
+}
+
 /// Retrieve the current unscoped default route. That is the only default route that does not have
 /// the IF_SCOPE flag set, if such a route exists.
 ///
@@ -34,12 +44,7 @@ pub async fn get_unscoped_default_route(
     routing_table: &mut RoutingTable,
     family: Family,
 ) -> Option<RouteMessage> {
-    let destination = match family {
-        Family::V4 => super::v4_default(),
-        Family::V6 => super::v6_default(),
-    };
-
-    let mut msg = RouteMessage::new_route(Destination::Network(destination));
+    let mut msg = RouteMessage::new_route(Destination::Network(IpNetwork::from(family)));
     msg = msg.set_gateway_route(true);
 
     let route = routing_table
@@ -80,12 +85,7 @@ pub async fn get_best_default_route(
     routing_table: &mut RoutingTable,
     family: Family,
 ) -> Option<RouteMessage> {
-    let destination = match family {
-        Family::V4 => super::v4_default(),
-        Family::V6 => super::v6_default(),
-    };
-
-    let mut msg = RouteMessage::new_route(Destination::Network(destination));
+    let mut msg = RouteMessage::new_route(Destination::Network(IpNetwork::from(family)));
     msg = msg.set_gateway_route(true);
 
     for iface in network_service_order() {
