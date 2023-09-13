@@ -365,13 +365,15 @@ message ApiAccessMethod {
   message Direct {}
   message Bridges {}
   message Socks5Local {
-    string ip = 1;
-    uint32 port = 2;
-    uint32 local_port = 3;
+    string id = 1;
+    string ip = 2;
+    uint32 port = 3;
+    uint32 local_port = 4;
   }
   message Socks5Remote {
-    string ip = 1;
-    uint32 port = 2;
+    string id = 1;
+    string ip = 2;
+    uint32 port = 3;
   }
   message Socks5 {
     oneof Socks5type {
@@ -380,10 +382,11 @@ message ApiAccessMethod {
     }
   }
   message Shadowsocks {
-    string ip = 1;
-    uint32 port = 2;
-    string password = 3;
-    string cipher = 4;
+    string id = 1;
+    string ip = 2;
+    uint32 port = 3;
+    string password = 4;
+    string cipher = 5;
   }
   oneof access_method {
     Direct direct = 1;
