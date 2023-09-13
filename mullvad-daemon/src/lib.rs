@@ -62,7 +62,7 @@ use std::{
     mem,
     path::PathBuf,
     pin::Pin,
-    sync::{Arc, Weak},
+    sync::{Arc, Mutex, Weak},
     time::Duration,
 };
 #[cfg(any(target_os = "linux", windows))]
@@ -568,6 +568,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
+    connection_modes: Arc<Mutex<Vec<(AccessMethod, usize)>>>,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -630,8 +631,21 @@ where
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
 
-        let proxy_provider =
-            api::ApiConnectionModeProvider::new(cache_dir.clone(), relay_selector.clone());
+        // TODO: Should ApiConnectionModeProvider be an Actor instead of sharing a datastructure-behind-locks with the daemon with the daemon?
+        let access_methods = Arc::new(Mutex::new(
+            settings
+                .api_access_methods
+                .api_access_methods
+                .clone()
+                .into_iter()
+                .map(|a| (a, 1))
+                .collect(),
+        ));
+        let proxy_provider = api::ApiConnectionModeProvider::new(
+            cache_dir.clone(),
+            relay_selector.clone(),
+            access_methods.clone(),
+        );
         let api_handle = api_runtime
             .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;
@@ -768,6 +782,7 @@ where
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
+            connection_modes: access_methods,
             api_runtime,
             api_handle,
             version_updater_handle,
