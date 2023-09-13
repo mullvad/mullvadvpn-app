@@ -10,7 +10,7 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.guava/guava@.*$</packageUrl>
         <cve>CVE-2020-8908</cve>
     </suppress>
-    <suppress until="2023-09-01Z">
+    <suppress until="2024-03-01Z">
         <notes><![CDATA[
         This CVE only part of the debugAndroidTestRuntimeClasspath so suppressing in automatic
         checks and tracking externally.
