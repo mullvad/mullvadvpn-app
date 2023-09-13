@@ -219,7 +219,6 @@ impl ApiEndpointUpdaterHandle {
                     return false;
                 };
                 let (result_tx, result_rx) = oneshot::channel();
-                // TODO: Use this to update the firewall ("Punch a hole") to allow traffic to/from a Socks-proxy on localhost.
                 let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
                     get_allowed_endpoint(address),
                     result_tx,
