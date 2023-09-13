@@ -609,18 +609,22 @@ impl RouteManagerImpl {
     /// Add back unscoped default routes, if they are still missing. This function returns
     /// true when no routes had to be added.
     async fn try_restore_default_routes(&mut self) -> bool {
-        let restore_route = |family, current_route: &mut RouteMessage| {
+        let mut done = true;
+        for family in [interface::Family::V4, interface::Family::V6] {
+            let current_route = match family {
+                interface::Family::V4 => &mut self.v4_default_route,
+                interface::Family::V6 => &mut self.v6_default_route,
+            };
             let message = RouteMessage::new_route(IpNetwork::from(family).into());
-            if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
+            done &= if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
                 true
             } else {
                 let new_route =
                     interface::get_best_default_route(&mut self.routing_table, family).await;
                 let old_route = std::mem::replace(current_route, new_route);
-                if old_route != current_route {
-                    self.notify_default_route_listeners(family, current_route.is_some());
-                }
-                if let Some(route) = current_route {
+                let notify = &old_route != current_route;
+
+                let done = if let Some(route) = current_route {
                     let _ = std::mem::replace(route, route.clone().set_ifscope(0));
                     if let Err(error) = self.routing_table.add_route(route).await {
                         log::trace!("Failed to add non-ifscope {family} route: {error}");
@@ -628,12 +632,17 @@ impl RouteManagerImpl {
                     false
                 } else {
                     true
-                }
-            }
-        };
+                };
 
-        restore_route(interface::Family::V4, &mut self.v4_default_route)
-            && restore_route(interface::Family::V6, &mut self.v6_default_route)
+                if notify {
+                    let changed = current_route.is_some();
+                    self.notify_default_route_listeners(family, changed);
+                }
+
+                done
+            };
+        }
+        done
     }
 }
 
