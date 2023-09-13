@@ -39,7 +39,6 @@ fun CollapsingToolbarScaffold(
 ) {
     val dynamic = remember { mutableStateOf(0.dp) }
     val systemUiController = rememberSystemUiController()
-    systemUiController.setStatusBarColor(backgroundColor)
     systemUiController.setNavigationBarColor(backgroundColor)
 
     var isCollapsable by remember { mutableStateOf(false) }
@@ -49,6 +48,7 @@ fun CollapsingToolbarScaffold(
             state.toolbarState.expand()
         }
     }
+
     val totalHeights = remember { mutableStateOf(0.dp) }
     val localDensity = LocalDensity.current
 

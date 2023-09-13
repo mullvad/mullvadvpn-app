@@ -31,6 +31,7 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
                     val state = vm.uiState.collectAsState().value
                     SettingsScreen(
                         uiState = state,
+                        enterTransitionEndAction = vm.enterTransitionEndAction,
                         onVpnSettingCellClick = { openVpnSettingsFragment() },
                         onSplitTunnelingCellClick = { openSplitTunnelingFragment() },
                         onReportProblemCellClick = { openReportProblemFragment() },
@@ -39,6 +40,10 @@ class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter 
                 }
             }
         }
+    }
+
+    override fun onEnterTransitionAnimationEnd() {
+        vm.onTransitionAnimationEnd()
     }
 
     private fun openFragment(fragment: Fragment) {

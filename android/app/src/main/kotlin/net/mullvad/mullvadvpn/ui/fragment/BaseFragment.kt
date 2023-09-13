@@ -26,14 +26,33 @@ abstract class BaseFragment : Fragment {
                 0f
             }
         ViewCompat.setTranslationZ(requireView(), zAdjustment)
-        return if (nextAnim != 0 && enter) {
-            AnimationUtils.loadAnimation(context, nextAnim)?.apply {
-                transitionFinishedFlow = transitionFinished()
+        val anim =
+            if (nextAnim != 0 && enter) {
+                AnimationUtils.loadAnimation(context, nextAnim)?.apply {
+                    transitionFinishedFlow = transitionFinished()
+                }
+            } else {
+                super.onCreateAnimation(transit, enter, nextAnim)
             }
-        } else {
-            super.onCreateAnimation(transit, enter, nextAnim)
+        anim?.let {
+            anim.setAnimationListener(
+                object : Animation.AnimationListener {
+                    override fun onAnimationStart(animation: Animation?) {}
+
+                    override fun onAnimationRepeat(animation: Animation?) {}
+
+                    override fun onAnimationEnd(animation: Animation?) {
+                        if (enter) {
+                            onEnterTransitionAnimationEnd()
+                        }
+                    }
+                },
+            )
         }
+        return anim
     }
+
+    open fun onEnterTransitionAnimationEnd() {}
 
     companion object {
         private val animationsToAdjustZorder =
