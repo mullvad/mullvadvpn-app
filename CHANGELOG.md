@@ -67,7 +67,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix tunnel state and connection details sometimes getting stuck showing the wrong information.
 - Fix MTU dismiss behavior.
-- Fix DNS input crash
+- Fix DNS input crash.
 - Fix inconsistent dialog padding.
 
 
