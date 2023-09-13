@@ -108,32 +108,59 @@ impl ApiConnectionModeProvider {
     ///
     /// TODO: Figure out an appropriate algorithm for selecting between the available AccessMethods.
     /// We need to be able to poll the daemon's settings to find out which access methods are available & active.
-    /// For now, we a
-    fn new_task(&self, retry_attempt: u32) -> ApiConnectionMode {
-        if Self::should_use_direct(retry_attempt) {
-            ApiConnectionMode::Direct
-        } else {
-            self.relay_selector
-                .get_bridge_forced()
-                .and_then(|settings| match settings {
-                    ProxySettings::Shadowsocks(ss_settings) => {
-                        let ss_settings: api_access_method::Shadowsocks =
-                            api_access_method::Shadowsocks::new(
-                                ss_settings.peer,
-                                ss_settings.cipher,
-                                ss_settings.password,
-                            );
-                        println!("Using bridge mode to access the API! {:?}", ss_settings);
-                        Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                            ss_settings,
-                        )))
-                    }
-                    _ => {
-                        log::error!("Received unexpected proxy settings type");
-                        None
-                    }
-                })
-                .unwrap_or(ApiConnectionMode::Direct)
+    /// For now, [`ApiConnectionModeProvider`] is only instanciated once during daemon startup, and does not change it's
+    /// available access methods based on any "Settings-changed" events.
+    fn new_connection_mode(&mut self) -> ApiConnectionMode {
+        log::debug!("Rotating Access mode!");
+        let access_method = {
+            let mut access_methods_picker = self.connection_modes.lock().unwrap();
+            // Rotate through the cycle of access methods.
+            // Safety: It is always safe to unwrap after calling `next` on a [`std::iter::Cycle`]
+            access_methods_picker.next().unwrap()
+        };
+        let connection_mode = self.from(&access_method);
+        log::info!("New API connection mode selected: {}", connection_mode);
+        connection_mode
+    }
+
+    /// Ad-hoc version of [`std::convert::From::from`], but since some
+    /// [`ApiConnectionMode`]s require extra logic/data from
+    /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait can not be used.
+    fn from(&mut self, access_method: &AccessMethod) -> ApiConnectionMode {
+        match access_method {
+            AccessMethod::BuiltIn(access_method) => match access_method {
+                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
+                BuiltInAccessMethod::Bridge => self
+                    .relay_selector
+                    .get_bridge_forced()
+                    .and_then(|settings| match settings {
+                        ProxySettings::Shadowsocks(ss_settings) => {
+                            let ss_settings: api_access_method::Shadowsocks =
+                                api_access_method::Shadowsocks::new(
+                                    ss_settings.peer,
+                                    ss_settings.cipher,
+                                    ss_settings.password,
+                                    *enabled,
+                                );
+                            Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
+                                ss_settings,
+                            )))
+                        }
+                        _ => {
+                            log::error!("Received unexpected proxy settings type");
+                            None
+                        }
+                    })
+                    .unwrap_or(ApiConnectionMode::Direct),
+            },
+            AccessMethod::Custom(access_method) => match &access_method.access_method {
+                api_access_method::ObfuscationProtocol::Shadowsocks(shadowsocks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config.clone()))
+                }
+                api_access_method::ObfuscationProtocol::Socks5(socks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
+                }
+            },
         }
     }
 }
@@ -161,22 +188,23 @@ impl ApiEndpointUpdaterHandle {
         move |address: SocketAddr| {
             let inner_tx = tunnel_tx.clone();
             async move {
-                let tunnel_tx = if let Some(Some(tunnel_tx)) = { inner_tx.lock().unwrap().as_ref() }
-                    .map(|tx: &Weak<mpsc::UnboundedSender<TunnelCommand>>| tx.upgrade())
+                let tunnel_tx = if let Some(tunnel_tx) = { inner_tx.lock().unwrap().as_ref() }
+                    .and_then(|tx: &Weak<mpsc::UnboundedSender<TunnelCommand>>| tx.upgrade())
                 {
                     tunnel_tx
                 } else {
                     log::error!("Rejecting allowed endpoint: Tunnel state machine is not running");
                     return false;
                 };
+
                 let (result_tx, result_rx) = oneshot::channel();
                 let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
                     get_allowed_endpoint(address),
                     result_tx,
                 ));
-                // Wait for the firewall policy to be updated.
                 let _ = result_rx.await;
                 log::debug!("API endpoint: {}", address);
+
                 true
             }
         }
