@@ -17,15 +17,18 @@ class DeleteAccountOperation: ResultOperation<Void> {
 
     private let accountNumber: String
     private let accountsProxy: REST.AccountsProxy
+    private let accessTokenManager: REST.AccessTokenManager
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
         accountsProxy: REST.AccountsProxy,
+        accessTokenManager: REST.AccessTokenManager,
         accountNumber: String
     ) {
         self.accountNumber = accountNumber
         self.accountsProxy = accountsProxy
+        self.accessTokenManager = accessTokenManager
         super.init(dispatchQueue: dispatchQueue)
     }
 
@@ -37,6 +40,7 @@ class DeleteAccountOperation: ResultOperation<Void> {
                 self?.dispatchQueue.async {
                     switch result {
                     case .success:
+                        self?.accessTokenManager.invalidateAllTokens()
                         self?.finish(result: .success(()))
                     case let .failure(error):
                         self?.logger.error(

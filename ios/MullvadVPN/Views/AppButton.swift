@@ -286,7 +286,6 @@ class CustomButton: UIButton {
         }
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     private func computeLayout(forContentRect contentRect: CGRect) -> (CGRect, CGRect) {
         var imageRect = super.imageRect(forContentRect: contentRect)
         var titleRect = super.titleRect(forContentRect: contentRect)
