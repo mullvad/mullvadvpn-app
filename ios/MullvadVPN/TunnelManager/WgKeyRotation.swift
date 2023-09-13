@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadTypes
+import Settings
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 

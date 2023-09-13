@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum DeviceState: Codable, Equatable {
+public enum DeviceState: Codable, Equatable {
     case loggedIn(StoredAccountData, StoredDeviceData)
     case loggedOut
     case revoked
@@ -18,7 +18,7 @@ enum DeviceState: Codable, Equatable {
         case _1 = "device"
     }
 
-    var isLoggedIn: Bool {
+    public var isLoggedIn: Bool {
         switch self {
         case .loggedIn:
             return true
@@ -27,7 +27,7 @@ enum DeviceState: Codable, Equatable {
         }
     }
 
-    var accountData: StoredAccountData? {
+    public var accountData: StoredAccountData? {
         switch self {
         case let .loggedIn(accountData, _):
             return accountData
@@ -36,7 +36,7 @@ enum DeviceState: Codable, Equatable {
         }
     }
 
-    var deviceData: StoredDeviceData? {
+    public var deviceData: StoredDeviceData? {
         switch self {
         case let .loggedIn(_, deviceData):
             return deviceData

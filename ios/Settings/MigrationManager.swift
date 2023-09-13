@@ -11,7 +11,7 @@ import MullvadLogging
 import MullvadREST
 import MullvadTypes
 
-enum SettingsMigrationResult {
+public enum SettingsMigrationResult {
     /// Nothing to migrate.
     case nothing
 
@@ -22,14 +22,16 @@ enum SettingsMigrationResult {
     case failure(Error)
 }
 
-struct MigrationManager {
+public struct MigrationManager {
     private let logger = Logger(label: "MigrationManager")
+
+    public init() {}
 
     /// Migrate settings store if needed.
     ///
     /// The following types of error are expected to be returned by this method:
     /// `SettingsMigrationError`, `UnsupportedSettingsVersionError`, `ReadSettingsVersionError`.
-    func migrateSettings(
+    public func migrateSettings(
         store: SettingsStore,
         proxyFactory: REST.ProxyFactory,
         migrationCompleted: @escaping (SettingsMigrationResult) -> Void
@@ -78,19 +80,19 @@ struct MigrationManager {
 }
 
 /// A wrapper type for errors returned by concrete migrations.
-struct SettingsMigrationError: LocalizedError, WrappingError {
+public struct SettingsMigrationError: LocalizedError, WrappingError {
     private let inner: Error
-    let sourceVersion, targetVersion: SchemaVersion
+    public let sourceVersion, targetVersion: SchemaVersion
 
-    var underlyingError: Error? {
+    public var underlyingError: Error? {
         inner
     }
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         "Failed to migrate settings from \(sourceVersion) to \(targetVersion)."
     }
 
-    init(sourceVersion: SchemaVersion, targetVersion: SchemaVersion, underlyingError: Error) {
+    public init(sourceVersion: SchemaVersion, targetVersion: SchemaVersion, underlyingError: Error) {
         self.sourceVersion = sourceVersion
         self.targetVersion = targetVersion
         inner = underlyingError

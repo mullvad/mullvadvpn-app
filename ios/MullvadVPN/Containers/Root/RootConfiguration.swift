@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Settings
 
 struct RootDeviceInfoViewModel {
     let configuration: RootConfiguration

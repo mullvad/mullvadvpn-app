@@ -10,6 +10,7 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 import Operations
+import Settings
 import StoreKit
 
 final class AccountInteractor {
