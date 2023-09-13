@@ -17,6 +17,9 @@ the Gradle CLI or the Android Studio GUI.
 
 ## Build with provided container (recommended)
 
+> __*NOTE:*__ Build with provided container is only supported on Linux and may not work on other
+> platforms.
+
 Building both the native libraries and Android project can easily be achieved by running the
 [containerized-build.sh](../building/containerized-build.sh) script, which helps using the correct
 tag and mounting volumes. The script relies on [podman](https://podman.io/getting-started/installation.html)
@@ -54,14 +57,17 @@ directory configured in step 1:
 ../building/containerized-build.sh android --app-bundle
 ```
 
-## Build without* the provided container (not recommended)
+## Build without* the provided container
+
+> __*NOTE:*__ This guide is only supported on Linux and may not work on other platforms, if you are
+> using macOS please refer to [macOS build instructions](./docs/BuildInstructions.macos.md)
 
 Building without the provided container requires installing multiple Sdk:s and toolchains, and is
-therefore not recommended.
+therefore more complex.
 
-*: A container is still used to build `wireguard-go` for Android since it requires a patched version
-of `go`. See [this patch](https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go/goruntime-boottime-over-monotonic.diff)
-for more information.
+> __*\*:*__ A container is still used to build `wireguard-go` for Android since it requires a
+> patched version of `go`. See [this patch](https://git.zx2c4.com/wireguard-android/tree/tunnel/tools/libwg-go/goruntime-boottime-over-monotonic.diff)
+> for more information.
 
 ### Setup build environment
 These steps explain how to manually setup the build environment on a Linux system.
@@ -83,16 +89,8 @@ Linux distro:
 
 - Install the JDK
 
-  **Linux**
-
   ```bash
   sudo apt install zip openjdk-17-jdk
-  ```
-
-  **macOS**
-
-  ```bash
-  brew install openjdk@17
   ```
 
 - Install the SDK
@@ -134,24 +132,9 @@ Linux distro:
 - Configure Android cross-compilation targets and set up linker and archiver. This can be done by setting the following
 environment variables:
 
-  **Linux**
-
   Add to `~/.bashrc` or equivalent:
   ```
   export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
-  ```
-
-  **macOS**
-
-  Add to `~/.zshrc` or equivalent:
-  ```
-  export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin"
-  ```
-
-  **Both platforms**
-
-  Add the following to the same file as above:
-  ```
   export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
   export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
   export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
