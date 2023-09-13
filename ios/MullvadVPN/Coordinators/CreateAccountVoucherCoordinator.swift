@@ -26,8 +26,15 @@ public class CreateAccountVoucherCoordinator: Coordinator {
         self.navigationController = navigationController
         self.interactor = interactor
 
+        var layoutMargins = navigationController.view.layoutMargins.toDirectionalInsets
+        layoutMargins.top += UIMetrics.contentLayoutMargins.top
+        layoutMargins.bottom += UIMetrics.contentLayoutMargins.bottom
+
         viewController = RedeemVoucherViewController(
-            configuration: RedeemVoucherViewConfiguration(adjustViewWhenKeyboardAppears: true),
+            configuration: RedeemVoucherViewConfiguration(
+                adjustViewWhenKeyboardAppears: true,
+                layoutMargins: layoutMargins
+            ),
             interactor: interactor
         )
     }
@@ -62,5 +69,16 @@ extension CreateAccountVoucherCoordinator: RedeemVoucherViewControllerDelegate {
 
     func redeemVoucherDidCancel(_ controller: RedeemVoucherViewController) {
         didCancel?(self)
+    }
+}
+
+private extension UIEdgeInsets {
+    var toDirectionalInsets: NSDirectionalEdgeInsets {
+        NSDirectionalEdgeInsets(
+            top: top,
+            leading: left,
+            bottom: bottom,
+            trailing: right
+        )
     }
 }

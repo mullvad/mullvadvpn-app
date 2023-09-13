@@ -6,7 +6,9 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import UIKit
+
 struct RedeemVoucherViewConfiguration {
     let adjustViewWhenKeyboardAppears: Bool
+    let layoutMargins: NSDirectionalEdgeInsets
 }
