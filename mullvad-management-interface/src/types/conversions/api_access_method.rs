@@ -140,6 +140,7 @@ mod data {
             match value {
                 AccessMethod::Custom(value) => match value.access_method {
                     ObfuscationProtocol::Shadowsocks(ss) => proto::api_access_method::Shadowsocks {
+                        id: value.id,
                         ip: ss.peer.ip().to_string(),
                         port: ss.peer.port() as u32,
                         password: ss.password,
@@ -149,6 +150,7 @@ mod data {
 
                     ObfuscationProtocol::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
                         proto::api_access_method::Socks5Local {
+                            id: value.id,
                             ip: peer.ip().to_string(),
                             port: peer.port() as u32,
                             local_port: port as u32,
@@ -157,6 +159,7 @@ mod data {
                     }
                     ObfuscationProtocol::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
                         proto::api_access_method::Socks5Remote {
+                            id: value.id,
                             ip: peer.ip().to_string(),
                             port: peer.port() as u32,
                         }
