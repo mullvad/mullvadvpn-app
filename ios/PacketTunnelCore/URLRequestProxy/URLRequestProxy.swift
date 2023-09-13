@@ -28,16 +28,15 @@ public final class URLRequestProxy {
         self.transportProvider = transportProvider
     }
 
-    public func sendRequest(
-        _ proxyRequest: ProxyURLRequest,
-        completionHandler: @escaping (ProxyURLResponse) -> Void
-    ) {
+    public func sendRequest(_ proxyRequest: ProxyURLRequest, completionHandler: @escaping (ProxyURLResponse) -> Void) {
         dispatchQueue.async {
-            guard let transportProvider = self.transportProvider.makeTransport() else { return }
+            guard let transportProvider = self.transportProvider.makeTransport() else {
+                completionHandler(ProxyURLResponse(data: nil, response: nil, error: nil))
+                return
+            }
 
             // The task sent by `transport.sendRequest` comes in an already resumed state
-            let task = transportProvider.sendRequest(proxyRequest.urlRequest) { [weak self] data, response, error in
-                guard let self else { return }
+            let task = transportProvider.sendRequest(proxyRequest.urlRequest) { [self] data, response, error in
                 // However there is no guarantee about which queue the execution resumes on
                 // Use `dispatchQueue` to guarantee thread safe access to `proxiedRequests`
                 dispatchQueue.async {
@@ -71,5 +70,15 @@ public final class URLRequestProxy {
     private func removeRequest(identifier: UUID) -> Cancellable? {
         dispatchPrecondition(condition: .onQueue(dispatchQueue))
         return proxiedRequests.removeValue(forKey: identifier)
+    }
+}
+
+extension URLRequestProxy {
+    public func sendRequest(_ proxyRequest: ProxyURLRequest) async -> ProxyURLResponse {
+        return await withCheckedContinuation { continuation in
+            sendRequest(proxyRequest) { proxyResponse in
+                continuation.resume(returning: proxyResponse)
+            }
+        }
     }
 }

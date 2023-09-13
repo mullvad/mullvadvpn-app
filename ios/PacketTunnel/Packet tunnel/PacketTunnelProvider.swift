@@ -162,7 +162,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         super.init()
 
-        adapter = createWireGuardAdapter()
+        let wgAdapter = WgAdapter(packetTunnelProvider: self)
+        adapter = wgAdapter.adapter
 
         tunnelMonitor = createTunnelMonitor(wireGuardAdapter: adapter)
         tunnelMonitor.onEvent = { [weak self] event in
@@ -408,23 +409,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     // MARK: - Private
 
-    private func createWireGuardAdapter() -> WireGuardAdapter {
-        WireGuardAdapter(
-            with: self,
-            shouldHandleReasserting: false,
-            logHandler: { [weak self] logLevel, message in
-                self?.dispatchQueue.async {
-                    self?.tunnelLogger.log(level: logLevel.loggerLevel, "\(message)")
-                }
-            }
-        )
-    }
-
-    private func createTunnelMonitor(wireGuardAdapter: WireGuardAdapter) -> TunnelMonitor {
+    private func createTunnelMonitor(wireGuardAdapter: WgAdapter) -> TunnelMonitor {
         TunnelMonitor(
             eventQueue: dispatchQueue,
             pinger: Pinger(replyQueue: dispatchQueue),
-            tunnelDeviceInfo: WgAdapterDeviceInfo(adapter: adapter),
+            tunnelDeviceInfo: wgAdapter,
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self),
             timings: TunnelMonitorTimings()
         )
@@ -737,15 +726,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 }
 
-/// Enum describing the next relay to connect to.
-private enum NextRelay {
-    /// Connect to pre-selected relay.
-    case set(RelaySelectorResult)
-
-    /// Determine next relay using relay selector.
-    case automatic
-}
-
 extension PacketTunnelErrorWrapper {
     init?(error: Error) {
         switch error {
@@ -774,4 +754,13 @@ extension PacketTunnelErrorWrapper {
     }
 
     // swiftlint:disable:next file_length
+}
+
+/// Enum describing the next relay to connect to.
+public enum NextRelay {
+    /// Connect to pre-selected relay.
+    case set(RelaySelectorResult)
+
+    /// Determine next relay using relay selector.
+    case automatic
 }
