@@ -53,10 +53,6 @@ impl fmt::Display for ProxyConfig {
     }
 }
 
-// The bijection between `AccessMethod` and `ApiConnectioMode`
-// impl From<AccessMehtod> for ApiConnectionMode {}
-// impl From<ApiConnectionMode> for AccessMehtod {}
-
 impl ApiConnectionMode {
     /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
     /// This returns `ApiConnectionMode::Direct` if reading from disk fails for any reason.
