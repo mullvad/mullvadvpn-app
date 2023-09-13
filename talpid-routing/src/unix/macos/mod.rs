@@ -1,11 +1,17 @@
 use crate::{NetNode, Node, RequiredRoute, Route};
 
-use futures::{channel::mpsc, future::FutureExt, stream::StreamExt};
+use futures::{
+    channel::mpsc,
+    future::FutureExt,
+    stream::{FusedStream, StreamExt},
+};
 use ipnetwork::IpNetwork;
 use nix::sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage};
+use std::pin::Pin;
 use std::{
     collections::{BTreeMap, HashSet},
     net::{Ipv4Addr, Ipv6Addr},
+    time::Duration,
 };
 use talpid_types::ErrorExt;
 use watch::RoutingTable;
@@ -43,6 +49,10 @@ pub enum Error {
     /// Received message isn't valid
     #[error(display = "Invalid data")]
     InvalidData(data::Error),
+
+    /// Restoring unscoped default routes
+    #[error(display = "Restoring unscoped default routes")]
+    RestoringUnscopedRoutes,
 }
 
 /// Route manager can be in 1 of 4 states -
@@ -66,6 +76,7 @@ pub struct RouteManagerImpl {
     v4_default_route: Option<data::RouteMessage>,
     v6_default_route: Option<data::RouteMessage>,
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
+    check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
 }
 
 impl RouteManagerImpl {
@@ -82,6 +93,7 @@ impl RouteManagerImpl {
             v4_default_route: None,
             v6_default_route: None,
             default_route_listeners: vec![],
+            check_default_routes_restored: Box::pin(futures::stream::pending()),
         })
     }
 
@@ -111,6 +123,16 @@ impl RouteManagerImpl {
             futures::select_biased! {
                 route_message = self.routing_table.next_message().fuse() => {
                     self.handle_route_message(route_message).await;
+                }
+
+                _ = self.check_default_routes_restored.next() => {
+                    if self.check_default_routes_restored.is_terminated() {
+                        continue;
+                    }
+                    if self.try_restore_default_routes().await {
+                        log::debug!("Unscoped routes were already restored");
+                        self.check_default_routes_restored = Box::pin(futures::stream::pending());
+                    }
                 }
 
                 command = manage_rx.next() => {
@@ -156,6 +178,24 @@ impl RouteManagerImpl {
                         }
 
                         Some(RouteManagerCommand::AddRoutes(routes, tx)) => {
+                            if !self.check_default_routes_restored.is_terminated() {
+                                // Give it some time to recover, but not too much
+                                if !self.try_restore_default_routes().await {
+                                    let _ = tokio::time::timeout(
+                                        Duration::from_millis(500),
+                                        self.check_default_routes_restored.next(),
+                                    ).await;
+
+                                    if !self.try_restore_default_routes().await {
+                                        log::warn!("Unscoped routes were not restored");
+                                        let _ = tx.send(Err(Error::RestoringUnscopedRoutes));
+                                        continue;
+                                    }
+                                }
+                                self.check_default_routes_restored = Box::pin(futures::stream::pending());
+                                log::debug!("Unscoped routes were already restored");
+                            }
+
                             log::debug!("Adding routes: {routes:?}");
                             let _ = tx.send(self.add_required_routes(routes).await);
                         }
@@ -336,8 +376,19 @@ impl RouteManagerImpl {
 
         log::debug!("New default route: {old_route:?} -> {default_route:?}");
 
+        let changed = default_route.is_some();
+        self.notify_default_route_listeners(family, changed);
+
+        // Substitute route with a tunnel route
+        self.apply_tunnel_default_route().await?;
+
+        // Update routes using default interface
+        self.apply_non_tunnel_routes().await
+    }
+
+    fn notify_default_route_listeners(&mut self, family: interface::Family, changed: bool) {
         // Notify default route listeners
-        let event = match (family, default_route.is_some()) {
+        let event = match (family, changed) {
             (interface::Family::V4, true) => DefaultRouteEvent::AddedOrChangedV4,
             (interface::Family::V6, true) => DefaultRouteEvent::AddedOrChangedV6,
             (interface::Family::V4, false) => DefaultRouteEvent::RemovedV4,
@@ -345,14 +396,6 @@ impl RouteManagerImpl {
         };
         self.default_route_listeners
             .retain(|tx| tx.unbounded_send(event).is_ok());
-
-        // Substitute route with a tunnel route
-        self.apply_tunnel_default_route().await?;
-
-        // Update routes using default interface
-        self.apply_non_tunnel_routes().await?;
-
-        Ok(())
     }
 
     /// Replace the default routes with an ifscope route, and
@@ -508,22 +551,94 @@ impl RouteManagerImpl {
             }
         }
 
-        // Reset default route
-        if let Err(error) = self
-            .set_default_route_ifscope(true, false)
-            .await
-            .and(self.set_default_route_ifscope(false, false).await)
-        {
-            log::error!("Failed to restore default routes: {error}");
-        }
-
         // We have already removed the applied default routes
         self.v4_tunnel_default_route = None;
         self.v6_tunnel_default_route = None;
 
+        self.try_restore_default_routes().await;
+
+        self.check_default_routes_restored = Self::create_default_route_check_timer();
+
         self.non_tunnel_routes.clear();
 
         Ok(())
+    }
+
+    /// FIXME: Hack. Restoring the default routes during cleanup sometimes fails, so repeatedly try
+    /// until we have restored unscoped default routes. This function produces a timer for
+    /// exponential backoff.
+    fn create_default_route_check_timer() -> Pin<Box<dyn FusedStream<Item = ()> + Send>> {
+        const RESTORE_HACK_INITIAL_INTERVAL: Duration = Duration::from_millis(500);
+        const RESTORE_HACK_INTERVAL_MULTIPLIER: u32 = 5;
+        const RESTORE_HACK_MAX_ATTEMPTS: u32 = 3;
+
+        Box::pin(futures::stream::unfold(0, |attempt| async move {
+            if attempt >= RESTORE_HACK_MAX_ATTEMPTS {
+                return None;
+            }
+
+            let next_interval = RESTORE_HACK_INITIAL_INTERVAL
+                * RESTORE_HACK_INTERVAL_MULTIPLIER.saturating_pow(attempt);
+            tokio::time::sleep(next_interval).await;
+
+            Some(((), attempt + 1))
+        }))
+    }
+
+    /// Add back unscoped default routes, if they are still missing. This function returns
+    /// true when no routes had to be added.
+    async fn try_restore_default_routes(&mut self) -> bool {
+        let message = RouteMessage::new_route(v4_default().into());
+        let v4_done = if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
+            true
+        } else {
+            let new_route =
+                interface::get_best_default_route(&mut self.routing_table, interface::Family::V4)
+                    .await;
+            let old_route = std::mem::replace(&mut self.v4_default_route, new_route);
+            if old_route != self.v4_default_route {
+                self.notify_default_route_listeners(
+                    interface::Family::V4,
+                    self.v4_default_route.is_some(),
+                );
+            }
+            if let Some(route) = &mut self.v4_default_route {
+                let _ = std::mem::replace(route, route.clone().set_ifscope(0));
+                if let Err(error) = self.routing_table.add_route(route).await {
+                    log::trace!("Failed to add non-ifscope v4 route: {error}");
+                }
+                false
+            } else {
+                true
+            }
+        };
+
+        let message = RouteMessage::new_route(v6_default().into());
+        let v6_done = if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
+            true
+        } else {
+            let new_route =
+                interface::get_best_default_route(&mut self.routing_table, interface::Family::V6)
+                    .await;
+            let old_route = std::mem::replace(&mut self.v6_default_route, new_route);
+            if old_route != self.v6_default_route {
+                self.notify_default_route_listeners(
+                    interface::Family::V6,
+                    self.v6_default_route.is_some(),
+                );
+            }
+            if let Some(route) = &mut self.v6_default_route {
+                let _ = std::mem::replace(route, route.clone().set_ifscope(0));
+                if let Err(error) = self.routing_table.add_route(route).await {
+                    log::trace!("Failed to add non-ifscope v6 route: {error}");
+                }
+                false
+            } else {
+                true
+            }
+        };
+
+        v4_done && v6_done
     }
 }
 
