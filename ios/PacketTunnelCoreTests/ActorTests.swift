@@ -51,8 +51,7 @@ final class ActorTests: XCTestCase {
             return Settings(
                 tunnelSettings: LatestTunnelSettings(
                     relayConstraints: RelayConstraints(),
-                    dnsSettings: DNSSettings(),
-                    obfuscationSettings: ObfuscationSettings()
+                    dnsSettings: DNSSettings()
                 ),
                 deviceState: .loggedIn(
                     StoredAccountData(identifier: "", number: "123", expiry: .distantFuture),
