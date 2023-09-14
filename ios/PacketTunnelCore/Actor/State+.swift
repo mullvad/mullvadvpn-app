@@ -67,7 +67,7 @@ extension State {
             """
 
         case let .error(blockedState):
-            return "\(name): \(blockedState.error.localizedDescription)"
+            return "\(name): \(blockedState.reason)"
 
         case .initial, .disconnecting, .disconnected:
             return name

@@ -127,9 +127,6 @@ public struct ConnectionState {
 }
 
 public struct BlockedState {
-    /// Error leading to blocked state.
-    public var error: Error
-
     /// Reason why block state was entered.
     public var reason: BlockedStateReason
 

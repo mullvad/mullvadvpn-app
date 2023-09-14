@@ -432,7 +432,6 @@ public actor PacketTunnelActor {
         switch state {
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
             let blockedState = BlockedState(
-                error: error,
                 reason: blockedStateErrorMapper.mapError(error),
                 relayConstraints: connState.relayConstraints,
                 currentKey: nil,
@@ -445,7 +444,6 @@ public actor PacketTunnelActor {
 
         case .initial:
             var blockedState = BlockedState(
-                error: error,
                 reason: blockedStateErrorMapper.mapError(error),
                 relayConstraints: nil,
                 currentKey: nil,
@@ -464,7 +462,6 @@ public actor PacketTunnelActor {
             await configureAdapterForErrorState()
 
         case var .error(blockedState):
-            blockedState.error = error
             blockedState.reason = blockedStateErrorMapper.mapError(error)
             state = .error(blockedState)
 
