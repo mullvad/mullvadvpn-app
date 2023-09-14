@@ -9,12 +9,16 @@
 import Foundation
 import MullvadTypes
 
-// Kinds of tasks that actor performs.
-enum TaskKind: Equatable {
-    case start, stop, reconnect, keyRotated
-}
+/**
+ Task-based FIFO queue used by `PacketTunnelActor`.
 
-/// Task-based FIFO queue.
+ A task is a unit of asynchronous work. A task can be comprised of multiple async calls. The purpose of `TaskQueue` is to make sure that individual tasks can
+ execute their work in a transactional fashion without interlacing or interrupting each others work. You can think of it as a simplified `OperationQueue` for
+ coroutines.
+
+ `TaskQueue` also implements a basic relationship management between tasks in form of cancelling adjacent tasks that otherwise undo each others work, such as
+ for instance a call to `.stop` is guaranteed to undo work of any preceding task. (See `TaskKind` for more information)
+ */
 final actor TaskQueue {
     private var currentTask: SerialTask?
 
@@ -63,13 +67,26 @@ final actor TaskQueue {
     }
 }
 
+/// Kinds of tasks that `TaskQueue` actor performs.
+enum TaskKind: Equatable {
+    case start, stop, reconnect, keyRotated
+}
+
 private struct SerialTask {
     var kind: TaskKind
     var task: AnyTask
 }
 
 private extension TaskKind {
-    /// Returns `true` if the prior task should be cancelled.
+    /**
+     Returns `true` if the prior task should be cancelled.
+
+     The following adjacent tasks should result in cancellation of the left-hand side task.
+
+     `.start` → `.stop`
+     `.reconnect` → `.stop`
+     `.reconnect` → `.reconnect`
+     */
     func shouldCancel(_ prior: TaskKind) -> Bool {
         if self == .stop, prior != .stop {
             // Stop task can cancel any prior task.
