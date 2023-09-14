@@ -16,6 +16,11 @@ import class WireGuardKitTypes.PrivateKey
 
 /**
  Packet tunnel state machine implemented as an actor.
+
+ All public methods, that mutate `state`, use `TaskQueue` to guarantee to prevent re-entrancy and interlacing issues. Regarless how many suspensions the task
+ schedule on task queue may have, it will execute in its entirety before passing control to the next.
+
+ Task queue also enables actor to coalesce repeating calls, and cancel executing tasks that no longer need to continue.
  */
 public actor PacketTunnelActor {
     @Published private(set) public var state: State = .initial {
