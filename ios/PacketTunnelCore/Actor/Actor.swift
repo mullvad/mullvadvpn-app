@@ -46,14 +46,6 @@ public actor PacketTunnelActor {
         self.relaySelector = relaySelector
         self.settingsReader = settingsReader
         self.deviceChecker = deviceChecker
-
-        tunnelMonitor.onEvent = { [weak self] event in
-            guard let self else { return }
-
-            Task {
-                await self.handleMonitorEvent(event)
-            }
-        }
     }
 
     public func start(options: StartOptions) async throws {
@@ -65,9 +57,13 @@ public actor PacketTunnelActor {
             // Start observing default network path to determine network reachability.
             defaultPathObserver.start { [weak self] networkPath in
                 guard let self else { return }
-                Task {
-                    await self.onDefaultPathChange(networkPath)
-                }
+                Task { await self.onDefaultPathChange(networkPath) }
+            }
+
+            // Assign a closure receiving tunnel monitor events.
+            tunnelMonitor.onEvent = { [weak self] event in
+                guard let self else { return }
+                Task { await self.handleMonitorEvent(event) }
             }
 
             do {
