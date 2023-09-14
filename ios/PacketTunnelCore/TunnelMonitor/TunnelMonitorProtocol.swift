@@ -19,6 +19,7 @@ public enum TunnelMonitorEvent {
     case connectionLost
 
     /// Dispatched when network reachability changes.
+    @available(*, deprecated, message: "Clients should manually monitor network reachability.")
     case networkReachabilityChanged(_ isNetworkReachable: Bool)
 }
 
