@@ -120,7 +120,8 @@ extension BlockedStateReason {
         case .deviceLocked, .outdatedSchema:
             return true
 
-        case .noRelaysSatisfyingConstraints, .readSettings, .invalidAccount, .deviceRevoked, .tunnelAdapter, .unknown:
+        case .noRelaysSatisfyingConstraints, .readSettings, .invalidAccount, .deviceRevoked, .tunnelAdapter, .unknown,
+             .deviceLoggedOut:
             return false
         }
     }

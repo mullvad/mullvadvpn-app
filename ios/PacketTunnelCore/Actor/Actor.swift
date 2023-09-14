@@ -11,8 +11,12 @@ import MullvadLogging
 import MullvadTypes
 import NetworkExtension
 import struct RelaySelector.RelaySelectorResult
+import struct Settings.StoredDeviceData
 import class WireGuardKitTypes.PrivateKey
 
+/**
+ Packet tunnel state machine implemented as an actor.
+ */
 public actor PacketTunnelActor {
     @Published private(set) public var state: State = .initial {
         didSet {
@@ -46,6 +50,8 @@ public actor PacketTunnelActor {
         self.settingsReader = settingsReader
     }
 
+    // MARK: - Public: Calls serialized on task queue
+
     public func start(options: StartOptions) async throws {
         try await taskQueue.add(kind: .start) { [self] in
             guard case .initial = state else { return }
@@ -71,7 +77,7 @@ public actor PacketTunnelActor {
 
                 logger.error(error: error, message: "Failed to start the tunnel.")
 
-                await setErrorState(with: error)
+                await setErrorStateInner(with: error)
             }
         }
 
@@ -120,15 +126,36 @@ public actor PacketTunnelActor {
         try await reconnect(to: nextRelay, shouldStopTunnelMonitor: true)
     }
 
-    // MARK: - Private key rotation notifications
+    /**
+     Switch actor into error state.
 
-    /// Notify actor that the private key rotation took place.
-    /// When that happens the actor changes key policy to `.usePrior` in order
-    public func notifyKeyRotated() async {
+     Normally actor enters error state on its own, due to unrecoverable errors. However error state can also be induced externally for example in response to
+     device check indicating certain issues that actor is not able to detect on its own such as invalid account or device being revoked on backend.
+     */
+    public func setErrorState(with reason: BlockedStateReason) async {
+        try? await taskQueue.add(kind: .blockedState) { [self] in
+            try Task.checkCancellation()
+            await setErrorStateInner(with: reason)
+        }
+    }
+
+    /**
+     Tell actor that key rotation took place.
+
+     When that happens the actor changes key policy to `.usePrior` caching the currently used key in associated value.
+
+     That cached key is used by actor for some time until the new key is propagated across relays. Then it flips the key policy back to `.useCurrent` and
+     reconnects the tunnel using new key.
+
+     The `date` passed as an argument is a simple marker value passed back to UI process with actor state. This date can be used to determine when
+     the main app has to re-read device state from Keychain, since there is no other mechanism to notify other process when packet tunnel mutates keychain store.
+     */
+    public func notifyKeyRotated(date: Date? = nil) async {
         await taskQueue.add(kind: .keyRotated) { [self] in
             func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
                 switch connState.keyPolicy {
                 case .useCurrent:
+                    connState.lastKeyRotation = date
                     connState.keyPolicy = .usePrior(connState.currentKey, AutoCancellingTask(startSwitchKeyTask()))
                     return true
 
@@ -158,6 +185,7 @@ public actor PacketTunnelActor {
                 switch blockedState.keyPolicy {
                 case .useCurrent:
                     if let currentKey = blockedState.currentKey {
+                        blockedState.lastKeyRotation = date
                         blockedState.keyPolicy = .usePrior(currentKey, AutoCancellingTask(startSwitchKeyTask()))
                         state = .error(blockedState)
                     }
@@ -172,7 +200,24 @@ public actor PacketTunnelActor {
         }
     }
 
-    /// Start a task that sleeps for 120 seconds before switching key policy to `.useCurrent` and reconnecting the tunnel with the new key.
+    // MARK: - Public: Sleep cycle notifications
+
+    public nonisolated func onWake() {
+        tunnelMonitor.onWake()
+    }
+
+    public func onSleep() {
+        tunnelMonitor.onSleep()
+    }
+
+    // MARK: - Private: key policy
+
+    /**
+     Start a task that will wait for 120 seconds for the new key to propagate across relays and then:
+
+     1. Switch `keyPolicy` back to `.useCurrent`.
+     2. Reconnect the tunnel using the new key (currently stored in device state)
+     */
     private func startSwitchKeyTask() -> AnyTask {
         return Task {
             // Wait for key to propagate across relays.
@@ -224,19 +269,10 @@ public actor PacketTunnelActor {
         }
     }
 
-    // MARK: - Sleep cycle notifications
-
-    public nonisolated func onWake() {
-        tunnelMonitor.onWake()
-    }
-
-    public func onSleep() {
-        tunnelMonitor.onSleep()
-    }
-
     // MARK: - Network Reachability
 
-    func onDefaultPathChange(_ networkPath: NetworkPath) async {
+    /// Event handler that receives new network path and schedules it for processing on task queue to avoid interlacing with other tasks.
+    private func onDefaultPathChange(_ networkPath: NetworkPath) async {
         await taskQueue.add(kind: .networkReachability) { [self] in
             let newReachability = networkPath.networkReachability
 
@@ -283,12 +319,34 @@ public actor PacketTunnelActor {
 
     // MARK: - Private: Tunnel management
 
+    /**
+     Attempt to start the tunnel by performing the following steps:
+
+     - Read settings.
+     - If device is not logged in then throw an error and return
+     - Determine target state, it can either be `.connecting` or `.reconnecting`. (See `TargetStateForReconnect`)
+     - Bail if target state cannot be determined. That means that the actor is past the point when it could logically connect or reconnect, i.e it can already be in
+       `.disconnecting` state.
+     - Configure tunnel adapter.
+     - Start tunnel monitor.
+     */
     private func tryStart(nextRelay: NextRelay = .random) async throws {
         let settings: Settings = try settingsReader.read()
-        guard let storedDeviceData = settings.deviceState.deviceData else { throw BlockedStateError.deviceRevoked }
+
+        let deviceData: StoredDeviceData
+        switch settings.deviceState {
+        case let .loggedIn(_, storedDeviceData):
+            deviceData = storedDeviceData
+        case .loggedOut:
+            throw InvalidDeviceStateError.loggedOut
+        case .revoked:
+            throw InvalidDeviceStateError.revoked
+        }
 
         func makeConnectionState() throws -> ConnectionState? {
             let relayConstraints = settings.tunnelSettings.relayConstraints
+            let privateKey = deviceData.wgKeyData.privateKey
+
             switch state {
             case .initial:
                 return ConnectionState(
@@ -299,7 +357,7 @@ public actor PacketTunnelActor {
                         connectionAttemptCount: 0
                     ),
                     relayConstraints: relayConstraints,
-                    currentKey: storedDeviceData.wgKeyData.privateKey,
+                    currentKey: privateKey,
                     keyPolicy: .useCurrent,
                     networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
                     connectionAttemptCount: 0
@@ -312,7 +370,7 @@ public actor PacketTunnelActor {
                     currentRelay: connState.selectedRelay,
                     connectionAttemptCount: connState.connectionAttemptCount
                 )
-                connState.currentKey = storedDeviceData.wgKeyData.privateKey
+                connState.currentKey = privateKey
 
                 return connState
 
@@ -325,7 +383,7 @@ public actor PacketTunnelActor {
                         connectionAttemptCount: 0
                     ),
                     relayConstraints: relayConstraints,
-                    currentKey: storedDeviceData.wgKeyData.privateKey,
+                    currentKey: privateKey,
                     keyPolicy: blockedState.keyPolicy,
                     networkReachability: .undetermined,
                     connectionAttemptCount: 0
@@ -349,7 +407,7 @@ public actor PacketTunnelActor {
         let endpoint = connectionState.selectedRelay.endpoint
         let configurationBuilder = ConfigurationBuilder(
             privateKey: connectionState.activeKey,
-            interfaceAddresses: [storedDeviceData.ipv4Address, storedDeviceData.ipv6Address],
+            interfaceAddresses: [deviceData.ipv4Address, deviceData.ipv6Address],
             dns: settings.tunnelSettings.dnsSettings,
             endpoint: endpoint
         )
@@ -359,35 +417,35 @@ public actor PacketTunnelActor {
         tunnelMonitor.start(probeAddress: endpoint.ipv4Gateway)
     }
 
+    /**
+     Internal method that schedules a reconnection attempt on task queue.
+     */
     private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         try await taskQueue.add(kind: .reconnect) { [self] in
             try Task.checkCancellation()
 
-            try await reconnectInner(to: nextRelay, shouldStopTunnelMonitor: shouldStopTunnelMonitor)
-        }
-    }
+            do {
+                switch state {
+                case .connecting, .connected, .reconnecting, .error:
+                    if shouldStopTunnelMonitor {
+                        tunnelMonitor.stop()
+                    }
+                    try await tryStart(nextRelay: nextRelay)
 
-    private func reconnectInner(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
-        do {
-            switch state {
-            case .connecting, .connected, .reconnecting, .error:
-                if shouldStopTunnelMonitor {
-                    tunnelMonitor.stop()
+                case .disconnected, .disconnecting, .initial:
+                    break
                 }
-                try await tryStart(nextRelay: nextRelay)
+            } catch {
+                try Task.checkCancellation()
 
-            case .disconnected, .disconnecting, .initial:
-                break
+                logger.error(error: error, message: "Failed to reconnect the tunnel.")
+
+                await setErrorStateInner(with: error)
             }
-        } catch {
-            try Task.checkCancellation()
-
-            logger.error(error: error, message: "Failed to reconnect the tunnel.")
-
-            await setErrorState(with: error)
         }
     }
 
+    /// Select next relay to connect to based on `NextRelay` and other input parameters.
     private func selectRelay(
         nextRelay: NextRelay,
         relayConstraints: RelayConstraints,
@@ -399,6 +457,7 @@ public actor PacketTunnelActor {
             if let currentRelay {
                 return currentRelay
             } else {
+                // Fallthrough to .random when current relay is not set.
                 fallthrough
             }
 
@@ -415,11 +474,48 @@ public actor PacketTunnelActor {
 
     // MARK: - Private: Error state
 
-    private func setErrorState(with error: Error) async {
+    /**
+     Evaluates error and maps it to `BlockedStateReason` before switchin actor to `.error` state.
+
+     Matches against internal errors first, then consults with `blockedStateErrorMapper`.
+     */
+    private func setErrorStateInner(with error: Error) async {
+        let reason: BlockedStateReason
+
+        // Handle internal errors first.
+        if let error = error as? InvalidDeviceStateError {
+            switch error {
+            case .revoked:
+                reason = .deviceRevoked
+            case .loggedOut:
+                reason = .deviceLoggedOut
+            }
+        } else {
+            reason = blockedStateErrorMapper.mapError(error)
+        }
+
+        await setErrorStateInner(with: reason)
+    }
+
+    /// Transitions actor to `.error` state.
+    private func setErrorStateInner(with reason: BlockedStateReason) async {
         switch state {
+        case .initial:
+            let blockedState = BlockedState(
+                reason: reason,
+                relayConstraints: nil,
+                currentKey: nil,
+                keyPolicy: .useCurrent,
+                networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
+                recoveryTask: startRecoveryTaskIfNeeded(reason: reason),
+                priorState: state.priorState!
+            )
+            state = .error(blockedState)
+            await configureAdapterForErrorState()
+
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
             let blockedState = BlockedState(
-                reason: blockedStateErrorMapper.mapError(error),
+                reason: reason,
                 relayConstraints: connState.relayConstraints,
                 currentKey: nil,
                 keyPolicy: connState.keyPolicy,
@@ -429,34 +525,21 @@ public actor PacketTunnelActor {
             state = .error(blockedState)
             await configureAdapterForErrorState()
 
-        case .initial:
-            var blockedState = BlockedState(
-                reason: blockedStateErrorMapper.mapError(error),
-                relayConstraints: nil,
-                currentKey: nil,
-                keyPolicy: .useCurrent,
-                networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
-                recoveryTask: nil,
-                priorState: state.priorState!
-            )
-
-            // Create a recovery task if the tunnel can recover from error state automatically
-            if blockedState.reason.shouldRestartAutomatically {
-                blockedState.recoveryTask = AutoCancellingTask(startRecoveryTask())
-            }
-
-            state = .error(blockedState)
-            await configureAdapterForErrorState()
-
         case var .error(blockedState):
-            blockedState.reason = blockedStateErrorMapper.mapError(error)
-            state = .error(blockedState)
+            if blockedState.reason != reason {
+                blockedState.reason = reason
+                state = .error(blockedState)
+            }
 
         case .disconnecting, .disconnected:
             break
         }
     }
 
+    /**
+     Configure tunnel with empty WireGuard configuration that consumes all traffic on device and emitates the blocked state akin to the one we have on desktop
+     which however utilizes firewall to achieve this.
+     */
     private func configureAdapterForErrorState() async {
         do {
             let configurationBuilder = ConfigurationBuilder(
@@ -469,34 +552,43 @@ public actor PacketTunnelActor {
         }
     }
 
-    private func startRecoveryTask() -> AnyTask {
-        return Task { [weak self] in
+    /**
+     Start a task that will attempt to reconnect the tunnel periodically, but only if the tunnel can recover from error state automatically.
+
+     See `BlockedStateReason.shouldRestartAutomatically` for more info.
+     */
+    private func startRecoveryTaskIfNeeded(reason: BlockedStateReason) -> AutoCancellingTask? {
+        guard reason.shouldRestartAutomatically else { return nil }
+
+        let task = Task { [weak self] in
             let repeating: DispatchTimeInterval = .seconds(10)
             let timerStream = DispatchSource.scheduledTimer(on: .now() + repeating, repeating: repeating)
 
             for await _ in timerStream {
-                await self?.onRecoveryTimer()
+                try? await self?.reconnect(to: .random)
             }
         }
-    }
 
-    private func onRecoveryTimer() async {
-        try? await taskQueue.add(kind: .start) { [self] in
-            guard case .error = self.state else { return }
-
-            do {
-                try await tryStart()
-            } catch {
-                try Task.checkCancellation()
-
-                logger.error(error: error, message: "Failed to start the tunnel from recovery timer.")
-
-                await setErrorState(with: error)
-            }
-        }
+        return AutoCancellingTask(task)
     }
 
     // MARK: - Private: Connection monitoring
+
+    private func handleMonitorEvent(_ event: TunnelMonitorEvent) async {
+        switch event {
+        case .connectionEstablished:
+            await onEstablishConnection()
+
+        case .connectionLost:
+            await onHandleConnectionRecovery()
+
+        case .networkReachabilityChanged:
+            // TODO: remove .networkReachabilityChanged later
+            // We track network reachability separately because tunnel monitor tends to stop reachability
+            // observation when it's stopped or paused. This is a problem for error state.
+            break
+        }
+    }
 
     private func onEstablishConnection() async {
         switch state {
@@ -523,65 +615,11 @@ public actor PacketTunnelActor {
                 state = .reconnecting(connState)
             }
 
-            // Tunnel monitor should already be paused at this point so don't stop it to avoid reseting its internal
+            // Tunnel monitor should already be paused at this point so don't stop it to avoid a reset of its internal
             // counters.
             try? await reconnect(to: .random, shouldStopTunnelMonitor: false)
 
         case .initial, .disconnected, .disconnecting, .error:
-            break
-        }
-    }
-
-    private func onNetworkReachibilityChange(_ isNetworkReachable: Bool) async {
-        func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
-            let networkReachability: NetworkReachability = isNetworkReachable ? .reachable : .unreachable
-
-            if connState.networkReachability != networkReachability {
-                connState.networkReachability = networkReachability
-                return true
-            }
-
-            return false
-        }
-
-        switch state {
-        case var .connected(connState):
-            if mutateConnectionState(&connState) {
-                state = .connected(connState)
-            }
-
-        case var .connecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .connecting(connState)
-            }
-
-        case var .reconnecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .reconnecting(connState)
-            }
-
-        case var .disconnecting(connState):
-            if mutateConnectionState(&connState) {
-                state = .disconnecting(connState)
-            }
-
-        case .disconnected, .initial, .error:
-            break
-        }
-    }
-
-    private func handleMonitorEvent(_ event: TunnelMonitorEvent) async {
-        switch event {
-        case .connectionEstablished:
-            await onEstablishConnection()
-
-        case .connectionLost:
-            await onHandleConnectionRecovery()
-
-        case .networkReachabilityChanged:
-            // TODO: remove once networkReachabilityChanged later
-            // We track network reachability separately because tunnel monitor tends to stop reachability
-            // observation when it's stopped or paused. This is a problem for error state.
             break
         }
     }

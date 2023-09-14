@@ -29,6 +29,10 @@ public enum BlockedStateReason: String, Codable, Equatable {
     /// Device revoked.
     case deviceRevoked
 
+    /// Device is logged out.
+    /// This is an extreme edge case, most likely means that main bundle forgot to delete the VPN configuration during logout.
+    case deviceLoggedOut
+
     /// Tunnel adapter error.
     case tunnelAdapter
 

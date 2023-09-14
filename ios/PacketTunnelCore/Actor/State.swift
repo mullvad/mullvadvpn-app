@@ -126,6 +126,7 @@ public struct ConnectionState {
     }
 }
 
+/// Struct holding information associated with `State.error`.
 public struct BlockedState {
     /// Reason why block state was entered.
     public var reason: BlockedStateReason
@@ -155,28 +156,14 @@ public struct BlockedState {
     public var priorState: StatePriorToBlockedState
 }
 
+/// Legal states that can precede error state.
 public enum StatePriorToBlockedState {
     case initial, connecting, connected, reconnecting
 }
 
-/**
- Target state the actor should transition into upon request to either start (connect) or reconnect.
- */
+/// Target state the actor should transition into upon request to either start (connect) or reconnect.
 public enum TargetStateForReconnect {
     case reconnecting, connecting
-}
-
-public enum BlockedStateError: LocalizedError {
-    case deviceRevoked, invalidAccount
-
-    public var errorDescription: String? {
-        switch self {
-        case .deviceRevoked:
-            return "Device is revoked."
-        case .invalidAccount:
-            return "Account is invalid."
-        }
-    }
 }
 
 public enum NextRelay {

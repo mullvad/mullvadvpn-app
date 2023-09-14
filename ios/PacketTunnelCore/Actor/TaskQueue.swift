@@ -69,7 +69,7 @@ final actor TaskQueue {
 
 /// Kinds of tasks that `TaskQueue` actor performs.
 enum TaskKind: Equatable {
-    case start, stop, reconnect, keyRotated, networkReachability
+    case start, stop, reconnect, blockedState, keyRotated, networkReachability
 }
 
 private struct SerialTask {
@@ -81,7 +81,7 @@ private extension TaskKind {
     /**
      Returns `true` if the prior task should be cancelled.
 
-     The following adjacent tasks should result in cancellation of the left-hand side task.
+     The following adjacent tasks should result in cancellation of the left-hand side (preceding) task.
 
      `.start` → `.stop`
      `.reconnect` → `.stop`

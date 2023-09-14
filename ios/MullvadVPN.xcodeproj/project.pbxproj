@@ -60,6 +60,7 @@
 		580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */; };
 		580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */; };
 		580D6B922AB360BE00B2D6E0 /* DeviceCheck+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */; };
+		580D6B942AB3660B00B2D6E0 /* InternalErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B932AB3660B00B2D6E0 /* InternalErrors.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
 		58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		58153071294CBE8B00D1702E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
@@ -1094,6 +1095,7 @@
 		580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapperProtocol.swift; sourceTree = "<group>"; };
 		580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapper.swift; sourceTree = "<group>"; };
 		580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeviceCheck+.swift"; sourceTree = "<group>"; };
+		580D6B932AB3660B00B2D6E0 /* InternalErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalErrors.swift; sourceTree = "<group>"; };
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		580F8B8228197881002E0998 /* TunnelSettingsV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV2.swift; sourceTree = "<group>"; };
 		580F8B8528197958002E0998 /* DNSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSettings.swift; sourceTree = "<group>"; };
@@ -2208,6 +2210,7 @@
 			children = (
 				58E9C3852A4EF1CB00CFDEAC /* Actor.swift */,
 				58FE25F32AA9D730003D1918 /* Actor+.swift */,
+				580D6B932AB3660B00B2D6E0 /* InternalErrors.swift */,
 				5824030C2A811B0000163DE8 /* State.swift */,
 				58342C032AAB61FB003BA12D /* State+.swift */,
 				583E60952A9F6D0800DC61EF /* ConfigurationBuilder.swift */,
@@ -2728,6 +2731,7 @@
 			children = (
 				58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */,
 				585B1FF12AB0BC69008AD470 /* State+.swift */,
+				580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */,
 				5864AF7C2A9F4DC9008BC928 /* SettingsReader.swift */,
 				582403812A827E1500163DE8 /* RelaySelectorWrapper.swift */,
 				58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */,
@@ -3943,6 +3947,7 @@
 				58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */,
 				58C9B8C82ABB23E700040B46 /* PacketTunnelOptions.swift in Sources */,
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
+				580D6B942AB3660B00B2D6E0 /* InternalErrors.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
 				58897EE72ABB337200CC669D /* PacketTunnelErrorWrapper.swift in Sources */,
 				58C9B8CA2ABB23E700040B46 /* ProxyURLRequest.swift in Sources */,
