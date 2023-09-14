@@ -20,16 +20,10 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
     private let relayCache: RelayCache
-
     private let constraintsUpdater = RelayConstraintsUpdater()
-
-    /// Request proxy used to perform URLRequests bypassing VPN.
     private let urlRequestProxy: URLRequestProxy
 
-    private var adapter: WgAdapter!
-    private var tunnelMonitor: TunnelMonitor!
     private var actor: PacketTunnelActor!
-
     private var stateObserverTask: AnyTask?
 
     override init() {
@@ -58,9 +52,9 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
 
         super.init()
 
-        adapter = WgAdapter(packetTunnelProvider: self)
+        let adapter = WgAdapter(packetTunnelProvider: self)
 
-        tunnelMonitor = TunnelMonitor(
+        let tunnelMonitor = TunnelMonitor(
             eventQueue: internalQueue,
             pinger: Pinger(replyQueue: internalQueue),
             tunnelDeviceInfo: adapter,
