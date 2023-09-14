@@ -156,7 +156,7 @@ public actor PacketTunnelActor {
                 switch connState.keyPolicy {
                 case .useCurrent:
                     connState.lastKeyRotation = date
-                    connState.keyPolicy = .usePrior(connState.currentKey, AutoCancellingTask(startSwitchKeyTask()))
+                    connState.keyPolicy = .usePrior(connState.currentKey, startSwitchKeyTask())
                     return true
 
                 case .usePrior:
@@ -186,7 +186,7 @@ public actor PacketTunnelActor {
                 case .useCurrent:
                     if let currentKey = blockedState.currentKey {
                         blockedState.lastKeyRotation = date
-                        blockedState.keyPolicy = .usePrior(currentKey, AutoCancellingTask(startSwitchKeyTask()))
+                        blockedState.keyPolicy = .usePrior(currentKey, startSwitchKeyTask())
                         state = .error(blockedState)
                     }
 
@@ -218,8 +218,8 @@ public actor PacketTunnelActor {
      1. Switch `keyPolicy` back to `.useCurrent`.
      2. Reconnect the tunnel using the new key (currently stored in device state)
      */
-    private func startSwitchKeyTask() -> AnyTask {
-        return Task {
+    private func startSwitchKeyTask() -> AutoCancellingTask {
+        let task = Task {
             // Wait for key to propagate across relays.
             try await Task.sleep(seconds: 120)
 
@@ -267,6 +267,8 @@ public actor PacketTunnelActor {
             // This will schedule a normal call to reconnect that will be enqueued on the task queue.
             try await reconnect(to: .random)
         }
+
+        return AutoCancellingTask(task)
     }
 
     // MARK: - Network Reachability
