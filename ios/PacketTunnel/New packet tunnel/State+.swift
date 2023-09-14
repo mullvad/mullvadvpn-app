@@ -36,7 +36,7 @@ extension State {
             break
 
         case let .error(blockedState):
-            status.blockStateReason = blockedState.blockStateReason
+            status.blockedStateReason = blockedState.reason
         }
 
         return status

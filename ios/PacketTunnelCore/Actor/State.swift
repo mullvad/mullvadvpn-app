@@ -130,6 +130,9 @@ public struct BlockedState {
     /// Error leading to blocked state.
     public var error: Error
 
+    /// Reason why block state was entered.
+    public var reason: BlockedStateReason
+
     /// Last relay constraints read from settings.
     /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
     public var relayConstraints: RelayConstraints?
@@ -153,13 +156,6 @@ public struct BlockedState {
 
     /// Prior state of the actor before entering blocked state
     public var priorState: StatePriorToBlockedState
-}
-
-extension BlockedState {
-    public var blockStateReason: BlockStateReason {
-        // TODO: match error in a separate dependency
-        return .noRelaysSatisfyingConstraints
-    }
 }
 
 public enum StatePriorToBlockedState {

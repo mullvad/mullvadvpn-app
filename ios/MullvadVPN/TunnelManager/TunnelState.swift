@@ -66,7 +66,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
     case waitingForConnectivity(WaitingForConnectionReason)
 
     /// Error state.
-    case error(BlockStateReason)
+    case error(BlockedStateReason)
 
     var description: String {
         switch self {

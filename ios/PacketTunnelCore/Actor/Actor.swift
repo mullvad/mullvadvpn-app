@@ -26,6 +26,7 @@ public actor PacketTunnelActor {
     private let tunnelAdapter: TunnelAdapterProtocol
     private let tunnelMonitor: TunnelMonitorProtocol
     private let defaultPathObserver: DefaultPathObserverProtocol
+    private let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
     private let relaySelector: RelaySelectorProtocol
     private let settingsReader: SettingsReaderProtocol
     private let deviceChecker: DeviceCheckProtocol
@@ -36,6 +37,7 @@ public actor PacketTunnelActor {
         tunnelAdapter: TunnelAdapterProtocol,
         tunnelMonitor: TunnelMonitorProtocol,
         defaultPathObserver: DefaultPathObserverProtocol,
+        blockedStateErrorMapper: BlockedStateErrorMapperProtocol,
         relaySelector: RelaySelectorProtocol,
         settingsReader: SettingsReaderProtocol,
         deviceChecker: DeviceCheckProtocol
@@ -43,6 +45,7 @@ public actor PacketTunnelActor {
         self.tunnelAdapter = tunnelAdapter
         self.tunnelMonitor = tunnelMonitor
         self.defaultPathObserver = defaultPathObserver
+        self.blockedStateErrorMapper = blockedStateErrorMapper
         self.relaySelector = relaySelector
         self.settingsReader = settingsReader
         self.deviceChecker = deviceChecker
@@ -430,6 +433,7 @@ public actor PacketTunnelActor {
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
             let blockedState = BlockedState(
                 error: error,
+                reason: blockedStateErrorMapper.mapError(error),
                 relayConstraints: connState.relayConstraints,
                 currentKey: nil,
                 keyPolicy: connState.keyPolicy,
@@ -440,28 +444,28 @@ public actor PacketTunnelActor {
             await configureAdapterForErrorState()
 
         case .initial:
-            // Start a recovery task that will attempt to restart the tunnel periodically.
-            //
-            // Often times this has to be done when the tunnel is started on boot and cannot access Keychain or
-            // filesystem (FS) which are locked until the phone is unlocked first.
-            //
-            // TODO: only start the recovery task if the error is filesystem/Keychain permission related.
-            let recoveryTask = startRecoveryTask()
-
-            let blockedState = BlockedState(
+            var blockedState = BlockedState(
                 error: error,
+                reason: blockedStateErrorMapper.mapError(error),
                 relayConstraints: nil,
                 currentKey: nil,
                 keyPolicy: .useCurrent,
                 networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
-                recoveryTask: AutoCancellingTask(recoveryTask),
+                recoveryTask: nil,
                 priorState: state.priorState!
             )
+
+            // Create a recovery task if the tunnel can recover from error state automatically
+            if blockedState.reason.shouldRestartAutomatically {
+                blockedState.recoveryTask = AutoCancellingTask(startRecoveryTask())
+            }
+
             state = .error(blockedState)
             await configureAdapterForErrorState()
 
         case var .error(blockedState):
             blockedState.error = error
+            blockedState.reason = blockedStateErrorMapper.mapError(error)
             state = .error(blockedState)
 
         case .disconnecting, .disconnected:

@@ -9,7 +9,8 @@
 import Foundation
 import MullvadTypes
 
-public enum BlockStateReason: String, Codable, Equatable {
+/// Reason why packet tunnel entered error state.
+public enum BlockedStateReason: String, Codable, Equatable {
     /// Device is locked.
     case deviceLocked
 
@@ -19,20 +20,27 @@ public enum BlockStateReason: String, Codable, Equatable {
     /// No relay satisfying constraints.
     case noRelaysSatisfyingConstraints
 
-    /// Read error.
-    case readFailure
+    /// Any other failure when reading settings.
+    case readSettings
 
-    /// Invalid account
+    /// Invalid account.
     case invalidAccount
 
-    /// Device revoked
+    /// Device revoked.
     case deviceRevoked
+
+    /// Tunnel adapter error.
+    case tunnelAdapter
+
+    /// Unidentified reason.
+    case unknown
 }
 
 /// Struct describing packet tunnel process status.
 public struct PacketTunnelStatus: Codable, Equatable {
-    /// ???
-    public var blockStateReason: BlockStateReason?
+    /// The reason why packet tunnel entered error state.
+    /// Set to `nil` when tunnel is not in error state.
+    public var blockedStateReason: BlockedStateReason?
 
     /// Flag indicating whether network is reachable.
     public var isNetworkReachable: Bool
@@ -47,13 +55,13 @@ public struct PacketTunnelStatus: Codable, Equatable {
     public var numberOfFailedAttempts: UInt
 
     public init(
-        blockStateReason: BlockStateReason? = nil,
+        blockStateReason: BlockedStateReason? = nil,
         isNetworkReachable: Bool = true,
         lastKeyRotation: Date? = nil,
         tunnelRelay: PacketTunnelRelay? = nil,
         numberOfFailedAttempts: UInt = 0
     ) {
-        self.blockStateReason = blockStateReason
+        self.blockedStateReason = blockStateReason
         self.isNetworkReachable = isNetworkReachable
         self.lastKeyRotation = lastKeyRotation
         self.tunnelRelay = tunnelRelay

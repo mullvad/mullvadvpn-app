@@ -57,6 +57,8 @@
 		580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580909D22876D09A0078138D /* RevokedDeviceViewController.swift */; };
 		58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */; };
 		580D6B8A2AB31AB400B2D6E0 /* NetworkPath+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */; };
+		580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */; };
+		580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
 		58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		58153071294CBE8B00D1702E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
@@ -1089,6 +1091,8 @@
 		58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTests.swift; sourceTree = "<group>"; };
 		580CBFB72848D503007878F0 /* OperationConditionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationConditionTests.swift; sourceTree = "<group>"; };
 		580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkPath+.swift"; sourceTree = "<group>"; };
+		580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapperProtocol.swift; sourceTree = "<group>"; };
+		580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapper.swift; sourceTree = "<group>"; };
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		580F8B8228197881002E0998 /* TunnelSettingsV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV2.swift; sourceTree = "<group>"; };
 		580F8B8528197958002E0998 /* DNSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSettings.swift; sourceTree = "<group>"; };
@@ -2678,6 +2682,7 @@
 				586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */,
 				5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */,
 				58FF23A02AB08077003A2AF2 /* DeviceCheckProtocol.swift */,
+				580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -2729,6 +2734,7 @@
 				58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */,
 				58225D272A84F23B0083D7F1 /* PacketTunnelPathObserver.swift */,
 				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
+				580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */,
 			);
 			path = "New packet tunnel";
 			sourceTree = "<group>";
@@ -3932,6 +3938,7 @@
 				58C9B8C32ABB23A500040B46 /* PacketTunnelStatus.swift in Sources */,
 				58C9B8C42ABB23A500040B46 /* PacketTunnelRelay.swift in Sources */,
 				58C7A4522A863FB50060C66F /* Pinger.swift in Sources */,
+				580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */,
 				58C7A4572A863FB90060C66F /* TunnelDeviceInfoProtocol.swift in Sources */,
 				58C7A4562A863FB90060C66F /* DefaultPathObserverProtocol.swift in Sources */,
 				58FE25DA2AA72A8F003D1918 /* Actor.swift in Sources */,
@@ -4232,6 +4239,7 @@
 				58F3F36A2AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
 				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
+				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
 				06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */,
 				583FE02429C1ACB3006E85F9 /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,

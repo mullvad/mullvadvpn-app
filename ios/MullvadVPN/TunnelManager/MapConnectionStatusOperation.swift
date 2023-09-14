@@ -52,8 +52,8 @@ class MapConnectionStatusOperation: AsyncOperation {
 
         case .reasserting:
             fetchTunnelStatus(tunnel: tunnel) { packetTunnelStatus in
-                if let blockStateReason = packetTunnelStatus.blockStateReason {
-                    return .error(blockStateReason)
+                if let blockedStateReason = packetTunnelStatus.blockedStateReason {
+                    return .error(blockedStateReason)
                 } else if packetTunnelStatus.isNetworkReachable {
                     return packetTunnelStatus.tunnelRelay.map { .reconnecting($0) }
                 } else {
@@ -64,8 +64,8 @@ class MapConnectionStatusOperation: AsyncOperation {
 
         case .connected:
             fetchTunnelStatus(tunnel: tunnel) { packetTunnelStatus in
-                if let blockStateReason = packetTunnelStatus.blockStateReason {
-                    return .error(blockStateReason)
+                if let blockedStateReason = packetTunnelStatus.blockedStateReason {
+                    return .error(blockedStateReason)
                 } else if packetTunnelStatus.isNetworkReachable {
                     return packetTunnelStatus.tunnelRelay.map { .connected($0) }
                 } else {
@@ -106,8 +106,8 @@ class MapConnectionStatusOperation: AsyncOperation {
         }
 
         fetchTunnelStatus(tunnel: tunnel) { packetTunnelStatus in
-            if let blockStateReason = packetTunnelStatus.blockStateReason {
-                return .error(blockStateReason)
+            if let blockedStateReason = packetTunnelStatus.blockedStateReason {
+                return .error(blockedStateReason)
             } else if packetTunnelStatus.isNetworkReachable {
                 return packetTunnelStatus.tunnelRelay.map { .connecting($0) }
             } else {
