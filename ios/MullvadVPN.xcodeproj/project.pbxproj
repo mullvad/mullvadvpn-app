@@ -250,6 +250,7 @@
 		58C3F4F92964B08300D72515 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3F4F82964B08300D72515 /* MapViewController.swift */; };
 		58C3FA662A38549D006A450A /* MockFileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3FA652A38549D006A450A /* MockFileCache.swift */; };
 		58C3FA682A385C89006A450A /* FileCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3FA672A385C89006A450A /* FileCacheTests.swift */; };
+		58C4AE8F2AB303C00064460C /* MockDeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C4AE8E2AB303C00064460C /* MockDeviceChecker.swift */; };
 		58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		58C76A092A33850E00100D75 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
@@ -1309,6 +1310,7 @@
 		58C3F4F82964B08300D72515 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		58C3FA652A38549D006A450A /* MockFileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFileCache.swift; sourceTree = "<group>"; };
 		58C3FA672A385C89006A450A /* FileCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCacheTests.swift; sourceTree = "<group>"; };
+		58C4AE8E2AB303C00064460C /* MockDeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDeviceChecker.swift; sourceTree = "<group>"; };
 		58C76A072A33850E00100D75 /* ApplicationTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationTarget.swift; sourceTree = "<group>"; };
 		58C76A0A2A338E4300100D75 /* BackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTask.swift; sourceTree = "<group>"; };
 		58C774BD29A7A249003A1A56 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
@@ -2685,6 +2687,7 @@
 				58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */,
 				58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */,
 				58FE25F12AA77674003D1918 /* MockSettingsReader.swift */,
+				58C4AE8E2AB303C00064460C /* MockDeviceChecker.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -3961,6 +3964,7 @@
 				58EC067C2A8D2A0B00BEB973 /* NetworkCounters.swift in Sources */,
 				58FE25EC2AA77639003D1918 /* MockTunnelMonitor.swift in Sources */,
 				58FE25EE2AA7764E003D1918 /* MockTunnelAdapter.swift in Sources */,
+				58C4AE8F2AB303C00064460C /* MockDeviceChecker.swift in Sources */,
 				581F23AD2A8CF92100788AB6 /* MockDefaultPathObserver.swift in Sources */,
 				58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */,
 				58FE25F02AA77664003D1918 /* MockRelaySelector.swift in Sources */,

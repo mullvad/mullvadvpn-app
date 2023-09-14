@@ -88,7 +88,8 @@ final class ActorTests: XCTestCase {
             tunnelAdapter: MockTunnelAdapter(),
             tunnelMonitor: tunnelMonitor,
             relaySelector: relaySelector,
-            settingsReader: settingsReader
+            settingsReader: settingsReader,
+            deviceChecker: MockDeviceChecker()
         )
 
         /*
