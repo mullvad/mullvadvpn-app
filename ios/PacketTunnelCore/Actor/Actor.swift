@@ -16,7 +16,7 @@ import class WireGuardKitTypes.PrivateKey
 public actor PacketTunnelActor {
     @Published private(set) public var state: State = .initial {
         didSet {
-            logState()
+            logger.debug("\(state.logFormat())")
         }
     }
 
@@ -411,10 +411,6 @@ public actor PacketTunnelActor {
         case let .preSelected(selectorResult):
             return selectorResult
         }
-    }
-
-    private func logState() {
-        logger.debug("\(state.logFormat())")
     }
 
     // MARK: - Private: Error state
