@@ -712,11 +712,11 @@ final class TunnelManager: StorePaymentObserver {
             // while the tunnel process is trying to connect.
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
 
-        case .connected, .waitingForConnectivity(.noConnection):
+        case .connected, .waitingForConnectivity(.noConnection), .error:
             // Start polling tunnel status to keep connectivity status up to date.
             startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
 
-        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
+        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork):
             // Stop polling tunnel status once connection moved to final state.
             cancelPollingTunnelStatus()
         }
