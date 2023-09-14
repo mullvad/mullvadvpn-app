@@ -25,6 +25,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
 
     private var actor: PacketTunnelActor!
     private var stateObserverTask: AnyTask?
+    private var deviceChecker: DeviceChecker!
 
     override init() {
         Self.configureLogging()
@@ -68,14 +69,15 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
         let accountsProxy = proxyFactory.createAccountsProxy()
         let devicesProxy = proxyFactory.createDevicesProxy()
 
+        deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
+
         actor = PacketTunnelActor(
             tunnelAdapter: adapter,
             tunnelMonitor: tunnelMonitor,
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: RelaySelectorWrapper(relayCache: relayCache),
-            settingsReader: SettingsReader(),
-            deviceChecker: DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
+            settingsReader: SettingsReader()
         )
     }
 
@@ -83,6 +85,10 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
         let startOptions = parseStartOptions(options ?? [:])
 
         startObservingActorState()
+
+        // Run device check during tunnel startup.
+        // This check is allowed to push new key to server if there are some issues with it.
+        startDeviceCheck(rotateKeyOnMismatch: true)
 
         try await actor.start(options: startOptions)
     }
@@ -174,7 +180,11 @@ extension NewPacketTunnelProvider {
 
         return parsedOptions
     }
+}
 
+// MARK: - State observer
+
+extension NewPacketTunnelProvider {
     private func startObservingActorState() {
         stopObservingActorState()
 
@@ -198,6 +208,16 @@ extension NewPacketTunnelProvider {
                 if case .connected = newState, self.reasserting {
                     self.reasserting = false
                 }
+
+                switch newState {
+                case let .reconnecting(connState), let .connecting(connState):
+                    // Start device check every second failure attempt to connect.
+                    if connState.connectionAttemptCount.isMultiple(of: 2) {
+                        startDeviceCheck()
+                    }
+                case .initial, .connected, .disconnecting, .disconnected, .error:
+                    break
+                }
             }
         }
     }
@@ -205,5 +225,34 @@ extension NewPacketTunnelProvider {
     private func stopObservingActorState() {
         stateObserverTask?.cancel()
         stateObserverTask = nil
+    }
+}
+
+// MARK: - Device check
+
+extension NewPacketTunnelProvider {
+    private func startDeviceCheck(rotateKeyOnMismatch: Bool = false) {
+        Task {
+            do {
+                try await startDeviceCheckInner(rotateKeyOnMismatch: rotateKeyOnMismatch)
+            } catch {
+                providerLogger.error(error: error, message: "Failed to perform device check.")
+            }
+        }
+    }
+
+    private func startDeviceCheckInner(rotateKeyOnMismatch: Bool) async throws {
+        let result = try await deviceChecker.start(rotateKeyOnMismatch: rotateKeyOnMismatch)
+
+        if let blockedStateReason = result.blockedStateReason {
+            await actor.setErrorState(with: blockedStateReason)
+        }
+
+        switch result.keyRotationStatus {
+        case let .attempted(date), let .succeeded(date):
+            await actor.notifyKeyRotated(date: date)
+        case .noAction:
+            break
+        }
     }
 }

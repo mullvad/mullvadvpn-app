@@ -59,6 +59,7 @@
 		580D6B8A2AB31AB400B2D6E0 /* NetworkPath+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */; };
 		580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */; };
 		580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */; };
+		580D6B922AB360BE00B2D6E0 /* DeviceCheck+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
 		58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		58153071294CBE8B00D1702E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
@@ -427,7 +428,6 @@
 		58FE65952AB1D90600E53CB5 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		58FE65962AB1D90600E53CB5 /* MullvadTypes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
-		58FF23A12AB08077003A2AF2 /* DeviceCheckProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF23A02AB08077003A2AF2 /* DeviceCheckProtocol.swift */; };
 		58FF23A32AB09BEE003A2AF2 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */; };
 		7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */; };
 		7A09C98129D99215000C2CAC /* String+FuzzyMatch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */; };
@@ -1093,6 +1093,7 @@
 		580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkPath+.swift"; sourceTree = "<group>"; };
 		580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapperProtocol.swift; sourceTree = "<group>"; };
 		580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapper.swift; sourceTree = "<group>"; };
+		580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeviceCheck+.swift"; sourceTree = "<group>"; };
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		580F8B8228197881002E0998 /* TunnelSettingsV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV2.swift; sourceTree = "<group>"; };
 		580F8B8528197958002E0998 /* DNSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSettings.swift; sourceTree = "<group>"; };
@@ -1412,7 +1413,6 @@
 		58FE25F32AA9D730003D1918 /* Actor+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+.swift"; sourceTree = "<group>"; };
 		58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCheck.swift; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
-		58FF23A02AB08077003A2AF2 /* DeviceCheckProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCheckProtocol.swift; sourceTree = "<group>"; };
 		58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceChecker.swift; sourceTree = "<group>"; };
 		58FF2C02281BDE02009EF542 /* SettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManager.swift; sourceTree = "<group>"; };
 		7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNScreenshots.xctestplan; sourceTree = "<group>"; };
@@ -1803,7 +1803,6 @@
 				A9A8A8EA2A262AB30086D569 /* FileCache.swift */,
 				58E511E328DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift */,
 				586168682976F6BD00EF8598 /* DisplayError.swift */,
-				58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */,
 				7A307AD82A8CD8DA0017618B /* Duration.swift */,
 				7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */,
 				58E511EA28DDE18400B0BCDE /* Error+Chain.swift */,
@@ -2269,6 +2268,7 @@
 		58915D662A25F9F20066445B /* DeviceCheck */ = {
 			isa = PBXGroup;
 			children = (
+				58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */,
 				58FDF2D82A0BA11900C2B061 /* DeviceCheckOperation.swift */,
 				58915D672A25FA080066445B /* DeviceCheckRemoteService.swift */,
 				580810E72A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift */,
@@ -2681,7 +2681,6 @@
 				5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */,
 				586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */,
 				5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */,
-				58FF23A02AB08077003A2AF2 /* DeviceCheckProtocol.swift */,
 				580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */,
 			);
 			path = Protocols;
@@ -3932,7 +3931,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58FF23A12AB08077003A2AF2 /* DeviceCheckProtocol.swift in Sources */,
 				58FE25F42AA9D730003D1918 /* Actor+.swift in Sources */,
 				58FE25DF2AA72A9B003D1918 /* RelaySelectorProtocol.swift in Sources */,
 				58C9B8C32ABB23A500040B46 /* PacketTunnelStatus.swift in Sources */,
@@ -4235,6 +4233,7 @@
 				58E0729F28814ACC008902F8 /* WireGuardLogLevel+Logging.swift in Sources */,
 				58FF23A32AB09BEE003A2AF2 /* DeviceChecker.swift in Sources */,
 				58C76A092A33850E00100D75 /* ApplicationTarget.swift in Sources */,
+				580D6B922AB360BE00B2D6E0 /* DeviceCheck+.swift in Sources */,
 				583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */,
 				58F3F36A2AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,

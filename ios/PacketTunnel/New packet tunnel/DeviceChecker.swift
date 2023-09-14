@@ -12,7 +12,7 @@ import MullvadTypes
 import Operations
 import PacketTunnelCore
 
-class DeviceChecker: DeviceCheckProtocol {
+final class DeviceChecker {
     private let dispatchQueue = DispatchQueue(label: "DeviceCheckerQueue")
     private let operationQueue = AsyncOperationQueue.makeSerial()
 

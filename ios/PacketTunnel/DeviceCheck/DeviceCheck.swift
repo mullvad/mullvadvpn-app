@@ -1,6 +1,6 @@
 //
 //  DeviceCheck.swift
-//  MullvadTypes
+//  PacketTunnel
 //
 //  Created by pronebird on 13/09/2023.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
