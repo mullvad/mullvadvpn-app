@@ -25,6 +25,7 @@ public actor PacketTunnelActor {
 
     private let tunnelAdapter: TunnelAdapterProtocol
     private let tunnelMonitor: TunnelMonitorProtocol
+    private let defaultPathObserver: DefaultPathObserverProtocol
     private let relaySelector: RelaySelectorProtocol
     private let settingsReader: SettingsReaderProtocol
     private let deviceChecker: DeviceCheckProtocol
@@ -34,12 +35,14 @@ public actor PacketTunnelActor {
     public init(
         tunnelAdapter: TunnelAdapterProtocol,
         tunnelMonitor: TunnelMonitorProtocol,
+        defaultPathObserver: DefaultPathObserverProtocol,
         relaySelector: RelaySelectorProtocol,
         settingsReader: SettingsReaderProtocol,
         deviceChecker: DeviceCheckProtocol
     ) {
         self.tunnelAdapter = tunnelAdapter
         self.tunnelMonitor = tunnelMonitor
+        self.defaultPathObserver = defaultPathObserver
         self.relaySelector = relaySelector
         self.settingsReader = settingsReader
         self.deviceChecker = deviceChecker
@@ -58,6 +61,14 @@ public actor PacketTunnelActor {
             guard case .initial = state else { return }
 
             logger.debug("\(options.logFormat())")
+
+            // Start observing default network path to determine network reachability.
+            defaultPathObserver.start { [weak self] networkPath in
+                guard let self else { return }
+                Task {
+                    await self.onDefaultPathChange(networkPath)
+                }
+            }
 
             do {
                 try await tryStart(nextRelay: options.selectorResult.map { .preSelected($0) } ?? .random)
@@ -97,6 +108,8 @@ public actor PacketTunnelActor {
                 fallthrough
 
             case .error:
+                defaultPathObserver.stop()
+
                 do {
                     try await tunnelAdapter.stop()
                 } catch {
@@ -231,6 +244,53 @@ public actor PacketTunnelActor {
         tunnelMonitor.onSleep()
     }
 
+    // MARK: - Network Reachability
+
+    func onDefaultPathChange(_ networkPath: NetworkPath) async {
+        await taskQueue.add(kind: .networkReachability) { [self] in
+            let newReachability = networkPath.networkReachability
+
+            func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
+                if connState.networkReachability != newReachability {
+                    connState.networkReachability = newReachability
+                    return true
+                }
+                return false
+            }
+
+            switch state {
+            case var .connecting(connState):
+                if mutateConnectionState(&connState) {
+                    state = .connecting(connState)
+                }
+
+            case var .connected(connState):
+                if mutateConnectionState(&connState) {
+                    state = .connected(connState)
+                }
+
+            case var .reconnecting(connState):
+                if mutateConnectionState(&connState) {
+                    state = .reconnecting(connState)
+                }
+
+            case var .disconnecting(connState):
+                if mutateConnectionState(&connState) {
+                    state = .disconnecting(connState)
+                }
+
+            case var .error(blockedState):
+                if blockedState.networkReachability != newReachability {
+                    blockedState.networkReachability = newReachability
+                    state = .error(blockedState)
+                }
+
+            case .initial, .disconnected:
+                break
+            }
+        }
+    }
+
     // MARK: - Private: Tunnel management
 
     private func tryStart(nextRelay: NextRelay = .random) async throws {
@@ -251,7 +311,7 @@ public actor PacketTunnelActor {
                     relayConstraints: relayConstraints,
                     currentKey: storedDeviceData.wgKeyData.privateKey,
                     keyPolicy: .useCurrent,
-                    networkReachability: .undetermined,
+                    networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
                     connectionAttemptCount: 0
                 )
 
@@ -313,24 +373,28 @@ public actor PacketTunnelActor {
         try await taskQueue.add(kind: .reconnect) { [self] in
             try Task.checkCancellation()
 
-            do {
-                switch state {
-                case .connecting, .connected, .reconnecting, .error:
-                    if shouldStopTunnelMonitor {
-                        tunnelMonitor.stop()
-                    }
-                    try await tryStart(nextRelay: nextRelay)
+            try await reconnectInner(to: nextRelay, shouldStopTunnelMonitor: shouldStopTunnelMonitor)
+        }
+    }
 
-                case .disconnected, .disconnecting, .initial:
-                    break
+    private func reconnectInner(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
+        do {
+            switch state {
+            case .connecting, .connected, .reconnecting, .error:
+                if shouldStopTunnelMonitor {
+                    tunnelMonitor.stop()
                 }
-            } catch {
-                try Task.checkCancellation()
+                try await tryStart(nextRelay: nextRelay)
 
-                logger.error(error: error, message: "Failed to reconnect the tunnel.")
-
-                await setErrorState(with: error)
+            case .disconnected, .disconnecting, .initial:
+                break
             }
+        } catch {
+            try Task.checkCancellation()
+
+            logger.error(error: error, message: "Failed to reconnect the tunnel.")
+
+            await setErrorState(with: error)
         }
     }
 
@@ -373,6 +437,7 @@ public actor PacketTunnelActor {
                 relayConstraints: connState.relayConstraints,
                 currentKey: nil,
                 keyPolicy: connState.keyPolicy,
+                networkReachability: connState.networkReachability,
                 priorState: state.priorState!
             )
             state = .error(blockedState)
@@ -392,6 +457,7 @@ public actor PacketTunnelActor {
                 relayConstraints: nil,
                 currentKey: nil,
                 keyPolicy: .useCurrent,
+                networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
                 recoveryTask: AutoCancellingTask(recoveryTask),
                 priorState: state.priorState!
             )
@@ -602,9 +668,11 @@ public actor PacketTunnelActor {
         case .connectionLost:
             await onHandleConnectionRecovery()
 
-        case let .networkReachabilityChanged(isNetworkReachable):
-            // TODO: monitor network outside of tunnel monitor.
-            await onNetworkReachibilityChange(isNetworkReachable)
+        case .networkReachabilityChanged:
+            // TODO: remove once networkReachabilityChanged later
+            // We track network reachability separately because tunnel monitor tends to stop reachability
+            // observation when it's stopped or paused. This is a problem for error state.
+            break
         }
     }
 }

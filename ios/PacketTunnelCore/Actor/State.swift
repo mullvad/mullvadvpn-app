@@ -140,7 +140,11 @@ public struct BlockedState {
     /// Policy describing the current key that should be used by the tunnel.
     public var keyPolicy: KeyPolicy
 
-    /// Last time packet tunnel rotated the key.
+    /// Whether network connectivity outside of tunnel is available.
+    public var networkReachability: NetworkReachability
+
+    /// Last time packet tunnel rotated or attempted to rotate the key.
+    /// This is used by `TunnelManager` to detect when it needs to refresh device state from Keychain.
     public var lastKeyRotation: Date?
 
     /// Task responsible for periodically calling actor to restart the tunnel.

@@ -77,6 +77,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
         actor = PacketTunnelActor(
             tunnelAdapter: adapter,
             tunnelMonitor: tunnelMonitor,
+            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self),
             relaySelector: RelaySelectorWrapper(relayCache: relayCache),
             settingsReader: SettingsReader(),
             deviceChecker: DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)

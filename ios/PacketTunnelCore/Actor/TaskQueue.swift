@@ -69,7 +69,7 @@ final actor TaskQueue {
 
 /// Kinds of tasks that `TaskQueue` actor performs.
 enum TaskKind: Equatable {
-    case start, stop, reconnect, keyRotated
+    case start, stop, reconnect, keyRotated, networkReachability
 }
 
 private struct SerialTask {
@@ -86,6 +86,7 @@ private extension TaskKind {
      `.start` → `.stop`
      `.reconnect` → `.stop`
      `.reconnect` → `.reconnect`
+     `.networkReachability` → `.networkReachability`
      */
     func shouldCancel(_ prior: TaskKind) -> Bool {
         if self == .stop, prior != .stop {
@@ -93,6 +94,9 @@ private extension TaskKind {
             return true
         } else if self == .reconnect, prior == .reconnect {
             // Cancel prior task to reconnect.
+            return true
+        } else if self == .networkReachability, prior == .networkReachability {
+            // Coalesce network reachability changes
             return true
         } else {
             return false

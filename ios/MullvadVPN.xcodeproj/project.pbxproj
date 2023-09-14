@@ -56,6 +56,7 @@
 		580810E92A30E17300B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580810E72A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift */; };
 		580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580909D22876D09A0078138D /* RevokedDeviceViewController.swift */; };
 		58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */; };
+		580D6B8A2AB31AB400B2D6E0 /* NetworkPath+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
 		58138E61294871C600684F0C /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		58153071294CBE8B00D1702E /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
@@ -1087,6 +1088,7 @@
 		580909D22876D09A0078138D /* RevokedDeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDeviceViewController.swift; sourceTree = "<group>"; };
 		58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTests.swift; sourceTree = "<group>"; };
 		580CBFB72848D503007878F0 /* OperationConditionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationConditionTests.swift; sourceTree = "<group>"; };
+		580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkPath+.swift"; sourceTree = "<group>"; };
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		580F8B8228197881002E0998 /* TunnelSettingsV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV2.swift; sourceTree = "<group>"; };
 		580F8B8528197958002E0998 /* DNSSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSettings.swift; sourceTree = "<group>"; };
@@ -2212,6 +2214,7 @@
 				5864AF7E2A9F52BB008BC928 /* TaskQueue.swift */,
 				58ED3A132A7C199C0085CE65 /* StartOptions.swift */,
 				58E7A0322AA075BB00C57861 /* DispatchSource+.swift */,
+				580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */,
 				58E7A0312AA0715100C57861 /* Protocols */,
 			);
 			path = Actor;
@@ -3949,6 +3952,7 @@
 				58C9B8C72ABB23E700040B46 /* TunnelProviderMessage.swift in Sources */,
 				58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */,
 				58FE25D82AA72A8F003D1918 /* ConfigurationBuilder.swift in Sources */,
+				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+.swift in Sources */,
 				58FE25DE2AA72A95003D1918 /* DispatchSource+.swift in Sources */,
 				586E8DB82AAF4AC4007BF3DA /* Task+.swift in Sources */,
 				58342C042AAB61FB003BA12D /* State+.swift in Sources */,
