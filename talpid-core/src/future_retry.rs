@@ -1,5 +1,5 @@
 use rand::{distributions::OpenClosed01, Rng};
-use std::{future::Future, time::Duration};
+use std::{future::Future, ops::Deref, time::Duration};
 use talpid_time::sleep;
 
 /// Convenience function that works like [`retry_future`] but limits the number
@@ -50,6 +50,7 @@ pub fn constant_interval(interval: Duration) -> impl Iterator<Item = Duration> {
 }
 
 /// Provides an exponential back-off timer to delay the next retry of a failed operation.
+#[derive(Clone)]
 pub struct ExponentialBackoff {
     next: Duration,
     factor: u32,
@@ -61,7 +62,7 @@ impl ExponentialBackoff {
     ///
     /// All else staying the same, the first delay will be `initial` long, the second
     /// one will be `initial * factor`, third `initial * factor^2` and so on.
-    pub fn new(initial: Duration, factor: u32) -> ExponentialBackoff {
+    pub const fn new(initial: Duration, factor: u32) -> ExponentialBackoff {
         ExponentialBackoff {
             next: initial,
             factor,
@@ -71,8 +72,8 @@ impl ExponentialBackoff {
 
     /// Set the maximum delay. By default, there is no maximum value set. The limit is
     /// `Duration::MAX`.
-    pub fn max_delay(mut self, duration: Duration) -> ExponentialBackoff {
-        self.max_delay = Some(duration);
+    pub const fn max_delay(mut self, duration: Option<Duration>) -> ExponentialBackoff {
+        self.max_delay = duration;
         self
     }
 
@@ -100,13 +101,13 @@ impl Iterator for ExponentialBackoff {
 }
 
 /// Adds jitter to a duration iterator
-pub struct Jittered<I: Iterator<Item = Duration>> {
+pub struct Jittered<I> {
     inner: I,
 }
 
-impl<I: Iterator<Item = Duration>> Jittered<I> {
+impl<I> Jittered<I> {
     /// Create an iterator of jittered durations
-    pub fn jitter(inner: I) -> Self {
+    pub const fn jitter(inner: I) -> Self {
         Self { inner }
     }
 }
@@ -116,6 +117,14 @@ impl<I: Iterator<Item = Duration>> Iterator for Jittered<I> {
     fn next(&mut self) -> Option<Self::Item> {
         let next_value = self.inner.next()?;
         Some(jitter(next_value))
+    }
+}
+
+impl<I> Deref for Jittered<I> {
+    type Target = I;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
     }
 }
 
@@ -158,7 +167,7 @@ mod test {
     #[test]
     fn test_maximum_bound() {
         let mut backoff = ExponentialBackoff::new(Duration::from_millis(2), 3)
-            .max_delay(Duration::from_millis(7));
+            .max_delay(Some(Duration::from_millis(7)));
 
         assert_eq!(backoff.next(), Some(Duration::from_millis(2)));
         assert_eq!(backoff.next(), Some(Duration::from_millis(6)));
@@ -207,7 +216,7 @@ mod test {
             || async { 0 },
             |_| true,
             ExponentialBackoff::new(retry_interval_initial, retry_interval_factor)
-                .max_delay(retry_interval_max),
+                .max_delay(Some(retry_interval_max)),
             5,
         )
         .await;

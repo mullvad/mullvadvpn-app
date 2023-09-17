@@ -23,8 +23,10 @@ const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 15);
 /// How old the cached relays need to be to trigger an update
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 
-const EXPONENTIAL_BACKOFF_INITIAL: Duration = Duration::from_secs(16);
-const EXPONENTIAL_BACKOFF_FACTOR: u32 = 8;
+const DOWNLOAD_RETRY_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
+    ExponentialBackoff::new(Duration::from_secs(16), 8)
+        .max_delay(Some(Duration::from_secs(2 * 60 * 60))),
+);
 
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
@@ -161,14 +163,10 @@ impl RelayListUpdater {
             }
         };
 
-        let exponential_backoff =
-            ExponentialBackoff::new(EXPONENTIAL_BACKOFF_INITIAL, EXPONENTIAL_BACKOFF_FACTOR)
-                .max_delay(UPDATE_INTERVAL * 2);
-
         retry_future(
             download_futures,
             |result| result.is_err(),
-            Jittered::jitter(exponential_backoff),
+            DOWNLOAD_RETRY_STRATEGY,
         )
     }
 
