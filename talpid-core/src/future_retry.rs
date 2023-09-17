@@ -2,23 +2,6 @@ use rand::{distributions::OpenClosed01, Rng};
 use std::{future::Future, ops::Deref, time::Duration};
 use talpid_time::sleep;
 
-/// Convenience function that works like [`retry_future`] but limits the number
-/// of retries to `max_retries`.
-pub async fn retry_future_n<
-    F: FnMut() -> O + 'static,
-    R: FnMut(&T) -> bool + 'static,
-    D: Iterator<Item = Duration> + 'static,
-    O: Future<Output = T>,
-    T,
->(
-    factory: F,
-    should_retry: R,
-    delays: D,
-    max_retries: usize,
-) -> T {
-    retry_future(factory, should_retry, delays.take(max_retries)).await
-}
-
 /// Retries a future until it should stop as determined by the retry function, or when
 /// the iterator returns `None`.
 pub async fn retry_future<
@@ -44,9 +27,34 @@ pub async fn retry_future<
     }
 }
 
-/// Returns an iterator that repeats the same interval.
-pub fn constant_interval(interval: Duration) -> impl Iterator<Item = Duration> {
-    std::iter::repeat(interval)
+/// Iterator that repeats the same interval, with an optional maximum no. of attempts.
+pub struct ConstantInterval {
+    interval: Duration,
+    attempt: usize,
+    max_attempts: Option<usize>,
+}
+
+impl ConstantInterval {
+    /// Creates a `ConstantInterval` that repeats `interval`, at most `max_attempts` times.
+    pub const fn new(interval: Duration, max_attempts: Option<usize>) -> ConstantInterval {
+        ConstantInterval {
+            interval,
+            attempt: 0,
+            max_attempts,
+        }
+    }
+}
+
+impl Iterator for ConstantInterval {
+    type Item = Duration;
+
+    fn next(&mut self) -> Option<Duration> {
+        if Some(self.attempt) >= self.max_attempts {
+            return None;
+        }
+        self.attempt = self.attempt.saturating_add(1);
+        Some(self.interval)
+    }
 }
 
 /// Provides an exponential back-off timer to delay the next retry of a failed operation.
@@ -212,12 +220,12 @@ mod test {
         let retry_interval_max = Duration::from_secs(24 * 60 * 60);
         tokio::time::pause();
 
-        let _ = retry_future_n(
+        let _ = retry_future(
             || async { 0 },
             |_| true,
             ExponentialBackoff::new(retry_interval_initial, retry_interval_factor)
-                .max_delay(Some(retry_interval_max)),
-            5,
+                .max_delay(Some(retry_interval_max))
+                .take(5),
         )
         .await;
     }
