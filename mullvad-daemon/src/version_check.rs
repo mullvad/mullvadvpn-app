@@ -15,7 +15,7 @@ use std::{
     str::FromStr,
     time::Duration,
 };
-use talpid_core::mpsc::Sender;
+use talpid_core::{future_retry::ConstantInterval, mpsc::Sender};
 use talpid_types::ErrorExt;
 use tokio::fs::{self, File};
 
@@ -31,9 +31,8 @@ const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
 /// Wait this long until next try if an update failed
 const UPDATE_INTERVAL_ERROR: Duration = Duration::from_secs(60 * 60 * 6);
-/// Retry interval for `RunVersionCheck`.
-const IMMEDIATE_UPDATE_INTERVAL_ERROR: Duration = Duration::ZERO;
-const IMMEDIATE_UPDATE_MAX_RETRIES: usize = 2;
+/// Retry strategy for `RunVersionCheck`.
+const IMMEDIATE_RETRY_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 
 #[cfg(target_os = "linux")]
 const PLATFORM: &str = "linux";
@@ -194,11 +193,10 @@ impl VersionUpdater {
                 .map_err(Error::Download)
         };
 
-        Box::pin(talpid_core::future_retry::retry_future_n(
+        Box::pin(talpid_core::future_retry::retry_future(
             download_future_factory,
             move |result| Self::should_retry_immediate(result, &api_handle),
-            std::iter::repeat(IMMEDIATE_UPDATE_INTERVAL_ERROR),
-            IMMEDIATE_UPDATE_MAX_RETRIES,
+            IMMEDIATE_RETRY_STRATEGY,
         ))
     }
 
