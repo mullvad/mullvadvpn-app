@@ -403,6 +403,7 @@
 		7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960FC2A964BB700389B82 /* AlertPresentation.swift */; };
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
 		7A42DECD2A09064C00B209BE /* SelectableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */; };
+		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
 		7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */; };
 		7A7AD28F29DEDB1C00480EF1 /* SettingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD28E29DEDB1C00480EF1 /* SettingsHeaderView.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
@@ -1328,6 +1329,7 @@
 		7A2960FC2A964BB700389B82 /* AlertPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentation.swift; sourceTree = "<group>"; };
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		7A42DECC2A09064C00B209BE /* SelectableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableSettingsCell.swift; sourceTree = "<group>"; };
+		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
 		7A7AD28C29DC677800480EF1 /* FirstTimeLaunch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstTimeLaunch.swift; sourceTree = "<group>"; };
 		7A7AD28E29DEDB1C00480EF1 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
@@ -2521,6 +2523,7 @@
 				58FC040927B3EE03001C21F0 /* TunnelMonitor.swift */,
 				58C7A42C2A85067A0060C66F /* TunnelMonitorProtocol.swift */,
 				58A3BDAF28A1821A00C8C2C6 /* WgStats.swift */,
+				7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */,
 			);
 			path = TunnelMonitor;
 			sourceTree = "<group>";
@@ -3735,6 +3738,7 @@
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
 				58C7A4592A863FB90060C66F /* WgStats.swift in Sources */,
+				7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */,
 				58C7A4582A863FB90060C66F /* TunnelMonitorProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
