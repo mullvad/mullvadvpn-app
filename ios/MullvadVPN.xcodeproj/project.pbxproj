@@ -256,7 +256,6 @@
 		58C3FA662A38549D006A450A /* MockFileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3FA652A38549D006A450A /* MockFileCache.swift */; };
 		58C3FA682A385C89006A450A /* FileCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3FA672A385C89006A450A /* FileCacheTests.swift */; };
 		58C4AE8D2AB301800064460C /* TaskQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C4AE8C2AB301800064460C /* TaskQueueTests.swift */; };
-		58C4AE8F2AB303C00064460C /* MockDeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C4AE8E2AB303C00064460C /* MockDeviceChecker.swift */; };
 		58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		58C76A092A33850E00100D75 /* ApplicationTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A072A33850E00100D75 /* ApplicationTarget.swift */; };
 		58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
@@ -392,6 +391,7 @@
 		58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */; };
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
 		58F3F36A2AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */; };
+		58F7753D2AB8473200425B47 /* MockBlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */; };
 		58F7753F2AB8536A00425B47 /* BlockedStateReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
 		58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */; };
@@ -1322,7 +1322,6 @@
 		58C3FA652A38549D006A450A /* MockFileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockFileCache.swift; sourceTree = "<group>"; };
 		58C3FA672A385C89006A450A /* FileCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCacheTests.swift; sourceTree = "<group>"; };
 		58C4AE8C2AB301800064460C /* TaskQueueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskQueueTests.swift; sourceTree = "<group>"; };
-		58C4AE8E2AB303C00064460C /* MockDeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDeviceChecker.swift; sourceTree = "<group>"; };
 		58C76A072A33850E00100D75 /* ApplicationTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationTarget.swift; sourceTree = "<group>"; };
 		58C76A0A2A338E4300100D75 /* BackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTask.swift; sourceTree = "<group>"; };
 		58C774BD29A7A249003A1A56 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
@@ -1397,6 +1396,7 @@
 		58F3C0A524A50155003E76BE /* relays.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
 		58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoCancellingTask.swift; sourceTree = "<group>"; };
 		58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPacketTunnelProvider.swift; sourceTree = "<group>"; };
+		58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBlockedStateErrorMapper.swift; sourceTree = "<group>"; };
 		58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateReason.swift; sourceTree = "<group>"; };
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
@@ -2703,7 +2703,7 @@
 				58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */,
 				58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */,
 				58FE25F12AA77674003D1918 /* MockSettingsReader.swift */,
-				58C4AE8E2AB303C00064460C /* MockDeviceChecker.swift */,
+				58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -3984,12 +3984,12 @@
 				58EC067C2A8D2A0B00BEB973 /* NetworkCounters.swift in Sources */,
 				58FE25EC2AA77639003D1918 /* MockTunnelMonitor.swift in Sources */,
 				58FE25EE2AA7764E003D1918 /* MockTunnelAdapter.swift in Sources */,
-				58C4AE8F2AB303C00064460C /* MockDeviceChecker.swift in Sources */,
 				581F23AD2A8CF92100788AB6 /* MockDefaultPathObserver.swift in Sources */,
 				58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */,
 				58FE25F02AA77664003D1918 /* MockRelaySelector.swift in Sources */,
 				581F23AF2A8CF94D00788AB6 /* MockPinger.swift in Sources */,
 				58FE25F22AA77674003D1918 /* MockSettingsReader.swift in Sources */,
+				58F7753D2AB8473200425B47 /* MockBlockedStateErrorMapper.swift in Sources */,
 				58FE25D42AA729B5003D1918 /* ActorTests.swift in Sources */,
 				58C4AE8D2AB301800064460C /* TaskQueueTests.swift in Sources */,
 				58C7A4702A8649ED0060C66F /* PingerTests.swift in Sources */,

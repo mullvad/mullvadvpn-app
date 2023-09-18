@@ -73,9 +73,6 @@ final class ActorTests: XCTestCase {
         let tunnelMonitor = MockTunnelMonitor { command, dispatcher in
             switch command {
             case .start:
-                // Dispatch reachability as it would normally happen in production.
-                dispatcher.send(.networkReachabilityChanged(true))
-
                 // Broadcast that connection was established after a short delay.
                 dispatcher.send(.connectionEstablished, after: .milliseconds(100))
 
@@ -84,12 +81,17 @@ final class ActorTests: XCTestCase {
             }
         }
 
+        let blockedStateMapper = MockBlockedStateErrorMapper { error in
+            return BlockedStateReason.unknown
+        }
+
         actor = PacketTunnelActor(
             tunnelAdapter: MockTunnelAdapter(),
             tunnelMonitor: tunnelMonitor,
+            defaultPathObserver: MockDefaultPathObserver(),
+            blockedStateErrorMapper: blockedStateMapper,
             relaySelector: relaySelector,
-            settingsReader: settingsReader,
-            deviceChecker: MockDeviceChecker()
+            settingsReader: settingsReader
         )
 
         /*
@@ -98,15 +100,12 @@ final class ActorTests: XCTestCase {
          .initial → .connecting (reachability undetermined) → .connecting (reachability reachable) → .connected
          */
         let initialStateExpectation = expectation(description: "Expect initial state")
-        let connectingNetUndeterminedStateExpectation =
-            expectation(description: "Expect connecting state (network reachability: undetermined)")
         let connectingNetReachableExpectation =
             expectation(description: "Expect connecting state (network reachability: reachable)")
         let connectedStateExpectation = expectation(description: "Expect connected state")
 
         let allExpectations = [
             initialStateExpectation,
-            connectingNetUndeterminedStateExpectation,
             connectingNetReachableExpectation,
             connectedStateExpectation,
         ]
@@ -120,9 +119,6 @@ final class ActorTests: XCTestCase {
                 switch newState {
                 case .initial:
                     initialStateExpectation.fulfill()
-
-                case let .connecting(connectingState) where connectingState.networkReachability == .undetermined:
-                    connectingNetUndeterminedStateExpectation.fulfill()
 
                 case let .connecting(connectingState) where connectingState.networkReachability == .reachable:
                     connectingNetReachableExpectation.fulfill()
