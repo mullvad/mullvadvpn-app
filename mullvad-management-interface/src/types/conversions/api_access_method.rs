@@ -127,21 +127,25 @@ mod data {
                             local.port as u16,
                             local.local_port as u16,
                             local.enabled,
+                            local.name,
                         )
                         .ok_or(FromProtobufTypeError::InvalidArgument(
                             "Could not parse Socks5 (local) message from protobuf",
                         ))?
                         .into(),
 
-                        Socks5type::Remote(remote) => {
-                            Socks5Remote::from_args(remote.ip, remote.port as u16, remote.enabled)
-                                .ok_or({
-                                    FromProtobufTypeError::InvalidArgument(
-                                        "Could not parse Socks5 (remote) message from protobuf",
-                                    )
-                                })?
-                                .into()
-                        }
+                        Socks5type::Remote(remote) => Socks5Remote::from_args(
+                            remote.ip,
+                            remote.port as u16,
+                            remote.enabled,
+                            remote.name,
+                        )
+                        .ok_or({
+                            FromProtobufTypeError::InvalidArgument(
+                                "Could not parse Socks5 (remote) message from protobuf",
+                            )
+                        })?
+                        .into(),
                     }
                 }
                 proto::api_access_method::AccessMethod::Shadowsocks(ss) => Shadowsocks::from_args(
@@ -150,6 +154,7 @@ mod data {
                     ss.cipher,
                     ss.password,
                     ss.enabled,
+                    ss.name,
                 )
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "Could not parse Shadowsocks message from protobuf",
@@ -176,6 +181,7 @@ mod data {
                         password: ss.password,
                         cipher: ss.cipher,
                         enabled: ss.enabled,
+                        name: ss.name,
                     }
                     .into(),
 
@@ -183,23 +189,28 @@ mod data {
                         peer,
                         port,
                         enabled,
+                        name,
                     })) => proto::api_access_method::Socks5Local {
                         id: value.id,
                         ip: peer.ip().to_string(),
                         port: peer.port() as u32,
                         local_port: port as u32,
                         enabled,
+                        name,
                     }
                     .into(),
-                    ObfuscationProtocol::Socks5(Socks5::Remote(Socks5Remote { peer, enabled })) => {
-                        proto::api_access_method::Socks5Remote {
-                            id: value.id,
-                            ip: peer.ip().to_string(),
-                            port: peer.port() as u32,
-                            enabled,
-                        }
-                        .into()
+                    ObfuscationProtocol::Socks5(Socks5::Remote(Socks5Remote {
+                        peer,
+                        enabled,
+                        name,
+                    })) => proto::api_access_method::Socks5Remote {
+                        id: value.id,
+                        ip: peer.ip().to_string(),
+                        port: peer.port() as u32,
+                        enabled,
+                        name,
                     }
+                    .into(),
                 },
                 AccessMethod::BuiltIn(value) => match value {
                     mullvad_types::api_access_method::BuiltInAccessMethod::Direct(enabled) => {
