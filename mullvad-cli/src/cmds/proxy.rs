@@ -1,7 +1,8 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::api_access_method::{
-    daemon::ApiAccessMethodReplace, AccessMethod, ObfuscationProtocol,
+    daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
+    AccessMethod, ObfuscationProtocol,
 };
 use std::net::IpAddr;
 
@@ -19,6 +20,10 @@ pub enum Proxy {
     Edit(EditCustomCommands),
     /// Remove an API proxy
     Remove(RemoveCustomCommands),
+    /// Enable an API proxy
+    Enable(ToggleCustomCommands),
+    /// Disable an API proxy
+    Disable(ToggleCustomCommands),
 }
 
 impl Proxy {
@@ -42,6 +47,16 @@ impl Proxy {
                 let index = Self::zero_to_one_based_index(cmd.index)?;
                 Self::remove(RemoveCustomCommands { index }).await?
             }
+            Proxy::Enable(cmd) => {
+                let index = Self::zero_to_one_based_index(cmd.index)?;
+                let enabled = true;
+                Self::toggle(index, enabled).await?;
+            }
+            Proxy::Disable(cmd) => {
+                let index = Self::zero_to_one_based_index(cmd.index)?;
+                let enabled = false;
+                Self::toggle(index, enabled).await?;
+            }
         };
         Ok(())
     }
@@ -50,7 +65,16 @@ impl Proxy {
     async fn list() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         for (index, api_access_method) in rpc.get_api_access_methods().await?.iter().enumerate() {
-            println!("{}. {:?}", index + 1, api_access_method);
+            println!(
+                "{}. {:?} {}",
+                index + 1,
+                api_access_method,
+                if api_access_method.enabled() {
+                    "[enabled]"
+                } else {
+                    "[disabled]"
+                }
+            );
         }
         Ok(())
     }
@@ -80,6 +104,7 @@ impl Proxy {
             .map_err(Into::<anyhow::Error>::into)
     }
 
+    /// Edit the data of an API access method.
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         // Retrieve the access method to edit
@@ -105,21 +130,28 @@ impl Proxy {
                 let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
                 let password = cmd.params.password.unwrap_or(shadowsocks.password);
                 let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
-                mullvad_types::api_access_method::Shadowsocks::from_args(ip, port, cipher, password)
-                    .map(|x| x.into())
+                let enabled = shadowsocks.enabled;
+                mullvad_types::api_access_method::Shadowsocks::from_args(
+                    ip, port, cipher, password, enabled,
+                )
+                .map(|x| x.into())
             }
             ObfuscationProtocol::Socks5(socks) => match socks {
                 mullvad_types::api_access_method::Socks5::Local(local) => {
                     let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(local.peer.port());
                     let local_port = cmd.params.local_port.unwrap_or(local.port);
-                    mullvad_types::api_access_method::Socks5Local::from_args(ip, port, local_port)
-                        .map(|x| x.into())
+                    let enabled = local.enabled;
+                    mullvad_types::api_access_method::Socks5Local::from_args(
+                        ip, port, local_port, enabled,
+                    )
+                    .map(|x| x.into())
                 }
                 mullvad_types::api_access_method::Socks5::Remote(remote) => {
                     let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(remote.peer.port());
-                    mullvad_types::api_access_method::Socks5Remote::from_args(ip, port)
+                    let enabled = remote.enabled;
+                    mullvad_types::api_access_method::Socks5Remote::from_args(ip, port, enabled)
                         .map(|x| x.into())
                 }
             },
@@ -135,6 +167,28 @@ impl Proxy {
         })
         .await?;
 
+        Ok(())
+    }
+
+    /// Toggle a custom API access method to be enabled or disabled.
+    async fn toggle(index: usize, enabled: bool) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        // Retrieve the access method to edit
+        let access_method = rpc
+            .get_api_access_methods()
+            .await?
+            .get(index)
+            .ok_or(anyhow!(format!(
+                "Access method {} does not exist",
+                index + 1
+            )))?
+            .clone();
+
+        rpc.toggle_access_method(ApiAccessMethodToggle {
+            access_method,
+            enable: enabled,
+        })
+        .await?;
         Ok(())
     }
 
@@ -165,6 +219,12 @@ pub enum AddCustomCommands {
         #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
         cipher: String,
     },
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct ToggleCustomCommands {
+    /// Which access method to enable/disable
+    index: usize,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -244,6 +304,8 @@ mod conversions {
         type Error = Error;
 
         fn try_from(value: AddCustomCommands) -> Result<Self, Self::Error> {
+            // All api proxies are automatically enabled from the start.
+            let enabled = true;
             Ok(match value {
                 AddCustomCommands::Socks5(variant) => match variant {
                     Socks5AddCommands::Local {
@@ -257,6 +319,7 @@ mod conversions {
                                 remote_ip.to_string(),
                                 remote_port,
                                 local_port,
+                                enabled,
                             )
                             .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
                         );
@@ -273,6 +336,7 @@ mod conversions {
                             daemon_types::Socks5Remote::from_args(
                                 remote_ip.to_string(),
                                 remote_port,
+                                enabled,
                             )
                             .ok_or(anyhow!("Could not create a remote Socks5 api proxy"))?,
                         );
@@ -293,6 +357,7 @@ mod conversions {
                         remote_port,
                         cipher,
                         password,
+                        enabled,
                     )
                     .ok_or(anyhow!("Could not create a Shadowsocks api proxy"))?;
                     shadowsocks_proxy.into()

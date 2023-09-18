@@ -129,8 +129,8 @@ impl ApiConnectionModeProvider {
     fn from(&mut self, access_method: &AccessMethod) -> ApiConnectionMode {
         match access_method {
             AccessMethod::BuiltIn(access_method) => match access_method {
-                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
-                BuiltInAccessMethod::Bridge => self
+                BuiltInAccessMethod::Direct(_enabled) => ApiConnectionMode::Direct,
+                BuiltInAccessMethod::Bridge(enabled) => self
                     .relay_selector
                     .get_bridge_forced()
                     .and_then(|settings| match settings {
