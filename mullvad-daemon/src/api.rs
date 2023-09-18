@@ -64,7 +64,7 @@ impl Stream for ApiConnectionModeProvider {
             };
         }
 
-        let connection_mode = self.new_task(self.retry_attempt);
+        let connection_mode = self.new_connection_mode();
         self.retry_attempt = self.retry_attempt.wrapping_add(1);
 
         let cache_dir = self.cache_dir.clone();
@@ -86,10 +86,8 @@ impl ApiConnectionModeProvider {
     pub(crate) fn new(cache_dir: PathBuf, relay_selector: RelaySelector) -> Self {
         Self {
             cache_dir,
-
             relay_selector,
             retry_attempt: 0,
-
             current_task: None,
         }
     }
