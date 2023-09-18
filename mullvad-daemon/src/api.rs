@@ -132,7 +132,11 @@ impl ApiConnectionModeProvider {
         // Safety: self.available_nodes is guaranteed to yield an item, as per the definition of [`std::iter::Cycle`].
         let (access_methods, weights): (Vec<_>, Vec<_>) = {
             let modes = self.available_modes.lock().unwrap();
-            modes.iter().cloned().unzip()
+            modes
+                .iter()
+                .filter(|(access_method, _)| access_method.enabled())
+                .cloned()
+                .unzip()
         };
         // Chosen by fair dice-roll.
         let access_method = {
