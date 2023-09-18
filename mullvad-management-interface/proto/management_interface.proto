@@ -87,6 +87,9 @@ service ManagementService {
   rpc ReplaceApiAccessMethod(ApiAccessMethodReplace) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
+  rpc ToggleApiAccessMethod(ApiAccessMethodToggle) returns (google.protobuf.Empty) {
+    // Can I return something useful here instead of Empty?
+  }
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -351,6 +354,11 @@ message ApiAccessMethodReplace {
   ApiAccessMethod access_method = 2;
 }
 
+message ApiAccessMethodToggle {
+  ApiAccessMethod access_method = 1;
+  bool enable = 2;
+}
+
 message CustomList {
   string id = 1;
   string name = 2;
@@ -362,18 +370,20 @@ message CustomLists { repeated CustomList custom_lists = 1; }
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
 message ApiAccessMethod {
-  message Direct {}
-  message Bridges {}
+  message Direct { bool enabled = 1; }
+  message Bridges { bool enabled = 1; }
   message Socks5Local {
-    string id = 1;
-    string ip = 2;
-    uint32 port = 3;
-    uint32 local_port = 4;
+    bool enabled = 1;
+    string id = 2;
+    string ip = 3;
+    uint32 port = 4;
+    uint32 local_port = 5;
   }
   message Socks5Remote {
-    string id = 1;
-    string ip = 2;
-    uint32 port = 3;
+    bool enabled = 1;
+    string id = 2;
+    string ip = 3;
+    uint32 port = 4;
   }
   message Socks5 {
     oneof Socks5type {
@@ -382,11 +392,12 @@ message ApiAccessMethod {
     }
   }
   message Shadowsocks {
-    string id = 1;
-    string ip = 2;
-    uint32 port = 3;
-    string password = 4;
-    string cipher = 5;
+    bool enabled = 1;
+    string id = 2;
+    string ip = 3;
+    uint32 port = 4;
+    string password = 5;
+    string cipher = 6;
   }
   oneof access_method {
     Direct direct = 1;

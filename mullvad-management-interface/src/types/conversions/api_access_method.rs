@@ -59,6 +59,31 @@ mod settings {
             })
         }
     }
+
+    impl From<api_access_method::daemon::ApiAccessMethodToggle> for proto::ApiAccessMethodToggle {
+        fn from(value: api_access_method::daemon::ApiAccessMethodToggle) -> Self {
+            proto::ApiAccessMethodToggle {
+                access_method: Some(value.access_method.into()),
+                enable: value.enable,
+            }
+        }
+    }
+
+    impl TryFrom<proto::ApiAccessMethodToggle> for api_access_method::daemon::ApiAccessMethodToggle {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::ApiAccessMethodToggle) -> Result<Self, Self::Error> {
+            Ok(api_access_method::daemon::ApiAccessMethodToggle {
+                access_method: value
+                    .access_method
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "Could not convert Access Method from protobuf",
+                    ))
+                    .and_then(TryInto::try_into)?,
+                enable: value.enable,
+            })
+        }
+    }
 }
 
 /// Implements conversions for the 'main' AccessMethod data type.
@@ -101,6 +126,7 @@ mod data {
                             local.ip,
                             local.port as u16,
                             local.local_port as u16,
+                            local.enabled,
                         )
                         .ok_or(FromProtobufTypeError::InvalidArgument(
                             "Could not parse Socks5 (local) message from protobuf",
@@ -108,7 +134,7 @@ mod data {
                         .into(),
 
                         Socks5type::Remote(remote) => {
-                            Socks5Remote::from_args(remote.ip, remote.port as u16)
+                            Socks5Remote::from_args(remote.ip, remote.port as u16, remote.enabled)
                                 .ok_or({
                                     FromProtobufTypeError::InvalidArgument(
                                         "Could not parse Socks5 (remote) message from protobuf",
@@ -118,18 +144,22 @@ mod data {
                         }
                     }
                 }
-                proto::api_access_method::AccessMethod::Shadowsocks(ss) => {
-                    Shadowsocks::from_args(ss.ip, ss.port as u16, ss.cipher, ss.password)
-                        .ok_or(FromProtobufTypeError::InvalidArgument(
-                            "Could not parse Shadowsocks message from protobuf",
-                        ))?
-                        .into()
+                proto::api_access_method::AccessMethod::Shadowsocks(ss) => Shadowsocks::from_args(
+                    ss.ip,
+                    ss.port as u16,
+                    ss.cipher,
+                    ss.password,
+                    ss.enabled,
+                )
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not parse Shadowsocks message from protobuf",
+                ))?
+                .into(),
+                proto::api_access_method::AccessMethod::Direct(direct_settings) => {
+                    BuiltInAccessMethod::Direct(direct_settings.enabled).into()
                 }
-                proto::api_access_method::AccessMethod::Direct(_) => {
-                    BuiltInAccessMethod::Direct.into()
-                }
-                proto::api_access_method::AccessMethod::Bridges(_) => {
-                    BuiltInAccessMethod::Bridge.into()
+                proto::api_access_method::AccessMethod::Bridges(bridge_settings) => {
+                    BuiltInAccessMethod::Bridge(bridge_settings.enabled).into()
                 }
             })
         }
@@ -145,33 +175,38 @@ mod data {
                         port: ss.peer.port() as u32,
                         password: ss.password,
                         cipher: ss.cipher,
+                        enabled: ss.enabled,
                     }
                     .into(),
 
-                    ObfuscationProtocol::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
-                        proto::api_access_method::Socks5Local {
-                            id: value.id,
-                            ip: peer.ip().to_string(),
-                            port: peer.port() as u32,
-                            local_port: port as u32,
-                        }
-                        .into()
+                    ObfuscationProtocol::Socks5(Socks5::Local(Socks5Local {
+                        peer,
+                        port,
+                        enabled,
+                    })) => proto::api_access_method::Socks5Local {
+                        id: value.id,
+                        ip: peer.ip().to_string(),
+                        port: peer.port() as u32,
+                        local_port: port as u32,
+                        enabled,
                     }
-                    ObfuscationProtocol::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
+                    .into(),
+                    ObfuscationProtocol::Socks5(Socks5::Remote(Socks5Remote { peer, enabled })) => {
                         proto::api_access_method::Socks5Remote {
                             id: value.id,
                             ip: peer.ip().to_string(),
                             port: peer.port() as u32,
+                            enabled,
                         }
                         .into()
                     }
                 },
                 AccessMethod::BuiltIn(value) => match value {
-                    mullvad_types::api_access_method::BuiltInAccessMethod::Direct => {
-                        proto::api_access_method::Direct {}.into()
+                    mullvad_types::api_access_method::BuiltInAccessMethod::Direct(enabled) => {
+                        proto::api_access_method::Direct { enabled }.into()
                     }
-                    mullvad_types::api_access_method::BuiltInAccessMethod::Bridge => {
-                        proto::api_access_method::Bridges {}.into()
+                    mullvad_types::api_access_method::BuiltInAccessMethod::Bridge(enabled) => {
+                        proto::api_access_method::Bridges { enabled }.into()
                     }
                 },
             }

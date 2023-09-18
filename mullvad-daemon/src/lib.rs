@@ -40,7 +40,10 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod, CustomAccessMethod},
+    api_access_method::{
+        daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
+        AccessMethod, CustomAccessMethod,
+    },
     auth_failed::AuthFailed,
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -269,6 +272,8 @@ pub enum DaemonCommand {
     RemoveApiAccessMethod(ResponseTx<(), Error>, CustomAccessMethod),
     /// Edit an API access method
     ReplaceApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodReplace),
+    /// Toggle the status of an API access method
+    ToggleApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodToggle),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1072,6 +1077,7 @@ where
             ReplaceApiAccessMethod(tx, method) => {
                 self.on_replace_api_access_method(tx, method).await
             }
+            ToggleApiAccessMethod(tx, method) => self.on_toggle_api_access_method(tx, method).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2311,6 +2317,18 @@ where
     ) {
         let result = self
             .replace_access_method(method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "edit_api_access_method response");
+    }
+
+    async fn on_toggle_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        method: ApiAccessMethodToggle,
+    ) {
+        let result = self
+            .toggle_api_access_method(method)
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "edit_api_access_method response");

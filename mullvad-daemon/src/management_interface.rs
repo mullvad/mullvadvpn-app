@@ -695,6 +695,26 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn toggle_api_access_method(
+        &self,
+        request: Request<types::ApiAccessMethodToggle>,
+    ) -> ServiceResult<()> {
+        log::debug!("toggle_api_access_method");
+        let access_method_toggle =
+            mullvad_types::api_access_method::daemon::ApiAccessMethodToggle::try_from(
+                request.into_inner(),
+            )?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ToggleApiAccessMethod(
+            tx,
+            access_method_toggle,
+        ))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
         log::debug!("create_custom_list");
         let (tx, rx) = oneshot::channel();
