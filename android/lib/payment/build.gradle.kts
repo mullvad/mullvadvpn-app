@@ -44,4 +44,11 @@ dependencies {
 
     // Billing
     implementation(project(Dependencies.Mullvad.billingLib))
+
+    // Test dependencies
+    testImplementation(project(Dependencies.Mullvad.commonTestLib))
+    testImplementation(Dependencies.Kotlin.test)
+    testImplementation(Dependencies.KotlinX.coroutinesTest)
+    testImplementation(Dependencies.MockK.core)
+    testImplementation(Dependencies.junit)
 }
