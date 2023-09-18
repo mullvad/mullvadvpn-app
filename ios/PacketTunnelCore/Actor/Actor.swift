@@ -599,7 +599,9 @@ public actor PacketTunnelActor {
 
     private func onEstablishConnection() async {
         switch state {
-        case let .connecting(connState), let .reconnecting(connState):
+        case var .connecting(connState), var .reconnecting(connState):
+            // Reset connection attempt once successfully connected.
+            connState.connectionAttemptCount = 0
             state = .connected(connState)
 
         case .initial, .connected, .disconnecting, .disconnected, .error:
