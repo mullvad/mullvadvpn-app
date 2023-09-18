@@ -126,10 +126,6 @@ impl ApiConnectionModeProvider {
     /// For now, [`ApiConnectionModeProvider`] is only instanciated once during daemon startup, and does not change it's
     /// available access methods based on any "Settings-changed" events.
     fn new_task(&mut self) -> ApiConnectionMode {
-        use rand::distributions::WeightedIndex;
-        use rand::prelude::*;
-        // TODO: Cycle-based solution
-        // Safety: self.available_nodes is guaranteed to yield an item, as per the definition of [`std::iter::Cycle`].
         let (access_methods, weights): (Vec<_>, Vec<_>) = {
             let modes = self.available_modes.lock().unwrap();
             modes
@@ -139,12 +135,17 @@ impl ApiConnectionModeProvider {
                 .unzip()
         };
         // Chosen by fair dice-roll.
-        let access_method = {
+        let connection_mode = {
+            use rand::distributions::WeightedIndex;
+            use rand::prelude::*;
             let mut rng = thread_rng();
-            let distribution = WeightedIndex::new(weights).unwrap();
-            &access_methods[distribution.sample(&mut rng)]
+            if let Ok(distribution) = WeightedIndex::new(weights) {
+                let access_method = &access_methods[distribution.sample(&mut rng)];
+                self.from(access_method.clone())
+            } else {
+                ApiConnectionMode::Direct
+            }
         };
-        let connection_mode = self.from(access_method.clone());
         log::info!("New API connection mode selected: {}", connection_mode);
         connection_mode
     }
