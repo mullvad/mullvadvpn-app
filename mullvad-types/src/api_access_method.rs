@@ -61,6 +61,7 @@ pub struct Shadowsocks {
     pub password: String, // TODO: Mask the password (using special type)?
     pub cipher: String,   // Gets validated at a later stage. Is assumed to be valid.
     pub enabled: bool,
+    pub name: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -69,12 +70,14 @@ pub struct Socks5Local {
     /// Port on localhost where the SOCKS5-proxy listens to.
     pub port: u16,
     pub enabled: bool,
+    pub name: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Socks5Remote {
     pub peer: SocketAddr,
     pub enabled: bool,
+    pub name: String,
 }
 
 impl Hash for Shadowsocks {
@@ -158,12 +161,19 @@ impl AccessMethod {
 }
 
 impl Shadowsocks {
-    pub fn new(peer: SocketAddr, cipher: String, password: String, enabled: bool) -> Self {
+    pub fn new(
+        peer: SocketAddr,
+        cipher: String,
+        password: String,
+        enabled: bool,
+        name: String,
+    ) -> Self {
         Shadowsocks {
             peer,
             password,
             cipher,
             enabled,
+            name,
         }
     }
 
@@ -175,41 +185,53 @@ impl Shadowsocks {
         cipher: String,
         password: String,
         enabled: bool,
+        name: String,
     ) -> Option<Self> {
         let peer = SocketAddrV4::new(Ipv4Addr::from_str(&ip).ok()?, port).into();
-        Some(Self::new(peer, cipher, password, enabled))
+        Some(Self::new(peer, cipher, password, enabled, name))
     }
 }
 
 impl Socks5Local {
-    pub fn new(peer: SocketAddr, port: u16, enabled: bool) -> Self {
+    pub fn new(peer: SocketAddr, port: u16, enabled: bool, name: String) -> Self {
         Self {
             peer,
             port,
             enabled,
+            name,
         }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16, localport: u16, enabled: bool) -> Option<Self> {
+    pub fn from_args(
+        ip: String,
+        port: u16,
+        localport: u16,
+        enabled: bool,
+        name: String,
+    ) -> Option<Self> {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer, localport, enabled))
+        Some(Self::new(peer, localport, enabled, name))
     }
 }
 
 impl Socks5Remote {
-    pub fn new(peer: SocketAddr, enabled: bool) -> Self {
-        Self { peer, enabled }
+    pub fn new(peer: SocketAddr, enabled: bool, name: String) -> Self {
+        Self {
+            peer,
+            enabled,
+            name,
+        }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Remote)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16, enabled: bool) -> Option<Self> {
+    pub fn from_args(ip: String, port: u16, enabled: bool, name: String) -> Option<Self> {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer, enabled))
+        Some(Self::new(peer, enabled, name))
     }
 }
 
