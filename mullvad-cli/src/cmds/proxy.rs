@@ -63,17 +63,13 @@ impl Proxy {
 
     /// Show all API access methods.
     async fn list() -> Result<()> {
+        use crate::cmds::proxy::pp::AccessMethodFormatter;
         let mut rpc = MullvadProxyClient::new().await?;
         for (index, api_access_method) in rpc.get_api_access_methods().await?.iter().enumerate() {
             println!(
-                "{}. {:?} {}",
+                "{}. {}",
                 index + 1,
-                api_access_method,
-                if api_access_method.enabled() {
-                    "[enabled]"
-                } else {
-                    "[disabled]"
-                }
+                AccessMethodFormatter::new(&api_access_method)
             );
         }
         Ok(())
@@ -383,6 +379,80 @@ mod conversions {
                     shadowsocks_proxy.into()
                 }
             })
+        }
+    }
+}
+
+/// Pretty printing of [`AccessMethod`]s
+mod pp {
+    use mullvad_types::api_access_method::{
+        AccessMethod, BuiltInAccessMethod, ObfuscationProtocol, Socks5,
+    };
+
+    pub struct AccessMethodFormatter<'a> {
+        access_method: &'a AccessMethod,
+    }
+
+    impl<'a> AccessMethodFormatter<'a> {
+        pub fn new(access_method: &'a AccessMethod) -> AccessMethodFormatter<'a> {
+            AccessMethodFormatter { access_method }
+        }
+    }
+
+    impl<'a> std::fmt::Display for AccessMethodFormatter<'a> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            use crate::print_option;
+
+            let write_status = |f: &mut std::fmt::Formatter<'_>, enabled: bool| {
+                if enabled {
+                    write!(f, " *")
+                } else {
+                    write!(f, "")
+                }
+            };
+
+            match self.access_method {
+                AccessMethod::BuiltIn(method) => match method {
+                    BuiltInAccessMethod::Direct(enabled) => {
+                        write!(f, "Direct")?;
+                        write_status(f, *enabled)
+                    }
+                    BuiltInAccessMethod::Bridge(enabled) => {
+                        write!(f, "Mullvad Bridges")?;
+                        write_status(f, *enabled)
+                    }
+                },
+                AccessMethod::Custom(method) => match &method.access_method {
+                    ObfuscationProtocol::Shadowsocks(shadowsocks) => {
+                        write!(f, "{}", shadowsocks.name)?;
+                        write_status(f, shadowsocks.enabled)?;
+                        writeln!(f, "")?;
+                        print_option!("Protocol", format!("Shadowsocks [{}]", shadowsocks.cipher));
+                        print_option!("Peer", shadowsocks.peer);
+                        print_option!("Password", shadowsocks.password);
+                        Ok(())
+                    }
+                    ObfuscationProtocol::Socks5(socks) => match socks {
+                        Socks5::Remote(remote) => {
+                            write!(f, "{}", remote.name)?;
+                            write_status(f, remote.enabled)?;
+                            writeln!(f, "")?;
+                            print_option!("Protocol", "Socks5");
+                            print_option!("Peer", remote.peer);
+                            Ok(())
+                        }
+                        Socks5::Local(local) => {
+                            write!(f, "{}", local.name)?;
+                            write_status(f, local.enabled)?;
+                            writeln!(f, "")?;
+                            print_option!("Protocol", "Socks5 (local)");
+                            print_option!("Peer", local.peer);
+                            print_option!("Local port", local.port);
+                            Ok(())
+                        }
+                    },
+                },
+            }
         }
     }
 }
