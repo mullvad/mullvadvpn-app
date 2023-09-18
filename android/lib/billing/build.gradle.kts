@@ -57,7 +57,14 @@ dependencies {
     //Payment library
     implementation(project(Dependencies.Mullvad.paymentLib))
 
-    //Tests
+    // Test dependencies
+    testImplementation(project(Dependencies.Mullvad.commonTestLib))
+    testImplementation(Dependencies.Kotlin.test)
+    testImplementation(Dependencies.KotlinX.coroutinesTest)
+    testImplementation(Dependencies.MockK.core)
+    testImplementation(Dependencies.junit)
+    testImplementation(Dependencies.turbine)
+
     androidTestImplementation(project(Dependencies.Mullvad.commonTestLib))
     androidTestImplementation(Dependencies.MockK.android)
     androidTestImplementation(Dependencies.Kotlin.test)
