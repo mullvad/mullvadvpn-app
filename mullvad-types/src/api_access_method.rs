@@ -15,8 +15,8 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             api_access_methods: vec![
-                BuiltInAccessMethod::Direct.into(),
-                BuiltInAccessMethod::Bridge.into(),
+                BuiltInAccessMethod::Direct(true).into(),
+                BuiltInAccessMethod::Bridge(true).into(),
             ],
         }
     }
@@ -32,8 +32,8 @@ pub enum AccessMethod {
 /// Built-In access method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum BuiltInAccessMethod {
-    Direct,
-    Bridge,
+    Direct(bool),
+    Bridge(bool),
 }
 
 /// Custom access method datastructure.
@@ -54,6 +54,7 @@ pub struct Shadowsocks {
     pub peer: SocketAddr,
     pub password: String, // TODO: Mask the password (using special type)?
     pub cipher: String,   // Gets validated at a later stage. Is assumed to be valid.
+    pub enabled: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -67,11 +68,13 @@ pub struct Socks5Local {
     pub peer: SocketAddr,
     /// Port on localhost where the SOCKS5-proxy listens to.
     pub port: u16,
+    pub enabled: bool,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Remote {
     pub peer: SocketAddr,
+    pub enabled: bool,
 }
 
 impl Settings {
@@ -96,50 +99,96 @@ impl AccessMethod {
             AccessMethod::Custom(access_method) => Some(access_method),
         }
     }
+
+    pub fn enabled(&self) -> bool {
+        match self {
+            AccessMethod::BuiltIn(method) => match method {
+                BuiltInAccessMethod::Direct(enabled) => *enabled,
+                BuiltInAccessMethod::Bridge(enabled) => *enabled,
+            },
+            AccessMethod::Custom(method) => match &method.access_method {
+                ObfuscationProtocol::Shadowsocks(ss) => ss.enabled,
+                ObfuscationProtocol::Socks5(socks) => match socks {
+                    Socks5::Local(local) => local.enabled,
+                    Socks5::Remote(remote) => remote.enabled,
+                },
+            },
+        }
+    }
+
+    /// Set an access method to be either enabled or disabled.
+    ///
+    /// This action mutates [`self`].
+    pub fn toggle(&mut self, enable: bool) -> () {
+        match self {
+            AccessMethod::BuiltIn(method) => match method {
+                BuiltInAccessMethod::Direct(enabled) => *enabled = enable,
+                BuiltInAccessMethod::Bridge(enabled) => *enabled = enable,
+            },
+            AccessMethod::Custom(method) => match method.access_method {
+                ObfuscationProtocol::Shadowsocks(ref mut ss) => ss.enabled = enable,
+                ObfuscationProtocol::Socks5(ref mut socks) => match socks {
+                    Socks5::Local(local) => local.enabled = enable,
+                    Socks5::Remote(remote) => remote.enabled = enable,
+                },
+            },
+        }
+    }
 }
 
 impl Shadowsocks {
-    pub fn new(peer: SocketAddr, cipher: String, password: String) -> Self {
+    pub fn new(peer: SocketAddr, cipher: String, password: String, enabled: bool) -> Self {
         Shadowsocks {
             peer,
             password,
             cipher,
+            enabled,
         }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16, cipher: String, password: String) -> Option<Self> {
+    pub fn from_args(
+        ip: String,
+        port: u16,
+        cipher: String,
+        password: String,
+        enabled: bool,
+    ) -> Option<Self> {
         let peer = SocketAddrV4::new(Ipv4Addr::from_str(&ip).ok()?, port).into();
-        Some(Self::new(peer, cipher, password))
+        Some(Self::new(peer, cipher, password, enabled))
     }
 }
 
 impl Socks5Local {
-    pub fn new(peer: SocketAddr, port: u16) -> Self {
-        Self { peer, port }
+    pub fn new(peer: SocketAddr, port: u16, enabled: bool) -> Self {
+        Self {
+            peer,
+            port,
+            enabled,
+        }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16, localport: u16) -> Option<Self> {
+    pub fn from_args(ip: String, port: u16, localport: u16, enabled: bool) -> Option<Self> {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer, localport))
+        Some(Self::new(peer, localport, enabled))
     }
 }
 
 impl Socks5Remote {
-    pub fn new(peer: SocketAddr) -> Self {
-        Self { peer }
+    pub fn new(peer: SocketAddr, enabled: bool) -> Self {
+        Self { peer, enabled }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Remote)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16) -> Option<Self> {
+    pub fn from_args(ip: String, port: u16, enabled: bool) -> Option<Self> {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer))
+        Some(Self::new(peer, enabled))
     }
 }
 
@@ -212,5 +261,11 @@ pub mod daemon {
     pub struct ApiAccessMethodReplace {
         pub index: usize,
         pub access_method: AccessMethod,
+    }
+    /// TODO: Document why this is needed.
+    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+    pub struct ApiAccessMethodToggle {
+        pub access_method: AccessMethod,
+        pub enable: bool,
     }
 }
