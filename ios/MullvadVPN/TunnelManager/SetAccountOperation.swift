@@ -41,6 +41,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     private let accountsProxy: REST.AccountsProxy
     private let devicesProxy: REST.DevicesProxy
     private let action: SetAccountAction
+    private let accessTokenManager: REST.AccessTokenManager
 
     private let logger = Logger(label: "SetAccountOperation")
     private var tasks: [Cancellable] = []
@@ -50,11 +51,13 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         interactor: TunnelInteractor,
         accountsProxy: REST.AccountsProxy,
         devicesProxy: REST.DevicesProxy,
+        accessTokenManager: REST.AccessTokenManager,
         action: SetAccountAction
     ) {
         self.interactor = interactor
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
+        self.accessTokenManager = accessTokenManager
         self.action = action
 
         super.init(dispatchQueue: dispatchQueue)
@@ -64,6 +67,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
     override func main() {
         startLogoutFlow { [self] in
+            self.accessTokenManager.invalidateAllTokens()
             switch action {
             case .new:
                 startNewAccountFlow { [self] result in

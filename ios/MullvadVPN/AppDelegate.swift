@@ -36,6 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var accountsProxy: REST.AccountsProxy!
     private(set) var devicesProxy: REST.DevicesProxy!
 
+    private(set) var accessTokenManager: REST.AccessTokenManager!
     private(set) var addressCacheTracker: AddressCacheTracker!
     private(set) var relayCacheTracker: RelayCacheTracker!
     private(set) var storePaymentManager: StorePaymentManager!
@@ -75,7 +76,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             relayCacheTracker: relayCacheTracker,
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
-            apiProxy: apiProxy
+            apiProxy: apiProxy,
+            accessTokenManager: accessTokenManager
         )
 
         let constraintsUpdater = RelayConstraintsUpdater()
