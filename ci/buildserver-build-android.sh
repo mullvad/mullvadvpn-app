@@ -61,6 +61,8 @@ function build_ref {
 
     echo "Building Android app"
     ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
+        CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
+        CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
         USE_MOLD=false \
         ./building/containerized-build.sh android --app-bundle || return 0
 
