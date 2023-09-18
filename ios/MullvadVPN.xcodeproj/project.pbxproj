@@ -392,6 +392,7 @@
 		58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */; };
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
 		58F3F36A2AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */; };
+		58F7753F2AB8536A00425B47 /* BlockedStateReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
 		58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */; };
 		58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */; };
@@ -1396,6 +1397,7 @@
 		58F3C0A524A50155003E76BE /* relays.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
 		58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoCancellingTask.swift; sourceTree = "<group>"; };
 		58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPacketTunnelProvider.swift; sourceTree = "<group>"; };
+		58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateReason.swift; sourceTree = "<group>"; };
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
 		58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManagerError.swift; sourceTree = "<group>"; };
@@ -1817,6 +1819,7 @@
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
 				58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */,
 				A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */,
+				58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */,
 				58CAFA01298530DC00BE19F7 /* Promise.swift */,
 				5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
@@ -4289,6 +4292,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58F7753F2AB8536A00425B47 /* BlockedStateReason.swift in Sources */,
 				58D22406294C90210029F5F8 /* IPv4Endpoint.swift in Sources */,
 				7A307ADB2A8F56DF0017618B /* Duration+Extensions.swift in Sources */,
 				58D22407294C90210029F5F8 /* IPv6Endpoint.swift in Sources */,
