@@ -9,6 +9,9 @@
 import Foundation
 import MullvadTypes
 
+/// Internal task identifier type
+typealias TaskId = UInt
+
 /**
  Task-based FIFO queue used by `PacketTunnelActor`.
 
@@ -20,7 +23,9 @@ import MullvadTypes
  for instance a call to `.stop` is guaranteed to undo work of any preceding task. (See `TaskKind` for more information)
  */
 final actor TaskQueue {
-    private var currentTask: SerialTask?
+    /// Ever incrementing identifier that's is used to distinguish between different tasks.
+    private var taskId: TaskId = 0
+    private var queuedTasks: [SerialTask] = []
 
     public init() {}
 
@@ -29,17 +34,18 @@ final actor TaskQueue {
         priority: TaskPriority? = nil,
         operation: @escaping () async throws -> Output
     ) async throws -> Output {
-        let previousTask = currentTask
+        let previousTask = queuedTasks.last
         let nextTask = Task(priority: priority) {
             await previousTask?.task.waitForCompletion()
 
             return try await operation()
         }
 
-        currentTask = SerialTask(kind: kind, task: nextTask)
+        let nextTaskId = registerTask(kind: kind, nextTask: nextTask)
+        cancelPrecedingTasksIfNeeded()
 
-        if let previousTask, kind.shouldCancel(previousTask.kind) {
-            previousTask.task.cancel()
+        defer {
+            unregisterTask(nextTaskId)
         }
 
         return try await nextTask.value
@@ -50,29 +56,78 @@ final actor TaskQueue {
         priority: TaskPriority? = nil,
         operation: @escaping () async -> Output
     ) async -> Output {
-        let previousTask = currentTask
+        let previousTask = queuedTasks.last
         let nextTask = Task(priority: priority) {
             await previousTask?.task.waitForCompletion()
 
             return await operation()
         }
 
-        currentTask = SerialTask(kind: kind, task: nextTask)
+        let nextTaskId = registerTask(kind: kind, nextTask: nextTask)
+        cancelPrecedingTasksIfNeeded()
 
-        if let previousTask, kind.shouldCancel(previousTask.kind) {
-            previousTask.task.cancel()
+        defer {
+            unregisterTask(nextTaskId)
         }
 
         return await nextTask.value
+    }
+
+    private func nextTaskId() -> TaskId {
+        let (value, isOverflow) = taskId.addingReportingOverflow(1)
+        taskId = isOverflow ? 0 : value
+        return UInt(taskId)
+    }
+
+    private func registerTask(kind: TaskKind, nextTask: AnyTask) -> TaskId {
+        let nextTaskId = nextTaskId()
+
+        queuedTasks.append(SerialTask(id: nextTaskId, kind: kind, task: nextTask))
+
+        return nextTaskId
+    }
+
+    private func unregisterTask(_ taskId: TaskId) {
+        let index = queuedTasks.firstIndex { $0.id == taskId }
+
+        if let index {
+            queuedTasks.remove(at: index)
+        }
+    }
+
+    private func cancelPrecedingTasksIfNeeded() {
+        guard let current = queuedTasks.last else { return }
+
+        let tasksToCancel = queuedTasks.dropLast(1).filter { preceding in
+            current.kind.shouldCancel(preceding.kind)
+        }
+
+        tasksToCancel.forEach { $0.task.cancel() }
     }
 }
 
 /// Kinds of tasks that `TaskQueue` actor performs.
 enum TaskKind: Equatable {
-    case start, stop, reconnect, blockedState, keyRotated, networkReachability
+    /// Task that starts the tunnel.
+    case start
+
+    /// Task that stops the tunnel.
+    case stop
+
+    /// Task that reconnects the tunnel.
+    case reconnect
+
+    /// Task that enters tunnel into blocked state.
+    /// Scheduled via external call in response to device check.
+    case blockedState
+
+    //
+    case keyRotated
+    case networkReachability
 }
 
 private struct SerialTask {
+    var id: TaskId
     var kind: TaskKind
     var task: AnyTask
 }
@@ -81,22 +136,15 @@ private extension TaskKind {
     /**
      Returns `true` if the prior task should be cancelled.
 
-     The following adjacent tasks should result in cancellation of the left-hand side (preceding) task.
-
-     `.start` → `.stop`
-     `.reconnect` → `.stop`
-     `.reconnect` → `.reconnect`
-     `.networkReachability` → `.networkReachability`
+     - `.stop` task cancels all tasks in the queue except other `.stop` tasks.
+     - `.reconnect` task can cancel any prior `.reconnect`.
      */
-    func shouldCancel(_ prior: TaskKind) -> Bool {
-        if self == .stop, prior != .stop {
+    func shouldCancel(_ other: TaskKind) -> Bool {
+        if self == .stop, other != .stop {
             // Stop task can cancel any prior task.
             return true
-        } else if self == .reconnect, prior == .reconnect {
+        } else if self == .reconnect, other == .reconnect {
             // Cancel prior task to reconnect.
-            return true
-        } else if self == .networkReachability, prior == .networkReachability {
-            // Coalesce network reachability changes
             return true
         } else {
             return false

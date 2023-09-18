@@ -16,11 +16,11 @@ final class TaskQueueTests: XCTestCase {
         let firstExpectation = expectation(description: "Complete first task")
         let secondExpectation = expectation(description: "Complete second task")
 
-        async let _ = queue.add(kind: TaskKind.start) {
+        async let _ = queue.add(kind: .start) {
             try await Task.sleep(seconds: 1)
             firstExpectation.fulfill()
         }
-        async let _ = queue.add(kind: TaskKind.start) {
+        async let _ = queue.add(kind: .start) {
             secondExpectation.fulfill()
         }
 
@@ -30,10 +30,10 @@ final class TaskQueueTests: XCTestCase {
     func testReconnectShouldNotCancelPrecedingStart() async throws {
         let queue = TaskQueue()
 
-        async let start: () = queue.add(kind: TaskKind.start) {
+        async let start: () = queue.add(kind: .start) {
             try await Task.sleep(seconds: 1)
         }
-        async let _ = queue.add(kind: TaskKind.reconnect) {}
+        async let _ = queue.add(kind: .reconnect) {}
 
         do {
             try await start
@@ -42,31 +42,37 @@ final class TaskQueueTests: XCTestCase {
         }
     }
 
-    func testReconnectShouldCancelPrecedingReconnect() async throws {
+    func testCoalesceCallsToReconnect() async throws {
         let queue = TaskQueue()
 
-        async let first: () = queue.add(kind: TaskKind.reconnect) {
+        async let first: () = queue.add(kind: .reconnect) {
             try await Task.sleep(seconds: 1)
         }
-        async let _ = queue.add(kind: TaskKind.reconnect) {}
+        async let _ = queue.add(kind: .networkReachability) {
+            try await Task.sleep(seconds: 1)
+        }
+        async let _ = queue.add(kind: .reconnect) {}
 
         do {
             try await first
-            XCTFail("Reconnect task must be cancelled!")
+            XCTFail("Preceding reconnection task must be cancelled!")
         } catch {}
     }
 
-    func testStopShouldCancelPrecedingStart() async throws {
+    func testStopShouldCancelPrecedingTasks() async throws {
         let queue = TaskQueue()
 
-        async let first: () = queue.add(kind: TaskKind.start) {
+        async let first: () = queue.add(kind: .start) {
             try await Task.sleep(seconds: 1)
         }
-        async let _ = queue.add(kind: TaskKind.stop) {}
+        async let second: () = queue.add(kind: .reconnect) {
+            try await Task.sleep(seconds: 1)
+        }
+        async let _ = queue.add(kind: .stop) {}
 
         do {
-            try await first
-            XCTFail("Start task must be cancelled!")
+            let _ = try await (first, second)
+            XCTFail("Preceding tasks must be cancelled!")
         } catch {}
     }
 }
