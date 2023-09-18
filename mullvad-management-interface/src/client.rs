@@ -4,7 +4,10 @@ use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access_method::{daemon::ApiAccessMethodReplace, AccessMethod},
+    api_access_method::{
+        daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
+        AccessMethod,
+    },
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
@@ -507,6 +510,17 @@ impl MullvadProxyClient {
     pub async fn add_access_method(&mut self, access_method: AccessMethod) -> Result<()> {
         self.0
             .add_api_access_method(types::ApiAccessMethod::from(access_method))
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
+    pub async fn toggle_access_method(
+        &mut self,
+        access_method_toggle: ApiAccessMethodToggle,
+    ) -> Result<()> {
+        self.0
+            .toggle_api_access_method(types::ApiAccessMethodToggle::from(access_method_toggle))
             .await
             .map_err(Error::Rpc)
             .map(drop)
