@@ -50,6 +50,12 @@ pub enum ObfuscationProtocol {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub enum Socks5 {
+    Local(Socks5Local),
+    Remote(Socks5Remote),
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Shadowsocks {
     pub peer: SocketAddr,
     pub password: String, // TODO: Mask the password (using special type)?
@@ -57,13 +63,7 @@ pub struct Shadowsocks {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub enum Socks5 {
-    Local(Socks5Local),
-    Remote(Socks5Remote),
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Socks5Local {
     pub peer: SocketAddr,
     /// Port on localhost where the SOCKS5-proxy listens to.
@@ -71,10 +71,31 @@ pub struct Socks5Local {
     pub enabled: bool,
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Socks5Remote {
     pub peer: SocketAddr,
     pub enabled: bool,
+}
+
+impl Hash for Shadowsocks {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.peer.hash(state);
+        self.password.hash(state);
+        self.cipher.hash(state);
+    }
+}
+
+impl Hash for Socks5Local {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.peer.hash(state);
+        self.port.hash(state);
+    }
+}
+
+impl Hash for Socks5Remote {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.peer.hash(state);
+    }
 }
 
 impl Settings {
