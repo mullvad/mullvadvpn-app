@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
 import Network
 @testable import PacketTunnelCore
 import XCTest
@@ -22,12 +23,7 @@ final class TunnelMonitorTests: XCTestCase {
             return .sendReply()
         }
 
-        let tunnelMonitor = TunnelMonitor(
-            eventQueue: .main,
-            pinger: pinger,
-            tunnelDeviceInfo: MockTunnelDeviceInfo(networkStatsProviding: networkCounters),
-            defaultPathObserver: MockDefaultPathObserver()
-        )
+        let tunnelMonitor = createTunnelMonitor(pinger: pinger, timings: TunnelMonitorTimings())
 
         tunnelMonitor.onEvent = { event in
             switch event {
@@ -49,38 +45,33 @@ final class TunnelMonitorTests: XCTestCase {
 
     func testInitialConnectionTimings() {
         // Setup pinger so that it never receives any replies.
-        let pinger = MockPinger(networkStatsReporting: networkCounters) { _, _ in
-            return .ignore
-        }
+        let pinger = MockPinger(networkStatsReporting: networkCounters) { _, _ in .ignore }
 
-        let tunnelMonitor = TunnelMonitor(
-            eventQueue: .main,
-            pinger: pinger,
-            tunnelDeviceInfo: MockTunnelDeviceInfo(networkStatsProviding: networkCounters),
-            defaultPathObserver: MockDefaultPathObserver()
+        let timings = TunnelMonitorTimings(
+            pingTimeout: .milliseconds(300),
+            initialEstablishTimeout: .milliseconds(100),
+            connectivityCheckInterval: .milliseconds(100)
         )
 
-        /*
-         Tunnel monitor uses shorter timeout intervals during the initial connection sequence and picks next relay more
-         aggressively in order to reduce connection time.
+        let tunnelMonitor = createTunnelMonitor(pinger: pinger, timings: timings)
 
-         First connection attempt starts at 4 second timeout, then doubles with each subsequent attempt, while being
-         capped at 15s max.
-         */
-        var expectedTimings = [4, 8, 15, 15]
-        let totalAttemptCount = expectedTimings.count
+        var expectedTimings = [
+            timings.initialEstablishTimeout.milliseconds,
+            timings.initialEstablishTimeout.milliseconds * 2,
+            timings.pingTimeout.milliseconds,
+            timings.pingTimeout.milliseconds,
+        ]
 
-        // Calculate the amount of time necessary to perform the test adding some leeway.
-        let timeout = expectedTimings.reduce(1, +)
+        // Calculate the amount of time necessary to perform the test.
+        var timeout = expectedTimings.reduce(0, +)
+        // Add leeway into the total amount of expected wait time.
+        timeout += timeout / 2
 
-        let expectation = self.expectation(description: "Should respect all timings.")
+        let expectation = expectation(description: "Should respect all timings.")
         expectation.expectedFulfillmentCount = expectedTimings.count
 
         // This date will be used to measure the amount of time elapsed between `.connectionLost` events.
         var startDate = Date()
-
-        // Reconnection attempt counter.
-        var currentAttempt = 0
 
         tunnelMonitor.onEvent = { [weak tunnelMonitor] event in
             guard case .connectionLost = event else { return }
@@ -90,28 +81,22 @@ final class TunnelMonitorTests: XCTestCase {
                 XCTAssertFalse(expectedTimings.isEmpty)
 
                 let expectedDuration = expectedTimings.removeFirst()
+                let leeway = expectedDuration / 2
 
-                // Compute amount of time elapsed between `.connectionLost` events rounding it down towards zero.
-                let timeElapsed = Int(Date().timeIntervalSince(startDate).rounded(.down))
-
-                currentAttempt += 1
-
-                print("[\(currentAttempt)/\(totalAttemptCount)] \(event), time elapsed: \(timeElapsed)s")
+                // Compute amount of time elapsed between `.connectionLost` events.
+                let timeElapsed = Int(Date().timeIntervalSince(startDate) * 1000)
 
                 XCTAssertEqual(
                     timeElapsed,
                     expectedDuration,
-                    "Expected to report connection loss after \(expectedDuration)s, instead reported it after \(timeElapsed)s."
+                    accuracy: leeway,
+                    "Expected to report connection loss after \(expectedDuration)-\(expectedDuration + leeway) ms, instead reported it after \(timeElapsed) ms."
                 )
 
                 expectation.fulfill()
 
-                if expectedTimings.isEmpty {
-                    print("Finished.")
-                } else {
+                if !expectedTimings.isEmpty {
                     startDate = Date()
-
-                    print("Continue monitoring.")
 
                     // Continue monitoring by calling start() again.
                     tunnelMonitor?.start(probeAddress: .loopback)
@@ -125,11 +110,21 @@ final class TunnelMonitorTests: XCTestCase {
             }
         }
 
-        print("Start monitoring.")
-
         // Start monitoring.
         tunnelMonitor.start(probeAddress: .loopback)
 
-        waitForExpectations(timeout: TimeInterval(timeout))
+        waitForExpectations(timeout: TimeInterval(timeout) / 1000)
+    }
+}
+
+extension TunnelMonitorTests {
+    private func createTunnelMonitor(pinger: PingerProtocol, timings: TunnelMonitorTimings) -> TunnelMonitor {
+        return TunnelMonitor(
+            eventQueue: .main,
+            pinger: pinger,
+            tunnelDeviceInfo: MockTunnelDeviceInfo(networkStatsProviding: networkCounters),
+            defaultPathObserver: MockDefaultPathObserver(),
+            timings: timings
+        )
     }
 }
