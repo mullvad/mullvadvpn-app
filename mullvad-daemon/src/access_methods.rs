@@ -40,7 +40,7 @@ where
     ) -> Result<(), Error> {
         self.settings
             .update(|settings| {
-                if let Some(ref mut access_method) = settings
+                if let Some(access_method) = settings
                     .api_access_methods
                     .api_access_methods
                     .iter_mut()
@@ -58,13 +58,13 @@ where
         &mut self,
         access_method: CustomAccessMethod,
     ) -> Result<(), Error> {
-        let access_method = AccessMethod::from(access_method);
         self.settings
             .update(|settings| {
-                settings
-                    .api_access_methods
-                    .api_access_methods
-                    .retain(|x| *x != access_method);
+                settings.api_access_methods.api_access_methods.retain(|x| {
+                    x.as_custom()
+                        .map(|c| c.id != access_method.id)
+                        .unwrap_or(true)
+                });
             })
             .await
             .map(|did_change| self.notify_on_change(did_change))

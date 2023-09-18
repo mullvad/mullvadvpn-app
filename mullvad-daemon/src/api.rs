@@ -65,7 +65,7 @@ impl Stream for ApiConnectionModeProvider {
             };
         }
 
-        let connection_mode = self.new_task();
+        let connection_mode = self.new_connection_mode();
         self.retry_attempt = self.retry_attempt.wrapping_add(1);
 
         let cache_dir = self.cache_dir.clone();
@@ -100,21 +100,6 @@ impl ApiConnectionModeProvider {
             relay_selector,
             retry_attempt: 0,
             current_task: None,
-            // TODO: This datastructure already exists in the daemon! Use that one.
-            // available_modes: Box::new(
-            //     vec![
-            //         BuiltInAccessMethod::Direct.into(),
-            //         BuiltInAccessMethod::Direct.into(),
-            //         BuiltInAccessMethod::Direct.into(),
-            //         BuiltInAccessMethod::Bridge.into(),
-            //     ]
-            //     .into_iter()
-            //     .cycle(),
-            // ),
-            // available_modes: vec![
-            //     (BuiltInAccessMethod::Direct.into(), 3),
-            //     (BuiltInAccessMethod::Bridge.into(), 1),
-            // ],
             available_modes: connection_modes,
         }
     }
@@ -125,7 +110,7 @@ impl ApiConnectionModeProvider {
     /// We need to be able to poll the daemon's settings to find out which access methods are available & active.
     /// For now, [`ApiConnectionModeProvider`] is only instanciated once during daemon startup, and does not change it's
     /// available access methods based on any "Settings-changed" events.
-    fn new_task(&mut self) -> ApiConnectionMode {
+    fn new_connection_mode(&mut self) -> ApiConnectionMode {
         let (access_methods, weights): (Vec<_>, Vec<_>) = {
             let modes = self.available_modes.lock().unwrap();
             modes
