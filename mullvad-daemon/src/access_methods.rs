@@ -3,7 +3,8 @@ use crate::{
     Daemon, EventListener,
 };
 use mullvad_types::api_access_method::{
-    daemon::ApiAccessMethodReplace, AccessMethod, CustomAccessMethod,
+    daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
+    AccessMethod, CustomAccessMethod,
 };
 
 #[derive(err_derive::Error, Debug)]
@@ -27,6 +28,26 @@ where
                     .api_access_methods
                     .api_access_methods
                     .push(access_method);
+            })
+            .await
+            .map(|did_change| self.notify_on_change(did_change))
+            .map_err(Error::Settings)
+    }
+
+    pub async fn toggle_api_access_method(
+        &mut self,
+        access_method_toggle: ApiAccessMethodToggle,
+    ) -> Result<(), Error> {
+        self.settings
+            .update(|settings| {
+                if let Some(ref mut access_method) = settings
+                    .api_access_methods
+                    .api_access_methods
+                    .iter_mut()
+                    .find(|access_method| **access_method == access_method_toggle.access_method)
+                {
+                    access_method.toggle(access_method_toggle.enable);
+                }
             })
             .await
             .map(|did_change| self.notify_on_change(did_change))
