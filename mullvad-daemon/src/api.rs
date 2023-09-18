@@ -153,6 +153,7 @@ impl ApiConnectionModeProvider {
                                     ss_settings.cipher,
                                     ss_settings.password,
                                     enabled,
+                                    "Mullvad Bridges".to_string(), // TODO: Move this to some central location
                                 );
                             Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
                                 ss_settings,

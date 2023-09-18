@@ -374,16 +374,18 @@ message ApiAccessMethod {
   message Bridges { bool enabled = 1; }
   message Socks5Local {
     bool enabled = 1;
-    string id = 2;
-    string ip = 3;
-    uint32 port = 4;
-    uint32 local_port = 5;
+    string name = 2;
+    string id = 3;
+    string ip = 4;
+    uint32 port = 5;
+    uint32 local_port = 6;
   }
   message Socks5Remote {
     bool enabled = 1;
-    string id = 2;
-    string ip = 3;
-    uint32 port = 4;
+    string name = 2;
+    string id = 3;
+    string ip = 4;
+    uint32 port = 5;
   }
   message Socks5 {
     oneof Socks5type {
@@ -393,11 +395,12 @@ message ApiAccessMethod {
   }
   message Shadowsocks {
     bool enabled = 1;
-    string id = 2;
-    string ip = 3;
-    uint32 port = 4;
-    string password = 5;
-    string cipher = 6;
+    string name = 2;
+    string id = 3;
+    string ip = 4;
+    uint32 port = 5;
+    string password = 6;
+    string cipher = 7;
   }
   oneof access_method {
     Direct direct = 1;
