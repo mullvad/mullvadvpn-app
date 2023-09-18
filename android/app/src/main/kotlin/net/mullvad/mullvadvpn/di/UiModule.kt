@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.di
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -8,7 +9,9 @@ import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -73,7 +76,7 @@ val uiModule = module {
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
     // View models
-    viewModel { AccountViewModel(get(), get(), get()) }
+    viewModel { AccountViewModel(get(), get(), get(), get()) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }

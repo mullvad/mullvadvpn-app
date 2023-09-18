@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.payment
 
+import android.app.Activity
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
@@ -12,7 +13,8 @@ import net.mullvad.mullvadvpn.lib.billing.model.QueryProductResult
 import net.mullvad.mullvadvpn.lib.billing.model.QueryPurchasesResult
 
 class PaymentRepository(
-    private val billingRepository: BillingRepository,
+    activity: Activity,
+    private val billingRepository: BillingRepository = BillingRepository(activity = activity),
     private val showWebPayment: Boolean
 ) {
     private val _billingPurchaseEvents =
