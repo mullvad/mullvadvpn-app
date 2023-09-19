@@ -101,7 +101,6 @@ where
             .api_access_methods
             .clone()
             .into_iter()
-            .map(|x| (x, 1))
             .collect();
     }
 }
