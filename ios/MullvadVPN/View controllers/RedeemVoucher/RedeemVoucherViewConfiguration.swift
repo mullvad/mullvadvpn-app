@@ -7,6 +7,12 @@
 //
 
 import Foundation
+import UIKit
+
 struct RedeemVoucherViewConfiguration {
     let adjustViewWhenKeyboardAppears: Bool
+    /// Hides the title when set to `true`.
+    let shouldUseCompactStyle: Bool
+    /// Custom  margins to use for the compact style.
+    let layoutMargins: NSDirectionalEdgeInsets
 }

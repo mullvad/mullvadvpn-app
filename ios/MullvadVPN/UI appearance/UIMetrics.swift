@@ -38,7 +38,7 @@ enum UIMetrics {
     enum SettingsRedeemVoucher {
         static let cornerRadius = 8.0
         static let preferredContentSize = CGSize(width: 280, height: 260)
-        static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0)
+        static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
     }
 
     enum AccountDeletion {
@@ -130,6 +130,7 @@ extension UIMetrics {
     /// Various paddings used throughout the app to visually separate elements in StackViews
     static let padding4: CGFloat = 4
     static let padding8: CGFloat = 8
+    static let padding10: CGFloat = 10
     static let padding16: CGFloat = 16
     static let padding24: CGFloat = 24
     static let padding32: CGFloat = 32

@@ -26,8 +26,16 @@ public class CreateAccountVoucherCoordinator: Coordinator {
         self.navigationController = navigationController
         self.interactor = interactor
 
+        var layoutMargins = navigationController.view.layoutMargins.toDirectionalInsets
+        layoutMargins.top += UIMetrics.contentLayoutMargins.top
+        layoutMargins.bottom += UIMetrics.contentLayoutMargins.bottom
+
         viewController = RedeemVoucherViewController(
-            configuration: RedeemVoucherViewConfiguration(adjustViewWhenKeyboardAppears: true),
+            configuration: RedeemVoucherViewConfiguration(
+                adjustViewWhenKeyboardAppears: true,
+                shouldUseCompactStyle: false,
+                layoutMargins: layoutMargins
+            ),
             interactor: interactor
         )
     }

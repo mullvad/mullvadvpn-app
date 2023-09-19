@@ -20,7 +20,7 @@ class LogoutDialogueView: UIView {
 
     private let messageLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .callout, weight: .light)
+        label.font = .preferredFont(forTextStyle: .callout, weight: .semibold)
         label.numberOfLines = .zero
         label.lineBreakMode = .byWordWrapping
         label.textColor = .white
