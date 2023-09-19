@@ -10,6 +10,7 @@ const DNS_TRACKER_BLOCKING_IP_BIT: u8 = 1 << 1; // 0b00000010
 const DNS_MALWARE_BLOCKING_IP_BIT: u8 = 1 << 2; // 0b00000100
 const DNS_ADULT_BLOCKING_IP_BIT: u8 = 1 << 3; // 0b00001000
 const DNS_GAMBLING_BLOCKING_IP_BIT: u8 = 1 << 4; // 0b00010000
+const DNS_SOCIAL_MEDIA_BLOCKING_IP_BIT: u8 = 1 << 5; // 0b00100000
 
 /// Return the resolvers as a vector of `IpAddr`s. Returns `None` when no special resolvers
 /// are requested and the tunnel default gateway should be used.
@@ -34,6 +35,9 @@ pub fn addresses_from_options(options: &DnsOptions) -> Option<Vec<IpAddr>> {
             }
             if options.default_options.block_gambling {
                 last_byte |= DNS_GAMBLING_BLOCKING_IP_BIT;
+            }
+            if options.default_options.block_social_media {
+                last_byte |= DNS_SOCIAL_MEDIA_BLOCKING_IP_BIT;
             }
 
             if last_byte != 0 {
