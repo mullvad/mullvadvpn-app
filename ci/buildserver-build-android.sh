@@ -28,6 +28,10 @@ function upload {
     mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
 }
 
+function run_in_linux_container {
+    USE_MOLD=false ./building/container-run.sh linux "$@"
+}
+
 # Builds the app artifacts and move them to the passed in `artifact_dir`.
 # Must pass `artifact_dir` to show where to move the built artifacts.
 function build {
@@ -82,7 +86,7 @@ function build_ref {
 
     # podman appends a trailing carriage return to the output. So we use `tr` to strip it
     local version=""
-    version="$(run_in_build_env cargo run -q --bin mullvad-version | tr -d "\r" || return 1)"
+    version="$(run_in_linux_container cargo run -q --bin mullvad-version | tr -d "\r" || return 1)"
 
     local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
