@@ -54,6 +54,17 @@ pub enum Error {
     RestoringUnscopedRoutes,
 }
 
+/// Convenience macro to get the current default route. Macro because I don't want to borrow `self`
+/// mutably.
+macro_rules! get_current_best_default_route {
+    ($self:expr, $family:expr) => {{
+        match $family {
+            interface::Family::V4 => &mut $self.v4_default_route,
+            interface::Family::V6 => &mut $self.v6_default_route,
+        }
+    }};
+}
+
 /// Route manager can be in 1 of 4 states -
 ///  - waiting for a route to be added or removed from the route table
 ///  - obtaining default routes
@@ -353,10 +364,7 @@ impl RouteManagerImpl {
         };
         log::trace!("Best route ({family:?}): {best_route:?}");
 
-        let default_route = match family {
-            interface::Family::V4 => &mut self.v4_default_route,
-            interface::Family::V6 => &mut self.v6_default_route,
-        };
+        let default_route = get_current_best_default_route!(self, family);
 
         if default_route == &best_route {
             log::trace!("Default route ({family:?}) is unchanged");
@@ -420,20 +428,17 @@ impl RouteManagerImpl {
                 Some(route) => route,
                 None => continue,
             };
+            let family = if tunnel_route.is_ipv4() {
+                interface::Family::V4
+            } else {
+                interface::Family::V6
+            };
 
             // Replace the default route with an ifscope route
-            self.set_default_route_ifscope(tunnel_route.is_ipv4(), true)
-                .await?;
+            self.set_default_route_ifscope(family, true).await?;
 
             // Make sure there is really no other unscoped default route
-            let mut msg = RouteMessage::new_route(
-                if tunnel_route.is_ipv4() {
-                    IpNetwork::from(interface::Family::V4)
-                } else {
-                    IpNetwork::from(interface::Family::V6)
-                }
-                .into(),
-            );
+            let mut msg = RouteMessage::new_route(IpNetwork::from(family).into());
             msg = msg.set_gateway_route(true);
             let old_route = self.routing_table.get_route(&msg).await;
             if let Ok(Some(old_route)) = old_route {
@@ -508,14 +513,11 @@ impl RouteManagerImpl {
     /// instead.
     async fn set_default_route_ifscope(
         &mut self,
-        ipv4: bool,
+        family: interface::Family,
         should_be_ifscoped: bool,
     ) -> Result<()> {
-        let default_route = match (ipv4, &mut self.v4_default_route, &mut self.v6_default_route) {
-            (true, Some(default_route), _) | (false, _, Some(default_route)) => default_route,
-            _ => {
-                return Ok(());
-            }
+        let Some(default_route) = get_current_best_default_route!(self, family) else {
+            return Ok(());
         };
 
         if default_route.is_ifscope() == should_be_ifscoped {
@@ -609,39 +611,36 @@ impl RouteManagerImpl {
     /// Add back unscoped default routes, if they are still missing. This function returns
     /// true when no routes had to be added.
     async fn try_restore_default_routes(&mut self) -> bool {
-        let mut done = true;
-        for family in [interface::Family::V4, interface::Family::V6] {
-            let current_route = match family {
-                interface::Family::V4 => &mut self.v4_default_route,
-                interface::Family::V6 => &mut self.v6_default_route,
-            };
-            let message = RouteMessage::new_route(IpNetwork::from(family).into());
-            done &= if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
-                true
-            } else {
-                let new_route =
-                    interface::get_best_default_route(&mut self.routing_table, family).await;
-                let old_route = std::mem::replace(current_route, new_route);
-                let notify = &old_route != current_route;
+        self.restore_default_route(interface::Family::V4).await
+            && self.restore_default_route(interface::Family::V6).await
+    }
 
-                let done = if let Some(route) = current_route {
-                    let _ = std::mem::replace(route, route.clone().set_ifscope(0));
-                    if let Err(error) = self.routing_table.add_route(route).await {
-                        log::trace!("Failed to add non-ifscope {family} route: {error}");
-                    }
-                    false
-                } else {
-                    true
-                };
-
-                if notify {
-                    let changed = current_route.is_some();
-                    self.notify_default_route_listeners(family, changed);
-                }
-
-                done
-            };
+    async fn restore_default_route(&mut self, family: interface::Family) -> bool {
+        let current_route = get_current_best_default_route!(self, family);
+        let message = RouteMessage::new_route(IpNetwork::from(family).into());
+        if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
+            return true;
         }
+
+        let new_route = interface::get_best_default_route(&mut self.routing_table, family).await;
+        let old_route = std::mem::replace(current_route, new_route);
+        let notify = &old_route != current_route;
+
+        let done = if let Some(route) = current_route {
+            *route = route.clone().set_ifscope(0);
+            if let Err(error) = self.routing_table.add_route(route).await {
+                log::trace!("Failed to add non-ifscope {family} route: {error}");
+            }
+            false
+        } else {
+            true
+        };
+
+        if notify {
+            let changed = current_route.is_some();
+            self.notify_default_route_listeners(family, changed);
+        }
+
         done
     }
 }
