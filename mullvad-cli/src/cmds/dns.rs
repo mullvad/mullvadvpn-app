@@ -40,6 +40,10 @@ pub enum DnsSet {
         /// Block domains known to be used for gambling
         #[arg(long)]
         block_gambling: bool,
+
+        /// Block domains related to social media
+        #[arg(long)]
+        block_social_media: bool,
     },
 
     /// Set a list of custom DNS servers
@@ -62,6 +66,7 @@ impl Dns {
                         block_malware,
                         block_adult_content,
                         block_gambling,
+                        block_social_media,
                     },
             } => {
                 Self::set_default(
@@ -70,6 +75,7 @@ impl Dns {
                     block_malware,
                     block_adult_content,
                     block_gambling,
+                    block_social_media,
                 )
                 .await
             }
@@ -94,6 +100,10 @@ impl Dns {
                     options.default_options.block_adult_content
                 );
                 println!("Block gambling: {}", options.default_options.block_gambling);
+                println!(
+                    "Block social media: {}",
+                    options.default_options.block_social_media
+                );
             }
             DnsState::Custom => {
                 println!("Custom DNS: yes\nServers:");
@@ -112,6 +122,7 @@ impl Dns {
         block_malware: bool,
         block_adult_content: bool,
         block_gambling: bool,
+        block_social_media: bool,
     ) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
@@ -123,6 +134,7 @@ impl Dns {
                 block_malware,
                 block_adult_content,
                 block_gambling,
+                block_social_media,
             },
             ..settings.tunnel_options.dns_options
         })

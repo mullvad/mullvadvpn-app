@@ -483,6 +483,7 @@ message DefaultDnsOptions {
   bool block_malware = 3;
   bool block_adult_content = 4;
   bool block_gambling = 5;
+  bool block_social_media = 6;
 }
 
 message CustomDnsOptions { repeated string addresses = 1; }
