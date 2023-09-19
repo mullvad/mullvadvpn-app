@@ -479,22 +479,6 @@ impl RequestFactory {
     }
 }
 
-pub fn get_request<T: serde::de::DeserializeOwned>(
-    factory: &RequestFactory,
-    service: RequestServiceHandle,
-    uri: &str,
-    auth: Option<String>,
-    expected_statuses: &'static [hyper::StatusCode],
-) -> impl Future<Output = Result<Response>> + 'static {
-    let request = factory.get(uri);
-    async move {
-        let mut request = request?;
-        request.set_auth(auth)?;
-        let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
-    }
-}
-
 pub fn send_request(
     factory: &RequestFactory,
     service: RequestServiceHandle,
