@@ -7,6 +7,7 @@ import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.PaymentProvider
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -100,8 +101,11 @@ val uiModule = module {
 
     single { RelayListListener(get()) }
 
+    // Will be resolved using from either of the two PaymentModule.kt classes.
+    single { PaymentProvider(get()) }
+
     // View models
-    viewModel { AccountViewModel(get(), get(), get()) }
+    viewModel { AccountViewModel(get(), get(), get(), get()) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
