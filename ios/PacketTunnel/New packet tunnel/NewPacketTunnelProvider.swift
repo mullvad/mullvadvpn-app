@@ -24,6 +24,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
     private let urlRequestProxy: URLRequestProxy
 
     private var actor: PacketTunnelActor!
+    private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
 
@@ -79,6 +80,8 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
             relaySelector: RelaySelectorWrapper(relayCache: relayCache),
             settingsReader: SettingsReader()
         )
+
+        appMessageHandler = AppMessageHandler(packetTunnelActor: actor, urlRequestProxy: urlRequestProxy)
     }
 
     override func startTunnel(options: [String: NSObject]? = nil) async throws {
@@ -100,28 +103,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func handleAppMessage(_ messageData: Data) async -> Data? {
-        guard let message = decodeMessage(messageData) else { return nil }
-
-        providerLogger.trace("Received app message: \(message)")
-
-        switch message {
-        case let .sendURLRequest(request):
-            return await encodeReply(urlRequestProxy.sendRequest(request))
-
-        case let .cancelURLRequest(id):
-            urlRequestProxy.cancelRequest(identifier: id)
-
-        case .getTunnelStatus:
-            return await encodeReply(actor.state.packetTunnelStatus)
-
-        case .privateKeyRotation:
-            await actor.notifyKeyRotated()
-
-        case let .reconnectTunnel(selectorResult):
-            try? await actor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .random)
-        }
-
-        return nil
+        return await appMessageHandler.handleAppMessage(messageData)
     }
 
     override func sleep() async {
@@ -143,24 +125,6 @@ extension NewPacketTunnelProvider {
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
         loggerBuilder.install()
-    }
-
-    private func decodeMessage(_ data: Data) -> TunnelProviderMessage? {
-        do {
-            return try TunnelProviderMessage(messageData: data)
-        } catch {
-            providerLogger.error(error: error, message: "Failed to decode the app message.")
-            return nil
-        }
-    }
-
-    private func encodeReply<T: Codable>(_ reply: T) -> Data? {
-        do {
-            return try TunnelProviderReply(reply).encode()
-        } catch {
-            providerLogger.error(error: error, message: "Failed to decode the app message.")
-            return nil
-        }
     }
 
     private func parseStartOptions(_ options: [String: NSObject]) -> StartOptions {

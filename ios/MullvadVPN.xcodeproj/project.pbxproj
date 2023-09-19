@@ -393,6 +393,7 @@
 		58F3F36A2AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */; };
 		58F7753D2AB8473200425B47 /* MockBlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */; };
 		58F7753F2AB8536A00425B47 /* BlockedStateReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */; };
+		58F775432AB9E3EF00425B47 /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F775422AB9E3EF00425B47 /* AppMessageHandler.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
 		58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */; };
 		58FB865A26EA214400F188BC /* RelayCacheTrackerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865926EA214400F188BC /* RelayCacheTrackerObserver.swift */; };
@@ -1398,6 +1399,7 @@
 		58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPacketTunnelProvider.swift; sourceTree = "<group>"; };
 		58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBlockedStateErrorMapper.swift; sourceTree = "<group>"; };
 		58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateReason.swift; sourceTree = "<group>"; };
+		58F775422AB9E3EF00425B47 /* AppMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
 		58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManagerError.swift; sourceTree = "<group>"; };
@@ -2733,6 +2735,7 @@
 			isa = PBXGroup;
 			children = (
 				58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */,
+				58F775422AB9E3EF00425B47 /* AppMessageHandler.swift */,
 				585B1FF12AB0BC69008AD470 /* State+.swift */,
 				580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */,
 				5864AF7C2A9F4DC9008BC928 /* SettingsReader.swift */,
@@ -4252,6 +4255,7 @@
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				582403822A827E1500163DE8 /* RelaySelectorWrapper.swift in Sources */,
+				58F775432AB9E3EF00425B47 /* AppMessageHandler.swift in Sources */,
 				58FDF2D92A0BA11A00C2B061 /* DeviceCheckOperation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
