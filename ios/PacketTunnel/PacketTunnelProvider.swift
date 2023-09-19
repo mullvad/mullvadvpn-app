@@ -182,7 +182,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             eventQueue: dispatchQueue,
             pinger: Pinger(replyQueue: dispatchQueue),
             tunnelDeviceInfo: WgAdapterDeviceInfo(adapter: adapter),
-            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self)
+            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self),
+            timings: TunnelMonitorTimings()
         )
         tunnelMonitor.onEvent = { [weak self] event in
             self?.handleTunnelMonitorEvent(event)

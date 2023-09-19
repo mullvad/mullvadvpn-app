@@ -12,42 +12,6 @@ import MullvadTypes
 import protocol Network.IPAddress
 import struct Network.IPv4Address
 
-/// Interval for periodic heartbeat ping issued when traffic is flowing.
-/// Should help to detect connectivity issues on networks that drop traffic in one of directions,
-/// regardless if tx/rx counters are being updated.
-private let heartbeatPingInterval: Duration = .seconds(10)
-
-/// Heartbeat timeout that once exceeded triggers next heartbeat to be sent.
-private let heartbeatReplyTimeout: Duration = .seconds(3)
-
-/// Timeout used to determine if there was a network activity lately.
-private let trafficFlowTimeout: Duration = heartbeatPingInterval * 0.5
-
-/// Ping timeout.
-private let pingTimeout: Duration = .seconds(15)
-
-/// Interval to wait before sending next ping.
-private let pingDelay: Duration = .seconds(3)
-
-/// Initial timeout when establishing connection.
-private let initialEstablishTimeout: Duration = .seconds(4)
-
-/// Multiplier applied to `establishTimeout` on each failed connection attempt.
-private let establishTimeoutMultiplier: UInt32 = 2
-
-/// Maximum timeout when establishing connection.
-private let maxEstablishTimeout = pingTimeout
-
-/// Connectivity check periodicity.
-private let connectivityCheckInterval: Duration = .seconds(1)
-
-/// Inbound traffic timeout used when outbound traffic was registered prior to inbound traffic.
-private let inboundTrafficTimeout: Duration = .seconds(5)
-
-/// Traffic timeout applied when both tx/rx counters remain stale, i.e no traffic flowing.
-/// Ping is issued after that timeout is exceeded.s
-private let trafficTimeout: Duration = .minutes(2)
-
 public final class TunnelMonitor: TunnelMonitorProtocol {
     /// Connection state.
     private enum ConnectionState {
@@ -98,6 +62,9 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         /// Retry attempt.
         var retryAttempt: UInt32 = 0
 
+        // Timings and timeouts.
+        let timings: TunnelMonitorTimings
+
         func evaluateConnection(now: Date, pingTimeout: Duration) -> ConnectionEvaluation {
             switch connectionState {
             case .connecting:
@@ -112,17 +79,17 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         func getPingTimeout() -> Duration {
             switch connectionState {
             case .connecting:
-                let multiplier = establishTimeoutMultiplier.saturatingPow(retryAttempt)
-                let nextTimeout = initialEstablishTimeout * Double(multiplier)
+                let multiplier = timings.establishTimeoutMultiplier.saturatingPow(retryAttempt)
+                let nextTimeout = timings.initialEstablishTimeout * Double(multiplier)
 
-                if nextTimeout.isFinite, nextTimeout < maxEstablishTimeout {
+                if nextTimeout.isFinite, nextTimeout < timings.maxEstablishTimeout {
                     return nextTimeout
                 } else {
-                    return maxEstablishTimeout
+                    return timings.maxEstablishTimeout
                 }
 
             case .pendingStart, .connected, .waitingConnectivity, .stopped, .recovering:
-                return pingTimeout
+                return timings.pingTimeout
             }
         }
 
@@ -163,7 +130,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
                 return .sendInitialPing
             }
 
-            if now.timeIntervalSince(lastRequestDate) >= pingDelay {
+            if now.timeIntervalSince(lastRequestDate) >= timings.pingDelay {
                 return .sendNextPing
             }
 
@@ -181,8 +148,8 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
             let timeSinceLastPing = now.timeIntervalSince(lastRequestDate)
             if let lastReplyDate = pingStats.lastReplyDate,
-               lastRequestDate.timeIntervalSince(lastReplyDate) >= heartbeatReplyTimeout,
-               timeSinceLastPing >= pingDelay, !isHeartbeatSuspended {
+               lastRequestDate.timeIntervalSince(lastReplyDate) >= timings.heartbeatReplyTimeout,
+               timeSinceLastPing >= timings.pingDelay, !isHeartbeatSuspended {
                 return .retryHeartbeatPing
             }
 
@@ -191,9 +158,9 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             let rxTimeElapsed = now.timeIntervalSince(lastSeenRx)
             let txTimeElapsed = now.timeIntervalSince(lastSeenTx)
 
-            if timeSinceLastPing >= heartbeatPingInterval {
+            if timeSinceLastPing >= timings.heartbeatPingInterval {
                 // Send heartbeat if traffic is flowing.
-                if rxTimeElapsed <= trafficFlowTimeout || txTimeElapsed <= trafficFlowTimeout {
+                if rxTimeElapsed <= timings.trafficFlowTimeout || txTimeElapsed <= timings.trafficFlowTimeout {
                     return .sendHeartbeatPing
                 }
 
@@ -202,12 +169,12 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
                 }
             }
 
-            if timeSinceLastPing >= pingDelay {
-                if txTimeElapsed >= trafficTimeout || rxTimeElapsed >= trafficTimeout {
+            if timeSinceLastPing >= timings.pingDelay {
+                if txTimeElapsed >= timings.trafficTimeout || rxTimeElapsed >= timings.trafficTimeout {
                     return .trafficTimeout
                 }
 
-                if lastSeenTx > lastSeenRx, rxTimeElapsed >= inboundTrafficTimeout {
+                if lastSeenTx > lastSeenRx, rxTimeElapsed >= timings.inboundTrafficTimeout {
                     return .inboundTrafficTimeout
                 }
             }
@@ -233,13 +200,14 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     private let nslock = NSLock()
     private let timerQueue = DispatchQueue(label: "TunnelMonitor-timerQueue")
     private let eventQueue: DispatchQueue
+    private let timings: TunnelMonitorTimings
 
     private var pinger: PingerProtocol
     private var defaultPathObserver: DefaultPathObserverProtocol
     private var isObservingDefaultPath = false
     private var timer: DispatchSourceTimer?
 
-    private var state = State()
+    private var state: State
     private var probeAddress: IPv4Address?
 
     private let logger = Logger(label: "TunnelMonitor")
@@ -262,11 +230,15 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         eventQueue: DispatchQueue,
         pinger: PingerProtocol,
         tunnelDeviceInfo: TunnelDeviceInfoProtocol,
-        defaultPathObserver: DefaultPathObserverProtocol
+        defaultPathObserver: DefaultPathObserverProtocol,
+        timings: TunnelMonitorTimings
     ) {
         self.eventQueue = eventQueue
         self.tunnelDeviceInfo = tunnelDeviceInfo
         self.defaultPathObserver = defaultPathObserver
+
+        self.timings = timings
+        state = State(timings: timings)
 
         self.pinger = pinger
         self.pinger.onReply = { [weak self] reply in
@@ -584,7 +556,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         timer.setEventHandler { [weak self] in
             self?.checkConnectivity()
         }
-        timer.schedule(wallDeadline: .now(), repeating: connectivityCheckInterval.timeInterval)
+        timer.schedule(wallDeadline: .now(), repeating: timings.connectivityCheckInterval.timeInterval)
         timer.activate()
 
         self.timer?.cancel()
