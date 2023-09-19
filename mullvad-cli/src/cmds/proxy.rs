@@ -21,9 +21,11 @@ pub enum Proxy {
     /// Remove an API proxy
     Remove(RemoveCustomCommands),
     /// Enable an API proxy
-    Enable(ToggleCustomCommands),
+    Enable(SelectItem),
     /// Disable an API proxy
-    Disable(ToggleCustomCommands),
+    Disable(SelectItem),
+    /// Force the use of a specific API proxy.
+    Use(SelectItem),
 }
 
 impl Proxy {
@@ -56,6 +58,10 @@ impl Proxy {
                 let index = Self::zero_to_one_based_index(cmd.index)?;
                 let enabled = false;
                 Self::toggle(index, enabled).await?;
+            }
+            Proxy::Use(cmd) => {
+                let index = Self::zero_to_one_based_index(cmd.index)?;
+                Self::set(index).await?;
             }
         };
         Ok(())
@@ -193,6 +199,25 @@ impl Proxy {
         Ok(())
     }
 
+    /// Force the use of a specific access method when trying to reach the
+    /// Mullvad API. If this method fails, the daemon will resume the automatic
+    /// roll-over behavior (which is the default).
+    async fn set(index: usize) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let access_method = rpc
+            .get_api_access_methods()
+            .await?
+            .get(index)
+            .ok_or(anyhow!(format!(
+                "Access method {} does not exist",
+                index + 1
+            )))?
+            .clone();
+
+        rpc.set_access_method(access_method).await?;
+        Ok(())
+    }
+
     fn zero_to_one_based_index(index: usize) -> Result<usize> {
         index
             .checked_sub(1)
@@ -224,9 +249,11 @@ pub enum AddCustomCommands {
     },
 }
 
+/// A minimal wrapper type allowing the user to supply a list index to some
+/// Access Method.
 #[derive(Args, Debug, Clone)]
-pub struct ToggleCustomCommands {
-    /// Which access method to enable/disable
+pub struct SelectItem {
+    /// Which access method to pick
     index: usize,
 }
 

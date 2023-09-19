@@ -545,6 +545,23 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
+    /// Set the [`AccessMethod`] which [`ApiConnectionModeProvider`] should
+    /// pick.
+    ///
+    /// - `access_method`: If `Some(access_method)`, [`ApiConnectionModeProvider`] will skip
+    ///     ahead and return `access_method` when asked for a new access method.
+    ///     If `None`, [`ApiConnectionModeProvider`] will pick the next access
+    ///     method "randomly"
+    ///
+    /// [`ApiConnectionModeProvider`]: mullvad_daemon::api::ApiConnectionModeProvider
+    pub async fn set_access_method(&mut self, access_method: AccessMethod) -> Result<()> {
+        self.0
+            .set_api_access_method(types::ApiAccessMethod::from(access_method))
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
     #[cfg(target_os = "linux")]
     pub async fn get_split_tunnel_processes(&mut self) -> Result<Vec<i32>> {
         use futures::TryStreamExt;

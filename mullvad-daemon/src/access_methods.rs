@@ -86,21 +86,29 @@ where
             .map_err(Error::Settings)
     }
 
+    pub async fn set_api_access_method(
+        &mut self,
+        access_method: AccessMethod,
+    ) -> Result<(), Error> {
+        {
+            let mut connection_modes = self.connection_modes.lock().unwrap();
+            connection_modes.set_access_method(access_method);
+        }
+        // Force a rotation of Acces Methods.
+        let _ = self.api_handle.service().next_api_endpoint();
+        Ok(())
+    }
+
     /// If settings were changed due to an update, notify all listeners.
     fn notify_on_change(&mut self, settings_changed: MadeChanges) {
         if settings_changed {
             self.event_listener
                 .notify_settings(self.settings.to_settings());
-        };
 
-        // TODO: Could this be replaced by message passing? Yes plz.
-        let mut connection_modes = self.connection_modes.lock().unwrap();
-        *connection_modes = self
-            .settings
-            .api_access_methods
-            .api_access_methods
-            .clone()
-            .into_iter()
-            .collect();
+            // TODO: Could this be replaced by message passing? Yes plz.
+            let mut connection_modes = self.connection_modes.lock().unwrap();
+            connection_modes
+                .update_access_methods(self.settings.api_access_methods.api_access_methods.clone())
+        };
     }
 }

@@ -274,6 +274,8 @@ pub enum DaemonCommand {
     ReplaceApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodReplace),
     /// Toggle the status of an API access method
     ToggleApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodToggle),
+    /// Set the API access method to use
+    SetApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -573,7 +575,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    connection_modes: Arc<Mutex<Vec<AccessMethod>>>,
+    connection_modes: Arc<Mutex<api::ConnectionModesIterator>>,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -637,19 +639,14 @@ where
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
 
         // TODO: Should ApiConnectionModeProvider be an Actor instead of sharing a datastructure-behind-locks with the daemon with the daemon?
-        let access_methods = Arc::new(Mutex::new(
-            settings
-                .api_access_methods
-                .api_access_methods
-                .clone()
-                .into_iter()
-                .collect(),
-        ));
         let proxy_provider = api::ApiConnectionModeProvider::new(
             cache_dir.clone(),
             relay_selector.clone(),
-            access_methods.clone(),
+            settings.api_access_methods.api_access_methods.clone(),
         );
+
+        let connection_modes = proxy_provider.handle();
+
         let api_handle = api_runtime
             .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;
@@ -786,7 +783,7 @@ where
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
-            connection_modes: access_methods,
+            connection_modes,
             api_runtime,
             api_handle,
             version_updater_handle,
@@ -1077,6 +1074,7 @@ where
                 self.on_replace_api_access_method(tx, method).await
             }
             ToggleApiAccessMethod(tx, method) => self.on_toggle_api_access_method(tx, method).await,
+            SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2330,7 +2328,15 @@ where
             .toggle_api_access_method(method)
             .await
             .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "edit_api_access_method response");
+        Self::oneshot_send(tx, result, "toggle_api_access_method response");
+    }
+
+    async fn on_set_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: AccessMethod) {
+        let result = self
+            .set_api_access_method(method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "set_api_access_method response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
