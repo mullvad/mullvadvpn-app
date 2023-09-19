@@ -99,7 +99,7 @@ public actor PacketTunnelActor {
     }
 
     public func stop() async {
-        await taskQueue.add(kind: .stop) { [self] in
+        try? await taskQueue.add(kind: .stop) { [self] in
             switch state {
             case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
                 state = .disconnecting(connState)
@@ -156,7 +156,7 @@ public actor PacketTunnelActor {
      the main app has to re-read device state from Keychain, since there is no other mechanism to notify other process when packet tunnel mutates keychain store.
      */
     public func notifyKeyRotated(date: Date? = nil) async {
-        await taskQueue.add(kind: .keyRotated) { [self] in
+        try? await taskQueue.add(kind: .keyRotated) { [self] in
             func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
                 switch connState.keyPolicy {
                 case .useCurrent:
@@ -280,7 +280,7 @@ public actor PacketTunnelActor {
 
     /// Event handler that receives new network path and schedules it for processing on task queue to avoid interlacing with other tasks.
     private func onDefaultPathChange(_ networkPath: NetworkPath) async {
-        await taskQueue.add(kind: .networkReachability) { [self] in
+        try? await taskQueue.add(kind: .networkReachability) { [self] in
             let newReachability = networkPath.networkReachability
 
             func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
@@ -429,6 +429,7 @@ public actor PacketTunnelActor {
      */
     private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         try await taskQueue.add(kind: .reconnect) { [self] in
+            try await Task.sleep(seconds: 1)
             try Task.checkCancellation()
 
             do {

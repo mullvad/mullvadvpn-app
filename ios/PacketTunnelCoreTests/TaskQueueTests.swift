@@ -71,7 +71,7 @@ final class TaskQueueTests: XCTestCase {
         async let _ = queue.add(kind: .stop) {}
 
         do {
-            let _ = try await (first, second)
+            _ = try await (first, second)
             XCTFail("Preceding tasks must be cancelled!")
         } catch {}
     }

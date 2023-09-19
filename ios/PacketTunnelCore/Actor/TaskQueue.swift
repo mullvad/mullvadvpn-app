@@ -51,28 +51,6 @@ final actor TaskQueue {
         return try await nextTask.value
     }
 
-    public func add<Output>(
-        kind: TaskKind,
-        priority: TaskPriority? = nil,
-        operation: @escaping () async -> Output
-    ) async -> Output {
-        let previousTask = queuedTasks.last
-        let nextTask = Task(priority: priority) {
-            await previousTask?.task.waitForCompletion()
-
-            return await operation()
-        }
-
-        let nextTaskId = registerTask(kind: kind, nextTask: nextTask)
-        cancelPrecedingTasksIfNeeded()
-
-        defer {
-            unregisterTask(nextTaskId)
-        }
-
-        return await nextTask.value
-    }
-
     private func nextTaskId() -> TaskId {
         let (value, isOverflow) = taskId.addingReportingOverflow(1)
         taskId = isOverflow ? 0 : value
