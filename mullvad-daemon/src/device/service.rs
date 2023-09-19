@@ -15,15 +15,14 @@ use mullvad_api::{
     rest::{self, Error as RestError, MullvadRestHandle},
     AccountsProxy, DevicesProxy,
 };
-use talpid_core::future_retry::{
-    constant_interval, retry_future, retry_future_n, ExponentialBackoff, Jittered,
-};
-const RETRY_ACTION_INTERVAL: Duration = Duration::ZERO;
-const RETRY_ACTION_MAX_RETRIES: usize = 2;
-
-const RETRY_BACKOFF_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
-const RETRY_BACKOFF_INTERVAL_FACTOR: u32 = 5;
-const RETRY_BACKOFF_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
+use talpid_core::future_retry::{retry_future, ConstantInterval, ExponentialBackoff, Jittered};
+/// Retry strategy used for user-initiated actions that require immediate feedback
+const RETRY_ACTION_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
+/// Retry strategy used for background tasks
+const RETRY_BACKOFF_STRATEGY: Jittered<ExponentialBackoff> = Jittered::jitter(
+    ExponentialBackoff::new(Duration::from_secs(4), 5)
+        .max_delay(Some(Duration::from_secs(24 * 60 * 60))),
+);
 
 #[derive(Clone)]
 pub struct DeviceService {
@@ -51,11 +50,10 @@ impl DeviceService {
         let api_handle = self.api_availability.clone();
         let token_copy = account_token.clone();
         async move {
-            let (device, addresses) = retry_future_n(
+            let (device, addresses) = retry_future(
                 move || proxy.create(token_copy.clone(), pubkey.clone()),
                 move |result| should_retry(result, &api_handle),
-                constant_interval(RETRY_ACTION_INTERVAL),
-                RETRY_ACTION_MAX_RETRIES,
+                RETRY_ACTION_STRATEGY,
             )
             .await
             .map_err(map_rest_error)?;
@@ -87,7 +85,7 @@ impl DeviceService {
         let (device, addresses) = retry_future(
             move || api_handle.when_online(proxy.create(token_copy.clone(), pubkey.clone())),
             should_retry_backoff,
-            retry_strategy(),
+            RETRY_BACKOFF_STRATEGY,
         )
         .await
         .map_err(map_rest_error)?;
@@ -122,11 +120,10 @@ impl DeviceService {
     ) -> Result<(), Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        retry_future_n(
+        retry_future(
             move || proxy.remove(token.clone(), device.clone()),
             move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
+            RETRY_ACTION_STRATEGY,
         )
         .await
         .map_err(map_rest_error)?;
@@ -141,18 +138,12 @@ impl DeviceService {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
 
-        let retry_strategy = Jittered::jitter(
-            ExponentialBackoff::new(
-                RETRY_BACKOFF_INTERVAL_INITIAL,
-                RETRY_BACKOFF_INTERVAL_FACTOR,
-            ), // Not setting a maximum interval
-        );
-
         retry_future(
             // NOTE: Not honoring "paused" state, because the account may have no time on it.
             move || api_handle.when_online(proxy.remove(token.clone(), device.clone())),
             should_retry_backoff,
-            retry_strategy,
+            // Not setting a maximum interval
+            RETRY_BACKOFF_STRATEGY.clone().max_delay(None),
         )
         .await
         .map_err(map_rest_error)?;
@@ -170,11 +161,10 @@ impl DeviceService {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let pubkey = private_key.public_key();
-        let addresses = retry_future_n(
+        let addresses = retry_future(
             move || proxy.replace_wg_key(token.clone(), device.clone(), pubkey.clone()),
             move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
+            RETRY_ACTION_STRATEGY,
         )
         .await
         .map_err(map_rest_error)?;
@@ -197,6 +187,8 @@ impl DeviceService {
         let api_handle = self.api_availability.clone();
         let pubkey = private_key.public_key();
 
+        let rotate_retry_strategy = std::iter::repeat(Duration::from_secs(24 * 60 * 60));
+
         let addresses = retry_future(
             move || {
                 api_handle.when_bg_resumes(proxy.replace_wg_key(
@@ -206,7 +198,7 @@ impl DeviceService {
                 ))
             },
             should_retry_backoff,
-            rotate_retry_strategy(),
+            rotate_retry_strategy,
         )
         .await
         .map_err(map_rest_error)?;
@@ -221,11 +213,10 @@ impl DeviceService {
     pub async fn list_devices(&self, token: AccountToken) -> Result<Vec<Device>, Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        retry_future_n(
+        retry_future(
             move || proxy.list(token.clone()),
             move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
+            RETRY_ACTION_STRATEGY,
         )
         .await
         .map_err(map_rest_error)
@@ -241,7 +232,7 @@ impl DeviceService {
         retry_future(
             move || api_handle.when_online(proxy.list(token.clone())),
             should_retry_backoff,
-            retry_strategy(),
+            RETRY_BACKOFF_STRATEGY,
         )
         .await
         .map_err(map_rest_error)
@@ -250,11 +241,10 @@ impl DeviceService {
     pub async fn get(&self, token: AccountToken, device: DeviceId) -> Result<Device, Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        retry_future_n(
+        retry_future(
             move || proxy.get(token.clone(), device.clone()),
             move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
+            RETRY_ACTION_STRATEGY,
         )
         .await
         .map_err(map_rest_error)
@@ -272,11 +262,10 @@ impl AccountService {
     pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
         let mut proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        retry_future_n(
+        retry_future(
             move || proxy.create_account(),
             move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
+            RETRY_ACTION_STRATEGY,
         )
     }
 
@@ -286,22 +275,20 @@ impl AccountService {
     ) -> impl Future<Output = Result<String, rest::Error>> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        retry_future_n(
+        retry_future(
             move || proxy.get_www_auth_token(account.clone()),
             move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
+            RETRY_ACTION_STRATEGY,
         )
     }
 
     pub async fn check_expiry(&self, token: AccountToken) -> Result<DateTime<Utc>, rest::Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        let result = retry_future_n(
+        let result = retry_future(
             move || proxy.get_expiry(token.clone()),
             move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
+            RETRY_ACTION_STRATEGY,
         )
         .await;
         if handle_expiry_result_inner(&result, &self.api_availability) {
@@ -321,11 +308,10 @@ impl AccountService {
     ) -> Result<VoucherSubmission, Error> {
         let mut proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
-        let result = retry_future_n(
+        let result = retry_future(
             move || proxy.submit_voucher(account_token.clone(), voucher.clone()),
             move |result| should_retry(result, &api_handle),
-            constant_interval(RETRY_ACTION_INTERVAL),
-            RETRY_ACTION_MAX_RETRIES,
+            RETRY_ACTION_STRATEGY,
         )
         .await;
         if result.is_ok() {
@@ -361,7 +347,7 @@ pub fn spawn_account_service(
             async move { handle_expiry_result_inner(&expiry_fut.await, &api_availability_copy) }
         };
         let should_retry = move |state_was_updated: &bool| -> bool { !*state_was_updated };
-        retry_future(future_generator, should_retry, retry_strategy()).await;
+        retry_future(future_generator, should_retry, RETRY_BACKOFF_STRATEGY).await;
     });
     tokio::spawn(future);
 
@@ -432,18 +418,4 @@ fn map_rest_error(error: rest::Error) -> Error {
         },
         error => Error::OtherRestError(error),
     }
-}
-
-fn retry_strategy() -> Jittered<ExponentialBackoff> {
-    Jittered::jitter(
-        ExponentialBackoff::new(
-            RETRY_BACKOFF_INTERVAL_INITIAL,
-            RETRY_BACKOFF_INTERVAL_FACTOR,
-        )
-        .max_delay(RETRY_BACKOFF_INTERVAL_MAX),
-    )
-}
-
-fn rotate_retry_strategy() -> impl Iterator<Item = Duration> {
-    std::iter::repeat(RETRY_BACKOFF_INTERVAL_MAX)
 }

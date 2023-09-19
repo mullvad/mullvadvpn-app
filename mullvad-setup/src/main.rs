@@ -6,15 +6,14 @@ use once_cell::sync::Lazy;
 use std::{path::PathBuf, process, str::FromStr, time::Duration};
 use talpid_core::{
     firewall::{self, Firewall},
-    future_retry::{constant_interval, retry_future_n},
+    future_retry::{retry_future, ConstantInterval},
 };
 use talpid_types::ErrorExt;
 
 static APP_VERSION: Lazy<ParsedAppVersion> =
     Lazy::new(|| ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap());
 
-const KEY_RETRY_INTERVAL: Duration = Duration::ZERO;
-const KEY_RETRY_MAX_RETRIES: usize = 4;
+const DEVICE_REMOVAL_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(5));
 
 #[repr(i32)]
 enum ExitStatus {
@@ -171,14 +170,13 @@ async fn remove_device() -> Result<(), Error> {
                 .await,
         );
 
-        let device_removal = retry_future_n(
+        let device_removal = retry_future(
             move || proxy.remove(device.account_token.clone(), device.device.id.clone()),
             move |result| match result {
                 Err(error) => error.is_network_error(),
                 _ => false,
             },
-            constant_interval(KEY_RETRY_INTERVAL),
-            KEY_RETRY_MAX_RETRIES,
+            DEVICE_REMOVAL_STRATEGY,
         )
         .await;
 
