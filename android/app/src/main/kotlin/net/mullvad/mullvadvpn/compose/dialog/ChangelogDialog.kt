@@ -52,7 +52,7 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
         },
         confirmButton = {
             ActionButton(
-                text = stringResource(R.string.changes_dialog_dismiss_button),
+                text = stringResource(R.string.got_it),
                 onClick = onDismiss,
                 colors =
                     ButtonDefaults.buttonColors(
