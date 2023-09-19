@@ -31,7 +31,7 @@ sealed interface AccountScreenDialogState {
     //Billing dialogs
     data object VerificationError: AccountScreenDialogState
 
-    data object PurchaseError: AccountScreenDialogState
+    data object BillingError: AccountScreenDialogState
 
     data object PurchaseComplete: AccountScreenDialogState
 }

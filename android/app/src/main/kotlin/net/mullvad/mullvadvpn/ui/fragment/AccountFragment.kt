@@ -10,12 +10,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.AccountScreen
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
     private val vm by viewModel<AccountViewModel>()
@@ -31,6 +33,7 @@ class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
                 AppTheme {
                     val state = vm.uiState.collectAsState().value
                     AccountScreen(
+                        showSitePayment = IS_PLAY_BUILD.not(),
                         uiState = state,
                         viewActions = vm.viewActions,
                         enterTransitionEndAction = vm.enterTransitionEndAction,
@@ -38,9 +41,13 @@ class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
                         onManageAccountClick = vm::onManageAccountClick,
                         onLogoutClick = vm::onLogoutClick,
                         onDeviceNameInfoClick = vm::onDeviceNameInfoClick,
-                        onDismissInfoClick = vm::onDismissInfoClick,
-                        onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() }
-                    )
+                        onPurchaseBillingProductClick = vm::startBillingPayment,
+                        onDialogClose = vm::closeDialog,
+                        onTryVerificationAgain = vm::verifyPurchases,
+                        onTryFetchProductsAgain = vm::fetchPaymentAvailability
+                    ) {
+                        activity?.onBackPressed()
+                    }
                 }
             }
         }

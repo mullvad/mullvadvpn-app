@@ -20,6 +20,7 @@ data class Dimensions(
     val countryRowPadding: Dp = 18.dp,
     val customPortBoxMinWidth: Dp = 80.dp,
     val expandableCellChevronSize: Dp = 30.dp,
+    val iconHeight: Dp = 44.dp,
     val indentedCellStartPadding: Dp = 38.dp,
     val infoButtonVerticalPadding: Dp = 13.dp,
     val listIconSize: Dp = 24.dp,
