@@ -29,7 +29,7 @@ private fun PreviewCopyableObfuscationView() {
 
 @Composable
 fun CopyableObfuscationView(content: String) {
-    var shouldObfuscated by remember { mutableStateOf(true) }
+    var obfuscationEnabled by remember { mutableStateOf(true) }
 
     Row(
         verticalAlignment = CenterVertically,
@@ -37,7 +37,7 @@ fun CopyableObfuscationView(content: String) {
     ) {
         AccountNumberView(
             accountNumber = content,
-            doObfuscateWithPasswordDots = shouldObfuscated,
+            obfuscateWithPasswordDots = obfuscationEnabled,
             modifier = Modifier.weight(1f)
         )
         AnimatedIconButton(
@@ -45,7 +45,7 @@ fun CopyableObfuscationView(content: String) {
             secondaryIcon = painterResource(id = R.drawable.icon_show),
             isToggleButton = true,
             contentDescription = stringResource(id = R.string.hide_account_number),
-            onClick = { shouldObfuscated = !shouldObfuscated }
+            onClick = { obfuscationEnabled = !obfuscationEnabled }
         )
 
         val context = LocalContext.current
