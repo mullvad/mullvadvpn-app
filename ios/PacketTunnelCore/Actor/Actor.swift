@@ -429,8 +429,9 @@ public actor PacketTunnelActor {
      */
     private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         try await taskQueue.add(kind: .reconnect) { [self] in
-            try await Task.sleep(seconds: 1)
-            try Task.checkCancellation()
+            // Sleep a bit to provide a debounce.
+            // Task.sleep() throws CancellationError if the task is cancelled.
+            try await Task.sleep(millis: 500)
 
             do {
                 switch state {
