@@ -573,7 +573,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    connection_modes: Arc<Mutex<Vec<(AccessMethod, usize)>>>,
+    connection_modes: Arc<Mutex<Vec<AccessMethod>>>,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -643,7 +643,6 @@ where
                 .api_access_methods
                 .clone()
                 .into_iter()
-                .map(|a| (a, 1))
                 .collect(),
         ));
         let proxy_provider = api::ApiConnectionModeProvider::new(
