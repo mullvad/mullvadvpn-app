@@ -27,7 +27,10 @@ public class CreateAccountVoucherCoordinator: Coordinator {
         self.interactor = interactor
 
         viewController = RedeemVoucherViewController(
-            configuration: RedeemVoucherViewConfiguration(adjustViewWhenKeyboardAppears: true),
+            configuration: RedeemVoucherViewConfiguration(
+                adjustViewWhenKeyboardAppears: true,
+                shouldUseCompactStyle: false
+            ),
             interactor: interactor
         )
     }

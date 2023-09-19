@@ -9,4 +9,6 @@
 import Foundation
 struct RedeemVoucherViewConfiguration {
     let adjustViewWhenKeyboardAppears: Bool
+    /// Hides the title when set to `true`.
+    let shouldUseCompactStyle: Bool
 }

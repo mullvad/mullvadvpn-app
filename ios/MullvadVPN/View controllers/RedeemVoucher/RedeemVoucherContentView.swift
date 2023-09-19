@@ -30,9 +30,26 @@ final class RedeemVoucherContentView: UIView {
         return contentHolderView
     }()
 
-    private let titleLabel: UILabel = {
+    private let voucherTextFieldHeight: CGFloat = 54
+
+    private let title: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .boldSystemFont(ofSize: 32)
+        label.text = NSLocalizedString(
+            "REDEEM_VOUCHER_TITLE",
+            tableName: "RedeemVoucher",
+            value: "Redeem voucher",
+            comment: ""
+        )
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let enterVoucherLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 15, weight: .semibold)
         label.text = NSLocalizedString(
             "REDEEM_VOUCHER_INSTRUCTION",
             tableName: "RedeemVoucher",
@@ -70,7 +87,7 @@ final class RedeemVoucherContentView: UIView {
 
     private let statusLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.numberOfLines = 2
         label.lineBreakMode = .byWordWrapping
         label.textColor = .red
@@ -118,19 +135,27 @@ final class RedeemVoucherContentView: UIView {
     }()
 
     private lazy var voucherCodeStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-            titleLabel,
+        var arrangedSubviews = [
+            enterVoucherLabel,
             textField,
             statusStack,
             logoutViewForAccountNumberIsEntered,
-        ])
+        ]
+
+        if configuration.shouldUseCompactStyle == false {
+            arrangedSubviews.insert(title, at: 0)
+        }
+
+        let stackView = UIStackView(arrangedSubviews: arrangedSubviews)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.setCustomSpacing(UIMetrics.padding16, after: titleLabel)
+        stackView.setCustomSpacing(UIMetrics.padding8, after: title)
+        stackView.setCustomSpacing(UIMetrics.padding16, after: enterVoucherLabel)
         stackView.setCustomSpacing(UIMetrics.padding8, after: textField)
         stackView.setCustomSpacing(UIMetrics.padding16, after: statusLabel)
-        stackView.setCustomSpacing(UIMetrics.padding24, after: statusStack)
+        stackView.setCustomSpacing(UIMetrics.padding10, after: statusStack)
         stackView.setContentHuggingPriority(.defaultLow, for: .vertical)
+
         return stackView
     }()
 
@@ -238,7 +263,10 @@ final class RedeemVoucherContentView: UIView {
     }
 
     required init?(coder: NSCoder) {
-        self.configuration = RedeemVoucherViewConfiguration(adjustViewWhenKeyboardAppears: true)
+        self.configuration = RedeemVoucherViewConfiguration(
+            adjustViewWhenKeyboardAppears: true,
+            shouldUseCompactStyle: false
+        )
         super.init(coder: coder)
         commonInit()
     }
