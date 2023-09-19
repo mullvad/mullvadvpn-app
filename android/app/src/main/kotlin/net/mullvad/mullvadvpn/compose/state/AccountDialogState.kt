@@ -5,7 +5,7 @@ sealed interface AccountDialogState {
 
     data object VerificationError: AccountDialogState
 
-    data object PurchaseError: AccountDialogState
+    data object BillingError: AccountDialogState
 
     data object PurchaseComplete: AccountDialogState
 }

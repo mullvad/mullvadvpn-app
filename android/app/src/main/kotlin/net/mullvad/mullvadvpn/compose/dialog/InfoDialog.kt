@@ -89,7 +89,7 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                 shape = MaterialTheme.shapes.small
             ) {
                 Text(
-                    text = stringResource(R.string.changes_dialog_dismiss_button),
+                    text = stringResource(R.string.got_it),
                     fontSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp,
                 )
             }

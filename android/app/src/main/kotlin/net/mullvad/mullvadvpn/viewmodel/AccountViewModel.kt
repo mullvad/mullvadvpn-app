@@ -121,6 +121,12 @@ class AccountViewModel(
                 paymentRepository?.queryPaymentAvailability()
                     ?: PaymentAvailability.ProductsUnavailable
             _paymentAvailability.tryEmit(result)
+            if (
+                result is PaymentAvailability.Error.BillingUnavailable ||
+                    result is PaymentAvailability.Error.ServiceUnavailable
+            ) {
+                _dialogState.tryEmit(AccountDialogState.BillingError)
+            }
         }
     }
 
