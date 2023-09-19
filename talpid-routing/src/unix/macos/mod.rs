@@ -615,6 +615,8 @@ impl RouteManagerImpl {
             && self.restore_default_route(interface::Family::V6).await
     }
 
+    /// Add back unscoped default route for the given `family`, if it is still missing. This
+    /// function returns true when no route had to be added.
     async fn restore_default_route(&mut self, family: interface::Family) -> bool {
         let current_route = get_current_best_default_route!(self, family);
         let message = RouteMessage::new_route(IpNetwork::from(family).into());
