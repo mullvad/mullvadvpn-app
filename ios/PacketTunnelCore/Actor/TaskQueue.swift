@@ -76,7 +76,7 @@ final actor TaskQueue {
     private func cancelPrecedingTasksIfNeeded() {
         guard let current = queuedTasks.last else { return }
 
-        let tasksToCancel = queuedTasks.dropLast(1).filter { preceding in
+        let tasksToCancel = queuedTasks.dropLast(1).reversed().filter { preceding in
             current.kind.shouldCancel(preceding.kind)
         }
 
