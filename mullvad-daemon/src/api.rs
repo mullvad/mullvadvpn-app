@@ -44,6 +44,58 @@ pub struct ApiConnectionModeProvider {
     relay_selector: RelaySelector,
     retry_attempt: u32,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
+    connection_modes: Arc<Mutex<ConnectionModesIterator>>,
+}
+
+/// An iterator which will always produce an [`AccessMethod`].
+///
+/// Safety: It is always safe to [`unwrap`] after calling [`next`] on a
+/// [`std::iter::Cycle`], so thereby it is safe to always call [`unwrap`] on a
+/// [`ConnectionModesIterator`]
+///
+/// [`unwrap`]: Option::unwrap
+/// [`next`]: std::iter::Iterator::next
+pub struct ConnectionModesIterator {
+    available_modes: Box<dyn Iterator<Item = AccessMethod> + Send>,
+    next: Option<AccessMethod>,
+}
+
+impl ConnectionModesIterator {
+    pub fn new(modes: Vec<AccessMethod>) -> ConnectionModesIterator {
+        Self {
+            next: None,
+            available_modes: Self::get_filtered_access_methods(modes),
+        }
+    }
+
+    /// Set the next [`AccessMethod`] to be returned from this iterator.
+    pub fn set_access_method(&mut self, next: AccessMethod) {
+        self.next = Some(next);
+    }
+    /// Update the collection of [`AccessMethod`] which this iterator will
+    /// return.
+    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethod>) {
+        self.available_modes = Self::get_filtered_access_methods(access_methods);
+    }
+
+    fn get_filtered_access_methods(
+        modes: Vec<AccessMethod>,
+    ) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
+        Box::new(
+            modes
+                .into_iter()
+                .filter(|access_method| access_method.enabled())
+                .cycle(),
+        )
+    }
+}
+
+impl Iterator for ConnectionModesIterator {
+    type Item = AccessMethod;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next.take().or_else(|| self.available_modes.next())
+    }
 }
 
 impl Stream for ApiConnectionModeProvider {
@@ -83,23 +135,22 @@ impl Stream for ApiConnectionModeProvider {
 }
 
 impl ApiConnectionModeProvider {
-    pub(crate) fn new(cache_dir: PathBuf, relay_selector: RelaySelector) -> Self {
+    pub(crate) fn new(
+        cache_dir: PathBuf,
+        relay_selector: RelaySelector,
+        connection_modes: Vec<AccessMethod>,
+    ) -> Self {
         Self {
             cache_dir,
             relay_selector,
             retry_attempt: 0,
             current_task: None,
+            connection_modes: Arc::new(Mutex::new(ConnectionModesIterator::new(connection_modes))),
         }
     }
 
-    fn should_use_bridge(retry_attempt: u32) -> bool {
-        retry_attempt % 3 > 0
-    }
-
-    fn should_use_direct(retry_attempt: u32) -> bool {
-        // TODO: Change back before comitting!
-        false
-        // !Self::should_use_bridge(retry_attempt)
+    pub(crate) fn handle(&self) -> Arc<Mutex<ConnectionModesIterator>> {
+        self.connection_modes.clone()
     }
 
     /// Return a new connection mode to be used for the API connection.
@@ -112,10 +163,9 @@ impl ApiConnectionModeProvider {
         log::debug!("Rotating Access mode!");
         let access_method = {
             let mut access_methods_picker = self.connection_modes.lock().unwrap();
-            // Rotate through the cycle of access methods.
-            // Safety: It is always safe to unwrap after calling `next` on a [`std::iter::Cycle`]
             access_methods_picker.next().unwrap()
         };
+
         let connection_mode = self.from(&access_method);
         log::info!("New API connection mode selected: {}", connection_mode);
         connection_mode
