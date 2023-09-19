@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.PaymentProvider
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
@@ -73,8 +74,11 @@ val uiModule = module {
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
+    // Will be resolved using from either of the two PaymentModule.kt classes.
+    single { PaymentProvider(get()) }
+
     // View models
-    viewModel { AccountViewModel(get(), get(), get()) }
+    viewModel { AccountViewModel(get(), get(), get(), get()) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
