@@ -32,6 +32,7 @@ data class Dimensions(
     val dialogIconSize: Dp = 48.dp,
     val expandableCellChevronSize: Dp = 30.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,
+    val iconHeight: Dp = 44.dp,
     val indentedCellStartPadding: Dp = 38.dp,
     val infoButtonVerticalPadding: Dp = 13.dp,
     val largePadding: Dp = 32.dp,
