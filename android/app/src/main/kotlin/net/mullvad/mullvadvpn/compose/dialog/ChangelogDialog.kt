@@ -50,10 +50,7 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
             }
         },
         confirmButton = {
-            PrimaryButton(
-                text = stringResource(R.string.changes_dialog_dismiss_button),
-                onClick = onDismiss
-            )
+            PrimaryButton(text = stringResource(R.string.got_it), onClick = onDismiss)
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground

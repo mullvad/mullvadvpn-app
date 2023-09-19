@@ -120,7 +120,7 @@ fun RedeemVoucherDialog(
                         stringResource(
                             id =
                                 if (uiState.voucherViewModelState is VoucherDialogState.Success)
-                                    R.string.changes_dialog_dismiss_button
+                                    R.string.got_it
                                 else R.string.cancel
                         ),
                     onClick = {
