@@ -158,6 +158,39 @@ impl AccessMethod {
             },
         }
     }
+
+    /// Ad-hoc implementation of `==` from [`std::cmp::PartialEq`], where temporal member
+    /// values such as `enabled` is disregarded.
+    ///
+    /// This is a shallow comparison.
+    pub fn semantically_equals(&self, other: &Self) -> bool {
+        // TODO: Implemenet this function in impl<ObfuscationProtocol>,
+        // impl<ObfuscationProtocol> & impl <BuiltIn>.
+        match (self, other) {
+            (
+                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge(_)),
+                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge(_)),
+            ) => true,
+            (
+                AccessMethod::BuiltIn(BuiltInAccessMethod::Direct(_)),
+                AccessMethod::BuiltIn(BuiltInAccessMethod::Direct(_)),
+            ) => true,
+            (AccessMethod::Custom(ref custom_left), AccessMethod::Custom(ref custom_right)) => {
+                match (&custom_left.access_method, &custom_right.access_method) {
+                    (
+                        ObfuscationProtocol::Shadowsocks(shadowsocks_left),
+                        ObfuscationProtocol::Shadowsocks(shadowsocks_right),
+                    ) => shadowsocks_left.semantically_equals(&shadowsocks_right),
+                    (
+                        ObfuscationProtocol::Socks5(socks_left),
+                        ObfuscationProtocol::Socks5(socks_right),
+                    ) => socks_left.semantically_equals(&socks_right),
+                    (_, _) => false,
+                }
+            }
+            _ => false,
+        }
+    }
 }
 
 impl Shadowsocks {
@@ -190,6 +223,21 @@ impl Shadowsocks {
         let peer = SocketAddrV4::new(Ipv4Addr::from_str(&ip).ok()?, port).into();
         Some(Self::new(peer, cipher, password, enabled, name))
     }
+
+    pub fn semantically_equals(&self, other: &Self) -> bool {
+        self.peer == other.peer && self.cipher == other.cipher && self.password == other.password
+    }
+}
+
+impl Socks5 {
+    pub fn semantically_equals(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Socks5::Local(left), Socks5::Local(right)) => left.semantically_equals(right),
+            (Socks5::Remote(left), Socks5::Remote(right)) => left.semantically_equals(right),
+            (Socks5::Remote(_), Socks5::Local(_)) => false,
+            (Socks5::Local(_), Socks5::Remote(_)) => false,
+        }
+    }
 }
 
 impl Socks5Local {
@@ -215,6 +263,10 @@ impl Socks5Local {
         let peer = SocketAddr::new(peer_ip, port);
         Some(Self::new(peer, localport, enabled, name))
     }
+
+    fn semantically_equals(&self, other: &Socks5Local) -> bool {
+        self.peer == other.peer && self.port == other.port
+    }
 }
 
 impl Socks5Remote {
@@ -232,6 +284,10 @@ impl Socks5Remote {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
         Some(Self::new(peer, enabled, name))
+    }
+
+    fn semantically_equals(&self, other: &Socks5Remote) -> bool {
+        self.peer == other.peer
     }
 }
 

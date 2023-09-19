@@ -44,7 +44,45 @@ pub struct ApiConnectionModeProvider {
     relay_selector: RelaySelector,
     retry_attempt: u32,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
-    available_modes: Arc<Mutex<Vec<(AccessMethod, usize)>>>,
+    connection_modes: Arc<Mutex<ConnectionModesView>>,
+}
+
+pub struct ConnectionModesView {
+    // This member is shared with the daemon and may be mutated at any time.
+    daemon_modes: Arc<Mutex<Vec<AccessMethod>>>,
+    // This member is "owned" by the `ConnectionModesView` struct
+    //modes: std::iter::Cycle<Iter<>AccessMethod>,
+    modes: Box<dyn Iterator<Item = AccessMethod> + Send>,
+    current_mode: AccessMethod,
+}
+
+impl ConnectionModesView {
+    pub fn new(daemon_modes: Arc<Mutex<Vec<AccessMethod>>>) -> ConnectionModesView {
+        Self {
+            daemon_modes: daemon_modes.clone(),
+            //modes: daemon_modes.lock().unwrap().clone().iter().cycle(),
+            modes: {
+                let modes = daemon_modes.lock().unwrap();
+                let cycle = modes
+                    .clone()
+                    .into_iter()
+                    .filter(|access_method| access_method.enabled())
+                    // Crucial step!
+                    .cycle();
+                Box::new(cycle)
+            },
+            current_mode: BuiltInAccessMethod::Direct(true).into(),
+        }
+    }
+}
+
+impl Iterator for ConnectionModesView {
+    type Item = AccessMethod;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.current_mode = self.modes.next()?.clone();
+        Some(self.current_mode.clone())
+    }
 }
 
 impl Stream for ApiConnectionModeProvider {
@@ -87,20 +125,14 @@ impl ApiConnectionModeProvider {
     pub(crate) fn new(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
-        connection_modes: Arc<Mutex<Vec<(AccessMethod, usize)>>>,
+        connection_modes: Arc<Mutex<Vec<AccessMethod>>>,
     ) -> Self {
-        // TODO: Remove this when done debugging
-        {
-            let modes = connection_modes.lock();
-            log::debug!("Daemon connection modes: {:?}", modes);
-        };
-
         Self {
             cache_dir,
             relay_selector,
             retry_attempt: 0,
             current_task: None,
-            available_modes: connection_modes,
+            connection_modes: Arc::new(Mutex::new(ConnectionModesView::new(connection_modes))),
         }
     }
 
@@ -111,26 +143,15 @@ impl ApiConnectionModeProvider {
     /// For now, [`ApiConnectionModeProvider`] is only instanciated once during daemon startup, and does not change it's
     /// available access methods based on any "Settings-changed" events.
     fn new_connection_mode(&mut self) -> ApiConnectionMode {
-        let (access_methods, weights): (Vec<_>, Vec<_>) = {
-            let modes = self.available_modes.lock().unwrap();
-            modes
-                .iter()
-                .filter(|(access_method, _)| access_method.enabled())
-                .cloned()
-                .unzip()
+        // TODO: Remove this when done debugging
+        log::info!("Rotating Access mode!");
+        let access_method = {
+            let mut access_methods_picker = self.connection_modes.lock().unwrap();
+            // Rotate through the cycle of access methods.
+            // Safety: It is always safe to unwrap after calling `next` on a [`std::iter::Cycle`]
+            access_methods_picker.next().unwrap()
         };
-        // Chosen by fair dice-roll.
-        let connection_mode = {
-            use rand::distributions::WeightedIndex;
-            use rand::prelude::*;
-            let mut rng = thread_rng();
-            if let Ok(distribution) = WeightedIndex::new(weights) {
-                let access_method = &access_methods[distribution.sample(&mut rng)];
-                self.from(access_method.clone())
-            } else {
-                ApiConnectionMode::Direct
-            }
-        };
+        let connection_mode = self.from(&access_method);
         log::info!("New API connection mode selected: {}", connection_mode);
         connection_mode
     }
@@ -138,7 +159,7 @@ impl ApiConnectionModeProvider {
     /// Ad-hoc version of [`std::convert::From::from`], but since some
     /// [`ApiConnectionMode`]s require extra logic/data from
     /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait can not be used.
-    fn from(&mut self, access_method: AccessMethod) -> ApiConnectionMode {
+    fn from(&mut self, access_method: &AccessMethod) -> ApiConnectionMode {
         match access_method {
             AccessMethod::BuiltIn(access_method) => match access_method {
                 BuiltInAccessMethod::Direct(_enabled) => ApiConnectionMode::Direct,
@@ -152,7 +173,7 @@ impl ApiConnectionModeProvider {
                                     ss_settings.peer,
                                     ss_settings.cipher,
                                     ss_settings.password,
-                                    enabled,
+                                    *enabled,
                                     "Mullvad Bridges".to_string(), // TODO: Move this to some central location
                                 );
                             Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
@@ -166,12 +187,12 @@ impl ApiConnectionModeProvider {
                     })
                     .unwrap_or(ApiConnectionMode::Direct),
             },
-            AccessMethod::Custom(access_method) => match access_method.access_method {
+            AccessMethod::Custom(access_method) => match &access_method.access_method {
                 api_access_method::ObfuscationProtocol::Shadowsocks(shadowsocks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config))
+                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config.clone()))
                 }
                 api_access_method::ObfuscationProtocol::Socks5(socks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config))
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
                 }
             },
         }
