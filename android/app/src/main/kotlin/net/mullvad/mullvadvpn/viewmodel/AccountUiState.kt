@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import org.joda.time.DateTime
@@ -8,6 +9,7 @@ data class AccountUiState(
     val deviceName: String?,
     val accountNumber: String?,
     val accountExpiry: DateTime?,
+    val billingPaymentState: PaymentState = PaymentState.Loading,
     val dialogState: AccountScreenDialogState = AccountScreenDialogState.NoDialog
 ) {
     companion object {
@@ -21,8 +23,15 @@ data class AccountUiState(
     }
 }
 
-sealed class AccountScreenDialogState {
-    data object NoDialog : AccountScreenDialogState()
+sealed interface AccountScreenDialogState {
+    data object NoDialog : AccountScreenDialogState
 
-    data object DeviceNameInfoDialog : AccountScreenDialogState()
+    data object DeviceNameInfoDialog : AccountScreenDialogState
+
+    //Billing dialogs
+    data object VerificationError: AccountScreenDialogState
+
+    data object PurchaseError: AccountScreenDialogState
+
+    data object PurchaseComplete: AccountScreenDialogState
 }
