@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -118,6 +119,7 @@ class AccountViewModel(
         }
     }
 
+    @OptIn(FlowPreview::class)
     private fun fetchPaymentAvailability(delay: Long = 0L) {
         viewModelScope.launch {
             delay(delay)
