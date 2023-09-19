@@ -19,10 +19,10 @@ typealias TaskId = UInt
  execute their work in a transactional fashion without interlacing or interrupting each others work. You can think of it as a simplified `OperationQueue` for
  coroutines.
 
- `TaskQueue` also implements a basic relationship management between tasks in form of cancelling adjacent tasks that otherwise undo each others work, such as
+ `TaskQueue` also implements a basic relationship management between tasks in form of cancelling running tasks that otherwise undo each others work, such as
  for instance a call to `.stop` is guaranteed to undo work of any preceding task. (See `TaskKind` for more information)
  */
-final actor TaskQueue {
+actor TaskQueue {
     /// Ever incrementing identifier that's is used to distinguish between different tasks.
     private var taskId: TaskId = 0
     private var queuedTasks: [SerialTask] = []
@@ -51,20 +51,25 @@ final actor TaskQueue {
         return try await nextTask.value
     }
 
+    /// Returns next task ID, then increments internal task counter.
     private func nextTaskId() -> TaskId {
+        let currentTaskId = taskId
         let (value, isOverflow) = taskId.addingReportingOverflow(1)
+
         taskId = isOverflow ? 0 : value
-        return UInt(taskId)
+
+        return currentTaskId
     }
 
+    /// Register new task in the array of all tasks that are executing or pending execution.
+    /// Returns new task ID.
     private func registerTask(kind: TaskKind, nextTask: AnyTask) -> TaskId {
-        let nextTaskId = nextTaskId()
-
-        queuedTasks.append(SerialTask(id: nextTaskId, kind: kind, task: nextTask))
-
-        return nextTaskId
+        let serialTask = SerialTask(id: nextTaskId(), kind: kind, task: nextTask)
+        queuedTasks.append(serialTask)
+        return serialTask.id
     }
 
+    /// Remove task by ID previously returned by call to `registerTask()`.
     private func unregisterTask(_ taskId: TaskId) {
         let index = queuedTasks.firstIndex { $0.id == taskId }
 
@@ -73,12 +78,16 @@ final actor TaskQueue {
         }
     }
 
+    /// Check if new task in the queue may trigger cancellation of preceding tasks.
     private func cancelPrecedingTasksIfNeeded() {
         guard let current = queuedTasks.last else { return }
 
-        let tasksToCancel = queuedTasks.dropLast(1).reversed().filter { preceding in
-            current.kind.shouldCancel(preceding.kind)
-        }
+        // Reverse the list of tasks so that we cancel tasks that haven't started yet first.
+        let tasksToCancel = queuedTasks.dropLast(1)
+            .reversed()
+            .filter { preceding in
+                return current.shouldCancel(preceding)
+            }
 
         tasksToCancel.forEach { $0.task.cancel() }
     }
@@ -99,33 +108,40 @@ enum TaskKind: Equatable {
     /// Scheduled via external call in response to device check.
     case blockedState
 
-    //
+    /// <TBD>
     case keyRotated
+
+    /// <TBD>
     case networkReachability
 }
 
 private struct SerialTask {
+    /// Internal task identifier used to identify individual tasks.
     var id: TaskId
-    var kind: TaskKind
-    var task: AnyTask
-}
 
-private extension TaskKind {
+    /// Kind of task.
+    var kind: TaskKind
+
+    /// A type erased copy of a concrete `Task` that can be used to wait for task completion or cancel it.
+    var task: AnyTask
+
     /**
-     Returns `true` if the prior task should be cancelled.
+     Returns `true` if the other task should be cancelled.
 
      - `.stop` task cancels all tasks in the queue except other `.stop` tasks.
      - `.reconnect` task can cancel any prior `.reconnect`.
      */
-    func shouldCancel(_ other: TaskKind) -> Bool {
-        if self == .stop, other != .stop {
+    func shouldCancel(_ other: SerialTask) -> Bool {
+        if kind == .stop, other.kind != .stop {
             // Stop task can cancel any prior task.
             return true
-        } else if self == .reconnect, other == .reconnect {
+        }
+
+        if kind == .reconnect, other.kind == .reconnect {
             // Cancel prior task to reconnect.
             return true
-        } else {
-            return false
         }
+
+        return false
     }
 }

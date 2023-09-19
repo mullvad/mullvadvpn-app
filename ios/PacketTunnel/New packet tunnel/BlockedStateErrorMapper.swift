@@ -14,6 +14,9 @@ import RelaySelector
 import Settings
 import WireGuardKit
 
+/**
+ Struct responsible for mapping errors that may occur in the packet tunnel to the `BlockedStateReason`.
+ */
 struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
     func mapError(_ error: Error) -> BlockedStateReason {
         switch error {

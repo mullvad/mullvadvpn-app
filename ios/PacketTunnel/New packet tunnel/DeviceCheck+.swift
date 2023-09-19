@@ -10,6 +10,7 @@ import Foundation
 import MullvadTypes
 
 extension DeviceCheck {
+    /// Returns blocked state reason inferred from the device check result.
     var blockedStateReason: BlockedStateReason? {
         if case .invalid = accountVerdict {
             return .invalidAccount
