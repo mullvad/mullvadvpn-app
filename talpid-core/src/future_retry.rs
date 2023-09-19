@@ -153,6 +153,22 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_constant_interval() {
+        let mut ivl = ConstantInterval::new(Duration::from_secs(2), Some(3));
+
+        assert_eq!(ivl.next(), Some(Duration::from_secs(2)));
+        assert_eq!(ivl.next(), Some(Duration::from_secs(2)));
+        assert_eq!(ivl.next(), Some(Duration::from_secs(2)));
+        assert_eq!(ivl.next(), None);
+    }
+
+    #[test]
+    fn test_constant_interval_no_max() {
+        let mut ivl = ConstantInterval::new(Duration::from_secs(2), None);
+        assert_eq!(ivl.next(), Some(Duration::from_secs(2)));
+    }
+
+    #[test]
     fn test_exponential_backoff() {
         let mut backoff = ExponentialBackoff::new(Duration::from_secs(2), 3);
 
