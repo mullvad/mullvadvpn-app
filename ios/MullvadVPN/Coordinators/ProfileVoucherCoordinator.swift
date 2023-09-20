@@ -26,7 +26,8 @@ final class ProfileVoucherCoordinator: Coordinator, Presentable {
         viewController = RedeemVoucherViewController(
             configuration: RedeemVoucherViewConfiguration(
                 adjustViewWhenKeyboardAppears: false,
-                shouldUseCompactStyle: true
+                shouldUseCompactStyle: true,
+                layoutMargins: UIMetrics.SettingsRedeemVoucher.contentLayoutMargins
             ),
             interactor: interactor
         )
