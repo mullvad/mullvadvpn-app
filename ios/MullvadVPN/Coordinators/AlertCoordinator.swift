@@ -39,7 +39,12 @@ final class AlertCoordinator: Coordinator, Presentable {
         }
 
         presentation.buttons.forEach { action in
-            alertController.addAction(title: action.title, style: action.style, handler: action.handler)
+            alertController.addAction(
+                title: action.title,
+                style: action.style,
+                accessibilityId: action.accessibilityID,
+                handler: action.handler
+            )
         }
     }
 }
