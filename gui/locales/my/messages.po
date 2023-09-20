@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s ထပ်ပေါင်းပြီးပါပြီ၊ %(expiry)s မတိုင်ခင်ထိ အကောင့် ငွေပေးချေပြီးပါပြီ။"
@@ -39,28 +39,11 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "%d နှစ်သာ ကျန်တော့သည်"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "လွန်ခဲ့သော %d ရက်"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "လွန်ခဲ့သော %d မိနစ်"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "လွန်ခဲ့သော %d လ"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "လွန်ခဲ့သော %d နှစ်"
-
 msgid "Account paid until %(expiry)s."
 msgstr "%(expiry)s မတိုင်ခင်ထိ အကောင့် ငွေပေးချေပြီးပါပြီ။"
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "လွန်ခဲ့သော %d နာရီ"
+msgid "Account settings"
+msgstr "အကောင့် ဆက်တင်"
 
 msgid "Any"
 msgstr "တစ်ခုခု"
@@ -154,9 +137,6 @@ msgstr "System Settings သို့ သွားရန်"
 msgid "Got it!"
 msgstr "ရပါပြီ။"
 
-msgid "Invalid account number"
-msgstr "အကောင့်နံပါတ် မှားယွင်းနေပါသည်"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -168,9 +148,6 @@ msgstr "တစ်ရက်အောက်"
 
 msgid "less than a day left"
 msgstr "တစ်ရက်အောက်သာ ကျန်တော့သည်"
-
-msgid "less than a minute ago"
-msgstr "လွန်ခဲ့သော စက္ကန့်ပိုင်း"
 
 msgid "Next"
 msgstr "ရှေ့သို့"
@@ -234,6 +211,10 @@ msgstr "မလုံခြုံသည့် ချိတ်ဆက်မှု"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s ၊ ပြသမှု ထည့်သွင်းပြီး"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "အသိပေးချက်ကို ပိတ်ရန်"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -465,6 +446,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "ဆက်လက် ဝင်ရောက်ရန်"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "ဖန်တီးသည့် အချိန်- %(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "စက်သည် သက်ဝင်လုပ်ဆောင်မှု မရှိပါ"
@@ -472,6 +460,14 @@ msgstr "စက်သည် သက်ဝင်လုပ်ဆောင်မှ�
 msgctxt "device-management"
 msgid "Device name"
 msgstr "စက်အမည်"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "စက်အမည်- %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -484,6 +480,10 @@ msgstr "ဝင်ရောက်ရန် သွားပါ"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "ဝင်ရောက်ရန်သွားခြင်းသည် ဤစက်ရှိ အင်တာနက်ကို ပိတ်ဆို့မှုမှ ဖယ်ပါလိမ့်မည်။"
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။"
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -505,10 +505,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "သင် ထွက်ပါက ဤစက်သို့ ပေးပို့ထားသော ports ကို ဖျက်ပါမည်။"
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "ဤအမည်မှာ စက်အတွက် သတ်မှတ်ထားသော အမည် ဖြစ်ပါသည်။ Mullvad အကောင့်တစ်ခုတွင် ဝင်ရောက်ထားသည့် စက်တစ်ခုစီသည် တစ်မူထူးခြားသည့် အမည်တစ်ခု ရရှိမည်ဖြစ်ပြီး အက်ပ် သို့မဟုတ် ဝက်ဘ်ဆိုက်ပေါ်တွင် သင့်စက်များကို စီမံသည့်အခါ သင်အနေဖြင့် ကွဲကွဲပြားပြားသိရှိအောင် ကူညီပေးပါသည်။"
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "၎င်းသည် ပေးပို့ထားသော ports ကို ဖျက်ပါမည်။ စက်တွင်းဆက်တင်ကို သိမ်းထားပါမည်။"
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "ကျန်သည့် အချိန်- %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -520,6 +528,10 @@ msgstr "စက်များလွန်းနေသည်"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "စက်မှ ထွက်မည်"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "Mullvad အကောင့်တစ်ခုတွင် စက် 5 ခုအထိ ဝင်ရောက်ထားနိုင်ပါသည်။"
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -603,6 +615,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "စက်အသစ် ဖန်တီးထားသည်"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "ထွက်ပြီး အက်ပ်ကို အစမှ ပြန်ဖွင့်ပေးပါ။"
 
@@ -625,6 +641,10 @@ msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "ကြိုဆိုပါသည်၊ ယခုမှစ၍ ဤစက်ကို <b>%(deviceName)s</b> ဟု ခေါ်ဆိုပါမည်။ နောက်ထပ်အသေးစိတ်တို့အတွက် အကောင့်တွင် အချက်အလက် ခလုတ်ကို နှိပ်၍ ကြည့်နိုင်သည်။"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -674,9 +694,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "စက်စာရင်းကို ယူရန် မအောင်မြင်ခဲ့ပါ"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "အဆင့်မြှင့်ခြင်း ပြီးပါပြီ။"
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "အကောင့်နံပါတ် မမှန်ကန်ပါ"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -704,6 +736,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "ကျေးဇူးပြု၍ စောင့်ပေးပါ"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "စက်များလွန်းနေသည်"
@@ -1018,11 +1052,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "ချိတ်ဆက်ထားစဉ် အဝင်ပွိုင့်နှင့် အထွက်ပွိုင့် (မတူညီသည့် VPN ဆာဗာ နှစ်ခု ဖြစ်ရန်လိုပါသည်) လုံခြုံသည့် တည်နေရာနှစ်ခုကို တိုက်ရိုက် လမ်းကြောင်းပို့ပေးသွားပါမည်။"
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "အကောင့်"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "အက်ပ်သည် ကောင်းစွာ အလုပ်မလုပ်ပါ။ ထွက်ပြီး ပြန်ဖွင့်ပေးပါ။"
@@ -1030,10 +1059,6 @@ msgstr "အက်ပ်သည် ကောင်းစွာ အလုပ်မ�
 msgctxt "settings-view"
 msgid "App version"
 msgstr "အက်ပ်ဗားရှင်း"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "အချိန်စေ့သွားပါပြီ"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1608,9 +1633,6 @@ msgstr "အကောင့်အချိန် သတိပေးချက်�
 msgid "Add DNS server"
 msgstr "DNS ဆာဗာကို ပေါင်းထည့်ရန်"
 
-msgid "Advanced"
-msgstr "အဆင့်မြင့်"
-
 msgid "Agree and continue"
 msgstr "သဘောတူပြီး ဆက်လုပ်ရန်"
 
@@ -1626,9 +1648,14 @@ msgstr "အမြဲဖွင့် VPN ကို အခြားအက်ပ်
 msgid "Always-on VPN might be enabled for another app"
 msgstr "အမြဲဖွင့် VPN ကို နောက်ထပ်အက်ပ်အတွက် ဖွင့်ထားနိုင်ပါသည်"
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "သတိပြုရန်- ဤဆက်တင်ကို <b>စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</b>နှင့်အတူ ပေါင်းစပ်၍ မသုံးစွဲနိုင်ပါ။"
+
 msgid "Blocking internet (device offline)"
 msgstr "အင်တာနက် ပိတ်ဆို့နေဆဲ (စက် အော့ဖ်လိုင်း)"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "DNS နှင့်ဆက်စပ်သော ဆက်တင်များ၌ ပြုလုပ်သည့် ပြောင်းလဲမှုများသည် ယာယီသိမ်းထားသော ရလဒ်များကြောင့် ချက်ချင်း အကျိုးမသက်ရောက်နိုင်ပါ။"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad အကောင့်နံပါတ်ကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်"
@@ -1642,6 +1669,12 @@ msgstr "အလွန်အရေးပါသည့် ချို့ယွင�
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "စိတ်ကြိုက် DNS ဆာဗာလိပ်စာများ %s မှားနေပါသည်"
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အထက်ရှိ <b>%s</b> အားလုံးကို ပိတ်ပါ။"
+
 msgid "Enable"
 msgstr "ဖွင့်ရန်"
 
@@ -1651,25 +1684,21 @@ msgstr "MTU ကို ရိုက်ထည့်ရန်"
 msgid "Excluded applications"
 msgstr "အပလီကေးရှင်းများ ဖယ်ထားပြီး"
 
-msgid "Failed to fetch list of devices"
-msgstr "စက်စာရင်းကို ယူရန် မအောင်မြင်ခဲ့ပါ"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "ဝင်ရောက်ရန်သွားခြင်းဖြင့် ဤစက်တွင် အင်တာနက်ကို ပိတ်ဆို့ထားမှုမှ ဖယ်ရှားပါလိမ့်မည်။"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "အပ်ဒိတ် ဖြစ်နေစေရန် Mullvad VPN (%s) ကို ထည့်သွင်းပါ"
 
+msgid "Manage account"
+msgstr "အကောင့် စီမံခန့်ခွဲရန်"
+
 msgid "Mullvad account number"
 msgstr "Mullvad အကောင့်နံပါတ်"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "သင့်ပြဿနာကို အင်္ဂလိပ်ဘာသာ သို့မဟုတ် ဆွီဒင်ဘာသာဖြင့် ဖော်ပြပေးပါ။"
 
 msgid "Preferences"
 msgstr "လိုလားမှုများ"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "ကိုယ်ရေးအချက်အလက် လုံခြုံရေး"
 
@@ -1708,6 +1737,9 @@ msgstr "လိုကယ် DNS ဆာဗာသည် လိုလားမှု
 
 msgid "This address has already been entered."
 msgstr "ဤလိပ်စာကို ရိုက်ထည့်ထားပြီး ဖြစ်ပါသည်။"
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် အက်ပ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "အလုံခြုံဆုံး ဗားရှင်းကို ရရှိကြောင်း သေချာစေရန်နှင့် လုပ်ဆောင်နေသည့် လက်ရှိဗားရှင်းနှင့်ပတ်သက်သော ပြဿနာများအကြောင်း သင့်အား အသိပေးရန် အက်ပ်သည် ဗားရှင်း စစ်ဆေးမှုများကို အော်တိုလုပ်ဆောင်ပါသည်။ ၎င်းသည် Mullvad ဆာဗာများသို့ အက်ပ် ဗားရှင်းနှင့် Android စနစ်ဗားရှင်းတို့ကို ပေးပို့ပါသည်။ အသုံးပြုထားသည့် အက်ပ် ဗားရှင်းများနှင့် Android ဗားရှင်းများ၏ အရေအတွက်ကို Mullvad က ရေတွက်ထားပါသည်။ ဒေတာကို မည်သည့်အခါမျှ မသိမ်းဆည်းထားပါ သို့မဟုတ် သင့်အား ခွဲခြားဖော်ထုတ်နိုင်သော မည်သည့်နည်းလမ်းတွင်မျှ အသုံးမပြုထားပါ။\\n\\nSplit Tunneling လုပ်ဆောင်ချက်ကို အသုံးပြုပါက ၎င်းနောက် အက်ပ်သည် သင့်စနစ်အား ထည့်သွင်းထားသော အက်ပလီကေးရှင်းအားလုံး၏ စာရင်းအတွက် မေးမြန်းပါသည်။ ဤစာရင်းကို Split tunneling ပြသမှုတွင်သာ ပြန်ရယူနိုင်ပါသည်။ ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများ၏ စာရင်းကို စက်မှ မည်သည့်အခါမျှ မပေးပို့ပါ။"
@@ -1751,11 +1783,17 @@ msgstr "ချိတ်ဆက်ထားချိန်တွင် သင့�
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard obfuscation"
+msgstr "WireGuard Obfuscation\n"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်"
 
 msgid "You are running an unsupported app version."
 msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းဖြင့် လုပ်ဆောင်နေပါသည်။"
+
+msgid "less than a minute ago"
+msgstr "လွန်ခဲ့သော စက္ကန့်ပိုင်း"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1764,4 +1802,24 @@ msgstr[0] "%d ရက်အကြာတွင် အကောင့်ခရက�
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "%d နာရီအကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "လွန်ခဲ့သော %d ရက်"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "လွန်ခဲ့သော %d မိနစ်"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "လွန်ခဲ့သော %d လ"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "လွန်ခဲ့သော %d နှစ်"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "လွန်ခဲ့သော %d နာရီ"
 
