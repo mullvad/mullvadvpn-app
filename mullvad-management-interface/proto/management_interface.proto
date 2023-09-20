@@ -355,43 +355,34 @@ message CustomList {
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
 message ApiAccessMethod {
-  message Direct { bool enabled = 1; }
-  message Bridges { bool enabled = 1; }
+  message Direct {}
+  message Bridges {}
   message Socks5Local {
-    bool enabled = 1;
-    string name = 2;
     string id = 3;
     string ip = 4;
     uint32 port = 5;
     uint32 local_port = 6;
   }
   message Socks5Remote {
-    bool enabled = 1;
-    string name = 2;
-    string id = 3;
-    string ip = 4;
-    uint32 port = 5;
-  }
-  message Socks5 {
-    oneof Socks5type {
-      Socks5Local local = 1;
-      Socks5Remote remote = 2;
-    }
+    string id = 1;
+    string ip = 2;
+    uint32 port = 3;
   }
   message Shadowsocks {
-    bool enabled = 1;
-    string name = 2;
-    string id = 3;
-    string ip = 4;
-    uint32 port = 5;
-    string password = 6;
-    string cipher = 7;
+    string id = 1;
+    string ip = 2;
+    uint32 port = 3;
+    string password = 4;
+    string cipher = 5;
   }
+  string name = 1;
+  bool enabled = 2;
   oneof access_method {
-    Direct direct = 1;
-    Bridges bridges = 2;
-    Socks5 socks5 = 3;
-    Shadowsocks shadowsocks = 4;
+    Direct direct = 3;
+    Bridges bridges = 4;
+    Socks5Local socks5local = 5;
+    Socks5Remote socks5remote = 6;
+    Shadowsocks shadowsocks = 7;
   }
 }
 
