@@ -23,7 +23,6 @@ natord = "1.0.9"
 itertools = "0.10"
 
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }
-mullvad-api = { path = "../mullvad-api" }
 mullvad-version = { path = "../mullvad-version" }
 talpid-types = { path = "../talpid-types" }
 

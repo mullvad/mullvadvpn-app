@@ -619,13 +619,88 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn get_api_access_methods(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<mullvad_management_interface::types::ApiAccessMethods> {
+        log::debug!("get_api_access_methods");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetApiAccessMethods(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(From::from)
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn add_api_access_method(
+        &self,
+        request: Request<types::ApiAccessMethod>,
+    ) -> ServiceResult<()> {
+        log::debug!("add_api_access_method");
+        let api_access_method =
+            mullvad_types::access_method::ApiAccessMethod::try_from(request.into_inner())?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AddApiAccessMethod(tx, api_access_method))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn remove_api_access_method(
+        &self,
+        request: Request<types::ApiAccessMethod>,
+    ) -> ServiceResult<()> {
+        log::debug!("remove_api_access_method");
+        let api_access_method =
+            mullvad_types::access_method::ApiAccessMethod::try_from(request.into_inner())?;
+
+        match api_access_method.access_method.as_custom() {
+            None => Err(Status::not_found(
+                "Can not remove built-in API access method",
+            )),
+            Some(access_method) => {
+                let (tx, rx) = oneshot::channel();
+                self.send_command_to_daemon(DaemonCommand::RemoveApiAccessMethod(
+                    tx,
+                    access_method.clone(),
+                ))?;
+                self.wait_for_result(rx)
+                    .await?
+                    .map(Response::new)
+                    .map_err(map_daemon_error)
+            }
+        }
+    }
+
+    async fn replace_api_access_method(
+        &self,
+        request: Request<types::ApiAccessMethodReplace>,
+    ) -> ServiceResult<()> {
+        log::debug!("edit_api_access_method");
+        let access_method_replace =
+            mullvad_types::access_method::daemon::ApiAccessMethodReplace::try_from(
+                request.into_inner(),
+            )?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ReplaceApiAccessMethod(
+            tx,
+            access_method_replace,
+        ))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     async fn toggle_api_access_method(
         &self,
         request: Request<types::ApiAccessMethodToggle>,
     ) -> ServiceResult<()> {
         log::debug!("toggle_api_access_method");
         let access_method_toggle =
-            mullvad_types::api_access_method::daemon::ApiAccessMethodToggle::try_from(
+            mullvad_types::access_method::daemon::ApiAccessMethodToggle::try_from(
                 request.into_inner(),
             )?;
         let (tx, rx) = oneshot::channel();
@@ -644,10 +719,10 @@ impl ManagementService for ManagementServiceImpl {
         request: Request<types::ApiAccessMethod>,
     ) -> ServiceResult<()> {
         log::debug!("set_api_access_method");
-        let access_method =
-            mullvad_types::api_access_method::AccessMethod::try_from(request.into_inner())?;
+        let api_access_method =
+            mullvad_types::access_method::ApiAccessMethod::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetApiAccessMethod(tx, access_method))?;
+        self.send_command_to_daemon(DaemonCommand::SetApiAccessMethod(tx, api_access_method))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
