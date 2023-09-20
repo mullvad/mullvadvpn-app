@@ -420,8 +420,6 @@
 		58FE25DF2AA72A9B003D1918 /* RelaySelectorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */; };
 		58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */; };
 		58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */; };
-		58FE25E82AA7399D003D1918 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
-		58FE25EA2AA7399D003D1918 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		58FE25EC2AA77639003D1918 /* MockTunnelMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EB2AA77638003D1918 /* MockTunnelMonitor.swift */; };
 		58FE25EE2AA7764E003D1918 /* MockTunnelAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */; };
 		58FE25F02AA77664003D1918 /* MockRelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */; };
@@ -429,7 +427,6 @@
 		58FE25F42AA9D730003D1918 /* Actor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F32AA9D730003D1918 /* Actor+.swift */; };
 		58FE65942AB1CE7E00E53CB5 /* DeviceCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */; };
 		58FE65952AB1D90600E53CB5 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
-		58FE65962AB1D90600E53CB5 /* MullvadTypes.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF23A32AB09BEE003A2AF2 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */; };
 		7A02D4EB2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */; };
@@ -1005,17 +1002,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		58FE65992AB1D90600E53CB5 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				58FE65962AB1D90600E53CB5 /* MullvadTypes.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3159,7 +3145,6 @@
 				58C7A4322A863F440060C66F /* Sources */,
 				58C7A4332A863F440060C66F /* Frameworks */,
 				58C7A4342A863F440060C66F /* Resources */,
-				58FE65992AB1D90600E53CB5 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -3597,13 +3582,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		58B0A29E238EE67E00BC001D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		58B2FDD12AA71D2A003EB5C6 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
