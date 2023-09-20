@@ -59,6 +59,7 @@ impl From<&mullvad_types::settings::DnsOptions> for proto::DnsOptions {
                 block_malware: options.default_options.block_malware,
                 block_adult_content: options.default_options.block_adult_content,
                 block_gambling: options.default_options.block_gambling,
+                block_social_media: options.default_options.block_social_media,
             }),
             custom_options: Some(proto::CustomDnsOptions {
                 addresses: options
@@ -315,6 +316,7 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
                 block_malware: default_options.block_malware,
                 block_adult_content: default_options.block_adult_content,
                 block_gambling: default_options.block_gambling,
+                block_social_media: default_options.block_social_media,
             },
             custom_options: MullvadCustomDnsOptions {
                 addresses: custom_options

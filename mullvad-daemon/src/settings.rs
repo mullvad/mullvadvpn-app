@@ -281,6 +281,9 @@ impl<'a> Display for SettingsSummary<'a> {
                 if default_options.block_gambling {
                     content.push("gambling");
                 }
+                if default_options.block_social_media {
+                    content.push("social media");
+                }
                 if content.is_empty() {
                     content.push("default");
                 }
