@@ -10,7 +10,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::api_access_method;
+use mullvad_types::access_method::{self, AccessMethod, BuiltInAccessMethod};
 use std::{
     net::SocketAddr,
     path::PathBuf,
@@ -26,76 +26,22 @@ use talpid_types::{
     ErrorExt,
 };
 
-/// TODO: Update this comment
 /// A stream that returns the next API connection mode to use for reaching the API.
 ///
-/// When `mullvad-api` fails to contact the API, it requests a new connection mode.
-/// The API can be connected to either directly (i.e., [`ApiConnectionMode::Direct`])
-/// via a bridge ([`ApiConnectionMode::Proxied`]) or via any supported obfuscation protocol ([`ObfuscationProtocol`]).
+/// When `mullvad-api` fails to contact the API, it requests a new connection
+/// mode. The API can be connected to either directly (i.e.,
+/// [`ApiConnectionMode::Direct`]) via a bridge ([`ApiConnectionMode::Proxied`])
+/// or via any supported custom proxy protocol ([`api_access_methods::ObfuscationProtocol`]).
 ///
-/// * Every 3rd attempt returns [`ApiConnectionMode::Direct`].
-/// * Any other attempt returns a configuration for the bridge that is closest to the selected relay
-///   location and matches all bridge constraints.
-/// * When no matching bridge is found, e.g. if the selected hosting providers don't match any
-///   bridge, [`ApiConnectionMode::Direct`] is returned.
+/// The strategy for determining the next [`ApiConnectionMode`] is handled by
+/// [`ConnectionModesIterator`].
 pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
-    /// Used for selecting a Relay when the `Bridges` access method is used.
+    /// Used for selecting a Relay when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
     retry_attempt: u32,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
     connection_modes: Arc<Mutex<ConnectionModesIterator>>,
-}
-
-/// An iterator which will always produce an [`AccessMethod`].
-///
-/// Safety: It is always safe to [`unwrap`] after calling [`next`] on a
-/// [`std::iter::Cycle`], so thereby it is safe to always call [`unwrap`] on a
-/// [`ConnectionModesIterator`]
-///
-/// [`unwrap`]: Option::unwrap
-/// [`next`]: std::iter::Iterator::next
-pub struct ConnectionModesIterator {
-    available_modes: Box<dyn Iterator<Item = AccessMethod> + Send>,
-    next: Option<AccessMethod>,
-}
-
-impl ConnectionModesIterator {
-    pub fn new(modes: Vec<AccessMethod>) -> ConnectionModesIterator {
-        Self {
-            next: None,
-            available_modes: Self::get_filtered_access_methods(modes),
-        }
-    }
-
-    /// Set the next [`AccessMethod`] to be returned from this iterator.
-    pub fn set_access_method(&mut self, next: AccessMethod) {
-        self.next = Some(next);
-    }
-    /// Update the collection of [`AccessMethod`] which this iterator will
-    /// return.
-    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethod>) {
-        self.available_modes = Self::get_filtered_access_methods(access_methods);
-    }
-
-    fn get_filtered_access_methods(
-        modes: Vec<AccessMethod>,
-    ) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
-        Box::new(
-            modes
-                .into_iter()
-                .filter(|access_method| access_method.enabled())
-                .cycle(),
-        )
-    }
-}
-
-impl Iterator for ConnectionModesIterator {
-    type Item = AccessMethod;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.next.take().or_else(|| self.available_modes.next())
-    }
 }
 
 impl Stream for ApiConnectionModeProvider {
@@ -149,16 +95,15 @@ impl ApiConnectionModeProvider {
         }
     }
 
+    /// Return a pointer to the underlying iterator over [`AccessMethod`].
+    /// Having access to this iterator allow you to influence , e.g. by calling
+    /// [`ConnectionModesIterator::set_access_method()`] or
+    /// [`ConnectionModesIterator::update_access_methods()`].
     pub(crate) fn handle(&self) -> Arc<Mutex<ConnectionModesIterator>> {
         self.connection_modes.clone()
     }
 
     /// Return a new connection mode to be used for the API connection.
-    ///
-    /// TODO: Figure out an appropriate algorithm for selecting between the available AccessMethods.
-    /// We need to be able to poll the daemon's settings to find out which access methods are available & active.
-    /// For now, [`ApiConnectionModeProvider`] is only instanciated once during daemon startup, and does not change it's
-    /// available access methods based on any "Settings-changed" events.
     fn new_connection_mode(&mut self) -> ApiConnectionMode {
         log::debug!("Rotating Access mode!");
         let access_method = {
@@ -173,23 +118,22 @@ impl ApiConnectionModeProvider {
 
     /// Ad-hoc version of [`std::convert::From::from`], but since some
     /// [`ApiConnectionMode`]s require extra logic/data from
-    /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait can not be used.
+    /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
+    /// can not be implemented.
     fn from(&mut self, access_method: &AccessMethod) -> ApiConnectionMode {
         match access_method {
             AccessMethod::BuiltIn(access_method) => match access_method {
-                BuiltInAccessMethod::Direct(_enabled) => ApiConnectionMode::Direct,
-                BuiltInAccessMethod::Bridge(enabled) => self
+                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
+                BuiltInAccessMethod::Bridge => self
                     .relay_selector
                     .get_bridge_forced()
                     .and_then(|settings| match settings {
                         ProxySettings::Shadowsocks(ss_settings) => {
-                            let ss_settings: api_access_method::Shadowsocks =
-                                api_access_method::Shadowsocks::new(
+                            let ss_settings: access_method::Shadowsocks =
+                                access_method::Shadowsocks::new(
                                     ss_settings.peer,
                                     ss_settings.cipher,
                                     ss_settings.password,
-                                    enabled,
-                                    "Mullvad Bridges".to_string(), // TODO: Move this to some central location
                                 );
                             Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
                                 ss_settings,
@@ -203,14 +147,67 @@ impl ApiConnectionModeProvider {
                     .unwrap_or(ApiConnectionMode::Direct),
             },
             AccessMethod::Custom(access_method) => match &access_method.access_method {
-                api_access_method::ObfuscationProtocol::Shadowsocks(shadowsocks_config) => {
+                access_method::ObfuscationProtocol::Shadowsocks(shadowsocks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config.clone()))
                 }
-                api_access_method::ObfuscationProtocol::Socks5(socks_config) => {
+                access_method::ObfuscationProtocol::Socks5(socks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
                 }
             },
         }
+    }
+}
+
+/// An iterator which will always produce an [`AccessMethod`].
+///
+/// Safety: It is always safe to [`unwrap`] after calling [`next`] on a
+/// [`std::iter::Cycle`], so thereby it is safe to always call [`unwrap`] on a
+/// [`ConnectionModesIterator`].
+///
+/// [`unwrap`]: Option::unwrap
+/// [`next`]: std::iter::Iterator::next
+pub struct ConnectionModesIterator {
+    available_modes: Box<dyn Iterator<Item = AccessMethod> + Send>,
+    next: Option<AccessMethod>,
+}
+
+impl ConnectionModesIterator {
+    pub fn new(modes: Vec<AccessMethod>) -> ConnectionModesIterator {
+        Self {
+            next: None,
+            available_modes: Self::get_filtered_access_methods(modes),
+        }
+    }
+
+    /// Set the next [`AccessMethod`] to be returned from this iterator.
+    pub fn set_access_method(&mut self, next: AccessMethod) {
+        self.next = Some(next);
+    }
+    /// Update the collection of [`AccessMethod`] which this iterator will
+    /// return.
+    pub fn update_access_methods(&mut self, api_access_methods: Vec<AccessMethod>) {
+        self.available_modes = Self::get_filtered_access_methods(api_access_methods);
+    }
+
+    /// [`ConnectionModesIterator`] will only consider [`AccessMethod`]s which
+    /// are explicitly marked as enabled. As such, a pre-processing step before
+    /// assigning an iterator to `available_modes` is to filter out all disabled
+    /// [`AccessMethod`]s that may be present in the input.
+    fn get_filtered_access_methods(
+        modes: Vec<AccessMethod>,
+    ) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
+        Box::new(modes
+                .into_iter()
+                // .filter(|access_method| access_method.enabled())
+                .cycle())
+    }
+}
+
+impl Iterator for ConnectionModesIterator {
+    type Item = AccessMethod;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next.take().or_else(|| self.available_modes.next())
     }
 }
 
@@ -245,15 +242,14 @@ impl ApiEndpointUpdaterHandle {
                     log::error!("Rejecting allowed endpoint: Tunnel state machine is not running");
                     return false;
                 };
-
                 let (result_tx, result_rx) = oneshot::channel();
                 let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
                     get_allowed_endpoint(address),
                     result_tx,
                 ));
+                // Wait for the firewall policy to be updated.
                 let _ = result_rx.await;
                 log::debug!("API endpoint: {}", address);
-
                 true
             }
         }

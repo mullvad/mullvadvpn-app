@@ -84,15 +84,38 @@ impl InnerConnectionMode {
         &self,
         hostname: &str,
         addr: &SocketAddr,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<ApiConnection, std::io::Error> {
         use InnerConnectionMode::*;
         match self {
-            Direct => Self::handle_direct_connection(addr, hostname).await,
+            Direct => {
+                Self::handle_direct_connection(
+                    addr,
+                    hostname,
+                    #[cfg(target_os = "android")]
+                    socket_bypass_tx,
+                )
+                .await
+            }
             Shadowsocks(config) => {
-                Self::handle_shadowsocks_connection(config.clone(), addr, hostname).await
+                Self::handle_shadowsocks_connection(
+                    config.clone(),
+                    addr,
+                    hostname,
+                    #[cfg(target_os = "android")]
+                    socket_bypass_tx,
+                )
+                .await
             }
             Socks5(proxy_config) => {
-                Self::handle_socks_connection(proxy_config.clone(), addr, hostname).await
+                Self::handle_socks_connection(
+                    proxy_config.clone(),
+                    addr,
+                    hostname,
+                    #[cfg(target_os = "android")]
+                    socket_bypass_tx,
+                )
+                .await
             }
         }
     }
@@ -101,11 +124,12 @@ impl InnerConnectionMode {
     async fn handle_direct_connection(
         addr: &SocketAddr,
         hostname: &str,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<ApiConnection, io::Error> {
         let socket = HttpsConnectorWithSni::open_socket(
             *addr,
             #[cfg(target_os = "android")]
-            socket_bypass_tx.clone(),
+            socket_bypass_tx,
         )
         .await?;
         #[cfg(feature = "api-override")]
@@ -122,11 +146,12 @@ impl InnerConnectionMode {
         shadowsocks: ShadowsocksConfig,
         addr: &SocketAddr,
         hostname: &str,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<ApiConnection, io::Error> {
         let socket = HttpsConnectorWithSni::open_socket(
             shadowsocks.params.peer,
             #[cfg(target_os = "android")]
-            socket_bypass_tx.clone(),
+            socket_bypass_tx,
         )
         .await?;
         let proxy = ProxyClientStream::from_stream(
@@ -150,6 +175,7 @@ impl InnerConnectionMode {
         proxy_config: SocksConfig,
         addr: &SocketAddr,
         hostname: &str,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<ApiConnection, io::Error> {
         let socket = HttpsConnectorWithSni::open_socket(
             proxy_config.peer,
@@ -222,12 +248,12 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     })
                 }
                 ProxyConfig::Socks(config) => match config {
-                    mullvad_types::api_access_method::Socks5::Local(config) => {
+                    mullvad_types::access_method::Socks5::Local(config) => {
                         InnerConnectionMode::Socks5(SocksConfig {
                             peer: SocketAddr::new("127.0.0.1".parse().unwrap(), config.port),
                         })
                     }
-                    mullvad_types::api_access_method::Socks5::Remote(config) => {
+                    mullvad_types::access_method::Socks5::Remote(config) => {
                         InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
                     }
                 },
@@ -424,7 +450,12 @@ impl Service<Uri> for HttpsConnectorWithSni {
             let stream = loop {
                 let notify = abort_notify.notified();
                 let proxy_config = { inner.lock().unwrap().proxy_config.clone() };
-                let stream_fut = proxy_config.connect(&hostname, &addr);
+                let stream_fut = proxy_config.connect(
+                    &hostname,
+                    &addr,
+                    #[cfg(target_os = "android")]
+                    socket_bypass_tx.clone(),
+                );
 
                 pin_mut!(stream_fut);
                 pin_mut!(notify);
