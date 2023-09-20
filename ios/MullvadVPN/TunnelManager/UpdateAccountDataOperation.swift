@@ -11,6 +11,7 @@ import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
+import Settings
 
 class UpdateAccountDataOperation: ResultOperation<Void> {
     private let logger = Logger(label: "UpdateAccountDataOperation")

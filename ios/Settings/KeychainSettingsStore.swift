@@ -10,24 +10,24 @@ import Foundation
 import MullvadTypes
 import Security
 
-class KeychainSettingsStore: SettingsStore {
-    let serviceName: String
-    let accessGroup: String
+public class KeychainSettingsStore: SettingsStore {
+    public let serviceName: String
+    public let accessGroup: String
 
-    init(serviceName: String, accessGroup: String) {
+    public init(serviceName: String, accessGroup: String) {
         self.serviceName = serviceName
         self.accessGroup = accessGroup
     }
 
-    func read(key: SettingsKey) throws -> Data {
+    public func read(key: SettingsKey) throws -> Data {
         try readItemData(key)
     }
 
-    func write(_ data: Data, for key: SettingsKey) throws {
+    public func write(_ data: Data, for key: SettingsKey) throws {
         try addOrUpdateItem(key, data: data)
     }
 
-    func delete(key: SettingsKey) throws {
+    public func delete(key: SettingsKey) throws {
         try deleteItem(key)
     }
 

@@ -11,18 +11,16 @@ import MullvadTypes
 import struct Network.IPv4Address
 
 /// A struct describing Mullvad DNS blocking options.
-struct DNSBlockingOptions: OptionSet, Codable {
-    typealias RawValue = UInt32
+public struct DNSBlockingOptions: OptionSet, Codable {
+    public let rawValue: UInt32
 
-    let rawValue: RawValue
+    public static let blockAdvertising = DNSBlockingOptions(rawValue: 1 << 0)
+    public static let blockTracking = DNSBlockingOptions(rawValue: 1 << 1)
+    public static let blockMalware = DNSBlockingOptions(rawValue: 1 << 2)
+    public static let blockAdultContent = DNSBlockingOptions(rawValue: 1 << 3)
+    public static let blockGambling = DNSBlockingOptions(rawValue: 1 << 4)
 
-    static let blockAdvertising = DNSBlockingOptions(rawValue: 1 << 0)
-    static let blockTracking = DNSBlockingOptions(rawValue: 1 << 1)
-    static let blockMalware = DNSBlockingOptions(rawValue: 1 << 2)
-    static let blockAdultContent = DNSBlockingOptions(rawValue: 1 << 3)
-    static let blockGambling = DNSBlockingOptions(rawValue: 1 << 4)
-
-    var serverAddress: IPv4Address? {
+    public var serverAddress: IPv4Address? {
         if isEmpty {
             return nil
         } else {
@@ -30,18 +28,18 @@ struct DNSBlockingOptions: OptionSet, Codable {
         }
     }
 
-    init(rawValue: RawValue) {
+    public init(rawValue: UInt32) {
         self.rawValue = rawValue
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let rawValue = try container.decode(RawValue.self)
 
         self.init(rawValue: rawValue)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
         try container.encode(rawValue)
@@ -49,21 +47,21 @@ struct DNSBlockingOptions: OptionSet, Codable {
 }
 
 /// A struct that holds DNS settings.
-struct DNSSettings: Codable, Equatable {
+public struct DNSSettings: Codable, Equatable {
     /// Maximum number of allowed DNS domains.
-    static let maxAllowedCustomDNSDomains = 3
+    public static let maxAllowedCustomDNSDomains = 3
 
     /// DNS blocking options.
-    var blockingOptions: DNSBlockingOptions = []
+    public var blockingOptions: DNSBlockingOptions = []
 
     /// Enable custom DNS.
-    var enableCustomDNS = false
+    public var enableCustomDNS = false
 
     /// Custom DNS domains.
-    var customDNSDomains: [AnyIPAddress] = []
+    public var customDNSDomains: [AnyIPAddress] = []
 
     /// Effective state of the custom DNS setting.
-    var effectiveEnableCustomDNS: Bool {
+    public var effectiveEnableCustomDNS: Bool {
         blockingOptions.isEmpty && enableCustomDNS && !customDNSDomains.isEmpty
     }
 
@@ -77,9 +75,9 @@ struct DNSSettings: Codable, Equatable {
         case enableCustomDNS, customDNSDomains
     }
 
-    init() {}
+    public init() {}
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         // Added in 2022.1
@@ -119,7 +117,7 @@ struct DNSSettings: Codable, Equatable {
         }
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
         try container.encode(blockingOptions, forKey: .blockingOptions)

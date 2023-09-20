@@ -13,6 +13,7 @@ import MullvadTransport
 import MullvadTypes
 import Operations
 import RelayCache
+import Settings
 import StoreKit
 import UIKit
 import UserNotifications

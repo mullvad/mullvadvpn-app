@@ -8,24 +8,30 @@
 
 import Foundation
 
-struct StoredAccountData: Codable, Equatable {
+public struct StoredAccountData: Codable, Equatable {
     /// Account identifier.
-    var identifier: String
+    public var identifier: String
 
     /// Account number.
-    var number: String
+    public var number: String
 
     /// Account expiry.
-    var expiry: Date
+    public var expiry: Date
 
     /// Returns `true` if account has expired.
-    var isExpired: Bool {
+    public var isExpired: Bool {
         expiry <= Date()
+    }
+
+    public init(identifier: String, number: String, expiry: Date) {
+        self.identifier = identifier
+        self.number = number
+        self.expiry = expiry
     }
 }
 
 extension StoredAccountData {
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.identifier = try container.decode(String.self, forKey: .identifier)
         self.number = try container.decode(String.self, forKey: .number)

@@ -15,10 +15,10 @@ private let keychainServiceName = "Mullvad VPN"
 private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
-enum SettingsManager {
+public enum SettingsManager {
     private static let logger = Logger(label: "SettingsManager")
 
-    static let store: SettingsStore = KeychainSettingsStore(
+    public static let store: SettingsStore = KeychainSettingsStore(
         serviceName: keychainServiceName,
         accessGroup: ApplicationConfiguration.securityGroupIdentifier
     )
@@ -29,7 +29,7 @@ enum SettingsManager {
 
     // MARK: - Last used account
 
-    static func getLastUsedAccount() throws -> String {
+    public static func getLastUsedAccount() throws -> String {
         let data = try store.read(key: .lastUsedAccount)
 
         if let string = String(data: data, encoding: .utf8) {
@@ -39,7 +39,7 @@ enum SettingsManager {
         }
     }
 
-    static func setLastUsedAccount(_ string: String?) throws {
+    public static func setLastUsedAccount(_ string: String?) throws {
         if let string {
             guard let data = string.data(using: .utf8) else {
                 throw StringEncodingError(string: string)
@@ -59,11 +59,11 @@ enum SettingsManager {
 
     // MARK: - Should wipe settings
 
-    static func getShouldWipeSettings() -> Bool {
+    public static func getShouldWipeSettings() -> Bool {
         (try? store.read(key: .shouldWipeSettings)) != nil
     }
 
-    static func setShouldWipeSettings() {
+    public static func setShouldWipeSettings() {
         do {
             try store.write(Data(), for: .shouldWipeSettings)
         } catch {
@@ -76,7 +76,7 @@ enum SettingsManager {
 
     // MARK: - Settings
 
-    static func readSettings() throws -> LatestTunnelSettings {
+    public static func readSettings() throws -> LatestTunnelSettings {
         let storedVersion: Int
         let data: Data
         let parser = makeParser()
@@ -100,7 +100,7 @@ enum SettingsManager {
         }
     }
 
-    static func writeSettings(_ settings: LatestTunnelSettings) throws {
+    public static func writeSettings(_ settings: LatestTunnelSettings) throws {
         let parser = makeParser()
         let data = try parser.producePayload(settings, version: SchemaVersion.current.rawValue)
 
@@ -109,14 +109,14 @@ enum SettingsManager {
 
     // MARK: - Device state
 
-    static func readDeviceState() throws -> DeviceState {
+    public static func readDeviceState() throws -> DeviceState {
         let data = try store.read(key: .deviceState)
         let parser = makeParser()
 
         return try parser.parseUnversionedPayload(as: DeviceState.self, from: data)
     }
 
-    static func writeDeviceState(_ deviceState: DeviceState) throws {
+    public static func writeDeviceState(_ deviceState: DeviceState) throws {
         let parser = makeParser()
         let data = try parser.produceUnversionedPayload(deviceState)
 
@@ -125,7 +125,7 @@ enum SettingsManager {
 
     /// Removes all legacy settings, device state and tunnel settings but keeps the last used
     /// account number stored.
-    static func resetStore(completely: Bool = false) {
+    public static func resetStore(completely: Bool = false) {
         logger.debug("Reset store.")
 
         do {
@@ -195,28 +195,28 @@ enum SettingsManager {
 // MARK: - Supporting types
 
 /// An error type describing a failure to read or parse settings version.
-struct ReadSettingsVersionError: LocalizedError, WrappingError {
+public struct ReadSettingsVersionError: LocalizedError, WrappingError {
     private let inner: Error
 
-    var underlyingError: Error? {
+    public var underlyingError: Error? {
         inner
     }
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         "Failed to read settings version."
     }
 
-    init(underlyingError: Error) {
+    public init(underlyingError: Error) {
         inner = underlyingError
     }
 }
 
 /// An error returned when stored settings version is unknown to the currently running app.
-struct UnsupportedSettingsVersionError: LocalizedError {
-    let storedVersion: Int
-    let currentVersion: SchemaVersion
+public struct UnsupportedSettingsVersionError: LocalizedError {
+    public let storedVersion: Int
+    public let currentVersion: SchemaVersion
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         """
         Stored settings version was not the same as current version, \
         stored version: \(storedVersion), current version: \(currentVersion)
@@ -224,18 +224,18 @@ struct UnsupportedSettingsVersionError: LocalizedError {
     }
 }
 
-struct StringDecodingError: LocalizedError {
-    let data: Data
+public struct StringDecodingError: LocalizedError {
+    public let data: Data
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         "Failed to decode string from data."
     }
 }
 
-struct StringEncodingError: LocalizedError {
-    let string: String
+public struct StringEncodingError: LocalizedError {
+    public let string: String
 
-    var errorDescription: String? {
+    public var errorDescription: String? {
         "Failed to encode string into data."
     }
 }

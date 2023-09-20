@@ -17,6 +17,7 @@ import Operations
 import PacketTunnelCore
 import RelayCache
 import RelaySelector
+import Settings
 import TunnelProviderMessaging
 import WireGuardKit
 

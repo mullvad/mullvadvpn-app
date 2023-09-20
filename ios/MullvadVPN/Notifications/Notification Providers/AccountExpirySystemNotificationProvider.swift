@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Settings
 import UserNotifications
 
 final class AccountExpirySystemNotificationProvider: NotificationProvider, SystemNotificationProvider {

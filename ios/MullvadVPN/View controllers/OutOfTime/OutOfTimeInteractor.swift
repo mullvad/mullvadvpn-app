@@ -11,6 +11,7 @@ import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
+import Settings
 import StoreKit
 
 final class OutOfTimeInteractor {

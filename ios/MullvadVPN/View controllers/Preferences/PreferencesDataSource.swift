@@ -6,6 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import Settings
 import UIKit
 
 final class PreferencesDataSource: UITableViewDiffableDataSource<
