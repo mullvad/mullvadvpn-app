@@ -41,6 +41,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix connection header flickering.
 
+
+## [2023.5-beta2] - 2023-09-20
+### Fixed
 #### macOS
 - Ensure that the default tunnel route is added back after waking from hibernation. Previously, the
   tunnel became unusable despite the app appearing to be connected.
