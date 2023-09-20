@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 /// The verdict of an account status check.
 public enum AccountVerdict: Equatable {

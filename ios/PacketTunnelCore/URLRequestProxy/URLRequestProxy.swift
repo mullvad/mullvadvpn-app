@@ -28,7 +28,10 @@ public final class URLRequestProxy: @unchecked Sendable {
         self.transportProvider = transportProvider
     }
 
-    public func sendRequest(_ proxyRequest: ProxyURLRequest, completionHandler: @escaping @Sendable (ProxyURLResponse) -> Void) {
+    public func sendRequest(
+        _ proxyRequest: ProxyURLRequest,
+        completionHandler: @escaping @Sendable (ProxyURLResponse) -> Void
+    ) {
         dispatchQueue.async {
             guard let transportProvider = self.transportProvider.makeTransport() else {
                 // Edge case in which case we return `ProxyURLResponse` with no data.

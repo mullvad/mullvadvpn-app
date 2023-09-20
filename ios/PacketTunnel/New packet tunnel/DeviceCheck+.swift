@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MullvadTypes
+import PacketTunnelCore
 
 extension DeviceCheck {
     /// Returns blocked state reason inferred from the device check result.

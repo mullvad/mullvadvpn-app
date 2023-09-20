@@ -14,7 +14,6 @@ import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
 import RelayCache
-import TunnelProviderMessaging
 
 class NewPacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
@@ -60,7 +59,8 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
             eventQueue: internalQueue,
             pinger: Pinger(replyQueue: internalQueue),
             tunnelDeviceInfo: adapter,
-            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self)
+            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self),
+            timings: TunnelMonitorTimings()
         )
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(

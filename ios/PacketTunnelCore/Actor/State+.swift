@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import enum MullvadTypes.BlockedStateReason
 import class WireGuardKitTypes.PrivateKey
 
 extension State {

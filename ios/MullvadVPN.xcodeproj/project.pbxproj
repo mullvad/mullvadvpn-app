@@ -180,7 +180,6 @@
 		58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */; };
 		58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */; };
 		58915D632A25F8400066445B /* DeviceCheckOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58915D622A25F8400066445B /* DeviceCheckOperationTests.swift */; };
-		58915D642A25F8B30066445B /* DeviceCheckOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FDF2D82A0BA11900C2B061 /* DeviceCheckOperation.swift */; };
 		58915D682A25FA080066445B /* DeviceCheckRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58915D672A25FA080066445B /* DeviceCheckRemoteService.swift */; };
 		58915D692A2601FB0066445B /* WgKeyRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */; };
 		58915D6E2A26037A0066445B /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58915D6D2A26037A0066445B /* WireGuardKitTypes */; };
@@ -286,6 +285,8 @@
 		58C9B8CA2ABB23E700040B46 /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
 		58C9B8CB2ABB23E700040B46 /* URLRequestProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */; };
 		58C9B8CD2ABB247700040B46 /* RelaySelectorResult+PacketTunnelRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C9B8CC2ABB247700040B46 /* RelaySelectorResult+PacketTunnelRelay.swift */; };
+		58C9B8CE2ABB252E00040B46 /* DeviceCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */; };
+		58C9B8D02ABB254000040B46 /* DeviceCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */; };
 		58C9B8D12ABB255100040B46 /* DeviceCheckOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FDF2D82A0BA11900C2B061 /* DeviceCheckOperation.swift */; };
 		58C9B8D22ABB255100040B46 /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
 		58C9B8D32ABB255100040B46 /* DeviceCheckRemoteService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58915D672A25FA080066445B /* DeviceCheckRemoteService.swift */; };
@@ -392,7 +393,6 @@
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
 		58F3F36A2AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */; };
 		58F7753D2AB8473200425B47 /* MockBlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */; };
-		58F7753F2AB8536A00425B47 /* BlockedStateReason.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */; };
 		58F775432AB9E3EF00425B47 /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F775422AB9E3EF00425B47 /* AppMessageHandler.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
 		58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */; };
@@ -425,7 +425,6 @@
 		58FE25F02AA77664003D1918 /* MockRelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */; };
 		58FE25F22AA77674003D1918 /* MockSettingsReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F12AA77674003D1918 /* MockSettingsReader.swift */; };
 		58FE25F42AA9D730003D1918 /* Actor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F32AA9D730003D1918 /* Actor+.swift */; };
-		58FE65942AB1CE7E00E53CB5 /* DeviceCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */; };
 		58FE65952AB1D90600E53CB5 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF23A32AB09BEE003A2AF2 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */; };
@@ -1384,7 +1383,6 @@
 		58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoCancellingTask.swift; sourceTree = "<group>"; };
 		58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPacketTunnelProvider.swift; sourceTree = "<group>"; };
 		58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBlockedStateErrorMapper.swift; sourceTree = "<group>"; };
-		58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateReason.swift; sourceTree = "<group>"; };
 		58F775422AB9E3EF00425B47 /* AppMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
@@ -1807,7 +1805,6 @@
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
 				58D223D7294C8E5E0029F5F8 /* MullvadTypes.h */,
 				A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */,
-				58F7753E2AB8536A00425B47 /* BlockedStateReason.swift */,
 				58CAFA01298530DC00BE19F7 /* Promise.swift */,
 				5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
@@ -2441,7 +2438,6 @@
 		58C9B8C52ABB23B400040B46 /* IPC */ = {
 			isa = PBXGroup;
 			children = (
-				06410E172934F43B00AFC18C /* PacketTunnelErrorWrapper.swift */,
 				587C575226D2615F005EF767 /* PacketTunnelOptions.swift */,
 				5898D2B62902A9EA00EB5EBA /* PacketTunnelRelay.swift */,
 				585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */,
@@ -3154,6 +3150,7 @@
 				58C9B8DD2ABB271D00040B46 /* PBXTargetDependency */,
 				583E72072AB06ECF00382E62 /* PBXTargetDependency */,
 				58FE65982AB1D90600E53CB5 /* PBXTargetDependency */,
+				58C9B8DD2ABB271D00040B46 /* PBXTargetDependency */,
 			);
 			name = PacketTunnelCore;
 			packageProductDependencies = (
@@ -3872,7 +3869,6 @@
 				58915D692A2601FB0066445B /* WgKeyRotation.swift in Sources */,
 				580810E62A30E13D00B74552 /* DeviceStateAccessorProtocol.swift in Sources */,
 				58C3FA662A38549D006A450A /* MockFileCache.swift in Sources */,
-				58915D642A25F8B30066445B /* DeviceCheckOperation.swift in Sources */,
 				7AF6E5F12A95F4A500F2679D /* DurationTests.swift in Sources */,
 				A9467E7F2A29DEFE000DC21F /* RelayCacheTests.swift in Sources */,
 				582A8A3A28BCE19B00D0F9FB /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
@@ -3883,6 +3879,7 @@
 				58C3FA682A385C89006A450A /* FileCacheTests.swift in Sources */,
 				58165EBE2A262CBB00688EAD /* WgKeyRotationTests.swift in Sources */,
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
+				58C9B8D02ABB254000040B46 /* DeviceCheck.swift in Sources */,
 				580810E92A30E17300B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */,
 				F07BF2582A26112D00042943 /* InputTextFormatterTests.swift in Sources */,
 				A9EC20E82A5D3A8C0040D56E /* CoordinatesTests.swift in Sources */,
@@ -3920,6 +3917,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				58FE25F42AA9D730003D1918 /* Actor+.swift in Sources */,
+				58C9B8C32ABB23A500040B46 /* PacketTunnelStatus.swift in Sources */,
+				58C9B8C42ABB23A500040B46 /* PacketTunnelRelay.swift in Sources */,
 				58FE25DF2AA72A9B003D1918 /* RelaySelectorProtocol.swift in Sources */,
 				58C9B8C32ABB23A500040B46 /* PacketTunnelStatus.swift in Sources */,
 				58C9B8C42ABB23A500040B46 /* PacketTunnelRelay.swift in Sources */,
@@ -3933,7 +3932,6 @@
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
 				580D6B942AB3660B00B2D6E0 /* InternalErrors.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
-				58897EE72ABB337200CC669D /* PacketTunnelErrorWrapper.swift in Sources */,
 				58C9B8CA2ABB23E700040B46 /* ProxyURLRequest.swift in Sources */,
 				58FE25D72AA72A8F003D1918 /* State.swift in Sources */,
 				58FE25DD2AA72A8F003D1918 /* TaskQueue.swift in Sources */,
@@ -3946,12 +3944,17 @@
 				58C9B8C72ABB23E700040B46 /* TunnelProviderMessage.swift in Sources */,
 				58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */,
 				58FE25D82AA72A8F003D1918 /* ConfigurationBuilder.swift in Sources */,
+				58C9B8CB2ABB23E700040B46 /* URLRequestProxy.swift in Sources */,
 				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+.swift in Sources */,
 				58FE25DE2AA72A95003D1918 /* DispatchSource+.swift in Sources */,
 				586E8DB82AAF4AC4007BF3DA /* Task+.swift in Sources */,
+				58C9B8CD2ABB247700040B46 /* RelaySelectorResult+.swift in Sources */,
+				58C9B8C92ABB23E700040B46 /* TunnelProviderReply.swift in Sources */,
 				58342C042AAB61FB003BA12D /* State+.swift in Sources */,
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
 				58FE25D92AA72A8F003D1918 /* AutoCancellingTask.swift in Sources */,
+				58C9B8C62ABB23E700040B46 /* ProxyURLResponse.swift in Sources */,
+				58C9B8C72ABB23E700040B46 /* TunnelProviderMessage.swift in Sources */,
 				58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */,
 				58C7A4582A863FB90060C66F /* TunnelMonitorProtocol.swift in Sources */,
 			);
@@ -4215,6 +4218,7 @@
 				580810E52A30E13A00B74552 /* DeviceStateAccessorProtocol.swift in Sources */,
 				580810E82A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */,
 				585B1FF22AB0BC69008AD470 /* State+.swift in Sources */,
+				58C9B8CE2ABB252E00040B46 /* DeviceCheck.swift in Sources */,
 				58915D682A25FA080066445B /* DeviceCheckRemoteService.swift in Sources */,
 				58E9C3842A4EF15300CFDEAC /* WireGuardAdapter+Async.swift in Sources */,
 				5864AF7D2A9F4DC9008BC928 /* SettingsReader.swift in Sources */,
@@ -4274,7 +4278,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58F7753F2AB8536A00425B47 /* BlockedStateReason.swift in Sources */,
 				58D22406294C90210029F5F8 /* IPv4Endpoint.swift in Sources */,
 				7A307ADB2A8F56DF0017618B /* Duration+Extensions.swift in Sources */,
 				58D22407294C90210029F5F8 /* IPv6Endpoint.swift in Sources */,
@@ -4293,7 +4296,6 @@
 				586168692976F6BD00EF8598 /* DisplayError.swift in Sources */,
 				58D2240F294C90210029F5F8 /* KeychainError.swift in Sources */,
 				58D22410294C90210029F5F8 /* Location.swift in Sources */,
-				58FE65942AB1CE7E00E53CB5 /* DeviceCheck.swift in Sources */,
 				58D22411294C90210029F5F8 /* MullvadEndpoint.swift in Sources */,
 				58D22412294C90210029F5F8 /* RelayConstraint.swift in Sources */,
 				58D22413294C90210029F5F8 /* RelayConstraints.swift in Sources */,
