@@ -3,20 +3,21 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -43,41 +44,34 @@ fun TopBar(
     iconTintColor: Color,
     isIconAndLogoVisible: Boolean = true
 ) {
-    ConstraintLayout(
+    Row(
         modifier =
             Modifier.fillMaxWidth()
                 .height(Dimens.topBarHeight)
                 .background(backgroundColor)
                 .then(modifier),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        val (logo, appName, accountIcon, settingsIcon) = createRefs()
-
         if (isIconAndLogoVisible) {
-            Image(
-                painter = painterResource(id = R.drawable.logo_icon),
-                contentDescription = null, // No meaningful user info or action.
-                modifier =
-                    Modifier.padding(start = Dimens.mediumPadding)
-                        .width(Dimens.buttonHeight)
-                        .height(Dimens.buttonHeight)
-                        .constrainAs(logo) {
-                            centerVerticallyTo(parent)
-                            start.linkTo(parent.start)
-                        }
-            )
-
-            Icon(
-                painter = painterResource(id = R.drawable.logo_text),
-                tint = iconTintColor,
-                contentDescription = null, // No meaningful user info or action.
-                modifier =
-                    Modifier.padding(start = Dimens.smallPadding)
-                        .height(Dimens.mediumPadding)
-                        .constrainAs(appName) {
-                            centerVerticallyTo(parent)
-                            start.linkTo(logo.end)
-                        }
-            )
+            Row(
+                Modifier.height(Dimens.topBarHeight)
+                    .weight(1f)
+                    .padding(start = Dimens.mediumPadding),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_icon),
+                    contentDescription = null, // No meaningful user info or action.
+                    modifier = Modifier.size(Dimens.buttonHeight)
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.logo_text),
+                    tint = iconTintColor,
+                    contentDescription = null, // No meaningful user info or action.
+                    modifier =
+                        Modifier.padding(start = Dimens.smallPadding).height(Dimens.mediumPadding)
+                )
+            }
         }
 
         if (onAccountClicked != null) {
@@ -88,13 +82,6 @@ fun TopBar(
                     Modifier.clickable { onAccountClicked() }
                         .fillMaxHeight()
                         .padding(horizontal = Dimens.mediumPadding)
-                        .constrainAs(accountIcon) {
-                            if (onSettingsClicked != null) {
-                                end.linkTo(settingsIcon.start)
-                            } else {
-                                end.linkTo(parent.end)
-                            }
-                        }
             )
         }
 
@@ -106,7 +93,6 @@ fun TopBar(
                     Modifier.clickable { onSettingsClicked() }
                         .fillMaxHeight()
                         .padding(horizontal = Dimens.mediumPadding)
-                        .constrainAs(settingsIcon) { end.linkTo(parent.end) }
             )
         }
     }
