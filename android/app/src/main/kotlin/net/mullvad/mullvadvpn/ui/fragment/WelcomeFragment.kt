@@ -35,7 +35,11 @@ class WelcomeFragment : BaseFragment() {
                         onRedeemVoucherClick = ::openRedeemVoucherFragment,
                         onSettingsClick = ::openSettingsView,
                         onAccountClick = ::openAccountView,
-                        openConnectScreen = ::advanceToConnectScreen
+                        openConnectScreen = ::advanceToConnectScreen,
+                        onPurchaseBillingProductClick = vm::startBillingPayment,
+                        onDialogClose = vm::closeDialog,
+                        onTryVerificationAgain = vm::verifyPurchases,
+                        onTryFetchProductsAgain = vm::fetchPaymentAvailability
                     )
                 }
             }
