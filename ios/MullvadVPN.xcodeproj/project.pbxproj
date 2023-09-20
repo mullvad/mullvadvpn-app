@@ -389,7 +389,6 @@
 		58FE25BB2AA72188003D1918 /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
 		58FE25BF2AA72311003D1918 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D96B192A8247C100A5C673 /* MigrationManager.swift */; };
 		58FE25C22AA72729003D1918 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
-		58FE25C32AA72729003D1918 /* MullvadREST.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		58FE25C62AA72779003D1918 /* PacketTunnelCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C7A4362A863F440060C66F /* PacketTunnelCore.framework */; };
 		58FE25CB2AA727A9003D1918 /* libRelaySelector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5898D29829017DAC00EB5EBA /* libRelaySelector.a */; };
 		58FE25CE2AA72802003D1918 /* Settings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* Settings.framework */; };
@@ -457,6 +456,8 @@
 		A93D13782A1F60A6001EB0B1 /* shadowsocks.h in Headers */ = {isa = PBXBuildFile; fileRef = 586F2BE129F6916F009E6924 /* shadowsocks.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		A9467E7F2A29DEFE000DC21F /* RelayCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */; };
 		A9467E802A29E0A6000DC21F /* AddressCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */; };
+		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
+		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
 		A95F86B72A1F53BA00245DAC /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */; };
 		A95F86B82A1F547000245DAC /* ShadowsocksProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F1FF1B29F06124007083C3 /* ShadowsocksProxy.swift */; };
 		A97F1F442A1F4E1A00ECEFDE /* MullvadTransport.h in Headers */ = {isa = PBXBuildFile; fileRef = A97F1F432A1F4E1A00ECEFDE /* MullvadTransport.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -961,17 +962,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		58B2FDED2AA72049003EB5C6 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				58FE25C32AA72729003D1918 /* MullvadREST.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		58CE5E85224146470008646E /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1009,7 +999,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				58FE25EA2AA7399D003D1918 /* WireGuardKitTypes in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1572,8 +1561,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */,
 				58FE25CB2AA727A9003D1918 /* libRelaySelector.a in Frameworks */,
-				58FE25E32AA72AE9003D1918 /* WireGuardKitTypes in Frameworks */,
 				58C7A45C2A8640490060C66F /* MullvadLogging.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1582,7 +1571,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58FE25E82AA7399D003D1918 /* WireGuardKitTypes in Frameworks */,
+				A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */,
 				58C7A43E2A863F470060C66F /* PacketTunnelCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3054,8 +3043,6 @@
 				58B2FDCE2AA71D2A003EB5C6 /* Headers */,
 				58B2FDCF2AA71D2A003EB5C6 /* Sources */,
 				58B2FDD02AA71D2A003EB5C6 /* Frameworks */,
-				58B2FDD12AA71D2A003EB5C6 /* Resources */,
-				58B2FDED2AA72049003EB5C6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
