@@ -26,9 +26,7 @@ use once_cell::sync::Lazy;
 static MULLVAD_MANAGEMENT_SOCKET_GROUP: Lazy<Option<String>> =
     Lazy::new(|| env::var("MULLVAD_MANAGEMENT_SOCKET_GROUP").ok());
 
-pub const CUSTOM_LIST_LOCATION_NOT_FOUND_DETAILS: &[u8] = b"custom_list_location_not_found";
 pub const CUSTOM_LIST_LIST_NOT_FOUND_DETAILS: &[u8] = b"custom_list_list_not_found";
-pub const CUSTOM_LIST_LOCATION_EXISTS_DETAILS: &[u8] = b"custom_list_location_exists";
 pub const CUSTOM_LIST_LIST_EXISTS_DETAILS: &[u8] = b"custom_list_list_exists";
 
 #[derive(err_derive::Error, Debug)]
@@ -99,9 +97,6 @@ pub enum Error {
 
     #[error(display = "A custom list with that name does not exist")]
     CustomListListNotFound,
-
-    #[error(display = "Can not add or remove 'any' to or from a custom list")]
-    CustomListCannotAddOrRemoveAny,
 
     #[error(display = "Location already exists in the custom list")]
     LocationExistsInCustomList,

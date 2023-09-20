@@ -4,7 +4,7 @@ use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    custom_list::{CustomList, CustomListLocationUpdate},
+    custom_list::{CustomList, Id},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -16,6 +16,7 @@ use mullvad_types::{
 };
 #[cfg(target_os = "windows")]
 use std::path::Path;
+use std::str::FromStr;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use tonic::{Code, Status};
@@ -430,60 +431,27 @@ impl MullvadProxyClient {
         PublicKey::try_from(key).map_err(Error::InvalidResponse)
     }
 
-    pub async fn list_custom_lists(&mut self) -> Result<Vec<CustomList>> {
-        let result = self
+    pub async fn create_custom_list(&mut self, name: String) -> Result<Id> {
+        let id = self
             .0
-            .list_custom_lists(())
-            .await
-            .map_err(map_custom_list_error)?
-            .into_inner()
-            .try_into()
-            .map_err(Error::InvalidResponse)?;
-        Ok(result)
-    }
-
-    pub async fn get_custom_list(&mut self, name: String) -> Result<CustomList> {
-        let result = self
-            .0
-            .get_custom_list(name)
-            .await
-            .map_err(map_custom_list_error)?
-            .into_inner()
-            .try_into()
-            .map_err(Error::InvalidResponse)?;
-        Ok(result)
-    }
-
-    pub async fn create_custom_list(&mut self, name: String) -> Result<()> {
-        self.0
             .create_custom_list(name)
             .await
-            .map_err(map_custom_list_error)?;
-        Ok(())
+            .map_err(map_custom_list_error)?
+            .into_inner();
+        Id::from_str(&id).map_err(|_| Error::CustomListListNotFound)
     }
 
-    pub async fn delete_custom_list(&mut self, name: String) -> Result<()> {
+    pub async fn delete_custom_list(&mut self, id: String) -> Result<()> {
         self.0
-            .delete_custom_list(name)
+            .delete_custom_list(id)
             .await
             .map_err(map_custom_list_error)?;
         Ok(())
     }
 
-    pub async fn update_custom_list_location(
-        &mut self,
-        custom_list_update: CustomListLocationUpdate,
-    ) -> Result<()> {
+    pub async fn update_custom_list(&mut self, custom_list: CustomList) -> Result<()> {
         self.0
-            .update_custom_list_location(types::CustomListLocationUpdate::from(custom_list_update))
-            .await
-            .map_err(map_custom_list_error)?;
-        Ok(())
-    }
-
-    pub async fn rename_custom_list(&mut self, name: String, new_name: String) -> Result<()> {
-        self.0
-            .rename_custom_list(types::CustomListRename::from((name, new_name)))
+            .update_custom_list(types::CustomList::from(custom_list))
             .await
             .map_err(map_custom_list_error)?;
         Ok(())
@@ -605,26 +573,19 @@ fn map_location_error(status: Status) -> Error {
 fn map_custom_list_error(status: Status) -> Error {
     match status.code() {
         Code::NotFound => {
-            let details = status.details();
-            if details == crate::CUSTOM_LIST_LOCATION_NOT_FOUND_DETAILS {
-                Error::LocationNotFoundInCustomlist
-            } else if details == crate::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS {
+            if status.details() == crate::CUSTOM_LIST_LIST_NOT_FOUND_DETAILS {
                 Error::CustomListListNotFound
             } else {
                 Error::Rpc(status)
             }
         }
         Code::AlreadyExists => {
-            let details = status.details();
-            if details == crate::CUSTOM_LIST_LOCATION_EXISTS_DETAILS {
-                Error::LocationExistsInCustomList
-            } else if details == crate::CUSTOM_LIST_LIST_EXISTS_DETAILS {
+            if status.details() == crate::CUSTOM_LIST_LIST_EXISTS_DETAILS {
                 Error::CustomListExists
             } else {
                 Error::Rpc(status)
             }
         }
-        Code::InvalidArgument => Error::CustomListCannotAddOrRemoveAny,
         _other => Error::Rpc(status),
     }
 }

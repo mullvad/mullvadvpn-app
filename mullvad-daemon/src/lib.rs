@@ -5,7 +5,7 @@ pub mod account_history;
 mod api;
 #[cfg(not(target_os = "android"))]
 mod cleanup;
-mod custom_lists;
+mod custom_list;
 pub mod device;
 mod dns;
 pub mod exception_logging;
@@ -40,7 +40,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
-    custom_list::{CustomList, CustomListLocationUpdate},
+    custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
@@ -162,8 +162,13 @@ pub enum Error {
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(source)] tunnel_state_machine::Error),
 
-    #[error(display = "Custom list error")]
-    CustomListError(#[error(source)] custom_lists::Error),
+    /// Custom list already exists
+    #[error(display = "A list with that name already exists")]
+    CustomListExists,
+
+    /// Custom list does not exist
+    #[error(display = "A list with that name does not exist")]
+    CustomListNotFound,
 
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
@@ -244,18 +249,12 @@ pub enum DaemonCommand {
     RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
     GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
-    /// List custom lists
-    ListCustomLists(ResponseTx<Vec<CustomList>, Error>),
-    /// Get custom list
-    GetCustomList(ResponseTx<CustomList, Error>, String),
     /// Create custom list
-    CreateCustomList(ResponseTx<(), Error>, String),
+    CreateCustomList(ResponseTx<mullvad_types::custom_list::Id, Error>, String),
     /// Delete custom list
-    DeleteCustomList(ResponseTx<(), Error>, String),
-    /// Update a custom list by adding or removing a location
-    UpdateCustomListLocation(ResponseTx<(), Error>, CustomListLocationUpdate),
-    /// Rename a custom list from the old name to a new name
-    RenameCustomList(ResponseTx<(), Error>, String, String),
+    DeleteCustomList(ResponseTx<(), Error>, mullvad_types::custom_list::Id),
+    /// Update a custom list with a given id
+    UpdateCustomList(ResponseTx<(), Error>, CustomList),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1027,16 +1026,9 @@ where
             GetSettings(tx) => self.on_get_settings(tx),
             RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx),
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
-            ListCustomLists(tx) => self.on_list_custom_lists(tx),
-            GetCustomList(tx, name) => self.on_get_custom_list(tx, name),
             CreateCustomList(tx, name) => self.on_create_custom_list(tx, name).await,
-            DeleteCustomList(tx, name) => self.on_delete_custom_list(tx, name).await,
-            UpdateCustomListLocation(tx, update) => {
-                self.on_update_custom_list_location(tx, update).await
-            }
-            RenameCustomList(tx, name, new_name) => {
-                self.on_rename_custom_list(tx, name, new_name).await
-            }
+            DeleteCustomList(tx, id) => self.on_delete_custom_list(tx, id).await,
+            UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2189,60 +2181,27 @@ where
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
-    fn on_list_custom_lists(&mut self, tx: ResponseTx<Vec<CustomList>, Error>) {
-        let result = self.settings.custom_lists.custom_lists.clone();
-        Self::oneshot_send(tx, Ok(result), "list_custom_lists response");
-    }
-
-    fn on_get_custom_list(&mut self, tx: ResponseTx<CustomList, Error>, name: String) {
-        let result = self
-            .settings
-            .custom_lists
-            .get_custom_list_with_name(&name)
-            .cloned()
-            .ok_or(Error::CustomListError(custom_lists::Error::ListNotFound));
+    async fn on_create_custom_list(
+        &mut self,
+        tx: ResponseTx<mullvad_types::custom_list::Id, Error>,
+        name: String,
+    ) {
+        let result = self.create_custom_list(name).await;
         Self::oneshot_send(tx, result, "create_custom_list response");
     }
 
-    async fn on_create_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let result = self
-            .create_custom_list(name)
-            .await
-            .map_err(Error::CustomListError);
-        Self::oneshot_send(tx, result, "create_custom_list response");
-    }
-
-    async fn on_delete_custom_list(&mut self, tx: ResponseTx<(), Error>, name: String) {
-        let result = self
-            .delete_custom_list(name)
-            .await
-            .map_err(Error::CustomListError);
+    async fn on_delete_custom_list(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        id: mullvad_types::custom_list::Id,
+    ) {
+        let result = self.delete_custom_list(id).await;
         Self::oneshot_send(tx, result, "delete_custom_list response");
     }
 
-    async fn on_update_custom_list_location(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        update: CustomListLocationUpdate,
-    ) {
-        let result = self
-            .update_custom_list_location(update)
-            .await
-            .map_err(Error::CustomListError);
-        Self::oneshot_send(tx, result, "update_custom_list_location response");
-    }
-
-    async fn on_rename_custom_list(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        name: String,
-        new_name: String,
-    ) {
-        let result = self
-            .rename_custom_list(name, new_name)
-            .await
-            .map_err(Error::CustomListError);
-        Self::oneshot_send(tx, result, "rename_custom_list response");
+    async fn on_update_custom_list(&mut self, tx: ResponseTx<(), Error>, new_list: CustomList) {
+        let result = self.update_custom_list(new_list).await;
+        Self::oneshot_send(tx, result, "update_custom_list response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
