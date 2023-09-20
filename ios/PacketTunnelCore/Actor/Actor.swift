@@ -11,7 +11,7 @@ import MullvadLogging
 import MullvadTypes
 import NetworkExtension
 import struct RelaySelector.RelaySelectorResult
-import struct Settings.StoredDeviceData
+import struct MullvadSettings.StoredDeviceData
 import class WireGuardKitTypes.PrivateKey
 
 /**
