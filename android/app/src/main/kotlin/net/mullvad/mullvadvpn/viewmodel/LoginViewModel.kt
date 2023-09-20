@@ -27,12 +27,12 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
 
-sealed interface LoginSideEffect {
-    data object NavigateToWelcome : LoginSideEffect
+sealed interface LoginViewAction {
+    data object NavigateToWelcome : LoginViewAction
 
-    data object NavigateToConnect : LoginSideEffect
+    data object NavigateToConnect : LoginViewAction
 
-    data class TooManyDevices(val accountToken: AccountToken) : LoginSideEffect
+    data class TooManyDevices(val accountToken: AccountToken) : LoginViewAction
 }
 
 class LoginViewModel(
@@ -42,8 +42,8 @@ class LoginViewModel(
 ) : ViewModel() {
     private val _loginState = MutableStateFlow<LoginState>(Idle(null))
 
-    private val _sideEffect = MutableSharedFlow<LoginSideEffect>(extraBufferCapacity = 1)
-    val sideEffect = _sideEffect.asSharedFlow()
+    private val _viewActions = MutableSharedFlow<LoginViewAction>(extraBufferCapacity = 1)
+    val viewActions = _viewActions.asSharedFlow()
 
     private val _uiState =
         combine(
@@ -77,7 +77,7 @@ class LoginViewModel(
                     LoginResult.Ok -> {
                         launch {
                             delay(1000)
-                            _sideEffect.emit(LoginSideEffect.NavigateToConnect)
+                            _viewActions.emit(LoginViewAction.NavigateToConnect)
                         }
                         Success
                     }
@@ -94,8 +94,8 @@ class LoginViewModel(
 
                         if (refreshResult.isAvailable()) {
                             // Navigate to device list
-                            _sideEffect.emit(
-                                LoginSideEffect.TooManyDevices(AccountToken(accountToken))
+                            _viewActions.emit(
+                                LoginViewAction.TooManyDevices(AccountToken(accountToken))
                             )
                             return@launch
                         } else {
@@ -111,7 +111,7 @@ class LoginViewModel(
 
     private suspend fun AccountCreationResult.mapToUiState(): LoginState? {
         return if (this is AccountCreationResult.Success) {
-            _sideEffect.emit(LoginSideEffect.NavigateToWelcome)
+            _viewActions.emit(LoginViewAction.NavigateToWelcome)
             null
         } else {
             Idle(LoginError.UnableToCreateAccount)

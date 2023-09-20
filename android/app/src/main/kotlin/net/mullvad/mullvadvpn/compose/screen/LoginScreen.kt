@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -42,6 +45,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
@@ -102,8 +106,15 @@ fun LoginScreen(
         onSettingsClicked = onSettingsClick,
         onAccountClicked = null
     ) {
-        Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primary)) {
-            Spacer(modifier = Modifier.weight(1f))
+        val scrollState = rememberScrollState()
+        Column(
+            modifier =
+                Modifier.padding(it)
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.primary)
+                    .verticalScroll(scrollState)
+        ) {
+            Spacer(modifier = Modifier.weight(1f).defaultMinSize(0.dp))
             LoginIcon(
                 state.loginState,
                 modifier =
@@ -111,7 +122,7 @@ fun LoginScreen(
                         .padding(bottom = Dimens.largePadding)
             )
             LoginContent(state, initialAccountNumber, onLoginClick, onDeleteHistoryClick)
-            Spacer(modifier = Modifier.weight(3f))
+            Spacer(modifier = Modifier.weight(3f).defaultMinSize(0.dp))
             CreateAccountPanel(onCreateAccountClick, isEnabled = state.loginState is Idle)
         }
     }
@@ -226,7 +237,8 @@ private fun LoginContent(
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
-            text = stringResource(id = R.string.login_title)
+            text = stringResource(id = R.string.login_title),
+            modifier = Modifier.padding(bottom = Dimens.mediumPadding)
         )
     }
 }
@@ -310,7 +322,7 @@ private fun AccountDropDownItem(
         Text(
             modifier =
                 Modifier.weight(1f)
-                    .padding(horizontal = Dimens.smallPadding, vertical = Dimens.smallPadding),
+                    .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
             text = accountToken
         )
         IconButton(onClick = onDeleteClick) {

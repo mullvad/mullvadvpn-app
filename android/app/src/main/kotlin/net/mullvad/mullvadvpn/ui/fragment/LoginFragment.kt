@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
-import net.mullvad.mullvadvpn.viewmodel.LoginSideEffect
+import net.mullvad.mullvadvpn.viewmodel.LoginViewAction
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -43,12 +43,12 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
                 AppTheme {
                     val loginUiState by vm.uiState.collectAsState()
                     LaunchedEffect(Unit) {
-                        vm.sideEffect.collect {
+                        vm.viewActions.collect {
                             when (it) {
-                                LoginSideEffect.NavigateToWelcome,
-                                LoginSideEffect
+                                LoginViewAction.NavigateToWelcome,
+                                LoginViewAction
                                     .NavigateToConnect -> {} // TODO Fix when we redo navigation
-                                is LoginSideEffect.TooManyDevices -> {
+                                is LoginViewAction.TooManyDevices -> {
                                     navigateToDeviceListFragment(it.accountToken)
                                 }
                             }
