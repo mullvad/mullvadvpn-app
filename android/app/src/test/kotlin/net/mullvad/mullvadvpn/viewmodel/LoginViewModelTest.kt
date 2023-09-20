@@ -16,6 +16,7 @@ import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AccountToken
@@ -25,9 +26,13 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class LoginViewModelTest {
+    @get:Rule
+    val testCoroutineRule = TestCoroutineRule()
+
     @MockK private lateinit var mockedAccountRepository: AccountRepository
     @MockK private lateinit var mockedDeviceRepository: DeviceRepository
 
@@ -51,56 +56,51 @@ class LoginViewModelTest {
 
     @Test
     fun testDefaultState() =
-        runTest(UnconfinedTestDispatcher()) {
+        runTest {
             loginViewModel.uiState.test { assertEquals(LoginUiState.INITIAL, awaitItem()) }
         }
 
     @Test
     fun testCreateAccount() =
-        runTest(UnconfinedTestDispatcher()) {
+        runTest {
             turbineScope {
                 val uiStates = loginViewModel.uiState.testIn(backgroundScope)
-                val sideEffects = loginViewModel.sideEffect.testIn(backgroundScope)
+                val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
+                coEvery { mockedAccountRepository.createAccount() } returns
+                        AccountCreationResult.Success(DUMMY_ACCOUNT_TOKEN)
 
                 uiStates.skipDefaultItem()
-
-                coEvery { mockedAccountRepository.createAccount() } returns
-                    AccountCreationResult.Success(DUMMY_ACCOUNT_TOKEN)
                 loginViewModel.createAccount()
                 assertEquals(Loading.CreatingAccount, uiStates.awaitItem().loginState)
-                assertEquals(LoginSideEffect.NavigateToWelcome, sideEffects.awaitItem())
+                assertEquals(LoginViewAction.NavigateToWelcome, sideEffects.awaitItem())
             }
         }
 
     @Test
     fun testLoginWithValidAccount() =
-        runTest(UnconfinedTestDispatcher()) {
+        runTest {
             turbineScope {
+                val uiStates = loginViewModel.uiState.testIn(backgroundScope)
+                val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
                 coEvery { mockedAccountRepository.login(any()) } returns LoginResult.Ok
 
-                val uiStates = loginViewModel.uiState.testIn(backgroundScope)
-                val sideEffects = loginViewModel.sideEffect.testIn(backgroundScope)
-
                 uiStates.skipDefaultItem()
-
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
                 assertEquals(Success, uiStates.awaitItem().loginState)
-                assertEquals(LoginSideEffect.NavigateToConnect, sideEffects.awaitItem())
+                assertEquals(LoginViewAction.NavigateToConnect, sideEffects.awaitItem())
             }
         }
 
     @Test
     fun testLoginWithInvalidAccount() =
-        runTest(UnconfinedTestDispatcher()) {
-            coEvery { mockedAccountRepository.login(any()) } returns LoginResult.InvalidAccount
-
+        runTest {
             loginViewModel.uiState.test {
-                skipDefaultItem()
+                coEvery { mockedAccountRepository.login(any()) } returns LoginResult.InvalidAccount
 
+                skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, awaitItem().loginState)
-
                 assertEquals(
                     Idle(loginError = LoginError.InvalidCredentials),
                     awaitItem().loginState
@@ -110,28 +110,26 @@ class LoginViewModelTest {
 
     @Test
     fun testLoginWithTooManyDevicesError() =
-        runTest(UnconfinedTestDispatcher()) {
-            coEvery {
-                mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
-                    any(),
-                    any(),
-                    any(),
-                    any()
-                )
-            } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
-
+        runTest {
             turbineScope {
                 val uiStates = loginViewModel.uiState.testIn(backgroundScope)
-                val sideEffects = loginViewModel.sideEffect.testIn(backgroundScope)
+                val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
+                coEvery {
+                    mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
+                        any(),
+                        any(),
+                        any(),
+                        any()
+                    )
+                } returns DeviceListEvent.Available(DUMMY_ACCOUNT_TOKEN, listOf())
+                coEvery { mockedAccountRepository.login(any()) } returns
+                        LoginResult.MaxDevicesReached
 
                 uiStates.skipDefaultItem()
-
-                coEvery { mockedAccountRepository.login(any()) } returns
-                    LoginResult.MaxDevicesReached
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
                 assertEquals(
-                    LoginSideEffect.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
+                    LoginViewAction.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
                     sideEffects.awaitItem()
                 )
             }
@@ -139,11 +137,11 @@ class LoginViewModelTest {
 
     @Test
     fun testLoginWithRpcError() =
-        runTest(UnconfinedTestDispatcher()) {
+        runTest {
             loginViewModel.uiState.test {
-                skipDefaultItem()
-
                 coEvery { mockedAccountRepository.login(any()) } returns LoginResult.RpcError
+
+                skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, awaitItem().loginState)
                 assertEquals(
@@ -155,11 +153,11 @@ class LoginViewModelTest {
 
     @Test
     fun testLoginWithUnknownError() =
-        runTest(UnconfinedTestDispatcher()) {
+        runTest {
             loginViewModel.uiState.test {
-                skipDefaultItem()
-
                 coEvery { mockedAccountRepository.login(any()) } returns LoginResult.OtherError
+
+                skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, awaitItem().loginState)
                 assertEquals(
@@ -171,7 +169,7 @@ class LoginViewModelTest {
 
     @Test
     fun testAccountHistory() =
-        runTest(UnconfinedTestDispatcher()) {
+        runTest {
             loginViewModel.uiState.test {
                 skipDefaultItem()
                 accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
@@ -184,7 +182,7 @@ class LoginViewModelTest {
 
     @Test
     fun testClearingAccountHistory() =
-        runTest(UnconfinedTestDispatcher()) {
+        runTest {
             loginViewModel.clearAccountHistory()
             verify { mockedAccountRepository.clearAccountHistory() }
         }
