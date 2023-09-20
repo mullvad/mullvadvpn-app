@@ -7,20 +7,17 @@
 //
 
 import Foundation
-import MullvadSettings
 import MullvadTypes
-
+import protocol Network.IPAddress
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
-
-import protocol Network.IPAddress
 
 /// Struct building tunnel adapter configuration.
 struct ConfigurationBuilder {
     var privateKey: PrivateKey
     var interfaceAddresses: [IPAddressRange]
-    var dns: DNSSettings?
+    var dns: SelectedDNSServers?
     var endpoint: MullvadEndpoint?
 
     func makeConfiguration() -> TunnelAdapterConfiguration {
@@ -44,16 +41,14 @@ struct ConfigurationBuilder {
     private var dnsServers: [IPAddress] {
         guard let dns else { return [] }
 
-        if dns.effectiveEnableCustomDNS {
-            return Array(dns.customDNSDomains.prefix(DNSSettings.maxAllowedCustomDNSDomains))
-        } else {
-            if let serverAddress = dns.blockingOptions.serverAddress {
-                return [serverAddress]
-            } else {
-                guard let endpoint else { return [] }
-
-                return [endpoint.ipv4Gateway, endpoint.ipv6Gateway]
-            }
+        switch dns {
+        case let .blocking(dnsAddress):
+            return [dnsAddress]
+        case let .custom(customDNSAddresses):
+            return customDNSAddresses
+        case .gateway:
+            guard let endpoint else { return [] }
+            return [endpoint.ipv4Gateway, endpoint.ipv6Gateway]
         }
     }
 }

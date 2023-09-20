@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
 import RelaySelector
-import MullvadSettings
 import WireGuardKit
 
 /**
@@ -20,6 +20,15 @@ import WireGuardKit
 struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
     func mapError(_ error: Error) -> BlockedStateReason {
         switch error {
+        case let error as ReadDeviceDataError:
+            // Such error is thrown by implementations of `SettingsReaderProtocol`.
+            switch error {
+            case .loggedOut:
+                return .deviceLoggedOut
+            case .revoked:
+                return .deviceRevoked
+            }
+
         case is UnsupportedSettingsVersionError:
             // Can be returned after updating the app. The tunnel is usually restarted right after but the main app
             // needs to be launched to perform settings migration.

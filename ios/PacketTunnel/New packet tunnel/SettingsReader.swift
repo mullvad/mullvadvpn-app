@@ -12,9 +12,50 @@ import PacketTunnelCore
 
 struct SettingsReader: SettingsReaderProtocol {
     func read() throws -> Settings {
-        return try Settings(
-            tunnelSettings: SettingsManager.readSettings(),
-            deviceState: SettingsManager.readDeviceState()
+        let settings = try SettingsManager.readSettings()
+        let deviceState = try SettingsManager.readDeviceState()
+        let deviceData = try deviceState.getDeviceData()
+
+        return Settings(
+            privateKey: deviceData.wgKeyData.privateKey,
+            interfaceAddresses: [deviceData.ipv4Address, deviceData.ipv6Address],
+            relayConstraints: settings.relayConstraints,
+            dnsServers: settings.dnsSettings.selectedDNSServers
         )
+    }
+}
+
+private extension DeviceState {
+    /**
+     Returns `StoredDeviceState` if device is logged in, otherwise throws an error.
+
+     - Throws: an error of type `ReadDeviceDataError` when device is either revoked or logged out.
+     - Returns: a copy of `StoredDeviceData` stored as associated value in `DeviceState.loggedIn` variant.
+     */
+    func getDeviceData() throws -> StoredDeviceData {
+        switch self {
+        case .revoked:
+            throw ReadDeviceDataError.revoked
+        case .loggedOut:
+            throw ReadDeviceDataError.loggedOut
+        case let .loggedIn(_, deviceData):
+            return deviceData
+        }
+    }
+}
+
+private extension DNSSettings {
+    /**
+     Converys `DNSSettings` to `SelectedDNSServers` structure.
+     */
+    var selectedDNSServers: SelectedDNSServers {
+        if effectiveEnableCustomDNS {
+            let addresses = Array(customDNSDomains.prefix(DNSSettings.maxAllowedCustomDNSDomains))
+            return .custom(addresses)
+        } else if let serverAddress = blockingOptions.serverAddress {
+            return .blocking(serverAddress)
+        } else {
+            return .gateway
+        }
     }
 }

@@ -11,7 +11,6 @@ import MullvadLogging
 import MullvadTypes
 import NetworkExtension
 import struct RelaySelector.RelaySelectorResult
-import struct MullvadSettings.StoredDeviceData
 import class WireGuardKitTypes.PrivateKey
 
 /**
@@ -338,21 +337,9 @@ public actor PacketTunnelActor {
      - Start tunnel monitor.
      */
     private func tryStart(nextRelay: NextRelay = .random) async throws {
-        let settings: Settings = try settingsReader.read()
-
-        let deviceData: StoredDeviceData
-        switch settings.deviceState {
-        case let .loggedIn(_, storedDeviceData):
-            deviceData = storedDeviceData
-        case .loggedOut:
-            throw InvalidDeviceStateError.loggedOut
-        case .revoked:
-            throw InvalidDeviceStateError.revoked
-        }
-
-        func makeConnectionState() throws -> ConnectionState? {
-            let relayConstraints = settings.tunnelSettings.relayConstraints
-            let privateKey = deviceData.wgKeyData.privateKey
+        func makeConnectionState(settings: Settings) throws -> ConnectionState? {
+            let relayConstraints = settings.relayConstraints
+            let privateKey = settings.privateKey
 
             switch state {
             case .initial:
@@ -401,7 +388,8 @@ public actor PacketTunnelActor {
             }
         }
 
-        guard let connectionState = try makeConnectionState(),
+        let settings: Settings = try settingsReader.read()
+        guard let connectionState = try makeConnectionState(settings: settings),
               let targetState = state.targetStateForReconnect else { return }
 
         switch targetState {
@@ -414,8 +402,8 @@ public actor PacketTunnelActor {
         let endpoint = connectionState.selectedRelay.endpoint
         let configurationBuilder = ConfigurationBuilder(
             privateKey: connectionState.activeKey,
-            interfaceAddresses: [deviceData.ipv4Address, deviceData.ipv6Address],
-            dns: settings.tunnelSettings.dnsSettings,
+            interfaceAddresses: settings.interfaceAddresses,
+            dns: settings.dnsServers,
             endpoint: endpoint
         )
         try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
@@ -489,19 +477,7 @@ public actor PacketTunnelActor {
      Matches against internal errors first, then consults with `blockedStateErrorMapper`.
      */
     private func setErrorStateInner(with error: Error) async {
-        let reason: BlockedStateReason
-
-        // Handle internal errors first.
-        if let error = error as? InvalidDeviceStateError {
-            switch error {
-            case .revoked:
-                reason = .deviceRevoked
-            case .loggedOut:
-                reason = .deviceLoggedOut
-            }
-        } else {
-            reason = blockedStateErrorMapper.mapError(error)
-        }
+        let reason = blockedStateErrorMapper.mapError(error)
 
         await setErrorStateInner(with: reason)
     }
