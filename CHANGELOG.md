@@ -44,6 +44,10 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Ensure that the default tunnel route is added back after waking from hibernation. Previously, the
   tunnel became unusable despite the app appearing to be connected.
+- Work around issue where the default route was lost after disconnecting after switching between
+  networks.
+- Fix slow offline detection.
+- Fix inability to switch from a network to a higher-priority network without the tunnel timing out.
 
 
 ## [2023.5-beta1] - 2023-07-13
