@@ -730,6 +730,17 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn get_api_addressess(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("test_api");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetApiAddresses(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(drop)
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     async fn create_custom_list(&self, request: Request<String>) -> ServiceResult<()> {
         log::debug!("create_custom_list");
         let (tx, rx) = oneshot::channel();

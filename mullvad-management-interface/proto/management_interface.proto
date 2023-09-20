@@ -94,6 +94,8 @@ service ManagementService {
     // Can I return something useful here instead of Empty?
   }
 
+  rpc GetApiAddressess(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}

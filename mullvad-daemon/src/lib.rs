@@ -276,6 +276,8 @@ pub enum DaemonCommand {
     ToggleApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodToggle),
     /// Set the API access method to use
     SetApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
+    /// Get the addresses of all known API endpoints
+    GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1075,6 +1077,7 @@ where
             }
             ToggleApiAccessMethod(tx, method) => self.on_toggle_api_access_method(tx, method).await,
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
+            GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2337,6 +2340,13 @@ where
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "set_api_access_method response");
+    }
+
+    async fn on_get_api_addresses(&mut self, tx: ResponseTx<Vec<std::net::SocketAddr>, Error>) {
+        let api_proxy = mullvad_api::ApiProxy::new(self.api_handle.clone());
+        let result = api_proxy.get_api_addrs().await.map_err(Error::RestError);
+
+        Self::oneshot_send(tx, result, "on_get_api_adressess response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
