@@ -13,10 +13,10 @@ import MullvadSettings
 import MullvadTypes
 import NetworkExtension
 import Operations
+import PacketTunnelCore
 import RelayCache
 import RelaySelector
 import StoreKit
-import TunnelProviderMessaging
 import UIKit
 import class WireGuardKitTypes.PublicKey
 

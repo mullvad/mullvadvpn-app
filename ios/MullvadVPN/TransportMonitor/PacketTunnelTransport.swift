@@ -11,7 +11,7 @@ import MullvadREST
 import MullvadTransport
 import MullvadTypes
 import Operations
-import TunnelProviderMessaging
+import PacketTunnelCore
 
 struct PacketTunnelTransport: RESTTransport {
     var name: String {
