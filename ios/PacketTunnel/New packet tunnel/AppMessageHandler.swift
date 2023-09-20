@@ -12,9 +12,9 @@ import PacketTunnelCore
 import TunnelProviderMessaging
 
 /**
- Struct handling packet tunnel IPC (app) messages and patching them through to the right facility.
+ Actor handling packet tunnel IPC (app) messages and patching them through to the right facility.
  */
-struct AppMessageHandler {
+actor AppMessageHandler {
     private let logger = Logger(label: "AppMessageHandler")
     private let packetTunnelActor: PacketTunnelActor
     private let urlRequestProxy: URLRequestProxy
@@ -53,13 +53,13 @@ struct AppMessageHandler {
 
         case .privateKeyRotation:
             Task {
-                await packetTunnelActor.notifyKeyRotated()
+                await self.packetTunnelActor.notifyKeyRotated()
             }
             return nil
 
         case let .reconnectTunnel(selectorResult):
             Task {
-                try await packetTunnelActor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .random)
+                try await self.packetTunnelActor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .random)
             }
             return nil
         }
