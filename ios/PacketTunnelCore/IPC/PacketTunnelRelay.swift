@@ -1,12 +1,13 @@
 //
 //  PacketTunnelRelay.swift
-//  MullvadTypes
+//  PacketTunnelCore
 //
 //  Created by pronebird on 21/10/2022.
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
+import MullvadTypes
 
 /// Struct holding tunnel relay information.
 public struct PacketTunnelRelay: Codable, Equatable {

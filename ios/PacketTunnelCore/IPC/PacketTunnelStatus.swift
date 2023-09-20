@@ -1,12 +1,13 @@
 //
 //  PacketTunnelStatus.swift
-//  MullvadTypes
+//  PacketTunnelCore
 //
 //  Created by pronebird on 27/07/2021.
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
+import MullvadTypes
 
 /// The verdict of an account status check.
 public enum AccountVerdict: Equatable, Codable {
