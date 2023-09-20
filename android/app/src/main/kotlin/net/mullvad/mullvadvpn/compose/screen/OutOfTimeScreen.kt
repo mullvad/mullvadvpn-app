@@ -1,0 +1,280 @@
+package net.mullvad.mullvadvpn.compose.screen
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
+import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
+import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.ErrorState
+import net.mullvad.talpid.tunnel.ErrorStateCause
+
+@Preview
+@Composable
+private fun PreviewOutOfTimeScreenDisconnected() {
+    AppTheme {
+        OutOfTimeScreen(
+            showSitePayment = true,
+            uiState = OutOfTimeUiState(tunnelState = TunnelState.Disconnected),
+            viewActions = MutableSharedFlow<OutOfTimeViewModel.ViewAction>().asSharedFlow()
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewOutOfTimeScreenConnecting() {
+    AppTheme {
+        OutOfTimeScreen(
+            showSitePayment = true,
+            uiState = OutOfTimeUiState(tunnelState = TunnelState.Connecting(null, null)),
+            viewActions = MutableSharedFlow<OutOfTimeViewModel.ViewAction>().asSharedFlow()
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewOutOfTimeScreenError() {
+    AppTheme {
+        OutOfTimeScreen(
+            showSitePayment = true,
+            uiState =
+                OutOfTimeUiState(
+                    tunnelState =
+                        TunnelState.Error(
+                            ErrorState(cause = ErrorStateCause.IsOffline, isBlocking = true)
+                        )
+                ),
+            viewActions = MutableSharedFlow<OutOfTimeViewModel.ViewAction>().asSharedFlow()
+        )
+    }
+}
+
+@Composable
+fun OutOfTimeScreen(
+    showSitePayment: Boolean,
+    uiState: OutOfTimeUiState,
+    viewActions: SharedFlow<OutOfTimeViewModel.ViewAction>,
+    onDisconnectClick: () -> Unit = {},
+    onSitePaymentClick: () -> Unit = {},
+    onRedeemVoucherClick: () -> Unit = {},
+    openConnectScreen: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onAccountClick: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    LaunchedEffect(key1 = Unit) {
+        viewActions.collect { viewAction ->
+            when (viewAction) {
+                is OutOfTimeViewModel.ViewAction.OpenAccountView ->
+                    context.openAccountPageInBrowser(viewAction.token)
+                OutOfTimeViewModel.ViewAction.OpenConnectScreen -> openConnectScreen()
+            }
+        }
+    }
+    val scrollState = rememberScrollState()
+    ScaffoldWithTopBar(
+        topBarColor =
+            if (uiState.tunnelState.isSecured()) {
+                MaterialTheme.colorScheme.inversePrimary
+            } else {
+                MaterialTheme.colorScheme.error
+            },
+        statusBarColor =
+            if (uiState.tunnelState.isSecured()) {
+                MaterialTheme.colorScheme.inversePrimary
+            } else {
+                MaterialTheme.colorScheme.error
+            },
+        navigationBarColor = MaterialTheme.colorScheme.background,
+        iconTintColor =
+            if (uiState.tunnelState.isSecured()) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.onError
+                }
+                .copy(alpha = AlphaTopBar),
+        onSettingsClicked = onSettingsClick,
+        onAccountClicked = onAccountClick
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.Start,
+            modifier =
+                Modifier.fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .drawVerticalScrollbar(scrollState)
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .padding(it)
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.icon_fail),
+                contentDescription = null,
+                modifier =
+                    Modifier.align(Alignment.CenterHorizontally)
+                        .padding(vertical = Dimens.screenVerticalMargin)
+            )
+            Text(
+                text = stringResource(id = R.string.out_of_time),
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(horizontal = Dimens.sideMargin)
+            )
+            Text(
+                text =
+                    buildString {
+                        append(stringResource(R.string.account_credit_has_expired))
+                        if (showSitePayment) {
+                            append(" ")
+                            append(stringResource(R.string.add_time_to_account))
+                        }
+                    },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier =
+                    Modifier.padding(
+                        top = Dimens.mediumPadding,
+                        start = Dimens.sideMargin,
+                        end = Dimens.sideMargin
+                    )
+            )
+            Spacer(modifier = Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace))
+            // Button area
+            if (uiState.tunnelState.showDisconnectButton()) {
+                ActionButton(
+                    onClick = onDisconnectClick,
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                            contentColor = MaterialTheme.colorScheme.onError
+                        ),
+                    text = stringResource(id = R.string.disconnect),
+                    modifier =
+                        Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.buttonSeparation
+                        )
+                )
+            }
+            if (showSitePayment) {
+                ActionButton(
+                    onClick = onSitePaymentClick,
+                    modifier =
+                        Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.buttonSeparation
+                        ),
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            disabledContentColor =
+                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
+                            disabledContainerColor =
+                                MaterialTheme.colorScheme.surface.copy(alpha = AlphaDisabled)
+                        ),
+                    isEnabled = uiState.tunnelState.enableSitePaymentButton()
+                ) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            text = stringResource(id = R.string.buy_more_credit),
+                            textAlign = TextAlign.Center,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.icon_extlink),
+                            contentDescription = null,
+                            modifier =
+                                Modifier.align(Alignment.CenterEnd)
+                                    .padding(horizontal = Dimens.smallPadding)
+                                    .alpha(
+                                        if (uiState.tunnelState.enableSitePaymentButton())
+                                            AlphaVisible
+                                        else AlphaDisabled
+                                    )
+                        )
+                    }
+                }
+            }
+            ActionButton(
+                text = stringResource(id = R.string.redeem_voucher),
+                onClick = onRedeemVoucherClick,
+                modifier =
+                    Modifier.padding(
+                        start = Dimens.sideMargin,
+                        end = Dimens.sideMargin,
+                        bottom = Dimens.screenVerticalMargin
+                    ),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        disabledContentColor =
+                            MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
+                        disabledContainerColor =
+                            MaterialTheme.colorScheme.surface.copy(alpha = AlphaDisabled)
+                    ),
+                isEnabled = uiState.tunnelState.enableRedeemButton()
+            )
+        }
+    }
+}
+
+private fun TunnelState.showDisconnectButton(): Boolean =
+    when (this) {
+        is TunnelState.Disconnected -> false
+        is TunnelState.Connecting,
+        is TunnelState.Connected -> true
+        is TunnelState.Disconnecting -> {
+            this.actionAfterDisconnect != ActionAfterDisconnect.Nothing
+        }
+        is TunnelState.Error -> this.errorState.isBlocking
+    }
+
+private fun TunnelState.enableSitePaymentButton(): Boolean = this is TunnelState.Disconnected
+
+private fun TunnelState.enableRedeemButton(): Boolean =
+    !(this is TunnelState.Error && this.errorState.cause is ErrorStateCause.IsOffline)
