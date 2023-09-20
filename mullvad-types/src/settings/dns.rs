@@ -35,7 +35,6 @@ pub struct DefaultDnsOptions {
     pub block_malware: bool,
     pub block_adult_content: bool,
     pub block_gambling: bool,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub block_social_media: bool,
 }
 

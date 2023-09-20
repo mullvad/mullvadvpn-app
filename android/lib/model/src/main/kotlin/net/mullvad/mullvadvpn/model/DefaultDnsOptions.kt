@@ -10,8 +10,14 @@ data class DefaultDnsOptions(
     val blockMalware: Boolean = false,
     val blockAdultContent: Boolean = false,
     val blockGambling: Boolean = false,
+    val blockSocialMedia: Boolean = false,
 ) : Parcelable {
     fun isAnyBlockerEnabled(): Boolean {
-        return blockAds || blockTrackers || blockMalware || blockAdultContent || blockGambling
+        return blockAds ||
+            blockTrackers ||
+            blockMalware ||
+            blockAdultContent ||
+            blockGambling ||
+            blockSocialMedia
     }
 }
