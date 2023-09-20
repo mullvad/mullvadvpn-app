@@ -1,6 +1,6 @@
 //
 //  URLRequestProxy.swift
-//  PacketTunnel
+//  PacketTunnelCore
 //
 //  Created by pronebird on 03/02/2023.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
