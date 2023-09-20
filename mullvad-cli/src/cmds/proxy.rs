@@ -81,7 +81,7 @@ impl Proxy {
             println!(
                 "{}. {}",
                 index + 1,
-                AccessMethodFormatter::new(&api_access_method)
+                AccessMethodFormatter::new(api_access_method)
             );
         }
         Ok(())
@@ -487,7 +487,7 @@ mod pp {
                     ObfuscationProtocol::Shadowsocks(shadowsocks) => {
                         write!(f, "{}", shadowsocks.name)?;
                         write_status(f, shadowsocks.enabled)?;
-                        writeln!(f, "")?;
+                        writeln!(f)?;
                         print_option!("Protocol", format!("Shadowsocks [{}]", shadowsocks.cipher));
                         print_option!("Peer", shadowsocks.peer);
                         print_option!("Password", shadowsocks.password);
@@ -497,7 +497,7 @@ mod pp {
                         Socks5::Remote(remote) => {
                             write!(f, "{}", remote.name)?;
                             write_status(f, remote.enabled)?;
-                            writeln!(f, "")?;
+                            writeln!(f)?;
                             print_option!("Protocol", "Socks5");
                             print_option!("Peer", remote.peer);
                             Ok(())
@@ -505,7 +505,7 @@ mod pp {
                         Socks5::Local(local) => {
                             write!(f, "{}", local.name)?;
                             write_status(f, local.enabled)?;
-                            writeln!(f, "")?;
+                            writeln!(f)?;
                             print_option!("Protocol", "Socks5 (local)");
                             print_option!("Peer", local.peer);
                             print_option!("Local port", local.port);

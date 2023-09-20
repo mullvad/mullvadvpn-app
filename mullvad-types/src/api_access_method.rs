@@ -143,7 +143,7 @@ impl AccessMethod {
     /// Set an access method to be either enabled or disabled.
     ///
     /// This action mutates [`self`].
-    pub fn toggle(&mut self, enable: bool) -> () {
+    pub fn toggle(&mut self, enable: bool) {
         match self {
             AccessMethod::BuiltIn(method) => match method {
                 BuiltInAccessMethod::Direct(enabled) => *enabled = enable,
@@ -180,11 +180,11 @@ impl AccessMethod {
                     (
                         ObfuscationProtocol::Shadowsocks(shadowsocks_left),
                         ObfuscationProtocol::Shadowsocks(shadowsocks_right),
-                    ) => shadowsocks_left.semantically_equals(&shadowsocks_right),
+                    ) => shadowsocks_left.semantically_equals(shadowsocks_right),
                     (
                         ObfuscationProtocol::Socks5(socks_left),
                         ObfuscationProtocol::Socks5(socks_right),
-                    ) => socks_left.semantically_equals(&socks_right),
+                    ) => socks_left.semantically_equals(socks_right),
                     (_, _) => false,
                 }
             }
