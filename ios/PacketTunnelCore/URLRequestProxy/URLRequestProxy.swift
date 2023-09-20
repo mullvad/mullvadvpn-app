@@ -11,7 +11,7 @@ import MullvadREST
 import MullvadTransport
 import MullvadTypes
 
-public final class URLRequestProxy {
+public final class URLRequestProxy: @unchecked Sendable {
     /// Serial queue used for synchronizing access to class members.
     private let dispatchQueue: DispatchQueue
 
@@ -28,9 +28,10 @@ public final class URLRequestProxy {
         self.transportProvider = transportProvider
     }
 
-    public func sendRequest(_ proxyRequest: ProxyURLRequest, completionHandler: @escaping (ProxyURLResponse) -> Void) {
+    public func sendRequest(_ proxyRequest: ProxyURLRequest, completionHandler: @escaping @Sendable (ProxyURLResponse) -> Void) {
         dispatchQueue.async {
             guard let transportProvider = self.transportProvider.makeTransport() else {
+                // Edge case in which case we return `ProxyURLResponse` with no data.
                 completionHandler(ProxyURLResponse(data: nil, response: nil, error: nil))
                 return
             }
