@@ -217,7 +217,7 @@ private fun LoginContent(
             modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.mediumPadding)
         )
 
-        Spacer(modifier = Modifier.size(Dimens.smallPadding))
+        Spacer(modifier = Modifier.size(Dimens.mediumPadding))
         ActionButton(
             isEnabled = state.loginState is Idle,
             onClick = { onLoginClick(accountNumber) },
