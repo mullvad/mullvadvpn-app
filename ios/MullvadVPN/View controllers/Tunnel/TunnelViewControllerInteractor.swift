@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Settings
+import MullvadSettings
 
 final class TunnelViewControllerInteractor {
     private let tunnelManager: TunnelManager

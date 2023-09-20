@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Settings
+import MullvadSettings
 
 struct RootDeviceInfoViewModel {
     let configuration: RootConfiguration

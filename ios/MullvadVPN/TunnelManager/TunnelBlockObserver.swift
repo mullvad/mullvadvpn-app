@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Settings
+import MullvadSettings
 
 final class TunnelBlockObserver: TunnelObserver {
     typealias DidLoadConfigurationHandler = (TunnelManager) -> Void

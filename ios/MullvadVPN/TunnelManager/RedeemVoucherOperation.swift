@@ -9,9 +9,9 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import Operations
-import Settings
 
 class RedeemVoucherOperation: ResultOperation<REST.SubmitVoucherResponse> {
     private let logger = Logger(label: "RedeemVoucherOperation")

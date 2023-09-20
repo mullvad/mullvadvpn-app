@@ -9,12 +9,12 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import NetworkExtension
 import Operations
 import RelayCache
 import RelaySelector
-import Settings
 import StoreKit
 import TunnelProviderMessaging
 import UIKit

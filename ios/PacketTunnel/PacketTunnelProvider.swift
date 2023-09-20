@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTransport
 import MullvadTypes
 import Network
@@ -17,7 +18,6 @@ import Operations
 import PacketTunnelCore
 import RelayCache
 import RelaySelector
-import Settings
 import TunnelProviderMessaging
 import WireGuardKit
 

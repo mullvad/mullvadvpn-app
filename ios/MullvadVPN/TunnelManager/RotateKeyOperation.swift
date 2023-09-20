@@ -9,9 +9,9 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import Operations
-import Settings
 import class WireGuardKitTypes.PrivateKey
 
 class RotateKeyOperation: ResultOperation<Void> {

@@ -8,10 +8,10 @@
 
 import Combine
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import RelayCache
 import Routing
-import Settings
 import UIKit
 
 /**

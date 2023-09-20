@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadLogging
-import Settings
+import MullvadSettings
 
 final class LoginInteractor {
     private let tunnelManager: TunnelManager

@@ -9,9 +9,9 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import Operations
-import Settings
 import class WireGuardKitTypes.PublicKey
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
