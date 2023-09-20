@@ -5,7 +5,7 @@ pub mod account;
 pub mod auto_connect;
 pub mod beta_program;
 pub mod bridge;
-pub mod custom_lists;
+pub mod custom_list;
 pub mod dns;
 pub mod lan;
 pub mod lockdown;

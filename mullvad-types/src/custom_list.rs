@@ -1,52 +1,69 @@
-use crate::relay_constraints::{Constraint, GeographicLocationConstraint};
-#[cfg(target_os = "android")]
-use jnix::{FromJava, IntoJava};
+use crate::relay_constraints::GeographicLocationConstraint;
 use serde::{Deserialize, Serialize};
+use std::{
+    collections::BTreeSet,
+    ops::{Deref, DerefMut},
+};
 
-pub type Id = String;
+pub type Id = uuid::Uuid;
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct CustomListsSettings {
-    pub custom_lists: Vec<CustomList>,
+    custom_lists: Vec<CustomList>,
+}
+
+impl From<Vec<CustomList>> for CustomListsSettings {
+    fn from(custom_lists: Vec<CustomList>) -> Self {
+        Self { custom_lists }
+    }
 }
 
 impl CustomListsSettings {
-    pub fn get_custom_list_with_name(&self, name: &String) -> Option<&CustomList> {
-        self.custom_lists
-            .iter()
-            .find(|custom_list| &custom_list.name == name)
+    pub fn add(&mut self, list: CustomList) {
+        self.custom_lists.push(list);
+    }
+
+    pub fn remove(&mut self, index: usize) {
+        self.custom_lists.remove(index);
+    }
+}
+
+impl IntoIterator for CustomListsSettings {
+    type Item = CustomList;
+    type IntoIter = <Vec<CustomList> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.custom_lists.into_iter()
+    }
+}
+
+impl Deref for CustomListsSettings {
+    type Target = [CustomList];
+
+    fn deref(&self) -> &Self::Target {
+        &self.custom_lists
+    }
+}
+
+impl DerefMut for CustomListsSettings {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.custom_lists
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub enum CustomListLocationUpdate {
-    Add {
-        name: String,
-        location: Constraint<GeographicLocationConstraint>,
-    },
-    Remove {
-        name: String,
-        location: Constraint<GeographicLocationConstraint>,
-    },
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct CustomList {
     pub id: Id,
     pub name: String,
-    pub locations: Vec<GeographicLocationConstraint>,
+    pub locations: BTreeSet<GeographicLocationConstraint>,
 }
 
 impl CustomList {
     pub fn new(name: String) -> Self {
         CustomList {
-            id: uuid::Uuid::new_v4().to_string(),
+            id: uuid::Uuid::new_v4(),
             name,
-            locations: Vec::new(),
+            locations: BTreeSet::new(),
         }
     }
 }

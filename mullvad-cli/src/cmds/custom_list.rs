@@ -2,11 +2,10 @@ use super::{
     relay::{find_relay_by_hostname, get_filtered_relays},
     relay_constraints::LocationArgs,
 };
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    custom_list::CustomListLocationUpdate,
     relay_constraints::{Constraint, GeographicLocationConstraint},
     relay_list::RelayList,
 };
@@ -86,7 +85,7 @@ impl CustomList {
     async fn list() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let cache = rpc.get_relay_locations().await?;
-        for custom_list in rpc.list_custom_lists().await? {
+        for custom_list in rpc.get_settings().await?.custom_lists {
             Self::print_custom_list(&custom_list, &cache)
         }
         Ok(())
@@ -96,7 +95,7 @@ impl CustomList {
     /// If the list does not exist, print an error.
     async fn get(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let custom_list = rpc.get_custom_list(name).await?;
+        let custom_list = find_list_by_name(&mut rpc, &name).await?;
         let cache = rpc.get_relay_locations().await?;
         Self::print_custom_list_content(&custom_list, &cache);
         Ok(())
@@ -111,30 +110,47 @@ impl CustomList {
     async fn add_location(name: String, location_args: LocationArgs) -> Result<()> {
         let countries = get_filtered_relays().await?;
         let location = find_relay_by_hostname(&countries, &location_args.country)
-            .map_or(Constraint::from(location_args), Constraint::Only);
-        let update = CustomListLocationUpdate::Add { name, location };
+            .map_or(Constraint::from(location_args), Constraint::Only)
+            .option()
+            .ok_or(anyhow!("\"any\" is not a valid location"))?;
+
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.update_custom_list_location(update).await?;
+
+        let mut list = find_list_by_name(&mut rpc, &name).await?;
+        list.locations.insert(location);
+        rpc.update_custom_list(list).await?;
+
         Ok(())
     }
 
     async fn remove_location(name: String, location_args: LocationArgs) -> Result<()> {
-        let location = Constraint::<GeographicLocationConstraint>::from(location_args);
-        let update = CustomListLocationUpdate::Remove { name, location };
+        let location = Constraint::<GeographicLocationConstraint>::from(location_args)
+            .option()
+            .ok_or(anyhow!("\"any\" is not a valid location"))?;
+
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.update_custom_list_location(update).await?;
+
+        let mut list = find_list_by_name(&mut rpc, &name).await?;
+        list.locations.remove(&location);
+        rpc.update_custom_list(list).await?;
+
         Ok(())
     }
 
     async fn delete_list(name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.delete_custom_list(name).await?;
+        let list = find_list_by_name(&mut rpc, &name).await?;
+        rpc.delete_custom_list(list.id.to_string()).await?;
         Ok(())
     }
 
     async fn rename_list(name: String, new_name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.rename_custom_list(name, new_name).await?;
+
+        let mut list = find_list_by_name(&mut rpc, &name).await?;
+        list.name = new_name;
+        rpc.update_custom_list(list).await?;
+
         Ok(())
     }
 
@@ -216,4 +232,16 @@ impl<'a> std::fmt::Display for GeographicLocationConstraintFormatter<'a> {
             }
         }
     }
+}
+
+pub async fn find_list_by_name(
+    rpc: &mut MullvadProxyClient,
+    name: &str,
+) -> Result<mullvad_types::custom_list::CustomList> {
+    rpc.get_settings()
+        .await?
+        .custom_lists
+        .into_iter()
+        .find(|list| list.name == name)
+        .ok_or(anyhow!("List not found"))
 }

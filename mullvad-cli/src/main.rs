@@ -115,7 +115,7 @@ enum Cli {
 
     /// Manage custom lists
     #[clap(subcommand)]
-    CustomList(custom_lists::CustomList),
+    CustomList(custom_list::CustomList),
 }
 
 #[tokio::main]
