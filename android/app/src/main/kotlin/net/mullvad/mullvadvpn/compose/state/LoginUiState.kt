@@ -2,10 +2,15 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.model.AccountToken
 
+const val MIN_ACCOUNT_LOGIN_LENGTH = 8
+
 data class LoginUiState(
+    val accountNumberInput: String = "",
     val lastUsedAccount: AccountToken? = null,
     val loginState: LoginState = LoginState.Idle(null)
 ) {
+    val loginButtonEnabled = accountNumberInput.length >= MIN_ACCOUNT_LOGIN_LENGTH && loginState is LoginState.Idle
+
     companion object {
         val INITIAL = LoginUiState()
     }

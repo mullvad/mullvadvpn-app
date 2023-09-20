@@ -40,17 +40,23 @@ class LoginViewModel(
     private val deviceRepository: DeviceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
-    private val _loginState = MutableStateFlow<LoginState>(Idle(null))
+    private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
+    private val _loginInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
 
     private val _viewActions = MutableSharedFlow<LoginViewAction>(extraBufferCapacity = 1)
     val viewActions = _viewActions.asSharedFlow()
 
     private val _uiState =
         combine(
+            _loginInput,
             accountRepository.accountHistory,
             _loginState,
-        ) { accountHistoryState, loginState ->
-            LoginUiState(accountHistoryState.accountToken()?.let(::AccountToken), loginState)
+        ) { loginInput, accountHistoryState, loginState ->
+            LoginUiState(
+                loginInput,
+                accountHistoryState.accountToken()?.let(::AccountToken),
+                loginState
+            )
         }
     val uiState: StateFlow<LoginUiState> =
         _uiState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
@@ -107,6 +113,12 @@ class LoginViewModel(
                 }
             _loginState.update { uiState }
         }
+    }
+
+    fun onAccountNumberChange(accountNumber: String) {
+        _loginInput.value = accountNumber.filter { it.isDigit() }
+        // If there is an error, clear it
+        _loginState.update { if (it is Idle) Idle() else it }
     }
 
     private suspend fun AccountCreationResult.mapToUiState(): LoginState? {
