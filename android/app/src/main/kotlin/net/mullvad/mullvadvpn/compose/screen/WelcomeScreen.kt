@@ -1,10 +1,8 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,17 +19,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
@@ -192,37 +187,16 @@ fun WelcomeScreen(
             ) {
                 Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
                 if (showSitePayment) {
-                    ActionButton(
+                    SitePaymentButton(
                         onClick = onSitePaymentClick,
+                        isEnabled = true,
                         modifier =
                             Modifier.padding(
                                 start = Dimens.sideMargin,
                                 end = Dimens.sideMargin,
                                 bottom = Dimens.screenVerticalMargin
-                            ),
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                contentColor = MaterialTheme.colorScheme.onPrimary,
-                                containerColor = MaterialTheme.colorScheme.surface
                             )
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Text(
-                                text = stringResource(id = R.string.buy_credit),
-                                textAlign = TextAlign.Center,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                            Image(
-                                painter = painterResource(id = R.drawable.icon_extlink),
-                                contentDescription = null,
-                                modifier =
-                                    Modifier.align(Alignment.CenterEnd)
-                                        .padding(horizontal = Dimens.smallPadding)
-                            )
-                        }
-                    }
+                    )
                 }
                 ActionButton(
                     text = stringResource(id = R.string.redeem_voucher),
