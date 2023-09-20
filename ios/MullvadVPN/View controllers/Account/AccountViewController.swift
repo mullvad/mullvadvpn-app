@@ -8,9 +8,9 @@
 
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import Operations
-import Settings
 import StoreKit
 import UIKit
 

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Settings
+import MullvadSettings
 import UIKit.UIColor
 import UIKit.UIFont
 

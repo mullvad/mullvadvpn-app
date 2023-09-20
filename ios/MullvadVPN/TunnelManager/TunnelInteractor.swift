@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import MullvadSettings
 import RelayCache
 import RelaySelector
-import Settings
 
 protocol TunnelInteractor {
     // MARK: - Tunnel manipulation

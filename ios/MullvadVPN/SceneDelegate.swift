@@ -8,10 +8,10 @@
 
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import Operations
 import RelayCache
-import Settings
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHandler {

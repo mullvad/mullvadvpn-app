@@ -7,8 +7,8 @@
 //
 
 import Foundation
+import MullvadSettings
 import MullvadTypes
-import Settings
 
 final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider {
     private var accountExpiry: Date?

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Settings
+import MullvadSettings
 import UserNotifications
 
 final class AccountExpirySystemNotificationProvider: NotificationProvider, SystemNotificationProvider {

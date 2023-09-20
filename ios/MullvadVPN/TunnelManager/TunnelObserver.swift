@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Settings
+import MullvadSettings
 
 protocol TunnelObserver: AnyObject {
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager)

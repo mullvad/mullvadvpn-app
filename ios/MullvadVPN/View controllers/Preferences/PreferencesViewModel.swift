@@ -6,8 +6,8 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import MullvadTypes
-import Settings
 import UIKit
 
 enum CustomDNSPrecondition {

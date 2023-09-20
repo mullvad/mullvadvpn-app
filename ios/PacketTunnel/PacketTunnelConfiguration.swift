@@ -7,10 +7,10 @@
 //
 
 import Foundation
+import MullvadSettings
 import MullvadTypes
 import protocol Network.IPAddress
 import RelaySelector
-import Settings
 import WireGuardKit
 
 struct PacketTunnelConfiguration {

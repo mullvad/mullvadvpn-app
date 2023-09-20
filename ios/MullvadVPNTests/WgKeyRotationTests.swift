@@ -6,8 +6,8 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import MullvadTypes
-import Settings
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 import XCTest
