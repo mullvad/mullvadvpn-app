@@ -24,6 +24,8 @@ pub enum Proxy {
     Enable(SelectItem),
     /// Disable an API proxy
     Disable(SelectItem),
+    /// Test an API proxy
+    Test(SelectItem),
     /// Force the use of a specific API proxy.
     Use(SelectItem),
 }
@@ -58,6 +60,10 @@ impl Proxy {
                 let index = Self::zero_to_one_based_index(cmd.index)?;
                 let enabled = false;
                 Self::toggle(index, enabled).await?;
+            }
+            Proxy::Test(cmd) => {
+                let index = Self::zero_to_one_based_index(cmd.index)?;
+                Self::test(index).await?;
             }
             Proxy::Use(cmd) => {
                 let index = Self::zero_to_one_based_index(cmd.index)?;
@@ -196,6 +202,34 @@ impl Proxy {
             enable: enabled,
         })
         .await?;
+        Ok(())
+    }
+
+    /// Test an access method to see if it successfully reaches the Mullvad API.
+    async fn test(index: usize) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        // TODO: Refactor this into some helper function. This code has been copy-pastead a lot already ..
+        // Step 1.
+        let access_method = rpc
+            .get_api_access_methods()
+            .await?
+            .get(index)
+            .ok_or(anyhow!(format!(
+                "Access method {} does not exist",
+                index + 1
+            )))?
+            .clone();
+
+        // Step 2.
+        rpc.set_access_method(access_method).await?;
+        // Step 3.
+        let api_call = rpc.test_api().await;
+        // Step 4.
+        match api_call {
+            Ok(_) => println!("API call succeeded!"),
+            Err(_) => println!("API call failed :-("),
+        }
+
         Ok(())
     }
 
