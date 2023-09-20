@@ -26,13 +26,12 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
-import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -203,23 +202,13 @@ fun OutOfTimeScreen(
                         )
                 )
             }
-            ActionButton(
-                text = stringResource(id = R.string.redeem_voucher),
+            RedeemVoucherButton(
                 onClick = onRedeemVoucherClick,
                 modifier =
                     Modifier.padding(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
                         bottom = Dimens.screenVerticalMargin
-                    ),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        disabledContentColor =
-                            MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
-                        disabledContainerColor =
-                            MaterialTheme.colorScheme.surface.copy(alpha = AlphaDisabled)
                     ),
                 isEnabled = uiState.tunnelState.enableRedeemButton()
             )
