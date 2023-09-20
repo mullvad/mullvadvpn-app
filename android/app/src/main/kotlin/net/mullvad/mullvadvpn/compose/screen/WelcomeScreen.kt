@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,7 +24,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -198,19 +197,14 @@ fun WelcomeScreen(
                             )
                     )
                 }
-                ActionButton(
-                    text = stringResource(id = R.string.redeem_voucher),
+                RedeemVoucherButton(
                     onClick = onRedeemVoucherClick,
+                    isEnabled = true,
                     modifier =
                         Modifier.padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
                             bottom = Dimens.screenVerticalMargin
-                        ),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            containerColor = MaterialTheme.colorScheme.surface
                         )
                 )
             }
