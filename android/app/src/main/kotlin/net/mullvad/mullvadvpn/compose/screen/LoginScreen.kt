@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -45,7 +43,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
@@ -92,10 +89,10 @@ private fun PreviewLoginSuccess() {
 @Composable
 fun LoginScreen(
     state: LoginUiState,
-    initialAccountNumber: String = "",
     onLoginClick: (String) -> Unit = {},
     onCreateAccountClick: () -> Unit = {},
     onDeleteHistoryClick: () -> Unit = {},
+    onAccountNumberChange: (String) -> Unit = {},
     onSettingsClick: () -> Unit = {},
 ) {
     ScaffoldWithTopBar(
@@ -114,15 +111,15 @@ fun LoginScreen(
                     .background(MaterialTheme.colorScheme.primary)
                     .verticalScroll(scrollState)
         ) {
-            Spacer(modifier = Modifier.weight(1f).defaultMinSize(0.dp))
+            Spacer(modifier = Modifier.weight(1f))
             LoginIcon(
                 state.loginState,
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(bottom = Dimens.largePadding)
             )
-            LoginContent(state, initialAccountNumber, onLoginClick, onDeleteHistoryClick)
-            Spacer(modifier = Modifier.weight(3f).defaultMinSize(0.dp))
+            LoginContent(state, onAccountNumberChange, onLoginClick, onDeleteHistoryClick)
+            Spacer(modifier = Modifier.weight(3f))
             CreateAccountPanel(onCreateAccountClick, isEnabled = state.loginState is Idle)
         }
     }
@@ -132,14 +129,11 @@ fun LoginScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun LoginContent(
     state: LoginUiState,
-    initialAccountNumber: String,
+    onAccountNumberChange: (String) -> Unit,
     onLoginClick: (String) -> Unit,
     onDeleteHistoryClick: () -> Unit
 ) {
-    Column(
-        modifier =
-            Modifier.animateContentSize().fillMaxWidth().padding(horizontal = Dimens.sideMargin)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin)) {
         Text(
             text = state.loginState.title(),
             style = MaterialTheme.typography.headlineLarge,
@@ -147,23 +141,27 @@ private fun LoginContent(
             modifier = Modifier.fillMaxWidth().padding(bottom = Dimens.mediumPadding)
         )
 
-        var accountNumber by remember { mutableStateOf(initialAccountNumber) }
         var expanded by remember { mutableStateOf(false) }
 
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             TextField(
                 modifier = Modifier.menuAnchor().fillMaxWidth(),
-                value = accountNumber,
+                value = state.accountNumberInput,
                 label = {
                     Text(
                         text = stringResource(id = R.string.login_description),
                         color = Color.Unspecified
                     )
                 },
-                keyboardActions = KeyboardActions(onDone = { onLoginClick(accountNumber) }),
+                keyboardActions =
+                    KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
                 keyboardOptions =
-                    KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
-                onValueChange = { accountNumber = it },
+                    KeyboardOptions(
+                        imeAction =
+                            if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
+                        keyboardType = KeyboardType.NumberPassword
+                    ),
+                onValueChange = onAccountNumberChange,
                 singleLine = true,
                 maxLines = 1,
                 visualTransformation = accountTokenVisualTransformation(),
@@ -179,11 +177,17 @@ private fun LoginContent(
                         unfocusedPlaceholderColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.background,
                         disabledLabelColor = Color.Gray,
-                        unfocusedLabelColor = Color.Gray,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.background,
                         focusedLeadingIconColor = Color.Black,
                         unfocusedSupportingTextColor = Color.Black,
                     ),
-                isError = state.loginState.isError()
+                isError = state.loginState.isError(),
+                supportingText = {
+                    Text(
+                        text = state.loginState.supportingText() ?: "",
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
             )
 
             // If we have a previous account, show dropdown for quick re-login
@@ -205,9 +209,9 @@ private fun LoginContent(
                     AccountDropDownItem(
                         accountToken = transformedText.toString(),
                         onClick = {
-                            accountNumber = token.value
+                            onAccountNumberChange(token.value)
                             expanded = false
-                            onLoginClick(accountNumber)
+                            onLoginClick(token.value)
                         }
                     ) {
                         onDeleteHistoryClick()
@@ -216,22 +220,10 @@ private fun LoginContent(
             }
         }
 
-        Text(
-            text = state.loginState.supportingText() ?: "",
-            style = MaterialTheme.typography.labelMedium,
-            color =
-                if (state.loginState.isError()) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onPrimary
-                },
-            modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.mediumPadding)
-        )
-
         Spacer(modifier = Modifier.size(Dimens.mediumPadding))
         ActionButton(
-            isEnabled = state.loginState is Idle,
-            onClick = { onLoginClick(accountNumber) },
+            isEnabled = state.loginButtonEnabled,
+            onClick = { onLoginClick(state.accountNumberInput) },
             colors =
                 ButtonDefaults.buttonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimary,

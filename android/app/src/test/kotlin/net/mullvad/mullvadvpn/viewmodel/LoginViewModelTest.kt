@@ -64,11 +64,13 @@ class LoginViewModelTest {
     fun testCreateAccount() =
         runTest {
             turbineScope {
+                // Arrange
                 val uiStates = loginViewModel.uiState.testIn(backgroundScope)
                 val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
                 coEvery { mockedAccountRepository.createAccount() } returns
                         AccountCreationResult.Success(DUMMY_ACCOUNT_TOKEN)
 
+                // Act, Assert
                 uiStates.skipDefaultItem()
                 loginViewModel.createAccount()
                 assertEquals(Loading.CreatingAccount, uiStates.awaitItem().loginState)
@@ -80,10 +82,12 @@ class LoginViewModelTest {
     fun testLoginWithValidAccount() =
         runTest {
             turbineScope {
+                // Arrange
                 val uiStates = loginViewModel.uiState.testIn(backgroundScope)
                 val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
                 coEvery { mockedAccountRepository.login(any()) } returns LoginResult.Ok
 
+                // Act, Assert
                 uiStates.skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
@@ -96,8 +100,10 @@ class LoginViewModelTest {
     fun testLoginWithInvalidAccount() =
         runTest {
             loginViewModel.uiState.test {
+                // Arrange
                 coEvery { mockedAccountRepository.login(any()) } returns LoginResult.InvalidAccount
 
+                // Act, Assert
                 skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, awaitItem().loginState)
@@ -112,6 +118,7 @@ class LoginViewModelTest {
     fun testLoginWithTooManyDevicesError() =
         runTest {
             turbineScope {
+                // Arrange
                 val uiStates = loginViewModel.uiState.testIn(backgroundScope)
                 val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
                 coEvery {
@@ -125,6 +132,7 @@ class LoginViewModelTest {
                 coEvery { mockedAccountRepository.login(any()) } returns
                         LoginResult.MaxDevicesReached
 
+                // Act, Assert
                 uiStates.skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
@@ -139,8 +147,10 @@ class LoginViewModelTest {
     fun testLoginWithRpcError() =
         runTest {
             loginViewModel.uiState.test {
+                // Arrange
                 coEvery { mockedAccountRepository.login(any()) } returns LoginResult.RpcError
 
+                // Act, Assert
                 skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, awaitItem().loginState)
@@ -155,8 +165,10 @@ class LoginViewModelTest {
     fun testLoginWithUnknownError() =
         runTest {
             loginViewModel.uiState.test {
+                // Arrange
                 coEvery { mockedAccountRepository.login(any()) } returns LoginResult.OtherError
 
+                // Act, Assert
                 skipDefaultItem()
                 loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
                 assertEquals(Loading.LoggingIn, awaitItem().loginState)
@@ -171,6 +183,7 @@ class LoginViewModelTest {
     fun testAccountHistory() =
         runTest {
             loginViewModel.uiState.test {
+                // Act, Assert
                 skipDefaultItem()
                 accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
                 assertEquals(
@@ -183,6 +196,7 @@ class LoginViewModelTest {
     @Test
     fun testClearingAccountHistory() =
         runTest {
+            // Act, Assert
             loginViewModel.clearAccountHistory()
             verify { mockedAccountRepository.clearAccountHistory() }
         }

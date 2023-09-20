@@ -29,14 +29,11 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
 
         // TODO: Remove this when we have a better solution for login after clearing max devices
         val accountTokenArgument = arguments?.getString(ACCOUNT_TOKEN_ARGUMENT_KEY)
-        val initialAccountNumber =
-            if (accountTokenArgument != null) {
-                // Login and set initial TextField value
-                vm.login(accountTokenArgument)
-                accountTokenArgument
-            } else {
-                ""
-            }
+        if (accountTokenArgument != null) {
+            // Login and set initial TextField value
+            vm.onAccountNumberChange(accountTokenArgument)
+            vm.login(accountTokenArgument)
+        }
 
         return inflater.inflate(R.layout.fragment_compose, container, false).apply {
             findViewById<ComposeView>(R.id.compose_view).setContent {
@@ -56,10 +53,10 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
                     }
                     LoginScreen(
                         loginUiState,
-                        initialAccountNumber,
                         vm::login,
                         vm::createAccount,
                         vm::clearAccountHistory,
+                        vm::onAccountNumberChange,
                         ::openSettingsView
                     )
                 }
