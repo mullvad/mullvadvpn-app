@@ -4,197 +4,49 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.core.view.isVisible
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import kotlin.properties.Delegates.observable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
+import net.mullvad.mullvadvpn.compose.screen.OutOfTimeScreen
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
-import net.mullvad.mullvadvpn.lib.common.util.JobTracker
-import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
-import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.repository.AccountRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
-import net.mullvad.mullvadvpn.ui.widget.Button
-import net.mullvad.mullvadvpn.ui.widget.HeaderBar
-import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
-import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
-import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
-import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.tunnel.ErrorStateCause
-import org.joda.time.DateTime
-import org.koin.android.ext.android.inject
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class OutOfTimeFragment : BaseFragment() {
 
-    // Injected dependencies
-    private val accountRepository: AccountRepository by inject()
-    private val serviceConnectionManager: ServiceConnectionManager by inject()
-
-    private lateinit var headerBar: HeaderBar
-
-    private lateinit var sitePaymentButton: SitePaymentButton
-    private lateinit var disconnectButton: Button
-    private lateinit var redeemButton: RedeemVoucherButton
-
-    private var tunnelState by
-        observable<TunnelState>(TunnelState.Disconnected) { _, _, state ->
-            updateDisconnectButton()
-            updateBuyButtons()
-            headerBar.tunnelState = state
-        }
-
-    @Deprecated("Refactor code to instead rely on Lifecycle.") private val jobTracker = JobTracker()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        lifecycleScope.launchUiSubscriptionsOnResume()
-    }
+    private val vm by viewModel<OutOfTimeViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.out_of_time, container, false)
-
-        headerBar =
-            view.findViewById<HeaderBar>(R.id.header_bar).apply {
-                tunnelState = this@OutOfTimeFragment.tunnelState
-            }
-
-        view.findViewById<TextView>(R.id.account_credit_has_expired).text = buildString {
-            append(requireActivity().getString(R.string.account_credit_has_expired))
-            if (IS_PLAY_BUILD.not()) {
-                append(" ")
-                append(requireActivity().getString(R.string.add_time_to_account))
-            }
-        }
-
-        disconnectButton =
-            view.findViewById<Button>(R.id.disconnect).apply {
-                setOnClickAction("disconnect", jobTracker) {
-                    serviceConnectionManager.connectionProxy()?.disconnect()
+        return inflater.inflate(R.layout.fragment_compose, container, false).apply {
+            findViewById<ComposeView>(R.id.compose_view).setContent {
+                AppTheme {
+                    val state = vm.uiState.collectAsState().value
+                    OutOfTimeScreen(
+                        showSitePayment = IS_PLAY_BUILD.not(),
+                        uiState = state,
+                        viewActions = vm.viewActions,
+                        onSitePaymentClick = vm::onSitePaymentClick,
+                        onRedeemVoucherClick = ::openRedeemVoucherFragment,
+                        onSettingsClick = ::openSettingsView,
+                        onAccountClick = ::openAccountView,
+                        openConnectScreen = ::advanceToConnectScreen,
+                        onDisconnectClick = vm::onDisconnectClick
+                    )
                 }
             }
-
-        sitePaymentButton =
-            view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
-                newAccount = false
-
-                setOnClickAction("openAccountPageInBrowser", jobTracker) {
-                    isEnabled = false
-                    serviceConnectionManager.authTokenCache()?.fetchAuthToken()?.let { token ->
-                        context.openAccountPageInBrowser(token)
-                    }
-                    isEnabled = true
-                }
-
-                isEnabled = true
-            }
-
-        sitePaymentButton.isVisible = IS_PLAY_BUILD.not()
-
-        redeemButton =
-            view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
-                prepare(parentFragmentManager, jobTracker)
-            }
-
-        return view
-    }
-
-    override fun onStop() {
-        jobTracker.cancelAllJobs()
-        super.onStop()
-    }
-
-    private fun CoroutineScope.launchUiSubscriptionsOnResume() = launch {
-        repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            launchProceedToConnectViewIfExpiryExtended()
-            launchExpiryPolling()
-            launchTunnelStateSubscription()
         }
     }
 
-    private fun CoroutineScope.launchProceedToConnectViewIfExpiryExtended() = launch {
-        accountRepository.accountExpiryState
-            .map { state -> state.date() }
-            .collect { expiryDate -> checkExpiry(expiryDate) }
-    }
-
-    private fun CoroutineScope.launchExpiryPolling() = launch {
-        while (true) {
-            accountRepository.fetchAccountExpiry()
-            delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
-        }
-    }
-
-    private fun CoroutineScope.launchTunnelStateSubscription() = launch {
-        serviceConnectionManager.connectionState
-            .flatMapLatest { state ->
-                if (state is ServiceConnectionState.ConnectedReady) {
-                    callbackFlowFromNotifier(state.container.connectionProxy.onStateChange)
-                } else {
-                    emptyFlow()
-                }
-            }
-            .collect { newState -> tunnelState = newState }
-    }
-
-    private fun updateDisconnectButton() {
-        val state = tunnelState
-
-        val showButton =
-            when (state) {
-                is TunnelState.Disconnected -> false
-                is TunnelState.Connecting,
-                is TunnelState.Connected -> true
-                is TunnelState.Disconnecting -> {
-                    state.actionAfterDisconnect != ActionAfterDisconnect.Nothing
-                }
-                is TunnelState.Error -> state.errorState.isBlocking
-            }
-
-        disconnectButton.apply {
-            if (showButton) {
-                isEnabled = true
-                visibility = View.VISIBLE
-            } else {
-                isEnabled = false
-                visibility = View.GONE
-            }
-        }
-    }
-
-    private fun updateBuyButtons() {
-        val currentState = tunnelState
-        val hasConnectivity = currentState is TunnelState.Disconnected
-        sitePaymentButton.isEnabled = hasConnectivity
-
-        val isOffline =
-            currentState is TunnelState.Error &&
-                currentState.errorState.cause is ErrorStateCause.IsOffline
-        redeemButton.isEnabled = !isOffline
-    }
-
-    private fun checkExpiry(maybeExpiry: DateTime?) {
-        maybeExpiry?.let { expiry ->
-            if (expiry.isAfterNow) {
-                jobTracker.newUiJob("advanceToConnectScreen") { advanceToConnectScreen() }
-            }
-        }
+    private fun openRedeemVoucherFragment() {
+        val transaction = parentFragmentManager.beginTransaction()
+        transaction.addToBackStack(null)
+        RedeemVoucherDialogFragment().show(transaction, null)
     }
 
     private fun advanceToConnectScreen() {
@@ -202,5 +54,13 @@ class OutOfTimeFragment : BaseFragment() {
             replace(R.id.main_fragment, ConnectFragment())
             commitAllowingStateLoss()
         }
+    }
+
+    private fun openSettingsView() {
+        (context as? MainActivity)?.openSettings()
+    }
+
+    private fun openAccountView() {
+        (context as? MainActivity)?.openAccount()
     }
 }
