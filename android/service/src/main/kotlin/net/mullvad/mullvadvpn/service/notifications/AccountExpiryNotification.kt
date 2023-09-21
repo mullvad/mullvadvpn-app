@@ -10,7 +10,6 @@ import android.net.Uri
 import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
 import net.mullvad.mullvadvpn.lib.common.util.Intermittent
@@ -18,9 +17,9 @@ import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.model.AccountExpiry
-import net.mullvad.mullvadvpn.service.BuildConfig
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.R
+import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.service.endpoint.AccountCache
 import org.joda.time.DateTime
 import org.joda.time.Duration
@@ -105,7 +104,7 @@ class AccountExpiryNotification(
                 Uri.parse("$buyMoreTimeUrl?token=${daemon.await().getWwwAuthToken()}")
             }
         val intent =
-            if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
+            if (IS_PLAY_BUILD) {
                 Intent().apply {
                     setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
