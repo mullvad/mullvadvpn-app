@@ -3937,7 +3937,7 @@
 				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+.swift in Sources */,
 				58FE25DE2AA72A95003D1918 /* DispatchSource+.swift in Sources */,
 				586E8DB82AAF4AC4007BF3DA /* Task+.swift in Sources */,
-				58C9B8CD2ABB247700040B46 /* RelaySelectorResult+.swift in Sources */,
+				58C9B8CD2ABB247700040B46 /* RelaySelectorResult+PacketTunnelRelay.swift in Sources */,
 				58C9B8C92ABB23E700040B46 /* TunnelProviderReply.swift in Sources */,
 				58342C042AAB61FB003BA12D /* State+.swift in Sources */,
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
