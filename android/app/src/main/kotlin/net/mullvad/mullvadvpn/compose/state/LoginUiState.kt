@@ -9,7 +9,8 @@ data class LoginUiState(
     val lastUsedAccount: AccountToken? = null,
     val loginState: LoginState = LoginState.Idle(null)
 ) {
-    val loginButtonEnabled = accountNumberInput.length >= MIN_ACCOUNT_LOGIN_LENGTH && loginState is LoginState.Idle
+    val loginButtonEnabled =
+        accountNumberInput.length >= MIN_ACCOUNT_LOGIN_LENGTH && loginState is LoginState.Idle
 
     companion object {
         val INITIAL = LoginUiState()

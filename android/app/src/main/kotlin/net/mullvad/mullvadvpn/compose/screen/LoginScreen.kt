@@ -138,11 +138,22 @@ private fun LoginContent(
             text = state.loginState.title(),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.fillMaxWidth().padding(bottom = Dimens.mediumPadding)
+            modifier = Modifier.fillMaxWidth().padding(bottom = Dimens.smallPadding)
         )
 
         var expanded by remember { mutableStateOf(false) }
 
+        Text(
+            modifier = Modifier.padding(bottom = Dimens.smallPadding),
+            text = state.loginState.supportingText() ?: "",
+            style = MaterialTheme.typography.labelMedium,
+            color =
+                if (state.loginState.isError()) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.onPrimary
+                },
+        )
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             TextField(
                 modifier = Modifier.menuAnchor().fillMaxWidth(),
@@ -182,12 +193,6 @@ private fun LoginContent(
                         unfocusedSupportingTextColor = Color.Black,
                     ),
                 isError = state.loginState.isError(),
-                supportingText = {
-                    Text(
-                        text = state.loginState.supportingText() ?: "",
-                        style = MaterialTheme.typography.labelMedium,
-                    )
-                }
             )
 
             // If we have a previous account, show dropdown for quick re-login
@@ -220,7 +225,7 @@ private fun LoginContent(
             }
         }
 
-        Spacer(modifier = Modifier.size(Dimens.mediumPadding))
+        Spacer(modifier = Modifier.size(Dimens.largePadding))
         ActionButton(
             isEnabled = state.loginButtonEnabled,
             onClick = { onLoginClick(state.accountNumberInput) },
