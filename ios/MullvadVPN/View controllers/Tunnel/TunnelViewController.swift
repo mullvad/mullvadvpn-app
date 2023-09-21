@@ -9,7 +9,6 @@
 import MapKit
 import MullvadLogging
 import MullvadTypes
-import TunnelProviderMessaging
 import UIKit
 
 class TunnelViewController: UIViewController, RootContainment {

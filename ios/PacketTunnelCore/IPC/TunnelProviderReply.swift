@@ -1,6 +1,6 @@
 //
 //  TunnelProviderReply.swift
-//  TunnelProviderMessaging
+//  PacketTunnelCore
 //
 //  Created by pronebird on 20/10/2022.
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.

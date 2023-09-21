@@ -18,7 +18,6 @@ import Operations
 import PacketTunnelCore
 import RelayCache
 import RelaySelector
-import TunnelProviderMessaging
 import WireGuardKit
 
 /// Restart interval (in seconds) for the tunnel that failed to start early on.

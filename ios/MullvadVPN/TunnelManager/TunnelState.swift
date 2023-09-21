@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import TunnelProviderMessaging
+import PacketTunnelCore
 
 /// A struct describing the tunnel status.
 struct TunnelStatus: Equatable, CustomStringConvertible {

@@ -10,6 +10,7 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
+import PacketTunnelCore
 import WireGuardKitTypes
 import XCTest
 

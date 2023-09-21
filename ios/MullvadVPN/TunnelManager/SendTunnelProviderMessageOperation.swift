@@ -9,7 +9,7 @@
 import MullvadTypes
 import NetworkExtension
 import Operations
-import TunnelProviderMessaging
+import PacketTunnelCore
 import UIKit
 
 /// Delay for sending tunnel provider messages to the tunnel when in connecting state.
