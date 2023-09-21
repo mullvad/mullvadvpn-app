@@ -13,10 +13,8 @@ echo ""
 
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
-GRADLE_TASK="assembleRelease"
-BUNDLE_TASK="bundleRelease"
-BUILT_APK_SUFFIX="-release"
-FILE_SUFFIX=""
+GRADLE_TASK="createOssProdReleaseDistApk"
+BUNDLE_TASK="createPlayProdReleaseDistBundle"
 CARGO_ARGS="--release"
 EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
@@ -27,16 +25,13 @@ while [ ! -z "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
         BUILD_TYPE="debug"
         GRADLE_BUILD_TYPE="debug"
-        GRADLE_TASK="assembleDebug"
-        BUNDLE_TASK="bundleDebug"
-        BUILT_APK_SUFFIX="-debug"
-        FILE_SUFFIX="-debug"
+        GRADLE_TASK="createOssProdDebugDistApk"
+        BUNDLE_TASK="createOssProdDebugDistBundle"
         CARGO_ARGS="--features api-override"
     elif [[ "${1:-""}" == "--fdroid" ]]; then
         GRADLE_BUILD_TYPE="fdroid"
-        GRADLE_TASK="assembleFdroid"
-        BUNDLE_TASK="bundleFdroid"
-        BUILT_APK_SUFFIX="-fdroid-unsigned"
+        GRADLE_TASK="createOssProdFdroidDistApk"
+        BUNDLE_TASK="createOssProdFdroidDistBundle"
         EXTRA_WGGO_ARGS="--no-docker"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
@@ -123,15 +118,8 @@ cargo run --bin relay_list $CARGO_ARGS > build/relays.json
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "$GRADLE_TASK"
 
-mkdir -p "$SCRIPT_DIR/dist"
-cp  "$SCRIPT_DIR/android/app/build/outputs/apk/$GRADLE_BUILD_TYPE/app${BUILT_APK_SUFFIX}.apk" \
-    "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.apk"
-
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
     $GRADLE_CMD --console plain "$BUNDLE_TASK"
-
-    cp  "$SCRIPT_DIR/android/app/build/outputs/bundle/$GRADLE_BUILD_TYPE/app${BUILT_APK_SUFFIX}.aab" \
-        "$SCRIPT_DIR/dist/MullvadVPN-${PRODUCT_VERSION}${FILE_SUFFIX}.aab"
 fi
 
 echo "**********************************"
