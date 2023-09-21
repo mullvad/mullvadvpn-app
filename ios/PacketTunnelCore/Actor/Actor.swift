@@ -225,7 +225,7 @@ public actor PacketTunnelActor {
     private func startSwitchKeyTask() -> AutoCancellingTask {
         let task = Task {
             // Wait for key to propagate across relays.
-            try await Task.sleep(duration: timings.wgKeyPropagationDelays)
+            try await Task.sleep(duration: timings.wgKeyPropagationDelay)
 
             func mutateConnectionState(_ connectionState: inout ConnectionState) -> Bool {
                 switch connectionState.keyPolicy {
