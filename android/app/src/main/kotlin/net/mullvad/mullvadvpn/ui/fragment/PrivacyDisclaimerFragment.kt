@@ -15,7 +15,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.ui.StatusBarPainter
-import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
+import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import org.koin.android.ext.android.inject
 
@@ -51,7 +51,7 @@ class PrivacyDisclaimerFragment : Fragment(), StatusBarPainter, NavigationBarPai
         val privacyPolicyUrlIntent =
             Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse(getString(R.string.privacy_policy_url).appendHideNavOnReleaseBuild())
+                Uri.parse(getString(R.string.privacy_policy_url).appendHideNavOnPlayBuild())
             )
         context?.startActivity(privacyPolicyUrlIntent)
     }
