@@ -1,6 +1,6 @@
 use futures::Stream;
 use hyper::client::connect::Connected;
-use mullvad_types::api_access_method;
+use mullvad_types::access_method;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -36,8 +36,8 @@ impl fmt::Display for ApiConnectionMode {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ProxyConfig {
-    Shadowsocks(api_access_method::Shadowsocks),
-    Socks(api_access_method::Socks5),
+    Shadowsocks(access_method::Shadowsocks),
+    Socks(access_method::Socks5),
 }
 
 impl ProxyConfig {
@@ -46,8 +46,8 @@ impl ProxyConfig {
         match self {
             ProxyConfig::Shadowsocks(ss) => ss.peer,
             ProxyConfig::Socks(socks) => match socks {
-                api_access_method::Socks5::Local(s) => s.peer,
-                api_access_method::Socks5::Remote(s) => s.peer,
+                access_method::Socks5::Local(s) => s.peer,
+                access_method::Socks5::Remote(s) => s.peer,
             },
         }
     }
@@ -59,10 +59,10 @@ impl fmt::Display for ProxyConfig {
             // TODO: Do not hardcode TCP
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
             ProxyConfig::Socks(socks) => match socks {
-                api_access_method::Socks5::Local(s) => {
+                access_method::Socks5::Local(s) => {
                     write!(f, "Socks5 {}/TCP via localhost:{}", s.port, s.peer)
                 }
-                api_access_method::Socks5::Remote(s) => write!(f, "Socks5 {}/TCP", s.peer),
+                access_method::Socks5::Remote(s) => write!(f, "Socks5 {}/TCP", s.peer),
             },
         }
     }

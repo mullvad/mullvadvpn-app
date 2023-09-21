@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::api_access_method::{
+use mullvad_types::access_method::{
     daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
     AccessMethod, ObfuscationProtocol,
 };
@@ -109,32 +109,30 @@ impl ApiAccess {
                 let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
                 let name = cmd.params.name.unwrap_or(shadowsocks.name);
                 let enabled = shadowsocks.enabled;
-                mullvad_types::api_access_method::Shadowsocks::from_args(
+                mullvad_types::access_method::Shadowsocks::from_args(
                     ip, port, cipher, password, enabled, name,
                 )
                 .map(|x| x.into())
             }
             ObfuscationProtocol::Socks5(socks) => match socks {
-                mullvad_types::api_access_method::Socks5::Local(local) => {
+                mullvad_types::access_method::Socks5::Local(local) => {
                     let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(local.peer.port());
                     let local_port = cmd.params.local_port.unwrap_or(local.port);
                     let name = cmd.params.name.unwrap_or(local.name);
                     let enabled = local.enabled;
-                    mullvad_types::api_access_method::Socks5Local::from_args(
+                    mullvad_types::access_method::Socks5Local::from_args(
                         ip, port, local_port, enabled, name,
                     )
                     .map(|x| x.into())
                 }
-                mullvad_types::api_access_method::Socks5::Remote(remote) => {
+                mullvad_types::access_method::Socks5::Remote(remote) => {
                     let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(remote.peer.port());
                     let name = cmd.params.name.unwrap_or(remote.name);
                     let enabled = remote.enabled;
-                    mullvad_types::api_access_method::Socks5Remote::from_args(
-                        ip, port, enabled, name,
-                    )
-                    .map(|x| x.into())
+                    mullvad_types::access_method::Socks5Remote::from_args(ip, port, enabled, name)
+                        .map(|x| x.into())
                 }
             },
         }
@@ -317,7 +315,7 @@ pub struct EditParams {
 /// we define them in a hidden-away module.
 mod conversions {
     use anyhow::{anyhow, Error};
-    use mullvad_types::api_access_method as daemon_types;
+    use mullvad_types::access_method as daemon_types;
 
     use super::{AddCustomCommands, Socks5AddCommands};
 
@@ -396,7 +394,7 @@ mod conversions {
 
 /// Pretty printing of [`AccessMethod`]s
 mod pp {
-    use mullvad_types::api_access_method::{
+    use mullvad_types::access_method::{
         AccessMethod, BuiltInAccessMethod, ObfuscationProtocol, Socks5,
     };
 

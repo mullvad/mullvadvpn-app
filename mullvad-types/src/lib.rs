@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 
+pub mod access_method;
 pub mod account;
-pub mod api_access_method;
 pub mod auth_failed;
 pub mod custom_list;
 pub mod device;

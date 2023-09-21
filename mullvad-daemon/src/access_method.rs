@@ -2,7 +2,7 @@ use crate::{
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
-use mullvad_types::api_access_method::{
+use mullvad_types::access_method::{
     daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
     AccessMethod, CustomAccessMethod,
 };
