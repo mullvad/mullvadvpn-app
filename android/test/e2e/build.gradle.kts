@@ -16,6 +16,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetProjectPath = ":app"
 
+        missingDimensionStrategy(FlavorDimensions.BILLING, Flavors.OSS)
+        missingDimensionStrategy(FlavorDimensions.INFRASTRUCTURE, Flavors.PROD)
+
         fun Properties.addRequiredPropertyAsBuildConfigField(name: String) {
             val value = getProperty(name) ?: throw GradleException("Missing property: $name")
             buildConfigField(type = "String", name = name, value = "\"$value\"")
@@ -73,7 +76,6 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 dependencies {
     implementation(project(Projects.testCommon))
     implementation(project(Dependencies.Mullvad.endpointLib))
-
     implementation(Dependencies.AndroidX.testCore)
     // Fixes: https://github.com/android/android-test/issues/1589
     implementation(Dependencies.AndroidX.testMonitor)
