@@ -39,9 +39,9 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
-import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnReleaseBuild
 import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview

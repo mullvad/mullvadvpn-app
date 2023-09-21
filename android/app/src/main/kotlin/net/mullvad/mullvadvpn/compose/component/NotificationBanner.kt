@@ -24,13 +24,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
 import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
 import net.mullvad.mullvadvpn.compose.util.rememberPrevious
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -122,10 +121,10 @@ private fun ShowNotification(
                 versionInfoNotification(
                     versionInfo = connectNotificationState.versionInfo,
                     onClickUpdateVersion =
-                        if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
-                            onClickUpdateVersion
-                        } else {
+                        if (IS_PLAY_BUILD) {
                             null
+                        } else {
+                            onClickUpdateVersion
                         }
                 )
             }
@@ -133,10 +132,10 @@ private fun ShowNotification(
                 accountExpiryNotification(
                     expiry = connectNotificationState.expiry,
                     onClickShowAccount =
-                        if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
-                            onClickShowAccount
-                        } else {
+                        if (IS_PLAY_BUILD) {
                             null
+                        } else {
+                            onClickShowAccount
                         }
                 )
             }
