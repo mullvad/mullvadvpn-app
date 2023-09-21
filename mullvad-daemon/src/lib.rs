@@ -1,7 +1,7 @@
 #![deny(rust_2018_idioms)]
 #![recursion_limit = "512"]
 
-mod access_methods;
+mod access_method;
 pub mod account_history;
 mod api;
 #[cfg(not(target_os = "android"))]
@@ -171,7 +171,7 @@ pub enum Error {
     CustomListError(#[error(source)] custom_lists::Error),
 
     #[error(display = "Access method error")]
-    AccessMethodError(#[error(source)] access_methods::Error),
+    AccessMethodError(#[error(source)] access_method::Error),
 
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]

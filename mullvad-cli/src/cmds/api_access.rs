@@ -19,7 +19,7 @@ pub enum ApiAccess {
     /// Edit an API proxy
     Edit(EditCustomCommands),
     /// Remove an API proxy
-    Remove(RemoveCustomCommands),
+    Remove(SelectItem),
     /// Enable an API proxy
     Enable(SelectItem),
     /// Disable an API proxy
@@ -27,6 +27,8 @@ pub enum ApiAccess {
     /// Test an API proxy
     Test(SelectItem),
     /// Force the use of a specific API proxy.
+    ///
+    /// Selecting "Mullvad Bridges" respects your current bridge settings.
     Use(SelectItem),
 }
 
@@ -39,31 +41,21 @@ impl ApiAccess {
             ApiAccess::Add(cmd) => {
                 Self::add(cmd).await?;
             }
-            ApiAccess::Edit(cmd) => {
-                let index = Self::one_to_zero_based_index(cmd.index)?;
-                Self::edit(EditCustomCommands { index, ..cmd }).await?
-            }
-            ApiAccess::Remove(cmd) => {
-                let index = Self::one_to_zero_based_index(cmd.index)?;
-                Self::remove(RemoveCustomCommands { index }).await?
-            }
+            ApiAccess::Edit(cmd) => Self::edit(cmd).await?,
+            ApiAccess::Remove(cmd) => Self::remove(cmd).await?,
             ApiAccess::Enable(cmd) => {
-                let index = Self::one_to_zero_based_index(cmd.index)?;
                 let enabled = true;
-                Self::toggle(index, enabled).await?;
+                Self::toggle(cmd, enabled).await?;
             }
             ApiAccess::Disable(cmd) => {
-                let index = Self::one_to_zero_based_index(cmd.index)?;
                 let enabled = false;
-                Self::toggle(index, enabled).await?;
+                Self::toggle(cmd, enabled).await?;
             }
             ApiAccess::Test(cmd) => {
-                let index = Self::one_to_zero_based_index(cmd.index)?;
-                Self::test(index).await?;
+                Self::test(cmd).await?;
             }
             ApiAccess::Use(cmd) => {
-                let index = Self::one_to_zero_based_index(cmd.index)?;
-                Self::set(index).await?;
+                Self::set(cmd).await?;
             }
         };
         Ok(())
@@ -91,9 +83,9 @@ impl ApiAccess {
     }
 
     /// Remove an API access method.
-    async fn remove(cmd: RemoveCustomCommands) -> Result<()> {
+    async fn remove(cmd: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, cmd.index).await?;
+        let access_method = Self::get_access_method(&mut rpc, &cmd).await?;
         rpc.remove_access_method(access_method)
             .await
             .map_err(Into::<anyhow::Error>::into)
@@ -102,7 +94,7 @@ impl ApiAccess {
     /// Edit the data of an API access method.
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, cmd.index).await?;
+        let access_method = Self::get_access_method(&mut rpc, &cmd.item).await?;
         let access_method = access_method
             .as_custom()
             .cloned()
@@ -148,11 +140,11 @@ impl ApiAccess {
         }
         .ok_or(anyhow!(
             "Could not edit access method {}, reverting changes.",
-            cmd.index + 1
+            cmd.item
         ))?;
 
         rpc.replace_access_method(ApiAccessMethodReplace {
-            index: cmd.index,
+            index: cmd.item.as_array_index()?,
             access_method: edited_access_method,
         })
         .await?;
@@ -161,10 +153,9 @@ impl ApiAccess {
     }
 
     /// Toggle a custom API access method to be enabled or disabled.
-    async fn toggle(index: usize, enabled: bool) -> Result<()> {
+    async fn toggle(item: SelectItem, enabled: bool) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        // Retrieve the access method to edit
-        let access_method = Self::get_access_method(&mut rpc, index).await?;
+        let access_method = Self::get_access_method(&mut rpc, &item).await?;
         rpc.toggle_access_method(ApiAccessMethodToggle {
             access_method,
             enable: enabled,
@@ -174,9 +165,9 @@ impl ApiAccess {
     }
 
     /// Test an access method to see if it successfully reaches the Mullvad API.
-    async fn test(index: usize) -> Result<()> {
+    async fn test(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, index).await?;
+        let access_method = Self::get_access_method(&mut rpc, &item).await?;
         rpc.set_access_method(access_method).await?;
         match rpc.test_api().await {
             Ok(_) => println!("API call succeeded!"),
@@ -189,29 +180,22 @@ impl ApiAccess {
     /// Force the use of a specific access method when trying to reach the
     /// Mullvad API. If this method fails, the daemon will resume the automatic
     /// roll-over behavior (which is the default).
-    async fn set(index: usize) -> Result<()> {
+    async fn set(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, index).await?;
+        let access_method = Self::get_access_method(&mut rpc, &item).await?;
         rpc.set_access_method(access_method).await?;
         Ok(())
     }
 
-    async fn get_access_method(rpc: &mut MullvadProxyClient, index: usize) -> Result<AccessMethod> {
+    async fn get_access_method(
+        rpc: &mut MullvadProxyClient,
+        item: &SelectItem,
+    ) -> Result<AccessMethod> {
         rpc.get_api_access_methods()
             .await?
-            .get(index)
+            .get(item.as_array_index()?)
             .cloned()
-            .ok_or(anyhow!(format!(
-                "Access method {} does not exist",
-                index + 1
-            )))
-    }
-
-    /// Transform human-readable (1-based) index to 0-based indexing.
-    fn one_to_zero_based_index(index: usize) -> Result<usize> {
-        index
-            .checked_sub(1)
-            .ok_or(anyhow!("Access method 0 does not exist"))
+            .ok_or(anyhow!(format!("Access method {} does not exist", item)))
     }
 }
 
@@ -221,7 +205,7 @@ pub enum AddCustomCommands {
     #[clap(subcommand)]
     Socks5(Socks5AddCommands),
 
-    /// Configure bundled Shadowsocks proxy
+    /// Configure Shadowsocks proxy
     Shadowsocks {
         /// An easy to remember name for this custom proxy
         name: String,
@@ -237,29 +221,6 @@ pub enum AddCustomCommands {
         #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
         cipher: String,
     },
-}
-
-/// A minimal wrapper type allowing the user to supply a list index to some
-/// Access Method.
-#[derive(Args, Debug, Clone)]
-pub struct SelectItem {
-    /// Which access method to pick
-    index: usize,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct EditCustomCommands {
-    /// Which API proxy to edit
-    index: usize,
-    /// Editing parameters
-    #[clap(flatten)]
-    params: EditParams,
-}
-
-#[derive(Args, Debug, Clone)]
-pub struct RemoveCustomCommands {
-    /// Which API proxy to remove
-    index: usize,
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -290,6 +251,39 @@ pub enum Socks5AddCommands {
         #[arg(requires = "username")]
         password: Option<String>,
     },
+}
+
+/// A minimal wrapper type allowing the user to supply a list index to some
+/// Access Method.
+#[derive(Args, Debug, Clone)]
+pub struct SelectItem {
+    /// Which access method to pick
+    index: usize,
+}
+
+impl SelectItem {
+    /// Transform human-readable (1-based) index to 0-based indexing.
+    pub fn as_array_index(&self) -> Result<usize> {
+        self.index
+            .checked_sub(1)
+            .ok_or(anyhow!("Access method 0 does not exist"))
+    }
+}
+
+impl std::fmt::Display for SelectItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.index)
+    }
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct EditCustomCommands {
+    /// Which API proxy to edit
+    #[clap(flatten)]
+    item: SelectItem,
+    /// Editing parameters
+    #[clap(flatten)]
+    params: EditParams,
 }
 
 #[derive(Args, Debug, Clone)]
