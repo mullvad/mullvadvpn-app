@@ -7,26 +7,18 @@ android {
     namespace = "net.mullvad.mullvadvpn.lib.theme"
     compileSdk = Versions.Android.compileSdkVersion
 
-    defaultConfig {
-        minSdk = Versions.Android.minSdkVersion
-    }
+    defaultConfig { minSdk = Versions.Android.minSdkVersion }
 
-    buildFeatures {
-        compose = true
-    }
+    buildFeatures { compose = true }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion
-    }
+    composeOptions { kotlinCompilerExtensionVersion = Versions.kotlinCompilerExtensionVersion }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-    }
+    kotlinOptions { jvmTarget = Versions.jvmTarget }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")

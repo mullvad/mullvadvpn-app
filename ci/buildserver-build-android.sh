@@ -103,7 +103,13 @@ function build_ref {
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
         for original_file in MullvadVPN-*-dev-*{.apk,.aab}; do
-            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-.*-dev-.*)(\.apk|\.aab)$/\1$version_suffix\2/p")
+            # Fix to make sure the sed command below result in the expected file name.
+            if [[ $original_file == *.play.aab ]]; then
+                bundle_extension="\.play\.aab"
+            else
+                bundle_extension="\.aab"
+            fi
+            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-.*-dev-.*)(\.apk|$bundle_extension)$/\1$version_suffix\2/p")
             mv "$original_file" "$new_file"
         done
         popd

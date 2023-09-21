@@ -16,13 +16,12 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetProjectPath = ":app"
 
+        missingDimensionStrategy(FlavorDimensions.BILLING, Flavors.OSS)
+        missingDimensionStrategy(FlavorDimensions.INFRASTRUCTURE, Flavors.PROD)
+
         fun Properties.addRequiredPropertyAsBuildConfigField(name: String) {
             val value = getProperty(name) ?: throw GradleException("Missing property: $name")
-            buildConfigField(
-                type = "String",
-                name = name,
-                value = "\"$value\""
-            )
+            buildConfigField(type = "String", name = name, value = "\"$value\"")
         }
 
         Properties().apply {
@@ -32,33 +31,31 @@ android {
         }
 
         fun MutableMap<String, String>.addOptionalPropertyAsArgument(name: String) {
-            val value = rootProject.properties.getOrDefault(name, null) as? String
-                ?: gradleLocalProperties(rootProject.projectDir).getProperty(name)
+            val value =
+                rootProject.properties.getOrDefault(name, null) as? String
+                    ?: gradleLocalProperties(rootProject.projectDir).getProperty(name)
 
             if (value != null) {
                 put(name, value)
             }
         }
 
-        testInstrumentationRunnerArguments += mutableMapOf<String, String>().apply {
-            put("clearPackageData", "true")
-            addOptionalPropertyAsArgument("valid_test_account_token")
-            addOptionalPropertyAsArgument("invalid_test_account_token")
-        }
+        testInstrumentationRunnerArguments +=
+            mutableMapOf<String, String>().apply {
+                put("clearPackageData", "true")
+                addOptionalPropertyAsArgument("valid_test_account_token")
+                addOptionalPropertyAsArgument("invalid_test_account_token")
+            }
     }
 
-    testOptions {
-        execution = "ANDROIDX_TEST_ORCHESTRATOR"
-    }
+    testOptions { execution = "ANDROIDX_TEST_ORCHESTRATOR" }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = Versions.jvmTarget
-    }
+    kotlinOptions { jvmTarget = Versions.jvmTarget }
 
     lint {
         lintConfig = file("${rootProject.projectDir}/config/lint.xml")
@@ -79,7 +76,6 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
 dependencies {
     implementation(project(Projects.testCommon))
     implementation(project(Dependencies.Mullvad.endpointLib))
-
     implementation(Dependencies.AndroidX.testCore)
     // Fixes: https://github.com/android/android-test/issues/1589
     implementation(Dependencies.AndroidX.testMonitor)

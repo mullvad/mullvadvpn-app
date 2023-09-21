@@ -1,11 +1,5 @@
-plugins {
-    `kotlin-dsl`
-}
+plugins { `kotlin-dsl` }
 
-repositories {
-    maven("https://plugins.gradle.org/m2/")
-}
+repositories { maven("https://plugins.gradle.org/m2/") }
 
-kotlin {
-    jvmToolchain(17)
-}
+kotlin { jvmToolchain(17) }

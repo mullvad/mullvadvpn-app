@@ -10,10 +10,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectScreen
-import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnReleaseBuild
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
+import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -58,9 +58,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
             Intent(
                     Intent.ACTION_VIEW,
                     Uri.parse(
-                        requireContext()
-                            .getString(R.string.download_url)
-                            .appendHideNavOnReleaseBuild()
+                        requireContext().getString(R.string.download_url).appendHideNavOnPlayBuild()
                     )
                 )
                 .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
