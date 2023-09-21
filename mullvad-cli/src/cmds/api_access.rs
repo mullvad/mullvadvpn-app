@@ -10,7 +10,7 @@ use clap::{Args, Subcommand};
 use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum Proxy {
+pub enum ApiAccess {
     /// List the configured API proxies
     List,
     /// Add a custom API proxy
@@ -30,38 +30,38 @@ pub enum Proxy {
     Use(SelectItem),
 }
 
-impl Proxy {
+impl ApiAccess {
     pub async fn handle(self) -> Result<()> {
         match self {
-            Proxy::List => {
+            ApiAccess::List => {
                 Self::list().await?;
             }
-            Proxy::Add(cmd) => {
+            ApiAccess::Add(cmd) => {
                 Self::add(cmd).await?;
             }
-            Proxy::Edit(cmd) => {
+            ApiAccess::Edit(cmd) => {
                 let index = Self::one_to_zero_based_index(cmd.index)?;
                 Self::edit(EditCustomCommands { index, ..cmd }).await?
             }
-            Proxy::Remove(cmd) => {
+            ApiAccess::Remove(cmd) => {
                 let index = Self::one_to_zero_based_index(cmd.index)?;
                 Self::remove(RemoveCustomCommands { index }).await?
             }
-            Proxy::Enable(cmd) => {
+            ApiAccess::Enable(cmd) => {
                 let index = Self::one_to_zero_based_index(cmd.index)?;
                 let enabled = true;
                 Self::toggle(index, enabled).await?;
             }
-            Proxy::Disable(cmd) => {
+            ApiAccess::Disable(cmd) => {
                 let index = Self::one_to_zero_based_index(cmd.index)?;
                 let enabled = false;
                 Self::toggle(index, enabled).await?;
             }
-            Proxy::Test(cmd) => {
+            ApiAccess::Test(cmd) => {
                 let index = Self::one_to_zero_based_index(cmd.index)?;
                 Self::test(index).await?;
             }
-            Proxy::Use(cmd) => {
+            ApiAccess::Use(cmd) => {
                 let index = Self::one_to_zero_based_index(cmd.index)?;
                 Self::set(index).await?;
             }
