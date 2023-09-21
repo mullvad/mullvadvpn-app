@@ -58,8 +58,12 @@ pub enum Socks5 {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Shadowsocks {
     pub peer: SocketAddr,
-    pub password: String, // TODO: Mask the password (using special type)?
-    pub cipher: String,   // Gets validated at a later stage. Is assumed to be valid.
+    pub password: String,
+    /// One of [`shadowsocks_ciphers`].
+    /// Gets validated at a later stage. Is assumed to be valid.
+    ///
+    /// shadowsocks_ciphers: talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS
+    pub cipher: String,
     pub enabled: bool,
     pub name: String,
 }
