@@ -243,12 +243,6 @@ pub enum Socks5AddCommands {
         remote_ip: IpAddr,
         /// The port of the remote proxy server
         remote_port: u16,
-        /// Username for authentication
-        #[arg(requires = "password")]
-        username: Option<String>,
-        /// Password for authentication
-        #[arg(requires = "username")]
-        password: Option<String>,
     },
 }
 
@@ -290,9 +284,6 @@ pub struct EditParams {
     /// Name of the API proxy in the Mullvad client [All]
     #[arg(long)]
     name: Option<String>,
-    /// Username for authentication [Shadowsocks]
-    #[arg(long)]
-    username: Option<String>,
     /// Password for authentication [Shadowsocks]
     #[arg(long)]
     password: Option<String>,
@@ -350,11 +341,9 @@ mod conversions {
                     Socks5AddCommands::Remote {
                         remote_ip,
                         remote_port,
-                        username,
-                        password,
                         name,
                     } => {
-                        println!("Adding REMOTE SOCKS5-proxy: {username:?}+{password:?} @ {remote_ip}:{remote_port}");
+                        println!("Adding REMOTE SOCKS5-proxy: {remote_ip}:{remote_port}");
                         let socks_proxy = daemon_types::Socks5::Remote(
                             daemon_types::Socks5Remote::from_args(
                                 remote_ip.to_string(),
