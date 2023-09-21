@@ -30,7 +30,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
-import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
@@ -59,7 +58,6 @@ import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
 open class MainActivity : FragmentActivity() {
-    val problemReport = MullvadProblemReport()
     private var requestNotificationPermissionLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             // NotificationManager.areNotificationsEnabled is used to check the state rather than
@@ -104,11 +102,6 @@ open class MainActivity : FragmentActivity() {
             }
 
         super.onCreate(savedInstanceState)
-
-        problemReport.apply {
-            logDirectory.complete(filesDir)
-            cacheDirectory.complete(cacheDir)
-        }
 
         setContentView(R.layout.main)
     }
