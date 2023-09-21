@@ -63,10 +63,7 @@ public actor PacketTunnelActor {
             logger.debug("\(options.logFormat())")
 
             // Start observing default network path to determine network reachability.
-            defaultPathObserver.start { [weak self] networkPath in
-                guard let self else { return }
-                Task { await self.onDefaultPathChange(networkPath) }
-            }
+            startDefaultPathObserver()
 
             // Assign a closure receiving tunnel monitor events.
             tunnelMonitor.onEvent = { [weak self] event in
@@ -108,7 +105,7 @@ public actor PacketTunnelActor {
                 fallthrough
 
             case .error:
-                defaultPathObserver.stop()
+                stopDefaultPathObserver()
 
                 do {
                     try await tunnelAdapter.stop()
@@ -277,6 +274,21 @@ public actor PacketTunnelActor {
 
     // MARK: - Network Reachability
 
+    private func startDefaultPathObserver(notifyObserverWithCurrentPath: Bool = false) {
+        defaultPathObserver.start { [weak self] networkPath in
+            guard let self else { return }
+            Task { await self.onDefaultPathChange(networkPath) }
+        }
+
+        if notifyObserverWithCurrentPath, let currentPath = defaultPathObserver.defaultPath {
+            Task { await self.onDefaultPathChange(currentPath) }
+        }
+    }
+
+    private func stopDefaultPathObserver() {
+        defaultPathObserver.stop()
+    }
+
     /// Event handler that receives new network path and schedules it for processing on task queue to avoid interlacing with other tasks.
     private func onDefaultPathChange(_ networkPath: NetworkPath) async {
         try? await taskQueue.add(kind: .networkReachability) { [self] in
@@ -406,10 +418,22 @@ public actor PacketTunnelActor {
             dns: settings.dnsServers,
             endpoint: endpoint
         )
+
+        /*
+         Stop default path observer while updating WireGuard configuration since it will call the system method
+         `NEPacketTunnelProvider.setTunnelNetworkSettings()` which may cause active interfaces to go down making it look
+         like network connectivity is not available, but only for a brief moment.
+         */
+        stopDefaultPathObserver()
+
         try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: endpoint.ipv4Gateway)
+
+        // Restart default path observer and notify the observer with the current path that might have changed while
+        // path observer was paused.
+        startDefaultPathObserver(notifyObserverWithCurrentPath: true)
     }
 
     /**

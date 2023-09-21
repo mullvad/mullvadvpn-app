@@ -14,6 +14,7 @@ public protocol DefaultPathObserverProtocol {
     var defaultPath: NetworkPath? { get }
 
     /// Start observing changes to `defaultPath`.
+    /// This call must be idempotent. Multiple calls to start should replace the existing handler block.
     func start(_ body: @escaping (NetworkPath) -> Void)
 
     /// Stop observing changes to `defaultPath`.
