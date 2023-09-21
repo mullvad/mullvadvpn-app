@@ -26,18 +26,15 @@ use talpid_types::{
     ErrorExt,
 };
 
-/// TODO: Update this comment
 /// A stream that returns the next API connection mode to use for reaching the API.
 ///
-/// When `mullvad-api` fails to contact the API, it requests a new connection mode.
-/// The API can be connected to either directly (i.e., [`ApiConnectionMode::Direct`])
-/// via a bridge ([`ApiConnectionMode::Proxied`]) or via any supported obfuscation protocol ([`ObfuscationProtocol`]).
+/// When `mullvad-api` fails to contact the API, it requests a new connection
+/// mode. The API can be connected to either directly (i.e.,
+/// [`ApiConnectionMode::Direct`]) via a bridge ([`ApiConnectionMode::Proxied`])
+/// or via any supported custom proxy protocol ([`api_access_methods::ObfuscationProtocol`]).
 ///
-/// * Every 3rd attempt returns [`ApiConnectionMode::Direct`].
-/// * Any other attempt returns a configuration for the bridge that is closest to the selected relay
-///   location and matches all bridge constraints.
-/// * When no matching bridge is found, e.g. if the selected hosting providers don't match any
-///   bridge, [`ApiConnectionMode::Direct`] is returned.
+/// The strategy for determining the next [`ApiConnectionMode`] is handled by
+/// [`ConnectionModesIterator`].
 pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
     /// Used for selecting a Relay when the `Bridges` access method is used.
@@ -45,57 +42,6 @@ pub struct ApiConnectionModeProvider {
     retry_attempt: u32,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
     connection_modes: Arc<Mutex<ConnectionModesIterator>>,
-}
-
-/// An iterator which will always produce an [`AccessMethod`].
-///
-/// Safety: It is always safe to [`unwrap`] after calling [`next`] on a
-/// [`std::iter::Cycle`], so thereby it is safe to always call [`unwrap`] on a
-/// [`ConnectionModesIterator`]
-///
-/// [`unwrap`]: Option::unwrap
-/// [`next`]: std::iter::Iterator::next
-pub struct ConnectionModesIterator {
-    available_modes: Box<dyn Iterator<Item = AccessMethod> + Send>,
-    next: Option<AccessMethod>,
-}
-
-impl ConnectionModesIterator {
-    pub fn new(modes: Vec<AccessMethod>) -> ConnectionModesIterator {
-        Self {
-            next: None,
-            available_modes: Self::get_filtered_access_methods(modes),
-        }
-    }
-
-    /// Set the next [`AccessMethod`] to be returned from this iterator.
-    pub fn set_access_method(&mut self, next: AccessMethod) {
-        self.next = Some(next);
-    }
-    /// Update the collection of [`AccessMethod`] which this iterator will
-    /// return.
-    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethod>) {
-        self.available_modes = Self::get_filtered_access_methods(access_methods);
-    }
-
-    fn get_filtered_access_methods(
-        modes: Vec<AccessMethod>,
-    ) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
-        Box::new(
-            modes
-                .into_iter()
-                .filter(|access_method| access_method.enabled())
-                .cycle(),
-        )
-    }
-}
-
-impl Iterator for ConnectionModesIterator {
-    type Item = AccessMethod;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.next.take().or_else(|| self.available_modes.next())
-    }
 }
 
 impl Stream for ApiConnectionModeProvider {
@@ -149,16 +95,15 @@ impl ApiConnectionModeProvider {
         }
     }
 
+    /// Return a pointer to the underlying iterator over [`AccessMethod`].
+    /// Having access to this iterator allow you to influence , e.g. by calling
+    /// [`ConnectionModesIterator::set_access_method()`] or
+    /// [`ConnectionModesIterator::update_access_methods()`].
     pub(crate) fn handle(&self) -> Arc<Mutex<ConnectionModesIterator>> {
         self.connection_modes.clone()
     }
 
     /// Return a new connection mode to be used for the API connection.
-    ///
-    /// TODO: Figure out an appropriate algorithm for selecting between the available AccessMethods.
-    /// We need to be able to poll the daemon's settings to find out which access methods are available & active.
-    /// For now, [`ApiConnectionModeProvider`] is only instanciated once during daemon startup, and does not change it's
-    /// available access methods based on any "Settings-changed" events.
     fn new_connection_mode(&mut self) -> ApiConnectionMode {
         log::debug!("Rotating Access mode!");
         let access_method = {
@@ -211,6 +156,57 @@ impl ApiConnectionModeProvider {
                 }
             },
         }
+    }
+}
+
+/// An iterator which will always produce an [`AccessMethod`].
+///
+/// Safety: It is always safe to [`unwrap`] after calling [`next`] on a
+/// [`std::iter::Cycle`], so thereby it is safe to always call [`unwrap`] on a
+/// [`ConnectionModesIterator`].
+///
+/// [`unwrap`]: Option::unwrap
+/// [`next`]: std::iter::Iterator::next
+pub struct ConnectionModesIterator {
+    available_modes: Box<dyn Iterator<Item = AccessMethod> + Send>,
+    next: Option<AccessMethod>,
+}
+
+impl ConnectionModesIterator {
+    pub fn new(modes: Vec<AccessMethod>) -> ConnectionModesIterator {
+        Self {
+            next: None,
+            available_modes: Self::get_filtered_access_methods(modes),
+        }
+    }
+
+    /// Set the next [`AccessMethod`] to be returned from this iterator.
+    pub fn set_access_method(&mut self, next: AccessMethod) {
+        self.next = Some(next);
+    }
+    /// Update the collection of [`AccessMethod`] which this iterator will
+    /// return.
+    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethod>) {
+        self.available_modes = Self::get_filtered_access_methods(access_methods);
+    }
+
+    fn get_filtered_access_methods(
+        modes: Vec<AccessMethod>,
+    ) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
+        Box::new(
+            modes
+                .into_iter()
+                .filter(|access_method| access_method.enabled())
+                .cycle(),
+        )
+    }
+}
+
+impl Iterator for ConnectionModesIterator {
+    type Item = AccessMethod;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next.take().or_else(|| self.available_modes.next())
     }
 }
 
