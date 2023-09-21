@@ -1,6 +1,9 @@
 use crate::relay_constraints::GeographicLocationConstraint;
 #[cfg(target_os = "android")]
-use jnix::{jni::objects::JString, FromJava, IntoJava, JnixEnv};
+use jnix::{
+    jni::objects::{AutoLocal, JObject, JString},
+    FromJava, IntoJava, JnixEnv,
+};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeSet,
@@ -44,7 +47,19 @@ where
         let s = env
             .get_string(source)
             .expect("Failed to convert from Java String");
-        Id::from_str(&s).expect("invalid ID")
+        Id::from_str(s.to_str().unwrap()).expect("invalid ID")
+    }
+}
+
+#[cfg(target_os = "android")]
+impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for Id
+where
+    'env: 'sub_env,
+{
+    const JNI_SIGNATURE: &'static str = "Ljava/lang/String;";
+
+    fn from_java(env: &JnixEnv<'env>, source: JObject<'sub_env>) -> Self {
+        Id::from_java(env, JString::from(source))
     }
 }
 
