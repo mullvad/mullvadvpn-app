@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountAndDevice
 import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -124,6 +125,8 @@ class WelcomeViewModelTest {
         runTest(testCoroutineRule.testDispatcher) {
             // Arrange
             val expectedAccountNumber = "4444555566667777"
+            val device: Device = mockk()
+            every { device.name } returns  ""
 
             // Act, Assert
             viewModel.uiState.test {
@@ -135,7 +138,7 @@ class WelcomeViewModelTest {
                         accountAndDevice =
                             AccountAndDevice(
                                 account_token = expectedAccountNumber,
-                                device = mockk()
+                                device = device
                             )
                     )
                 val result = awaitItem()

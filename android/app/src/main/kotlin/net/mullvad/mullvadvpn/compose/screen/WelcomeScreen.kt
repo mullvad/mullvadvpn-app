@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,10 +15,16 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +32,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -34,6 +42,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.dialog.InfoDialog
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
@@ -41,6 +50,7 @@ import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
 import net.mullvad.mullvadvpn.ui.extension.copyToClipboard
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 
@@ -50,7 +60,7 @@ private fun PreviewWelcomeScreen() {
     AppTheme {
         WelcomeScreen(
             showSitePayment = true,
-            uiState = WelcomeUiState(accountNumber = "4444555566667777"),
+            uiState = WelcomeUiState(accountNumber = "4444555566667777", deviceName = "Happy Mole"),
             viewActions = MutableSharedFlow<WelcomeViewModel.ViewAction>().asSharedFlow(),
             onSitePaymentClick = {},
             onRedeemVoucherClick = {},
@@ -163,6 +173,54 @@ fun WelcomeScreen(
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onPrimary
             )
+            Row(
+                modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f, fill = false),
+                    text =
+                        buildString {
+                            append(stringResource(id = R.string.device_name))
+                            append(": ")
+                            append(uiState.deviceName)
+                        },
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                var showDeviceNameDialog by remember { mutableStateOf(false) }
+                IconButton(
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    onClick = { showDeviceNameDialog = true }
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_info),
+                        contentDescription = null,
+                        tint = MullvadWhite
+                    )
+                }
+                if (showDeviceNameDialog) {
+                    InfoDialog(
+                        message =
+                            buildString {
+                                appendLine(
+                                    stringResource(id = R.string.device_name_info_first_paragraph)
+                                )
+                                appendLine()
+                                appendLine(
+                                    stringResource(id = R.string.device_name_info_second_paragraph)
+                                )
+                                appendLine()
+                                appendLine(
+                                    stringResource(id = R.string.device_name_info_third_paragraph)
+                                )
+                            },
+                        onDismiss = { showDeviceNameDialog = false }
+                    )
+                }
+            }
             Text(
                 text =
                     buildString {

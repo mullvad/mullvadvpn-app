@@ -57,7 +57,11 @@ class WelcomeViewModel(
                         it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
                     }
                 ) { tunnelState, deviceState ->
-                    WelcomeUiState(tunnelState = tunnelState, accountNumber = deviceState.token())
+                    WelcomeUiState(
+                        tunnelState = tunnelState,
+                        accountNumber = deviceState.token(),
+                        deviceName = deviceState.deviceName()
+                    )
                 }
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), WelcomeUiState())
