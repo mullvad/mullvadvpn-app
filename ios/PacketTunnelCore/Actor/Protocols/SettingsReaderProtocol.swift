@@ -11,11 +11,12 @@ import MullvadTypes
 import Network
 import WireGuardKitTypes
 
+/// A type that implements a reader that can return settings required by `PacketTunnelActor` in order to configure the tunnel.
 public protocol SettingsReaderProtocol {
     /**
      Read settings from storage.
 
-     - Throws: an error that's later mapped by `BlockedStateErrorMapperProtocol`.
+     - Throws: an error thrown by this method is passed down to the implementation of `BlockedStateErrorMapperProtocol`.
      - Returns: `Settings` used to configure packet tunnel adapter.
      */
     func read() throws -> Settings
