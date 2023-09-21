@@ -30,6 +30,7 @@ fun ScaffoldWithTopBar(
     topBarColor: Color,
     statusBarColor: Color,
     navigationBarColor: Color,
+    modifier: Modifier = Modifier,
     iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
@@ -43,6 +44,7 @@ fun ScaffoldWithTopBar(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopBar(
                 backgroundColor = topBarColor,
