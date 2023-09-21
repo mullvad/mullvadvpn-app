@@ -98,15 +98,7 @@ impl Proxy {
     /// Remove an API access method.
     async fn remove(cmd: RemoveCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = rpc
-            .get_api_access_methods()
-            .await?
-            .get(cmd.index)
-            .ok_or(anyhow!(format!(
-                "Access method {} does not exist",
-                cmd.index + 1
-            )))?
-            .clone();
+        let access_method = Self::get_access_method(&mut rpc, cmd.index).await?;
         rpc.remove_access_method(access_method)
             .await
             .map_err(Into::<anyhow::Error>::into)
@@ -115,17 +107,7 @@ impl Proxy {
     /// Edit the data of an API access method.
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        // Retrieve the access method to edit
-        let access_method = rpc
-            .get_api_access_methods()
-            .await?
-            .get(cmd.index)
-            .ok_or(anyhow!(format!(
-                "Access method {} does not exist",
-                cmd.index + 1
-            )))?
-            .clone();
-
+        let access_method = Self::get_access_method(&mut rpc, cmd.index).await?;
         // Create a new access method combining the new params with the previous values
         let access_method = match access_method {
             AccessMethod::BuiltIn(_) => Err(anyhow!("Can not edit built-in access method")),
@@ -187,16 +169,7 @@ impl Proxy {
     async fn toggle(index: usize, enabled: bool) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         // Retrieve the access method to edit
-        let access_method = rpc
-            .get_api_access_methods()
-            .await?
-            .get(index)
-            .ok_or(anyhow!(format!(
-                "Access method {} does not exist",
-                index + 1
-            )))?
-            .clone();
-
+        let access_method = Self::get_access_method(&mut rpc, index).await?;
         rpc.toggle_access_method(ApiAccessMethodToggle {
             access_method,
             enable: enabled,
@@ -208,24 +181,9 @@ impl Proxy {
     /// Test an access method to see if it successfully reaches the Mullvad API.
     async fn test(index: usize) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        // TODO: Refactor this into some helper function. This code has been copy-pastead a lot already ..
-        // Step 1.
-        let access_method = rpc
-            .get_api_access_methods()
-            .await?
-            .get(index)
-            .ok_or(anyhow!(format!(
-                "Access method {} does not exist",
-                index + 1
-            )))?
-            .clone();
-
-        // Step 2.
+        let access_method = Self::get_access_method(&mut rpc, index).await?;
         rpc.set_access_method(access_method).await?;
-        // Step 3.
-        let api_call = rpc.test_api().await;
-        // Step 4.
-        match api_call {
+        match rpc.test_api().await {
             Ok(_) => println!("API call succeeded!"),
             Err(_) => println!("API call failed :-("),
         }
@@ -238,18 +196,20 @@ impl Proxy {
     /// roll-over behavior (which is the default).
     async fn set(index: usize) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = rpc
-            .get_api_access_methods()
+        let access_method = Self::get_access_method(&mut rpc, index).await?;
+        rpc.set_access_method(access_method).await?;
+        Ok(())
+    }
+
+    async fn get_access_method(rpc: &mut MullvadProxyClient, index: usize) -> Result<AccessMethod> {
+        rpc.get_api_access_methods()
             .await?
             .get(index)
+            .cloned()
             .ok_or(anyhow!(format!(
                 "Access method {} does not exist",
                 index + 1
-            )))?
-            .clone();
-
-        rpc.set_access_method(access_method).await?;
-        Ok(())
+            )))
     }
 
     fn zero_to_one_based_index(index: usize) -> Result<usize> {
