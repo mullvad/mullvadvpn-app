@@ -1,8 +1,8 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
-import org.gradle.configurationcache.extensions.capitalized
 import java.io.FileInputStream
 import java.util.*
+import org.gradle.configurationcache.extensions.capitalized
 
 plugins {
     id(Dependencies.Plugin.androidApplicationId)
@@ -184,14 +184,16 @@ android {
 
     applicationVariants.all {
         val artifactSuffix = buildString {
-            val billingFlavorName = productFlavors.getOrNull(0)?.name
-            if (billingFlavorName != null && billingFlavorName != Flavors.OSS) {
-                append(".$billingFlavorName")
+            productFlavors.getOrNull(0)?.name?.let { billingFlavorName ->
+                if (billingFlavorName != Flavors.OSS) {
+                    append(".$billingFlavorName")
+                }
             }
 
-            val infrastructureFlavorName = productFlavors.getOrNull(1)?.name
-            if (infrastructureFlavorName != null && infrastructureFlavorName != Flavors.PROD) {
-                append(".$infrastructureFlavorName")
+            productFlavors.getOrNull(1)?.name?.let { infrastructureFlavorName ->
+                if (infrastructureFlavorName != Flavors.PROD) {
+                    append(".$infrastructureFlavorName")
+                }
             }
 
             if (buildType.name != BuildTypes.RELEASE) {
