@@ -3,10 +3,10 @@
 /// [`mullvad_types::access_method::Settings`] data type.
 mod settings {
     use crate::types::{proto, FromProtobufTypeError};
-    use mullvad_types::api_access_method;
+    use mullvad_types::access_method;
 
-    impl From<&api_access_method::Settings> for proto::ApiAccessMethodSettings {
-        fn from(settings: &api_access_method::Settings) -> Self {
+    impl From<&access_method::Settings> for proto::ApiAccessMethodSettings {
+        fn from(settings: &access_method::Settings) -> Self {
             Self {
                 api_access_methods: settings
                     .api_access_methods
@@ -17,13 +17,13 @@ mod settings {
         }
     }
 
-    impl From<api_access_method::Settings> for proto::ApiAccessMethodSettings {
-        fn from(settings: api_access_method::Settings) -> Self {
+    impl From<access_method::Settings> for proto::ApiAccessMethodSettings {
+        fn from(settings: access_method::Settings) -> Self {
             proto::ApiAccessMethodSettings::from(&settings)
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethodSettings> for api_access_method::Settings {
+    impl TryFrom<proto::ApiAccessMethodSettings> for access_method::Settings {
         type Error = FromProtobufTypeError;
 
         fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
@@ -31,14 +31,14 @@ mod settings {
                 api_access_methods: settings
                     .api_access_methods
                     .iter()
-                    .map(api_access_method::AccessMethod::try_from)
-                    .collect::<Result<Vec<api_access_method::AccessMethod>, _>>()?,
+                    .map(access_method::AccessMethod::try_from)
+                    .collect::<Result<Vec<access_method::AccessMethod>, _>>()?,
             })
         }
     }
 
-    impl From<api_access_method::daemon::ApiAccessMethodReplace> for proto::ApiAccessMethodReplace {
-        fn from(value: api_access_method::daemon::ApiAccessMethodReplace) -> Self {
+    impl From<access_method::daemon::ApiAccessMethodReplace> for proto::ApiAccessMethodReplace {
+        fn from(value: access_method::daemon::ApiAccessMethodReplace) -> Self {
             proto::ApiAccessMethodReplace {
                 index: value.index as u32,
                 access_method: Some(value.access_method.into()),
@@ -46,11 +46,11 @@ mod settings {
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethodReplace> for api_access_method::daemon::ApiAccessMethodReplace {
+    impl TryFrom<proto::ApiAccessMethodReplace> for access_method::daemon::ApiAccessMethodReplace {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethodReplace) -> Result<Self, Self::Error> {
-            Ok(api_access_method::daemon::ApiAccessMethodReplace {
+            Ok(access_method::daemon::ApiAccessMethodReplace {
                 index: value.index as usize,
                 access_method: value
                     .access_method
@@ -62,8 +62,8 @@ mod settings {
         }
     }
 
-    impl From<api_access_method::daemon::ApiAccessMethodToggle> for proto::ApiAccessMethodToggle {
-        fn from(value: api_access_method::daemon::ApiAccessMethodToggle) -> Self {
+    impl From<access_method::daemon::ApiAccessMethodToggle> for proto::ApiAccessMethodToggle {
+        fn from(value: access_method::daemon::ApiAccessMethodToggle) -> Self {
             proto::ApiAccessMethodToggle {
                 access_method: Some(value.access_method.into()),
                 enable: value.enable,
@@ -71,11 +71,11 @@ mod settings {
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethodToggle> for api_access_method::daemon::ApiAccessMethodToggle {
+    impl TryFrom<proto::ApiAccessMethodToggle> for access_method::daemon::ApiAccessMethodToggle {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethodToggle) -> Result<Self, Self::Error> {
-            Ok(api_access_method::daemon::ApiAccessMethodToggle {
+            Ok(access_method::daemon::ApiAccessMethodToggle {
                 access_method: value
                     .access_method
                     .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -96,7 +96,7 @@ mod data {
         proto::{self, api_access_method::socks5::Socks5type},
         FromProtobufTypeError,
     };
-    use mullvad_types::api_access_method::{
+    use mullvad_types::access_method::{
         AccessMethod, BuiltInAccessMethod, ObfuscationProtocol, Shadowsocks, Socks5, Socks5Local,
         Socks5Remote,
     };
@@ -217,10 +217,10 @@ mod data {
                     .into(),
                 },
                 AccessMethod::BuiltIn(value) => match value {
-                    mullvad_types::api_access_method::BuiltInAccessMethod::Direct(enabled) => {
+                    mullvad_types::access_method::BuiltInAccessMethod::Direct(enabled) => {
                         proto::api_access_method::Direct { enabled }.into()
                     }
-                    mullvad_types::api_access_method::BuiltInAccessMethod::Bridge(enabled) => {
+                    mullvad_types::access_method::BuiltInAccessMethod::Bridge(enabled) => {
                         proto::api_access_method::Bridges { enabled }.into()
                     }
                 },

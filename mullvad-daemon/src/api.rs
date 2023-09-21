@@ -10,7 +10,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::api_access_method::{self, AccessMethod, BuiltInAccessMethod};
+use mullvad_types::access_method::{self, AccessMethod, BuiltInAccessMethod};
 use std::{
     net::SocketAddr,
     path::PathBuf,
@@ -128,8 +128,8 @@ impl ApiConnectionModeProvider {
                     .get_bridge_forced()
                     .and_then(|settings| match settings {
                         ProxySettings::Shadowsocks(ss_settings) => {
-                            let ss_settings: api_access_method::Shadowsocks =
-                                api_access_method::Shadowsocks::new(
+                            let ss_settings: access_method::Shadowsocks =
+                                access_method::Shadowsocks::new(
                                     ss_settings.peer,
                                     ss_settings.cipher,
                                     ss_settings.password,
@@ -148,10 +148,10 @@ impl ApiConnectionModeProvider {
                     .unwrap_or(ApiConnectionMode::Direct),
             },
             AccessMethod::Custom(access_method) => match &access_method.access_method {
-                api_access_method::ObfuscationProtocol::Shadowsocks(shadowsocks_config) => {
+                access_method::ObfuscationProtocol::Shadowsocks(shadowsocks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config.clone()))
                 }
-                api_access_method::ObfuscationProtocol::Socks5(socks_config) => {
+                access_method::ObfuscationProtocol::Socks5(socks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
                 }
             },

@@ -222,12 +222,12 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     })
                 }
                 ProxyConfig::Socks(config) => match config {
-                    mullvad_types::api_access_method::Socks5::Local(config) => {
+                    mullvad_types::access_method::Socks5::Local(config) => {
                         InnerConnectionMode::Socks5(SocksConfig {
                             peer: SocketAddr::new("127.0.0.1".parse().unwrap(), config.port),
                         })
                     }
-                    mullvad_types::api_access_method::Socks5::Remote(config) => {
+                    mullvad_types::access_method::Socks5::Remote(config) => {
                         InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
                     }
                 },
