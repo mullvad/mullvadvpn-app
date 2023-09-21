@@ -167,7 +167,8 @@ impl ApiAccess {
         let mut rpc = MullvadProxyClient::new().await?;
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
         rpc.set_access_method(access_method).await?;
-        match rpc.test_api().await {
+        // Make the daemon perform an network request which involves talking to the Mullvad API.
+        match rpc.get_api_addressess().await {
             Ok(_) => println!("API call succeeded!"),
             Err(_) => println!("API call failed :-("),
         }

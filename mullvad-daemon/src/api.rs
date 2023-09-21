@@ -37,7 +37,7 @@ use talpid_types::{
 /// [`ConnectionModesIterator`].
 pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
-    /// Used for selecting a Relay when the `Bridges` access method is used.
+    /// Used for selecting a Relay when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
     retry_attempt: u32,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
@@ -118,7 +118,8 @@ impl ApiConnectionModeProvider {
 
     /// Ad-hoc version of [`std::convert::From::from`], but since some
     /// [`ApiConnectionMode`]s require extra logic/data from
-    /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait can not be used.
+    /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
+    /// can not be implemented.
     fn from(&mut self, access_method: &AccessMethod) -> ApiConnectionMode {
         match access_method {
             AccessMethod::BuiltIn(access_method) => match access_method {
@@ -190,6 +191,10 @@ impl ConnectionModesIterator {
         self.available_modes = Self::get_filtered_access_methods(access_methods);
     }
 
+    /// [`ConnectionModesIterator`] will only consider [`AccessMethod`]s which
+    /// are explicitly marked as enabled. As such, a pre-processing step before
+    /// assigning an iterator to `available_modes` is to filter out all disabled
+    /// [`AccessMethod`]s that may be present in the input.
     fn get_filtered_access_methods(
         modes: Vec<AccessMethod>,
     ) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
@@ -241,15 +246,14 @@ impl ApiEndpointUpdaterHandle {
                     log::error!("Rejecting allowed endpoint: Tunnel state machine is not running");
                     return false;
                 };
-
                 let (result_tx, result_rx) = oneshot::channel();
                 let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
                     get_allowed_endpoint(address),
                     result_tx,
                 ));
+                // Wait for the firewall policy to be updated.
                 let _ = result_rx.await;
                 log::debug!("API endpoint: {}", address);
-
                 true
             }
         }
