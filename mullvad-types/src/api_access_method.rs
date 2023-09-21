@@ -160,35 +160,42 @@ impl AccessMethod {
     }
 
     /// Ad-hoc implementation of `==` from [`std::cmp::PartialEq`], where temporal member
-    /// values such as `enabled` is disregarded.
-    ///
-    /// This is a shallow comparison.
+    /// values such as `enabled` are disregarded.
     pub fn semantically_equals(&self, other: &Self) -> bool {
-        // TODO: Implemenet this function in impl<ObfuscationProtocol>,
-        // impl<ObfuscationProtocol> & impl <BuiltIn>.
         match (self, other) {
-            (
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge(_)),
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge(_)),
-            ) => true,
-            (
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Direct(_)),
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Direct(_)),
-            ) => true,
-            (AccessMethod::Custom(ref custom_left), AccessMethod::Custom(ref custom_right)) => {
-                match (&custom_left.access_method, &custom_right.access_method) {
-                    (
-                        ObfuscationProtocol::Shadowsocks(shadowsocks_left),
-                        ObfuscationProtocol::Shadowsocks(shadowsocks_right),
-                    ) => shadowsocks_left.semantically_equals(shadowsocks_right),
-                    (
-                        ObfuscationProtocol::Socks5(socks_left),
-                        ObfuscationProtocol::Socks5(socks_right),
-                    ) => socks_left.semantically_equals(socks_right),
-                    (_, _) => false,
-                }
+            (AccessMethod::BuiltIn(left), AccessMethod::BuiltIn(right)) => {
+                left.semantically_equals(right)
+            }
+            (AccessMethod::Custom(left), AccessMethod::Custom(right)) => {
+                left.access_method.semantically_equals(&right.access_method)
             }
             _ => false,
+        }
+    }
+}
+
+impl BuiltInAccessMethod {
+    pub fn semantically_equals(&self, other: &Self) -> bool {
+        match (self, other) {
+            (BuiltInAccessMethod::Bridge(_), BuiltInAccessMethod::Bridge(_)) => true,
+            (BuiltInAccessMethod::Direct(_), BuiltInAccessMethod::Direct(_)) => true,
+            (BuiltInAccessMethod::Direct(_), BuiltInAccessMethod::Bridge(_)) => false,
+            (BuiltInAccessMethod::Bridge(_), BuiltInAccessMethod::Direct(_)) => false,
+        }
+    }
+}
+
+impl ObfuscationProtocol {
+    pub fn semantically_equals(&self, other: &Self) -> bool {
+        match (self, other) {
+            (ObfuscationProtocol::Shadowsocks(left), ObfuscationProtocol::Shadowsocks(right)) => {
+                left.semantically_equals(right)
+            }
+            (ObfuscationProtocol::Socks5(left), ObfuscationProtocol::Socks5(right)) => {
+                left.semantically_equals(right)
+            }
+            (ObfuscationProtocol::Shadowsocks(_), ObfuscationProtocol::Socks5(_)) => false,
+            (ObfuscationProtocol::Socks5(_), ObfuscationProtocol::Shadowsocks(_)) => false,
         }
     }
 }
