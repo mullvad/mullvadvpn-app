@@ -41,7 +41,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
+import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -132,7 +132,7 @@ fun SettingsScreen(
                             Uri.parse(
                                 context.resources
                                     .getString(R.string.download_url)
-                                    .appendHideNavOnReleaseBuild()
+                                    .appendHideNavOnPlayBuild()
                             )
                         )
                     },
@@ -208,7 +208,7 @@ fun SettingsScreen(
                             Uri.parse(
                                 context.resources
                                     .getString(R.string.privacy_policy_url)
-                                    .appendHideNavOnReleaseBuild()
+                                    .appendHideNavOnPlayBuild()
                             )
                         )
                     }
