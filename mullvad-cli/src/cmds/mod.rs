@@ -2,6 +2,7 @@ use clap::builder::{PossibleValuesParser, TypedValueParser, ValueParser};
 use std::ops::Deref;
 
 pub mod account;
+pub mod api_access;
 pub mod auto_connect;
 pub mod beta_program;
 pub mod bridge;
@@ -10,7 +11,6 @@ pub mod dns;
 pub mod lan;
 pub mod lockdown;
 pub mod obfuscation;
-pub mod proxy;
 pub mod relay;
 pub mod relay_constraints;
 pub mod reset;
