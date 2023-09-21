@@ -20,7 +20,7 @@ while [[ "$#" -gt 0 ]]; do
             TEST_TYPE="app"
             USE_ORCHESTRATOR="false"
             TEST_PACKAGE="net.mullvad.mullvadvpn.test"
-            TEST_APK="$APK_BASE_DIR/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+            TEST_APK="$APK_BASE_DIR/app/build/outputs/apk/androidTest/ossProd/debug/app-oss-prod-debug-androidTest.apk"
             ;;
         e2e)
             TEST_TYPE="e2e"
@@ -105,7 +105,7 @@ echo "Starting instrumented tests of type: $TEST_TYPE"
 echo ""
 
 echo "### Install packages ###"
-adb install -t "$APK_BASE_DIR/app/build/outputs/apk/debug/app-debug.apk"
+adb install -t "$APK_BASE_DIR/app/build/outputs/apk/ossProd/debug/app-oss-prod-debug.apk"
 adb install "$TEST_APK"
 if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
     echo "Using ORCHESTRATOR_APK_PATH: $ORCHESTRATOR_APK_PATH"
