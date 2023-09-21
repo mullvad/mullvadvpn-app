@@ -84,6 +84,24 @@ pub enum AccessMethod {
     Custom(CustomAccessMethod),
 }
 
+impl AccessMethod {
+    pub fn get_name(&self) -> String {
+        match self {
+            AccessMethod::BuiltIn(x) => match x {
+                BuiltInAccessMethod::Direct(_) => "Direct".to_string(),
+                BuiltInAccessMethod::Bridge(_) => "Mullvad Bridges".to_string(),
+            },
+            AccessMethod::Custom(c) => match &c.access_method {
+                ObfuscationProtocol::Shadowsocks(s) => s.name.clone(),
+                ObfuscationProtocol::Socks5(s) => match s {
+                    Socks5::Local(l) => l.name.clone(),
+                    Socks5::Remote(r) => r.name.clone(),
+                },
+            },
+        }
+    }
+}
+
 /// Built-In access method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum BuiltInAccessMethod {

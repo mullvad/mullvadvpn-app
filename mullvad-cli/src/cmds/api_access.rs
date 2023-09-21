@@ -166,11 +166,15 @@ impl ApiAccess {
     async fn test(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
+        let name = access_method.get_name();
         rpc.set_access_method(access_method).await?;
         // Make the daemon perform an network request which involves talking to the Mullvad API.
         match rpc.get_api_addressess().await {
-            Ok(_) => println!("API call succeeded!"),
-            Err(_) => println!("API call failed :-("),
+            Ok(_) => println!("Connected to the Mullvad API!"),
+            Err(_) => println!(
+                "Could *not* connect to the Mullvad API using access method \"{}\"",
+                name
+            ),
         }
 
         Ok(())
