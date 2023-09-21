@@ -12,6 +12,11 @@
 # Passed by Xcode
 ACTION=$1
 
+# Do normal builds when building documentation.
+if [ "$ACTION" == "docbuild" ]; then
+  ACTION="build"
+fi
+
 if [ "$SOURCE_PACKAGES_PATH" == "" ]; then
   # When archiving, Xcode sets the action to "install"
   if [ "$ACTION" == "install" ]; then
