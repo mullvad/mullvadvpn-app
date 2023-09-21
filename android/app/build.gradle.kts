@@ -74,6 +74,7 @@ android {
         }
         create(BuildTypes.LEAK_CANARY) {
             initWith(buildTypes.getByName(BuildTypes.DEBUG))
+            applicationIdSuffix = ".leakcanary"
             matchingFallbacks += BuildTypes.DEBUG
         }
     }
