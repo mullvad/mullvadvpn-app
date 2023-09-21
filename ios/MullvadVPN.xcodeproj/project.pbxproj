@@ -56,7 +56,7 @@
 		580810E92A30E17300B74552 /* DeviceCheckRemoteServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580810E72A30E15500B74552 /* DeviceCheckRemoteServiceProtocol.swift */; };
 		580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580909D22876D09A0078138D /* RevokedDeviceViewController.swift */; };
 		58092E542A8B832E00C3CC72 /* TunnelMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */; };
-		580D6B8A2AB31AB400B2D6E0 /* NetworkPath+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */; };
+		580D6B8A2AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B892AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift */; };
 		580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */; };
 		580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */; };
 		580D6B922AB360BE00B2D6E0 /* DeviceCheck+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */; };
@@ -84,7 +84,7 @@
 		582AE3102440A6CA00E6733A /* InputTextFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE30F2440A6CA00E6733A /* InputTextFormatter.swift */; };
 		582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1AE229566420055B6EF /* SettingsCell.swift */; };
 		582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B0229569620055B6EF /* UINavigationBar+Appearance.swift */; };
-		58342C042AAB61FB003BA12D /* State+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58342C032AAB61FB003BA12D /* State+.swift */; };
+		58342C042AAB61FB003BA12D /* State+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58342C032AAB61FB003BA12D /* State+Extensions.swift */; };
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
@@ -136,7 +136,7 @@
 		586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */; };
 		586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
 		586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */; };
-		586E8DB82AAF4AC4007BF3DA /* Task+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E8DB72AAF4AC4007BF3DA /* Task+.swift */; };
+		586E8DB82AAF4AC4007BF3DA /* Task+Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E8DB72AAF4AC4007BF3DA /* Task+Duration.swift */; };
 		5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871167E2910035700D41AAC /* PreferencesInteractor.swift */; };
 		5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */; };
@@ -415,7 +415,7 @@
 		58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ED3A132A7C199C0085CE65 /* StartOptions.swift */; };
 		58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */; };
 		58FE25DD2AA72A8F003D1918 /* TaskQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF7E2A9F52BB008BC928 /* TaskQueue.swift */; };
-		58FE25DE2AA72A95003D1918 /* DispatchSource+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7A0322AA075BB00C57861 /* DispatchSource+.swift */; };
+		58FE25DE2AA72A95003D1918 /* DispatchSource+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7A0322AA075BB00C57861 /* DispatchSource+Async.swift */; };
 		58FE25DF2AA72A9B003D1918 /* RelaySelectorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */; };
 		58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */; };
 		58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */; };
@@ -423,7 +423,7 @@
 		58FE25EE2AA7764E003D1918 /* MockTunnelAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */; };
 		58FE25F02AA77664003D1918 /* MockRelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */; };
 		58FE25F22AA77674003D1918 /* MockSettingsReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F12AA77674003D1918 /* MockSettingsReader.swift */; };
-		58FE25F42AA9D730003D1918 /* Actor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F32AA9D730003D1918 /* Actor+.swift */; };
+		58FE25F42AA9D730003D1918 /* Actor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25F32AA9D730003D1918 /* Actor+Extensions.swift */; };
 		58FE65952AB1D90600E53CB5 /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */; };
 		58FF23A32AB09BEE003A2AF2 /* DeviceChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */; };
@@ -1070,7 +1070,7 @@
 		580909D22876D09A0078138D /* RevokedDeviceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDeviceViewController.swift; sourceTree = "<group>"; };
 		58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTests.swift; sourceTree = "<group>"; };
 		580CBFB72848D503007878F0 /* OperationConditionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationConditionTests.swift; sourceTree = "<group>"; };
-		580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkPath+.swift"; sourceTree = "<group>"; };
+		580D6B892AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkPath+NetworkReachability.swift"; sourceTree = "<group>"; };
 		580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapperProtocol.swift; sourceTree = "<group>"; };
 		580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapper.swift; sourceTree = "<group>"; };
 		580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DeviceCheck+.swift"; sourceTree = "<group>"; };
@@ -1119,7 +1119,7 @@
 		582BB1AE229566420055B6EF /* SettingsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
 		582BB1B0229569620055B6EF /* UINavigationBar+Appearance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UINavigationBar+Appearance.swift"; sourceTree = "<group>"; };
 		582FFA82290A84E700895745 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		58342C032AAB61FB003BA12D /* State+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "State+.swift"; sourceTree = "<group>"; };
+		58342C032AAB61FB003BA12D /* State+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "State+Extensions.swift"; sourceTree = "<group>"; };
 		5835B7CB233B76CB0096D79F /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		5838318A27C40A3900000571 /* Pinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pinger.swift; sourceTree = "<group>"; };
 		583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStateAccessor.swift; sourceTree = "<group>"; };
@@ -1184,7 +1184,7 @@
 		586A951329013235007BAF2B /* AnyIPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPEndpoint.swift; sourceTree = "<group>"; };
 		586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTunnelProviderMessageOperation.swift; sourceTree = "<group>"; };
 		586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsReaderProtocol.swift; sourceTree = "<group>"; };
-		586E8DB72AAF4AC4007BF3DA /* Task+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+.swift"; sourceTree = "<group>"; };
+		586E8DB72AAF4AC4007BF3DA /* Task+Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Task+Duration.swift"; sourceTree = "<group>"; };
 		586F2BE129F6916F009E6924 /* shadowsocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shadowsocks.h; path = "shadowsocks-proxy/include/shadowsocks.h"; sourceTree = "<group>"; };
 		5871167E2910035700D41AAC /* PreferencesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesInteractor.swift; sourceTree = "<group>"; };
 		5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsolidatedApplicationLog.swift; sourceTree = "<group>"; };
@@ -1351,7 +1351,7 @@
 		58E511E328DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomErrorDescriptionProtocol.swift; sourceTree = "<group>"; };
 		58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingErrors+CustomErrorDescription.swift"; sourceTree = "<group>"; };
 		58E511EA28DDE18400B0BCDE /* Error+Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+Chain.swift"; sourceTree = "<group>"; };
-		58E7A0322AA075BB00C57861 /* DispatchSource+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchSource+.swift"; sourceTree = "<group>"; };
+		58E7A0322AA075BB00C57861 /* DispatchSource+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchSource+Async.swift"; sourceTree = "<group>"; };
 		58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportProvider.swift; sourceTree = "<group>"; };
 		58E973DD24850EB600096F90 /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
 		58E9C3832A4EF15300CFDEAC /* WireGuardAdapter+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WireGuardAdapter+Async.swift"; sourceTree = "<group>"; };
@@ -1392,7 +1392,7 @@
 		58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTunnelAdapter.swift; sourceTree = "<group>"; };
 		58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRelaySelector.swift; sourceTree = "<group>"; };
 		58FE25F12AA77674003D1918 /* MockSettingsReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSettingsReader.swift; sourceTree = "<group>"; };
-		58FE25F32AA9D730003D1918 /* Actor+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+.swift"; sourceTree = "<group>"; };
+		58FE25F32AA9D730003D1918 /* Actor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+Extensions.swift"; sourceTree = "<group>"; };
 		58FE65922AB1CDE000E53CB5 /* DeviceCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceCheck.swift; sourceTree = "<group>"; };
 		58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyboardResponder.swift; sourceTree = "<group>"; };
 		58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceChecker.swift; sourceTree = "<group>"; };
@@ -2188,18 +2188,18 @@
 			isa = PBXGroup;
 			children = (
 				58E9C3852A4EF1CB00CFDEAC /* Actor.swift */,
-				58FE25F32AA9D730003D1918 /* Actor+.swift */,
+				58FE25F32AA9D730003D1918 /* Actor+Extensions.swift */,
 				58DDA18E2ABC32380039C360 /* Timings.swift */,
 				5824030C2A811B0000163DE8 /* State.swift */,
-				58342C032AAB61FB003BA12D /* State+.swift */,
+				58342C032AAB61FB003BA12D /* State+Extensions.swift */,
 				583E60952A9F6D0800DC61EF /* ConfigurationBuilder.swift */,
 				58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */,
-				586E8DB72AAF4AC4007BF3DA /* Task+.swift */,
+				586E8DB72AAF4AC4007BF3DA /* Task+Duration.swift */,
 				58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */,
 				5864AF7E2A9F52BB008BC928 /* TaskQueue.swift */,
 				58ED3A132A7C199C0085CE65 /* StartOptions.swift */,
-				58E7A0322AA075BB00C57861 /* DispatchSource+.swift */,
-				580D6B892AB31AB400B2D6E0 /* NetworkPath+.swift */,
+				58E7A0322AA075BB00C57861 /* DispatchSource+Async.swift */,
+				580D6B892AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift */,
 				58E7A0312AA0715100C57861 /* Protocols */,
 			);
 			path = Actor;
@@ -3905,7 +3905,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58FE25F42AA9D730003D1918 /* Actor+.swift in Sources */,
+				58FE25F42AA9D730003D1918 /* Actor+Extensions.swift in Sources */,
 				58DDA18F2ABC32380039C360 /* Timings.swift in Sources */,
 				58C9B8C32ABB23A500040B46 /* PacketTunnelStatus.swift in Sources */,
 				58C9B8C42ABB23A500040B46 /* PacketTunnelRelay.swift in Sources */,
@@ -3934,12 +3934,12 @@
 				58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */,
 				58FE25D82AA72A8F003D1918 /* ConfigurationBuilder.swift in Sources */,
 				58C9B8CB2ABB23E700040B46 /* URLRequestProxy.swift in Sources */,
-				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+.swift in Sources */,
-				58FE25DE2AA72A95003D1918 /* DispatchSource+.swift in Sources */,
-				586E8DB82AAF4AC4007BF3DA /* Task+.swift in Sources */,
+				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift in Sources */,
+				58FE25DE2AA72A95003D1918 /* DispatchSource+Async.swift in Sources */,
+				586E8DB82AAF4AC4007BF3DA /* Task+Duration.swift in Sources */,
 				58C9B8CD2ABB247700040B46 /* RelaySelectorResult+PacketTunnelRelay.swift in Sources */,
 				58C9B8C92ABB23E700040B46 /* TunnelProviderReply.swift in Sources */,
-				58342C042AAB61FB003BA12D /* State+.swift in Sources */,
+				58342C042AAB61FB003BA12D /* State+Extensions.swift in Sources */,
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
 				58FE25D92AA72A8F003D1918 /* AutoCancellingTask.swift in Sources */,
 				58C9B8C62ABB23E700040B46 /* ProxyURLResponse.swift in Sources */,
