@@ -89,6 +89,7 @@ struct PreferencesViewModel: Equatable {
     private(set) var blockMalware: Bool
     private(set) var blockAdultContent: Bool
     private(set) var blockGambling: Bool
+    private(set) var blockSocialMedia: Bool
     private(set) var enableCustomDNS: Bool
     private(set) var wireGuardPort: UInt16?
     var customDNSDomains: [DNSServerEntry]
@@ -118,6 +119,11 @@ struct PreferencesViewModel: Equatable {
 
     mutating func setBlockGambling(_ newValue: Bool) {
         blockGambling = newValue
+        enableCustomDNS = false
+    }
+
+    mutating func setBlockSocialMedia(_ newValue: Bool) {
+        blockSocialMedia = newValue
         enableCustomDNS = false
     }
 
@@ -166,6 +172,7 @@ struct PreferencesViewModel: Equatable {
         blockMalware = dnsSettings.blockingOptions.contains(.blockMalware)
         blockAdultContent = dnsSettings.blockingOptions.contains(.blockAdultContent)
         blockGambling = dnsSettings.blockingOptions.contains(.blockGambling)
+        blockSocialMedia = dnsSettings.blockingOptions.contains(.blockSocialMedia)
         enableCustomDNS = dnsSettings.enableCustomDNS
         customDNSDomains = dnsSettings.customDNSDomains.map { ipAddress in
             DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
@@ -243,6 +250,10 @@ struct PreferencesViewModel: Equatable {
 
         if blockGambling {
             blockingOptions.insert(.blockGambling)
+        }
+
+        if blockSocialMedia {
+            blockingOptions.insert(.blockSocialMedia)
         }
 
         var dnsSettings = DNSSettings()
