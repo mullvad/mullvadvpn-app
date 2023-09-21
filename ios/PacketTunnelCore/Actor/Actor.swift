@@ -59,6 +59,14 @@ public actor PacketTunnelActor {
 
     // MARK: - Public: Calls serialized on task queue
 
+    /**
+     Start the tunnel and wait until connected.
+
+     - Can only be called once, all subsequent attempts are ignored. Use `reconnect()` if you wish to change relay.
+     - Can be cancelled by a subsequent call to `stop()`. In that case the original invocation of `start()` returns once actor moved to disconnected state.
+
+     - Parameter options: start options produced by packet tunnel
+     */
     public func start(options: StartOptions) async throws {
         try await taskQueue.add(kind: .start) { [self] in
             guard case .initial = state else { return }
@@ -97,6 +105,11 @@ public actor PacketTunnelActor {
         await waitUntilConnected()
     }
 
+    /**
+     Stop the tunnel.
+
+     Calling this method cancels all pending or executing tasks.
+     */
     public func stop() async {
         try? await taskQueue.add(kind: .stop) { [self] in
             switch state {
@@ -126,6 +139,11 @@ public actor PacketTunnelActor {
         }
     }
 
+    /**
+     Reconnect the tunnel to new relay.
+
+     - Parameter nextRelay: next relay to connect to.
+     */
     public func reconnect(to nextRelay: NextRelay) async throws {
         try await reconnect(to: nextRelay, shouldStopTunnelMonitor: true)
     }
@@ -135,6 +153,8 @@ public actor PacketTunnelActor {
 
      Normally actor enters error state on its own, due to unrecoverable errors. However error state can also be induced externally for example in response to
      device check indicating certain issues that actor is not able to detect on its own such as invalid account or device being revoked on backend.
+
+     - Parameter reason: block reason
      */
     public func setErrorState(with reason: BlockedStateReason) async {
         try? await taskQueue.add(kind: .blockedState) { [self] in
@@ -153,6 +173,7 @@ public actor PacketTunnelActor {
 
      The `date` passed as an argument is a simple marker value passed back to UI process with actor state. This date can be used to determine when
      the main app has to re-read device state from Keychain, since there is no other mechanism to notify other process when packet tunnel mutates keychain store.
+     - Parameter date: date when last key rotation took place.
      */
     public func notifyKeyRotated(date: Date? = nil) async {
         try? await taskQueue.add(kind: .keyRotated) { [self] in
@@ -206,10 +227,20 @@ public actor PacketTunnelActor {
 
     // MARK: - Public: Sleep cycle notifications
 
+    /**
+     Cients should call this method to notify actor when device becomes awake.
+
+     `NEPacketTunnelProvider` provides the corresponding lifecycle method.
+     */
     public nonisolated func onWake() {
         tunnelMonitor.onWake()
     }
 
+    /**
+     Clients should call this method to notify actor when device is about to go to sleep.
+
+     `NEPacketTunnelProvider` provides the corresponding lifecycle method.
+     */
     public func onSleep() {
         tunnelMonitor.onSleep()
     }
@@ -277,6 +308,11 @@ public actor PacketTunnelActor {
 
     // MARK: - Network Reachability
 
+    /**
+     Start observing changes to default path.
+
+     - Parameter notifyObserverWithCurrentPath: notifies path observer with the current path when set to `true`.
+     */
     private func startDefaultPathObserver(notifyObserverWithCurrentPath: Bool = false) {
         defaultPathObserver.start { [weak self] networkPath in
             guard let self else { return }
@@ -288,11 +324,16 @@ public actor PacketTunnelActor {
         }
     }
 
+    /// Stop observing changes to default path.
     private func stopDefaultPathObserver() {
         defaultPathObserver.stop()
     }
 
-    /// Event handler that receives new network path and schedules it for processing on task queue to avoid interlacing with other tasks.
+    /**
+     Event handler that receives new network path and schedules it for processing on task queue to avoid interlacing with other tasks.
+
+     - Parameter networkPath: new default path
+     */
     private func onDefaultPathChange(_ networkPath: NetworkPath) async {
         try? await taskQueue.add(kind: .networkReachability) { [self] in
             let newReachability = networkPath.networkReachability
@@ -347,9 +388,11 @@ public actor PacketTunnelActor {
      - If device is not logged in then throw an error and return
      - Determine target state, it can either be `.connecting` or `.reconnecting`. (See `TargetStateForReconnect`)
      - Bail if target state cannot be determined. That means that the actor is past the point when it could logically connect or reconnect, i.e it can already be in
-       `.disconnecting` state.
+     `.disconnecting` state.
      - Configure tunnel adapter.
      - Start tunnel monitor.
+
+     - Parameter nextRelay: which relay should be selected next.
      */
     private func tryStart(nextRelay: NextRelay = .random) async throws {
         func makeConnectionState(settings: Settings) throws -> ConnectionState? {
@@ -469,7 +512,17 @@ public actor PacketTunnelActor {
         }
     }
 
-    /// Select next relay to connect to based on `NextRelay` and other input parameters.
+    /**
+     Select next relay to connect to based on `NextRelay` and other input parameters.
+
+     - Parameters:
+     - nextRelay: next relay to connect to.
+     - relayConstraints: relay constraints.
+     - currentRelay: currently selected relay.
+     - connectionAttemptCount: number of failed connection attempts so far.
+
+     - Returns: selector result that contains the credentials of the next relay that the tunnel should connect to.
+     */
     private func selectRelay(
         nextRelay: NextRelay,
         relayConstraints: RelayConstraints,
@@ -499,9 +552,11 @@ public actor PacketTunnelActor {
     // MARK: - Private: Error state
 
     /**
-     Evaluates error and maps it to `BlockedStateReason` before switchin actor to `.error` state.
+     Transition actor to error state.
 
-     Matches against internal errors first, then consults with `blockedStateErrorMapper`.
+     Evaluates the error and maps it to `BlockedStateReason` before switchin actor to `.error` state.
+
+     - Parameter error: an error that occurred while starting the tunnel.
      */
     private func setErrorStateInner(with error: Error) async {
         let reason = blockedStateErrorMapper.mapError(error)
@@ -509,7 +564,11 @@ public actor PacketTunnelActor {
         await setErrorStateInner(with: reason)
     }
 
-    /// Transitions actor to `.error` state.
+    /**
+     Transition actor to error state.
+
+     - Parameter reason: reason why the actor is entering error state.
+     */
     private func setErrorStateInner(with reason: BlockedStateReason) async {
         switch state {
         case .initial:
@@ -568,6 +627,9 @@ public actor PacketTunnelActor {
      Start a task that will attempt to reconnect the tunnel periodically, but only if the tunnel can recover from error state automatically.
 
      See `BlockedStateReason.shouldRestartAutomatically` for more info.
+
+     - Parameter reason: the reason why actor is entering blocked state.
+     - Returns: a task that will attempt to perform periodic recovery when applicable, otherwise `nil`.
      */
     private func startRecoveryTaskIfNeeded(reason: BlockedStateReason) -> AutoCancellingTask? {
         guard reason.shouldRestartAutomatically else { return nil }

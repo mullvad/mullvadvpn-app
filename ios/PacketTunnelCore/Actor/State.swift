@@ -197,6 +197,7 @@ public enum TargetStateForReconnect {
     case reconnecting, connecting
 }
 
+/// Describes which relay the tunnel should connect to next.
 public enum NextRelay {
     /// Select next relay randomly.
     case random
