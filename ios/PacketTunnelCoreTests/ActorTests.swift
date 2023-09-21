@@ -49,24 +49,10 @@ final class ActorTests: XCTestCase {
 
         let settingsReader = MockSettingsReader {
             return Settings(
-                tunnelSettings: LatestTunnelSettings(
-                    relayConstraints: RelayConstraints(),
-                    dnsSettings: DNSSettings()
-                ),
-                deviceState: .loggedIn(
-                    StoredAccountData(identifier: "", number: "123", expiry: .distantFuture),
-                    StoredDeviceData(
-                        creationDate: Date(), identifier: "", name: "", hijackDNS: false,
-                        ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
-                        ipv6Address: IPAddressRange(from: "::ff/64")!,
-                        wgKeyData: StoredWgKeyData(
-                            creationDate: Date(),
-                            lastRotationAttemptDate: nil,
-                            privateKey: PrivateKey(),
-                            nextPrivateKey: nil
-                        )
-                    )
-                )
+                privateKey: PrivateKey(),
+                interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
+                relayConstraints: RelayConstraints(),
+                dnsServers: .gateway
             )
         }
 
@@ -81,7 +67,7 @@ final class ActorTests: XCTestCase {
             }
         }
 
-        let blockedStateMapper = MockBlockedStateErrorMapper { error in
+        let blockedStateMapper = MockBlockedStateErrorMapper { _ in
             return BlockedStateReason.unknown
         }
 
