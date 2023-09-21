@@ -19,13 +19,12 @@ import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_SPINNER_TIME_MILLIS
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
-
-private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
 
 sealed interface LoginViewAction {
     data object NavigateToWelcome : LoginViewAction
