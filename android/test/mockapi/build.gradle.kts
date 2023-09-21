@@ -13,6 +13,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetProjectPath = ":app"
 
+        missingDimensionStrategy(FlavorDimensions.BILLING, Flavors.OSS)
+        missingDimensionStrategy(FlavorDimensions.INFRASTRUCTURE, Flavors.PROD)
+
         testInstrumentationRunnerArguments.putAll(
             mapOf(
                 "clearPackageData" to "true",

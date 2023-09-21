@@ -22,6 +22,13 @@ android {
         abortOnError = true
         warningsAsErrors = true
     }
+
+    flavorDimensions += FlavorDimensions.BILLING
+
+    productFlavors {
+        create(Flavors.OSS) { dimension = FlavorDimensions.BILLING }
+        create(Flavors.PLAY) { dimension = FlavorDimensions.BILLING }
+    }
 }
 
 dependencies {

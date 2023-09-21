@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
+import org.gradle.configurationcache.extensions.capitalized
 import java.io.FileInputStream
 import java.util.*
 
@@ -47,19 +48,18 @@ android {
 
     if (keystorePropertiesFile.exists()) {
         signingConfigs {
-            create("release") {
+            create(SigningConfigs.RELEASE) {
                 storeFile = file("$credentialsPath/app-keys.jks")
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
             }
         }
-
-        buildTypes { getByName("release") { signingConfig = signingConfigs.getByName("release") } }
     }
 
     buildTypes {
-        getByName("release") {
+        getByName(BuildTypes.RELEASE) {
+            signingConfig = signingConfigs.findByName(SigningConfigs.RELEASE)
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -67,18 +67,33 @@ android {
                 "proguard-rules.pro"
             )
         }
-
-        create("fdroid") {
-            initWith(buildTypes.getByName("release"))
-            isMinifyEnabled = true
-            isShrinkResources = true
+        create(BuildTypes.FDROID) {
+            initWith(buildTypes.getByName(BuildTypes.RELEASE))
             signingConfig = null
-            matchingFallbacks += "release"
+            matchingFallbacks += BuildTypes.RELEASE
         }
+        create(BuildTypes.LEAK_CANARY) {
+            initWith(buildTypes.getByName(BuildTypes.DEBUG))
+            matchingFallbacks += BuildTypes.DEBUG
+        }
+    }
 
-        create("leakCanary") {
-            initWith(buildTypes.getByName("debug"))
-            matchingFallbacks += "debug"
+    flavorDimensions += FlavorDimensions.BILLING
+    flavorDimensions += FlavorDimensions.INFRASTRUCTURE
+
+    productFlavors {
+        create(Flavors.OSS) {
+            dimension = FlavorDimensions.BILLING
+            isDefault = true
+        }
+        create(Flavors.PLAY) { dimension = FlavorDimensions.BILLING }
+        create(Flavors.PROD) {
+            dimension = FlavorDimensions.INFRASTRUCTURE
+            isDefault = true
+        }
+        create(Flavors.DEVMOLE) {
+            dimension = FlavorDimensions.INFRASTRUCTURE
+            applicationId = "net.mullvad.mullvadvpn.devmole"
         }
     }
 
@@ -166,7 +181,59 @@ android {
         )
     }
 
+    applicationVariants.all {
+        val artifactSuffix = buildString {
+            val billingFlavorName = productFlavors.getOrNull(0)?.name
+            if (billingFlavorName != null && billingFlavorName != Flavors.OSS) {
+                append(".$billingFlavorName")
+            }
+
+            val infrastructureFlavorName = productFlavors.getOrNull(1)?.name
+            if (infrastructureFlavorName != null && infrastructureFlavorName != Flavors.PROD) {
+                append(".$infrastructureFlavorName")
+            }
+
+            if (buildType.name != BuildTypes.RELEASE) {
+                append(".${buildType.name}")
+            }
+        }
+
+        val variantName = name
+        val capitalizedVariantName = variantName.capitalized()
+        val artifactName = "MullvadVPN-${versionName}${artifactSuffix}"
+
+        tasks.register<Copy>("create${capitalizedVariantName}DistApk") {
+            from(packageApplicationProvider)
+            into("${rootDir.parent}/dist")
+            include { it.name.endsWith(".apk") }
+            rename { "$artifactName.apk" }
+        }
+
+        val createDistBundle =
+            tasks.register<Copy>("create${capitalizedVariantName}DistBundle") {
+                from("$buildDir/outputs/bundle/$variantName")
+                into("${rootDir.parent}/dist")
+                include { it.name.endsWith(".aab") }
+                rename { "$artifactName.aab" }
+            }
+
+        createDistBundle.dependsOn("bundle$capitalizedVariantName")
+    }
+
     project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
+}
+
+androidComponents {
+    beforeVariants { variantBuilder ->
+        variantBuilder.enable =
+            variantBuilder.let { currentVariant ->
+                val enabledVariants =
+                    enabledVariantTriples.map { (billing, infra, buildType) ->
+                        billing + infra.capitalized() + buildType.capitalized()
+                    }
+                enabledVariants.contains(currentVariant.name)
+            }
+    }
 }
 
 configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
