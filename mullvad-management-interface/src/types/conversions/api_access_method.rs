@@ -1,4 +1,6 @@
-/// Implements conversions for the auxilliary proto AccessMethod type to the internal AccessMethod data type.
+/// Implements conversions for the auxilliary
+/// [`crate::types::proto::ApiAccessMethodSettings`] type to the internal
+/// [`mullvad_types::access_method::Settings`] data type.
 mod settings {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::api_access_method;
@@ -86,7 +88,9 @@ mod settings {
     }
 }
 
-/// Implements conversions for the 'main' AccessMethod data type.
+/// Implements conversions for the auxilliary
+/// [`crate::types::proto::ApiAccessMethod`] type to the internal
+/// [`mullvad_types::access_method::AccessMethod`] data type.
 mod data {
     use crate::types::{
         proto::{self, api_access_method::socks5::Socks5type},
