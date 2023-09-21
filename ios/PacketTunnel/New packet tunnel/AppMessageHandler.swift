@@ -58,7 +58,7 @@ actor AppMessageHandler {
 
         case let .reconnectTunnel(selectorResult):
             Task {
-                try await self.packetTunnelActor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .random)
+                try await self.packetTunnelActor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .current)
             }
             return nil
         }
