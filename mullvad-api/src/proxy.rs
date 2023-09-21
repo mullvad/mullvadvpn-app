@@ -60,7 +60,7 @@ impl fmt::Display for ProxyConfig {
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
             ProxyConfig::Socks(socks) => match socks {
                 access_method::Socks5::Local(s) => {
-                    write!(f, "Socks5 {}/TCP via localhost:{}", s.port, s.peer)
+                    write!(f, "Socks5 {}/TCP via localhost:{}", s.peer, s.port)
                 }
                 access_method::Socks5::Remote(s) => write!(f, "Socks5 {}/TCP", s.peer),
             },
