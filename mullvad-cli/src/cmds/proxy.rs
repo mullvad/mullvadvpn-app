@@ -34,39 +34,35 @@ impl Proxy {
     pub async fn handle(self) -> Result<()> {
         match self {
             Proxy::List => {
-                //println!("Listing the API access methods: ..");
                 Self::list().await?;
             }
             Proxy::Add(cmd) => {
-                //println!("Adding custom proxy");
                 Self::add(cmd).await?;
             }
             Proxy::Edit(cmd) => {
-                // Transform human-readable index to 0-based indexing.
-                let index = Self::zero_to_one_based_index(cmd.index)?;
+                let index = Self::one_to_zero_based_index(cmd.index)?;
                 Self::edit(EditCustomCommands { index, ..cmd }).await?
             }
             Proxy::Remove(cmd) => {
-                // Transform human-readable index to 0-based indexing.
-                let index = Self::zero_to_one_based_index(cmd.index)?;
+                let index = Self::one_to_zero_based_index(cmd.index)?;
                 Self::remove(RemoveCustomCommands { index }).await?
             }
             Proxy::Enable(cmd) => {
-                let index = Self::zero_to_one_based_index(cmd.index)?;
+                let index = Self::one_to_zero_based_index(cmd.index)?;
                 let enabled = true;
                 Self::toggle(index, enabled).await?;
             }
             Proxy::Disable(cmd) => {
-                let index = Self::zero_to_one_based_index(cmd.index)?;
+                let index = Self::one_to_zero_based_index(cmd.index)?;
                 let enabled = false;
                 Self::toggle(index, enabled).await?;
             }
             Proxy::Test(cmd) => {
-                let index = Self::zero_to_one_based_index(cmd.index)?;
+                let index = Self::one_to_zero_based_index(cmd.index)?;
                 Self::test(index).await?;
             }
             Proxy::Use(cmd) => {
-                let index = Self::zero_to_one_based_index(cmd.index)?;
+                let index = Self::one_to_zero_based_index(cmd.index)?;
                 Self::set(index).await?;
             }
         };
@@ -75,13 +71,12 @@ impl Proxy {
 
     /// Show all API access methods.
     async fn list() -> Result<()> {
-        use crate::cmds::proxy::pp::AccessMethodFormatter;
         let mut rpc = MullvadProxyClient::new().await?;
         for (index, api_access_method) in rpc.get_api_access_methods().await?.iter().enumerate() {
             println!(
                 "{}. {}",
                 index + 1,
-                AccessMethodFormatter::new(api_access_method)
+                pp::AccessMethodFormatter::new(api_access_method)
             );
         }
         Ok(())
@@ -108,12 +103,12 @@ impl Proxy {
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let access_method = Self::get_access_method(&mut rpc, cmd.index).await?;
-        // Create a new access method combining the new params with the previous values
-        let access_method = match access_method {
-            AccessMethod::BuiltIn(_) => Err(anyhow!("Can not edit built-in access method")),
-            AccessMethod::Custom(custom_access_method) => Ok(custom_access_method),
-        }?;
+        let access_method = access_method
+            .as_custom()
+            .cloned()
+            .ok_or(anyhow!("Can not edit built-in access method"))?;
 
+        // Create a new access method combining the new params with the previous values
         let edited_access_method: AccessMethod = match access_method.access_method {
             ObfuscationProtocol::Shadowsocks(shadowsocks) => {
                 let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip()).to_string();
@@ -153,7 +148,7 @@ impl Proxy {
         }
         .ok_or(anyhow!(
             "Could not edit access method {}, reverting changes.",
-            cmd.index
+            cmd.index + 1
         ))?;
 
         rpc.replace_access_method(ApiAccessMethodReplace {
@@ -212,7 +207,8 @@ impl Proxy {
             )))
     }
 
-    fn zero_to_one_based_index(index: usize) -> Result<usize> {
+    /// Transform human-readable (1-based) index to 0-based indexing.
+    fn one_to_zero_based_index(index: usize) -> Result<usize> {
         index
             .checked_sub(1)
             .ok_or(anyhow!("Access method 0 does not exist"))
