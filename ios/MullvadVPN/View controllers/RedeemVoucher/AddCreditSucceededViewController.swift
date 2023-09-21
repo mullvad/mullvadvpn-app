@@ -97,19 +97,18 @@ class AddCreditSucceededViewController: UIViewController, RootContainment {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        addSubviews()
-        addConstraints()
+        configureUI()
         addDismissButtonHandler()
     }
 
-    private func addSubviews() {
-        for subview in [statusImageView, titleLabel, messageLabel, dismissButton] {
-            view.addSubview(subview)
-        }
-    }
+    private func configureUI() {
+        let contentHolderView = UIView(frame: .zero)
 
-    private func addConstraints() {
-        view.addConstrainedSubviews([statusImageView, titleLabel, messageLabel, dismissButton]) {
+        view.addConstrainedSubviews([contentHolderView]) {
+            contentHolderView.pinEdgesToSuperview(.all(UIMetrics.SettingsRedeemVoucher.successfulRedeemMargins))
+        }
+
+        contentHolderView.addConstrainedSubviews([statusImageView, titleLabel, messageLabel, dismissButton]) {
             statusImageView.pinEdgesToSuperviewMargins(PinnableEdges([.top(0)]))
             statusImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
 

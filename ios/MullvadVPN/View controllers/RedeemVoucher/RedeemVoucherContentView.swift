@@ -30,9 +30,26 @@ final class RedeemVoucherContentView: UIView {
         return contentHolderView
     }()
 
-    private let titleLabel: UILabel = {
+    private let voucherTextFieldHeight: CGFloat = 54
+
+    private let title: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .preferredFont(forTextStyle: .title1, weight: .bold).withSize(32)
+        label.text = NSLocalizedString(
+            "REDEEM_VOUCHER_TITLE",
+            tableName: "RedeemVoucher",
+            value: "Redeem voucher",
+            comment: ""
+        )
+        label.textColor = .white
+        label.numberOfLines = 0
+        return label
+    }()
+
+    private let enterVoucherLabel: UILabel = {
+        let label = UILabel()
+        label.font = .preferredFont(forTextStyle: .body, weight: .semibold).withSize(15)
+
         label.text = NSLocalizedString(
             "REDEEM_VOUCHER_INSTRUCTION",
             tableName: "RedeemVoucher",
@@ -40,7 +57,6 @@ final class RedeemVoucherContentView: UIView {
             comment: ""
         )
         label.textColor = .white
-        label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 0
         return label
     }()
@@ -61,7 +77,6 @@ final class RedeemVoucherContentView: UIView {
 
     private let activityIndicator: SpinnerActivityIndicatorView = {
         let activityIndicator = SpinnerActivityIndicatorView(style: .medium)
-        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.tintColor = .white
         activityIndicator.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         activityIndicator.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
@@ -70,7 +85,7 @@ final class RedeemVoucherContentView: UIView {
 
     private let statusLabel: UILabel = {
         let label = UILabel()
-        label.font = .preferredFont(forTextStyle: .body)
+        label.font = .systemFont(ofSize: 13, weight: .semibold)
         label.numberOfLines = 2
         label.lineBreakMode = .byWordWrapping
         label.textColor = .red
@@ -111,32 +126,36 @@ final class RedeemVoucherContentView: UIView {
 
     private lazy var statusStack: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [activityIndicator, statusLabel])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
         stackView.spacing = UIMetrics.padding8
         return stackView
     }()
 
     private lazy var voucherCodeStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [
-            titleLabel,
+        var arrangedSubviews = [
+            enterVoucherLabel,
             textField,
             statusStack,
             logoutViewForAccountNumberIsEntered,
-        ])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
+        ]
+
+        if configuration.shouldUseCompactStyle == false {
+            arrangedSubviews.insert(title, at: 0)
+        }
+
+        let stackView = UIStackView(arrangedSubviews: arrangedSubviews)
         stackView.axis = .vertical
-        stackView.setCustomSpacing(UIMetrics.padding16, after: titleLabel)
+        stackView.setCustomSpacing(UIMetrics.padding8, after: title)
+        stackView.setCustomSpacing(UIMetrics.padding16, after: enterVoucherLabel)
         stackView.setCustomSpacing(UIMetrics.padding8, after: textField)
         stackView.setCustomSpacing(UIMetrics.padding16, after: statusLabel)
-        stackView.setCustomSpacing(UIMetrics.padding24, after: statusStack)
+        stackView.setCustomSpacing(UIMetrics.padding10, after: statusStack)
         stackView.setContentHuggingPriority(.defaultLow, for: .vertical)
+
         return stackView
     }()
 
     private lazy var buttonsStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [redeemButton, cancelButton])
-        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.padding16
         stackView.setContentCompressionResistancePriority(.required, for: .vertical)
@@ -238,9 +257,7 @@ final class RedeemVoucherContentView: UIView {
     }
 
     required init?(coder: NSCoder) {
-        self.configuration = RedeemVoucherViewConfiguration(adjustViewWhenKeyboardAppears: true)
-        super.init(coder: coder)
-        commonInit()
+        fatalError("init(coder:) has not been implemented")
     }
 
     private func commonInit() {
@@ -260,13 +277,13 @@ final class RedeemVoucherContentView: UIView {
 
     private func configureUI() {
         addConstrainedSubviews([scrollView]) {
-            scrollView.pinEdgesToSuperviewMargins()
+            scrollView.pinEdgesToSuperview(.all(configuration.layoutMargins))
         }
 
         scrollView.addConstrainedSubviews([contentHolderView]) {
             contentHolderView.pinEdgesToSuperview()
-            contentHolderView.widthAnchor.constraint(equalTo: scrollView.widthAnchor, multiplier: 1.0)
-            contentHolderView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor, multiplier: 1.0)
+            contentHolderView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            contentHolderView.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.heightAnchor)
         }
         contentHolderView.addConstrainedSubviews([voucherCodeStackView, buttonsStackView]) {
             voucherCodeStackView.pinEdgesToSuperview(.all().excluding(.bottom))
