@@ -39,6 +39,7 @@ enum UIMetrics {
         static let cornerRadius = 8.0
         static let preferredContentSize = CGSize(width: 280, height: 260)
         static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
+        static let successfulRedeemMargins = NSDirectionalEdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
     }
 
     enum AccountDeletion {
