@@ -31,6 +31,7 @@ public actor PacketTunnelActor {
     private let logger = Logger(label: "PacketTunnelActor")
     private let taskQueue = TaskQueue()
 
+    private let timings: PacketTunnelActorTimings
     private let tunnelAdapter: TunnelAdapterProtocol
     private let tunnelMonitor: TunnelMonitorProtocol
     private let defaultPathObserver: DefaultPathObserverProtocol
@@ -39,6 +40,7 @@ public actor PacketTunnelActor {
     private let settingsReader: SettingsReaderProtocol
 
     public init(
+        timings: PacketTunnelActorTimings,
         tunnelAdapter: TunnelAdapterProtocol,
         tunnelMonitor: TunnelMonitorProtocol,
         defaultPathObserver: DefaultPathObserverProtocol,
@@ -46,6 +48,7 @@ public actor PacketTunnelActor {
         relaySelector: RelaySelectorProtocol,
         settingsReader: SettingsReaderProtocol
     ) {
+        self.timings = timings
         self.tunnelAdapter = tunnelAdapter
         self.tunnelMonitor = tunnelMonitor
         self.defaultPathObserver = defaultPathObserver
@@ -214,7 +217,7 @@ public actor PacketTunnelActor {
     // MARK: - Private: key policy
 
     /**
-     Start a task that will wait for 120 seconds for the new key to propagate across relays and then:
+     Start a task that will wait for the new key to propagate across relays (see `Timings.wgKeyPropagationDelay`) and then:
 
      1. Switch `keyPolicy` back to `.useCurrent`.
      2. Reconnect the tunnel using the new key (currently stored in device state)
@@ -222,7 +225,7 @@ public actor PacketTunnelActor {
     private func startSwitchKeyTask() -> AutoCancellingTask {
         let task = Task {
             // Wait for key to propagate across relays.
-            try await Task.sleep(seconds: 120)
+            try await Task.sleep(duration: timings.wgKeyPropagationDelays)
 
             func mutateConnectionState(_ connectionState: inout ConnectionState) -> Bool {
                 switch connectionState.keyPolicy {
@@ -441,9 +444,9 @@ public actor PacketTunnelActor {
      */
     private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         try await taskQueue.add(kind: .reconnect) { [self] in
-            // Sleep a bit to provide a debounce.
+            // Sleep a bit to provide a debounce in case we get a barrage of calls to reconnect.
             // Task.sleep() throws CancellationError if the task is cancelled.
-            try await Task.sleep(millis: 500)
+            try await Task.sleep(duration: timings.reconnectDebounce)
 
             do {
                 switch state {
@@ -569,8 +572,9 @@ public actor PacketTunnelActor {
     private func startRecoveryTaskIfNeeded(reason: BlockedStateReason) -> AutoCancellingTask? {
         guard reason.shouldRestartAutomatically else { return nil }
 
+        let periodicity = timings.bootRecoveryPeriodicity
         let task = Task { [weak self] in
-            let repeating: DispatchTimeInterval = .seconds(10)
+            let repeating: DispatchTimeInterval = .milliseconds(periodicity.milliseconds)
             let timerStream = DispatchSource.scheduledTimer(on: .now() + repeating, repeating: repeating)
 
             for await _ in timerStream {

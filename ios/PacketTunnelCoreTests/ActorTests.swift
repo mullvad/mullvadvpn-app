@@ -72,6 +72,7 @@ final class ActorTests: XCTestCase {
         }
 
         actor = PacketTunnelActor(
+            timings: .timingsForTests,
             tunnelAdapter: MockTunnelAdapter(),
             tunnelMonitor: tunnelMonitor,
             defaultPathObserver: MockDefaultPathObserver(),
@@ -120,5 +121,15 @@ final class ActorTests: XCTestCase {
         try await actor.start(options: StartOptions(launchSource: .app))
 
         await fulfillment(of: allExpectations, timeout: 20, enforceOrder: true)
+    }
+}
+
+extension PacketTunnelActorTimings {
+    static var timingsForTests: PacketTunnelActorTimings {
+        return PacketTunnelActorTimings(
+            bootRecoveryPeriodicity: .milliseconds(100),
+            wgKeyPropagationDelay: .milliseconds(100),
+            reconnectDebounce: .milliseconds(100)
+        )
     }
 }

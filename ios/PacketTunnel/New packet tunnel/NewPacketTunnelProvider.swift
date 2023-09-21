@@ -73,6 +73,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
 
         actor = PacketTunnelActor(
+            timings: PacketTunnelActorTimings(),
             tunnelAdapter: adapter,
             tunnelMonitor: tunnelMonitor,
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self),

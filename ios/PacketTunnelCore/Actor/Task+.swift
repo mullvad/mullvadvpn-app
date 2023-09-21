@@ -17,4 +17,9 @@ extension Task where Success == Never, Failure == Never {
     static func sleep(millis: UInt) async throws {
         try await sleep(nanoseconds: UInt64(millis) * 1_000_000)
     }
+
+    static func sleep(duration: Duration) async throws {
+        let millis = max(0, duration.milliseconds)
+        try await sleep(millis: UInt(millis))
+    }
 }
