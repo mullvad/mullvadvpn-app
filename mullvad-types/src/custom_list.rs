@@ -1,11 +1,66 @@
 use crate::relay_constraints::GeographicLocationConstraint;
+#[cfg(target_os = "android")]
+use jnix::{jni::objects::JString, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeSet,
     ops::{Deref, DerefMut},
+    str::FromStr,
 };
 
-pub type Id = uuid::Uuid;
+#[derive(Default, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Id(uuid::Uuid);
+
+impl Deref for Id {
+    type Target = uuid::Uuid;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for Id {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl FromStr for Id {
+    type Err = <uuid::Uuid as FromStr>::Err;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        uuid::Uuid::from_str(s).map(Id)
+    }
+}
+
+#[cfg(target_os = "android")]
+impl<'env, 'sub_env> FromJava<'env, JString<'sub_env>> for Id
+where
+    'env: 'sub_env,
+{
+    const JNI_SIGNATURE: &'static str = "Ljava/lang/String;";
+
+    fn from_java(env: &JnixEnv<'env>, source: JString<'sub_env>) -> Self {
+        let s = env
+            .get_string(source)
+            .expect("Failed to convert from Java String");
+        Id::from_str(&s).expect("invalid ID")
+    }
+}
+
+#[cfg(target_os = "android")]
+impl<'borrow, 'env: 'borrow> IntoJava<'borrow, 'env> for Id {
+    const JNI_SIGNATURE: &'static str = "Ljava/lang/String;";
+
+    type JavaType = AutoLocal<'env, 'borrow>;
+
+    fn into_java(self, env: &'borrow JnixEnv<'env>) -> Self::JavaType {
+        let s = self.to_string();
+        let jstring = env.new_string(&s).expect("Failed to create Java String");
+
+        env.auto_local(jstring)
+    }
+}
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CustomListsSettings {
@@ -61,7 +116,7 @@ pub struct CustomList {
 impl CustomList {
     pub fn new(name: String) -> Self {
         CustomList {
-            id: uuid::Uuid::new_v4(),
+            id: Id(uuid::Uuid::new_v4()),
             name,
             locations: BTreeSet::new(),
         }

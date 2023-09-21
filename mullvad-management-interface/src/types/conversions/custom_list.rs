@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, str::FromStr};
 
 use crate::types::{proto, FromProtobufTypeError};
 use mullvad_types::{
@@ -53,7 +53,7 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
             .map(GeographicLocationConstraint::try_from)
             .collect::<Result<BTreeSet<_>, Self::Error>>()?;
         Ok(Self {
-            id: Id::try_from(custom_list.id.as_str())
+            id: Id::from_str(&custom_list.id)
                 .map_err(|_| FromProtobufTypeError::InvalidArgument("Invalid list ID"))?,
             name: custom_list.name,
             locations,

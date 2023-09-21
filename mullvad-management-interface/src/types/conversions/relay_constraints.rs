@@ -3,6 +3,7 @@ use mullvad_types::{
     custom_list::Id,
     relay_constraints::{Constraint, RelaySettingsUpdate},
 };
+use std::str::FromStr;
 use talpid_types::net::TunnelType;
 
 impl TryFrom<&proto::WireguardConstraints>
@@ -523,7 +524,7 @@ impl TryFrom<proto::LocationConstraint>
             }
             Some(proto::location_constraint::Type::CustomList(list_id)) => {
                 let location = LocationConstraint::CustomList {
-                    list_id: Id::try_from(list_id.as_str()).map_err(|_| {
+                    list_id: Id::from_str(&list_id).map_err(|_| {
                         FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid")
                     })?,
                 };

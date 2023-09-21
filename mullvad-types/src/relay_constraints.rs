@@ -247,7 +247,7 @@ impl<'a> fmt::Display for RelaySettingsFormatter<'a> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum LocationConstraint {
     Location(GeographicLocationConstraint),

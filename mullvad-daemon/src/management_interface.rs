@@ -24,6 +24,7 @@ use mullvad_types::{
 use std::path::PathBuf;
 use std::{
     convert::{TryFrom, TryInto},
+    str::FromStr,
     sync::{Arc, Mutex},
     time::Duration,
 };
@@ -598,7 +599,7 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::DeleteCustomList(
             tx,
-            mullvad_types::custom_list::Id::parse_str(&request.into_inner())
+            mullvad_types::custom_list::Id::from_str(&request.into_inner())
                 .map_err(|_| Status::invalid_argument("invalid ID"))?,
         ))?;
         self.wait_for_result(rx)
