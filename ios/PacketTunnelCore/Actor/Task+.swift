@@ -10,16 +10,32 @@ import Foundation
 import MullvadTypes
 
 extension Task where Success == Never, Failure == Never {
-    static func sleep(seconds: UInt) async throws {
-        try await sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
-    }
+    /**
+     Suspends the current task for at least the given duration.
 
-    static func sleep(millis: UInt) async throws {
-        try await sleep(nanoseconds: UInt64(millis) * 1_000_000)
-    }
+     Negative duratons are clamped to zero.
 
+     - Parameter duration: duration that determines how long the task should be suspended.
+     */
     static func sleep(duration: Duration) async throws {
-        let millis = max(0, duration.milliseconds)
-        try await sleep(millis: UInt(millis))
+        let nanoseconds = UInt64(max(0, duration.nanosecondsClamped))
+
+        try await Task.sleep(nanoseconds: nanoseconds)
+    }
+}
+
+private extension Duration {
+    /// The duration represented as nanoseconds, clamped to maximum expressible value.
+    var nanosecondsClamped: Int64 {
+        let secondsNanos = components.seconds.multipliedReportingOverflow(by: 1_000_000_000)
+        guard !secondsNanos.overflow else { return .max }
+
+        let attosNanos = components.attoseconds.dividedReportingOverflow(by: 1_000_000_000)
+        guard !attosNanos.overflow else { return .max }
+
+        let combinedNanos = secondsNanos.partialValue.addingReportingOverflow(attosNanos.partialValue)
+        guard !combinedNanos.overflow else { return .max }
+
+        return combinedNanos.partialValue
     }
 }

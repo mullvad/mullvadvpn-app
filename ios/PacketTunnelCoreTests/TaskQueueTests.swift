@@ -17,7 +17,7 @@ final class TaskQueueTests: XCTestCase {
         let secondExpectation = expectation(description: "Complete second task")
 
         async let _ = queue.add(kind: .start) {
-            try await Task.sleep(seconds: 1)
+            try await Task.sleep(duration: .seconds(1))
             firstExpectation.fulfill()
         }
         async let _ = queue.add(kind: .start) {
@@ -31,7 +31,7 @@ final class TaskQueueTests: XCTestCase {
         let queue = TaskQueue()
 
         async let start: () = queue.add(kind: .start) {
-            try await Task.sleep(seconds: 1)
+            try await Task.sleep(duration: .seconds(1))
         }
         async let _ = queue.add(kind: .reconnect) {}
 
@@ -46,10 +46,10 @@ final class TaskQueueTests: XCTestCase {
         let queue = TaskQueue()
 
         async let first: () = queue.add(kind: .reconnect) {
-            try await Task.sleep(seconds: 1)
+            try await Task.sleep(duration: .seconds(1))
         }
         async let _ = queue.add(kind: .networkReachability) {
-            try await Task.sleep(seconds: 1)
+            try await Task.sleep(duration: .seconds(1))
         }
         async let _ = queue.add(kind: .reconnect) {}
 
@@ -63,10 +63,10 @@ final class TaskQueueTests: XCTestCase {
         let queue = TaskQueue()
 
         async let first: () = queue.add(kind: .start) {
-            try await Task.sleep(seconds: 1)
+            try await Task.sleep(duration: .seconds(1))
         }
         async let second: () = queue.add(kind: .reconnect) {
-            try await Task.sleep(seconds: 1)
+            try await Task.sleep(duration: .seconds(1))
         }
         async let _ = queue.add(kind: .stop) {}
 

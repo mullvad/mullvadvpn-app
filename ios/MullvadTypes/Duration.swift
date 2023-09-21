@@ -13,7 +13,7 @@ import Foundation
 /// then be deleted without affecting the rest of the code base.
 @available(iOS, introduced: 14.0, obsoleted: 16.0, message: "Replace with native Duration type.")
 public struct Duration {
-    private(set) var components: (seconds: Int64, attoseconds: Int64)
+    private(set) public var components: (seconds: Int64, attoseconds: Int64)
 
     public init(secondsComponent: Int64, attosecondsComponent: Int64 = 0) {
         components = (
