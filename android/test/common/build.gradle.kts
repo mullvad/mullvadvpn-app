@@ -25,7 +25,9 @@ android {
 }
 
 androidComponents {
-    beforeVariants { variantBuilder -> variantBuilder.apply { enable = name != "release" } }
+    beforeVariants { variantBuilder ->
+        variantBuilder.apply { enable = name != BuildTypes.RELEASE }
+    }
 }
 
 dependencies {
