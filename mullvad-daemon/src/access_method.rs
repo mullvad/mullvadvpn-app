@@ -73,10 +73,7 @@ where
             .map_err(Error::Settings)
     }
 
-    pub async fn set_api_access_method(
-        &mut self,
-        access_method: AccessMethod,
-    ) -> Result<(), Error> {
+    pub fn set_api_access_method(&mut self, access_method: AccessMethod) -> Result<(), Error> {
         {
             let mut connection_modes = self.connection_modes.lock().unwrap();
             connection_modes.set_access_method(access_method);
