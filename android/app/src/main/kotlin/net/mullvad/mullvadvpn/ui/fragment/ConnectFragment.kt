@@ -58,9 +58,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
             Intent(
                     Intent.ACTION_VIEW,
                     Uri.parse(
-                        requireContext()
-                            .getString(R.string.download_url)
-                            .appendHideNavOnPlayBuild()
+                        requireContext().getString(R.string.download_url).appendHideNavOnPlayBuild()
                     )
                 )
                 .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
