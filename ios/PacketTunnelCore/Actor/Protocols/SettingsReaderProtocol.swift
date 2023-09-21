@@ -15,8 +15,7 @@ public protocol SettingsReaderProtocol {
     /**
      Read settings from storage.
 
-     - Throws: an error of type `ReadDeviceDataError` when device state is either revoked or logged out. In other cases it's expected to pass internal
-     errors.
+     - Throws: an error that's later mapped by `BlockedStateErrorMapperProtocol`.
      - Returns: `Settings` used to configure packet tunnel adapter.
      */
     func read() throws -> Settings
@@ -46,20 +45,6 @@ public struct Settings {
         self.interfaceAddresses = interfaceAddresses
         self.relayConstraints = relayConstraints
         self.dnsServers = dnsServers
-    }
-}
-
-/// Error that implementations of `SettingsReaderProtocol` are expected to throw when device state is either revoked or loggedOut.
-public enum ReadDeviceDataError: LocalizedError {
-    case loggedOut, revoked
-
-    public var errorDescription: String? {
-        switch self {
-        case .loggedOut:
-            return "Device is logged out."
-        case .revoked:
-            return "Device is revoked."
-        }
     }
 }
 

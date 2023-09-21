@@ -59,3 +59,17 @@ private extension DNSSettings {
         }
     }
 }
+
+/// Error returned when device state is either revoked or logged out.
+public enum ReadDeviceDataError: LocalizedError {
+    case loggedOut, revoked
+
+    public var errorDescription: String? {
+        switch self {
+        case .loggedOut:
+            return "Device is logged out."
+        case .revoked:
+            return "Device is revoked."
+        }
+    }
+}
