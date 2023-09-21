@@ -105,13 +105,6 @@ impl Hash for Socks5Remote {
     }
 }
 
-impl Settings {
-    // TODO: Do I have to clone?
-    pub fn get_access_methods(&self) -> Vec<AccessMethod> {
-        self.api_access_methods.clone()
-    }
-}
-
 impl AccessMethod {
     pub fn is_custom(&self) -> bool {
         matches!(self, AccessMethod::Custom(..))
