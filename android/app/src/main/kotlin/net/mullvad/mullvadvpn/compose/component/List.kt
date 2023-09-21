@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -77,12 +75,6 @@ fun PreviewListItem() {
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun PreviewChangeListItem() {
-    ChangeListItem(text = "ChangeListItem")
 }
 
 @Composable
@@ -143,43 +135,6 @@ fun ListItem(
                             ?: Modifier.align(Alignment.CenterEnd)
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun ChangeListItem(text: String) {
-
-    ConstraintLayout {
-        val (bullet, changeLog) = createRefs()
-        Box(
-            modifier =
-                Modifier.constrainAs(bullet) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.absoluteLeft)
-                }
-        ) {
-            Text(
-                text = "•",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-        }
-        Box(
-            modifier =
-                Modifier.absolutePadding(left = Dimens.mediumPadding).constrainAs(changeLog) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier
-            )
         }
     }
 }
