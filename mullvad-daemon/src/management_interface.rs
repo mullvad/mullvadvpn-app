@@ -659,7 +659,7 @@ impl ManagementService for ManagementServiceImpl {
 
         match access_method.as_custom() {
             None => Err(Status::not_found(
-                "Can not remove built-in API access mtehod",
+                "Can not remove built-in API access method",
             )),
             Some(access_method) => {
                 let (tx, rx) = oneshot::channel();
