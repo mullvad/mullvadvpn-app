@@ -640,7 +640,6 @@ where
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
 
-        // TODO: Should ApiConnectionModeProvider be an Actor instead of sharing a datastructure-behind-locks with the daemon with the daemon?
         let proxy_provider = api::ApiConnectionModeProvider::new(
             cache_dir.clone(),
             relay_selector.clone(),
