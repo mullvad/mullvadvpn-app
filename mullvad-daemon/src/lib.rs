@@ -1067,7 +1067,7 @@ where
                 self.on_replace_api_access_method(tx, method).await
             }
             ToggleApiAccessMethod(tx, method) => self.on_toggle_api_access_method(tx, method).await,
-            SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
+            SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method),
             GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2292,10 +2292,9 @@ where
         Self::oneshot_send(tx, result, "toggle_api_access_method response");
     }
 
-    async fn on_set_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: AccessMethod) {
+    fn on_set_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: AccessMethod) {
         let result = self
             .set_api_access_method(method)
-            .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "set_api_access_method response");
     }
