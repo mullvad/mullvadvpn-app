@@ -11,7 +11,7 @@ import UIKit
 protocol PreferencesCellEventHandler {
     func addDNSEntry()
     func didChangeDNSEntry(with identifier: UUID, inputString: String) -> Bool
-    func didChangeState(for item: PreferencesDataSource.Item, isOn: Bool)
+    func didChangeState(for preference: PreferencesDataSource.Item, isOn: Bool)
     func showInfo(for item: PreferencesDataSource.InfoButtonItem)
     func addCustomPort(_ port: UInt16)
     func selectCustomPortEntry(_ port: UInt16) -> Bool
@@ -36,104 +36,119 @@ final class PreferencesCellFactory: CellFactoryProtocol {
         return cell
     }
 
+    func configure(
+        _ cell: UITableViewCell,
+        toggleSetting: Bool,
+        title: String,
+        for preference: PreferencesDataSource.Item
+    ) {
+        guard let cell = cell as? SettingsSwitchCell else { return }
+
+        cell.titleLabel.text = title
+        cell.accessibilityHint = nil
+        cell.applySubCellStyling()
+        cell.setOn(toggleSetting, animated: false)
+        cell.action = { [weak self] isOn in
+            self?.delegate?.didChangeState(
+                for: preference,
+                isOn: isOn
+            )
+        }
+    }
+
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func configureCell(_ cell: UITableViewCell, item: PreferencesDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .blockAdvertising:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
+            let localizedString = NSLocalizedString(
                 "BLOCK_ADS_CELL_LABEL",
                 tableName: "Preferences",
                 value: "Block ads",
                 comment: ""
             )
-            cell.accessibilityHint = nil
-            cell.applySubCellStyling()
-            cell.setOn(viewModel.blockAdvertising, animated: false)
-            cell.action = { [weak self] isOn in
-                self?.delegate?.didChangeState(
-                    for: .blockAdvertising,
-                    isOn: isOn
-                )
-            }
+
+            configure(
+                cell,
+                toggleSetting: viewModel.blockAdvertising,
+                title: localizedString,
+                for: .blockAdvertising
+            )
 
         case .blockTracking:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
+            let localizedString = NSLocalizedString(
                 "BLOCK_TRACKERS_CELL_LABEL",
                 tableName: "Preferences",
                 value: "Block trackers",
                 comment: ""
             )
-            cell.accessibilityHint = nil
-            cell.applySubCellStyling()
-            cell.setOn(viewModel.blockTracking, animated: false)
-            cell.action = { [weak self] isOn in
-                self?.delegate?.didChangeState(
-                    for: .blockTracking,
-                    isOn: isOn
-                )
-            }
+            configure(
+                cell,
+                toggleSetting: viewModel.blockTracking,
+                title: localizedString,
+                for: .blockTracking
+            )
 
         case .blockMalware:
             guard let cell = cell as? SettingsSwitchCell else { return }
 
-            cell.titleLabel.text = NSLocalizedString(
+            let localizedString = NSLocalizedString(
                 "BLOCK_MALWARE_CELL_LABEL",
                 tableName: "Preferences",
                 value: "Block malware",
                 comment: ""
             )
-            cell.accessibilityHint = nil
-            cell.applySubCellStyling()
+            configure(
+                cell,
+                toggleSetting: viewModel.blockMalware,
+                title: localizedString,
+                for: .blockMalware
+            )
             cell.setInfoButtonIsVisible(true)
-            cell.setOn(viewModel.blockMalware, animated: false)
             cell.infoButtonHandler = { [weak self] in
                 self?.delegate?.showInfo(for: .blockMalware)
             }
-            cell.action = { [weak self] isOn in
-                self?.delegate?.didChangeState(for: .blockMalware, isOn: isOn)
-            }
 
         case .blockAdultContent:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
+            let localizedString = NSLocalizedString(
                 "BLOCK_ADULT_CELL_LABEL",
                 tableName: "Preferences",
                 value: "Block adult content",
                 comment: ""
             )
-            cell.accessibilityHint = nil
-            cell.applySubCellStyling()
-            cell.setOn(viewModel.blockAdultContent, animated: false)
-            cell.action = { [weak self] isOn in
-                self?.delegate?.didChangeState(
-                    for: .blockAdultContent,
-                    isOn: isOn
-                )
-            }
+            configure(
+                cell,
+                toggleSetting: viewModel.blockAdultContent,
+                title: localizedString,
+                for: .blockAdultContent
+            )
 
         case .blockGambling:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
+            let localizedString = NSLocalizedString(
                 "BLOCK_GAMBLING_CELL_LABEL",
                 tableName: "Preferences",
                 value: "Block gambling",
                 comment: ""
             )
-            cell.accessibilityHint = nil
-            cell.applySubCellStyling()
-            cell.setOn(viewModel.blockGambling, animated: false)
-            cell.action = { [weak self] isOn in
-                self?.delegate?.didChangeState(
-                    for: .blockGambling,
-                    isOn: isOn
-                )
-            }
+            configure(
+                cell,
+                toggleSetting: viewModel.blockGambling,
+                title: localizedString,
+                for: .blockGambling
+            )
+
+        case .blockSocialMedia:
+            let localizedString = NSLocalizedString(
+                "BLOCK_SOCIAL_MEDIA_CELL_LABEL",
+                tableName: "Preferences",
+                value: "Block social media",
+                comment: ""
+            )
+            configure(
+                cell,
+                toggleSetting: viewModel.blockSocialMedia,
+                title: localizedString,
+                for: .blockSocialMedia
+            )
 
         case let .wireGuardPort(port):
             guard let cell = cell as? SelectableSettingsCell else { return }

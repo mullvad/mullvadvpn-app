@@ -94,6 +94,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case blockMalware
         case blockAdultContent
         case blockGambling
+        case blockSocialMedia
         case wireGuardPort(_ port: UInt16?)
         case wireGuardCustomPort
         case useCustomDNS
@@ -108,7 +109,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         #endif
 
         static var contentBlockers: [Item] {
-            [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling]
+            [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling, .blockSocialMedia]
         }
 
         static var wireGuardPorts: [Item] {
@@ -139,6 +140,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return "blockGambling"
             case .blockAdultContent:
                 return "blockAdultContent"
+            case .blockSocialMedia:
+                return "blockSocialMedias"
             case let .wireGuardPort(port):
                 if let port {
                     return "wireGuardPort(\(port))"
@@ -720,6 +723,20 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    private func setBlockSocialMedia(_ isEnabled: Bool) {
+        let oldViewModel = viewModel
+
+        viewModel.setBlockSocialMedia(isEnabled)
+
+        if oldViewModel.customDNSPrecondition != viewModel.customDNSPrecondition {
+            reloadDnsServerInfo()
+        }
+
+        if !isEditing {
+            delegate?.preferencesDataSource(self, didChangeViewModel: viewModel)
+        }
+    }
+
     private func setEnableCustomDNS(_ isEnabled: Bool) {
         let oldViewModel = viewModel
 
@@ -956,8 +973,8 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
 }
 
 extension PreferencesDataSource: PreferencesCellEventHandler {
-    func didChangeState(for item: Item, isOn: Bool) {
-        switch item {
+    func didChangeState(for preference: Item, isOn: Bool) {
+        switch preference {
         case .blockAdvertising:
             setBlockAdvertising(isOn)
 
@@ -972,6 +989,9 @@ extension PreferencesDataSource: PreferencesCellEventHandler {
 
         case .blockGambling:
             setBlockGambling(isOn)
+
+        case .blockSocialMedia:
+            setBlockSocialMedia(isOn)
 
         case .useCustomDNS:
             setEnableCustomDNS(isOn)
