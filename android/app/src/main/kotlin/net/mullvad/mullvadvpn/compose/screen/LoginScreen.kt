@@ -28,7 +28,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +58,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -195,21 +195,7 @@ private fun LoginContent(
             maxLines = 1,
             visualTransformation = accountTokenVisualTransformation(),
             enabled = uiState.loginState is Idle,
-            colors =
-                TextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Gray,
-                    disabledTextColor = Color.Gray,
-                    errorTextColor = Color.Black,
-                    cursorColor = MaterialTheme.colorScheme.background,
-                    focusedPlaceholderColor = MaterialTheme.colorScheme.background,
-                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.primary,
-                    focusedLabelColor = MaterialTheme.colorScheme.background,
-                    disabledLabelColor = Color.Gray,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.background,
-                    focusedLeadingIconColor = Color.Black,
-                    unfocusedSupportingTextColor = Color.Black,
-                ),
+            colors = mullvadWhiteTextFieldColors(),
             isError = uiState.loginState.isError(),
         )
 

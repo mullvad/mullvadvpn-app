@@ -1,134 +1,89 @@
 package net.mullvad.mullvadvpn.dataproxy
 
+import android.content.Context
 import java.io.File
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.withContext
 
 const val PROBLEM_REPORT_FILE = "problem_report.txt"
 
-class MullvadProblemReport {
-    private sealed class Command {
-        data object Collect : Command()
+sealed interface SendProblemReportResult {
+    data object Success : SendProblemReportResult
 
-        class Load(val logs: CompletableDeferred<String>) : Command()
+    sealed interface Error : SendProblemReportResult {
+        data object CollectLog : Error
 
-        class Send(val result: CompletableDeferred<Boolean>) : Command()
-
-        data object Delete : Command()
+        // This is usually due to network error or bad email address
+        data object SendReport : Error
     }
+}
 
-    val logDirectory = CompletableDeferred<File>()
-    val cacheDirectory = CompletableDeferred<File>()
+data class UserReport(val email: String, val message: String)
 
-    private val commandChannel = spawnActor()
+class MullvadProblemReport(context: Context) {
+    private val logDirectory = File(context.filesDir.toURI())
+    private val cacheDirectory = File(context.cacheDir.toURI())
+    private val problemReportPath = File(logDirectory, PROBLEM_REPORT_FILE)
 
-    private val problemReportPath =
-        GlobalScope.async(Dispatchers.Default) { File(logDirectory.await(), PROBLEM_REPORT_FILE) }
-
-    private var isCollected = false
-
-    var confirmNoEmail: CompletableDeferred<Boolean>? = null
-
-    var userEmail = ""
-    var userMessage = ""
+    private var hasCollectedReport = false
 
     init {
         System.loadLibrary("mullvad_jni")
     }
 
-    fun collect() {
-        commandChannel.trySendBlocking(Command.Collect)
-    }
-
-    suspend fun load(): String {
-        val logs = CompletableDeferred<String>()
-
-        commandChannel.send(Command.Load(logs))
-
-        return logs.await()
-    }
-
-    fun send(): Deferred<Boolean> {
-        val result = CompletableDeferred<Boolean>()
-
-        commandChannel.trySendBlocking(Command.Send(result))
-
-        return result
-    }
-
-    fun deleteReportFile() {
-        commandChannel.trySendBlocking(Command.Delete)
-    }
-
-    private fun spawnActor() =
-        GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-            try {
-                while (true) {
-
-                    when (val command = channel.receive()) {
-                        is Command.Collect -> doCollect()
-                        is Command.Load -> command.logs.complete(doLoad())
-                        is Command.Send -> command.result.complete(doSend())
-                        is Command.Delete -> doDelete()
-                    }
-                }
-            } catch (exception: ClosedReceiveChannelException) {}
+    private suspend fun collectReport() =
+        withContext(Dispatchers.IO) {
+            val logDirectoryPath = logDirectory.absolutePath
+            val reportPath = problemReportPath.absolutePath
+            // Delete any old report
+            deleteReport()
+            hasCollectedReport = collectReport(logDirectoryPath, reportPath)
         }
 
-    private suspend fun doCollect() {
-        val logDirectoryPath = logDirectory.await().absolutePath
-        val reportPath = problemReportPath.await().absolutePath
-
-        doDelete()
-
-        isCollected = collectReport(logDirectoryPath, reportPath)
-    }
-
-    private suspend fun doLoad(): String {
-        if (!isCollected) {
-            doCollect()
+    suspend fun sendReport(userReport: UserReport): SendProblemReportResult {
+        if (!hasCollectedReport) {
+            collectReport()
+        }
+        if (!hasCollectedReport) {
+            return SendProblemReportResult.Error.CollectLog
         }
 
-        return if (isCollected) {
-            problemReportPath.await().readText()
-        } else {
-            "Failed to collect logs for problem report"
-        }
-    }
-
-    private suspend fun doSend(): Boolean {
-        if (!isCollected) {
-            doCollect()
-        }
-
-        val result =
-            isCollected &&
+        val sentSuccessfully =
+            withContext(Dispatchers.IO) {
                 sendProblemReport(
-                    userEmail,
-                    userMessage,
-                    problemReportPath.await().absolutePath,
-                    cacheDirectory.await().absolutePath
+                    userReport.email,
+                    userReport.message,
+                    problemReportPath.absolutePath,
+                    cacheDirectory.absolutePath
                 )
+            }
 
-        if (result) {
-            doDelete()
+        return if (sentSuccessfully) {
+            deleteReport()
+            SendProblemReportResult.Success
+        } else {
+            SendProblemReportResult.Error.SendReport
+        }
+    }
+
+    suspend fun readLogs(): List<String> {
+        if (!hasCollectedReport) {
+            collectReport()
         }
 
-        return result
+        return if (hasCollectedReport) {
+            problemReportPath.readLines()
+        } else {
+            listOf("Failed to collect logs for problem report")
+        }
     }
 
-    private suspend fun doDelete() {
-        problemReportPath.await().delete()
-        isCollected = false
+    fun deleteReport() {
+        problemReportPath.delete()
+        hasCollectedReport = false
     }
 
+    // TODO We should remove the external functions from this class and migrate it to the service
     private external fun collectReport(logDirectory: String, reportPath: String): Boolean
 
     private external fun sendProblemReport(
