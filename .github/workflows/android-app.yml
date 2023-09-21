@@ -193,7 +193,7 @@ jobs:
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk17
-          arguments: assembleDebug
+          arguments: assembleOssProdDebug
           gradle-version: wrapper
           build-root-directory: android
 
