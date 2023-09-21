@@ -17,10 +17,6 @@ public enum TunnelMonitorEvent {
     /// Dispatched when connection stops receiving ping responses.
     /// The handler is responsible to reconfigure the tunnel and call `TunnelMonitorProtocol.start(probeAddress:)` to resume connection monitoring.
     case connectionLost
-
-    /// Dispatched when network reachability changes.
-    @available(*, deprecated, message: "Clients should manually monitor network reachability.")
-    case networkReachabilityChanged(_ isNetworkReachable: Bool)
 }
 
 public protocol TunnelMonitorProtocol: AnyObject {

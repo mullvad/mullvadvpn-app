@@ -566,12 +566,6 @@ public actor PacketTunnelActor {
 
         case .connectionLost:
             await onHandleConnectionRecovery()
-
-        case .networkReachabilityChanged:
-            // TODO: remove .networkReachabilityChanged later
-            // We track network reachability separately because tunnel monitor tends to stop reachability
-            // observation when it's stopped or paused. This is a problem for error state.
-            break
         }
     }
 

@@ -32,9 +32,6 @@ final class TunnelMonitorTests: XCTestCase {
 
             case .connectionLost:
                 connectionLostExpectation.fulfill()
-
-            case .networkReachabilityChanged:
-                break
             }
         }
 
@@ -104,9 +101,6 @@ final class TunnelMonitorTests: XCTestCase {
 
             case .connectionEstablished:
                 XCTFail("Connection should fail.")
-
-            case .networkReachabilityChanged:
-                break
             }
         }
 
