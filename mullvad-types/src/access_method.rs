@@ -11,6 +11,61 @@ pub struct Settings {
     pub api_access_methods: Vec<AccessMethod>,
 }
 
+impl Settings {
+    /// Append an [`AccessMethod`] to the end of `api_access_methods`.
+    #[inline(always)]
+    pub fn append(&mut self, access_method: AccessMethod) {
+        self.api_access_methods.push(access_method)
+    }
+
+    /// Remove a [`CustomAccessMethod`] from `api_access_methods`.
+    #[inline(always)]
+    pub fn remove(&mut self, custom_access_method: &CustomAccessMethod) {
+        self.retain(|access_method| {
+            access_method
+                .as_custom()
+                .map(|access_method| access_method.id != custom_access_method.id)
+                .unwrap_or(true)
+        })
+    }
+
+    /// Search for a particular [`AccessMethod`] in `api_access_methods`.
+    ///
+    /// If the [`AccessMethod`] is found to be part of `api_access_methods`, a
+    /// mutable reference to that inner element is returned. Otherwise, `None`
+    /// is returned.
+    #[inline(always)]
+    pub fn find_mut(&mut self, element: &AccessMethod) -> Option<&mut AccessMethod> {
+        self.api_access_methods
+            .iter_mut()
+            .find(|access_method| element.semantically_equals(access_method))
+    }
+
+    /// Equivalent to [`Vec::retain`].
+    #[inline(always)]
+    pub fn retain<F>(&mut self, f: F)
+    where
+        F: FnMut(&AccessMethod) -> bool,
+    {
+        self.api_access_methods.retain(f)
+    }
+
+    /// Removes an element from `api_access_methods` and returns it.
+    /// The removed element is replaced by the last element of the vector.
+    ///
+    /// Equivalent to [`Vec::swap_remove`].
+    #[inline(always)]
+    pub fn swap_remove(&mut self, index: usize) -> AccessMethod {
+        self.api_access_methods.swap_remove(index)
+    }
+
+    /// Clone the content of `api_access_methods`.
+    #[inline(always)]
+    pub fn cloned(&self) -> Vec<AccessMethod> {
+        self.api_access_methods.clone()
+    }
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {
@@ -106,14 +161,6 @@ impl Hash for Socks5Remote {
 }
 
 impl AccessMethod {
-    pub fn is_custom(&self) -> bool {
-        matches!(self, AccessMethod::Custom(..))
-    }
-
-    pub fn is_builtin(&self) -> bool {
-        matches!(self, AccessMethod::BuiltIn(..))
-    }
-
     pub fn as_custom(&self) -> Option<&CustomAccessMethod> {
         match self {
             AccessMethod::BuiltIn(_) => None,
@@ -138,8 +185,6 @@ impl AccessMethod {
     }
 
     /// Set an access method to be either enabled or disabled.
-    ///
-    /// This action mutates [`self`].
     pub fn toggle(&mut self, enable: bool) {
         match self {
             AccessMethod::BuiltIn(method) => match method {
@@ -355,14 +400,14 @@ impl From<Socks5Local> for Socks5 {
     }
 }
 
-/// These are just extensions to the core [`AccessMethod`] datastructure which the mullvad daemon needs.
+/// Some short-lived datastructure used in some RPC calls to the mullvad daemon.
 pub mod daemon {
     use super::*;
     /// Argument to protobuf rpc `ApiAccessMethodReplace`.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct ApiAccessMethodReplace {
-        pub index: usize,
         pub access_method: AccessMethod,
+        pub index: usize,
     }
     /// Argument to protobuf rpc `ApiAccessMethodToggle`.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

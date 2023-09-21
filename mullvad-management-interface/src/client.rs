@@ -181,7 +181,7 @@ impl MullvadProxyClient {
             .collect()
     }
 
-    pub async fn test_api(&mut self) -> Result<()> {
+    pub async fn get_api_addressess(&mut self) -> Result<()> {
         self.0.get_api_addressess(()).await.map_err(Error::Rpc)?;
         Ok(())
     }

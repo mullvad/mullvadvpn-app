@@ -71,7 +71,7 @@ enum Cli {
     #[clap(subcommand)]
     Relay(relay::Relay),
 
-    /// Manage use of proxies for reaching the API.
+    /// Manage use of proxies for reaching the Mullvad API.
     /// Can make the daemon connect to the the Mullvad API via one of the
     /// Mullvad bridge servers or a custom proxy (SOCKS5 & Shadowsocks).
     #[clap(subcommand)]
