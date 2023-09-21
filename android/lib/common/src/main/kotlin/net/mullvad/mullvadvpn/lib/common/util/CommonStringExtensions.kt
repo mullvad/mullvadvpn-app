@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.lib.common.util
 
-import net.mullvad.mullvadvpn.lib.common.BuildConfig
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
@@ -22,13 +20,6 @@ fun String.parseAsDateTime(): DateTime? {
         null
     }
 }
-
-fun String.appendHideNavOnReleaseBuild(): String =
-    if (BuildTypes.RELEASE == BuildConfig.BUILD_TYPE) {
-        "$this?hide_nav"
-    } else {
-        this
-    }
 
 fun String.groupWithSpaces(groupCharSize: Int = 4): String {
     return fold(StringBuilder()) { formattedText, nextDigit ->

@@ -10,10 +10,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectScreen
-import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnReleaseBuild
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.NavigationBarPainter
+import net.mullvad.mullvadvpn.util.appendHideNavOnReleaseBuild
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
