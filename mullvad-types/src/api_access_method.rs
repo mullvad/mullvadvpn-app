@@ -361,14 +361,13 @@ impl From<Socks5Local> for Socks5 {
 /// These are just extensions to the core [`AccessMethod`] datastructure which the mullvad daemon needs.
 pub mod daemon {
     use super::*;
-    /// TODO: Document why this is needed.
-    /// Hint: Argument to protobuf rpc `ApiAccessMethodReplace`.
+    /// Argument to protobuf rpc `ApiAccessMethodReplace`.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct ApiAccessMethodReplace {
         pub index: usize,
         pub access_method: AccessMethod,
     }
-    /// TODO: Document why this is needed.
+    /// Argument to protobuf rpc `ApiAccessMethodToggle`.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct ApiAccessMethodToggle {
         pub access_method: AccessMethod,
