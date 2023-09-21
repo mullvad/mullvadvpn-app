@@ -6,10 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.WelcomeScreen
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
@@ -29,7 +28,7 @@ class WelcomeFragment : BaseFragment() {
                 AppTheme {
                     val state = vm.uiState.collectAsState().value
                     WelcomeScreen(
-                        showSitePayment = BuildTypes.RELEASE != BuildConfig.BUILD_TYPE,
+                        showSitePayment = IS_PLAY_BUILD.not(),
                         uiState = state,
                         viewActions = vm.viewActions,
                         onSitePaymentClick = vm::onSitePaymentClick,

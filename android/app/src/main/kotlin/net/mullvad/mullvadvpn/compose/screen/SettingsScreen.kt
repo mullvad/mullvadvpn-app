@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.DefaultExternalLinkView
 import net.mullvad.mullvadvpn.compose.cell.NavigationCellBody
@@ -38,7 +37,7 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
@@ -138,7 +137,7 @@ fun SettingsScreen(
                     },
                     bodyView =
                         @Composable {
-                            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+                            if (IS_PLAY_BUILD.not()) {
                                 NavigationCellBody(
                                     content = uiState.appVersion,
                                     contentBodyDescription =
@@ -154,7 +153,7 @@ fun SettingsScreen(
                             }
                         },
                     showWarning = uiState.isUpdateAvailable,
-                    isRowEnabled = BuildConfig.BUILD_TYPE != BuildTypes.RELEASE
+                    isRowEnabled = IS_PLAY_BUILD.not()
                 )
             }
             if (uiState.isUpdateAvailable) {
@@ -183,7 +182,7 @@ fun SettingsScreen(
                 )
             }
 
-            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+            if (IS_PLAY_BUILD.not()) {
                 itemWithDivider {
                     val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
                     NavigationComposeCell(

@@ -16,10 +16,9 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -78,7 +77,7 @@ class OutOfTimeFragment : BaseFragment() {
 
         view.findViewById<TextView>(R.id.account_credit_has_expired).text = buildString {
             append(requireActivity().getString(R.string.account_credit_has_expired))
-            if (BuildConfig.BUILD_TYPE != BuildTypes.RELEASE) {
+            if (IS_PLAY_BUILD.not()) {
                 append(" ")
                 append(requireActivity().getString(R.string.add_time_to_account))
             }
@@ -106,7 +105,7 @@ class OutOfTimeFragment : BaseFragment() {
                 isEnabled = true
             }
 
-        sitePaymentButton.isVisible = BuildTypes.RELEASE != BuildConfig.BUILD_TYPE
+        sitePaymentButton.isVisible = IS_PLAY_BUILD.not()
 
         redeemButton =
             view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
