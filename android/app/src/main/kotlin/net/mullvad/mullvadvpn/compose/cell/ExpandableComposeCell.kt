@@ -118,6 +118,7 @@ fun ContentBlockersDisableModeCellSubtitle(modifier: Modifier) {
     Text(
         text = spanned.toAnnotatedString(boldFontWeight = FontWeight.ExtraBold),
         style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSecondary,
         modifier = modifier
     )
 }
