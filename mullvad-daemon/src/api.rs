@@ -123,8 +123,8 @@ impl ApiConnectionModeProvider {
     fn from(&mut self, access_method: &AccessMethod) -> ApiConnectionMode {
         match access_method {
             AccessMethod::BuiltIn(access_method) => match access_method {
-                BuiltInAccessMethod::Direct(_enabled) => ApiConnectionMode::Direct,
-                BuiltInAccessMethod::Bridge(enabled) => self
+                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
+                BuiltInAccessMethod::Bridge => self
                     .relay_selector
                     .get_bridge_forced()
                     .and_then(|settings| match settings {
@@ -134,8 +134,6 @@ impl ApiConnectionModeProvider {
                                     ss_settings.peer,
                                     ss_settings.cipher,
                                     ss_settings.password,
-                                    *enabled,
-                                    "Mullvad Bridges".to_string(),
                                 );
                             Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
                                 ss_settings,
@@ -187,8 +185,8 @@ impl ConnectionModesIterator {
     }
     /// Update the collection of [`AccessMethod`] which this iterator will
     /// return.
-    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethod>) {
-        self.available_modes = Self::get_filtered_access_methods(access_methods);
+    pub fn update_access_methods(&mut self, api_access_methods: Vec<AccessMethod>) {
+        self.available_modes = Self::get_filtered_access_methods(api_access_methods);
     }
 
     /// [`ConnectionModesIterator`] will only consider [`AccessMethod`]s which
@@ -198,12 +196,10 @@ impl ConnectionModesIterator {
     fn get_filtered_access_methods(
         modes: Vec<AccessMethod>,
     ) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
-        Box::new(
-            modes
+        Box::new(modes
                 .into_iter()
-                .filter(|access_method| access_method.enabled())
-                .cycle(),
-        )
+                // .filter(|access_method| access_method.enabled())
+                .cycle())
     }
 }
 

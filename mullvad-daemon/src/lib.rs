@@ -41,7 +41,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     access_method::{
         daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
-        AccessMethod, CustomAccessMethod,
+        ApiAccessMethod, CustomAccessMethod,
     },
     account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
@@ -265,9 +265,9 @@ pub enum DaemonCommand {
     /// Rename a custom list from the old name to a new name
     RenameCustomList(ResponseTx<(), Error>, String, String),
     /// Get API access methods
-    GetApiAccessMethods(ResponseTx<Vec<AccessMethod>, Error>),
+    GetApiAccessMethods(ResponseTx<Vec<ApiAccessMethod>, Error>),
     /// Add API access methods
-    AddApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
+    AddApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethod),
     /// Remove an API access method
     RemoveApiAccessMethod(ResponseTx<(), Error>, CustomAccessMethod),
     /// Edit an API access method
@@ -275,7 +275,7 @@ pub enum DaemonCommand {
     /// Toggle the status of an API access method
     ToggleApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodToggle),
     /// Set the API access method to use
-    SetApiAccessMethod(ResponseTx<(), Error>, AccessMethod),
+    SetApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethod),
     /// Get the addresses of all known API endpoints
     GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
     /// Get information about the currently running and latest app versions
@@ -643,7 +643,12 @@ where
         let proxy_provider = api::ApiConnectionModeProvider::new(
             cache_dir.clone(),
             relay_selector.clone(),
-            settings.api_access_methods.api_access_methods.clone(),
+            settings
+                .api_access_methods
+                .api_access_methods
+                .iter()
+                .map(|x| x.access_method.clone())
+                .collect(),
         );
 
         let connection_modes = proxy_provider.handle();
@@ -2284,12 +2289,16 @@ where
         Self::oneshot_send(tx, result, "rename_custom_list response");
     }
 
-    fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<AccessMethod>, Error>) {
-        let result = Ok(self.settings.api_access_methods.api_access_methods.clone());
+    fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<ApiAccessMethod>, Error>) {
+        let result = Ok(self.settings.api_access_methods.cloned());
         Self::oneshot_send(tx, result, "get_api_access_methods response");
     }
 
-    async fn on_add_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: AccessMethod) {
+    async fn on_add_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        method: ApiAccessMethod,
+    ) {
         let result = self
             .add_access_method(method)
             .await
@@ -2324,16 +2333,19 @@ where
     async fn on_toggle_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        method: ApiAccessMethodToggle,
+        access_method_toggle: ApiAccessMethodToggle,
     ) {
         let result = self
-            .toggle_api_access_method(method)
+            .toggle_api_access_method(
+                access_method_toggle.access_method,
+                access_method_toggle.enable,
+            )
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "toggle_api_access_method response");
     }
 
-    fn on_set_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: AccessMethod) {
+    fn on_set_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: ApiAccessMethod) {
         let result = self
             .set_api_access_method(method)
             .map_err(Error::AccessMethodError);
