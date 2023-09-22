@@ -12,6 +12,7 @@ import MullvadTypes
 import protocol Network.IPAddress
 import struct Network.IPv4Address
 
+/// Tunnel monitor.
 public final class TunnelMonitor: TunnelMonitorProtocol {
     /// Connection state.
     private enum ConnectionState {
@@ -459,11 +460,9 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             if isReachable {
                 logger.debug("Start monitoring connection.")
                 startMonitoring()
-                sendNetworkStatusChangeEvent(true)
             } else {
                 logger.debug("Wait for network to become reachable before starting monitoring.")
                 state.connectionState = .waitingConnectivity
-                sendNetworkStatusChangeEvent(false)
             }
 
         case .waitingConnectivity:
@@ -471,7 +470,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
             logger.debug("Network is reachable. Resume monitoring.")
             startMonitoring()
-            sendNetworkStatusChangeEvent(true)
 
         case .connecting, .connected:
             guard !isReachable else { return }
@@ -479,7 +477,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             logger.debug("Network is unreachable. Pause monitoring.")
             state.connectionState = .waitingConnectivity
             stopMonitoring(resetRetryAttempt: true)
-            sendNetworkStatusChangeEvent(false)
 
         case .stopped, .recovering:
             break
@@ -585,12 +582,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     private func sendConnectionLostEvent() {
         eventQueue.async {
             self.onEvent?(.connectionLost)
-        }
-    }
-
-    private func sendNetworkStatusChangeEvent(_ isNetworkReachable: Bool) {
-        eventQueue.async {
-            self.onEvent?(.networkReachabilityChanged(isNetworkReachable))
         }
     }
 

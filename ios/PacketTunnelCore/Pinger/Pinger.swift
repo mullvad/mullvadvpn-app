@@ -11,6 +11,7 @@ import protocol Network.IPAddress
 import struct Network.IPv4Address
 import struct Network.IPv6Address
 
+/// ICMP client.
 public final class Pinger: PingerProtocol {
     // Socket read buffer size.
     private static let bufferSize = 65535
