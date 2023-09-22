@@ -638,10 +638,10 @@ impl ManagementService for ManagementServiceImpl {
         request: Request<types::ApiAccessMethod>,
     ) -> ServiceResult<()> {
         log::debug!("add_api_access_method");
-        let access_method =
-            mullvad_types::access_method::AccessMethod::try_from(request.into_inner())?;
+        let api_access_method =
+            mullvad_types::access_method::ApiAccessMethod::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::AddApiAccessMethod(tx, access_method))?;
+        self.send_command_to_daemon(DaemonCommand::AddApiAccessMethod(tx, api_access_method))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
@@ -653,10 +653,10 @@ impl ManagementService for ManagementServiceImpl {
         request: Request<types::ApiAccessMethod>,
     ) -> ServiceResult<()> {
         log::debug!("remove_api_access_method");
-        let access_method =
-            mullvad_types::access_method::AccessMethod::try_from(request.into_inner())?;
+        let api_access_method =
+            mullvad_types::access_method::ApiAccessMethod::try_from(request.into_inner())?;
 
-        match access_method.as_custom() {
+        match api_access_method.access_method.as_custom() {
             None => Err(Status::not_found(
                 "Can not remove built-in API access method",
             )),
@@ -719,10 +719,10 @@ impl ManagementService for ManagementServiceImpl {
         request: Request<types::ApiAccessMethod>,
     ) -> ServiceResult<()> {
         log::debug!("set_api_access_method");
-        let access_method =
-            mullvad_types::access_method::AccessMethod::try_from(request.into_inner())?;
+        let api_access_method =
+            mullvad_types::access_method::ApiAccessMethod::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetApiAccessMethod(tx, access_method))?;
+        self.send_command_to_daemon(DaemonCommand::SetApiAccessMethod(tx, api_access_method))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)

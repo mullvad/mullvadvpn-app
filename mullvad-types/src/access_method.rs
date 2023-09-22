@@ -8,21 +8,22 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
-    pub api_access_methods: Vec<AccessMethod>,
+    pub api_access_methods: Vec<ApiAccessMethod>,
 }
 
 impl Settings {
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
     #[inline(always)]
-    pub fn append(&mut self, access_method: AccessMethod) {
-        self.api_access_methods.push(access_method)
+    pub fn append(&mut self, api_access_method: ApiAccessMethod) {
+        self.api_access_methods.push(api_access_method)
     }
 
     /// Remove a [`CustomAccessMethod`] from `api_access_methods`.
     #[inline(always)]
     pub fn remove(&mut self, custom_access_method: &CustomAccessMethod) {
-        self.retain(|access_method| {
-            access_method
+        self.retain(|api_access_method| {
+            api_access_method
+                .access_method
                 .as_custom()
                 .map(|access_method| access_method.id != custom_access_method.id)
                 .unwrap_or(true)
@@ -35,17 +36,22 @@ impl Settings {
     /// mutable reference to that inner element is returned. Otherwise, `None`
     /// is returned.
     #[inline(always)]
-    pub fn find_mut(&mut self, element: &AccessMethod) -> Option<&mut AccessMethod> {
+    pub fn find_mut(&mut self, element: &ApiAccessMethod) -> Option<&mut ApiAccessMethod> {
         self.api_access_methods
             .iter_mut()
-            .find(|access_method| element.semantically_equals(access_method))
+            .find(|api_access_method| {
+                // TODO: Can probably replace with `element.id == api_access_method.id`
+                element
+                    .access_method
+                    .semantically_equals(&api_access_method.access_method)
+            })
     }
 
     /// Equivalent to [`Vec::retain`].
     #[inline(always)]
     pub fn retain<F>(&mut self, f: F)
     where
-        F: FnMut(&AccessMethod) -> bool,
+        F: FnMut(&ApiAccessMethod) -> bool,
     {
         self.api_access_methods.retain(f)
     }
@@ -55,13 +61,13 @@ impl Settings {
     ///
     /// Equivalent to [`Vec::swap_remove`].
     #[inline(always)]
-    pub fn swap_remove(&mut self, index: usize) -> AccessMethod {
+    pub fn swap_remove(&mut self, index: usize) -> ApiAccessMethod {
         self.api_access_methods.swap_remove(index)
     }
 
     /// Clone the content of `api_access_methods`.
     #[inline(always)]
-    pub fn cloned(&self) -> Vec<AccessMethod> {
+    pub fn cloned(&self) -> Vec<ApiAccessMethod> {
         self.api_access_methods.clone()
     }
 }
@@ -69,44 +75,60 @@ impl Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            api_access_methods: vec![
-                BuiltInAccessMethod::Direct(true).into(),
-                BuiltInAccessMethod::Bridge(true).into(),
-            ],
+            api_access_methods: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
+                .into_iter()
+                .map(|built_in| ApiAccessMethod {
+                    name: built_in.canonical_name(),
+                    enabled: true,
+                    access_method: AccessMethod::from(built_in),
+                })
+                .collect(),
         }
     }
 }
 
-/// Access method datastructure.
+/// API Access Method datastructure
+///
+/// Mirrors the protobuf definition
+/// TODO(Create a constructor functions for this struct (?))
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub struct ApiAccessMethod {
+    pub name: String,
+    pub enabled: bool,
+    pub access_method: AccessMethod,
+}
+
+/// Access Method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum AccessMethod {
     BuiltIn(BuiltInAccessMethod),
     Custom(CustomAccessMethod),
 }
 
-impl AccessMethod {
+impl ApiAccessMethod {
     pub fn get_name(&self) -> String {
-        match self {
-            AccessMethod::BuiltIn(x) => match x {
-                BuiltInAccessMethod::Direct(_) => "Direct".to_string(),
-                BuiltInAccessMethod::Bridge(_) => "Mullvad Bridges".to_string(),
-            },
-            AccessMethod::Custom(c) => match &c.access_method {
-                ObfuscationProtocol::Shadowsocks(s) => s.name.clone(),
-                ObfuscationProtocol::Socks5(s) => match s {
-                    Socks5::Local(l) => l.name.clone(),
-                    Socks5::Remote(r) => r.name.clone(),
-                },
-            },
-        }
+        self.name.clone()
+    }
+
+    pub fn enabled(&self) -> bool {
+        self.enabled
+    }
+
+    pub fn as_custom(&self) -> Option<&CustomAccessMethod> {
+        self.access_method.as_custom()
+    }
+
+    /// Set an API access method to be either enabled or disabled.
+    pub fn toggle(&mut self, enable: bool) {
+        self.enabled = enable;
     }
 }
 
 /// Built-In access method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub enum BuiltInAccessMethod {
-    Direct(bool),
-    Bridge(bool),
+    Direct,
+    Bridge,
 }
 
 /// Custom access method datastructure.
@@ -137,8 +159,6 @@ pub struct Shadowsocks {
     ///
     /// shadowsocks_ciphers: talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS
     pub cipher: String,
-    pub enabled: bool,
-    pub name: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -146,15 +166,11 @@ pub struct Socks5Local {
     pub peer: SocketAddr,
     /// Port on localhost where the SOCKS5-proxy listens to.
     pub port: u16,
-    pub enabled: bool,
-    pub name: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Socks5Remote {
     pub peer: SocketAddr,
-    pub enabled: bool,
-    pub name: String,
 }
 
 impl Hash for Shadowsocks {
@@ -186,39 +202,6 @@ impl AccessMethod {
         }
     }
 
-    pub fn enabled(&self) -> bool {
-        match self {
-            AccessMethod::BuiltIn(method) => match method {
-                BuiltInAccessMethod::Direct(enabled) => *enabled,
-                BuiltInAccessMethod::Bridge(enabled) => *enabled,
-            },
-            AccessMethod::Custom(method) => match &method.access_method {
-                ObfuscationProtocol::Shadowsocks(ss) => ss.enabled,
-                ObfuscationProtocol::Socks5(socks) => match socks {
-                    Socks5::Local(local) => local.enabled,
-                    Socks5::Remote(remote) => remote.enabled,
-                },
-            },
-        }
-    }
-
-    /// Set an access method to be either enabled or disabled.
-    pub fn toggle(&mut self, enable: bool) {
-        match self {
-            AccessMethod::BuiltIn(method) => match method {
-                BuiltInAccessMethod::Direct(enabled) => *enabled = enable,
-                BuiltInAccessMethod::Bridge(enabled) => *enabled = enable,
-            },
-            AccessMethod::Custom(method) => match method.access_method {
-                ObfuscationProtocol::Shadowsocks(ref mut ss) => ss.enabled = enable,
-                ObfuscationProtocol::Socks5(ref mut socks) => match socks {
-                    Socks5::Local(local) => local.enabled = enable,
-                    Socks5::Remote(remote) => remote.enabled = enable,
-                },
-            },
-        }
-    }
-
     /// Ad-hoc implementation of `==` from [`std::cmp::PartialEq`], where temporal member
     /// values such as `enabled` are disregarded.
     pub fn semantically_equals(&self, other: &Self) -> bool {
@@ -241,6 +224,11 @@ impl BuiltInAccessMethod {
             (BuiltInAccessMethod::Direct(_), BuiltInAccessMethod::Direct(_)) => true,
             (BuiltInAccessMethod::Direct(_), BuiltInAccessMethod::Bridge(_)) => false,
             (BuiltInAccessMethod::Bridge(_), BuiltInAccessMethod::Direct(_)) => false,
+
+    pub fn canonical_name(&self) -> String {
+        match self {
+            BuiltInAccessMethod::Direct => "Direct".to_string(),
+            BuiltInAccessMethod::Bridge => "Mullvad Bridges".to_string(),
         }
     }
 }
@@ -261,34 +249,19 @@ impl ObfuscationProtocol {
 }
 
 impl Shadowsocks {
-    pub fn new(
-        peer: SocketAddr,
-        cipher: String,
-        password: String,
-        enabled: bool,
-        name: String,
-    ) -> Self {
+    pub fn new(peer: SocketAddr, cipher: String, password: String) -> Self {
         Shadowsocks {
             peer,
             password,
             cipher,
-            enabled,
-            name,
         }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(
-        ip: String,
-        port: u16,
-        cipher: String,
-        password: String,
-        enabled: bool,
-        name: String,
-    ) -> Option<Self> {
+    pub fn from_args(ip: String, port: u16, cipher: String, password: String) -> Option<Self> {
         let peer = SocketAddrV4::new(Ipv4Addr::from_str(&ip).ok()?, port).into();
-        Some(Self::new(peer, cipher, password, enabled, name))
+        Some(Self::new(peer, cipher, password))
     }
 
     pub fn semantically_equals(&self, other: &Self) -> bool {
@@ -308,27 +281,16 @@ impl Socks5 {
 }
 
 impl Socks5Local {
-    pub fn new(peer: SocketAddr, port: u16, enabled: bool, name: String) -> Self {
-        Self {
-            peer,
-            port,
-            enabled,
-            name,
-        }
+    pub fn new(peer: SocketAddr, port: u16) -> Self {
+        Self { peer, port }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(
-        ip: String,
-        port: u16,
-        localport: u16,
-        enabled: bool,
-        name: String,
-    ) -> Option<Self> {
+    pub fn from_args(ip: String, port: u16, localport: u16) -> Option<Self> {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer, localport, enabled, name))
+        Some(Self::new(peer, localport))
     }
 
     fn semantically_equals(&self, other: &Socks5Local) -> bool {
@@ -337,20 +299,16 @@ impl Socks5Local {
 }
 
 impl Socks5Remote {
-    pub fn new(peer: SocketAddr, enabled: bool, name: String) -> Self {
-        Self {
-            peer,
-            enabled,
-            name,
-        }
+    pub fn new(peer: SocketAddr) -> Self {
+        Self { peer }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Remote)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16, enabled: bool, name: String) -> Option<Self> {
+    pub fn from_args(ip: String, port: u16) -> Option<Self> {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer, enabled, name))
+        Some(Self::new(peer))
     }
 
     fn semantically_equals(&self, other: &Socks5Remote) -> bool {
@@ -374,11 +332,10 @@ impl From<ObfuscationProtocol> for AccessMethod {
     fn from(value: ObfuscationProtocol) -> Self {
         let mut hasher = DefaultHasher::new();
         value.hash(&mut hasher);
-        CustomAccessMethod {
+        AccessMethod::from(CustomAccessMethod {
             id: hasher.finish().to_string(),
             access_method: value,
-        }
-        .into()
+        })
     }
 }
 
@@ -390,7 +347,7 @@ impl From<Shadowsocks> for AccessMethod {
 
 impl From<Socks5> for AccessMethod {
     fn from(value: Socks5) -> Self {
-        ObfuscationProtocol::Socks5(value).into()
+        AccessMethod::from(ObfuscationProtocol::Socks5(value))
     }
 }
 
@@ -424,13 +381,13 @@ pub mod daemon {
     /// Argument to protobuf rpc `ApiAccessMethodReplace`.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct ApiAccessMethodReplace {
-        pub access_method: AccessMethod,
+        pub access_method: ApiAccessMethod,
         pub index: usize,
     }
     /// Argument to protobuf rpc `ApiAccessMethodToggle`.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
     pub struct ApiAccessMethodToggle {
-        pub access_method: AccessMethod,
+        pub access_method: ApiAccessMethod,
         pub enable: bool,
     }
 }
