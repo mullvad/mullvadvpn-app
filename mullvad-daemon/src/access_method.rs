@@ -3,7 +3,7 @@ use crate::{
     Daemon, EventListener,
 };
 use mullvad_types::access_method::{
-    daemon::ApiAccessMethodReplace, ApiAccessMethod, CustomAccessMethod,
+    daemon::ApiAccessMethodReplace, ApiAccessMethod, ApiAccessMethodId,
 };
 
 #[derive(err_derive::Error, Debug)]
@@ -48,7 +48,7 @@ where
 
     pub async fn remove_access_method(
         &mut self,
-        access_method: CustomAccessMethod,
+        access_method: ApiAccessMethodId,
     ) -> Result<(), Error> {
         self.settings
             .update(|settings| settings.api_access_methods.remove(&access_method))

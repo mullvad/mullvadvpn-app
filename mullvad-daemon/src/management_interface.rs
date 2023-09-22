@@ -660,11 +660,11 @@ impl ManagementService for ManagementServiceImpl {
             None => Err(Status::not_found(
                 "Can not remove built-in API access method",
             )),
-            Some(access_method) => {
+            Some(_) => {
                 let (tx, rx) = oneshot::channel();
                 self.send_command_to_daemon(DaemonCommand::RemoveApiAccessMethod(
                     tx,
-                    access_method.clone(),
+                    api_access_method.get_id(),
                 ))?;
                 self.wait_for_result(rx)
                     .await?
