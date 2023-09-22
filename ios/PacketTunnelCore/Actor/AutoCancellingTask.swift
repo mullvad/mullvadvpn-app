@@ -8,6 +8,11 @@
 
 import Foundation
 
+/**
+ Type that cancels the given task upon `deinit`.
+
+ It behaves identical to `Combine.AnyCancellable`.
+ */
 public final class AutoCancellingTask {
     private let task: AnyTask
 
