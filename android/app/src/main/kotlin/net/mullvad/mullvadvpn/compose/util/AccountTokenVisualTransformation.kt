@@ -21,7 +21,6 @@ fun accountTokenVisualTransformation() = VisualTransformation {
 
             override fun transformedToOriginal(offset: Int): Int =
                 offset - (offset - 1) / (ACCOUNT_TOKEN_CHUNK_SIZE + 1)
-
         }
     )
 }

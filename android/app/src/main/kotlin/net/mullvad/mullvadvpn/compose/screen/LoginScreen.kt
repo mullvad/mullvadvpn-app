@@ -156,7 +156,13 @@ private fun LoginContent(
         )
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
             TextField(
-                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                modifier =
+                    Modifier.then(
+                            // Using menuAnchor while not showing a dropdown will cause keyboard to
+                            // open and app to crash on navigation
+                            if (state.lastUsedAccount != null) Modifier.menuAnchor() else Modifier
+                        )
+                        .fillMaxWidth(),
                 value = state.accountNumberInput,
                 label = {
                     Text(
