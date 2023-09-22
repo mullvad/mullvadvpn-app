@@ -63,7 +63,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             let localizedString = NSLocalizedString(
                 "BLOCK_ADS_CELL_LABEL",
                 tableName: "Preferences",
-                value: "Block ads",
+                value: "Ads",
                 comment: ""
             )
 
@@ -78,7 +78,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             let localizedString = NSLocalizedString(
                 "BLOCK_TRACKERS_CELL_LABEL",
                 tableName: "Preferences",
-                value: "Block trackers",
+                value: "Trackers",
                 comment: ""
             )
             configure(
@@ -94,7 +94,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             let localizedString = NSLocalizedString(
                 "BLOCK_MALWARE_CELL_LABEL",
                 tableName: "Preferences",
-                value: "Block malware",
+                value: "Malware",
                 comment: ""
             )
             configure(
@@ -112,7 +112,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             let localizedString = NSLocalizedString(
                 "BLOCK_ADULT_CELL_LABEL",
                 tableName: "Preferences",
-                value: "Block adult content",
+                value: "Adult content",
                 comment: ""
             )
             configure(
@@ -126,7 +126,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             let localizedString = NSLocalizedString(
                 "BLOCK_GAMBLING_CELL_LABEL",
                 tableName: "Preferences",
-                value: "Block gambling",
+                value: "Gambling",
                 comment: ""
             )
             configure(
@@ -140,7 +140,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             let localizedString = NSLocalizedString(
                 "BLOCK_SOCIAL_MEDIA_CELL_LABEL",
                 tableName: "Preferences",
-                value: "Block social media",
+                value: "Social media",
                 comment: ""
             )
             configure(
