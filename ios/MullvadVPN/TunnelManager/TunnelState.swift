@@ -65,6 +65,9 @@ enum TunnelState: Equatable, CustomStringConvertible {
     /// Waiting for connectivity to come back up.
     case waitingForConnectivity(WaitingForConnectionReason)
 
+    /// Error state.
+    case error(BlockedStateReason)
+
     var description: String {
         switch self {
         case .pendingReconnect:
@@ -85,6 +88,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
             return "reconnecting to \(tunnelRelay.hostname)"
         case .waitingForConnectivity:
             return "waiting for connectivity"
+        case let .error(blockedStateReason):
+            return "error state: \(blockedStateReason)"
         }
     }
 
@@ -92,7 +97,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
         switch self {
         case .reconnecting, .connecting, .connected, .waitingForConnectivity(.noConnection):
             return true
-        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork):
+        case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             return false
         }
     }
@@ -103,7 +108,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
             return relay
         case let .connecting(relay):
             return relay
-        case .disconnecting, .disconnected, .waitingForConnectivity, .pendingReconnect:
+        case .disconnecting, .disconnected, .waitingForConnectivity, .pendingReconnect, .error:
             return nil
         }
     }

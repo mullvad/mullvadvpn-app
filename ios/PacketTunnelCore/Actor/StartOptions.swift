@@ -10,12 +10,17 @@ import Foundation
 import RelaySelector
 
 /// Packet tunnel start options parsed from dictionary passed to packet tunnel with a call to `startTunnel()`.
-struct StartOptions {
-    var launchSource: LaunchSource
-    var selectorResult: RelaySelectorResult?
+public struct StartOptions {
+    public var launchSource: LaunchSource
+    public var selectorResult: RelaySelectorResult?
+
+    public init(launchSource: LaunchSource, selectorResult: RelaySelectorResult? = nil) {
+        self.launchSource = launchSource
+        self.selectorResult = selectorResult
+    }
 
     /// Returns a brief description suitable for output to tunnel provider log.
-    func logFormat() -> String {
+    public func logFormat() -> String {
         var s = "Start the tunnel via \(launchSource)"
         if let selectorResult {
             s += ", connect to \(selectorResult.relay.hostname)"
@@ -26,7 +31,7 @@ struct StartOptions {
 }
 
 /// The source facility that triggered a launch of packet tunnel extension.
-enum LaunchSource: String, CustomStringConvertible {
+public enum LaunchSource: String, CustomStringConvertible {
     /// Launched by the main bundle app using network extension framework.
     case app
 
@@ -37,7 +42,7 @@ enum LaunchSource: String, CustomStringConvertible {
     case system
 
     /// Returns a human readable description of launch source.
-    var description: String {
+    public var description: String {
         switch self {
         case .app, .system:
             return rawValue
