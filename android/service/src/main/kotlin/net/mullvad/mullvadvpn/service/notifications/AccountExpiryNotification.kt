@@ -11,7 +11,6 @@ import androidx.core.app.NotificationCompat
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
-import net.mullvad.mullvadvpn.lib.common.constant.MULLVAD_PACKAGE_NAME
 import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
@@ -106,7 +105,7 @@ class AccountExpiryNotification(
         val intent =
             if (IS_PLAY_BUILD) {
                 Intent().apply {
-                    setClassName(MULLVAD_PACKAGE_NAME, MAIN_ACTIVITY_CLASS)
+                    setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
                     flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                     action = Intent.ACTION_MAIN
                 }
