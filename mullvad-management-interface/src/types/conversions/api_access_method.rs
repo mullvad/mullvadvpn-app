@@ -92,10 +92,7 @@ mod settings {
 /// [`crate::types::proto::ApiAccessMethod`] type to the internal
 /// [`mullvad_types::access_method::AccessMethod`] data type.
 mod data {
-    use crate::types::{
-        proto::{self, api_access_method::socks5::Socks5type},
-        FromProtobufTypeError,
-    };
+    use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method::{
         AccessMethod, BuiltInAccessMethod, ObfuscationProtocol, Shadowsocks, Socks5, Socks5Local,
         Socks5Remote,
@@ -117,42 +114,44 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethod) -> Result<Self, Self::Error> {
+            use proto::api_access_method::AccessMethod;
             let access_method =
                 value
                     .access_method
                     .ok_or(FromProtobufTypeError::InvalidArgument(
-                        "Could not convert Access Method from protobuf",
+                        "Could not deserialize Access Method from protobuf",
                     ))?;
             Ok(match access_method {
-                proto::api_access_method::AccessMethod::Socks5(socks) => {
-                    match socks.socks5type.unwrap() {
-                        Socks5type::Local(local) => Socks5Local::from_args(
-                            local.ip,
-                            local.port as u16,
-                            local.local_port as u16,
-                            local.enabled,
-                            local.name,
-                        )
-                        .ok_or(FromProtobufTypeError::InvalidArgument(
-                            "Could not parse Socks5 (local) message from protobuf",
-                        ))?
-                        .into(),
-
-                        Socks5type::Remote(remote) => Socks5Remote::from_args(
-                            remote.ip,
-                            remote.port as u16,
-                            remote.enabled,
-                            remote.name,
-                        )
-                        .ok_or({
-                            FromProtobufTypeError::InvalidArgument(
-                                "Could not parse Socks5 (remote) message from protobuf",
-                            )
-                        })?
-                        .into(),
-                    }
+                AccessMethod::Direct(direct_settings) => {
+                    BuiltInAccessMethod::Direct(direct_settings.enabled).into()
                 }
-                proto::api_access_method::AccessMethod::Shadowsocks(ss) => Shadowsocks::from_args(
+                AccessMethod::Bridges(bridge_settings) => {
+                    BuiltInAccessMethod::Bridge(bridge_settings.enabled).into()
+                }
+                AccessMethod::Socks5local(local) => Socks5Local::from_args(
+                    local.ip,
+                    local.port as u16,
+                    local.local_port as u16,
+                    local.enabled,
+                    local.name,
+                )
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not parse Socks5 (local) message from protobuf",
+                ))?
+                .into(),
+                AccessMethod::Socks5remote(remote) => Socks5Remote::from_args(
+                    remote.ip,
+                    remote.port as u16,
+                    remote.enabled,
+                    remote.name,
+                )
+                .ok_or({
+                    FromProtobufTypeError::InvalidArgument(
+                        "Could not parse Socks5 (remote) message from protobuf",
+                    )
+                })?
+                .into(),
+                AccessMethod::Shadowsocks(ss) => Shadowsocks::from_args(
                     ss.ip,
                     ss.port as u16,
                     ss.cipher,
@@ -164,12 +163,6 @@ mod data {
                     "Could not parse Shadowsocks message from protobuf",
                 ))?
                 .into(),
-                proto::api_access_method::AccessMethod::Direct(direct_settings) => {
-                    BuiltInAccessMethod::Direct(direct_settings.enabled).into()
-                }
-                proto::api_access_method::AccessMethod::Bridges(bridge_settings) => {
-                    BuiltInAccessMethod::Bridge(bridge_settings.enabled).into()
-                }
             })
         }
     }
@@ -250,30 +243,15 @@ mod data {
         }
     }
 
-    impl From<proto::api_access_method::Socks5> for proto::ApiAccessMethod {
-        fn from(value: proto::api_access_method::Socks5) -> Self {
-            proto::api_access_method::AccessMethod::Socks5(value).into()
-        }
-    }
-
-    impl From<proto::api_access_method::socks5::Socks5type> for proto::ApiAccessMethod {
-        fn from(value: proto::api_access_method::socks5::Socks5type) -> Self {
-            proto::api_access_method::AccessMethod::Socks5(proto::api_access_method::Socks5 {
-                socks5type: Some(value),
-            })
-            .into()
-        }
-    }
-
     impl From<proto::api_access_method::Socks5Local> for proto::ApiAccessMethod {
         fn from(value: proto::api_access_method::Socks5Local) -> Self {
-            proto::api_access_method::socks5::Socks5type::Local(value).into()
+            proto::api_access_method::AccessMethod::Socks5local(value).into()
         }
     }
 
     impl From<proto::api_access_method::Socks5Remote> for proto::ApiAccessMethod {
         fn from(value: proto::api_access_method::Socks5Remote) -> Self {
-            proto::api_access_method::socks5::Socks5type::Remote(value).into()
+            proto::api_access_method::AccessMethod::Socks5remote(value).into()
         }
     }
 
