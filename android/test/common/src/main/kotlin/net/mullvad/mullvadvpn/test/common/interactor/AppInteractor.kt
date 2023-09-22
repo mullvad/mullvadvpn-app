@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.test.common.interactor
 
 import android.content.Context
 import android.content.Intent
-import android.widget.ImageButton
+import android.widget.Button
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
@@ -54,7 +54,7 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
             device.findObjectWithTimeout(By.clazz("android.widget.EditText")).apply {
                 text = accountToken
             }
-        loginObject.parent.findObject(By.clazz(ImageButton::class.java)).click()
+        loginObject.parent.findObject(By.clazz(Button::class.java)).click()
     }
 
     fun ensureLoggedIn() {
