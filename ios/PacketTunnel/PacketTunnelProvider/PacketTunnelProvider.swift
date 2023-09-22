@@ -1,5 +1,5 @@
 //
-//  NewPacketTunnelProvider.swift
+//  PacketTunnelProvider.swift
 //  PacketTunnel
 //
 //  Created by pronebird on 31/08/2023.
@@ -15,7 +15,7 @@ import NetworkExtension
 import PacketTunnelCore
 import RelayCache
 
-class NewPacketTunnelProvider: NEPacketTunnelProvider {
+class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
     private let relayCache: RelayCache
@@ -116,7 +116,7 @@ class NewPacketTunnelProvider: NEPacketTunnelProvider {
     }
 }
 
-extension NewPacketTunnelProvider {
+extension PacketTunnelProvider {
     private static func configureLogging() {
         var loggerBuilder = LoggerBuilder()
         let pid = ProcessInfo.processInfo.processIdentifier
@@ -149,7 +149,7 @@ extension NewPacketTunnelProvider {
 
 // MARK: - State observer
 
-extension NewPacketTunnelProvider {
+extension PacketTunnelProvider {
     private func startObservingActorState() {
         stopObservingActorState()
 
@@ -195,7 +195,7 @@ extension NewPacketTunnelProvider {
 
 // MARK: - Device check
 
-extension NewPacketTunnelProvider {
+extension PacketTunnelProvider {
     private func startDeviceCheck(rotateKeyOnMismatch: Bool = false) {
         Task {
             do {

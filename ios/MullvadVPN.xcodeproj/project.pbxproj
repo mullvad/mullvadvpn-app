@@ -173,7 +173,6 @@
 		588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B3276B4F2F00BAA373 /* SetAccountOperation.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
 		5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationViewController.swift */; };
-		58897EE72ABB337200CC669D /* PacketTunnelErrorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06410E172934F43B00AFC18C /* PacketTunnelErrorWrapper.swift */; };
 		588E4EAE28FEEDD8008046E3 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */; };
 		58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */; };
@@ -390,7 +389,7 @@
 		58F2E148276A307400A79513 /* MapConnectionStatusOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */; };
 		58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */; };
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
-		58F3F36A2AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */; };
+		58F3F36A2AA08E3C00D3B0A4 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3F3692AA08E3C00D3B0A4 /* PacketTunnelProvider.swift */; };
 		58F7753D2AB8473200425B47 /* MockBlockedStateErrorMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */; };
 		58F775432AB9E3EF00425B47 /* AppMessageHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F775422AB9E3EF00425B47 /* AppMessageHandler.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
@@ -1373,7 +1372,7 @@
 		58F3C0A3249CB069003E76BE /* HeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarView.swift; sourceTree = "<group>"; };
 		58F3C0A524A50155003E76BE /* relays.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
 		58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoCancellingTask.swift; sourceTree = "<group>"; };
-		58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPacketTunnelProvider.swift; sourceTree = "<group>"; };
+		58F3F3692AA08E3C00D3B0A4 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
 		58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBlockedStateErrorMapper.swift; sourceTree = "<group>"; };
 		58F775422AB9E3EF00425B47 /* AppMessageHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
@@ -2568,7 +2567,7 @@
 			children = (
 				58CE5E7D224146470008646E /* Info.plist */,
 				58CE5E7E224146470008646E /* PacketTunnel.entitlements */,
-				58F3F3682AA08E2200D3B0A4 /* New packet tunnel */,
+				58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */,
 				58915D662A25F9F20066445B /* DeviceCheck */,
 				588395612A9DF497008B63F6 /* WireGuardAdapter */,
 			);
@@ -2704,21 +2703,21 @@
 			path = Assets;
 			sourceTree = "<group>";
 		};
-		58F3F3682AA08E2200D3B0A4 /* New packet tunnel */ = {
+		58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */ = {
 			isa = PBXGroup;
 			children = (
-				58F3F3692AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift */,
+				58F3F3692AA08E3C00D3B0A4 /* PacketTunnelProvider.swift */,
 				58F775422AB9E3EF00425B47 /* AppMessageHandler.swift */,
 				585B1FF12AB0BC69008AD470 /* State+.swift */,
 				580D6B912AB360BE00B2D6E0 /* DeviceCheck+.swift */,
 				5864AF7C2A9F4DC9008BC928 /* SettingsReader.swift */,
+				580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */,
 				582403812A827E1500163DE8 /* RelaySelectorWrapper.swift */,
 				58FF23A22AB09BEE003A2AF2 /* DeviceChecker.swift */,
 				58225D272A84F23B0083D7F1 /* PacketTunnelPathObserver.swift */,
 				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
-				580D6B8D2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift */,
 			);
-			path = "New packet tunnel";
+			path = PacketTunnelProvider;
 			sourceTree = "<group>";
 		};
 		58FBFBE7291622580020E046 /* MullvadRESTTests */ = {
@@ -4217,7 +4216,7 @@
 				58C76A092A33850E00100D75 /* ApplicationTarget.swift in Sources */,
 				580D6B922AB360BE00B2D6E0 /* DeviceCheck+.swift in Sources */,
 				583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */,
-				58F3F36A2AA08E3C00D3B0A4 /* NewPacketTunnelProvider.swift in Sources */,
+				58F3F36A2AA08E3C00D3B0A4 /* PacketTunnelProvider.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
 				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
 				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
