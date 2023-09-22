@@ -108,7 +108,9 @@ impl ApiConnectionModeProvider {
         log::debug!("Rotating Access mode!");
         let access_method = {
             let mut access_methods_picker = self.connection_modes.lock().unwrap();
-            access_methods_picker.next().unwrap()
+            access_methods_picker
+                .next()
+                .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct))
         };
 
         let connection_mode = self.from(&access_method);
@@ -146,11 +148,11 @@ impl ApiConnectionModeProvider {
                     })
                     .unwrap_or(ApiConnectionMode::Direct),
             },
-            AccessMethod::Custom(access_method) => match &access_method.access_method {
-                access_method::ObfuscationProtocol::Shadowsocks(shadowsocks_config) => {
+            AccessMethod::Custom(access_method) => match &access_method {
+                access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config.clone()))
                 }
-                access_method::ObfuscationProtocol::Socks5(socks_config) => {
+                access_method::CustomAccessMethod::Socks5(socks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
                 }
             },
