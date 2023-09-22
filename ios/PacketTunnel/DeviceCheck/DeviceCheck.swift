@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 /// The verdict of an account status check.
-public enum AccountVerdict: Equatable {
+enum AccountVerdict: Equatable {
     /// Account is no longer valid.
     case invalid
 
@@ -22,7 +22,7 @@ public enum AccountVerdict: Equatable {
 }
 
 /// The verdict of a device status check.
-public enum DeviceVerdict: Equatable {
+enum DeviceVerdict: Equatable {
     /// Device is revoked.
     case revoked
 
@@ -34,7 +34,7 @@ public enum DeviceVerdict: Equatable {
 }
 
 /// Type describing whether key rotation took place and the outcome of it.
-public enum KeyRotationStatus: Equatable {
+enum KeyRotationStatus: Equatable {
     /// No rotation took place yet.
     case noAction
 
@@ -45,7 +45,7 @@ public enum KeyRotationStatus: Equatable {
     case succeeded(Date)
 
     /// Returns `true` if the status is `.succeeded`.
-    public var isSucceeded: Bool {
+    var isSucceeded: Bool {
         if case .succeeded = self {
             return true
         } else {
@@ -58,19 +58,13 @@ public enum KeyRotationStatus: Equatable {
  Struct holding data associated with account and device diagnostics and also device key recovery performed by packet
  tunnel process.
  */
-public struct DeviceCheck: Equatable {
+struct DeviceCheck: Equatable {
     /// The verdict of account status check.
-    public var accountVerdict: AccountVerdict
+    var accountVerdict: AccountVerdict
 
     /// The verdict of device status check.
-    public var deviceVerdict: DeviceVerdict
+    var deviceVerdict: DeviceVerdict
 
     // The status of the last performed key rotation.
-    public var keyRotationStatus: KeyRotationStatus
-
-    public init(accountVerdict: AccountVerdict, deviceVerdict: DeviceVerdict, keyRotationStatus: KeyRotationStatus) {
-        self.accountVerdict = accountVerdict
-        self.deviceVerdict = deviceVerdict
-        self.keyRotationStatus = keyRotationStatus
-    }
+    var keyRotationStatus: KeyRotationStatus
 }
