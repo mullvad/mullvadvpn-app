@@ -18,16 +18,18 @@ impl Settings {
         self.api_access_methods.push(api_access_method)
     }
 
-    /// Remove a [`CustomAccessMethod`] from `api_access_methods`.
+    /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
     #[inline(always)]
-    pub fn remove(&mut self, custom_access_method: &CustomAccessMethod) {
-        self.retain(|api_access_method| {
-            api_access_method
-                .access_method
-                .as_custom()
-                .map(|access_method| access_method.id != custom_access_method.id)
-                .unwrap_or(true)
-        })
+    pub fn remove(&mut self, api_access_method: &ApiAccessMethodId) {
+        self.retain(|method| method.get_id() != *api_access_method)
+    }
+
+    /// Search for a particular [`AccessMethod`] in `api_access_methods`.
+    #[inline(always)]
+    pub fn find(&self, element: &ApiAccessMethodId) -> Option<&ApiAccessMethod> {
+        self.api_access_methods
+            .iter()
+            .find(|api_access_method| *element == api_access_method.get_id())
     }
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
@@ -36,13 +38,10 @@ impl Settings {
     /// mutable reference to that inner element is returned. Otherwise, `None`
     /// is returned.
     #[inline(always)]
-    pub fn find_mut(&mut self, element: &ApiAccessMethod) -> Option<&mut ApiAccessMethod> {
+    pub fn find_mut(&mut self, element: &ApiAccessMethodId) -> Option<&mut ApiAccessMethod> {
         self.api_access_methods
             .iter_mut()
-            .find(|api_access_method| {
-                // TODO: Can probably replace with `element.id == api_access_method.id`
-                element.access_method == api_access_method.access_method
-            })
+            .find(|api_access_method| *element == api_access_method.get_id())
     }
 
     /// Equivalent to [`Vec::retain`].
@@ -52,15 +51,6 @@ impl Settings {
         F: FnMut(&ApiAccessMethod) -> bool,
     {
         self.api_access_methods.retain(f)
-    }
-
-    /// Removes an element from `api_access_methods` and returns it.
-    /// The removed element is replaced by the last element of the vector.
-    ///
-    /// Equivalent to [`Vec::swap_remove`].
-    #[inline(always)]
-    pub fn swap_remove(&mut self, index: usize) -> ApiAccessMethod {
-        self.api_access_methods.swap_remove(index)
     }
 
     /// Clone the content of `api_access_methods`.
@@ -75,10 +65,12 @@ impl Default for Settings {
         Self {
             api_access_methods: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
                 .into_iter()
-                .map(|built_in| ApiAccessMethod {
-                    name: built_in.canonical_name(),
-                    enabled: true,
-                    access_method: AccessMethod::from(built_in),
+                .map(|built_in| {
+                    ApiAccessMethod::new(
+                        built_in.canonical_name(),
+                        true,
+                        AccessMethod::from(built_in),
+                    )
                 })
                 .collect(),
         }
@@ -91,19 +83,68 @@ impl Default for Settings {
 /// TODO(Create a constructor functions for this struct (?))
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct ApiAccessMethod {
+    /// Some unique id (distinct for each `AccessMethod`).
+    id: ApiAccessMethodId,
     pub name: String,
     pub enabled: bool,
     pub access_method: AccessMethod,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ApiAccessMethodId(String);
+
+impl ApiAccessMethodId {
+    /// It is up to the caller to make sure that the supplied String is actually
+    /// a valid UUID in the context of [`ApiAccessMethod`]s.
+    pub fn from_string(id: String) -> Self {
+        Self(id)
+    }
+}
+
+impl std::fmt::Display for ApiAccessMethodId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl std::ops::Deref for ApiAccessMethodId {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl From<&AccessMethod> for ApiAccessMethodId {
+    fn from(value: &AccessMethod) -> Self {
+        // Generate unqiue ID for this `AccessMethod`.
+        let mut hasher = DefaultHasher::new();
+        value.hash(&mut hasher);
+        ApiAccessMethodId(hasher.finish().to_string())
+    }
+}
+
 /// Access Method datastructure.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
 pub enum AccessMethod {
     BuiltIn(BuiltInAccessMethod),
     Custom(CustomAccessMethod),
 }
 
 impl ApiAccessMethod {
+    pub fn new(name: String, enabled: bool, access_method: AccessMethod) -> Self {
+        Self {
+            id: ApiAccessMethodId::from(&access_method),
+            name,
+            enabled,
+            access_method,
+        }
+    }
+
+    pub fn get_id(&self) -> ApiAccessMethodId {
+        self.id.clone()
+    }
+
     pub fn get_name(&self) -> String {
         self.name.clone()
     }
@@ -116,28 +157,27 @@ impl ApiAccessMethod {
         self.access_method.as_custom()
     }
 
-    /// Set an API access method to be either enabled or disabled.
-    pub fn toggle(&mut self, enable: bool) {
-        self.enabled = enable;
+    /// Set an API access method to be enabled.
+    pub fn enable(&mut self) {
+        self.enabled = true;
+    }
+
+    /// Set an API access method to be disabled.
+    pub fn disable(&mut self) {
+        self.enabled = false;
     }
 }
 
 /// Built-In access method datastructure.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
 pub enum BuiltInAccessMethod {
     Direct,
     Bridge,
 }
 
 /// Custom access method datastructure.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct CustomAccessMethod {
-    pub id: String,
-    pub access_method: ObfuscationProtocol,
-}
-
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub enum ObfuscationProtocol {
+pub enum CustomAccessMethod {
     Shadowsocks(Shadowsocks),
     Socks5(Socks5),
 }
@@ -246,26 +286,15 @@ impl From<CustomAccessMethod> for AccessMethod {
     }
 }
 
-impl From<ObfuscationProtocol> for AccessMethod {
-    fn from(value: ObfuscationProtocol) -> Self {
-        let mut hasher = DefaultHasher::new();
-        value.hash(&mut hasher);
-        AccessMethod::from(CustomAccessMethod {
-            id: hasher.finish().to_string(),
-            access_method: value,
-        })
-    }
-}
-
 impl From<Shadowsocks> for AccessMethod {
     fn from(value: Shadowsocks) -> Self {
-        ObfuscationProtocol::Shadowsocks(value).into()
+        CustomAccessMethod::Shadowsocks(value).into()
     }
 }
 
 impl From<Socks5> for AccessMethod {
     fn from(value: Socks5) -> Self {
-        AccessMethod::from(ObfuscationProtocol::Socks5(value))
+        AccessMethod::from(CustomAccessMethod::Socks5(value))
     }
 }
 
@@ -296,16 +325,10 @@ impl From<Socks5Local> for Socks5 {
 /// Some short-lived datastructure used in some RPC calls to the mullvad daemon.
 pub mod daemon {
     use super::*;
-    /// Argument to protobuf rpc `ApiAccessMethodReplace`.
+    /// Argument to protobuf rpc `UpdateApiAccessMethod`.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-    pub struct ApiAccessMethodReplace {
+    pub struct ApiAccessMethodUpdate {
+        pub id: ApiAccessMethodId,
         pub access_method: ApiAccessMethod,
-        pub index: usize,
-    }
-    /// Argument to protobuf rpc `ApiAccessMethodToggle`.
-    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-    pub struct ApiAccessMethodToggle {
-        pub access_method: ApiAccessMethod,
-        pub enable: bool,
     }
 }

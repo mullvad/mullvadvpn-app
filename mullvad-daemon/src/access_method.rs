@@ -3,7 +3,7 @@ use crate::{
     Daemon, EventListener,
 };
 use mullvad_types::access_method::{
-    daemon::ApiAccessMethodReplace, ApiAccessMethod, CustomAccessMethod,
+    daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId,
 };
 
 #[derive(err_derive::Error, Debug)]
@@ -11,6 +11,9 @@ pub enum Error {
     /// Can not add access method
     #[error(display = "Cannot add custom access method")]
     Add,
+    /// Can not find access method
+    #[error(display = "Cannot find custom access method {}", _0)]
+    NoSuchMethod(ApiAccessMethodId),
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -28,27 +31,9 @@ where
             .map_err(Error::Settings)
     }
 
-    pub async fn toggle_api_access_method(
-        &mut self,
-        api_access_method: ApiAccessMethod,
-        enable: bool,
-    ) -> Result<(), Error> {
-        self.settings
-            .update(|settings| {
-                if let Some(api_access_method) =
-                    settings.api_access_methods.find_mut(&api_access_method)
-                {
-                    api_access_method.toggle(enable);
-                }
-            })
-            .await
-            .map(|did_change| self.notify_on_change(did_change))
-            .map_err(Error::Settings)
-    }
-
     pub async fn remove_access_method(
         &mut self,
-        access_method: CustomAccessMethod,
+        access_method: ApiAccessMethodId,
     ) -> Result<(), Error> {
         self.settings
             .update(|settings| settings.api_access_methods.remove(&access_method))
@@ -57,29 +42,37 @@ where
             .map_err(Error::Settings)
     }
 
-    pub async fn replace_access_method(
+    pub async fn update_access_method(
         &mut self,
-        access_method_replace: ApiAccessMethodReplace,
+        access_method_update: ApiAccessMethodUpdate,
     ) -> Result<(), Error> {
         self.settings
             .update(|settings| {
                 let access_methods = &mut settings.api_access_methods;
-                access_methods.append(access_method_replace.access_method);
-                access_methods.swap_remove(access_method_replace.index);
+                if let Some(access_method) =
+                    // TODO: This will not work, has to be based on ID!
+                    access_methods.find_mut(&access_method_update.id)
+                {
+                    *access_method = access_method_update.access_method
+                }
             })
             .await
             .map(|did_change| self.notify_on_change(did_change))
             .map_err(Error::Settings)
     }
 
-    pub fn set_api_access_method(&mut self, access_method: ApiAccessMethod) -> Result<(), Error> {
-        {
-            let mut connection_modes = self.connection_modes.lock().unwrap();
-            connection_modes.set_access_method(access_method.access_method);
+    pub fn set_api_access_method(&mut self, access_method: ApiAccessMethodId) -> Result<(), Error> {
+        if let Some(access_method) = self.settings.api_access_methods.find(&access_method) {
+            {
+                let mut connection_modes = self.connection_modes.lock().unwrap();
+                connection_modes.set_access_method(access_method.access_method.clone());
+            }
+            // Force a rotation of Access Methods.
+            let _ = self.api_handle.service().next_api_endpoint();
+            Ok(())
+        } else {
+            Err(Error::NoSuchMethod(access_method))
         }
-        // Force a rotation of Access Methods.
-        let _ = self.api_handle.service().next_api_endpoint();
-        Ok(())
     }
 
     /// If settings were changed due to an update, notify all listeners.
