@@ -435,11 +435,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func getInitTunnelManagerOperation() -> AsyncBlockOperation {
         AsyncBlockOperation(dispatchQueue: .main) { finish in
-            self.tunnelManager.loadConfiguration { error in
-                if let error {
-                    fatalError(error.localizedDescription)
-                }
-
+            self.tunnelManager.loadConfiguration {
                 self.logger.debug("Finished initialization.")
 
                 NotificationManager.shared.updateNotifications()
