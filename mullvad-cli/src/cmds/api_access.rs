@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::access_method::{
     daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
-    AccessMethod, ApiAccessMethod, ObfuscationProtocol,
+    AccessMethod, ApiAccessMethod, CustomAccessMethod,
 };
 use std::net::IpAddr;
 
@@ -101,8 +101,8 @@ impl ApiAccess {
             .ok_or(anyhow!("Can not edit built-in access method"))?;
 
         // Create a new access method combining the new params with the previous values
-        let edited_access_method: ApiAccessMethod = match access_method.access_method {
-            ObfuscationProtocol::Shadowsocks(shadowsocks) => {
+        let edited_access_method: ApiAccessMethod = match access_method {
+            CustomAccessMethod::Shadowsocks(shadowsocks) => {
                 let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip()).to_string();
                 let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
                 let password = cmd.params.password.unwrap_or(shadowsocks.password);
@@ -110,39 +110,27 @@ impl ApiAccess {
                 let name = cmd.params.name.unwrap_or(api_access_method.name);
                 let enabled = api_access_method.enabled;
                 mullvad_types::access_method::Shadowsocks::from_args(ip, port, cipher, password)
-                    .map(|x| ApiAccessMethod {
-                        name,
-                        enabled,
-                        access_method: AccessMethod::from(x),
+                    .map(|shadowsocks| {
+                        ApiAccessMethod::new(name, enabled, AccessMethod::from(shadowsocks))
                     })
             }
-            ObfuscationProtocol::Socks5(socks) => match socks {
+            CustomAccessMethod::Socks5(socks) => match socks {
                 mullvad_types::access_method::Socks5::Local(local) => {
                     let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(local.peer.port());
                     let local_port = cmd.params.local_port.unwrap_or(local.port);
                     let name = cmd.params.name.unwrap_or(api_access_method.get_name());
                     let enabled = api_access_method.enabled();
-                    mullvad_types::access_method::Socks5Local::from_args(ip, port, local_port).map(
-                        |x| ApiAccessMethod {
-                            name,
-                            enabled,
-                            access_method: AccessMethod::from(x),
-                        },
-                    )
+                    mullvad_types::access_method::Socks5Local::from_args(ip, port, local_port)
+                        .map(|socks| ApiAccessMethod::new(name, enabled, AccessMethod::from(socks)))
                 }
                 mullvad_types::access_method::Socks5::Remote(remote) => {
                     let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(remote.peer.port());
                     let name = cmd.params.name.unwrap_or(api_access_method.get_name());
                     let enabled = api_access_method.enabled();
-                    mullvad_types::access_method::Socks5Remote::from_args(ip, port).map(|x| {
-                        ApiAccessMethod {
-                            name,
-                            enabled,
-                            access_method: AccessMethod::from(x),
-                        }
-                    })
+                    mullvad_types::access_method::Socks5Remote::from_args(ip, port)
+                        .map(|socks| ApiAccessMethod::new(name, enabled, AccessMethod::from(socks)))
                 }
             },
         }
@@ -348,11 +336,11 @@ mod conversions {
                             )
                             .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
                         );
-                        daemon_types::ApiAccessMethod {
+                        daemon_types::ApiAccessMethod::new(
                             name,
                             enabled,
-                            access_method: daemon_types::AccessMethod::from(socks_proxy),
-                        }
+                            daemon_types::AccessMethod::from(socks_proxy),
+                        )
                     }
                     Socks5AddCommands::Remote {
                         remote_ip,
@@ -367,11 +355,11 @@ mod conversions {
                             )
                             .ok_or(anyhow!("Could not create a remote Socks5 api proxy"))?,
                         );
-                        daemon_types::ApiAccessMethod {
+                        daemon_types::ApiAccessMethod::new(
                             name,
                             enabled,
-                            access_method: socks_proxy.into(),
-                        }
+                            daemon_types::AccessMethod::from(socks_proxy),
+                        )
                     }
                 },
                 AddCustomCommands::Shadowsocks {
@@ -392,11 +380,11 @@ mod conversions {
                     )
                     .ok_or(anyhow!("Could not create a Shadowsocks api proxy"))?;
 
-                    daemon_types::ApiAccessMethod {
+                    daemon_types::ApiAccessMethod::new(
                         name,
                         enabled,
-                        access_method: shadowsocks_proxy.into(),
-                    }
+                        daemon_types::AccessMethod::from(shadowsocks_proxy),
+                    )
                 }
             })
         }
@@ -405,9 +393,7 @@ mod conversions {
 
 /// Pretty printing of [`ApiAccessMethod`]s
 mod pp {
-    use mullvad_types::access_method::{
-        AccessMethod, ApiAccessMethod, ObfuscationProtocol, Socks5,
-    };
+    use mullvad_types::access_method::{AccessMethod, ApiAccessMethod, CustomAccessMethod, Socks5};
 
     pub struct ApiAccessMethodFormatter<'a> {
         api_access_method: &'a ApiAccessMethod,
@@ -439,8 +425,8 @@ mod pp {
                     write!(f, "{}", method.canonical_name())?;
                     write_status(f, self.api_access_method.enabled())
                 }
-                AccessMethod::Custom(method) => match &method.access_method {
-                    ObfuscationProtocol::Shadowsocks(shadowsocks) => {
+                AccessMethod::Custom(method) => match &method {
+                    CustomAccessMethod::Shadowsocks(shadowsocks) => {
                         write!(f, "{}", self.api_access_method.get_name())?;
                         write_status(f, self.api_access_method.enabled())?;
                         writeln!(f)?;
@@ -449,7 +435,7 @@ mod pp {
                         print_option!("Password", shadowsocks.password);
                         Ok(())
                     }
-                    ObfuscationProtocol::Socks5(socks) => match socks {
+                    CustomAccessMethod::Socks5(socks) => match socks {
                         Socks5::Remote(remote) => {
                             write!(f, "{}", self.api_access_method.get_name())?;
                             write_status(f, self.api_access_method.enabled())?;

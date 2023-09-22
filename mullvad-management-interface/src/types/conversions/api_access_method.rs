@@ -97,7 +97,7 @@ mod settings {
 mod data {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method::{
-        AccessMethod, ApiAccessMethod, BuiltInAccessMethod, ObfuscationProtocol, Shadowsocks,
+        AccessMethod, ApiAccessMethod, BuiltInAccessMethod, CustomAccessMethod, Shadowsocks,
         Socks5, Socks5Local, Socks5Remote,
     };
 
@@ -117,6 +117,8 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethod) -> Result<Self, Self::Error> {
+            // TODO: Should this be used or genertaed anew?
+            // let id = value.id;
             let name = value.name;
             let enabled = value.enabled;
             let access_method =
@@ -126,7 +128,7 @@ mod data {
                         "Could not deserialize Access Method from protobuf",
                     ))?;
 
-            let x = match access_method {
+            let access_method = match access_method {
                 proto::api_access_method::AccessMethod::Direct(
                     proto::api_access_method::Direct {},
                 ) => AccessMethod::from(BuiltInAccessMethod::Direct),
@@ -164,24 +166,21 @@ mod data {
                 }
             };
 
-            Ok(ApiAccessMethod {
-                name,
-                enabled,
-                access_method: x,
-            })
+            // TODO: Should the `id` be used or generated a new?
+            Ok(ApiAccessMethod::new(name, enabled, access_method))
         }
     }
 
     impl From<ApiAccessMethod> for proto::ApiAccessMethod {
         fn from(value: ApiAccessMethod) -> Self {
+            let id = value.get_id();
             let name = value.get_name();
             let enabled = value.enabled();
             let access_method = match value.access_method {
-                AccessMethod::Custom(value) => match value.access_method {
-                    ObfuscationProtocol::Shadowsocks(ss) => {
+                AccessMethod::Custom(value) => match value {
+                    CustomAccessMethod::Shadowsocks(ss) => {
                         proto::api_access_method::AccessMethod::Shadowsocks(
                             proto::api_access_method::Shadowsocks {
-                                id: value.id,
                                 ip: ss.peer.ip().to_string(),
                                 port: ss.peer.port() as u32,
                                 password: ss.password,
@@ -189,20 +188,18 @@ mod data {
                             },
                         )
                     }
-                    ObfuscationProtocol::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
+                    CustomAccessMethod::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
                         proto::api_access_method::AccessMethod::Socks5local(
                             proto::api_access_method::Socks5Local {
-                                id: value.id,
                                 ip: peer.ip().to_string(),
                                 port: peer.port() as u32,
                                 local_port: port as u32,
                             },
                         )
                     }
-                    ObfuscationProtocol::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
+                    CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
                         proto::api_access_method::AccessMethod::Socks5remote(
                             proto::api_access_method::Socks5Remote {
-                                id: value.id,
                                 ip: peer.ip().to_string(),
                                 port: peer.port() as u32,
                             },
@@ -224,6 +221,7 @@ mod data {
             };
 
             proto::ApiAccessMethod {
+                id: id.to_string(),
                 name,
                 enabled,
                 access_method: Some(access_method),
