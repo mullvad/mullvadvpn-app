@@ -5,7 +5,7 @@ use futures::{Stream, StreamExt};
 use mullvad_types::{
     access_method::{
         daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
-        AccessMethod,
+        ApiAccessMethod,
     },
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, CustomListLocationUpdate},
@@ -166,7 +166,7 @@ impl MullvadProxyClient {
         mullvad_types::relay_list::RelayList::try_from(list).map_err(Error::InvalidResponse)
     }
 
-    pub async fn get_api_access_methods(&mut self) -> Result<Vec<AccessMethod>> {
+    pub async fn get_api_access_methods(&mut self) -> Result<Vec<ApiAccessMethod>> {
         self.0
             .get_api_access_methods(())
             .await
@@ -174,8 +174,8 @@ impl MullvadProxyClient {
             .into_inner()
             .api_access_methods
             .into_iter()
-            .map(|access_method| {
-                AccessMethod::try_from(access_method).map_err(Error::InvalidResponse)
+            .map(|api_access_method| {
+                ApiAccessMethod::try_from(api_access_method).map_err(Error::InvalidResponse)
             })
             .collect()
     }
@@ -512,9 +512,9 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn add_access_method(&mut self, access_method: AccessMethod) -> Result<()> {
+    pub async fn add_access_method(&mut self, api_access_method: ApiAccessMethod) -> Result<()> {
         self.0
-            .add_api_access_method(types::ApiAccessMethod::from(access_method))
+            .add_api_access_method(types::ApiAccessMethod::from(api_access_method))
             .await
             .map_err(Error::Rpc)
             .map(drop)
@@ -531,9 +531,9 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
-    pub async fn remove_access_method(&mut self, access_method: AccessMethod) -> Result<()> {
+    pub async fn remove_access_method(&mut self, api_access_method: ApiAccessMethod) -> Result<()> {
         self.0
-            .remove_api_access_method(types::ApiAccessMethod::from(access_method))
+            .remove_api_access_method(types::ApiAccessMethod::from(api_access_method))
             .await
             .map_err(Error::Rpc)
             .map(drop)
@@ -559,9 +559,9 @@ impl MullvadProxyClient {
     ///     method "randomly"
     ///
     /// [`ApiConnectionModeProvider`]: mullvad_daemon::api::ApiConnectionModeProvider
-    pub async fn set_access_method(&mut self, access_method: AccessMethod) -> Result<()> {
+    pub async fn set_access_method(&mut self, api_access_method: ApiAccessMethod) -> Result<()> {
         self.0
-            .set_api_access_method(types::ApiAccessMethod::from(access_method))
+            .set_api_access_method(types::ApiAccessMethod::from(api_access_method))
             .await
             .map_err(Error::Rpc)
             .map(drop)
