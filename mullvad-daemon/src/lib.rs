@@ -41,7 +41,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     access_method::{
         daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
-        ApiAccessMethod, CustomAccessMethod,
+        ApiAccessMethod, ApiAccessMethodId,
     },
     account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
@@ -269,7 +269,7 @@ pub enum DaemonCommand {
     /// Add API access methods
     AddApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethod),
     /// Remove an API access method
-    RemoveApiAccessMethod(ResponseTx<(), Error>, CustomAccessMethod),
+    RemoveApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodId),
     /// Edit an API access method
     ReplaceApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodReplace),
     /// Toggle the status of an API access method
@@ -2309,10 +2309,10 @@ where
     async fn on_remove_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        method: CustomAccessMethod,
+        api_access_method: ApiAccessMethodId,
     ) {
         let result = self
-            .remove_access_method(method)
+            .remove_access_method(api_access_method)
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "remove_api_access_method response");

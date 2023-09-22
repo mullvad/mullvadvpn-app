@@ -378,31 +378,30 @@ message ApiAccessMethod {
   message Direct {}
   message Bridges {}
   message Socks5Local {
-    string id = 3;
     string ip = 4;
     uint32 port = 5;
     uint32 local_port = 6;
   }
   message Socks5Remote {
-    string id = 1;
     string ip = 2;
     uint32 port = 3;
   }
   message Shadowsocks {
-    string id = 1;
     string ip = 2;
     uint32 port = 3;
     string password = 4;
     string cipher = 5;
   }
-  string name = 1;
-  bool enabled = 2;
+
+  string id = 1;
+  string name = 2;
+  bool enabled = 3;
   oneof access_method {
-    Direct direct = 3;
-    Bridges bridges = 4;
-    Socks5Local socks5local = 5;
-    Socks5Remote socks5remote = 6;
-    Shadowsocks shadowsocks = 7;
+    Direct direct = 4;
+    Bridges bridges = 5;
+    Socks5Local socks5local = 6;
+    Socks5Remote socks5remote = 7;
+    Shadowsocks shadowsocks = 8;
   }
 }
 

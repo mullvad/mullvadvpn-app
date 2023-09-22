@@ -18,16 +18,10 @@ impl Settings {
         self.api_access_methods.push(api_access_method)
     }
 
-    /// Remove a [`CustomAccessMethod`] from `api_access_methods`.
+    /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
     #[inline(always)]
-    pub fn remove(&mut self, custom_access_method: &CustomAccessMethod) {
-        self.retain(|api_access_method| {
-            api_access_method
-                .access_method
-                .as_custom()
-                .map(|access_method| access_method.id != custom_access_method.id)
-                .unwrap_or(true)
-        })
+    pub fn remove(&mut self, api_access_method: &ApiAccessMethodId) {
+        self.retain(|method| method.get_id() != *api_access_method)
     }
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
@@ -75,10 +69,12 @@ impl Default for Settings {
         Self {
             api_access_methods: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
                 .into_iter()
-                .map(|built_in| ApiAccessMethod {
-                    name: built_in.canonical_name(),
-                    enabled: true,
-                    access_method: AccessMethod::from(built_in),
+                .map(|built_in| {
+                    ApiAccessMethod::new(
+                        built_in.canonical_name(),
+                        true,
+                        AccessMethod::from(built_in),
+                    )
                 })
                 .collect(),
         }
@@ -91,19 +87,54 @@ impl Default for Settings {
 /// TODO(Create a constructor functions for this struct (?))
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct ApiAccessMethod {
+    /// Some unique id (distinct for each `AccessMethod`).
+    id: ApiAccessMethodId,
     pub name: String,
     pub enabled: bool,
     pub access_method: AccessMethod,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ApiAccessMethodId(String);
+
+impl std::ops::Deref for ApiAccessMethodId {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl From<&AccessMethod> for ApiAccessMethodId {
+    fn from(value: &AccessMethod) -> Self {
+        // Generate unqiue ID for this `AccessMethod`.
+        let mut hasher = DefaultHasher::new();
+        value.hash(&mut hasher);
+        ApiAccessMethodId(hasher.finish().to_string())
+    }
+}
+
 /// Access Method datastructure.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
 pub enum AccessMethod {
     BuiltIn(BuiltInAccessMethod),
     Custom(CustomAccessMethod),
 }
 
 impl ApiAccessMethod {
+    pub fn new(name: String, enabled: bool, access_method: AccessMethod) -> Self {
+        Self {
+            id: ApiAccessMethodId::from(&access_method),
+            name,
+            enabled,
+            access_method,
+        }
+    }
+
+    pub fn get_id(&self) -> ApiAccessMethodId {
+        self.id.clone()
+    }
+
     pub fn get_name(&self) -> String {
         self.name.clone()
     }
@@ -123,21 +154,15 @@ impl ApiAccessMethod {
 }
 
 /// Built-In access method datastructure.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
 pub enum BuiltInAccessMethod {
     Direct,
     Bridge,
 }
 
 /// Custom access method datastructure.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct CustomAccessMethod {
-    pub id: String,
-    pub access_method: ObfuscationProtocol,
-}
-
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
-pub enum ObfuscationProtocol {
+pub enum CustomAccessMethod {
     Shadowsocks(Shadowsocks),
     Socks5(Socks5),
 }
@@ -246,26 +271,15 @@ impl From<CustomAccessMethod> for AccessMethod {
     }
 }
 
-impl From<ObfuscationProtocol> for AccessMethod {
-    fn from(value: ObfuscationProtocol) -> Self {
-        let mut hasher = DefaultHasher::new();
-        value.hash(&mut hasher);
-        AccessMethod::from(CustomAccessMethod {
-            id: hasher.finish().to_string(),
-            access_method: value,
-        })
-    }
-}
-
 impl From<Shadowsocks> for AccessMethod {
     fn from(value: Shadowsocks) -> Self {
-        ObfuscationProtocol::Shadowsocks(value).into()
+        CustomAccessMethod::Shadowsocks(value).into()
     }
 }
 
 impl From<Socks5> for AccessMethod {
     fn from(value: Socks5) -> Self {
-        AccessMethod::from(ObfuscationProtocol::Socks5(value))
+        AccessMethod::from(CustomAccessMethod::Socks5(value))
     }
 }
 
