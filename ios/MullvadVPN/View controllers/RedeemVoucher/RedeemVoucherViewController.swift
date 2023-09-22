@@ -88,7 +88,11 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         }
 
         contentView.cancelAction = { [weak self] in
-            self?.cancel()
+            guard let self else { return }
+
+            if contentView.isEditing {
+                cancel()
+            }
         }
 
         contentView.logoutAction = { [weak self] in
