@@ -35,6 +35,34 @@ private fun PreviewTopBar() {
     }
 }
 
+@Preview
+@Composable
+private fun PreviewNoIconAndLogoTopBar() {
+    AppTheme {
+        TopBar(
+            backgroundColor = MaterialTheme.colorScheme.inversePrimary,
+            iconTintColor = MaterialTheme.colorScheme.onPrimary,
+            isIconAndLogoVisible = false,
+            onSettingsClicked = {},
+            onAccountClicked = null,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewNothingTopBar() {
+    AppTheme {
+        TopBar(
+            backgroundColor = MaterialTheme.colorScheme.inversePrimary,
+            iconTintColor = MaterialTheme.colorScheme.onPrimary,
+            isIconAndLogoVisible = false,
+            onSettingsClicked = null,
+            onAccountClicked = null
+        )
+    }
+}
+
 @Composable
 fun TopBar(
     backgroundColor: Color,
