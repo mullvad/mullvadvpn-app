@@ -12,7 +12,6 @@ final class NotificationController: UIViewController {
     let bannerView: NotificationBannerView = {
         let bannerView = NotificationBannerView()
         bannerView.translatesAutoresizingMaskIntoConstraints = false
-        bannerView.isHidden = true
         bannerView.isAccessibilityElement = true
         return bannerView
     }()
@@ -63,19 +62,11 @@ final class NotificationController: UIViewController {
             // avoid undesired horizontal expansion animation.
             view.layoutIfNeeded()
 
-            bannerView.isHidden = false
             hideBannerConstraint?.isActive = false
             showBannerConstraint?.isActive = true
         } else {
             showBannerConstraint?.isActive = false
             hideBannerConstraint?.isActive = true
-        }
-
-        let finish = { [weak self] in
-            if self?.lastNotification == nil {
-                self?.bannerView.isHidden = true
-            }
-            completion?()
         }
 
         if animated {
@@ -89,12 +80,12 @@ final class NotificationController: UIViewController {
                 self.view.layoutIfNeeded()
             }
             animator.addCompletion { _ in
-                finish()
+                completion?()
             }
             animator.startAnimation()
         } else {
             view.layoutIfNeeded()
-            finish()
+            completion?()
         }
     }
 
