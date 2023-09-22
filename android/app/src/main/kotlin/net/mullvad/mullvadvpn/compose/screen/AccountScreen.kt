@@ -157,23 +157,23 @@ fun AccountScreen(
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
-            if (IS_PLAY_BUILD.not()) {
-                ActionButton(
-                    text = stringResource(id = R.string.manage_account),
-                    onClick = onManageAccountClick,
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.screenVerticalMargin
-                        ),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                )
-            }
+                if (IS_PLAY_BUILD.not()) {
+                    ActionButton(
+                        text = stringResource(id = R.string.manage_account),
+                        onClick = onManageAccountClick,
+                        modifier =
+                            Modifier.padding(
+                                start = Dimens.sideMargin,
+                                end = Dimens.sideMargin,
+                                bottom = Dimens.screenVerticalMargin
+                            ),
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
+                    )
+                }
 
                 ActionButton(
                     text = stringResource(id = R.string.redeem_voucher),
