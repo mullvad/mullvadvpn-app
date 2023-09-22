@@ -19,7 +19,7 @@ final class TunnelMonitorTests: XCTestCase {
         let connectionLostExpectation = expectation(description: "Should not report connection loss")
         connectionLostExpectation.isInverted = true
 
-        let pinger = MockPinger(networkStatsReporting: networkCounters) { _, _ in
+        let pinger = PingerMock(networkStatsReporting: networkCounters) { _, _ in
             return .sendReply()
         }
 
@@ -32,9 +32,6 @@ final class TunnelMonitorTests: XCTestCase {
 
             case .connectionLost:
                 connectionLostExpectation.fulfill()
-
-            case .networkReachabilityChanged:
-                break
             }
         }
 
@@ -45,7 +42,7 @@ final class TunnelMonitorTests: XCTestCase {
 
     func testInitialConnectionTimings() {
         // Setup pinger so that it never receives any replies.
-        let pinger = MockPinger(networkStatsReporting: networkCounters) { _, _ in .ignore }
+        let pinger = PingerMock(networkStatsReporting: networkCounters) { _, _ in .ignore }
 
         let timings = TunnelMonitorTimings(
             pingTimeout: .milliseconds(300),
@@ -104,9 +101,6 @@ final class TunnelMonitorTests: XCTestCase {
 
             case .connectionEstablished:
                 XCTFail("Connection should fail.")
-
-            case .networkReachabilityChanged:
-                break
             }
         }
 
@@ -122,8 +116,8 @@ extension TunnelMonitorTests {
         return TunnelMonitor(
             eventQueue: .main,
             pinger: pinger,
-            tunnelDeviceInfo: MockTunnelDeviceInfo(networkStatsProviding: networkCounters),
-            defaultPathObserver: MockDefaultPathObserver(),
+            tunnelDeviceInfo: TunnelDeviceInfoStub(networkStatsProviding: networkCounters),
+            defaultPathObserver: DefaultPathObserverFake(),
             timings: timings
         )
     }

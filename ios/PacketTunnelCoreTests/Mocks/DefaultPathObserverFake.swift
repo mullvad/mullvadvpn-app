@@ -1,5 +1,5 @@
 //
-//  MockDefaultPathObserver.swift
+//  DefaultPathObserverFake.swift
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 16/08/2023.
@@ -10,17 +10,17 @@ import Foundation
 import NetworkExtension
 import PacketTunnelCore
 
-struct MockNetworkPath: NetworkPath {
+struct NetworkPathStub: NetworkPath {
     var status: NetworkExtension.NWPathStatus = .satisfied
 }
 
-/// Mock implementation of a default path observer.
-class MockDefaultPathObserver: DefaultPathObserverProtocol {
+/// Default path observer fake that uses in-memory storage to keep current path and provides a method to simulate path change from tests.
+class DefaultPathObserverFake: DefaultPathObserverProtocol {
     var defaultPath: NetworkPath? {
         return stateLock.withLock { innerPath }
     }
 
-    private var innerPath: NetworkPath = MockNetworkPath()
+    private var innerPath: NetworkPath = NetworkPathStub()
     private var stateLock = NSLock()
 
     private var defaultPathHandler: ((NetworkPath) -> Void)?

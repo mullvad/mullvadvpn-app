@@ -442,7 +442,7 @@ private extension TunnelState {
         case .connected:
             return .successColor
 
-        case .disconnecting, .disconnected, .pendingReconnect, .waitingForConnectivity(.noNetwork):
+        case .disconnecting, .disconnected, .pendingReconnect, .waitingForConnectivity(.noNetwork), .error:
             return .dangerColor
         }
     }
@@ -511,6 +511,10 @@ private extension TunnelState {
                 value: "No network",
                 comment: ""
             )
+
+        case let .error(blockedStateReason):
+            // TODO: Fix me
+            return ""
         }
     }
 
@@ -538,6 +542,10 @@ private extension TunnelState {
                 value: "Switch location",
                 comment: ""
             )
+
+        case let .error(blockedStateReason):
+            // TODO: Fix me
+            return ""
         }
     }
 
@@ -614,6 +622,10 @@ private extension TunnelState {
                 value: "Reconnecting",
                 comment: ""
             )
+
+        case let .error(blockedStateReason):
+            // TODO: Fix me
+            return ""
         }
     }
 
@@ -628,7 +640,7 @@ private extension TunnelState {
                  .waitingForConnectivity(.noConnection):
                 return [.selectLocation, .cancel]
 
-            case .connected, .reconnecting:
+            case .connected, .reconnecting, .error:
                 return [.selectLocation, .disconnect]
             }
 
@@ -641,7 +653,7 @@ private extension TunnelState {
                  .waitingForConnectivity(.noConnection):
                 return [.cancel]
 
-            case .connected, .reconnecting:
+            case .connected, .reconnecting, .error:
                 return [.disconnect]
             }
 
