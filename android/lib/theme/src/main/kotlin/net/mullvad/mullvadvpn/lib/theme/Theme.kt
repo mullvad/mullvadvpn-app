@@ -81,7 +81,7 @@ val Shapes =
         small = RoundedCornerShape(4.dp),
         medium = RoundedCornerShape(4.dp),
         large = RoundedCornerShape(0.dp),
-        extraLarge = RoundedCornerShape(4.dp)
+        extraLarge = RoundedCornerShape(11.dp)
     )
 
 val Dimens: Dimensions
