@@ -22,7 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-
+### Changed
+- The DNS content blockers option do not include the word "block" anymore
 
 ## [2023.4 - 2023-09-12]
 ### Added
