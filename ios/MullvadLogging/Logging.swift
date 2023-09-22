@@ -46,11 +46,12 @@ public struct LoggerBuilder {
         outputs.append(.osLogOutput(subsystem))
     }
 
-    public func install() {
+    public func install(header: String) {
         LoggingSystem.bootstrap { label -> LogHandler in
             let logHandlers: [LogHandler] = outputs.map { output in
                 switch output {
                 case let .fileOutput(stream):
+                    stream.write("\(header)\n")
                     return CustomFormatLogHandler(label: label, streams: [stream])
 
                 case let .osLogOutput(subsystem):

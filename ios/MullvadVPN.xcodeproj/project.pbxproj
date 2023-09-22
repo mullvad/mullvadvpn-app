@@ -2915,6 +2915,7 @@
 				7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */,
 				A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */,
 				A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */,
+				01168B192BBEE7F800D5F382 /* LoggingTests.swift */,
 				5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */,
 				58915D622A25F8400066445B /* DeviceCheckOperationTests.swift */,
 				A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */,
@@ -5060,6 +5061,7 @@
 				7A3FD1B52AD4465A0042BEA6 /* AppMessageHandlerTests.swift in Sources */,
 				58C7A4702A8649ED0060C66F /* PingerTests.swift in Sources */,
 				A97D25B22B0CB02D00946B2D /* ProtocolObfuscatorTests.swift in Sources */,
+				01168B1A2BBEE7F800D5F382 /* LoggingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -357,9 +357,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         #if DEBUG
         loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
-        loggerBuilder.install()
+        loggerBuilder.install(header: "TODO: Add version info here")
 
         logger = Logger(label: "AppDelegate")
+
+        loggerBuilder.logLevel = .debug
     }
 
     private func addApplicationNotifications(application: UIApplication) {
