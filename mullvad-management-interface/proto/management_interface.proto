@@ -81,13 +81,10 @@ service ManagementService {
   rpc RemoveApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
-  rpc ReplaceApiAccessMethod(ApiAccessMethodReplace) returns (google.protobuf.Empty) {
+  rpc UpdateApiAccessMethod(ApiAccessMethodUpdate) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
-  rpc ToggleApiAccessMethod(ApiAccessMethodToggle) returns (google.protobuf.Empty) {
-    // Can I return something useful here instead of Empty?
-  }
-  rpc SetApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
+  rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
 
@@ -110,6 +107,8 @@ service ManagementService {
   // (Windows).
   rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
+
+message UUID { string value = 1; }
 
 message RelaySettingsUpdate {
   oneof type {
@@ -336,16 +335,6 @@ message ObfuscationSettings {
   Udp2TcpObfuscationSettings udp2tcp = 2;
 }
 
-message ApiAccessMethodReplace {
-  uint32 index = 1;
-  ApiAccessMethod access_method = 2;
-}
-
-message ApiAccessMethodToggle {
-  ApiAccessMethod access_method = 1;
-  bool enable = 2;
-}
-
 message CustomList {
   string id = 1;
   string name = 2;
@@ -358,37 +347,41 @@ message ApiAccessMethod {
   message Direct {}
   message Bridges {}
   message Socks5Local {
-    string id = 3;
     string ip = 4;
     uint32 port = 5;
     uint32 local_port = 6;
   }
   message Socks5Remote {
-    string id = 1;
     string ip = 2;
     uint32 port = 3;
   }
   message Shadowsocks {
-    string id = 1;
     string ip = 2;
     uint32 port = 3;
     string password = 4;
     string cipher = 5;
   }
-  string name = 1;
-  bool enabled = 2;
+
+  UUID id = 1;
+  string name = 2;
+  bool enabled = 3;
   oneof access_method {
-    Direct direct = 3;
-    Bridges bridges = 4;
-    Socks5Local socks5local = 5;
-    Socks5Remote socks5remote = 6;
-    Shadowsocks shadowsocks = 7;
+    Direct direct = 4;
+    Bridges bridges = 5;
+    Socks5Local socks5local = 6;
+    Socks5Remote socks5remote = 7;
+    Shadowsocks shadowsocks = 8;
   }
 }
 
 message ApiAccessMethods { repeated ApiAccessMethod api_access_methods = 1; }
 
 message ApiAccessMethodSettings { repeated ApiAccessMethod api_access_methods = 1; }
+
+message ApiAccessMethodUpdate {
+  UUID id = 1;
+  ApiAccessMethod access_method = 2;
+}
 
 message Settings {
   RelaySettings relay_settings = 1;
