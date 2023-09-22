@@ -168,7 +168,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Public methods
 
-    func loadConfiguration(completionHandler: @escaping (Error?) -> Void) {
+    func loadConfiguration(completionHandler: @escaping () -> Void) {
         let loadTunnelOperation = LoadTunnelConfigurationOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
@@ -187,7 +187,7 @@ final class TunnelManager: StorePaymentObserver {
             self.updatePrivateKeyRotationTimer()
             self.startNetworkMonitor()
 
-            completionHandler(completion.error)
+            completionHandler()
         }
 
         loadTunnelOperation.addObserver(
