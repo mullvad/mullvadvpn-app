@@ -950,7 +950,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         guard tunnelManager.deviceState.isLoggedIn else { return false }
 
         switch tunnelManager.tunnelStatus.state {
-        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection):
+        case .connected, .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .error:
             tunnelManager.reconnectTunnel(selectNewRelay: true)
 
         case .disconnecting, .disconnected:
