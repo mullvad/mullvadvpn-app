@@ -392,12 +392,6 @@ message ApiAccessMethod {
     string ip = 4;
     uint32 port = 5;
   }
-  message Socks5 {
-    oneof Socks5type {
-      Socks5Local local = 1;
-      Socks5Remote remote = 2;
-    }
-  }
   message Shadowsocks {
     bool enabled = 1;
     string name = 2;
@@ -410,8 +404,9 @@ message ApiAccessMethod {
   oneof access_method {
     Direct direct = 1;
     Bridges bridges = 2;
-    Socks5 socks5 = 3;
-    Shadowsocks shadowsocks = 4;
+    Socks5Local socks5local = 3;
+    Socks5Remote socks5remote = 4;
+    Shadowsocks shadowsocks = 5;
   }
 }
 
