@@ -37,7 +37,7 @@ pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
     std::iter::empty()
 }
 
-struct WindowsVersion {
+pub struct WindowsVersion {
     inner: RTL_OSVERSIONINFOEXW,
 }
 

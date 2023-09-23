@@ -1,0 +1,60 @@
+[package]
+name = "test-manager"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { version = "1", features = ["backtrace"] }
+futures = { workspace = true }
+regex = "1"
+chrono = { workspace = true }
+tarpc = { workspace = true }
+tokio = { workspace = true }
+tokio-serial = { workspace = true }
+err-derive = { workspace = true }
+bytes = { workspace = true }
+test_macro = { path = "./test_macro" }
+ipnetwork = "0.20"
+once_cell = { workspace = true }
+inventory = "0.1"
+data-encoding-macro = "0.1.12"
+itertools = "0.10.5"
+libc = "0.2.14"
+clap = { version = "4.1", features = ["derive"] }
+async-tempfile = "0.2"
+async-trait = { workspace = true }
+uuid = "1.3"
+dirs = "5.0.1"
+
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio-serde = { workspace = true }
+log = { workspace = true }
+
+pcap = { version = "0.10.1", features = ["capture-stream"] }
+pnet_packet = "0.31.0"
+
+test-rpc = { path = "../test-rpc" }
+
+env_logger = { workspace = true }
+
+tonic = { workspace = true }
+tower = { workspace = true }
+colored = { workspace = true }
+
+mullvad-management-interface = { path = "../../mullvad-management-interface" }
+talpid-types = { path = "../../talpid-types" }
+mullvad-types = { path = "../../mullvad-types" }
+mullvad-api = { path = "../../mullvad-api", features = ["api-override"] }
+
+ssh2 = "0.9.4"
+
+nix = { version = "0.25", features = ["net"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+tun = "0.5.1"
+
+[dependencies.tokio-util]
+version = "0.7"
+features = ["codec"]
+default-features = false

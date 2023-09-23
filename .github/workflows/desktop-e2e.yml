@@ -1,0 +1,53 @@
+name: Desktop - End-to-end testing on supported platforms
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+jobs:
+  e2e-test-linux:
+    name: Linux end-to-end desktop tests
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [debian11, debian12, ubuntu2004, ubuntu2204, ubuntu2304, fedora38, fedora37, fedora36]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run end-to-end tests
+        shell: bash -ieo pipefail {0}
+        run: |
+          ./test/ci-runtests.sh ${{ matrix.os }}
+  e2e-test-windows:
+    name: Windows end-to-end desktop tests
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    needs: e2e-test-linux
+    if: ${{ !cancelled() }} # https://docs.github.com/en/actions/learn-github-actions/expressions#always
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows10, windows11]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run end-to-end tests
+        shell: bash -ieo pipefail {0}
+        run: |
+          ./test/ci-runtests.sh ${{ matrix.os }}
+  e2e-test-macos:
+    name: macOS end-to-end desktop tests
+    runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-13, macos-12]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run end-to-end tests
+        shell: bash -ieo pipefail {0}
+        run: |
+          ./test/ci-runtests.sh ${{ matrix.os }}
