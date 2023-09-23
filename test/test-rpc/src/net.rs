@@ -5,7 +5,7 @@ use tokio_rustls::rustls::ClientConfig;
 
 use crate::{AmIMullvad, Error};
 
-const LE_ROOT_CERT: &[u8] = include_bytes!("./le_root_cert.pem");
+const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pem");
 
 static CLIENT_CONFIG: Lazy<ClientConfig> = Lazy::new(|| {
     ClientConfig::builder()
