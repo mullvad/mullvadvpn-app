@@ -77,10 +77,10 @@ impl From<&mullvad_types::settings::TunnelOptions> for proto::TunnelOptions {
     fn from(options: &mullvad_types::settings::TunnelOptions) -> Self {
         Self {
             openvpn: Some(proto::tunnel_options::OpenvpnOptions {
-                mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
+                mssfix: options.openvpn.mssfix.map(u32::from),
             }),
             wireguard: Some(proto::tunnel_options::WireguardOptions {
-                mtu: u32::from(options.wireguard.mtu.unwrap_or_default()),
+                mtu: options.wireguard.mtu.map(u32::from),
                 rotation_interval: options.wireguard.rotation_interval.map(|ivl| {
                     prost_types::Duration::try_from(std::time::Duration::from(ivl))
                         .expect("Failed to convert std::time::Duration to prost_types::Duration for tunnel_options.wireguard.rotation_interval")
@@ -233,18 +233,10 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
 
         Ok(Self {
             openvpn: net::openvpn::TunnelOptions {
-                mssfix: if openvpn_options.mssfix != 0 {
-                    Some(openvpn_options.mssfix as u16)
-                } else {
-                    None
-                },
+                mssfix: openvpn_options.mssfix.map(|mssfix| mssfix as u16),
             },
             wireguard: mullvad_types::wireguard::TunnelOptions {
-                mtu: if wireguard_options.mtu != 0 {
-                    Some(wireguard_options.mtu as u16)
-                } else {
-                    None
-                },
+                mtu: wireguard_options.mtu.map(|mtu| mtu as u16),
                 rotation_interval: wireguard_options
                     .rotation_interval
                     .map(std::time::Duration::try_from)
