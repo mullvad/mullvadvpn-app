@@ -1,0 +1,59 @@
+[package]
+name = "test-runner"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = "0.3"
+tarpc = { version = "0.30", features = ["tokio1", "serde-transport", "serde1"] }
+tokio = { workspace = true, features = ["macros", "rt", "process", "time", "fs", "io-util", "rt-multi-thread"] }
+tokio-serial = "5.4.1"
+err-derive = { workspace = true }
+log = { workspace = true }
+lazy_static = "1.4.0"
+once_cell = "1.16.0"
+parity-tokio-ipc = "0.9"
+bytes = "1.3.0"
+serde = { version = "1.0" }
+serde_json = "1.0"
+tokio-serde = { version = "0.8.0", features = ["json"] }
+
+libc = "0.2"
+chrono = { workspace = true }
+
+test-rpc = { path = "../test-rpc" }
+mullvad-paths = { path = "../../mullvad-paths" }
+talpid-platform-metadata = { path = "../../talpid-platform-metadata" }
+
+socket2 = { version = "0.5", features = ["all"] }
+
+[target."cfg(target_os=\"windows\")".dependencies]
+talpid-windows-net = { path = "../../talpid-windows-net" }
+
+windows-service = "0.6"
+winreg = "0.50"
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.45.0"
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Shutdown",
+    "Win32_System_SystemServices",
+    "Win32_System_Threading",
+    "Win32_UI_WindowsAndMessaging",
+]
+
+[dependencies.tokio-util]
+version = "0.7"
+features = ["codec"]
+default-features = false
+
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.25", features = ["socket", "net"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rs-release = "0.1.7"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+plist = "1"

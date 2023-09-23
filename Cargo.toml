@@ -9,6 +9,8 @@ publish = false
 [workspace]
 resolver = "2"
 members = [
+    "test/test-manager",
+    "test/test-runner",
     "android/translations-converter",
     "ios/MullvadTransport/shadowsocks-proxy",
     "ios/TunnelObfuscation/tunnel-obfuscator-proxy",
@@ -71,3 +73,6 @@ lto = true
 # enabled.
 [profile.dev.package."classic-mceliece-rust"]
 opt-level = 3
+
+[patch.crates-io]
+serialport = { git = "https://github.com/mullvad/serialport-rs", rev = "1401c9d39e4a89685e3506a7160869b2c8e9ceb0" }

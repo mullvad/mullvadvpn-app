@@ -1,0 +1,11 @@
+# Run app tests once per day.
+#
+[Unit]
+Description="Run Mullvad VPN app tests"
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
