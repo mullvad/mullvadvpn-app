@@ -10,55 +10,18 @@ MAX_CONCURRENT_JOBS=1
 BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/releases"
 BUILD_DEV_REPOSITORY="https://releases.mullvad.net/builds"
 
-APP_REPO_URL="https://github.com/mullvad/mullvadvpn-app"
-
-echo "Updating Rust version"
-rustup update
-git pull --verify-signatures
-
-# Infer version from GitHub repo
+# Infer stable version from GitHub repo
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
 OLD_APP_VERSION=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
-# Parse tag & commit.
-# If no tag $TAG value is set, default to `main`.
-if [[ -z "${TAG+x}" ]]; then
-    TAG=main
-    commit=$(git ls-remote "${APP_REPO_URL}" --tags "$TAG" | cut -f1)
-else
-    # "Dereference" git tag with `^{}` to get commit hash.
-    # https://stackoverflow.com/questions/15472107/when-listing-git-ls-remote-why-theres-after-the-tag-name
-    commit=$(git ls-remote "${APP_REPO_URL}" --tags "$TAG"^{} | grep "refs/tags/$TAG" | cut -f1)
-fi
+NEW_APP_VERSION=$(cargo run -q --bin mullvad-version)
+commit=$(git rev-parse HEAD^\{commit\})
+commit=${commit:0:6}
 
-# Sanity check that commit hash is not empty
-if [[ -z "$commit" ]]; then
-    echo "Tag $TAG did not correspond to any existing commit on git remote."
-    exit 1
-fi
+TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
 
-function is_release_tag {
-    grep -x -F -q "$1" <(jq -r '.[].tag_name' <<<"$RELEASES")
-}
-
-function is_git_tag {
-    grep "$1" <(git ls-remote --tags "$APP_REPO_URL")
-}
-
-# Create app package name according based on the tag.
-# If the tag $TAG points to a release, we need to format the app package name accordingly.
-NEW_APP_VERSION=$(curl -f "https://raw.githubusercontent.com/mullvad/mullvadvpn-app/${commit}/dist-assets/desktop-product-version.txt")
-if is_release_tag "$TAG"; then
-    NEW_APP_VERSION=$TAG
-else
-    # $TAG refers to a development build
-    commit=${commit:0:6}
-    NEW_APP_VERSION=${NEW_APP_VERSION}-dev-${commit}
-    # Check if $TAG refers to a signed tag. If so, we need to append the tag-name to the app-package name.
-    if is_git_tag "$TAG"; then
-        echo "$TAG is a verified tag"
-        NEW_APP_VERSION=${NEW_APP_VERSION}+${TAG}
-    fi
+if [[ -n "$TAG" && ${NEW_APP_VERSION} =~ -dev- ]]; then
+    NEW_APP_VERSION+="+${TAG}"
 fi
 
 echo "**********************************"
@@ -118,7 +81,7 @@ function get_app_filename {
     if is_dev_version $version; then
         # only save 6 chars of the hash
         local commit="${BASH_REMATCH[3]}"
-        version="${BASH_REMATCH[1]}${commit:0:6}"
+        version="${BASH_REMATCH[1]}${commit}"
         # If the dev-version includes a tag, we need to append it to the app filename
         if [[ -n ${BASH_REMATCH[4]} ]]; then
             version="${version}${BASH_REMATCH[4]}"
@@ -173,7 +136,7 @@ function get_e2e_filename {
     if is_dev_version $version; then
         # only save 6 chars of the hash
         local commit="${BASH_REMATCH[3]}"
-        version="${BASH_REMATCH[1]}${commit:0:6}"
+        version="${BASH_REMATCH[1]}${commit}"
     fi
     case $os in
         debian*|ubuntu*|fedora*)
@@ -213,24 +176,6 @@ function download_e2e_executable {
     fi
 }
 
-echo "**********************************"
-echo "* Updating Cargo manifests"
-echo "**********************************"
-
-# We need to clear the cache for a couple of reasons:
-# (1) given a branch git dependency, otherwise cargo will simply use the cached version
-# (2) so as to not run out space
-echo "Clearing cargo cache"
-nice_time rm -rf "$HOME/.cargo/git" "${SCRIPT_DIR}/.container/cargo-registry"
-
-function update_manifest_versions {
-    pushd ${SCRIPT_DIR}/test-manager
-    cargo add --git "${APP_REPO_URL}" --rev $OLD_APP_VERSION --rename old-mullvad-management-interface mullvad-management-interface
-    popd
-}
-
-nice_time update_manifest_versions
-
 function run_tests_for_os {
     local os=$1
 
@@ -254,7 +199,7 @@ echo "* Building test runners"
 echo "**********************************"
 
 # Clean up packages. Try to keep ones that match the versions we're testing
-find "${SCRIPT_DIR}/packages/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${NEW_APP_VERSION}*" \) -delete
+find "${SCRIPT_DIR}/packages/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${NEW_APP_VERSION}*" \) -delete || true
 
 function build_test_runners {
     for os in "${TEST_OSES[@]}"; do
