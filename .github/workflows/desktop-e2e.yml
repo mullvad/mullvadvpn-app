@@ -1,0 +1,27 @@
+name: Desktop - End-to-end testing on supported platforms
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Signed tag'
+        required: true
+jobs:
+  e2e-test:
+    name: Run end-to-end desktop tests
+    runs-on: [self-hosted, desktop-test]
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [debian11, debian12, ubuntu2004, ubuntu2204, ubuntu2304, fedora38, fedora37, fedora36, windows10, windows11]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run end-to-end tests
+        shell: bash -ieo pipefail {0}
+        env:
+          TAG: ${{ github.event.inputs.tag }}
+        run: |
+          ./test/ci-runtests.sh ${{ matrix.os }}
