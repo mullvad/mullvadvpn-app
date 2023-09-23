@@ -161,7 +161,7 @@ message ErrorState {
 
     // LOCKED
     uint32 lock_pid = 2;
-    string lock_name = 3;
+    optional string lock_name = 3;
   }
 
   Cause cause = 1;
@@ -240,17 +240,17 @@ message ProxyEndpoint {
 }
 
 message GeoIpLocation {
-  string ipv4 = 1;
-  string ipv6 = 2;
+  optional string ipv4 = 1;
+  optional string ipv6 = 2;
   string country = 3;
-  string city = 4;
+  optional string city = 4;
   double latitude = 5;
   double longitude = 6;
   bool mullvad_exit_ip = 7;
-  string hostname = 8;
-  string bridge_hostname = 9;
-  string entry_hostname = 10;
-  string obfuscator_hostname = 11;
+  optional string hostname = 8;
+  optional string bridge_hostname = 9;
+  optional string entry_hostname = 10;
+  optional string obfuscator_hostname = 11;
 }
 
 message TunnelMetadata { string tunnel_interface = 1; }
@@ -297,14 +297,14 @@ message BridgeSettings {
 message LocationConstraint {
   oneof type {
     string custom_list = 1;
-    RelayLocation location = 2;
+    GeographicLocationConstraint location = 2;
   }
 }
 
-message RelayLocation {
+message GeographicLocationConstraint {
   string country = 1;
-  string city = 2;
-  string hostname = 3;
+  optional string city = 2;
+  optional string hostname = 3;
 }
 
 message BridgeState {
@@ -316,7 +316,7 @@ message BridgeState {
   State state = 1;
 }
 
-message Udp2TcpObfuscationSettings { uint32 port = 1; }
+message Udp2TcpObfuscationSettings { optional uint32 port = 1; }
 
 message ObfuscationSettings {
   enum SelectedObfuscation {
@@ -331,7 +331,7 @@ message ObfuscationSettings {
 message CustomList {
   string id = 1;
   string name = 2;
-  repeated RelayLocation locations = 3;
+  repeated GeographicLocationConstraint locations = 3;
 }
 
 message CustomListSettings { repeated CustomList custom_lists = 1; }
@@ -410,12 +410,10 @@ message RelaySettings {
   }
 }
 
-message TunnelTypeConstraint { TunnelType tunnel_type = 1; }
-
 message NormalRelaySettings {
   LocationConstraint location = 1;
   repeated string providers = 2;
-  TunnelTypeConstraint tunnel_type = 3;
+  optional TunnelType tunnel_type = 3;
   WireguardConstraints wireguard_constraints = 4;
   OpenvpnConstraints openvpn_constraints = 5;
   Ownership ownership = 6;
@@ -433,11 +431,11 @@ message NormalRelaySettingsUpdate {
 
 message ProviderUpdate { repeated string providers = 1; }
 
-message TunnelTypeUpdate { TunnelTypeConstraint tunnel_type = 2; }
+message TunnelTypeUpdate { optional TunnelType tunnel_type = 2; }
 
 message TransportPort {
   TransportProtocol protocol = 1;
-  uint32 port = 2;
+  optional uint32 port = 2;
 }
 
 message OpenvpnConstraints { TransportPort port = 1; }
@@ -449,11 +447,9 @@ enum IpVersion {
   V6 = 1;
 }
 
-message IpVersionConstraint { IpVersion protocol = 1; }
-
 message WireguardConstraints {
-  uint32 port = 1;
-  IpVersionConstraint ip_version = 2;
+  optional uint32 port = 1;
+  optional IpVersion ip_version = 2;
   bool use_multihop = 3;
   LocationConstraint entry_location = 4;
 }
@@ -484,7 +480,7 @@ message ConnectionConfig {
     TunnelConfig tunnel = 1;
     PeerConfig peer = 2;
     string ipv4_gateway = 3;
-    string ipv6_gateway = 4;
+    optional string ipv6_gateway = 4;
   }
 
   oneof config {
@@ -503,9 +499,9 @@ message QuantumResistantState {
 }
 
 message TunnelOptions {
-  message OpenvpnOptions { uint32 mssfix = 1; }
+  message OpenvpnOptions { optional uint32 mssfix = 1; }
   message WireguardOptions {
-    uint32 mtu = 1;
+    optional uint32 mtu = 1;
     google.protobuf.Duration rotation_interval = 2;
     QuantumResistantState quantum_resistant = 4;
   }
@@ -555,7 +551,7 @@ message AppVersionInfo {
   bool supported = 1;
   string latest_stable = 2;
   string latest_beta = 3;
-  string suggested_upgrade = 4;
+  optional string suggested_upgrade = 4;
 }
 
 message RelayListCountry {
@@ -581,7 +577,7 @@ message Relay {
 
   string hostname = 1;
   string ipv4_addr_in = 2;
-  string ipv6_addr_in = 3;
+  optional string ipv6_addr_in = 3;
   bool include_in_country = 4;
   bool active = 5;
   bool owned = 6;

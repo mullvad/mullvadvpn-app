@@ -1,5 +1,4 @@
 use crate::types::{conversions::arg_from_str, proto, FromProtobufTypeError};
-use mullvad_types::relay_constraints::Constraint;
 use std::net::SocketAddr;
 
 impl From<talpid_types::net::TunnelEndpoint> for proto::TunnelEndpoint {
@@ -155,21 +154,11 @@ impl From<proto::TransportProtocol> for talpid_types::net::TransportProtocol {
     }
 }
 
-impl TryFrom<proto::TunnelTypeConstraint> for Constraint<talpid_types::net::TunnelType> {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(
-        tunnel_type: proto::TunnelTypeConstraint,
-    ) -> Result<Constraint<talpid_types::net::TunnelType>, Self::Error> {
-        let tunnel_type = try_tunnel_type_from_i32(tunnel_type.tunnel_type)?;
-        Ok(Constraint::Only(tunnel_type))
-    }
-}
-
-impl From<proto::IpVersion> for proto::IpVersionConstraint {
+impl From<proto::IpVersion> for talpid_types::net::IpVersion {
     fn from(version: proto::IpVersion) -> Self {
-        Self {
-            protocol: i32::from(version),
+        match version {
+            proto::IpVersion::V4 => talpid_types::net::IpVersion::V4,
+            proto::IpVersion::V6 => talpid_types::net::IpVersion::V6,
         }
     }
 }

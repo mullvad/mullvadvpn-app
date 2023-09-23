@@ -6,7 +6,7 @@ impl From<mullvad_types::version::AppVersionInfo> for proto::AppVersionInfo {
             supported: version_info.supported,
             latest_stable: version_info.latest_stable,
             latest_beta: version_info.latest_beta,
-            suggested_upgrade: version_info.suggested_upgrade.unwrap_or_default(),
+            suggested_upgrade: version_info.suggested_upgrade,
         }
     }
 }
@@ -17,11 +17,7 @@ impl From<proto::AppVersionInfo> for mullvad_types::version::AppVersionInfo {
             supported: version_info.supported,
             latest_stable: version_info.latest_stable,
             latest_beta: version_info.latest_beta,
-            suggested_upgrade: if version_info.suggested_upgrade.is_empty() {
-                None
-            } else {
-                Some(version_info.suggested_upgrade)
-            },
+            suggested_upgrade: version_info.suggested_upgrade,
         }
     }
 }

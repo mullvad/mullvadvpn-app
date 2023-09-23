@@ -1,7 +1,7 @@
-use crate::types::{conversions::option_from_proto_string, proto, FromProtobufTypeError};
+use crate::types::{conversions::net::try_tunnel_type_from_i32, proto, FromProtobufTypeError};
 use mullvad_types::{
     custom_list::Id,
-    relay_constraints::{Constraint, RelaySettingsUpdate},
+    relay_constraints::{Constraint, GeographicLocationConstraint, RelaySettingsUpdate},
 };
 use std::str::FromStr;
 use talpid_types::net::TunnelType;
@@ -17,25 +17,17 @@ impl TryFrom<&proto::WireguardConstraints>
         use mullvad_types::relay_constraints as mullvad_constraints;
         use talpid_types::net;
 
-        let ip_version = match &constraints.ip_version {
-            Some(constraint) => match proto::IpVersion::try_from(constraint.protocol) {
-                Ok(proto::IpVersion::V4) => Some(net::IpVersion::V4),
-                Ok(proto::IpVersion::V6) => Some(net::IpVersion::V6),
-                Err(_) => {
-                    return Err(FromProtobufTypeError::InvalidArgument(
-                        "invalid ip protocol version",
-                    ))
-                }
-            },
+        let ip_version = match constraints.ip_version {
+            Some(version) => Some(net::IpVersion::from(
+                proto::IpVersion::try_from(version).map_err(|_| {
+                    FromProtobufTypeError::InvalidArgument("invalid IP protocol version")
+                })?,
+            )),
             None => None,
         };
 
         Ok(mullvad_constraints::WireguardConstraints {
-            port: if constraints.port == 0 {
-                Constraint::Any
-            } else {
-                Constraint::Only(constraints.port as u16)
-            },
+            port: Constraint::from(constraints.port.map(|port| port as u16)),
             ip_version: Constraint::from(ip_version),
             use_multihop: constraints.use_multihop,
             entry_location: constraints
@@ -76,7 +68,6 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
         settings: proto::RelaySettings,
     ) -> Result<mullvad_types::relay_constraints::RelaySettings, Self::Error> {
         use mullvad_types::{relay_constraints as mullvad_constraints, CustomTunnelEndpoint};
-        use talpid_types::net;
 
         let update_value = settings
             .endpoint
@@ -107,11 +98,12 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                     .unwrap_or(Constraint::Any);
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
-                let tunnel_protocol = settings
-                    .tunnel_type
-                    .map(Constraint::<net::TunnelType>::try_from)
-                    .transpose()?
-                    .unwrap_or(Constraint::Any);
+                let tunnel_protocol = Constraint::from(
+                    settings
+                        .tunnel_type
+                        .map(try_tunnel_type_from_i32)
+                        .transpose()?,
+                );
                 let openvpn_constraints =
                     mullvad_constraints::OpenVpnConstraints::try_from(
                         &settings.openvpn_constraints.ok_or(
@@ -165,29 +157,23 @@ impl From<RelaySettingsUpdate> for proto::RelaySettingsUpdate {
                             }),
                         tunnel_type: constraints.tunnel_protocol.map(|protocol| {
                             proto::TunnelTypeUpdate {
-                                tunnel_type: match protocol {
-                                    Constraint::Any => None,
-                                    Constraint::Only(protocol) => {
-                                        Some(proto::TunnelTypeConstraint {
-                                            tunnel_type: i32::from(match protocol {
-                                                TunnelType::Wireguard => {
-                                                    proto::TunnelType::Wireguard
-                                                }
-                                                TunnelType::OpenVpn => proto::TunnelType::Openvpn,
-                                            }),
+                                tunnel_type: protocol
+                                    .map(|protocol| {
+                                        i32::from(match protocol {
+                                            TunnelType::Wireguard => proto::TunnelType::Wireguard,
+                                            TunnelType::OpenVpn => proto::TunnelType::Openvpn,
                                         })
-                                    }
-                                },
+                                    })
+                                    .option(),
                             }
                         }),
                         wireguard_constraints: constraints.wireguard_constraints.map(
                             |wireguard_constraints| proto::WireguardConstraints {
-                                port: u32::from(wireguard_constraints.port.unwrap_or(0)),
+                                port: wireguard_constraints.port.map(u32::from).option(),
                                 ip_version: wireguard_constraints
                                     .ip_version
                                     .option()
-                                    .map(proto::IpVersion::from)
-                                    .map(proto::IpVersionConstraint::from),
+                                    .map(|ipv| i32::from(proto::IpVersion::from(ipv))),
                                 use_multihop: wireguard_constraints.use_multihop,
                                 entry_location: wireguard_constraints
                                     .entry_location
@@ -225,7 +211,6 @@ impl TryFrom<proto::RelaySettingsUpdate> for mullvad_types::relay_constraints::R
         settings: proto::RelaySettingsUpdate,
     ) -> Result<mullvad_types::relay_constraints::RelaySettingsUpdate, Self::Error> {
         use mullvad_types::{relay_constraints as mullvad_constraints, CustomTunnelEndpoint};
-        use talpid_types::net;
 
         let update_value = settings
             .r#type
@@ -276,13 +261,12 @@ impl TryFrom<proto::RelaySettingsUpdate> for mullvad_types::relay_constraints::R
                     None
                 };
                 let tunnel_protocol = if let Some(update) = settings.tunnel_type {
-                    Some(
+                    Some(Constraint::from(
                         update
                             .tunnel_type
-                            .map(Constraint::<net::TunnelType>::try_from)
-                            .transpose()?
-                            .unwrap_or(Constraint::Any),
-                    )
+                            .map(try_tunnel_type_from_i32)
+                            .transpose()?,
+                    ))
                 } else {
                     None
                 };
@@ -352,7 +336,7 @@ impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
 {
     fn from(settings: &mullvad_types::relay_constraints::Udp2TcpObfuscationSettings) -> Self {
         Self {
-            port: u32::from(settings.port.unwrap_or(0)),
+            port: settings.port.map(u32::from).option(),
         }
     }
 }
@@ -439,18 +423,19 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             Some(proto::TunnelType::Openvpn)
                         }
                     }
-                    .map(|tunnel_type| proto::TunnelTypeConstraint {
-                        tunnel_type: i32::from(tunnel_type),
-                    }),
+                    .map(i32::from),
 
                     wireguard_constraints: Some(proto::WireguardConstraints {
-                        port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
+                        port: constraints
+                            .wireguard_constraints
+                            .port
+                            .map(u32::from)
+                            .option(),
                         ip_version: constraints
                             .wireguard_constraints
                             .ip_version
                             .option()
-                            .map(proto::IpVersion::from)
-                            .map(proto::IpVersionConstraint::from),
+                            .map(|ipv| i32::from(proto::IpVersion::from(ipv))),
                         use_multihop: constraints.wireguard_constraints.use_multihop,
                         entry_location: constraints
                             .wireguard_constraints
@@ -480,7 +465,7 @@ impl From<mullvad_types::relay_constraints::TransportPort> for proto::TransportP
     fn from(port: mullvad_types::relay_constraints::TransportPort) -> Self {
         proto::TransportPort {
             protocol: proto::TransportProtocol::from(port.protocol) as i32,
-            port: port.port.map(u32::from).unwrap_or(0),
+            port: port.port.map(u32::from).option(),
         }
     }
 }
@@ -491,7 +476,7 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Locat
         match location {
             LocationConstraint::Location(location) => Self {
                 r#type: Some(proto::location_constraint::Type::Location(
-                    proto::RelayLocation::from(location),
+                    proto::GeographicLocationConstraint::from(location),
                 )),
             },
             LocationConstraint::CustomList { list_id } => Self {
@@ -511,17 +496,9 @@ impl TryFrom<proto::LocationConstraint>
     fn try_from(location: proto::LocationConstraint) -> Result<Self, Self::Error> {
         use mullvad_types::relay_constraints::LocationConstraint;
         match location.r#type {
-            Some(proto::location_constraint::Type::Location(location)) => {
-                let location = Constraint::<
-                    mullvad_types::relay_constraints::GeographicLocationConstraint,
-                >::from(location);
-                match location {
-                    Constraint::Any => Ok(Constraint::Any),
-                    Constraint::Only(location) => {
-                        Ok(Constraint::Only(LocationConstraint::Location(location)))
-                    }
-                }
-            }
+            Some(proto::location_constraint::Type::Location(location)) => Ok(Constraint::Only(
+                LocationConstraint::Location(GeographicLocationConstraint::try_from(location)?),
+            )),
             Some(proto::location_constraint::Type::CustomList(list_id)) => {
                 let location = LocationConstraint::CustomList {
                     list_id: Id::from_str(&list_id).map_err(|_| {
@@ -535,10 +512,8 @@ impl TryFrom<proto::LocationConstraint>
     }
 }
 
-impl From<mullvad_types::relay_constraints::GeographicLocationConstraint> for proto::RelayLocation {
+impl From<GeographicLocationConstraint> for proto::GeographicLocationConstraint {
     fn from(location: mullvad_types::relay_constraints::GeographicLocationConstraint) -> Self {
-        use mullvad_types::relay_constraints::GeographicLocationConstraint;
-
         match location {
             GeographicLocationConstraint::Country(country) => Self {
                 country,
@@ -546,36 +521,35 @@ impl From<mullvad_types::relay_constraints::GeographicLocationConstraint> for pr
             },
             GeographicLocationConstraint::City(country, city) => Self {
                 country,
-                city,
-                ..Default::default()
+                city: Some(city),
+                hostname: None,
             },
             GeographicLocationConstraint::Hostname(country, city, hostname) => Self {
                 country,
-                city,
-                hostname,
+                city: Some(city),
+                hostname: Some(hostname),
             },
         }
     }
 }
 
-impl From<proto::RelayLocation>
-    for Constraint<mullvad_types::relay_constraints::GeographicLocationConstraint>
-{
-    fn from(location: proto::RelayLocation) -> Self {
-        use mullvad_types::relay_constraints::GeographicLocationConstraint;
+impl TryFrom<proto::GeographicLocationConstraint> for GeographicLocationConstraint {
+    type Error = FromProtobufTypeError;
 
-        if let Some(hostname) = option_from_proto_string(location.hostname) {
-            Constraint::Only(GeographicLocationConstraint::Hostname(
-                location.country,
-                location.city,
-                hostname,
-            ))
-        } else if let Some(city) = option_from_proto_string(location.city) {
-            Constraint::Only(GeographicLocationConstraint::City(location.country, city))
-        } else if let Some(country) = option_from_proto_string(location.country) {
-            Constraint::Only(GeographicLocationConstraint::Country(country))
-        } else {
-            Constraint::Any
+    fn try_from(relay_location: proto::GeographicLocationConstraint) -> Result<Self, Self::Error> {
+        match (
+            relay_location.country,
+            relay_location.city,
+            relay_location.hostname,
+        ) {
+            (country, None, None) => Ok(GeographicLocationConstraint::Country(country)),
+            (country, Some(city), None) => Ok(GeographicLocationConstraint::City(country, city)),
+            (country, Some(city), Some(hostname)) => Ok(GeographicLocationConstraint::Hostname(
+                country, city, hostname,
+            )),
+            (_country, None, Some(_hostname)) => Err(FromProtobufTypeError::InvalidArgument(
+                "Relay location contains hostname but no city",
+            )),
         }
     }
 }
@@ -699,11 +673,7 @@ impl TryFrom<&proto::Udp2TcpObfuscationSettings>
 
     fn try_from(settings: &proto::Udp2TcpObfuscationSettings) -> Result<Self, Self::Error> {
         Ok(Self {
-            port: if settings.port == 0 {
-                Constraint::Any
-            } else {
-                Constraint::Only(settings.port as u16)
-            },
+            port: Constraint::from(settings.port.map(|port| port as u16)),
         })
     }
 }
@@ -735,11 +705,7 @@ impl TryFrom<proto::TransportPort> for mullvad_types::relay_constraints::Transpo
     fn try_from(port: proto::TransportPort) -> Result<Self, Self::Error> {
         Ok(mullvad_types::relay_constraints::TransportPort {
             protocol: super::net::try_transport_protocol_from_i32(port.protocol)?,
-            port: if port.port == 0 {
-                Constraint::Any
-            } else {
-                Constraint::Only(port.port as u16)
-            },
+            port: Constraint::from(port.port.map(|port| port as u16)),
         })
     }
 }

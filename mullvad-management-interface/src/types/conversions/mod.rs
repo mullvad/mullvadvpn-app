@@ -45,14 +45,6 @@ fn bytes_to_wg_key<'a>(
     <&[u8; 32]>::try_from(bytes).map_err(|_| FromProtobufTypeError::InvalidArgument(error_msg))
 }
 
-/// Returns `Option<String>`, where an empty string represents `None`.
-fn option_from_proto_string(s: String) -> Option<String> {
-    match s {
-        s if s.is_empty() => None,
-        s => Some(s),
-    }
-}
-
 fn arg_from_str<T: FromStr<Err = E>, E>(
     s: &str,
     invalid_arg_msg: &'static str,
