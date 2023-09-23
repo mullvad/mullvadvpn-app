@@ -1,0 +1,29 @@
+[package]
+name = "test-rpc"
+version = "0.1.0"
+edition = "2021"
+description = "Supports IPC between test-runner and test-manager"
+
+[dependencies]
+futures = { workspace = true }
+tokio = { workspace = true }
+tokio-serde = { workspace = true }
+tarpc = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+once_cell = { workspace = true }
+bytes = { workspace = true }
+err-derive = { workspace = true }
+log = { workspace = true }
+colored = { workspace = true }
+async-trait = { workspace = true }
+
+hyper = { version = "0.14.23", features = ["client", "http2"] }
+hyper-rustls = { version = "0.24", features = ["log", "webpki-roots"] }
+tokio-rustls = "0.24"
+rustls-pemfile = "0.2"
+
+[dependencies.tokio-util]
+version = "0.7"
+features = ["codec"]
+default-features = false
