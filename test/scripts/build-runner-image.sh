@@ -13,9 +13,6 @@ case $TARGET in
     "x86_64-pc-windows-gnu")
         TEST_RUNNER_IMAGE_FILENAME=windows-test-runner.img
         ;;
-    *-darwin)
-        TEST_RUNNER_IMAGE_FILENAME=macos-test-runner.dmg
-        ;;
     *)
         echo "Unknown target: $TARGET"
         exit 1
@@ -58,25 +55,6 @@ case $TARGET in
             "${SCRIPT_DIR}/../openvpn.ca.crt" \
             "::"
         mdir -i "${TEST_RUNNER_IMAGE_PATH}"
-        ;;
-
-    *-darwin)
-        rm -f "${TEST_RUNNER_IMAGE_PATH}"
-
-        hdiutil create -size "${TEST_RUNNER_IMAGE_SIZE_MB}m" "${TEST_RUNNER_IMAGE_PATH}" \
-            -volname testing \
-            -fs HFS+J
-
-        MOUNTPOINT=$(mktemp -d)
-        hdiutil attach -mountpoint "${MOUNTPOINT}" "${TEST_RUNNER_IMAGE_PATH}"
-
-        trap "hdiutil detach "${MOUNTPOINT}"" EXIT
-
-        cp "${SCRIPT_DIR}/../target/$TARGET/release/test-runner" \
-            "${SCRIPT_DIR}/../packages/"*.pkg \
-            "${SCRIPT_DIR}/../openvpn.ca.crt" \
-            "${MOUNTPOINT}/"
-
         ;;
 
 esac
