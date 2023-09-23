@@ -155,9 +155,9 @@ impl VmConfig {
     }
 
     fn get_x64_runner_dir(&self) -> &Path {
-        pub const X64_LINUX_TARGET_DIR: &str = "target/x86_64-unknown-linux-gnu/release";
-        pub const X64_WINDOWS_TARGET_DIR: &str = "target/x86_64-pc-windows-gnu/release";
-        pub const X64_MACOS_TARGET_DIR: &str = "target/x86_64-apple-darwin/release";
+        pub const X64_LINUX_TARGET_DIR: &str = "../target/x86_64-unknown-linux-gnu/release";
+        pub const X64_WINDOWS_TARGET_DIR: &str = "../target/x86_64-pc-windows-gnu/release";
+        pub const X64_MACOS_TARGET_DIR: &str = "../target/x86_64-apple-darwin/release";
 
         match self.os_type {
             OsType::Linux => Path::new(X64_LINUX_TARGET_DIR),
@@ -167,8 +167,8 @@ impl VmConfig {
     }
 
     fn get_aarch64_runner_dir(&self) -> &Path {
-        pub const AARCH64_LINUX_TARGET_DIR: &str = "target/aarch64-unknown-linux-gnu/release";
-        pub const AARCH64_MACOS_TARGET_DIR: &str = "target/aarch64-apple-darwin/release";
+        pub const AARCH64_LINUX_TARGET_DIR: &str = "../target/aarch64-unknown-linux-gnu/release";
+        pub const AARCH64_MACOS_TARGET_DIR: &str = "../target/aarch64-apple-darwin/release";
 
         match self.os_type {
             OsType::Linux => Path::new(AARCH64_LINUX_TARGET_DIR),
