@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::types::{
-    conversions::{bytes_to_pubkey, option_from_proto_string, to_proto_any, try_from_proto_any},
+    conversions::{bytes_to_pubkey, to_proto_any, try_from_proto_any},
     proto, FromProtobufTypeError,
 };
 
@@ -106,10 +106,7 @@ impl From<mullvad_types::relay_list::Relay> for proto::Relay {
         Self {
             hostname: relay.hostname,
             ipv4_addr_in: relay.ipv4_addr_in.to_string(),
-            ipv6_addr_in: relay
-                .ipv6_addr_in
-                .map(|addr| addr.to_string())
-                .unwrap_or_default(),
+            ipv6_addr_in: relay.ipv6_addr_in.map(|addr| addr.to_string()),
             include_in_country: relay.include_in_country,
             active: relay.active,
             owned: relay.owned,
@@ -249,7 +246,8 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::Relay {
             }
         };
 
-        let ipv6_addr_in = option_from_proto_string(relay.ipv6_addr_in)
+        let ipv6_addr_in = relay
+            .ipv6_addr_in
             .map(|addr| {
                 addr.parse().map_err(|_err| {
                     FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")

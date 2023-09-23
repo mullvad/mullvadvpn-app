@@ -1,5 +1,5 @@
 use crate::types::{
-    conversions::{bytes_to_privkey, bytes_to_pubkey, option_from_proto_string},
+    conversions::{bytes_to_privkey, bytes_to_pubkey},
     proto, FromProtobufTypeError,
 };
 use talpid_types::net::wireguard;
@@ -51,7 +51,8 @@ impl TryFrom<proto::ConnectionConfig> for mullvad_types::ConnectionConfig {
                 let ipv4_gateway = config.ipv4_gateway.parse().map_err(|_err| {
                     FromProtobufTypeError::InvalidArgument("invalid IPv4 gateway")
                 })?;
-                let ipv6_gateway = option_from_proto_string(config.ipv6_gateway)
+                let ipv6_gateway = config
+                    .ipv6_gateway
                     .map(|addr| {
                         addr.parse().map_err(|_err| {
                             FromProtobufTypeError::InvalidArgument("invalid IPv6 gateway")
@@ -144,8 +145,7 @@ impl From<mullvad_types::ConnectionConfig> for proto::ConnectionConfig {
                         ipv6_gateway: config
                             .ipv6_gateway
                             .as_ref()
-                            .map(|address| address.to_string())
-                            .unwrap_or_default(),
+                            .map(|address| address.to_string()),
                     })
                 }
             }),

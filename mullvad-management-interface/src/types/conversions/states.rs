@@ -1,5 +1,3 @@
-#[cfg(windows)]
-use crate::types::conversions::option_from_proto_string;
 use crate::types::{proto, FromProtobufTypeError};
 
 impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
@@ -21,8 +19,8 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                 #[cfg(windows)]
                 talpid_tunnel::FirewallPolicyError::Locked(blocking_app) => {
                     let (lock_pid, lock_name) = match blocking_app {
-                        Some(app) => (app.pid, app.name.clone()),
-                        None => (0, "".to_string()),
+                        Some(app) => (app.pid, Some(app.name.clone())),
+                        None => (0, None),
                     };
 
                     FirewallPolicyError {
@@ -330,7 +328,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
 fn try_firewall_policy_error_from_i32(
     policy_error: i32,
     lock_pid: u32,
-    lock_name: String,
+    lock_name: Option<String>,
 ) -> Result<talpid_types::tunnel::FirewallPolicyError, FromProtobufTypeError> {
     match proto::error_state::firewall_policy_error::ErrorType::try_from(policy_error) {
         Ok(proto::error_state::firewall_policy_error::ErrorType::Generic) => {
@@ -338,11 +336,9 @@ fn try_firewall_policy_error_from_i32(
         }
         #[cfg(windows)]
         Ok(proto::error_state::firewall_policy_error::ErrorType::Locked) => {
-            let blocking_app = option_from_proto_string(lock_name).map(|name| {
-                talpid_types::tunnel::BlockingApplication {
-                    pid: lock_pid,
-                    name,
-                }
+            let blocking_app = lock_name.map(|name| talpid_types::tunnel::BlockingApplication {
+                pid: lock_pid,
+                name,
             });
             Ok(talpid_types::tunnel::FirewallPolicyError::Locked(
                 blocking_app,
