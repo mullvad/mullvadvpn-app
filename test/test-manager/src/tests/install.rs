@@ -43,10 +43,8 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> Re
 
 /// Upgrade to the "version under test". This test fails if:
 ///
-/// * Outgoing traffic whose destination is not one of the bridge
-///   relays or the API is detected during the upgrade.
-/// * Leaks (TCP/UDP/ICMP) to a single public IP address are
-///   successfully produced during the upgrade.
+/// * Leaks (TCP/UDP/ICMP) to a single public IP address are successfully produced during the
+///   upgrade.
 /// * The installer does not successfully complete.
 /// * The VPN service is not running after the upgrade.
 #[test_function(priority = -190)]
@@ -54,12 +52,6 @@ pub async fn test_upgrade_app(
     ctx: TestContext,
     rpc: ServiceClient,
 ) -> Result<(), Error> {
-    // Parse api-addrs.txt
-    const API_ADDRS: Lazy<Vec<IpAddr>> = Lazy::new(|| {
-        const API_ADDRS: &str = std::include_str!("../../api-addrs.txt");
-        API_ADDRS.split('\n').map(|addr| addr.parse().unwrap()).collect()
-    });
-
     let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
     let bind_addr: SocketAddr = "0.0.0.0:0".parse().unwrap();
 
@@ -115,7 +107,9 @@ pub async fn test_upgrade_app(
 
     let monitor = start_packet_monitor(
         move |packet| {
-            packet.source.ip() == guest_ip && !API_ADDRS.contains(&packet.destination.ip())
+            // NOTE: Many packets will likely be observed for API traffic. Rather than filtering all
+            // of those specifically, simply fail if our probes are observed.
+            packet.source.ip() == guest_ip && packet.destination.ip() == inet_destination.ip()
         },
         MonitorOptions::default(),
     )
