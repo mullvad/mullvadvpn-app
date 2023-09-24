@@ -55,7 +55,7 @@ impl ServiceClient {
 
     /// Execute a program.
     pub async fn exec_env<
-        I: Iterator<Item = T>,
+        I: IntoIterator<Item = T>,
         M: IntoIterator<Item = (K, T)>,
         T: AsRef<str>,
         K: AsRef<str>,
@@ -80,7 +80,7 @@ impl ServiceClient {
     }
 
     /// Execute a program.
-    pub async fn exec<I: Iterator<Item = T>, T: AsRef<str>>(
+    pub async fn exec<I: IntoIterator<Item = T>, T: AsRef<str>>(
         &self,
         path: T,
         args: I,

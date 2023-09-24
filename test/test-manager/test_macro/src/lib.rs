@@ -4,7 +4,6 @@
 //!     rpc: ServiceClient,
 //!     mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
 //! ) -> Result<(), Error> {
-//! The `mullvad_client` argument can be removed or replaced with the `old_mullvad_management_interface` version.
 //! The `test_function` macro takes 4 optional arguments
 //! #[test_function(priority = -1337, cleanup = false, must_succeed = true, always_run = true)]
 //!
@@ -118,10 +117,6 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         MullvadClient::New {
             mullvad_client_type,
             ..
-        }
-        | MullvadClient::Old {
-            mullvad_client_type,
-            ..
         } => {
             let mullvad_client_type = *mullvad_client_type;
             quote! {
@@ -185,10 +180,6 @@ enum MullvadClient {
         mullvad_client_type: Box<syn::Type>,
         mullvad_client_version: proc_macro2::TokenStream,
     },
-    Old {
-        mullvad_client_type: Box<syn::Type>,
-        mullvad_client_version: proc_macro2::TokenStream,
-    },
 }
 
 impl MullvadClient {
@@ -198,10 +189,6 @@ impl MullvadClient {
                 mullvad_client_version,
             } => mullvad_client_version.clone(),
             MullvadClient::New {
-                mullvad_client_version,
-                ..
-            } => mullvad_client_version.clone(),
-            MullvadClient::Old {
                 mullvad_client_version,
                 ..
             } => mullvad_client_version.clone(),
@@ -226,13 +213,6 @@ fn get_test_function_parameters(
                                 let mullvad_client_version =
                                     quote! { test_rpc::mullvad_daemon::MullvadClientVersion::New };
                                 MullvadClient::New {
-                                    mullvad_client_type: pat_type.ty,
-                                    mullvad_client_version,
-                                }
-                            }
-                            "old_mullvad_management_interface" => {
-                                let mullvad_client_version = quote! { test_rpc::mullvad_daemon::MullvadClientVersion::Previous };
-                                MullvadClient::Old {
                                     mullvad_client_type: pat_type.ty,
                                     mullvad_client_version,
                                 }

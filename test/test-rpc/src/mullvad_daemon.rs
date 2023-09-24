@@ -31,5 +31,4 @@ pub enum Verbosity {
 pub enum MullvadClientVersion {
     None,
     New,
-    Previous,
 }

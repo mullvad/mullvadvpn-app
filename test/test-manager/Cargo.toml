@@ -42,7 +42,6 @@ tower = { workspace = true }
 colored = "2.0.0"
 
 mullvad-management-interface = { path = "../../mullvad-management-interface" }
-old-mullvad-management-interface = { git = "https://github.com/mullvad/mullvadvpn-app", rev = "2023.3", package = "mullvad-management-interface" }
 talpid-types = { path = "../../talpid-types" }
 mullvad-types = { path = "../../mullvad-types" }
 # FIXME: does this always enable override?

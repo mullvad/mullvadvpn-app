@@ -88,7 +88,7 @@ enum Commands {
         ///
         /// # Note
         ///
-        /// The gRPC interface must be compatible with the version specified for `old-mullvad-management-interface` in Cargo.toml.
+        /// The CLI interface must be compatible with the upgrade test.
         #[arg(long, short)]
         previous_app: String,
 

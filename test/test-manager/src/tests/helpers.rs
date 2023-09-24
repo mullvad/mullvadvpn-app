@@ -27,69 +27,6 @@ macro_rules! assert_tunnel_state {
     }};
 }
 
-/// Return all possible API endpoints. Note that this includes all bridge IPs. Ideally,
-/// we'd keep track of the current API IP, not exonerate all bridges from being considered
-/// leaky.
-#[macro_export]
-macro_rules! get_possible_api_endpoints {
-    ($mullvad_client:expr) => {{
-        use std::net::ToSocketAddrs;
-
-        let mut api_endpoints = vec![
-            "api.devmole.eu:0"
-                .to_socket_addrs()
-                .expect("failed to resolve api.devmole.eu")
-                .next()
-                .unwrap()
-                .ip(),
-            "api.stagemole.eu:0"
-                .to_socket_addrs()
-                .expect("failed to resolve api.stagemole.eu")
-                .next()
-                .unwrap()
-                .ip(),
-            "api.mullvad.net:0"
-                .to_socket_addrs()
-                .expect("failed to resolve api.mullvad.net")
-                .next()
-                .unwrap()
-                .ip(),
-            IpAddr::V4(Ipv4Addr::new(45, 83, 223, 196)),
-        ];
-
-        let relay_list = $mullvad_client
-            .get_relay_locations(())
-            .await
-            .map_err(|error| Error::DaemonError(format!("Failed to obtain relay list: {}", error)))?
-            .into_inner();
-
-        api_endpoints.extend(
-            relay_list
-                .countries
-                .into_iter()
-                .flat_map(|country| country.cities)
-                .filter_map(|mut city| {
-                    city.relays.retain(|relay| {
-                        relay.active
-                            && relay.endpoint_type == (types::relay::RelayType::Bridge as i32)
-                    });
-                    if !city.relays.is_empty() {
-                        Some(city)
-                    } else {
-                        None
-                    }
-                })
-                .flat_map(|city| {
-                    city.relays
-                        .into_iter()
-                        .map(|relay| IpAddr::V4(relay.ipv4_addr_in.parse().expect("invalid IP")))
-                }),
-        );
-
-        Ok::<Vec<IpAddr>, Error>(api_endpoints)
-    }};
-}
-
 pub fn get_package_desc(name: &str) -> Result<Package, Error> {
     Ok(Package {
         path: Path::new(&TEST_CONFIG.artifacts_dir).join(name),

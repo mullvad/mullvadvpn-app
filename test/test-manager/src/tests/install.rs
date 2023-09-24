@@ -1,14 +1,14 @@
 use super::helpers::{get_package_desc, ping_with_timeout, AbortOnDrop};
 use super::{Error, TestContext};
-use crate::get_possible_api_endpoints;
 
 use super::config::TEST_CONFIG;
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use mullvad_management_interface::types;
+use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::net::ToSocketAddrs;
 use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr},
+    net::{IpAddr, SocketAddr},
     time::Duration,
 };
 use test_macro::test_function;
@@ -53,8 +53,13 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> Re
 pub async fn test_upgrade_app(
     ctx: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: old_mullvad_management_interface::ManagementServiceClient,
 ) -> Result<(), Error> {
+    // Parse api-addrs.txt
+    const API_ADDRS: Lazy<Vec<IpAddr>> = Lazy::new(|| {
+        const API_ADDRS: &str = std::include_str!("../../api-addrs.txt");
+        API_ADDRS.split('\n').map(|addr| addr.parse().unwrap()).collect()
+    });
+
     let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
     let bind_addr: SocketAddr = "0.0.0.0:0".parse().unwrap();
 
@@ -79,48 +84,15 @@ pub async fn test_upgrade_app(
     //
     log::debug!("Entering blocking error state");
 
-    mullvad_client
-        .update_relay_settings(
-            old_mullvad_management_interface::types::RelaySettingsUpdate {
-                r#type: Some(
-                    old_mullvad_management_interface::types::relay_settings_update::Type::Normal(
-                        old_mullvad_management_interface::types::NormalRelaySettingsUpdate {
-                            location: Some(
-                                old_mullvad_management_interface::types::RelayLocation {
-                                    country: "xx".to_string(),
-                                    city: "".to_string(),
-                                    hostname: "".to_string(),
-                                },
-                            ),
-                            ..Default::default()
-                        },
-                    ),
-                ),
-            },
-        )
-        .await
-        .map_err(|error| Error::DaemonError(format!("Failed to set relay settings: {}", error)))?;
+    rpc.exec("mullvad", ["relay", "set", "location", "xx"]).await.expect("Failed to set relay location");
+    rpc.exec("mullvad", ["connect"]).await.expect("Failed to begin connecting");
 
-    // cannot use the event listener due since the proto file is incompatible
-    mullvad_client
-        .connect_tunnel(())
-        .await
-        .expect("failed to begin connecting");
     tokio::time::timeout(super::WAIT_FOR_TUNNEL_STATE_TIMEOUT, async {
+        // use polling for sake of simplicity
         loop {
-            // use polling for sake of simplicity
-            if matches!(
-                mullvad_client
-                    .get_tunnel_state(())
-                    .await
-                    .expect("RPC error")
-                    .into_inner(),
-                old_mullvad_management_interface::types::TunnelState {
-                    state: Some(
-                        old_mullvad_management_interface::types::tunnel_state::State::Error { .. }
-                    ),
-                }
-            ) {
+            const FIND_SLICE: &[u8] = b"Blocked:";
+            let result = rpc.exec("mullvad", ["status"]).await.expect("Failed to poll tunnel status");
+            if result.stdout.windows(FIND_SLICE.len()).any(|subslice| subslice == FIND_SLICE) {
                 break;
             }
             tokio::time::sleep(Duration::from_secs(1)).await;
@@ -139,13 +111,11 @@ pub async fn test_upgrade_app(
         .expect("failed to obtain tunnel IP");
     log::debug!("Guest IP: {guest_ip}");
 
-    let api_endpoints = get_possible_api_endpoints!(&mut mullvad_client)?;
-
     log::debug!("Monitoring outgoing traffic");
 
     let monitor = start_packet_monitor(
         move |packet| {
-            packet.source.ip() == guest_ip && !api_endpoints.contains(&packet.destination.ip())
+            packet.source.ip() == guest_ip && !API_ADDRS.contains(&packet.destination.ip())
         },
         MonitorOptions::default(),
     )
@@ -185,7 +155,6 @@ pub async fn test_upgrade_app(
         "observed unexpected packets from {guest_ip}"
     );
 
-    drop(mullvad_client);
     let mut mullvad_client = ctx.rpc_provider.new_client().await;
 
     // check if settings were (partially) preserved

@@ -8,7 +8,6 @@ use test_rpc::{
 };
 use tokio::io::{AsyncReadExt, AsyncWriteExt, DuplexStream};
 use tokio_util::codec::{Decoder, LengthDelimitedCodec};
-use tonic::transport::Uri;
 use tower::Service;
 
 const GRPC_REQUEST_TIMEOUT: Duration = Duration::from_secs(10);
@@ -58,7 +57,6 @@ impl RpcClientProvider {
     ) -> Box<dyn std::any::Any + Send> {
         match client_type {
             MullvadClientVersion::New => Box::new(self.new_client().await),
-            MullvadClientVersion::Previous => Box::new(self.old_client().await),
             MullvadClientVersion::None => Box::new(()),
         }
     }
@@ -75,20 +73,6 @@ impl RpcClientProvider {
             .unwrap();
 
         ManagementServiceClient::new(channel)
-    }
-
-    async fn old_client(&self) -> old_mullvad_management_interface::ManagementServiceClient {
-        tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-        log::debug!("Mullvad daemon (old): connecting");
-        let channel = old_mullvad_management_interface::Channel::builder(Uri::from_static(
-            "serial://placeholder",
-        ))
-        .timeout(GRPC_REQUEST_TIMEOUT)
-        .connect_with_connector(self.service.clone())
-        .await
-        .unwrap();
-
-        old_mullvad_management_interface::ManagementServiceClient::new(channel)
     }
 }
 
