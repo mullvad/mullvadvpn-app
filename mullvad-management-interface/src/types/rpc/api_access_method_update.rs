@@ -1,5 +1,5 @@
 /// A short-lived datastructure used in the `ApiAccessMethodUpdate` RPC call.
-use mullvad_types::access_method::{ApiAccessMethod, ApiAccessMethodId};
+use mullvad_types::api_access::{ApiAccessMethod, ApiAccessMethodId};
 /// Argument to gRPC call `UpdateApiAccessMethod`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ApiAccessMethodUpdate {

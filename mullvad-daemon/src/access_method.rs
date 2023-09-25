@@ -3,7 +3,7 @@ use crate::{
     Daemon, EventListener,
 };
 use mullvad_management_interface::types::rpc::api_access_method_update::ApiAccessMethodUpdate;
-use mullvad_types::access_method::{ApiAccessMethod, ApiAccessMethodId};
+use mullvad_types::api_access::{ApiAccessMethod, ApiAccessMethodId};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
