@@ -328,7 +328,7 @@ mod conversions {
                         remote_port,
                         name,
                     } => {
-                        println!("Adding LOCAL SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
+                        println!("Adding Local SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
                         let socks_proxy = daemon_types::Socks5::Local(
                             daemon_types::Socks5Local::from_args(
                                 remote_ip.to_string(),
@@ -348,7 +348,7 @@ mod conversions {
                         remote_port,
                         name,
                     } => {
-                        println!("Adding REMOTE SOCKS5-proxy: {remote_ip}:{remote_port}");
+                        println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
                         let socks_proxy = daemon_types::Socks5::Remote(
                             daemon_types::Socks5Remote::from_args(
                                 remote_ip.to_string(),
@@ -417,9 +417,6 @@ mod pp {
                     write!(f, "")
                 }
             };
-
-            // TODO: For debugging purposes only, remove later
-            writeln!(f, "{:?}", self.api_access_method)?;
 
             match &self.api_access_method.access_method {
                 AccessMethod::BuiltIn(method) => {
