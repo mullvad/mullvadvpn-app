@@ -34,7 +34,7 @@ use futures::{
     future::{abortable, AbortHandle, Future, LocalBoxFuture},
     StreamExt,
 };
-use mullvad_management_interface::types::api_access_method::settings::ApiAccessMethodUpdate;
+use mullvad_management_interface::types::rpc::api_access_method_update::ApiAccessMethodUpdate;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,

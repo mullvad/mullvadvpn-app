@@ -2,7 +2,9 @@
 /// [`crate::types::proto::ApiAccessMethodSettings`] type to the internal
 /// [`mullvad_types::access_method::Settings`] data type.
 pub mod settings {
-    use crate::types::{proto, FromProtobufTypeError};
+    use crate::types::{
+        proto, rpc::api_access_method_update::ApiAccessMethodUpdate, FromProtobufTypeError,
+    };
     use mullvad_types::access_method;
 
     impl From<&access_method::Settings> for proto::ApiAccessMethodSettings {
@@ -69,13 +71,6 @@ pub mod settings {
                 access_method: api_access_method,
             })
         }
-    }
-
-    /// Argument to protobuf rpc `UpdateApiAccessMethod`.
-    #[derive(Debug, Clone, PartialEq)]
-    pub struct ApiAccessMethodUpdate {
-        pub id: access_method::ApiAccessMethodId,
-        pub access_method: access_method::ApiAccessMethod,
     }
 }
 
@@ -247,14 +242,3 @@ mod data {
         }
     }
 }
-
-// /// Some short-lived datastructure used in some RPC calls to the mullvad daemon.
-// pub mod rpc {
-//     use mullvad_types::access_method::{ApiAccessMethod, ApiAccessMethodId};
-//     /// Argument to protobuf rpc `UpdateApiAccessMethod`.
-//     #[derive(Debug, Clone, PartialEq)]
-//     pub struct ApiAccessMethodUpdate {
-//         pub id: access_method::ApiAccessMethodId,
-//         pub access_method: access_method::ApiAccessMethod,
-//     }
-// }

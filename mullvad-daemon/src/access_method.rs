@@ -2,7 +2,7 @@ use crate::{
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
-use mullvad_management_interface::types::api_access_method::settings::ApiAccessMethodUpdate;
+use mullvad_management_interface::types::rpc::api_access_method_update::ApiAccessMethodUpdate;
 use mullvad_types::access_method::{ApiAccessMethod, ApiAccessMethodId};
 
 #[derive(err_derive::Error, Debug)]
