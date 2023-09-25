@@ -40,7 +40,7 @@ mod settings {
     impl From<access_method::daemon::ApiAccessMethodUpdate> for proto::ApiAccessMethodUpdate {
         fn from(value: access_method::daemon::ApiAccessMethodUpdate) -> Self {
             proto::ApiAccessMethodUpdate {
-                id: value.id.to_string(),
+                id: Some(proto::Uuid::from(value.id)),
                 access_method: Some(proto::ApiAccessMethod::from(value.access_method)),
             }
         }
@@ -57,9 +57,15 @@ mod settings {
                 ))
                 .and_then(access_method::ApiAccessMethod::try_from)?;
 
+            let id = value
+                .id
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not convert Access Method from protobuf",
+                ))
+                .map(access_method::ApiAccessMethodId::from)?;
+
             Ok(access_method::daemon::ApiAccessMethodUpdate {
-                // TODO: `value.id` should be of type `proto::Uuid`.
-                id: access_method::ApiAccessMethodId::from_string(value.id),
+                id,
                 access_method: api_access_method,
             })
         }
@@ -162,7 +168,7 @@ mod data {
 
     impl From<ApiAccessMethod> for proto::ApiAccessMethod {
         fn from(value: ApiAccessMethod) -> Self {
-            let id = value.get_id();
+            let id = proto::Uuid::from(value.get_id());
             let name = value.get_name();
             let enabled = value.enabled();
             let access_method = match value.access_method {
@@ -210,7 +216,7 @@ mod data {
             };
 
             proto::ApiAccessMethod {
-                id: id.to_string(),
+                id: Some(id),
                 name,
                 enabled,
                 access_method: Some(access_method),
