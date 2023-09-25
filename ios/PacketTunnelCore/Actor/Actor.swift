@@ -639,10 +639,8 @@ public actor PacketTunnelActor {
 
         let periodicity = timings.bootRecoveryPeriodicity
         let task = Task { [weak self] in
-            let repeating: DispatchTimeInterval = .milliseconds(periodicity.milliseconds)
-            let timerStream = DispatchSource.scheduledTimer(on: .now() + repeating, repeating: repeating)
-
-            for await _ in timerStream {
+            while !Task.isCancelled {
+                try await Task.sleep(duration: periodicity)
                 try? await self?.reconnect(to: .random)
             }
         }
