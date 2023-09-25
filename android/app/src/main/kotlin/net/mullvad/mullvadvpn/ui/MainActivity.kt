@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -254,11 +255,13 @@ open class MainActivity : FragmentActivity() {
             setContent {
                 val state = changelogViewModel.changelogDialogUiState.collectAsState().value
                 if (state is ChangelogDialogUiState.Show) {
-                    ChangelogDialog(
-                        changesList = state.changes,
-                        version = BuildConfig.VERSION_NAME,
-                        onDismiss = { changelogViewModel.dismissChangelogDialog() }
-                    )
+                    AppTheme {
+                        ChangelogDialog(
+                            changesList = state.changes,
+                            version = BuildConfig.VERSION_NAME,
+                            onDismiss = { changelogViewModel.dismissChangelogDialog() }
+                        )
+                    }
                 }
             }
             changelogViewModel.refreshChangelogDialogUiState()
