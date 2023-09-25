@@ -674,39 +674,19 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
-    async fn replace_api_access_method(
+    async fn update_api_access_method(
         &self,
-        request: Request<types::ApiAccessMethodReplace>,
+        request: Request<types::ApiAccessMethodUpdate>,
     ) -> ServiceResult<()> {
-        log::debug!("edit_api_access_method");
-        let access_method_replace =
-            mullvad_types::access_method::daemon::ApiAccessMethodReplace::try_from(
+        log::debug!("update_api_access_method");
+        let access_method_update =
+            mullvad_types::access_method::daemon::ApiAccessMethodUpdate::try_from(
                 request.into_inner(),
             )?;
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ReplaceApiAccessMethod(
+        self.send_command_to_daemon(DaemonCommand::UpdateApiAccessMethod(
             tx,
-            access_method_replace,
-        ))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
-    async fn toggle_api_access_method(
-        &self,
-        request: Request<types::ApiAccessMethodToggle>,
-    ) -> ServiceResult<()> {
-        log::debug!("toggle_api_access_method");
-        let access_method_toggle =
-            mullvad_types::access_method::daemon::ApiAccessMethodToggle::try_from(
-                request.into_inner(),
-            )?;
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ToggleApiAccessMethod(
-            tx,
-            access_method_toggle,
+            access_method_update,
         ))?;
         self.wait_for_result(rx)
             .await?

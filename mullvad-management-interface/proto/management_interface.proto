@@ -81,10 +81,7 @@ service ManagementService {
   rpc RemoveApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
-  rpc ReplaceApiAccessMethod(ApiAccessMethodReplace) returns (google.protobuf.Empty) {
-    // Can I return something useful here instead of Empty?
-  }
-  rpc ToggleApiAccessMethod(ApiAccessMethodToggle) returns (google.protobuf.Empty) {
+  rpc UpdateApiAccessMethod(ApiAccessMethodUpdate) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
   rpc SetApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
@@ -336,14 +333,24 @@ message ObfuscationSettings {
   Udp2TcpObfuscationSettings udp2tcp = 2;
 }
 
-message ApiAccessMethodReplace {
-  uint32 index = 1;
-  ApiAccessMethod access_method = 2;
+message CustomListRename {
+  string name = 1;
+  string new_name = 2;
 }
 
-message ApiAccessMethodToggle {
-  ApiAccessMethod access_method = 1;
-  bool enable = 2;
+message CustomListLocationUpdate {
+  enum State {
+    ADD = 0;
+    REMOVE = 1;
+  }
+  State state = 1;
+  string name = 2;
+  RelayLocation location = 3;
+}
+
+message ApiAccessMethodUpdate {
+  string id = 1;
+  ApiAccessMethod access_method = 2;
 }
 
 message CustomList {

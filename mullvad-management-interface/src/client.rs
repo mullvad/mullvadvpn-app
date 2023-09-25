@@ -3,10 +3,7 @@
 use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
-    access_method::{
-        daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
-        ApiAccessMethod,
-    },
+    access_method::{daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, Id},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -179,6 +176,26 @@ impl MullvadProxyClient {
                 ApiAccessMethod::try_from(api_access_method).map_err(Error::InvalidResponse)
             })
             .collect()
+    }
+
+    pub async fn get_api_access_method(
+        &mut self,
+        id: &ApiAccessMethodId,
+    ) -> Result<ApiAccessMethod> {
+        self.0
+            .get_api_access_methods(())
+            .await
+            .map_err(Error::Rpc)?
+            .into_inner()
+            .api_access_methods
+            .into_iter()
+            .map(|api_access_method| {
+                ApiAccessMethod::try_from(api_access_method)
+                    .map_err(Error::InvalidResponse)
+                    .expect("Failed to convert proto Api Access Method to daemon representation")
+            })
+            .find(|api_access_method| api_access_method.get_id() == *id)
+            .ok_or(Error::ApiAccessMethodNotFound)
     }
 
     pub async fn get_api_addressess(&mut self) -> Result<()> {
@@ -488,12 +505,37 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
-    pub async fn toggle_access_method(
+    pub async fn enable_access_method(
         &mut self,
-        access_method_toggle: ApiAccessMethodToggle,
+        api_access_method_id: ApiAccessMethodId,
     ) -> Result<()> {
+        let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
+        new_api_access_method.enable();
+        let update = ApiAccessMethodUpdate {
+            id: api_access_method_id,
+            access_method: new_api_access_method,
+        };
+
         self.0
-            .toggle_api_access_method(types::ApiAccessMethodToggle::from(access_method_toggle))
+            .update_api_access_method(types::ApiAccessMethodUpdate::from(update))
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
+    pub async fn disable_access_method(
+        &mut self,
+        api_access_method_id: ApiAccessMethodId,
+    ) -> Result<()> {
+        let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
+        new_api_access_method.disable();
+        let update = ApiAccessMethodUpdate {
+            id: api_access_method_id,
+            access_method: new_api_access_method,
+        };
+
+        self.0
+            .update_api_access_method(types::ApiAccessMethodUpdate::from(update))
             .await
             .map_err(Error::Rpc)
             .map(drop)
@@ -507,12 +549,12 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
-    pub async fn replace_access_method(
+    pub async fn update_access_method(
         &mut self,
-        access_method_replace: ApiAccessMethodReplace,
+        access_method_update: ApiAccessMethodUpdate,
     ) -> Result<()> {
         self.0
-            .replace_api_access_method(types::ApiAccessMethodReplace::from(access_method_replace))
+            .update_api_access_method(types::ApiAccessMethodUpdate::from(access_method_update))
             .await
             .map_err(Error::Rpc)
             .map(drop)
