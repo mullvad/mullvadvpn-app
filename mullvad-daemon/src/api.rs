@@ -108,7 +108,9 @@ impl ApiConnectionModeProvider {
         log::debug!("Rotating Access mode!");
         let access_method = {
             let mut access_methods_picker = self.connection_modes.lock().unwrap();
-            access_methods_picker.next().unwrap()
+            access_methods_picker
+                .next()
+                .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct))
         };
 
         let connection_mode = self.from(&access_method);

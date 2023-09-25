@@ -39,10 +39,7 @@ use mullvad_relay_selector::{
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
-    access_method::{
-        daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
-        ApiAccessMethod, ApiAccessMethodId,
-    },
+    access_method::{daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
     custom_list::{CustomList, CustomListLocationUpdate},
@@ -271,9 +268,7 @@ pub enum DaemonCommand {
     /// Remove an API access method
     RemoveApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodId),
     /// Edit an API access method
-    ReplaceApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodReplace),
-    /// Toggle the status of an API access method
-    ToggleApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodToggle),
+    UpdateApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodUpdate),
     /// Set the API access method to use
     SetApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethod),
     /// Get the addresses of all known API endpoints
@@ -1076,10 +1071,7 @@ where
             GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
             AddApiAccessMethod(tx, method) => self.on_add_api_access_method(tx, method).await,
             RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
-            ReplaceApiAccessMethod(tx, method) => {
-                self.on_replace_api_access_method(tx, method).await
-            }
-            ToggleApiAccessMethod(tx, method) => self.on_toggle_api_access_method(tx, method).await,
+            UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method),
             GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
@@ -2318,31 +2310,16 @@ where
         Self::oneshot_send(tx, result, "remove_api_access_method response");
     }
 
-    async fn on_replace_api_access_method(
+    async fn on_update_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        method: ApiAccessMethodReplace,
+        method: ApiAccessMethodUpdate,
     ) {
         let result = self
-            .replace_access_method(method)
+            .update_access_method(method)
             .await
             .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "edit_api_access_method response");
-    }
-
-    async fn on_toggle_api_access_method(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        access_method_toggle: ApiAccessMethodToggle,
-    ) {
-        let result = self
-            .toggle_api_access_method(
-                access_method_toggle.access_method,
-                access_method_toggle.enable,
-            )
-            .await
-            .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "toggle_api_access_method response");
+        Self::oneshot_send(tx, result, "update_api_access_method response");
     }
 
     fn on_set_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: ApiAccessMethod) {
