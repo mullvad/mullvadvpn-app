@@ -3,8 +3,8 @@
 use crate::types::{self, rpc};
 use futures::{Stream, StreamExt};
 use mullvad_types::{
-    access_method::{ApiAccessMethod, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
+    api_access::{ApiAccessMethod, ApiAccessMethodId},
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
