@@ -117,6 +117,9 @@ enum TaskKind: Equatable {
 
     /// Tasks that are initiated by tunnel monitor.
     case monitorEvent
+
+    /// Task that switches key policy.
+    case switchKey
 }
 
 private struct SerialTask {
