@@ -18,7 +18,7 @@ import class WireGuardKitTypes.PrivateKey
 
  ## State consistency
 
- All public methods, that mutate `state`, use `TaskQueue` to prevent re-entrancy and interlacing issues. Regarless how many suspensions the task
+ All public methods, that mutate `state`, use `TaskQueue` to prevent re-entrancy and interlacing issues. Regardless how many suspensions the task
  scheduled on task queue may have, it will execute in its entirety before passing control to the next.
 
  Task queue also enables actor to coalesce repeating calls, and cancel executing tasks that no longer need to continue.
@@ -29,7 +29,7 @@ import class WireGuardKitTypes.PrivateKey
  to the queue and then await for it to complete, while running in the context of another task executing on the queue. This scenario would lead to deadlock, because
  the queue organizes operations in a linked list, so that each subsequent operation waits for the one before to complete.
 
- Most of private methods are documented to outline the anticipated execution context.
+ Most of private methods are documented to outline the expected execution context.
  */
 public actor PacketTunnelActor {
     @Published private(set) public var state: State = .initial {
