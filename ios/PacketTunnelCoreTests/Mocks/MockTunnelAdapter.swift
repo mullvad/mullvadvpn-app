@@ -9,6 +9,7 @@
 import Foundation
 import PacketTunnelCore
 
+/// Mock of tunnel adapter that does nothing and reports no errors.
 class MockTunnelAdapter: TunnelAdapterProtocol {
     func start(configuration: TunnelAdapterConfiguration) async throws {}
 

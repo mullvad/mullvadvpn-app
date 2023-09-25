@@ -80,3 +80,14 @@ class MockTunnelMonitor: TunnelMonitorProtocol {
         simulationBlock(.start, dispatcher)
     }
 }
+
+extension MockTunnelMonitor {
+    /// Returns a mock of tunnel monitor that always reports that connection is established after 100ms after starting connection monitoring.
+    static func nonFallible() -> MockTunnelMonitor {
+        MockTunnelMonitor { command, dispatcher in
+            if case .start = command {
+                dispatcher.send(.connectionEstablished, after: .milliseconds(100))
+            }
+        }
+    }
+}
