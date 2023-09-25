@@ -695,13 +695,10 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn set_api_access_method(
-        &self,
-        request: Request<types::ApiAccessMethod>,
-    ) -> ServiceResult<()> {
+    async fn set_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<()> {
         log::debug!("set_api_access_method");
         let api_access_method =
-            mullvad_types::access_method::ApiAccessMethod::try_from(request.into_inner())?;
+            mullvad_types::access_method::ApiAccessMethodId::from(request.into_inner());
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetApiAccessMethod(tx, api_access_method))?;
         self.wait_for_result(rx)

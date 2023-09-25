@@ -601,9 +601,9 @@ impl MullvadProxyClient {
     ///     method "randomly"
     ///
     /// [`ApiConnectionModeProvider`]: mullvad_daemon::api::ApiConnectionModeProvider
-    pub async fn set_access_method(&mut self, api_access_method: ApiAccessMethod) -> Result<()> {
+    pub async fn set_access_method(&mut self, api_access_method: ApiAccessMethodId) -> Result<()> {
         self.0
-            .set_api_access_method(types::ApiAccessMethod::from(api_access_method))
+            .set_api_access_method(types::Uuid::from(api_access_method))
             .await
             .map_err(Error::Rpc)
             .map(drop)
