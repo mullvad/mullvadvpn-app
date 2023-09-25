@@ -79,7 +79,7 @@ public actor PacketTunnelActor {
             // Assign a closure receiving tunnel monitor events.
             tunnelMonitor.onEvent = { [weak self] event in
                 guard let self else { return }
-                Task { await self.handleMonitorEvent(event) }
+                Task { await self.enqueueMonitorEvent(event) }
             }
 
             do {
@@ -650,17 +650,28 @@ public actor PacketTunnelActor {
 
     // MARK: - Private: Connection monitoring
 
-    private func handleMonitorEvent(_ event: TunnelMonitorEvent) async {
-        switch event {
-        case .connectionEstablished:
-            await onEstablishConnection()
+    /**
+     Enqueue a task handling monitor event.
 
-        case .connectionLost:
-            await onHandleConnectionRecovery()
+     - Important: This method must not be called from operation executing on `TaskQueue`.
+     */
+    private func enqueueMonitorEvent(_ event: TunnelMonitorEvent) async {
+        try? await taskQueue.add(kind: .monitorEvent) { [self] in
+            switch event {
+            case .connectionEstablished:
+                onEstablishConnection()
+            case .connectionLost:
+                await onHandleConnectionRecovery()
+            }
         }
     }
 
-    private func onEstablishConnection() async {
+    /**
+     Reset connection attempt counter and update actor state to `connected` state once connection is established.
+
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue` .
+     */
+    private func onEstablishConnection() {
         switch state {
         case var .connecting(connState), var .reconnecting(connState):
             // Reset connection attempt once successfully connected.
@@ -689,7 +700,7 @@ public actor PacketTunnelActor {
 
             // Tunnel monitor should already be paused at this point so don't stop it to avoid a reset of its internal
             // counters.
-            try? await reconnect(to: .random, shouldStopTunnelMonitor: false)
+            try? await reconnectInner(to: .random, shouldStopTunnelMonitor: false)
 
         case .initial, .disconnected, .disconnecting, .error:
             break
