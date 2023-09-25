@@ -257,62 +257,92 @@ public actor PacketTunnelActor {
     // MARK: - Private: key policy
 
     /**
-     Start a task that will wait for the new key to propagate across relays (see `Timings.wgKeyPropagationDelay`) and then:
+     Start a task that will wait for the new key to propagate across relays (see `PacketTunnelActorTimings.wgKeyPropagationDelay`) and then:
 
      1. Switch `keyPolicy` back to `.useCurrent`.
      2. Reconnect the tunnel using the new key (currently stored in device state)
      */
-    private func startSwitchKeyTask() -> AutoCancellingTask {
+    private func startKeySwitchTask() -> AutoCancellingTask {
         let task = Task {
             // Wait for key to propagate across relays.
             try await Task.sleepUsingContinuousClock(for: timings.wgKeyPropagationDelay)
 
-            func mutateConnectionState(_ connectionState: inout ConnectionState) -> Bool {
-                switch connectionState.keyPolicy {
-                case .useCurrent:
-                    return false
+            // Enqueue task to change key policy.
+            let isKeySwitched = try await enqueueKeySwitch()
 
-                case .usePrior:
-                    connectionState.keyPolicy = .useCurrent
-                    return true
-                }
+            // Enqueue task to reconnect
+            if isKeySwitched {
+                try await reconnect(to: .random)
             }
-
-            // Switch key policy to use current key.
-            switch state {
-            case var .connecting(connState):
-                if mutateConnectionState(&connState) {
-                    state = .connecting(connState)
-                }
-
-            case var .connected(connState):
-                if mutateConnectionState(&connState) {
-                    state = .connected(connState)
-                }
-
-            case var .reconnecting(connState):
-                if mutateConnectionState(&connState) {
-                    state = .reconnecting(connState)
-                }
-
-            case var .error(blockedState):
-                switch blockedState.keyPolicy {
-                case .useCurrent:
-                    break
-                case .usePrior:
-                    blockedState.keyPolicy = .useCurrent
-                    state = .error(blockedState)
-                }
-
-            case .disconnected, .disconnecting, .initial:
-                break
-            }
-
-            // This will schedule a normal call to reconnect that will be enqueued on the task queue.
-            try await reconnect(to: .random)
         }
 
         return AutoCancellingTask(task)
+    }
+
+    /**
+     Enqueue a task to switch key policy to `.useCurrent`.
+
+     - Returns: `true` if the key was switched, otherwise `false`.
+     */
+    private func enqueueKeySwitch() async throws -> Bool {
+        try await taskQueue.add(kind: .switchKey) {
+            self.keySwitchInner()
+        }
+    }
+
+    /**
+     Switch key policy  from `.usePrior` to `.useCurrent` policy.
+
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue` .
+
+     - Returns: `true` if the key policy switch happened, otherwise `false`.
+     */
+    private func keySwitchInner() -> Bool {
+        func mutateConnectionState(_ connectionState: inout ConnectionState) -> Bool {
+            switch connectionState.keyPolicy {
+            case .useCurrent:
+                return false
+
+            case .usePrior:
+                connectionState.keyPolicy = .useCurrent
+                return true
+            }
+        }
+
+        // Switch key policy to use current key.
+        switch state {
+        case var .connecting(connState):
+            if mutateConnectionState(&connState) {
+                state = .connecting(connState)
+                return true
+            }
+
+        case var .connected(connState):
+            if mutateConnectionState(&connState) {
+                state = .connected(connState)
+                return true
+            }
+
+        case var .reconnecting(connState):
+            if mutateConnectionState(&connState) {
+                state = .reconnecting(connState)
+                return true
+            }
+
+        case var .error(blockedState):
+            switch blockedState.keyPolicy {
+            case .useCurrent:
+                break
+            case .usePrior:
+                blockedState.keyPolicy = .useCurrent
+                state = .error(blockedState)
+                return true
+            }
+
+        case .disconnected, .disconnecting, .initial:
+            break
+        }
+        return false
     }
 
     // MARK: - Network Reachability
