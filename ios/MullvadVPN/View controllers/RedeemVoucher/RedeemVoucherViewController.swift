@@ -30,6 +30,8 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
     ) {
         self.contentView = RedeemVoucherContentView(configuration: configuration)
         self.interactor = interactor
+        self.contentView.isUserInteractionEnabled = false
+
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -67,6 +69,8 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+
+        contentView.isUserInteractionEnabled = true
         contentView.isEditing = true
     }
 
