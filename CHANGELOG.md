@@ -61,6 +61,14 @@ Line wrap the file at 100 chars.                                              Th
 - Remove the CLI subcommand `mullvad relay set hostname`.
 
 
+## [android/2023.6] - 2023-09-25
+### Fixed
+#### Android
+- Fix inconsistent dialog corner radius.
+- Fix missing scrolling in the changes dialog.
+- Fix unused bundled relay list.
+
+
 ## [android/2023.6-beta2] - 2023-09-13
 ### Fixed
 #### Android
