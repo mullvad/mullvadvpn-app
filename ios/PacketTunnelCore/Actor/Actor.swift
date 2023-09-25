@@ -66,9 +66,11 @@ public actor PacketTunnelActor {
         self.relaySelector = relaySelector
         self.settingsReader = settingsReader
     }
+}
 
-    // MARK: - Public: Calls serialized on task queue
+// MARK: - Public: Calls serialized on task queue
 
+extension PacketTunnelActor {
     /**
      Start the tunnel and wait until connected.
 
@@ -201,9 +203,37 @@ public actor PacketTunnelActor {
             notifyKeyRotatedInner(date: date)
         }
     }
+}
+
+// MARK: - Public: Sleep cycle notifications
+
+extension PacketTunnelActor {
+    /**
+     Clients should call this method to notify actor when device wakes up.
+
+     `NEPacketTunnelProvider` provides the corresponding lifecycle method.
+
+     - Important: It's safe to call this from any thread.
+     */
+    public nonisolated func onWake() {
+        tunnelMonitor.onWake()
+    }
 
     /**
-     Internal implementation that handles key rotation notification.
+     Clients should call this method to notify actor when device is about to go to sleep.
+
+     `NEPacketTunnelProvider` provides the corresponding lifecycle method.
+     */
+    public func onSleep() {
+        tunnelMonitor.onSleep()
+    }
+}
+
+// MARK: - Private: Key policy
+
+extension PacketTunnelActor {
+    /**
+     Cache currently used WG key and start a task that will change the policy back to use the newest key after some time and reconnect the tunnel.
 
      - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
      */
@@ -254,30 +284,6 @@ public actor PacketTunnelActor {
             break
         }
     }
-
-    // MARK: - Public: Sleep cycle notifications
-
-    /**
-     Cients should call this method to notify actor when device becomes awake.
-
-     `NEPacketTunnelProvider` provides the corresponding lifecycle method.
-
-     - Important: It's safe to call this from any thread.
-     */
-    public nonisolated func onWake() {
-        tunnelMonitor.onWake()
-    }
-
-    /**
-     Clients should call this method to notify actor when device is about to go to sleep.
-
-     `NEPacketTunnelProvider` provides the corresponding lifecycle method.
-     */
-    public func onSleep() {
-        tunnelMonitor.onSleep()
-    }
-
-    // MARK: - Private: key policy
 
     /**
      Start a task that will wait for the new key to propagate across relays (see `PacketTunnelActorTimings.wgKeyPropagationDelay`) and then:
@@ -367,9 +373,11 @@ public actor PacketTunnelActor {
         }
         return false
     }
+}
 
-    // MARK: - Network Reachability
+// MARK: - Network Reachability
 
+extension PacketTunnelActor {
     /**
      Start observing changes to default path.
 
@@ -442,9 +450,11 @@ public actor PacketTunnelActor {
             }
         }
     }
+}
 
-    // MARK: - Private: Tunnel management
+// MARK: - Private: Tunnel management
 
+extension PacketTunnelActor {
     /**
      Attempt to start the tunnel by performing the following steps:
 
@@ -568,8 +578,8 @@ public actor PacketTunnelActor {
      - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
 
      - Parameters:
-         - nextRelay: next relay to connect to
-         - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
+     - nextRelay: next relay to connect to
+     - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
      */
     private func reconnectInner(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         // Sleep a bit to provide a debounce in case we get a barrage of calls to reconnect.
@@ -632,9 +642,11 @@ public actor PacketTunnelActor {
             return selectorResult
         }
     }
+}
 
-    // MARK: - Private: Error state
+// MARK: - Private: Error state
 
+extension PacketTunnelActor {
     /**
      Transition actor to error state.
 
@@ -737,9 +749,11 @@ public actor PacketTunnelActor {
 
         return AutoCancellingTask(task)
     }
+}
 
-    // MARK: - Private: Connection monitoring
+// MARK: - Private: Connection monitoring
 
+extension PacketTunnelActor {
     /**
      Enqueue a task handling monitor event.
 
