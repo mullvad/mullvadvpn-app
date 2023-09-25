@@ -11,9 +11,13 @@ import RelaySelector
 
 /// Packet tunnel start options parsed from dictionary passed to packet tunnel with a call to `startTunnel()`.
 public struct StartOptions {
+    /// The system that triggered the launch of packet tunnel.
     public var launchSource: LaunchSource
+
+    /// Pre-selected relay received from UI when available.
     public var selectorResult: RelaySelectorResult?
 
+    /// Designated initializer.
     public init(launchSource: LaunchSource, selectorResult: RelaySelectorResult? = nil) {
         self.launchSource = launchSource
         self.selectorResult = selectorResult
