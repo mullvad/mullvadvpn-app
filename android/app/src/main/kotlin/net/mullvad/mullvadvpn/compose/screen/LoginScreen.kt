@@ -260,6 +260,8 @@ private fun LoginIcon(state: LoginState, modifier: Modifier = Modifier) {
                         contentDescription = null,
                         contentScale = ContentScale.Inside
                     )
+                } else {
+                    // If view is Idle, we display empty box to keep the same size as other states
                 }
             is Loading ->
                 CircularProgressIndicator(
