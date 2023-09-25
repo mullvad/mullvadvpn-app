@@ -3,7 +3,7 @@ use crate::{
     Daemon, EventListener,
 };
 use mullvad_types::access_method::{
-    daemon::ApiAccessMethodReplace, ApiAccessMethod, ApiAccessMethodId,
+    daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId,
 };
 
 #[derive(err_derive::Error, Debug)]
@@ -28,24 +28,6 @@ where
             .map_err(Error::Settings)
     }
 
-    pub async fn toggle_api_access_method(
-        &mut self,
-        api_access_method: ApiAccessMethod,
-        enable: bool,
-    ) -> Result<(), Error> {
-        self.settings
-            .update(|settings| {
-                if let Some(api_access_method) =
-                    settings.api_access_methods.find_mut(&api_access_method)
-                {
-                    api_access_method.toggle(enable);
-                }
-            })
-            .await
-            .map(|did_change| self.notify_on_change(did_change))
-            .map_err(Error::Settings)
-    }
-
     pub async fn remove_access_method(
         &mut self,
         access_method: ApiAccessMethodId,
@@ -57,15 +39,19 @@ where
             .map_err(Error::Settings)
     }
 
-    pub async fn replace_access_method(
+    pub async fn update_access_method(
         &mut self,
-        access_method_replace: ApiAccessMethodReplace,
+        access_method_update: ApiAccessMethodUpdate,
     ) -> Result<(), Error> {
         self.settings
             .update(|settings| {
                 let access_methods = &mut settings.api_access_methods;
-                access_methods.append(access_method_replace.access_method);
-                access_methods.swap_remove(access_method_replace.index);
+                if let Some(access_method) =
+                    // TODO: This will not work, has to be based on ID!
+                    access_methods.find_mut(&access_method_update.id)
+                {
+                    *access_method = access_method_update.access_method
+                }
             })
             .await
             .map(|did_change| self.notify_on_change(did_change))

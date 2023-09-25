@@ -37,55 +37,29 @@ mod settings {
         }
     }
 
-    impl From<access_method::daemon::ApiAccessMethodReplace> for proto::ApiAccessMethodReplace {
-        fn from(value: access_method::daemon::ApiAccessMethodReplace) -> Self {
-            let api_access_method = value.access_method;
-            proto::ApiAccessMethodReplace {
-                index: value.index as u32,
-                access_method: Some(proto::ApiAccessMethod::from(api_access_method)),
+    impl From<access_method::daemon::ApiAccessMethodUpdate> for proto::ApiAccessMethodUpdate {
+        fn from(value: access_method::daemon::ApiAccessMethodUpdate) -> Self {
+            proto::ApiAccessMethodUpdate {
+                id: value.id.to_string(),
+                access_method: Some(proto::ApiAccessMethod::from(value.access_method)),
             }
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethodReplace> for access_method::daemon::ApiAccessMethodReplace {
+    impl TryFrom<proto::ApiAccessMethodUpdate> for access_method::daemon::ApiAccessMethodUpdate {
         type Error = FromProtobufTypeError;
 
-        fn try_from(value: proto::ApiAccessMethodReplace) -> Result<Self, Self::Error> {
-            Ok(access_method::daemon::ApiAccessMethodReplace {
-                index: value.index as usize,
-                access_method: value
-                    .access_method
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                        "Could not convert Access Method from protobuf",
-                    ))
-                    .and_then(access_method::ApiAccessMethod::try_from)?,
-            })
-        }
-    }
+        fn try_from(value: proto::ApiAccessMethodUpdate) -> Result<Self, Self::Error> {
+            let api_access_method = value
+                .access_method
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not convert Access Method from protobuf",
+                ))
+                .and_then(access_method::ApiAccessMethod::try_from)?;
 
-    impl From<access_method::daemon::ApiAccessMethodToggle> for proto::ApiAccessMethodToggle {
-        fn from(value: access_method::daemon::ApiAccessMethodToggle) -> Self {
-            let api_access_method = value.access_method;
-            let enabled = api_access_method.enabled();
-            proto::ApiAccessMethodToggle {
-                access_method: Some(proto::ApiAccessMethod::from(api_access_method)),
-                enable: enabled,
-            }
-        }
-    }
-
-    impl TryFrom<proto::ApiAccessMethodToggle> for access_method::daemon::ApiAccessMethodToggle {
-        type Error = FromProtobufTypeError;
-
-        fn try_from(value: proto::ApiAccessMethodToggle) -> Result<Self, Self::Error> {
-            Ok(access_method::daemon::ApiAccessMethodToggle {
-                access_method: value
-                    .access_method
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                        "Could not convert Access Method from protobuf",
-                    ))
-                    .and_then(access_method::ApiAccessMethod::try_from)?,
-                enable: value.enable,
+            Ok(access_method::daemon::ApiAccessMethodUpdate {
+                id: access_method::ApiAccessMethodId::from_proto_string(value.id),
+                access_method: api_access_method,
             })
         }
     }
