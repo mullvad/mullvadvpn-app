@@ -5,8 +5,8 @@ mod settings {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method;
 
-    impl From<&access_method::Settings> for proto::ApiAccessMethodSettings {
-        fn from(settings: &access_method::Settings) -> Self {
+    impl From<&api_access::Settings> for proto::ApiAccessMethodSettings {
+        fn from(settings: &api_access::Settings) -> Self {
             Self {
                 api_access_methods: settings
                     .api_access_methods
@@ -17,13 +17,13 @@ mod settings {
         }
     }
 
-    impl From<access_method::Settings> for proto::ApiAccessMethodSettings {
-        fn from(settings: access_method::Settings) -> Self {
+    impl From<api_access::Settings> for proto::ApiAccessMethodSettings {
+        fn from(settings: api_access::Settings) -> Self {
             proto::ApiAccessMethodSettings::from(&settings)
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethodSettings> for access_method::Settings {
+    impl TryFrom<proto::ApiAccessMethodSettings> for api_access::Settings {
         type Error = FromProtobufTypeError;
 
         fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
@@ -31,8 +31,8 @@ mod settings {
                 api_access_methods: settings
                     .api_access_methods
                     .iter()
-                    .map(access_method::ApiAccessMethod::try_from)
-                    .collect::<Result<Vec<access_method::ApiAccessMethod>, _>>()?,
+                    .map(api_access::ApiAccessMethod::try_from)
+                    .collect::<Result<Vec<api_access::ApiAccessMethod>, _>>()?,
             })
         }
     }
@@ -55,14 +55,14 @@ mod settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "Could not convert Access Method from protobuf",
                 ))
-                .and_then(access_method::ApiAccessMethod::try_from)?;
+                .and_then(api_access::ApiAccessMethod::try_from)?;
 
             let id = value
                 .id
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "Could not convert Access Method from protobuf",
                 ))
-                .map(access_method::ApiAccessMethodId::from)?;
+                .map(api_access::ApiAccessMethodId::from)?;
 
             Ok(access_method::daemon::ApiAccessMethodUpdate {
                 id,
@@ -77,7 +77,7 @@ mod settings {
 /// [`mullvad_types::access_method::AccessMethod`] data type.
 mod data {
     use crate::types::{proto, FromProtobufTypeError};
-    use mullvad_types::access_method::{
+    use mullvad_types::api_access::{
         AccessMethod, ApiAccessMethod, ApiAccessMethodId, BuiltInAccessMethod, CustomAccessMethod,
         Shadowsocks, Socks5, Socks5Local, Socks5Remote,
     };
@@ -202,12 +202,12 @@ mod data {
                     }
                 },
                 AccessMethod::BuiltIn(value) => match value {
-                    mullvad_types::access_method::BuiltInAccessMethod::Direct => {
+                    mullvad_types::api_access::BuiltInAccessMethod::Direct => {
                         proto::api_access_method::AccessMethod::Direct(
                             proto::api_access_method::Direct {},
                         )
                     }
-                    mullvad_types::access_method::BuiltInAccessMethod::Bridge => {
+                    mullvad_types::api_access::BuiltInAccessMethod::Bridge => {
                         proto::api_access_method::AccessMethod::Bridges(
                             proto::api_access_method::Bridges {},
                         )

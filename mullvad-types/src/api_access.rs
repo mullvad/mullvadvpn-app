@@ -13,19 +13,16 @@ pub struct Settings {
 
 impl Settings {
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
-    #[inline(always)]
     pub fn append(&mut self, api_access_method: ApiAccessMethod) {
         self.api_access_methods.push(api_access_method)
     }
 
     /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
-    #[inline(always)]
     pub fn remove(&mut self, api_access_method: &ApiAccessMethodId) {
         self.retain(|method| method.get_id() != *api_access_method)
     }
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
-    #[inline(always)]
     pub fn find(&self, element: &ApiAccessMethodId) -> Option<&ApiAccessMethod> {
         self.api_access_methods
             .iter()
@@ -37,7 +34,6 @@ impl Settings {
     /// If the [`AccessMethod`] is found to be part of `api_access_methods`, a
     /// mutable reference to that inner element is returned. Otherwise, `None`
     /// is returned.
-    #[inline(always)]
     pub fn find_mut(&mut self, element: &ApiAccessMethodId) -> Option<&mut ApiAccessMethod> {
         self.api_access_methods
             .iter_mut()
@@ -45,7 +41,6 @@ impl Settings {
     }
 
     /// Equivalent to [`Vec::retain`].
-    #[inline(always)]
     pub fn retain<F>(&mut self, f: F)
     where
         F: FnMut(&ApiAccessMethod) -> bool,
@@ -54,7 +49,6 @@ impl Settings {
     }
 
     /// Clone the content of `api_access_methods`.
-    #[inline(always)]
     pub fn cloned(&self) -> Vec<ApiAccessMethod> {
         self.api_access_methods.clone()
     }
@@ -155,6 +149,10 @@ impl ApiAccessMethod {
 
     pub fn as_custom(&self) -> Option<&CustomAccessMethod> {
         self.access_method.as_custom()
+    }
+
+    pub fn is_builtin(&self) -> bool {
+        self.as_custom().is_none()
     }
 
     /// Set an API access method to be enabled.

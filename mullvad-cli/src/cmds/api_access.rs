@@ -83,7 +83,7 @@ impl ApiAccess {
     async fn remove(cmd: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let access_method = Self::get_access_method(&mut rpc, &cmd).await?;
-        rpc.remove_access_method(access_method)
+        rpc.remove_access_method(access_method.get_id())
             .await
             .map_err(Into::<anyhow::Error>::into)
     }
@@ -107,27 +107,28 @@ impl ApiAccess {
                 let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
                 let name = cmd.params.name.unwrap_or(api_access_method.name);
                 let enabled = api_access_method.enabled;
-                mullvad_types::access_method::Shadowsocks::from_args(ip, port, cipher, password)
-                    .map(|shadowsocks| {
+                mullvad_types::api_access::Shadowsocks::from_args(ip, port, cipher, password).map(
+                    |shadowsocks| {
                         ApiAccessMethod::new(name, enabled, AccessMethod::from(shadowsocks))
-                    })
+                    },
+                )
             }
             CustomAccessMethod::Socks5(socks) => match socks {
-                mullvad_types::access_method::Socks5::Local(local) => {
+                mullvad_types::api_access::Socks5::Local(local) => {
                     let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(local.peer.port());
                     let local_port = cmd.params.local_port.unwrap_or(local.port);
                     let name = cmd.params.name.unwrap_or(api_access_method.get_name());
                     let enabled = api_access_method.enabled();
-                    mullvad_types::access_method::Socks5Local::from_args(ip, port, local_port)
+                    mullvad_types::api_access::Socks5Local::from_args(ip, port, local_port)
                         .map(|socks| ApiAccessMethod::new(name, enabled, AccessMethod::from(socks)))
                 }
-                mullvad_types::access_method::Socks5::Remote(remote) => {
+                mullvad_types::api_access::Socks5::Remote(remote) => {
                     let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
                     let port = cmd.params.port.unwrap_or(remote.peer.port());
                     let name = cmd.params.name.unwrap_or(api_access_method.get_name());
                     let enabled = api_access_method.enabled();
-                    mullvad_types::access_method::Socks5Remote::from_args(ip, port)
+                    mullvad_types::api_access::Socks5Remote::from_args(ip, port)
                         .map(|socks| ApiAccessMethod::new(name, enabled, AccessMethod::from(socks)))
                 }
             },
@@ -310,7 +311,7 @@ pub struct EditParams {
 /// we define them in a hidden-away module.
 mod conversions {
     use anyhow::{anyhow, Error};
-    use mullvad_types::access_method as daemon_types;
+    use mullvad_types::api_access as daemon_types;
 
     use super::{AddCustomCommands, Socks5AddCommands};
 
@@ -328,7 +329,7 @@ mod conversions {
                         remote_port,
                         name,
                     } => {
-                        println!("Adding LOCAL SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
+                        println!("Adding Local SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
                         let socks_proxy = daemon_types::Socks5::Local(
                             daemon_types::Socks5Local::from_args(
                                 remote_ip.to_string(),
@@ -348,7 +349,7 @@ mod conversions {
                         remote_port,
                         name,
                     } => {
-                        println!("Adding REMOTE SOCKS5-proxy: {remote_ip}:{remote_port}");
+                        println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
                         let socks_proxy = daemon_types::Socks5::Remote(
                             daemon_types::Socks5Remote::from_args(
                                 remote_ip.to_string(),
@@ -394,7 +395,7 @@ mod conversions {
 
 /// Pretty printing of [`ApiAccessMethod`]s
 mod pp {
-    use mullvad_types::access_method::{AccessMethod, ApiAccessMethod, CustomAccessMethod, Socks5};
+    use mullvad_types::api_access::{AccessMethod, ApiAccessMethod, CustomAccessMethod, Socks5};
 
     pub struct ApiAccessMethodFormatter<'a> {
         api_access_method: &'a ApiAccessMethod,
@@ -417,9 +418,6 @@ mod pp {
                     write!(f, "")
                 }
             };
-
-            // TODO: For debugging purposes only, remove later
-            writeln!(f, "{:?}", self.api_access_method)?;
 
             match &self.api_access_method.access_method {
                 AccessMethod::BuiltIn(method) => {
