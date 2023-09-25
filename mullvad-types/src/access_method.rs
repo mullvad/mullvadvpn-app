@@ -25,6 +25,14 @@ impl Settings {
     }
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
+    #[inline(always)]
+    pub fn find(&self, element: &ApiAccessMethodId) -> Option<&ApiAccessMethod> {
+        self.api_access_methods
+            .iter()
+            .find(|api_access_method| *element == api_access_method.get_id())
+    }
+
+    /// Search for a particular [`AccessMethod`] in `api_access_methods`.
     ///
     /// If the [`AccessMethod`] is found to be part of `api_access_methods`, a
     /// mutable reference to that inner element is returned. Otherwise, `None`
@@ -86,9 +94,16 @@ pub struct ApiAccessMethod {
 pub struct ApiAccessMethodId(String);
 
 impl ApiAccessMethodId {
-    /// TODO: Replace with a conversion proto::UUID <-> ApiAccessMethodId
-    pub fn from_proto_string(id: String) -> Self {
+    /// It is up to the caller to make sure that the supplied String is actually
+    /// a valid UUID in the context of [`ApiAccessMethod`]s.
+    pub fn from_string(id: String) -> Self {
         Self(id)
+    }
+}
+
+impl std::fmt::Display for ApiAccessMethodId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 

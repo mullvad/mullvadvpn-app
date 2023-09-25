@@ -84,7 +84,7 @@ service ManagementService {
   rpc UpdateApiAccessMethod(ApiAccessMethodUpdate) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
-  rpc SetApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
+  rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {
     // Can I return something useful here instead of Empty?
   }
 
@@ -107,6 +107,8 @@ service ManagementService {
   // (Windows).
   rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
+
+message UUID { string value = 1; }
 
 message RelaySettingsUpdate {
   oneof type {

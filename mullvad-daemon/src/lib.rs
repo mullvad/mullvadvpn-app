@@ -266,10 +266,10 @@ pub enum DaemonCommand {
     AddApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethod),
     /// Remove an API access method
     RemoveApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodId),
+    /// Set the API access method to use
+    SetApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodId),
     /// Edit an API access method
     UpdateApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodUpdate),
-    /// Set the API access method to use
-    SetApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethod),
     /// Get the addresses of all known API endpoints
     GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
     /// Get information about the currently running and latest app versions
@@ -2281,9 +2281,13 @@ where
         Self::oneshot_send(tx, result, "update_api_access_method response");
     }
 
-    fn on_set_api_access_method(&mut self, tx: ResponseTx<(), Error>, method: ApiAccessMethod) {
+    fn on_set_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        access_method: ApiAccessMethodId,
+    ) {
         let result = self
-            .set_api_access_method(method)
+            .set_api_access_method(access_method)
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "set_api_access_method response");
     }
