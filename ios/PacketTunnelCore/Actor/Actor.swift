@@ -145,7 +145,7 @@ public actor PacketTunnelActor {
      - Parameter nextRelay: next relay to connect to.
      */
     public func reconnect(to nextRelay: NextRelay) async throws {
-        try await reconnect(to: nextRelay, shouldStopTunnelMonitor: true)
+        try await enqueueReconnect(to: nextRelay, shouldStopTunnelMonitor: true)
     }
 
     /**
@@ -525,32 +525,47 @@ public actor PacketTunnelActor {
     }
 
     /**
-     Internal method that schedules a reconnection attempt on task queue.
+     Schedule reconnection attempt on `TaskQueue`.
+
+     - Important: This method must not be called from operation executing on `TaskQueue`.
      */
-    private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
+    private func enqueueReconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         try await taskQueue.add(kind: .reconnect) { [self] in
-            // Sleep a bit to provide a debounce in case we get a barrage of calls to reconnect.
-            // Task.sleep() throws CancellationError if the task is cancelled.
-            try await Task.sleep(duration: timings.reconnectDebounce)
+            try await reconnectInner(to: nextRelay, shouldStopTunnelMonitor: shouldStopTunnelMonitor)
+        }
+    }
 
-            do {
-                switch state {
-                case .connecting, .connected, .reconnecting, .error:
-                    if shouldStopTunnelMonitor {
-                        tunnelMonitor.stop()
-                    }
-                    try await tryStart(nextRelay: nextRelay)
+    /**
+     Perform a reconnection attempt. Enters error state on failure.
 
-                case .disconnected, .disconnecting, .initial:
-                    break
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue` .
+
+     - Parameters:
+     - nextRelay: next relay to connect to
+     - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
+     */
+    private func reconnectInner(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
+        // Sleep a bit to provide a debounce in case we get a barrage of calls to reconnect.
+        // Task.sleep() throws CancellationError if the task is cancelled.
+        try await Task.sleep(duration: timings.reconnectDebounce)
+
+        do {
+            switch state {
+            case .connecting, .connected, .reconnecting, .error:
+                if shouldStopTunnelMonitor {
+                    tunnelMonitor.stop()
                 }
-            } catch {
-                try Task.checkCancellation()
+                try await tryStart(nextRelay: nextRelay)
 
-                logger.error(error: error, message: "Failed to reconnect the tunnel.")
-
-                await setErrorStateInner(with: error)
+            case .disconnected, .disconnecting, .initial:
+                break
             }
+        } catch {
+            try Task.checkCancellation()
+
+            logger.error(error: error, message: "Failed to reconnect the tunnel.")
+
+            await setErrorStateInner(with: error)
         }
     }
 
