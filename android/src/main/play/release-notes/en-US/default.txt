@@ -1,4 +1,8 @@
-Fix tunnel state and connection details sometimes getting stuck showing the wrong information.
-Fix MTU dismiss behavior.
-Fix DNS input crash.
-Fix inconsistent dialog padding.
+Add quantum-resistant tunneling.
+Add UDP-over-TCP WireGuard obfuscation.
+Add WireGuard port configuration.
+Add search bar to the Select location view.
+Improve Android firewall integration.
+Rearrange settings menus.
+Fix UI inconsistencies and flickering.
+Fix unused bundled relay list.
