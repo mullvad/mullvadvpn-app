@@ -21,3 +21,10 @@ class MockBlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
         return block(error)
     }
 }
+
+extension MockBlockedStateErrorMapper {
+    /// Returns a mock that maps all errors to `.unknown`.
+    static func mock() -> MockBlockedStateErrorMapper {
+        MockBlockedStateErrorMapper { _ in .unknown }
+    }
+}
