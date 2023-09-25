@@ -27,8 +27,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadDarkBlue
 import net.mullvad.mullvadvpn.lib.theme.MullvadRed
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite20
@@ -39,14 +39,17 @@ import net.mullvad.mullvadvpn.viewmodel.StagedDns
 @Preview
 @Composable
 private fun PreviewDnsDialog() {
-    DnsDialog(
-        stagedDns = StagedDns.NewDns(CustomDnsItem.default(), StagedDns.ValidationResult.Success),
-        isAllowLanEnabled = true,
-        onIpAddressChanged = {},
-        onAttemptToSave = {},
-        onRemove = {},
-        onDismiss = {}
-    )
+    AppTheme {
+        DnsDialog(
+            stagedDns =
+                StagedDns.NewDns(CustomDnsItem.default(), StagedDns.ValidationResult.Success),
+            isAllowLanEnabled = true,
+            onIpAddressChanged = {},
+            onAttemptToSave = {},
+            onRemove = {},
+            onDismiss = {}
+        )
+    }
 }
 
 @Composable
@@ -79,7 +82,10 @@ fun DnsDialog(
                 Modifier
                     // Related to the fix for https://issuetracker.google.com/issues/221643630
                     .fillMaxWidth(0.8f)
-                    .background(color = MullvadDarkBlue)
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        MaterialTheme.shapes.extraLarge
+                    )
                     .padding(dialogPadding)
             ) {
                 Text(

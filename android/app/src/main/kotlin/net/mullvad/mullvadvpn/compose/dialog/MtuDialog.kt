@@ -31,13 +31,16 @@ import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
 import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.isValidMtu
 
 @Preview
 @Composable
 private fun PreviewMtuDialog() {
-    MtuDialog(mtuInitial = 1234, onSave = {}, onRestoreDefaultValue = {}, onDismiss = {})
+    AppTheme {
+        MtuDialog(mtuInitial = 1234, onSave = {}, onRestoreDefaultValue = {}, onDismiss = {})
+    }
 }
 
 @Composable
@@ -65,7 +68,10 @@ fun MtuDialog(
                 Modifier
                     // Related to the fix for https://issuetracker.google.com/issues/221643630
                     .fillMaxWidth(0.8f)
-                    .background(color = MaterialTheme.colorScheme.background)
+                    .background(
+                        color = MaterialTheme.colorScheme.background,
+                        shape = MaterialTheme.shapes.extraLarge
+                    )
                     .padding(dialogPadding)
             ) {
                 Text(
