@@ -350,11 +350,6 @@ message CustomListLocationUpdate {
   RelayLocation location = 3;
 }
 
-message ApiAccessMethodUpdate {
-  string id = 1;
-  ApiAccessMethod access_method = 2;
-}
-
 message CustomList {
   string id = 1;
   string name = 2;
@@ -382,7 +377,7 @@ message ApiAccessMethod {
     string cipher = 5;
   }
 
-  string id = 1;
+  UUID id = 1;
   string name = 2;
   bool enabled = 3;
   oneof access_method {
@@ -397,6 +392,11 @@ message ApiAccessMethod {
 message ApiAccessMethods { repeated ApiAccessMethod api_access_methods = 1; }
 
 message ApiAccessMethodSettings { repeated ApiAccessMethod api_access_methods = 1; }
+
+message ApiAccessMethodUpdate {
+  UUID id = 1;
+  ApiAccessMethod access_method = 2;
+}
 
 message Settings {
   RelaySettings relay_settings = 1;
