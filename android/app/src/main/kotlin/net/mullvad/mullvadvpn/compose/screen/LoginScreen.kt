@@ -257,7 +257,7 @@ private fun LoginIcon(state: LoginState, modifier: Modifier = Modifier) {
                 if (state.loginError != null) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_fail),
-                        contentDescription = null,
+                        contentDescription = stringResource(id = R.string.login_fail_title),
                         contentScale = ContentScale.Inside
                     )
                 } else {
@@ -274,7 +274,7 @@ private fun LoginIcon(state: LoginState, modifier: Modifier = Modifier) {
                 Image(
                     modifier = Modifier.offset(-Dimens.smallPadding, -Dimens.smallPadding),
                     painter = painterResource(id = R.drawable.icon_success),
-                    contentDescription = null,
+                    contentDescription = stringResource(id = R.string.logged_in_title),
                 )
         }
     }
