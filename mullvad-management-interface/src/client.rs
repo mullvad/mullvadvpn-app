@@ -5,6 +5,7 @@ use futures::{Stream, StreamExt};
 use mullvad_types::{
     access_method::{daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
+    api_access::{ApiAccessMethod, ApiAccessMethodId},
     custom_list::{CustomList, Id},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
@@ -166,10 +167,12 @@ impl MullvadProxyClient {
 
     pub async fn get_api_access_methods(&mut self) -> Result<Vec<ApiAccessMethod>> {
         self.0
-            .get_api_access_methods(())
+            .get_settings(())
             .await
             .map_err(Error::Rpc)?
             .into_inner()
+            .api_access_methods
+            .ok_or(Error::ApiAccessMethodSettingsNotFound)?
             .api_access_methods
             .into_iter()
             .map(|api_access_method| {
@@ -182,18 +185,9 @@ impl MullvadProxyClient {
         &mut self,
         id: &ApiAccessMethodId,
     ) -> Result<ApiAccessMethod> {
-        self.0
-            .get_api_access_methods(())
-            .await
-            .map_err(Error::Rpc)?
-            .into_inner()
-            .api_access_methods
+        self.get_api_access_methods()
+            .await?
             .into_iter()
-            .map(|api_access_method| {
-                ApiAccessMethod::try_from(api_access_method)
-                    .map_err(Error::InvalidResponse)
-                    .expect("Failed to convert proto Api Access Method to daemon representation")
-            })
             .find(|api_access_method| api_access_method.get_id() == *id)
             .ok_or(Error::ApiAccessMethodNotFound)
     }
@@ -541,9 +535,12 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
-    pub async fn remove_access_method(&mut self, api_access_method: ApiAccessMethod) -> Result<()> {
+    pub async fn remove_access_method(
+        &mut self,
+        api_access_method: ApiAccessMethodId,
+    ) -> Result<()> {
         self.0
-            .remove_api_access_method(types::ApiAccessMethod::from(api_access_method))
+            .remove_api_access_method(types::Uuid::from(api_access_method))
             .await
             .map_err(Error::Rpc)
             .map(drop)
