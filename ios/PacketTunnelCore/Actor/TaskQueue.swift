@@ -114,6 +114,9 @@ enum TaskKind: Equatable {
 
     /// Tasks that update network reachability status.
     case networkReachability
+
+    /// Tasks that are initiated by tunnel monitor.
+    case monitorEvent
 }
 
 private struct SerialTask {
