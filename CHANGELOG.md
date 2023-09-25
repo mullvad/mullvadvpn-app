@@ -46,6 +46,14 @@ Line wrap the file at 100 chars.                                              Th
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
 
 
+## [android/2023.6] - 2023-09-25
+### Fixed
+#### Android
+- Fix inconsistent dialog corner radius.
+- Fix missing scrolling in the changes dialog.
+- Fix unused bundled relay list.
+
+
 ## [2023.5-beta2] - 2023-09-20
 ### Fixed
 #### macOS
