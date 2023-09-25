@@ -10,22 +10,22 @@ use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum ApiAccess {
-    /// List the configured API proxies
+    /// List the configured API access methods
     List,
-    /// Add a custom API proxy
+    /// Add a custom API access method
     #[clap(subcommand)]
     Add(AddCustomCommands),
-    /// Edit an API proxy
+    /// Edit an API access method
     Edit(EditCustomCommands),
-    /// Remove an API proxy
+    /// Remove an API access method
     Remove(SelectItem),
-    /// Enable an API proxy
+    /// Enable an API access method
     Enable(SelectItem),
-    /// Disable an API proxy
+    /// Disable an API access method
     Disable(SelectItem),
-    /// Test an API proxy
+    /// Test an API access method
     Test(SelectItem),
-    /// Force the use of a specific API proxy.
+    /// Force the use of a specific API access method.
     ///
     /// Selecting "Mullvad Bridges" respects your current bridge settings.
     Use(SelectItem),
@@ -74,8 +74,8 @@ impl ApiAccess {
     /// Add a custom API access method.
     async fn add(cmd: AddCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let proxy = ApiAccessMethod::try_from(cmd)?;
-        rpc.add_access_method(proxy).await?;
+        let access_method = ApiAccessMethod::try_from(cmd)?;
+        rpc.add_access_method(access_method).await?;
         Ok(())
     }
 
@@ -274,7 +274,7 @@ impl std::fmt::Display for SelectItem {
 
 #[derive(Args, Debug, Clone)]
 pub struct EditCustomCommands {
-    /// Which API proxy to edit
+    /// Which API access method to edit
     #[clap(flatten)]
     item: SelectItem,
     /// Editing parameters
@@ -284,7 +284,7 @@ pub struct EditCustomCommands {
 
 #[derive(Args, Debug, Clone)]
 pub struct EditParams {
-    /// Name of the API proxy in the Mullvad client [All]
+    /// Name of the API access method in the Mullvad client [All]
     #[arg(long)]
     name: Option<String>,
     /// Password for authentication [Shadowsocks]
