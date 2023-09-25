@@ -256,7 +256,7 @@ public actor PacketTunnelActor {
     private func startSwitchKeyTask() -> AutoCancellingTask {
         let task = Task {
             // Wait for key to propagate across relays.
-            try await Task.sleep(duration: timings.wgKeyPropagationDelay)
+            try await Task.sleepUsingContinuousClock(for: timings.wgKeyPropagationDelay)
 
             func mutateConnectionState(_ connectionState: inout ConnectionState) -> Bool {
                 switch connectionState.keyPolicy {
@@ -640,7 +640,7 @@ public actor PacketTunnelActor {
         let periodicity = timings.bootRecoveryPeriodicity
         let task = Task { [weak self] in
             while !Task.isCancelled {
-                try await Task.sleep(duration: periodicity)
+                try await Task.sleepUsingContinuousClock(for: periodicity)
                 try? await self?.reconnect(to: .random)
             }
         }
