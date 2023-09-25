@@ -473,14 +473,16 @@ public actor PacketTunnelActor {
          */
         stopDefaultPathObserver()
 
+        defer {
+            // Restart default path observer and notify the observer with the current path that might have changed while
+            // path observer was paused.
+            startDefaultPathObserver(notifyObserverWithCurrentPath: true)
+        }
+
         try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: endpoint.ipv4Gateway)
-
-        // Restart default path observer and notify the observer with the current path that might have changed while
-        // path observer was paused.
-        startDefaultPathObserver(notifyObserverWithCurrentPath: true)
     }
 
     /**
