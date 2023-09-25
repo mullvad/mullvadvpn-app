@@ -434,12 +434,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func getInitTunnelManagerOperation() -> AsyncBlockOperation {
+        // This operation is always treated as successful no matter what the configuration load yields.
+        // If the tunnel settings or device state can't be read, we simply pretend they are not there
+        // and leave user in logged out state. VPN config will be removed as well.
         AsyncBlockOperation(dispatchQueue: .main) { finish in
-            self.tunnelManager.loadConfiguration { error in
-                if let error {
-                    fatalError(error.localizedDescription)
-                }
-
+            self.tunnelManager.loadConfiguration {
                 self.logger.debug("Finished initialization.")
 
                 NotificationManager.shared.updateNotifications()
