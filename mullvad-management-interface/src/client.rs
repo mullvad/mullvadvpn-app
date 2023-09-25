@@ -1,7 +1,6 @@
 //! Client that returns and takes mullvad types as arguments instead of prost-generated types
 
-use crate::types;
-use crate::types::rpc;
+use crate::types::{self, rpc};
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     access_method::{ApiAccessMethod, ApiAccessMethodId},
@@ -543,9 +542,12 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
-    pub async fn remove_access_method(&mut self, api_access_method: ApiAccessMethod) -> Result<()> {
+    pub async fn remove_access_method(
+        &mut self,
+        api_access_method: ApiAccessMethodId,
+    ) -> Result<()> {
         self.0
-            .remove_api_access_method(types::ApiAccessMethod::from(api_access_method))
+            .remove_api_access_method(types::Uuid::from(api_access_method))
             .await
             .map_err(Error::Rpc)
             .map(drop)
