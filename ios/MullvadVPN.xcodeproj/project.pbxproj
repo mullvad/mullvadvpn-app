@@ -414,7 +414,6 @@
 		58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ED3A132A7C199C0085CE65 /* StartOptions.swift */; };
 		58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEBA02A9CA14B00F578F2 /* AnyTask.swift */; };
 		58FE25DD2AA72A8F003D1918 /* TaskQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5864AF7E2A9F52BB008BC928 /* TaskQueue.swift */; };
-		58FE25DE2AA72A95003D1918 /* DispatchSource+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E7A0322AA075BB00C57861 /* DispatchSource+Async.swift */; };
 		58FE25DF2AA72A9B003D1918 /* RelaySelectorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */; };
 		58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */; };
 		58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */; };
@@ -1350,7 +1349,6 @@
 		58E511E328DDDE8900B0BCDE /* CustomErrorDescriptionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomErrorDescriptionProtocol.swift; sourceTree = "<group>"; };
 		58E511E528DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CodingErrors+CustomErrorDescription.swift"; sourceTree = "<group>"; };
 		58E511EA28DDE18400B0BCDE /* Error+Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+Chain.swift"; sourceTree = "<group>"; };
-		58E7A0322AA075BB00C57861 /* DispatchSource+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchSource+Async.swift"; sourceTree = "<group>"; };
 		58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTTransportProvider.swift; sourceTree = "<group>"; };
 		58E973DD24850EB600096F90 /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
 		58E9C3832A4EF15300CFDEAC /* WireGuardAdapter+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WireGuardAdapter+Async.swift"; sourceTree = "<group>"; };
@@ -2197,7 +2195,6 @@
 				58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */,
 				5864AF7E2A9F52BB008BC928 /* TaskQueue.swift */,
 				58ED3A132A7C199C0085CE65 /* StartOptions.swift */,
-				58E7A0322AA075BB00C57861 /* DispatchSource+Async.swift */,
 				580D6B892AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift */,
 				58E7A0312AA0715100C57861 /* Protocols */,
 			);
@@ -3930,7 +3927,6 @@
 				58FE25D82AA72A8F003D1918 /* ConfigurationBuilder.swift in Sources */,
 				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift in Sources */,
 				5826B6CB2ABD83E200B1CA13 /* PacketTunnelOptions.swift in Sources */,
-				58FE25DE2AA72A95003D1918 /* DispatchSource+Async.swift in Sources */,
 				586E8DB82AAF4AC4007BF3DA /* Task+Duration.swift in Sources */,
 				58342C042AAB61FB003BA12D /* State+Extensions.swift in Sources */,
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
