@@ -22,6 +22,7 @@ service ManagementService {
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
+  rpc GetApiAddressess(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
@@ -77,21 +78,11 @@ service ManagementService {
   rpc RenameCustomList(CustomListRename) returns (google.protobuf.Empty) {}
 
   // API Access methods
+  rpc AddApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {}
+  rpc RemoveApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc GetApiAccessMethods(google.protobuf.Empty) returns (ApiAccessMethods) {}
-  rpc AddApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
-    // Can I return something useful here instead of Empty?
-  }
-  rpc RemoveApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {
-    // Can I return something useful here instead of Empty?
-  }
-  rpc UpdateApiAccessMethod(ApiAccessMethodUpdate) returns (google.protobuf.Empty) {
-    // Can I return something useful here instead of Empty?
-  }
-  rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {
-    // Can I return something useful here instead of Empty?
-  }
-
-  rpc GetApiAddressess(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
+  rpc UpdateApiAccessMethod(ApiAccessMethodUpdate) returns (google.protobuf.Empty) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}

@@ -83,7 +83,7 @@ impl ApiAccess {
     async fn remove(cmd: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let access_method = Self::get_access_method(&mut rpc, &cmd).await?;
-        rpc.remove_access_method(access_method)
+        rpc.remove_access_method(access_method.get_id())
             .await
             .map_err(Into::<anyhow::Error>::into)
     }
