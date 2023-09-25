@@ -437,8 +437,9 @@ public actor PacketTunnelActor {
                     relayConstraints: relayConstraints,
                     currentKey: privateKey,
                     keyPolicy: blockedState.keyPolicy,
-                    networkReachability: .undetermined,
-                    connectionAttemptCount: 0
+                    networkReachability: blockedState.networkReachability,
+                    connectionAttemptCount: 0,
+                    lastKeyRotation: blockedState.lastKeyRotation
                 )
 
             case .disconnecting, .disconnected:
