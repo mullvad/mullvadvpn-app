@@ -3,6 +3,7 @@ mod proto {
     tonic::include_proto!("mullvad_daemon.management_interface");
 }
 mod conversions;
+pub mod rpc;
 
 pub use prost_types::{Duration, Timestamp};
 
