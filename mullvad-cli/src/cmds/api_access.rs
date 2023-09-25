@@ -1,8 +1,7 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::access_method::{
-    daemon::{ApiAccessMethodReplace, ApiAccessMethodToggle},
-    AccessMethod, ApiAccessMethod, CustomAccessMethod,
+    daemon::ApiAccessMethodUpdate, AccessMethod, ApiAccessMethod, CustomAccessMethod,
 };
 use std::net::IpAddr;
 
@@ -44,12 +43,10 @@ impl ApiAccess {
             ApiAccess::Edit(cmd) => Self::edit(cmd).await?,
             ApiAccess::Remove(cmd) => Self::remove(cmd).await?,
             ApiAccess::Enable(cmd) => {
-                let enabled = true;
-                Self::toggle(cmd, enabled).await?;
+                Self::enable(cmd).await?;
             }
             ApiAccess::Disable(cmd) => {
-                let enabled = false;
-                Self::toggle(cmd, enabled).await?;
+                Self::disable(cmd).await?;
             }
             ApiAccess::Test(cmd) => {
                 Self::test(cmd).await?;
@@ -95,6 +92,7 @@ impl ApiAccess {
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let api_access_method = Self::get_access_method(&mut rpc, &cmd.item).await?;
+        let id = api_access_method.get_id();
         let access_method = api_access_method
             .as_custom()
             .cloned()
@@ -139,8 +137,8 @@ impl ApiAccess {
             cmd.item
         ))?;
 
-        rpc.replace_access_method(ApiAccessMethodReplace {
-            index: cmd.item.as_array_index()?,
+        rpc.update_access_method(ApiAccessMethodUpdate {
+            id,
             access_method: edited_access_method,
         })
         .await?;
@@ -148,15 +146,19 @@ impl ApiAccess {
         Ok(())
     }
 
-    /// Toggle a custom API access method to be enabled or disabled.
-    async fn toggle(item: SelectItem, enabled: bool) -> Result<()> {
+    /// Enable a custom API access method.
+    async fn enable(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
-        rpc.toggle_access_method(ApiAccessMethodToggle {
-            access_method,
-            enable: enabled,
-        })
-        .await?;
+        rpc.enable_access_method(access_method.get_id()).await?;
+        Ok(())
+    }
+
+    /// Disable a custom API access method.
+    async fn disable(item: SelectItem) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let access_method = Self::get_access_method(&mut rpc, &item).await?;
+        rpc.disable_access_method(access_method.get_id()).await?;
         Ok(())
     }
 

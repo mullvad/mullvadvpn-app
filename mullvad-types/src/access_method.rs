@@ -30,13 +30,10 @@ impl Settings {
     /// mutable reference to that inner element is returned. Otherwise, `None`
     /// is returned.
     #[inline(always)]
-    pub fn find_mut(&mut self, element: &ApiAccessMethod) -> Option<&mut ApiAccessMethod> {
+    pub fn find_mut(&mut self, element: &ApiAccessMethodId) -> Option<&mut ApiAccessMethod> {
         self.api_access_methods
             .iter_mut()
-            .find(|api_access_method| {
-                // TODO: Can probably replace with `element.id == api_access_method.id`
-                element.access_method == api_access_method.access_method
-            })
+            .find(|api_access_method| *element == api_access_method.get_id())
     }
 
     /// Equivalent to [`Vec::retain`].
@@ -52,10 +49,10 @@ impl Settings {
     /// The removed element is replaced by the last element of the vector.
     ///
     /// Equivalent to [`Vec::swap_remove`].
-    #[inline(always)]
-    pub fn swap_remove(&mut self, index: usize) -> ApiAccessMethod {
-        self.api_access_methods.swap_remove(index)
-    }
+    // #[inline(always)]
+    // pub fn swap_remove(&mut self, index: usize) -> ApiAccessMethod {
+    //     self.api_access_methods.swap_remove(index)
+    // }
 
     /// Clone the content of `api_access_methods`.
     #[inline(always)]
@@ -96,6 +93,13 @@ pub struct ApiAccessMethod {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ApiAccessMethodId(String);
+
+impl ApiAccessMethodId {
+    /// TODO: Replace with a conversion proto::UUID <-> ApiAccessMethodId
+    pub fn from_proto_string(id: String) -> Self {
+        Self(id)
+    }
+}
 
 impl std::ops::Deref for ApiAccessMethodId {
     type Target = String;
@@ -147,9 +151,14 @@ impl ApiAccessMethod {
         self.access_method.as_custom()
     }
 
-    /// Set an API access method to be either enabled or disabled.
-    pub fn toggle(&mut self, enable: bool) {
-        self.enabled = enable;
+    /// Set an API access method to be enabled.
+    pub fn enable(&mut self) {
+        self.enabled = true;
+    }
+
+    /// Set an API access method to be disabled.
+    pub fn disable(&mut self) {
+        self.enabled = false;
     }
 }
 
@@ -310,16 +319,10 @@ impl From<Socks5Local> for Socks5 {
 /// Some short-lived datastructure used in some RPC calls to the mullvad daemon.
 pub mod daemon {
     use super::*;
-    /// Argument to protobuf rpc `ApiAccessMethodReplace`.
+    /// Argument to protobuf rpc `UpdateApiAccessMethod`.
     #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-    pub struct ApiAccessMethodReplace {
+    pub struct ApiAccessMethodUpdate {
+        pub id: ApiAccessMethodId,
         pub access_method: ApiAccessMethod,
-        pub index: usize,
-    }
-    /// Argument to protobuf rpc `ApiAccessMethodToggle`.
-    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-    pub struct ApiAccessMethodToggle {
-        pub access_method: ApiAccessMethod,
-        pub enable: bool,
     }
 }

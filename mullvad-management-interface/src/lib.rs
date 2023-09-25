@@ -108,6 +108,9 @@ pub enum Error {
 
     #[error(display = "Location was not found in the custom list")]
     LocationNotFoundInCustomlist,
+
+    #[error(display = "An access method with that id does not exist")]
+    ApiAccessMethodNotFound,
 }
 
 #[deprecated(note = "Prefer MullvadProxyClient")]
