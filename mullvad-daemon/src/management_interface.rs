@@ -681,7 +681,7 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("update_api_access_method");
         let access_method_update =
-            mullvad_types::access_method::daemon::ApiAccessMethodUpdate::try_from(
+            mullvad_management_interface::types::api_access_method::settings::ApiAccessMethodUpdate::try_from(
                 request.into_inner(),
             )?;
         let (tx, rx) = oneshot::channel();

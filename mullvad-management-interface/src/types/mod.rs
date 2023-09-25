@@ -6,5 +6,6 @@ mod conversions;
 
 pub use prost_types::{Duration, Timestamp};
 
+pub use conversions::api_access_method;
 pub use conversions::*;
 pub use proto::*;

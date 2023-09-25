@@ -1,7 +1,7 @@
 /// Implements conversions for the auxilliary
 /// [`crate::types::proto::ApiAccessMethodSettings`] type to the internal
 /// [`mullvad_types::access_method::Settings`] data type.
-mod settings {
+pub mod settings {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method;
 
@@ -37,8 +37,8 @@ mod settings {
         }
     }
 
-    impl From<access_method::daemon::ApiAccessMethodUpdate> for proto::ApiAccessMethodUpdate {
-        fn from(value: access_method::daemon::ApiAccessMethodUpdate) -> Self {
+    impl From<ApiAccessMethodUpdate> for proto::ApiAccessMethodUpdate {
+        fn from(value: ApiAccessMethodUpdate) -> Self {
             proto::ApiAccessMethodUpdate {
                 id: Some(proto::Uuid::from(value.id)),
                 access_method: Some(proto::ApiAccessMethod::from(value.access_method)),
@@ -46,7 +46,7 @@ mod settings {
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethodUpdate> for access_method::daemon::ApiAccessMethodUpdate {
+    impl TryFrom<proto::ApiAccessMethodUpdate> for ApiAccessMethodUpdate {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethodUpdate) -> Result<Self, Self::Error> {
@@ -64,11 +64,18 @@ mod settings {
                 ))
                 .map(access_method::ApiAccessMethodId::from)?;
 
-            Ok(access_method::daemon::ApiAccessMethodUpdate {
+            Ok(ApiAccessMethodUpdate {
                 id,
                 access_method: api_access_method,
             })
         }
+    }
+
+    /// Argument to protobuf rpc `UpdateApiAccessMethod`.
+    #[derive(Debug, Clone, PartialEq)]
+    pub struct ApiAccessMethodUpdate {
+        pub id: access_method::ApiAccessMethodId,
+        pub access_method: access_method::ApiAccessMethod,
     }
 }
 
@@ -240,3 +247,14 @@ mod data {
         }
     }
 }
+
+// /// Some short-lived datastructure used in some RPC calls to the mullvad daemon.
+// pub mod rpc {
+//     use mullvad_types::access_method::{ApiAccessMethod, ApiAccessMethodId};
+//     /// Argument to protobuf rpc `UpdateApiAccessMethod`.
+//     #[derive(Debug, Clone, PartialEq)]
+//     pub struct ApiAccessMethodUpdate {
+//         pub id: access_method::ApiAccessMethodId,
+//         pub access_method: access_method::ApiAccessMethod,
+//     }
+// }

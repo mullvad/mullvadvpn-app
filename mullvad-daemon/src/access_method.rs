@@ -2,9 +2,8 @@ use crate::{
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
-use mullvad_types::access_method::{
-    daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId,
-};
+use mullvad_management_interface::types::api_access_method::settings::ApiAccessMethodUpdate;
+use mullvad_types::access_method::{ApiAccessMethod, ApiAccessMethodId};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
