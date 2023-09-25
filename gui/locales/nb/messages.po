@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s ble lagt til, konto betalt til %(expiry)s."
@@ -45,33 +45,11 @@ msgid_plural "%d years left"
 msgstr[0] "1 år igjen"
 msgstr[1] "%d år igjen"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "én dag siden"
-msgstr[1] "%d dager siden"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "ett minutt siden"
-msgstr[1] "%d minutter siden"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "én måned siden"
-msgstr[1] "%d måneder siden"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "ett år siden"
-msgstr[1] "%d år siden"
-
 msgid "Account paid until %(expiry)s."
 msgstr "Konto betalt til %(expiry)s."
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "én time siden"
-msgstr[1] "%d timer siden"
+msgid "Account settings"
+msgstr "Kontoinnstillinger"
 
 msgid "Any"
 msgstr "Hvilken som helst"
@@ -165,9 +143,6 @@ msgstr "Gå til Systeminnstillinger"
 msgid "Got it!"
 msgstr "Forstått!"
 
-msgid "Invalid account number"
-msgstr "Ugyldig kontonummer"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -179,9 +154,6 @@ msgstr "mindre enn én dag"
 
 msgid "less than a day left"
 msgstr "mindre enn én dag igjen"
-
-msgid "less than a minute ago"
-msgstr "mindre enn ett minutt siden"
 
 msgid "Next"
 msgstr "Neste"
@@ -245,6 +217,10 @@ msgstr "USIKKER TILKOBLING"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, visning lastet inn"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "Lukk varsel"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -476,6 +452,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "Fortsett med pålogging"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "Opprettet: %(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "Enheten er inaktiv"
@@ -483,6 +466,14 @@ msgstr "Enheten er inaktiv"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "Enhetsnavn"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "Enhetsnavn: %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -495,6 +486,10 @@ msgstr "Gå til pålogging"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "Å gå til pålogging vil oppheve blokkeringen av internett på denne enheten."
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "Hvis du logger ut, vil enheten og enhetsnavnet bli fjernet. Når du logger inn igjen, vil enheten få et nytt navn."
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -516,10 +511,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "Portene som er formidlet til denne enheten vil bli slettet hvis du logger ut."
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "Dette er navnet som er tildelt enheten. Enhver enhet som er logget inn på en Mullvad-konto, får et unikt navn som gjør det enklere for deg å identifisere den når du administrerer enheten i appen eller på nettsiden."
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "Dette vil slette alle formidlede porter. Lokale innstillinger blir lagret."
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "Tid igjen: %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -531,6 +534,10 @@ msgstr "For mange enheter"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "Ja, logg av enhet"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "Du kan ha opptil fem enheter logget inn på samme Mullvad-konto."
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -614,6 +621,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "NETTVERKSTRAFIKKEN KAN LEKKE"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "NY ENHET OPPRETTET"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Avslutt og start appen på nytt."
 
@@ -636,6 +647,10 @@ msgstr "VERSJON UTEN STØTTE"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "OPPDATERING TILGJENGELIG"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "Velkommen. Denne enheten har fått navnet <b>%(deviceName)s</b>. For å finne ut mer kan du bruke informasjonsknappen under Konto."
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -685,9 +700,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "Kunne ikke opprette konto"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "Kunne ikke hente liste over enheter"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "Fullfører oppgradering."
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "Ugyldig kontonummer"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -715,6 +742,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "Vennligst vent"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "For mange enheter"
@@ -1029,11 +1058,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "Mens du er tilkoblet, vil trafikken din videresendes gjennom to sikre plasseringer, inngangspunktet og utgangspunktet (må være to forskjellige VPN-servere)."
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "Konto"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Appen er ikke synkronisert. Avslutt og start på nytt."
@@ -1041,10 +1065,6 @@ msgstr "Appen er ikke synkronisert. Avslutt og start på nytt."
 msgctxt "settings-view"
 msgid "App version"
 msgstr "Appversjon"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "TIDEN HAR UTLØPT"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1619,9 +1639,6 @@ msgstr "Påminnelser om tidsavbrudd for konto"
 msgid "Add DNS server"
 msgstr "Legg til DNS-server"
 
-msgid "Advanced"
-msgstr "Avansert"
-
 msgid "Agree and continue"
 msgstr "Godta og fortsett"
 
@@ -1637,9 +1654,14 @@ msgstr "VPN som alltid er på, er tilordnet en annen app"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "VPN som alltid er på, kan være aktivert for en annen app"
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "OBS: Denne innstillingen kan ikke brukes sammen med <b>Bruk egendefinert DNS-server</b>."
+
 msgid "Blocking internet (device offline)"
 msgstr "Blokkerer internett (enhet frakoblet)"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierte Mullvad-kontonummer til utklippstavlen"
@@ -1653,6 +1675,12 @@ msgstr "Kritisk feil (krever din oppmerksomhet)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Egendefinerte DNS-serveradresser %s er ugyldige"
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "Deaktiver alle <b>%s</b> ovenfor for å aktivere denne innstillingen."
+
 msgid "Enable"
 msgstr "Aktiver"
 
@@ -1662,25 +1690,21 @@ msgstr "Angi MTU"
 msgid "Excluded applications"
 msgstr "Ekskluder applikasjoner"
 
-msgid "Failed to fetch list of devices"
-msgstr "Kunne ikke hente liste over enheter"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installer Mullvad VPN (%s) for å holde deg oppdatert"
 
+msgid "Manage account"
+msgstr "Administrer konto"
+
 msgid "Mullvad account number"
 msgstr "Mullvad-kontonummer"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "Beskriv problemet ditt på engelsk eller svensk."
 
 msgid "Preferences"
 msgstr "Preferanser"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "Personvern"
 
@@ -1719,6 +1743,9 @@ msgstr "Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling a
 
 msgid "This address has already been entered."
 msgstr "Denne adressen er allerede skrevet inn."
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Dette kan føre til problemer på enkelte nettsteder, tjenester og apper."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "For å sørge for at du har den sikreste appversjonen, og informere deg om eventuelle problemer med den versjonen som kjøres, vil appen automatisk sjekke appversjonen. Appversjonen og Android-systemversjonen blir da sendt til Mullvad-servere. Mullvad registrerer antallet brukte appversjoner og Android-versjoner. Dataen blir aldri lagret eller brukt på noen som helst måte som kan identifisere deg.\\n\\nHvis funksjonen delt tunnelering brukes, spør appen systemet ditt om en liste av alle installerte applikasjoner. Denne listen hentes bare i delt tunnelering-visningen. Listen over installerte applikasjoner sendes aldri ut fra enheten."
@@ -1762,11 +1789,17 @@ msgstr "Mens du er tilkoblet vil din egentlige plassering være skjult med en pr
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard obfuscation"
+msgstr "Tilsløring av WireGuard"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG"
 
 msgid "You are running an unsupported app version."
 msgstr "Du kjører en appversjon som ikke støttes."
+
+msgid "less than a minute ago"
+msgstr "mindre enn ett minutt siden"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1777,4 +1810,29 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Kontokreditt utløper om én time"
 msgstr[1] "Kontokreditt utløper om %d timer"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "én dag siden"
+msgstr[1] "%d dager siden"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "ett minutt siden"
+msgstr[1] "%d minutter siden"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "én måned siden"
+msgstr[1] "%d måneder siden"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "ett år siden"
+msgstr[1] "%d år siden"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "én time siden"
+msgstr[1] "%d timer siden"
 

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s lisättiin: tilin käyttö maksettu %(expiry)s asti."
@@ -45,33 +45,11 @@ msgid_plural "%d years left"
 msgstr[0] "1 vuosi jäljellä"
 msgstr[1] "%d vuotta jäljellä"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "1 päivä sitten"
-msgstr[1] "%d päivää sitten"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "minuutti sitten"
-msgstr[1] "%d minuuttia sitten"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "kuukausi sitten"
-msgstr[1] "%d kuukautta sitten"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "vuosi sitten"
-msgstr[1] "%d vuotta sitten"
-
 msgid "Account paid until %(expiry)s."
 msgstr "Tilin käyttö maksettu %(expiry)s asti."
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "tunti sitten"
-msgstr[1] "%d tuntia sitten"
+msgid "Account settings"
+msgstr "Tiliasetukset"
 
 msgid "Any"
 msgstr "Mikä tahansa"
@@ -165,9 +143,6 @@ msgstr "Siirry järjestelmäasetuksiin"
 msgid "Got it!"
 msgstr "Selvä!"
 
-msgid "Invalid account number"
-msgstr "Virheellinen tilin numero"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -179,9 +154,6 @@ msgstr "alle vuorokausi"
 
 msgid "less than a day left"
 msgstr "alle vuorokausi jäljellä"
-
-msgid "less than a minute ago"
-msgstr "alle minuutti sitten"
 
 msgid "Next"
 msgstr "Seuraava"
@@ -245,6 +217,10 @@ msgstr "SUOJAAMATON YHTEYS"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, Näkymä ladattu"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "Sulje ilmoitus"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -476,6 +452,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "Jatka kirjautumista"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "Luotu: %(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "Laite ei ole aktiivinen"
@@ -483,6 +466,14 @@ msgstr "Laite ei ole aktiivinen"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "Laitteen nimi"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "Laitteen nimi: %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -495,6 +486,10 @@ msgstr "Siirry kirjautumiseen"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "Kirjautumiseen siirtyminen poistaa Internetin käytön eston tältä laitteelta."
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi."
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -516,10 +511,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "Tälle laitteelle välitetyt portit poistetaan, jos kirjaudut ulos."
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "Tämä on laitteelle annettu nimi. Jokainen Mullvad-tilille kirjautunut laite saa yksilöllisen nimen, jonka avulla sen voi tunnistaa laitteiden hallinnassa sovelluksessa tai verkkosivustolla."
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "Toiminto poistaa kaikki välitetyt portit. Paikalliset asetukset tallennetaan."
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "Aikaa jäljellä: %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -531,6 +534,10 @@ msgstr "Liikaa laitteita"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "Kyllä, kirjaa laite ulos"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta."
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -614,6 +621,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "VERKKOLIIKENNE SAATTAA VUOTAA"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "UUSI LAITE LUOTIIN"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Sammuta sovellus ja käynnistä se uudelleen."
 
@@ -636,6 +647,10 @@ msgstr "EI-TUETTU VERSIO"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "PÄIVITYS SAATAVILLA"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "Tervetuloa! Tämän laitteen nimi on nyt <b>%(deviceName)s</b>. Katso lisätietoja tilin infopainikkeesta."
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -685,9 +700,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "Tilin luonti epäonnistui"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "Laiteluettelon nouto epäonnistui"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "Päivitystä viimeistellään."
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "Virheellinen tilin numero"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -715,6 +742,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "Odota"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "Liikaa laitteita"
@@ -1029,11 +1058,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "Kun yhteys on muodostettu, liikenteesi ohjataan kahden turvallisen siajinnin kautta: tulopisteen ja poistumispisteen (näiden on oltava kaksi erillistä VPN-palvelinta)."
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "Tili"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Sovellus ei ole synkronoitu. Sulje se ja käynnistä uudelleen."
@@ -1041,10 +1065,6 @@ msgstr "Sovellus ei ole synkronoitu. Sulje se ja käynnistä uudelleen."
 msgctxt "settings-view"
 msgid "App version"
 msgstr "Sovelluksen versio"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "EI KÄYTTÖAIKAA"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1619,9 +1639,6 @@ msgstr "Muistutukset tilin käyttöajasta"
 msgid "Add DNS server"
 msgstr "Lisää DNS-palvelin"
 
-msgid "Advanced"
-msgstr "Lisäasetukset"
-
 msgid "Agree and continue"
 msgstr "Hyväksy ja jatka"
 
@@ -1637,9 +1654,14 @@ msgstr "Aina päällä oleva VPN on määritetty toiselle sovellukselle"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle"
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "Huomio: asetusta ei voi käyttää yhdessä \"<b>Käytä mukautettua DNS-palvelinta</b>\" -asetuksen kanssa."
+
 msgid "Blocking internet (device offline)"
-msgstr "Internetyhteys on estetty (laite offline-tilassa)"
+msgstr "Internetyhteys on estetty (laite on offline-tilassa)"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-tilin numero kopioitu leikepöydälle"
@@ -1653,6 +1675,12 @@ msgstr "Vakava virhe (vaatii huomiotasi)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "Mukautetut DNS-palvelimen osoitteet %s ovat virheellisiä"
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "Ota tämä asetus käyttöön poistamalla kaikki <b>%s</b> käytöstä yllä."
+
 msgid "Enable"
 msgstr "Ota käyttöön"
 
@@ -1662,25 +1690,21 @@ msgstr "Syötä MTU"
 msgid "Excluded applications"
 msgstr "Poissuljetut sovellukset"
 
-msgid "Failed to fetch list of devices"
-msgstr "Laiteluettelon nouto epäonnistui"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Asenna Mullvad VPN (%s) pysyäksesi ajan tasalla"
 
+msgid "Manage account"
+msgstr "Tilin hallinta"
+
 msgid "Mullvad account number"
 msgstr "Mullvad-tilin numero"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "Kuvaile ongelmaasi englanniksi tai ruotsiksi."
 
 msgid "Preferences"
 msgstr "Asetukset"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "Tietosuoja"
 
@@ -1719,6 +1743,9 @@ msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisa
 
 msgid "This address has already been entered."
 msgstr "Tämä osoite on annettu jo."
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja sovelluksissa."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytössäsi on turvallisin versio ja ilmoittaakseen mahdollisista ongelmista nykyisessä käynnissä olevassa versiossa. Toiminto lähettää tiedon sovellusversiosta ja Android-järjestelmäversiosta Mullvadin palvelimille. Mullvad pitää laskuria käytettyjen sovellusversioiden ja Android-versioiden määrästä. Tietoja ei koskaan tallenneta tai käytetä tavalla, josta sinut voisi tunnistaa.\\n\\nJos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista muista asennetuista sovelluksista. Kyseinen luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
@@ -1762,11 +1789,17 @@ msgstr "Kun yhteys on muodostettu, yksityinen ja suojattu sijainti valitulta alu
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard obfuscation"
+msgstr "WireGuard-obfuskointi"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "VERKKOLIIKENTEESI SAATTAA VUOTAA"
 
 msgid "You are running an unsupported app version."
 msgstr "Sovellusversiotasi ei tueta."
+
+msgid "less than a minute ago"
+msgstr "alle minuutti sitten"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1777,4 +1810,29 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Tilin käyttöaika päättyy tunnin kuluttua"
 msgstr[1] "Tilin käyttöaika päättyy %d tunnin kuluttua"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "1 päivä sitten"
+msgstr[1] "%d päivää sitten"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "minuutti sitten"
+msgstr[1] "%d minuuttia sitten"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "kuukausi sitten"
+msgstr[1] "%d kuukautta sitten"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "vuosi sitten"
+msgstr[1] "%d vuotta sitten"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "tunti sitten"
+msgstr[1] "%d tuntia sitten"
 

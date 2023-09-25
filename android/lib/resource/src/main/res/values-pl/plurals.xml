@@ -18,6 +18,18 @@
         <item quantity="many">Pozostało %1$d lat</item>
         <item quantity="other">Pozostało %1$d roku</item>
     </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Doładowanie konta wygasa za 1 dzień</item>
+        <item quantity="few">Doładowanie konta wygasa za %1$d dni</item>
+        <item quantity="many">Doładowanie konta wygasa za %1$d dni</item>
+        <item quantity="other">Doładowanie konta wygasa za %1$d dnia</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Doładowanie konta wygasa za 1 godzinę</item>
+        <item quantity="few">Doładowanie konta wygasa za %1$d godziny</item>
+        <item quantity="many">Doładowanie konta wygasa za %1$d godzin</item>
+        <item quantity="other">Doładowanie konta wygasa za %1$d godziny</item>
+    </plurals>
     <plurals name="days_ago">
         <item quantity="one">dzień temu</item>
         <item quantity="few">%1$d dni temu</item>
@@ -47,17 +59,5 @@
         <item quantity="few">%1$d godziny temu</item>
         <item quantity="many">%1$d godzin temu</item>
         <item quantity="other">%1$d godzuny temu</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_days">
-        <item quantity="one">Doładowanie konta wygasa za 1 dzień</item>
-        <item quantity="few">Doładowanie konta wygasa za %1$d dni</item>
-        <item quantity="many">Doładowanie konta wygasa za %1$d dni</item>
-        <item quantity="other">Doładowanie konta wygasa za %1$d dnia</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_hours">
-        <item quantity="one">Doładowanie konta wygasa za 1 godzinę</item>
-        <item quantity="few">Doładowanie konta wygasa za %1$d godziny</item>
-        <item quantity="many">Doładowanie konta wygasa za %1$d godzin</item>
-        <item quantity="other">Doładowanie konta wygasa za %1$d godziny</item>
     </plurals>
 </resources>

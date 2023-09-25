@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)sが追加され、アカウントは%(expiry)sまでに支払われます。"
@@ -39,28 +39,11 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "残り%d 年"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d 日前"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d 分前"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d ヶ月前"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d 年前"
-
 msgid "Account paid until %(expiry)s."
 msgstr "アカウントは%(expiry)sまでに支払われます。"
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d時間前"
+msgid "Account settings"
+msgstr "アカウント設定"
 
 msgid "Any"
 msgstr "すべて"
@@ -154,9 +137,6 @@ msgstr "システム設定に移動"
 msgid "Got it!"
 msgstr "了解"
 
-msgid "Invalid account number"
-msgstr "アカウント番号が正しくありません"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -168,9 +148,6 @@ msgstr "1 日未満"
 
 msgid "less than a day left"
 msgstr "残り1日未満"
-
-msgid "less than a minute ago"
-msgstr "1分未満前"
 
 msgid "Next"
 msgstr "次へ"
@@ -234,6 +211,10 @@ msgstr "セキュリティ保護されていない接続"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s、ビューが読み込まれました"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "通知を閉じる"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -465,6 +446,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "ログインを続ける"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "作成日: %(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "デバイスが無効です"
@@ -472,6 +460,14 @@ msgstr "デバイスが無効です"
 msgctxt "device-management"
 msgid "Device name"
 msgstr "デバイス名"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "デバイス名: %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -484,6 +480,10 @@ msgstr "ログインに進む"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "ログインに進むと、このデバイスのインターネットのブロックが解除されます。"
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。"
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -505,10 +505,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "ログアウトするとこのデバイスに転送されたポートが削除されます。"
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。"
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "これにより、転送されたポートがすべて削除されます。ローカル設定は保存されます。"
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "残り時間: %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -520,6 +528,10 @@ msgstr "デバイスが多すぎます"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "はい。デバイスをログアウトさせます"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "1つのMullvadアカウントで最大5台のデバイスにログインできます。"
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -603,6 +615,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "ネットワークトラフィックが漏れている可能性があります"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "新しいデバイスが作成されました"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "アプリをいったん終了して、再起動してください。"
 
@@ -625,6 +641,10 @@ msgstr "未対応のバージョン"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "アップデート可"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "ようこそ。このデバイスの名前は<b>%(deviceName)s</b>です。詳細はアカウントの情報ボタンで確認してください。"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -674,9 +694,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "アカウントを作成できませんでした"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "デバイスのリストを取得できませんでした"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "アップグレードを終了しています。"
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "アカウント番号が無効です"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -704,6 +736,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "お待ちください"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "デバイスが多すぎます"
@@ -1018,11 +1052,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "接続中のトラフィックは、セキュリティで保護された入口ポイントと出口ポイント (これらのポイントは2つの異なるVPNサーバーである必要があります) の2箇所を経由して転送されます。"
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "アカウント"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "アプリが同期していません。いったん終了して、再起動してください。"
@@ -1030,10 +1059,6 @@ msgstr "アプリが同期していません。いったん終了して、再起
 msgctxt "settings-view"
 msgid "App version"
 msgstr "アプリのバージョン"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "時間切れ"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1608,9 +1633,6 @@ msgstr "アカウント時間のリマインダー"
 msgid "Add DNS server"
 msgstr "DNS サーバーを追加"
 
-msgid "Advanced"
-msgstr "詳細"
-
 msgid "Agree and continue"
 msgstr "同意して続行"
 
@@ -1626,9 +1648,14 @@ msgstr "Always-on VPNは他のアプリに割り当てられています"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "Always-on VPNが別のアプリで有効になっている可能性があります"
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "注意: この設定を「<b>カスタムDNSサーバーを使う</b>」と一緒に使用することはできません。"
+
 msgid "Blocking internet (device offline)"
 msgstr "インターネットをブロック中 (デバイスがオフライン)"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvadアカウント番号をクリップボードにコピーしました"
@@ -1642,6 +1669,12 @@ msgstr "重大なエラー (ご注意ください)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "カスタムDNSサーバーアドレス %s は無効です"
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "DNS設定はすぐに適用されない可能性があります"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "この設定を有効にするには、上記のすべての<b>%s</b>を無効にしてください。"
+
 msgid "Enable"
 msgstr "有効にする"
 
@@ -1651,25 +1684,21 @@ msgstr "MTU を入力"
 msgid "Excluded applications"
 msgstr "除外対象アプリケーション"
 
-msgid "Failed to fetch list of devices"
-msgstr "デバイスのリストを取得できませんでした"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "ログインに進むと、このデバイスのインターネットのブロックが解除されます。"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN (%s) をインストールして常に最新の状態を保ちましょう"
 
+msgid "Manage account"
+msgstr "アカウントを管理する"
+
 msgid "Mullvad account number"
 msgstr "Mullvadアカウント番号"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "問題を英語またはスウェーデン語で説明してください。"
 
 msgid "Preferences"
 msgstr "環境設定"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "プライバシー"
 
@@ -1708,6 +1737,9 @@ msgstr "環境設定で \"ローカルネットワーク共有\" を有効にし
 
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "これにより、特定のWebサイト、サービス、アプリで問題が発生する可能性があります。"
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を報告できるよう、バージョンチェックを自動的に実行します。これにより、アプリのバージョンと Android システムのバージョンが Mullvad サーバーに送信されます。Mullvad は使用されているアプリのバージョンと Android のバージョンの数を継続的にカウントしています。このデータは保管されることも、ユーザーを特定する目的で使用されることもありません。\\n\\nスプリットトンネル機能が使用される場合、アプリはシステムにインストールされている全アプリケーションのリストを照会します。このリストはスプリットトンネルビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。"
@@ -1751,11 +1783,17 @@ msgstr "接続中、あなたの実際の場所は選択した地域内の非公
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard obfuscation"
+msgstr "WireGuardの難読化"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "ネットワーク通信が漏洩している可能性があります"
 
 msgid "You are running an unsupported app version."
 msgstr "サポート対象外バージョンのアプリを実行しています。"
+
+msgid "less than a minute ago"
+msgstr "1分未満前"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1764,4 +1802,24 @@ msgstr[0] "アカウントのクレジットが%d日後に無効になります"
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "アカウントのクレジットが%d時間後に無効になります"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d 日前"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d 分前"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d ヶ月前"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d 年前"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d時間前"
 

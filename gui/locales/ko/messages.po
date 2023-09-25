@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2023-05-16 10:33\n"
+"PO-Revision-Date: 2023-09-05 14:16\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s 추가됨, %(expiry)s까지 계정 결제함"
@@ -39,28 +39,11 @@ msgid "1 year left"
 msgid_plural "%d years left"
 msgstr[0] "%d년 남음"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d일 전"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d분 전"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d개월 전"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d년 전"
-
 msgid "Account paid until %(expiry)s."
 msgstr "%(expiry)s까지 계정 결제함"
 
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d시간 전"
+msgid "Account settings"
+msgstr "계정 설정"
 
 msgid "Any"
 msgstr "모두"
@@ -154,9 +137,6 @@ msgstr "시스템 설정으로 이동"
 msgid "Got it!"
 msgstr "확인!"
 
-msgid "Invalid account number"
-msgstr "유효하지 않은 계정 번호"
-
 msgid "IPv4"
 msgstr "IPv4"
 
@@ -168,9 +148,6 @@ msgstr "1일 미만"
 
 msgid "less than a day left"
 msgstr "1일 이내"
-
-msgid "less than a minute ago"
-msgstr "1분 이내"
 
 msgid "Next"
 msgstr "다음"
@@ -234,6 +211,10 @@ msgstr "비보안 연결"
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, 보기 로드됨"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "알림 닫기"
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
@@ -465,6 +446,13 @@ msgctxt "device-management"
 msgid "Continue with login"
 msgstr "로그인 계속하기"
 
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "생성 날짜: %(createdDate)s"
+
 msgctxt "device-management"
 msgid "Device is inactive"
 msgstr "장치가 비활성 상태입니다."
@@ -472,6 +460,14 @@ msgstr "장치가 비활성 상태입니다."
 msgctxt "device-management"
 msgid "Device name"
 msgstr "장치 이름"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "장치 이름: %(deviceName)s"
 
 msgctxt "device-management"
 msgid "Failed to remove device"
@@ -484,6 +480,10 @@ msgstr "로그인하기"
 msgctxt "device-management"
 msgid "Going to login will unblock the Internet on this device."
 msgstr "로그인하면 이 장치에서 인터넷 차단이 해제됩니다."
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다."
 
 #. Confirmation button when logging out
 msgctxt "device-management"
@@ -505,10 +505,18 @@ msgctxt "device-management"
 msgid "The ports forwarded to this device will be deleted if you log out."
 msgstr "이 장치로 전달된 포트는 로그아웃하면 삭제됩니다."
 
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "이것은 장치에 할당된 이름입니다. Mullvad 계정에 로그인된 각 장치에는 앱이나 웹사이트에서 장치를 관리할 때 장치를 보다 쉽게 식별할 수 있는 고유한 이름이 부여됩니다."
+
 #. Further information about consequences of logging out device.
 msgctxt "device-management"
 msgid "This will delete all forwarded ports. Local settings will be saved."
 msgstr "전달된 모든 포트가 삭제됩니다. 로컬 설정이 저장됩니다."
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "남은 시간: %(timeLeft)s"
 
 #. Page title informing user that the login failed due to too many registered
 #. devices on account.
@@ -520,6 +528,10 @@ msgstr "장치가 너무 많음"
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr "예, 장치에서 로그아웃"
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "최대 5개의 장치에서 하나의 Mullvad 계정에 로그인할 수 있습니다."
 
 msgctxt "device-management"
 msgid "You can now continue logging in on this device."
@@ -603,6 +615,10 @@ msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr "네트워크 트래픽이 유출될 수 있음"
 
 msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "새 장치가 생성됨"
+
+msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "앱을 종료한 후 다시 시작하세요."
 
@@ -625,6 +641,10 @@ msgstr "지원되지 않는 버전"
 msgctxt "in-app-notifications"
 msgid "UPDATE AVAILABLE"
 msgstr "업데이트 사용 가능"
+
+msgctxt "in-app-notifications"
+msgid "Welcome, this device is now called <b>%(deviceName)s</b>. For more details see the info button in Account."
+msgstr "환영합니다! 이제 이 장치의 이름은 <b>%(deviceName)s</b>입니다. 자세한 내용을 보려면 계정의 정보 버튼을 누르세요."
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -674,9 +694,21 @@ msgctxt "login-view"
 msgid "Failed to create account"
 msgstr "계정을 만들지 못함"
 
+#. Error message shown above login input when trying to login but the app fails
+#. to fetch the list of registered devices.
+msgctxt "login-view"
+msgid "Failed to fetch list of devices"
+msgstr "장치 목록을 가져오지 못함"
+
 msgctxt "login-view"
 msgid "Finishing upgrade."
 msgstr "업그레이드 완료 중"
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "유효하지 않은 계정 번호"
 
 msgctxt "login-view"
 msgid "Logged in"
@@ -704,6 +736,8 @@ msgctxt "login-view"
 msgid "Please wait"
 msgstr "기다려주세요"
 
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
 msgctxt "login-view"
 msgid "Too many devices"
 msgstr "장치가 너무 많음"
@@ -1018,11 +1052,6 @@ msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
 msgstr "연결된 동안 트래픽이 시작 지점과 종료 지점(서로 다른 두 VPN 서버여야 함)의 두 보안 위치를 통해 라우팅됩니다."
 
-#. Navigation button to the 'Account' view
-msgctxt "settings-view"
-msgid "Account"
-msgstr "계정"
-
 msgctxt "settings-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr "앱이 동기화되지 않았습니다. 종료하고 다시 시작하세요."
@@ -1030,10 +1059,6 @@ msgstr "앱이 동기화되지 않았습니다. 종료하고 다시 시작하세
 msgctxt "settings-view"
 msgid "App version"
 msgstr "앱 버전"
-
-msgctxt "settings-view"
-msgid "OUT OF TIME"
-msgstr "시간 초과"
 
 #. Navigation button to the 'Split tunneling' view
 msgctxt "settings-view"
@@ -1608,9 +1633,6 @@ msgstr "계정 시간 알림"
 msgid "Add DNS server"
 msgstr "DNS 서버 추가"
 
-msgid "Advanced"
-msgstr "고급"
-
 msgid "Agree and continue"
 msgstr "동의하고 계속하기"
 
@@ -1626,9 +1648,14 @@ msgstr "상시 접속 VPN이 다른 앱에 할당됨"
 msgid "Always-on VPN might be enabled for another app"
 msgstr "상시 접속 VPN이 다른 앱에 활성화되었을 수 있습니다."
 
-msgctxt "Text shown in notification which is displayed when the app is in a blocking state due to the device being offline."
+msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
+msgstr "주의: 이 설정은 <b>사용자 지정 DNS 서버 사용</b>과 함께 사용할 수 없습니다."
+
 msgid "Blocking internet (device offline)"
-msgstr "인터넷 차단(장치 오프라인 상태)"
+msgstr "인터넷 차단(장치 오프라인)"
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "DNS 관련 설정에 대한 변경 사항은 캐시된 결과로 인해 즉시 적용되지 않을 수도 있습니다."
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "클립보드에 Mullvad 계정 번호 복사됨"
@@ -1642,6 +1669,12 @@ msgstr "심각한 오류(주의가 필요함)"
 msgid "Custom DNS server addresses %s are invalid"
 msgstr "사용자 지정 DNS 서버 주소 %s이(가) 잘못되었습니다."
 
+msgid "DNS settings might not go into effect immediately"
+msgstr "DNS 설정이 즉시 적용되지 않을 수도 있습니다"
+
+msgid "Disable all <b>%s</b> above to activate this setting."
+msgstr "이 설정을 활성화하려면 위의 모든 <b>%s</b>을(를) 비활성화하세요."
+
 msgid "Enable"
 msgstr "사용"
 
@@ -1651,25 +1684,21 @@ msgstr "MTU 입력"
 msgid "Excluded applications"
 msgstr "제외된 애플리케이션"
 
-msgid "Failed to fetch list of devices"
-msgstr "장치 목록을 가져오지 못함"
-
 msgid "Going to login will unblock the internet on this device."
 msgstr "로그인하면 이 장치에서 인터넷 차단이 해제됩니다."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN(%s)을 설치하여 최신 상태로 유지하세요."
 
+msgid "Manage account"
+msgstr "계정 관리"
+
 msgid "Mullvad account number"
 msgstr "Mullvad 계정 번호"
-
-msgid "Please describe your problem in English or Swedish."
-msgstr "문제를 영어나 스웨덴어로 설명해 주세요."
 
 msgid "Preferences"
 msgstr "환경 설정"
 
-msgctxt "Title of our \"Privacy disclaimer\" screen which explains some privacy aspects of our app. This is shown when a user starts the app for the first time."
 msgid "Privacy"
 msgstr "개인 정보 보호"
 
@@ -1708,6 +1737,9 @@ msgstr "환경 설정에서 ”로컬 네트워크 공유”를 활성화하지 
 
 msgid "This address has already been entered."
 msgstr "이 주소는 이미 입력되었습니다."
+
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "이 기능을 사용하면 특정 웹 사이트, 서비스 및 앱에서 문제가 발생할 수 있습니다."
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "가장 안전한 버전인지 확인하고 실행 중인 현재 버전 관련 문제를 알리기 위해 앱에서 버전 확인을 자동으로 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전과 Android 버전 수에 대한 카운터를 유지합니다. 데이터는 사용자를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다.\\n\\n분할 터널링 기능이 사용되는 경우 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 절대 장치에서 전송되지 않습니다."
@@ -1751,11 +1783,17 @@ msgstr "연결되어 있는 동안 실제 위치는 선택한 지역의 안전�
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard obfuscation"
+msgstr "WireGuard 난독화"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "네트워크 트래픽이 유출될 수 있습니다."
 
 msgid "You are running an unsupported app version."
 msgstr "지원되지 않는 앱 버전을 실행 중입니다."
+
+msgid "less than a minute ago"
+msgstr "1분 이내"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1764,4 +1802,24 @@ msgstr[0] "계정 크레딧이 %d일 후에 만료됩니다."
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "계정 크레딧이 %d시간 후에 만료됩니다."
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d일 전"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d분 전"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d개월 전"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d년 전"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d시간 전"
 
