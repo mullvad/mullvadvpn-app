@@ -1,9 +1,10 @@
 //! Client that returns and takes mullvad types as arguments instead of prost-generated types
 
 use crate::types;
+use crate::types::rpc;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
-    access_method::{daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId},
+    access_method::{ApiAccessMethod, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -15,6 +16,7 @@ use mullvad_types::{
     version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
+
 #[cfg(target_os = "windows")]
 use std::path::Path;
 #[cfg(target_os = "windows")]
@@ -543,7 +545,7 @@ impl MullvadProxyClient {
     ) -> Result<()> {
         let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
         new_api_access_method.enable();
-        let update = ApiAccessMethodUpdate {
+        let update = rpc::api_access_method_update::ApiAccessMethodUpdate {
             id: api_access_method_id,
             access_method: new_api_access_method,
         };
@@ -561,7 +563,7 @@ impl MullvadProxyClient {
     ) -> Result<()> {
         let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
         new_api_access_method.disable();
-        let update = ApiAccessMethodUpdate {
+        let update = rpc::api_access_method_update::ApiAccessMethodUpdate {
             id: api_access_method_id,
             access_method: new_api_access_method,
         };
@@ -583,7 +585,7 @@ impl MullvadProxyClient {
 
     pub async fn update_access_method(
         &mut self,
-        access_method_update: ApiAccessMethodUpdate,
+        access_method_update: rpc::api_access_method_update::ApiAccessMethodUpdate,
     ) -> Result<()> {
         self.0
             .update_api_access_method(types::ApiAccessMethodUpdate::from(access_method_update))

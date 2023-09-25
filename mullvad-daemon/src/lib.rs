@@ -34,12 +34,13 @@ use futures::{
     future::{abortable, AbortHandle, Future, LocalBoxFuture},
     StreamExt,
 };
+use mullvad_management_interface::types::rpc::api_access_method_update::ApiAccessMethodUpdate;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
-    access_method::{daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId},
+    access_method::{ApiAccessMethod, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
     custom_list::{CustomList, CustomListLocationUpdate},
