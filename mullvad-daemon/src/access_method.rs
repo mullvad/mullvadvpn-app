@@ -98,7 +98,8 @@ where
                     .api_access_methods
                     .api_access_methods
                     .iter()
-                    .map(|x| x.access_method.clone())
+                    .filter(|api_access_method| api_access_method.enabled())
+                    .map(|api_access_method| api_access_method.access_method.clone())
                     .collect(),
             )
         };
