@@ -80,7 +80,6 @@ service ManagementService {
   // API Access methods
   rpc AddApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {}
   rpc RemoveApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
-  rpc GetApiAccessMethods(google.protobuf.Empty) returns (ApiAccessMethods) {}
   rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc UpdateApiAccessMethod(ApiAccessMethodUpdate) returns (google.protobuf.Empty) {}
 
