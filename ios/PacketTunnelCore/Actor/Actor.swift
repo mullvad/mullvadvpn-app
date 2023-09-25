@@ -16,10 +16,20 @@ import class WireGuardKitTypes.PrivateKey
 /**
  Packet tunnel state machine implemented as an actor.
 
- All public methods, that mutate `state`, use `TaskQueue` to guarantee to prevent re-entrancy and interlacing issues. Regarless how many suspensions the task
- schedule on task queue may have, it will execute in its entirety before passing control to the next.
+ ## State consistency
+
+ All public methods, that mutate `state`, use `TaskQueue` to prevent re-entrancy and interlacing issues. Regarless how many suspensions the task
+ scheduled on task queue may have, it will execute in its entirety before passing control to the next.
 
  Task queue also enables actor to coalesce repeating calls, and cancel executing tasks that no longer need to continue.
+
+ ## Internal task queue
+
+ Developers working on actor must avoid circular dependencies between operations added to `TaskQueue`. The common mistake would be to add a new task
+ to the queue and then await for it to complete, while running in the context of another task executing on the queue. This scenario would lead to deadlock, because
+ the queue organizes operations in a linked list, so that each subsequent operation waits for the one before to complete.
+
+ Most of private methods are documented to outline the anticipated execution context.
  */
 public actor PacketTunnelActor {
     @Published private(set) public var state: State = .initial {
@@ -65,6 +75,8 @@ public actor PacketTunnelActor {
      - Can only be called once, all subsequent attempts are ignored. Use `reconnect()` if you wish to change relay.
      - Can be cancelled by a subsequent call to `stop()`. In that case the original invocation of `start()` returns once actor moved to disconnected state.
 
+     - Important: Internal implementation must not call this method from operation executing on `TaskQueue`.
+
      - Parameter options: start options produced by packet tunnel
      */
     public func start(options: StartOptions) async throws {
@@ -108,6 +120,8 @@ public actor PacketTunnelActor {
     /**
      Stop the tunnel.
 
+     - Important: Internal implementation must not call this method from operation executing on `TaskQueue`.
+
      Calling this method cancels all pending or executing tasks.
      */
     public func stop() async {
@@ -142,6 +156,8 @@ public actor PacketTunnelActor {
     /**
      Reconnect the tunnel to new relay.
 
+     - Important: Internal implementation must not call this method from operation executing on `TaskQueue`.
+
      - Parameter nextRelay: next relay to connect to.
      */
     public func reconnect(to nextRelay: NextRelay) async throws {
@@ -153,6 +169,8 @@ public actor PacketTunnelActor {
 
      Normally actor enters error state on its own, due to unrecoverable errors. However error state can also be induced externally for example in response to
      device check indicating certain issues that actor is not able to detect on its own such as invalid account or device being revoked on backend.
+
+     - Important: Internal implementation must not call this method from operation executing on `TaskQueue`.
 
      - Parameter reason: block reason
      */
@@ -173,6 +191,9 @@ public actor PacketTunnelActor {
 
      The `date` passed as an argument is a simple marker value passed back to UI process with actor state. This date can be used to determine when
      the main app has to re-read device state from Keychain, since there is no other mechanism to notify other process when packet tunnel mutates keychain store.
+
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
+
      - Parameter date: date when last key rotation took place.
      */
     public func notifyKeyRotated(date: Date? = nil) async {
@@ -184,7 +205,7 @@ public actor PacketTunnelActor {
     /**
      Internal implementation that handles key rotation notification.
 
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue` .
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
      */
     private func notifyKeyRotatedInner(date: Date?) {
         func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
@@ -240,6 +261,8 @@ public actor PacketTunnelActor {
      Cients should call this method to notify actor when device becomes awake.
 
      `NEPacketTunnelProvider` provides the corresponding lifecycle method.
+
+     - Important: It's safe to call this from any thread.
      */
     public nonisolated func onWake() {
         tunnelMonitor.onWake()
@@ -293,7 +316,7 @@ public actor PacketTunnelActor {
     /**
      Switch key policy  from `.usePrior` to `.useCurrent` policy.
 
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue` .
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
 
      - Returns: `true` if the key policy switch happened, otherwise `false`.
      */
@@ -371,6 +394,8 @@ public actor PacketTunnelActor {
     /**
      Event handler that receives new network path and schedules it for processing on task queue to avoid interlacing with other tasks.
 
+     - Important: Internal implementation must not call this method from operation executing on `TaskQueue`.
+
      - Parameter networkPath: new default path
      */
     private func enqueueDefaultPathChange(_ networkPath: NetworkPath) async {
@@ -424,12 +449,14 @@ public actor PacketTunnelActor {
      Attempt to start the tunnel by performing the following steps:
 
      - Read settings.
-     - If device is not logged in then throw an error and return
      - Determine target state, it can either be `.connecting` or `.reconnecting`. (See `TargetStateForReconnect`)
      - Bail if target state cannot be determined. That means that the actor is past the point when it could logically connect or reconnect, i.e it can already be in
      `.disconnecting` state.
      - Configure tunnel adapter.
      - Start tunnel monitor.
+     - Reactivate default path observation (disabled when configuring tunnel adapter)
+
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
 
      - Parameter nextRelay: which relay should be selected next.
      */
@@ -527,7 +554,7 @@ public actor PacketTunnelActor {
     /**
      Schedule reconnection attempt on `TaskQueue`.
 
-     - Important: This method must not be called from operation executing on `TaskQueue`.
+     - Important: Internal implementation must not call this method from operation executing on `TaskQueue`.
      */
     private func enqueueReconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         try await taskQueue.add(kind: .reconnect) { [self] in
@@ -538,11 +565,11 @@ public actor PacketTunnelActor {
     /**
      Perform a reconnection attempt. Enters error state on failure.
 
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue` .
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
 
      - Parameters:
-     - nextRelay: next relay to connect to
-     - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
+         - nextRelay: next relay to connect to
+         - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
      */
     private func reconnectInner(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         // Sleep a bit to provide a debounce in case we get a barrage of calls to reconnect.
@@ -613,6 +640,8 @@ public actor PacketTunnelActor {
 
      Evaluates the error and maps it to `BlockedStateReason` before switching actor to `.error` state.
 
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
+
      - Parameter error: an error that occurred while starting the tunnel.
      */
     private func setErrorStateInner(with error: Error) async {
@@ -624,9 +653,14 @@ public actor PacketTunnelActor {
     /**
      Transition actor to error state.
 
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
+
      - Parameter reason: reason why the actor is entering error state.
      */
     private func setErrorStateInner(with reason: BlockedStateReason) async {
+        // Tunnel monitor shouldn't run when in error state.
+        tunnelMonitor.stop()
+
         switch state {
         case .initial:
             let blockedState = BlockedState(
@@ -667,6 +701,8 @@ public actor PacketTunnelActor {
     /**
      Configure tunnel with empty WireGuard configuration that consumes all traffic on device and emitates the blocked state akin to the one we have on desktop
      which however utilizes firewall to achieve this.
+
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
      */
     private func configureAdapterForErrorState() async {
         do {
@@ -707,7 +743,7 @@ public actor PacketTunnelActor {
     /**
      Enqueue a task handling monitor event.
 
-     - Important: This method must not be called from operation executing on `TaskQueue`.
+     - Important: Internal implementation must not call this method from operation executing on `TaskQueue`.
      */
     private func enqueueMonitorEvent(_ event: TunnelMonitorEvent) async {
         try? await taskQueue.add(kind: .monitorEvent) { [self] in
@@ -723,7 +759,7 @@ public actor PacketTunnelActor {
     /**
      Reset connection attempt counter and update actor state to `connected` state once connection is established.
 
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue` .
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
      */
     private func onEstablishConnection() {
         switch state {
@@ -737,6 +773,11 @@ public actor PacketTunnelActor {
         }
     }
 
+    /**
+     Increment connection attempt counter and reconnect the tunnel.
+
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
+     */
     private func onHandleConnectionRecovery() async {
         switch state {
         case var .connecting(connState), var .reconnecting(connState), var .connected(connState):
