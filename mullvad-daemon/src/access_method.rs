@@ -10,6 +10,9 @@ pub enum Error {
     /// Can not add access method
     #[error(display = "Cannot add custom access method")]
     Add,
+    /// Can not remove built-in access method
+    #[error(display = "Cannot remove built-in access method")]
+    RemoveBuiltIn,
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
     NoSuchMethod(ApiAccessMethodId),
@@ -34,6 +37,17 @@ where
         &mut self,
         access_method: ApiAccessMethodId,
     ) -> Result<(), Error> {
+        // Make sure that we are not trying to remove a built-in API access
+        // method
+        match self.settings.api_access_methods.find(&access_method) {
+            None => return Ok(()),
+            Some(api_access_method) => {
+                if api_access_method.is_builtin() {
+                    return Err(Error::RemoveBuiltIn);
+                }
+            }
+        };
+
         self.settings
             .update(|settings| settings.api_access_methods.remove(&access_method))
             .await
@@ -48,10 +62,7 @@ where
         self.settings
             .update(|settings| {
                 let access_methods = &mut settings.api_access_methods;
-                if let Some(access_method) =
-                    // TODO: This will not work, has to be based on ID!
-                    access_methods.find_mut(&access_method_update.id)
-                {
+                if let Some(access_method) = access_methods.find_mut(&access_method_update.id) {
                     *access_method = access_method_update.access_method
                 }
             })

@@ -157,6 +157,10 @@ impl ApiAccessMethod {
         self.access_method.as_custom()
     }
 
+    pub fn is_builtin(&self) -> bool {
+        self.as_custom().is_none()
+    }
+
     /// Set an API access method to be enabled.
     pub fn enable(&mut self) {
         self.enabled = true;
