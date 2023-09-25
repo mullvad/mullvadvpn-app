@@ -325,11 +325,11 @@ public actor PacketTunnelActor {
     private func startDefaultPathObserver(notifyObserverWithCurrentPath: Bool = false) {
         defaultPathObserver.start { [weak self] networkPath in
             guard let self else { return }
-            Task { await self.onDefaultPathChange(networkPath) }
+            Task { await self.enqueueDefaultPathChange(networkPath) }
         }
 
         if notifyObserverWithCurrentPath, let currentPath = defaultPathObserver.defaultPath {
-            Task { await self.onDefaultPathChange(currentPath) }
+            Task { await self.enqueueDefaultPathChange(currentPath) }
         }
     }
 
@@ -343,7 +343,7 @@ public actor PacketTunnelActor {
 
      - Parameter networkPath: new default path
      */
-    private func onDefaultPathChange(_ networkPath: NetworkPath) async {
+    private func enqueueDefaultPathChange(_ networkPath: NetworkPath) async {
         try? await taskQueue.add(kind: .networkReachability) { [self] in
             let newReachability = networkPath.networkReachability
 
