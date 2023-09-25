@@ -643,7 +643,9 @@ where
                 .api_access_methods
                 .api_access_methods
                 .iter()
-                .map(|x| x.access_method.clone())
+                // We only care about the access methods which are set to 'enabled' by the user.
+                .filter(|api_access_method| api_access_method.enabled())
+                .map(|api_access_method| api_access_method.access_method.clone())
                 .collect(),
         );
 

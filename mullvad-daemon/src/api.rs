@@ -173,10 +173,10 @@ pub struct ConnectionModesIterator {
 }
 
 impl ConnectionModesIterator {
-    pub fn new(modes: Vec<AccessMethod>) -> ConnectionModesIterator {
+    pub fn new(access_methods: Vec<AccessMethod>) -> ConnectionModesIterator {
         Self {
             next: None,
-            available_modes: Self::get_filtered_access_methods(modes),
+            available_modes: Self::cycle(access_methods),
         }
     }
 
@@ -186,21 +186,12 @@ impl ConnectionModesIterator {
     }
     /// Update the collection of [`AccessMethod`] which this iterator will
     /// return.
-    pub fn update_access_methods(&mut self, api_access_methods: Vec<AccessMethod>) {
-        self.available_modes = Self::get_filtered_access_methods(api_access_methods);
+    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethod>) {
+        self.available_modes = Self::cycle(access_methods)
     }
 
-    /// [`ConnectionModesIterator`] will only consider [`AccessMethod`]s which
-    /// are explicitly marked as enabled. As such, a pre-processing step before
-    /// assigning an iterator to `available_modes` is to filter out all disabled
-    /// [`AccessMethod`]s that may be present in the input.
-    fn get_filtered_access_methods(
-        modes: Vec<AccessMethod>,
-    ) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
-        Box::new(modes
-                .into_iter()
-                // .filter(|access_method| access_method.enabled())
-                .cycle())
+    fn cycle(access_methods: Vec<AccessMethod>) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
+        Box::new(access_methods.into_iter().cycle())
     }
 }
 
