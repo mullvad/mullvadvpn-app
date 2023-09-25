@@ -11,6 +11,9 @@ pub enum Error {
     /// Can not add access method
     #[error(display = "Cannot add custom access method")]
     Add,
+    /// Can not find access method
+    #[error(display = "Cannot find custom access method {}", _0)]
+    NoSuchMethod(ApiAccessMethodId),
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -58,14 +61,18 @@ where
             .map_err(Error::Settings)
     }
 
-    pub fn set_api_access_method(&mut self, access_method: ApiAccessMethod) -> Result<(), Error> {
-        {
-            let mut connection_modes = self.connection_modes.lock().unwrap();
-            connection_modes.set_access_method(access_method.access_method);
+    pub fn set_api_access_method(&mut self, access_method: ApiAccessMethodId) -> Result<(), Error> {
+        if let Some(access_method) = self.settings.api_access_methods.find(&access_method) {
+            {
+                let mut connection_modes = self.connection_modes.lock().unwrap();
+                connection_modes.set_access_method(access_method.access_method.clone());
+            }
+            // Force a rotation of Access Methods.
+            let _ = self.api_handle.service().next_api_endpoint();
+            Ok(())
+        } else {
+            Err(Error::NoSuchMethod(access_method))
         }
-        // Force a rotation of Access Methods.
-        let _ = self.api_handle.service().next_api_endpoint();
-        Ok(())
     }
 
     /// If settings were changed due to an update, notify all listeners.

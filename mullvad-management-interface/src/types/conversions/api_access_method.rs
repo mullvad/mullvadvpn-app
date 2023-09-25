@@ -58,7 +58,8 @@ mod settings {
                 .and_then(access_method::ApiAccessMethod::try_from)?;
 
             Ok(access_method::daemon::ApiAccessMethodUpdate {
-                id: access_method::ApiAccessMethodId::from_proto_string(value.id),
+                // TODO: `value.id` should be of type `proto::Uuid`.
+                id: access_method::ApiAccessMethodId::from_string(value.id),
                 access_method: api_access_method,
             })
         }
@@ -71,8 +72,8 @@ mod settings {
 mod data {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method::{
-        AccessMethod, ApiAccessMethod, BuiltInAccessMethod, CustomAccessMethod, Shadowsocks,
-        Socks5, Socks5Local, Socks5Remote,
+        AccessMethod, ApiAccessMethod, ApiAccessMethodId, BuiltInAccessMethod, CustomAccessMethod,
+        Shadowsocks, Socks5, Socks5Local, Socks5Remote,
     };
 
     impl TryFrom<proto::ApiAccessMethods> for Vec<ApiAccessMethod> {
@@ -142,6 +143,20 @@ mod data {
 
             // TODO: Should the `id` be used or generated a new?
             Ok(ApiAccessMethod::new(name, enabled, access_method))
+        }
+    }
+
+    impl From<ApiAccessMethodId> for proto::Uuid {
+        fn from(value: ApiAccessMethodId) -> Self {
+            proto::Uuid {
+                value: value.to_string(),
+            }
+        }
+    }
+
+    impl From<proto::Uuid> for ApiAccessMethodId {
+        fn from(value: proto::Uuid) -> Self {
+            Self::from_string(value.value)
         }
     }
 
