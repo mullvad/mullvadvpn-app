@@ -166,10 +166,12 @@ impl MullvadProxyClient {
 
     pub async fn get_api_access_methods(&mut self) -> Result<Vec<ApiAccessMethod>> {
         self.0
-            .get_api_access_methods(())
+            .get_settings(())
             .await
             .map_err(Error::Rpc)?
             .into_inner()
+            .api_access_methods
+            .ok_or(Error::ApiAccessMethodSettingsNotFound)?
             .api_access_methods
             .into_iter()
             .map(|api_access_method| {
@@ -182,18 +184,9 @@ impl MullvadProxyClient {
         &mut self,
         id: &ApiAccessMethodId,
     ) -> Result<ApiAccessMethod> {
-        self.0
-            .get_api_access_methods(())
-            .await
-            .map_err(Error::Rpc)?
-            .into_inner()
-            .api_access_methods
+        self.get_api_access_methods()
+            .await?
             .into_iter()
-            .map(|api_access_method| {
-                ApiAccessMethod::try_from(api_access_method)
-                    .map_err(Error::InvalidResponse)
-                    .expect("Failed to convert proto Api Access Method to daemon representation")
-            })
             .find(|api_access_method| api_access_method.get_id() == *id)
             .ok_or(Error::ApiAccessMethodNotFound)
     }

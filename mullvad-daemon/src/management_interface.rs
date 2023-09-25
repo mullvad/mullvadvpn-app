@@ -620,20 +620,6 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn get_api_access_methods(
-        &self,
-        _: Request<()>,
-    ) -> ServiceResult<mullvad_management_interface::types::ApiAccessMethods> {
-        log::debug!("get_api_access_methods");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetApiAccessMethods(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(From::from)
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
     async fn add_api_access_method(
         &self,
         request: Request<types::ApiAccessMethod>,
