@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service
 
+import java.io.File
 import kotlin.properties.Delegates.observable
 import kotlin.reflect.KClass
 import kotlin.reflect.safeCast
@@ -12,6 +13,8 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.trySendBlocking
 import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
+
+private const val RELAYS_FILE = "relays.json"
 
 class DaemonInstance(private val vpnService: MullvadVpnService) {
     sealed class Command {
@@ -44,6 +47,8 @@ class DaemonInstance(private val vpnService: MullvadVpnService) {
         GlobalScope.actor(Dispatchers.Default, Channel.UNLIMITED) {
             var isRunning = true
 
+            prepareFiles()
+
             while (isRunning) {
                 val startCommand = waitForCommand(channel, Command.Start::class) ?: break
                 startDaemon(startCommand.apiEndpointConfiguration)
@@ -67,6 +72,13 @@ class DaemonInstance(private val vpnService: MullvadVpnService) {
         }
     }
 
+    private fun prepareFiles() {
+        val shouldOverwriteRelayList =
+            lastUpdatedTime() > File(vpnService.filesDir, RELAYS_FILE).lastModified()
+
+        FileResourceExtractor(vpnService).apply { extract(RELAYS_FILE, shouldOverwriteRelayList) }
+    }
+
     private suspend fun startDaemon(apiEndpointConfiguration: ApiEndpointConfiguration) {
         val newDaemon =
             MullvadDaemon(vpnService, apiEndpointConfiguration).apply {
@@ -82,5 +94,9 @@ class DaemonInstance(private val vpnService: MullvadVpnService) {
 
     private fun stopDaemon() {
         daemon?.shutdown()
+    }
+
+    private fun lastUpdatedTime(): Long {
+        return vpnService.run { packageManager.getPackageInfo(packageName, 0).lastUpdateTime }
     }
 }
