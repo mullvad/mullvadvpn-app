@@ -177,51 +177,60 @@ public actor PacketTunnelActor {
      */
     public func notifyKeyRotated(date: Date? = nil) async {
         try? await taskQueue.add(kind: .keyRotated) { [self] in
-            func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
-                switch connState.keyPolicy {
-                case .useCurrent:
-                    connState.lastKeyRotation = date
-                    connState.keyPolicy = .usePrior(connState.currentKey, startSwitchKeyTask())
-                    return true
+            notifyKeyRotatedInner(date: date)
+        }
+    }
 
-                case .usePrior:
-                    // It's unlikely that we'll see subsequent key rotations happen frequently.
-                    return false
-                }
+    /**
+     Internal implementation that handles key rotation notification.
+
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue` .
+     */
+    private func notifyKeyRotatedInner(date: Date?) {
+        func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
+            switch connState.keyPolicy {
+            case .useCurrent:
+                connState.lastKeyRotation = date
+                connState.keyPolicy = .usePrior(connState.currentKey, startKeySwitchTask())
+                return true
+
+            case .usePrior:
+                // It's unlikely that we'll see subsequent key rotations happen frequently.
+                return false
+            }
+        }
+
+        switch state {
+        case var .connecting(connState):
+            if mutateConnectionState(&connState) {
+                state = .connecting(connState)
             }
 
-            switch state {
-            case var .connecting(connState):
-                if mutateConnectionState(&connState) {
-                    state = .connecting(connState)
+        case var .connected(connState):
+            if mutateConnectionState(&connState) {
+                state = .connected(connState)
+            }
+
+        case var .reconnecting(connState):
+            if mutateConnectionState(&connState) {
+                state = .reconnecting(connState)
+            }
+
+        case var .error(blockedState):
+            switch blockedState.keyPolicy {
+            case .useCurrent:
+                if let currentKey = blockedState.currentKey {
+                    blockedState.lastKeyRotation = date
+                    blockedState.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
+                    state = .error(blockedState)
                 }
 
-            case var .connected(connState):
-                if mutateConnectionState(&connState) {
-                    state = .connected(connState)
-                }
-
-            case var .reconnecting(connState):
-                if mutateConnectionState(&connState) {
-                    state = .reconnecting(connState)
-                }
-
-            case var .error(blockedState):
-                switch blockedState.keyPolicy {
-                case .useCurrent:
-                    if let currentKey = blockedState.currentKey {
-                        blockedState.lastKeyRotation = date
-                        blockedState.keyPolicy = .usePrior(currentKey, startSwitchKeyTask())
-                        state = .error(blockedState)
-                    }
-
-                case .usePrior:
-                    break
-                }
-
-            case .initial, .disconnected, .disconnecting:
+            case .usePrior:
                 break
             }
+
+        case .initial, .disconnected, .disconnecting:
+            break
         }
     }
 
