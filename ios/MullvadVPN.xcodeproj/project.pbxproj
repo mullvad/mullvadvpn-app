@@ -89,6 +89,11 @@
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		5838321B2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321A2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift */; };
 		5838321D2AC1C54600EA2071 /* TaskSleepTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321C2AC1C54600EA2071 /* TaskSleepTests.swift */; };
+		5838321F2AC3160A00EA2071 /* Actor+KeyPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5838321E2AC3160A00EA2071 /* Actor+KeyPolicy.swift */; };
+		583832212AC3174700EA2071 /* Actor+NetworkReachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832202AC3174700EA2071 /* Actor+NetworkReachability.swift */; };
+		583832232AC3181400EA2071 /* Actor+ErrorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832222AC3181400EA2071 /* Actor+ErrorState.swift */; };
+		583832252AC318A100EA2071 /* Actor+ConnectionMonitoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832242AC318A100EA2071 /* Actor+ConnectionMonitoring.swift */; };
+		583832272AC3193600EA2071 /* Actor+SleepCycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583832262AC3193600EA2071 /* Actor+SleepCycle.swift */; };
 		583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */; };
 		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
 		583FE01029C0F532006E85F9 /* CustomSplitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583FE00F29C0F532006E85F9 /* CustomSplitViewController.swift */; };
@@ -1124,6 +1129,11 @@
 		5838318A27C40A3900000571 /* Pinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pinger.swift; sourceTree = "<group>"; };
 		5838321A2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+Mocks.swift"; sourceTree = "<group>"; };
 		5838321C2AC1C54600EA2071 /* TaskSleepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskSleepTests.swift; sourceTree = "<group>"; };
+		5838321E2AC3160A00EA2071 /* Actor+KeyPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+KeyPolicy.swift"; sourceTree = "<group>"; };
+		583832202AC3174700EA2071 /* Actor+NetworkReachability.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+NetworkReachability.swift"; sourceTree = "<group>"; };
+		583832222AC3181400EA2071 /* Actor+ErrorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+ErrorState.swift"; sourceTree = "<group>"; };
+		583832242AC318A100EA2071 /* Actor+ConnectionMonitoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+ConnectionMonitoring.swift"; sourceTree = "<group>"; };
+		583832262AC3193600EA2071 /* Actor+SleepCycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Actor+SleepCycle.swift"; sourceTree = "<group>"; };
 		583D86472A2678DC0060D63B /* DeviceStateAccessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStateAccessor.swift; sourceTree = "<group>"; };
 		583DA21325FA4B5C00318683 /* LocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDataSource.swift; sourceTree = "<group>"; };
 		583E1E292848DF67004838B3 /* OperationObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationObserverTests.swift; sourceTree = "<group>"; };
@@ -2189,6 +2199,11 @@
 			isa = PBXGroup;
 			children = (
 				58E9C3852A4EF1CB00CFDEAC /* Actor.swift */,
+				583832222AC3181400EA2071 /* Actor+ErrorState.swift */,
+				5838321E2AC3160A00EA2071 /* Actor+KeyPolicy.swift */,
+				583832262AC3193600EA2071 /* Actor+SleepCycle.swift */,
+				583832242AC318A100EA2071 /* Actor+ConnectionMonitoring.swift */,
+				583832202AC3174700EA2071 /* Actor+NetworkReachability.swift */,
 				58FE25F32AA9D730003D1918 /* Actor+Extensions.swift */,
 				58DDA18E2ABC32380039C360 /* Timings.swift */,
 				5824030C2A811B0000163DE8 /* State.swift */,
@@ -3914,14 +3929,17 @@
 				580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */,
 				58C7AF172ABD84AA007EDD7A /* ProxyURLRequest.swift in Sources */,
 				58C7AF142ABD8480007EDD7A /* RelaySelectorResult+PacketTunnelRelay.swift in Sources */,
+				5838321F2AC3160A00EA2071 /* Actor+KeyPolicy.swift in Sources */,
 				58C7AF122ABD8480007EDD7A /* TunnelProviderReply.swift in Sources */,
 				58C7A4572A863FB90060C66F /* TunnelDeviceInfoProtocol.swift in Sources */,
 				58C7A4562A863FB90060C66F /* DefaultPathObserverProtocol.swift in Sources */,
 				58FE25DA2AA72A8F003D1918 /* Actor.swift in Sources */,
 				58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */,
+				583832252AC318A100EA2071 /* Actor+ConnectionMonitoring.swift in Sources */,
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
 				58C7AF182ABD84AB007EDD7A /* ProxyURLResponse.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
+				583832232AC3181400EA2071 /* Actor+ErrorState.swift in Sources */,
 				58C7AF112ABD8480007EDD7A /* TunnelProviderMessage.swift in Sources */,
 				58C7AF162ABD84A8007EDD7A /* URLRequestProxy.swift in Sources */,
 				58FE25D72AA72A8F003D1918 /* State.swift in Sources */,
@@ -3930,11 +3948,13 @@
 				58C7A4592A863FB90060C66F /* WgStats.swift in Sources */,
 				7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */,
 				58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */,
+				583832212AC3174700EA2071 /* Actor+NetworkReachability.swift in Sources */,
 				58FE25D82AA72A8F003D1918 /* ConfigurationBuilder.swift in Sources */,
 				580D6B8A2AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift in Sources */,
 				5826B6CB2ABD83E200B1CA13 /* PacketTunnelOptions.swift in Sources */,
 				586E8DB82AAF4AC4007BF3DA /* Task+Duration.swift in Sources */,
 				58342C042AAB61FB003BA12D /* State+Extensions.swift in Sources */,
+				583832272AC3193600EA2071 /* Actor+SleepCycle.swift in Sources */,
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
 				58C7AF152ABD8480007EDD7A /* PacketTunnelRelay.swift in Sources */,
 				58FE25D92AA72A8F003D1918 /* AutoCancellingTask.swift in Sources */,
