@@ -181,60 +181,9 @@ extension PacketTunnelActor {
      - Parameter nextRelay: which relay should be selected next.
      */
     private func tryStart(nextRelay: NextRelay = .random) async throws {
-        func makeConnectionState(settings: Settings) throws -> ConnectionState? {
-            let relayConstraints = settings.relayConstraints
-            let privateKey = settings.privateKey
-
-            switch state {
-            case .initial:
-                return ConnectionState(
-                    selectedRelay: try selectRelay(
-                        nextRelay: nextRelay,
-                        relayConstraints: relayConstraints,
-                        currentRelay: nil,
-                        connectionAttemptCount: 0
-                    ),
-                    relayConstraints: relayConstraints,
-                    currentKey: privateKey,
-                    keyPolicy: .useCurrent,
-                    networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
-                    connectionAttemptCount: 0
-                )
-
-            case var .connecting(connState), var .connected(connState), var .reconnecting(connState):
-                connState.selectedRelay = try selectRelay(
-                    nextRelay: nextRelay,
-                    relayConstraints: relayConstraints,
-                    currentRelay: connState.selectedRelay,
-                    connectionAttemptCount: connState.connectionAttemptCount
-                )
-                connState.currentKey = privateKey
-
-                return connState
-
-            case let .error(blockedState):
-                return ConnectionState(
-                    selectedRelay: try selectRelay(
-                        nextRelay: nextRelay,
-                        relayConstraints: relayConstraints,
-                        currentRelay: nil,
-                        connectionAttemptCount: 0
-                    ),
-                    relayConstraints: relayConstraints,
-                    currentKey: privateKey,
-                    keyPolicy: blockedState.keyPolicy,
-                    networkReachability: blockedState.networkReachability,
-                    connectionAttemptCount: 0,
-                    lastKeyRotation: blockedState.lastKeyRotation
-                )
-
-            case .disconnecting, .disconnected:
-                return nil
-            }
-        }
-
         let settings: Settings = try settingsReader.read()
-        guard let connectionState = try makeConnectionState(settings: settings),
+
+        guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings),
               let targetState = state.targetStateForReconnect else { return }
 
         switch targetState {
@@ -269,6 +218,69 @@ extension PacketTunnelActor {
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: endpoint.ipv4Gateway)
+    }
+
+    /**
+     Derive `ConnectionState` from current `state` updating it with new relay and settings.
+
+     - Parameters:
+         - nextRelay: relay preference that should be used when selecting next relay.
+         - settings: current settings
+
+     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
+
+     - Returns: New connection state or `nil` if current state is at or past `.disconnecting` phase.
+     */
+    private func makeConnectionState(nextRelay: NextRelay, settings: Settings) throws -> ConnectionState? {
+        let relayConstraints = settings.relayConstraints
+        let privateKey = settings.privateKey
+
+        switch state {
+        case .initial:
+            return ConnectionState(
+                selectedRelay: try selectRelay(
+                    nextRelay: nextRelay,
+                    relayConstraints: relayConstraints,
+                    currentRelay: nil,
+                    connectionAttemptCount: 0
+                ),
+                relayConstraints: relayConstraints,
+                currentKey: privateKey,
+                keyPolicy: .useCurrent,
+                networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
+                connectionAttemptCount: 0
+            )
+
+        case var .connecting(connState), var .connected(connState), var .reconnecting(connState):
+            connState.selectedRelay = try selectRelay(
+                nextRelay: nextRelay,
+                relayConstraints: relayConstraints,
+                currentRelay: connState.selectedRelay,
+                connectionAttemptCount: connState.connectionAttemptCount
+            )
+            connState.currentKey = privateKey
+
+            return connState
+
+        case let .error(blockedState):
+            return ConnectionState(
+                selectedRelay: try selectRelay(
+                    nextRelay: nextRelay,
+                    relayConstraints: relayConstraints,
+                    currentRelay: nil,
+                    connectionAttemptCount: 0
+                ),
+                relayConstraints: relayConstraints,
+                currentKey: privateKey,
+                keyPolicy: blockedState.keyPolicy,
+                networkReachability: blockedState.networkReachability,
+                connectionAttemptCount: 0,
+                lastKeyRotation: blockedState.lastKeyRotation
+            )
+
+        case .disconnecting, .disconnected:
+            return nil
+        }
     }
 
     /**
