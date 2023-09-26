@@ -625,7 +625,7 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("add_api_access_method");
         let api_access_method =
-            mullvad_types::api_access::ApiAccessMethod::try_from(request.into_inner())?;
+            mullvad_types::api_access::AccessMethodSetting::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::AddApiAccessMethod(tx, api_access_method))?;
         self.wait_for_result(rx)

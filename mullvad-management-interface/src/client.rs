@@ -4,7 +4,7 @@ use crate::types::{self, rpc};
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access::{ApiAccessMethod, ApiAccessMethodId},
+    api_access::{AccessMethodSetting, ApiAccessMethodId},
     custom_list::{CustomList, Id},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
@@ -165,7 +165,7 @@ impl MullvadProxyClient {
         mullvad_types::relay_list::RelayList::try_from(list).map_err(Error::InvalidResponse)
     }
 
-    pub async fn get_api_access_methods(&mut self) -> Result<Vec<ApiAccessMethod>> {
+    pub async fn get_api_access_methods(&mut self) -> Result<Vec<AccessMethodSetting>> {
         self.0
             .get_settings(())
             .await
@@ -176,7 +176,7 @@ impl MullvadProxyClient {
             .api_access_methods
             .into_iter()
             .map(|api_access_method| {
-                ApiAccessMethod::try_from(api_access_method).map_err(Error::InvalidResponse)
+                AccessMethodSetting::try_from(api_access_method).map_err(Error::InvalidResponse)
             })
             .collect()
     }
@@ -184,7 +184,7 @@ impl MullvadProxyClient {
     pub async fn get_api_access_method(
         &mut self,
         id: &ApiAccessMethodId,
-    ) -> Result<ApiAccessMethod> {
+    ) -> Result<AccessMethodSetting> {
         self.get_api_access_methods()
             .await?
             .into_iter()
@@ -491,7 +491,10 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn add_access_method(&mut self, api_access_method: ApiAccessMethod) -> Result<()> {
+    pub async fn add_access_method(
+        &mut self,
+        api_access_method: AccessMethodSetting,
+    ) -> Result<()> {
         self.0
             .add_api_access_method(types::ApiAccessMethod::from(api_access_method))
             .await
