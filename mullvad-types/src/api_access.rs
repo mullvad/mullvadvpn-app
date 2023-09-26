@@ -85,6 +85,7 @@ pub struct AccessMethodSetting {
 pub struct ApiAccessMethodId(uuid::Uuid);
 
 impl ApiAccessMethodId {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self(uuid::Uuid::new_v4())
     }
