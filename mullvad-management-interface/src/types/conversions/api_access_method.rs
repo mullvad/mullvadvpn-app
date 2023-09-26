@@ -65,7 +65,7 @@ mod data {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "Could not deserialize Access Method from protobuf",
                 ))
-                .and_then(|access_method_field| AccessMethod::try_from(access_method_field))?;
+                .and_then(AccessMethod::try_from)?;
 
             Ok(AccessMethodSetting::with_id(
                 id,
