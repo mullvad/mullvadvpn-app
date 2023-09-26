@@ -168,7 +168,10 @@ extension PacketTunnelActor {
         case .useCurrent:
             return false
 
-        case .usePrior:
+        case let .usePrior(_, autoCancellingTask):
+            // Disable cancellation when changing key policy from within the task itself.
+            autoCancellingTask.disableCancellation()
+
             keyPolicy = .useCurrent
             return true
         }
