@@ -54,7 +54,11 @@ import class WireGuardKitTypes.PrivateKey
  `.connecting`, `.reconnecting`, `.error` can be interrupted if the tunnel is requested to stop, which should segue actor towards `.disconnected` state.
 
  */
-public enum State {
+public enum State: Equatable {
+    public static func == (lhs: State, rhs: State) -> Bool {
+        lhs.name == rhs.name
+    }
+
     /// Initial state at the time when actor is initialized but before the first connection attempt.
     case initial
 
