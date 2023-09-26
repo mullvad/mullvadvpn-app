@@ -1,26 +1,28 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +35,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
@@ -42,8 +50,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.PopupProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
@@ -128,7 +136,7 @@ fun LoginScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalComposeUiApi::class)
 private fun LoginContent(
     uiState: LoginUiState,
     onAccountNumberChange: (String) -> Unit,
@@ -143,7 +151,9 @@ private fun LoginContent(
             modifier = Modifier.fillMaxWidth().padding(bottom = Dimens.smallPadding)
         )
 
-        var expanded by remember { mutableStateOf(false) }
+        var tfFocusState: FocusState? by remember { mutableStateOf(null) }
+        var ddFocusState: FocusState? by remember { mutableStateOf(null) }
+        val expandedDropdown = tfFocusState?.hasFocus ?: false || ddFocusState?.hasFocus ?: false
 
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
@@ -156,81 +166,70 @@ private fun LoginContent(
                     MaterialTheme.colorScheme.onPrimary
                 },
         )
-        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-            TextField(
-                modifier =
-                    Modifier.then(
-                            // Using menuAnchor while not showing a dropdown will cause keyboard to
-                            // open and app to crash on navigation
-                            if (uiState.lastUsedAccount != null) Modifier.menuAnchor() else Modifier
-                        )
-                        .fillMaxWidth(),
-                value = uiState.accountNumberInput,
-                label = {
-                    Text(
-                        text = stringResource(id = R.string.login_description),
-                        color = Color.Unspecified
-                    )
-                },
-                keyboardActions =
-                    KeyboardActions(onDone = { onLoginClick(uiState.accountNumberInput) }),
-                keyboardOptions =
-                    KeyboardOptions(
-                        imeAction =
-                            if (uiState.loginButtonEnabled) ImeAction.Done else ImeAction.None,
-                        keyboardType = KeyboardType.NumberPassword
-                    ),
-                onValueChange = onAccountNumberChange,
-                singleLine = true,
-                maxLines = 1,
-                visualTransformation = accountTokenVisualTransformation(),
-                enabled = uiState.loginState is Idle,
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.Gray,
-                        disabledTextColor = Color.Gray,
-                        errorTextColor = Color.Black,
-                        cursorColor = MaterialTheme.colorScheme.background,
-                        focusedPlaceholderColor = MaterialTheme.colorScheme.background,
-                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.primary,
-                        focusedLabelColor = MaterialTheme.colorScheme.background,
-                        disabledLabelColor = Color.Gray,
-                        unfocusedLabelColor = MaterialTheme.colorScheme.background,
-                        focusedLeadingIconColor = Color.Black,
-                        unfocusedSupportingTextColor = Color.Black,
-                    ),
-                isError = uiState.loginState.isError(),
-            )
 
-            // If we have a previous account, show dropdown for quick re-login
-            uiState.lastUsedAccount?.let { token ->
-                DropdownMenu(
-                    modifier =
-                        Modifier.background(MaterialTheme.colorScheme.background)
-                            .exposedDropdownSize(true),
-                    expanded = expanded,
-                    properties = PopupProperties(focusable = false),
-                    onDismissRequest = { expanded = false }
-                ) {
-                    val accountTransformation = remember { accountTokenVisualTransformation() }
-                    val transformedText =
-                        remember(token.value) {
-                            accountTransformation.filter(AnnotatedString(token.value)).text
-                        }
-
-                    AccountDropDownItem(
-                        accountToken = transformedText.toString(),
-                        onClick = {
-                            onAccountNumberChange(token.value)
-                            expanded = false
-                            onLoginClick(token.value)
-                        }
-                    ) {
-                        onDeleteHistoryClick()
+        TextField(
+            modifier =
+                // Fix for DPad navigation
+                Modifier.onFocusChanged { tfFocusState = it }
+                    .focusProperties {
+                        left = FocusRequester.Cancel
+                        right = FocusRequester.Cancel
                     }
-                }
-            }
+                    .fillMaxWidth(),
+            value = uiState.accountNumberInput,
+            label = {
+                Text(
+                    text = stringResource(id = R.string.login_description),
+                    color = Color.Unspecified
+                )
+            },
+            keyboardActions =
+                KeyboardActions(onDone = { onLoginClick(uiState.accountNumberInput) }),
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = if (uiState.loginButtonEnabled) ImeAction.Done else ImeAction.None,
+                    keyboardType = KeyboardType.NumberPassword
+                ),
+            onValueChange = onAccountNumberChange,
+            singleLine = true,
+            maxLines = 1,
+            visualTransformation = accountTokenVisualTransformation(),
+            enabled = uiState.loginState is Idle,
+            colors =
+                TextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Gray,
+                    disabledTextColor = Color.Gray,
+                    errorTextColor = Color.Black,
+                    cursorColor = MaterialTheme.colorScheme.background,
+                    focusedPlaceholderColor = MaterialTheme.colorScheme.background,
+                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.primary,
+                    focusedLabelColor = MaterialTheme.colorScheme.background,
+                    disabledLabelColor = Color.Gray,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.background,
+                    focusedLeadingIconColor = Color.Black,
+                    unfocusedSupportingTextColor = Color.Black,
+                ),
+            isError = uiState.loginState.isError(),
+        )
+
+        AnimatedVisibility(visible = uiState.lastUsedAccount != null && expandedDropdown) {
+            val token = uiState.lastUsedAccount?.value.orEmpty()
+            val accountTransformation = remember { accountTokenVisualTransformation() }
+            val transformedText =
+                remember(token) { accountTransformation.filter(AnnotatedString(token)).text }
+
+            AccountDropDownItem(
+                modifier = Modifier.onFocusChanged { ddFocusState = it },
+                accountToken = transformedText.toString(),
+                onClick = {
+                    uiState.lastUsedAccount?.let {
+                        onAccountNumberChange(it.value)
+                        onLoginClick(it.value)
+                    }
+                },
+                onDeleteClick = onDeleteHistoryClick
+            )
         }
 
         Spacer(modifier = Modifier.size(Dimens.largePadding))
@@ -318,20 +317,34 @@ private fun LoginState.supportingText(): String? {
 
 @Composable
 private fun AccountDropDownItem(
+    modifier: Modifier = Modifier,
     accountToken: String,
     onClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier =
+            modifier
+                .clip(
+                    MaterialTheme.shapes.medium.copy(
+                        topStart = CornerSize(0f),
+                        topEnd = CornerSize(0f)
+                    )
+                )
+                .background(MaterialTheme.colorScheme.background)
+                .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
+        Box(
             modifier =
-                Modifier.weight(1f)
+                Modifier.clickable(onClick = onClick)
+                    .fillMaxHeight()
+                    .weight(1f)
                     .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),
-            text = accountToken
-        )
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(text = accountToken, overflow = TextOverflow.Clip)
+        }
         IconButton(onClick = onDeleteClick) {
             Icon(
                 painter = painterResource(id = R.drawable.account_history_remove_pressed),
