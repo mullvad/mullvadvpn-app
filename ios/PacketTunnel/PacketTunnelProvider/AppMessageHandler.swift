@@ -18,6 +18,9 @@ actor AppMessageHandler {
     private let packetTunnelActor: PacketTunnelActor
     private let urlRequestProxy: URLRequestProxy
 
+    /// Last task dispatching a message to packet tunnel actor.
+    private var lastActorTask: AnyTask?
+
     init(packetTunnelActor: PacketTunnelActor, urlRequestProxy: URLRequestProxy) {
         self.packetTunnelActor = packetTunnelActor
         self.urlRequestProxy = urlRequestProxy
@@ -51,13 +54,17 @@ actor AppMessageHandler {
             return await encodeReply(packetTunnelActor.state.packetTunnelStatus)
 
         case .privateKeyRotation:
-            Task {
+            let previousTask = lastActorTask
+            lastActorTask = Task {
+                await previousTask?.waitForCompletion()
                 await self.packetTunnelActor.notifyKeyRotated()
             }
             return nil
 
         case let .reconnectTunnel(selectorResult):
-            Task {
+            let previousTask = lastActorTask
+            lastActorTask = Task {
+                await previousTask?.waitForCompletion()
                 try await self.packetTunnelActor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .current)
             }
             return nil
