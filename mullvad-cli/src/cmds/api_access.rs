@@ -193,25 +193,8 @@ impl ApiAccess {
 #[derive(Subcommand, Debug, Clone)]
 pub enum AddCustomCommands {
     /// Configure a local SOCKS5 proxy
-    Socks5Local {
-        /// An easy to remember name for this custom proxy
-        name: String,
-        /// The port that the server on localhost is listening on
-        local_port: u16,
-        /// The IP of the remote peer
-        remote_ip: IpAddr,
-        /// The port of the remote peer
-        remote_port: u16,
-    },
-    /// Configure a remote SOCKS5 proxy
-    Socks5Remote {
-        /// An easy to remember name for this custom proxy
-        name: String,
-        /// The IP of the remote proxy server
-        remote_ip: IpAddr,
-        /// The port of the remote proxy server
-        remote_port: u16,
-    },
+    #[clap(subcommand)]
+    Socks5(AddSocks5Commands),
     /// Configure Shadowsocks proxy
     Shadowsocks {
         /// An easy to remember name for this custom proxy
@@ -230,12 +213,38 @@ pub enum AddCustomCommands {
     },
 }
 
+#[derive(Subcommand, Debug, Clone)]
+pub enum AddSocks5Commands {
+    /// Configure a remote SOCKS5 proxy
+    Remote {
+        /// An easy to remember name for this custom proxy
+        name: String,
+        /// The IP of the remote proxy server
+        remote_ip: IpAddr,
+        /// The port of the remote proxy server
+        remote_port: u16,
+    },
+    /// Configure a local SOCKS5 proxy
+    Local {
+        /// An easy to remember name for this custom proxy
+        name: String,
+        /// The port that the server on localhost is listening on
+        local_port: u16,
+        /// The IP of the remote peer
+        remote_ip: IpAddr,
+        /// The port of the remote peer
+        remote_port: u16,
+    },
+}
+
 impl AddCustomCommands {
     fn name(&self) -> String {
         match self {
-            AddCustomCommands::Socks5Local { name, .. } => name,
-            AddCustomCommands::Socks5Remote { name, .. } => name,
             AddCustomCommands::Shadowsocks { name, .. } => name,
+            AddCustomCommands::Socks5(socks) => match socks {
+                AddSocks5Commands::Remote { name, .. } => name,
+                AddSocks5Commands::Local { name, .. } => name,
+            },
         }
         .clone()
     }
@@ -308,42 +317,47 @@ mod conversions {
     use anyhow::{anyhow, Error};
     use mullvad_types::access_method as daemon_types;
 
-    use super::AddCustomCommands;
+    use super::{AddCustomCommands, AddSocks5Commands};
 
     impl TryFrom<AddCustomCommands> for daemon_types::AccessMethod {
         type Error = Error;
 
         fn try_from(value: AddCustomCommands) -> Result<Self, Self::Error> {
             Ok(match value {
-                AddCustomCommands::Socks5Local {
-                    local_port,
-                    remote_ip,
-                    remote_port,
-                    name: _,
-                } => {
-                    println!("Adding Local SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
-                    let socks_proxy = daemon_types::Socks5::Local(
-                        daemon_types::Socks5Local::from_args(
-                            remote_ip.to_string(),
-                            remote_port,
-                            local_port,
-                        )
-                        .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
-                    );
-                    daemon_types::AccessMethod::from(socks_proxy)
-                }
-                AddCustomCommands::Socks5Remote {
-                    remote_ip,
-                    remote_port,
-                    name: _,
-                } => {
-                    println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
-                    let socks_proxy = daemon_types::Socks5::Remote(
-                        daemon_types::Socks5Remote::from_args(remote_ip.to_string(), remote_port)
+                AddCustomCommands::Socks5(socks) => match socks {
+                    AddSocks5Commands::Local {
+                        local_port,
+                        remote_ip,
+                        remote_port,
+                        name: _,
+                    } => {
+                        println!("Adding Local SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
+                        let socks_proxy = daemon_types::Socks5::Local(
+                            daemon_types::Socks5Local::from_args(
+                                remote_ip.to_string(),
+                                remote_port,
+                                local_port,
+                            )
+                            .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
+                        );
+                        daemon_types::AccessMethod::from(socks_proxy)
+                    }
+                    AddSocks5Commands::Remote {
+                        remote_ip,
+                        remote_port,
+                        name: _,
+                    } => {
+                        println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
+                        let socks_proxy = daemon_types::Socks5::Remote(
+                            daemon_types::Socks5Remote::from_args(
+                                remote_ip.to_string(),
+                                remote_port,
+                            )
                             .ok_or(anyhow!("Could not create a remote Socks5 api proxy"))?,
-                    );
-                    daemon_types::AccessMethod::from(socks_proxy)
-                }
+                        );
+                        daemon_types::AccessMethod::from(socks_proxy)
+                    }
+                },
                 AddCustomCommands::Shadowsocks {
                     remote_ip,
                     remote_port,
@@ -395,8 +409,6 @@ mod pp {
                     write!(f, "")
                 }
             };
-
-            writeln!(f, "{:?}", self.api_access_method)?;
 
             match &self.api_access_method.access_method {
                 AccessMethod::BuiltIn(method) => {
