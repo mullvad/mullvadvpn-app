@@ -57,7 +57,7 @@ mod data {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "Could not deserialize Access Method from protobuf",
                 ))
-                .map(ApiAccessMethodId::from)?;
+                .and_then(ApiAccessMethodId::try_from)?;
             let name = value.name;
             let enabled = value.enabled;
             let access_method = value
@@ -238,9 +238,13 @@ mod data {
         }
     }
 
-    impl From<proto::Uuid> for ApiAccessMethodId {
-        fn from(value: proto::Uuid) -> Self {
-            Self::from_string(value.value)
+    impl TryFrom<proto::Uuid> for ApiAccessMethodId {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::Uuid) -> Result<Self, Self::Error> {
+            Self::from_string(value.value).ok_or(FromProtobufTypeError::InvalidArgument(
+                "Could not parse UUID message from protobuf",
+            ))
         }
     }
 
