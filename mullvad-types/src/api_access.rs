@@ -1,8 +1,6 @@
-use std::collections::hash_map::DefaultHasher;
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
-use std::hash::{Hash, Hasher};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 
 /// Daemon settings for API access methods.
@@ -85,36 +83,23 @@ pub struct ApiAccessMethod {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct ApiAccessMethodId(String);
+pub struct ApiAccessMethodId(uuid::Uuid);
 
 impl ApiAccessMethodId {
+    pub fn new() -> Self {
+        Self(uuid::Uuid::new_v4())
+    }
     /// It is up to the caller to make sure that the supplied String is actually
     /// a valid UUID in the context of [`ApiAccessMethod`]s.
     pub fn from_string(id: String) -> Self {
-        Self(id)
+        // TODO: Remove unwrap
+        Self(uuid::Uuid::from_str(&id).unwrap())
     }
 }
 
 impl std::fmt::Display for ApiAccessMethodId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
-    }
-}
-
-impl std::ops::Deref for ApiAccessMethodId {
-    type Target = String;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl From<&AccessMethod> for ApiAccessMethodId {
-    fn from(value: &AccessMethod) -> Self {
-        // Generate unqiue ID for this `AccessMethod`.
-        let mut hasher = DefaultHasher::new();
-        value.hash(&mut hasher);
-        ApiAccessMethodId(hasher.finish().to_string())
     }
 }
 
@@ -128,7 +113,30 @@ pub enum AccessMethod {
 impl ApiAccessMethod {
     pub fn new(name: String, enabled: bool, access_method: AccessMethod) -> Self {
         Self {
-            id: ApiAccessMethodId::from(&access_method),
+            id: ApiAccessMethodId::new(),
+            name,
+            enabled,
+            access_method,
+        }
+    }
+
+    /// Just like [`new`], [`with_id`] will create a new [`ApiAccessMethod`].
+    /// But instead of automatically generating a new UUID, the id is instead
+    /// passed as an argument.
+    ///
+    /// This is useful when converting to [`ApiAccessMethod`] from other data
+    /// representations, such as protobuf.
+    ///
+    /// [`new`]: ApiAccessMethod::new
+    /// [`with_id`]: ApiAccessMethod::with_id
+    pub fn with_id(
+        id: ApiAccessMethodId,
+        name: String,
+        enabled: bool,
+        access_method: AccessMethod,
+    ) -> Self {
+        Self {
+            id,
             name,
             enabled,
             access_method,
