@@ -23,7 +23,7 @@ class MockDefaultPathObserver: DefaultPathObserverProtocol {
     private var innerPath: NetworkPath = MockNetworkPath()
     private var stateLock = NSLock()
 
-    private var defaultPathHandler: ((NetworkPath) -> Void)?
+    var defaultPathHandler: ((NetworkPath) -> Void)?
 
     func start(_ body: @escaping (NetworkPath) -> Void) {
         stateLock.withLock {

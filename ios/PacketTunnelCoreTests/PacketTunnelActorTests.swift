@@ -1,5 +1,5 @@
 //
-//  ActorTests.swift
+//  PacketTunnelActorTests.swift
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 05/09/2023.
@@ -16,14 +16,11 @@ import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 import XCTest
 
-final class ActorTests: XCTestCase {
-    private var actor: PacketTunnelActor?
+final class PacketTunnelActorTests: XCTestCase {
     private var stateSink: Combine.Cancellable?
 
     override func tearDown() async throws {
         stateSink?.cancel()
-        actor?.stop()
-        await actor?.waitUntilDisconnected()
     }
 
     /**
@@ -31,8 +28,11 @@ final class ActorTests: XCTestCase {
 
      As actor should transition through the following states: .initial → .connecting → .connected
      */
-    func testStart() async throws {
+    func testStartGoesToConnectedInSequence() async throws {
         let actor = PacketTunnelActor.mock()
+
+        // As actor starts it should transition through the following states based on simulation:
+        // .initial → .connecting → .connected
         let initialStateExpectation = expectation(description: "Expect initial state")
         let connectingExpectation = expectation(description: "Expect connecting state")
         let connectedStateExpectation = expectation(description: "Expect connected state")
@@ -54,47 +54,38 @@ final class ActorTests: XCTestCase {
                 }
             }
 
-        self.actor = actor
-
         actor.start(options: StartOptions(launchSource: .app))
 
         await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
     }
 
-    /**
-     Test stopping connected tunnel.
-
-     As actor should transition through the following states: .connected → .disconnecting → .disconnected
-     */
-    func testStopConnectedTunnel() async throws {
+    func testStartIgnoresSubsequentStarts() async throws {
         let actor = PacketTunnelActor.mock()
-        let connectedStateExpectation = expectation(description: "Expect connected state")
-        let disconnectingStateExpectation = expectation(description: "Expect disconnecting state")
-        let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
 
-        let allExpectations = [connectedStateExpectation, disconnectingStateExpectation, disconnectedStateExpectation]
+        // As actor starts it should transition through the following states based on simulation:
+        // .initial → .connecting → .connected
+        let initialStateExpectation = expectation(description: "Expect initial state")
+        let connectingExpectation = expectation(description: "Expect connecting state")
+        let connectedStateExpectation = expectation(description: "Expect connected state")
+
+        let allExpectations = [initialStateExpectation, connectingExpectation, connectedStateExpectation]
 
         stateSink = await actor.$state
             .receive(on: DispatchQueue.main)
             .sink { newState in
                 switch newState {
+                case .initial:
+                    initialStateExpectation.fulfill()
+                case .connecting:
+                    connectingExpectation.fulfill()
                 case .connected:
                     connectedStateExpectation.fulfill()
-                    actor.stop()
-
-                case .disconnecting:
-                    disconnectingStateExpectation.fulfill()
-
-                case .disconnected:
-                    disconnectedStateExpectation.fulfill()
-
                 default:
                     break
                 }
             }
 
-        self.actor = actor
-
+        actor.start(options: StartOptions(launchSource: .app))
         actor.start(options: StartOptions(launchSource: .app))
 
         await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
@@ -104,7 +95,7 @@ final class ActorTests: XCTestCase {
      Test start sequence when reading settings yields an error indicating that device is locked.
      This is common when network extenesion starts on boot with iOS.
 
-     1. The frist attempt to read settings yields an error indicating that device is locked.
+     1. The first attempt to read settings yields an error indicating that device is locked.
      2. An actor should set up a task to reconnect the tunnel periodically.
      3. The issue goes away on the second attempt to read settings.
      4. An actor should transition through `.connecting` towards`.connected` state.
@@ -163,10 +154,94 @@ final class ActorTests: XCTestCase {
                 }
             }
 
-        self.actor = actor
-
         actor.start(options: StartOptions(launchSource: .app))
 
         await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
+    }
+
+    func testStopGoesToDisconnected() async throws {
+        let actor = PacketTunnelActor.mock()
+        var hasFullfilledDisconnected = false
+        let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
+
+        actor.start(options: StartOptions(launchSource: .app))
+
+        stateSink = await actor.$state.receive(on: DispatchQueue.main).sink { newState in
+            switch newState {
+            case .disconnected:
+                disconnectedStateExpectation.fulfill()
+                hasFullfilledDisconnected = true
+            default:
+                if hasFullfilledDisconnected {
+                    XCTFail("Should not switch states after disconnected state")
+                }
+            }
+        }
+
+        actor.stop()
+
+        await fulfillment(of: [disconnectedStateExpectation])
+    }
+
+    func testStopIsNoopBeforeStart() async throws {
+        let actor = PacketTunnelActor.mock()
+
+        actor.stop()
+        actor.stop()
+        actor.stop()
+
+        switch await actor.state {
+        case .initial: break
+        default: XCTFail("Actor did not start, should be in .initial state")
+        }
+    }
+
+    func testStopCancelsDefaultPathObserver() async throws {
+        let pathObserver = MockDefaultPathObserver()
+        let actor = PacketTunnelActor.mock(defaultPathObserver: pathObserver)
+        let connectedStateExpectation = expectation(description: "Connected state")
+
+        actor.start(options: StartOptions(launchSource: .app))
+        
+        switch await actor.state {
+        case .connected: connectedStateExpectation.fulfill()
+        default: break
+        }
+
+        await fulfillment(of: [connectedStateExpectation])
+
+        actor.stop()
+
+        XCTAssertNil(pathObserver.defaultPathHandler)
+    }
+
+    func testSetErrorStateGetsCancelled() async throws {
+        let actor = PacketTunnelActor.mock()
+        let disconnectedStateExpectation = expectation(description: "Disconnected state")
+
+        stateSink = await actor.$state
+            .receive(on: DispatchQueue.main)
+            .sink { newState in
+                switch newState {
+                case .connecting:
+                    Task.detached {
+                        print("Will set error state")
+                        await Task.yield()
+                        actor.setErrorState(reason: .readSettings)
+                    }
+                    Task.detached {
+                        actor.stop()
+                    }
+                case .error:
+                    XCTFail("Should not go to error state")
+                case .disconnected:
+                    disconnectedStateExpectation.fulfill()
+                default:
+                    break
+                }
+            }
+
+        actor.start(options: StartOptions(launchSource: .app))
+        await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
     }
 }
