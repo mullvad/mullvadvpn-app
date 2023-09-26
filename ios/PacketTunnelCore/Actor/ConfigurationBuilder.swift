@@ -13,6 +13,15 @@ import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
+/// Error returned when there is an endpoint but its public key is invalid.
+public struct PublicKeyError: LocalizedError {
+    let endpoint: MullvadEndpoint
+
+    public var errorDescription: String? {
+        "Public key is invalid, endpoint: \(endpoint)"
+    }
+}
+
 /// Struct building tunnel adapter configuration.
 struct ConfigurationBuilder {
     var privateKey: PrivateKey
@@ -20,22 +29,28 @@ struct ConfigurationBuilder {
     var dns: SelectedDNSServers?
     var endpoint: MullvadEndpoint?
 
-    func makeConfiguration() -> TunnelAdapterConfiguration {
+    func makeConfiguration() throws -> TunnelAdapterConfiguration {
         return TunnelAdapterConfiguration(
             privateKey: privateKey,
             interfaceAddresses: interfaceAddresses,
             dns: dnsServers,
-            peer: peer
+            peer: try peer
         )
     }
 
     private var peer: TunnelPeer? {
-        guard let endpoint else { return nil }
+        get throws {
+            guard let endpoint else { return nil }
 
-        return TunnelPeer(
-            endpoint: .ipv4(endpoint.ipv4Relay),
-            publicKey: PublicKey(rawValue: endpoint.publicKey)!
-        )
+            guard let publicKey = PublicKey(rawValue: endpoint.publicKey) else {
+                throw PublicKeyError(endpoint: endpoint)
+            }
+
+            return TunnelPeer(
+                endpoint: .ipv4(endpoint.ipv4Relay),
+                publicKey: publicKey
+            )
+        }
     }
 
     private var dnsServers: [IPAddress] {

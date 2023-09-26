@@ -8,6 +8,7 @@
 
 import Foundation
 @testable import MullvadREST
+import WireGuardKitTypes
 
 enum ServerRelaysResponseStubs {
     static let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
@@ -77,7 +78,7 @@ enum ServerRelaysResponseStubs {
                     weight: 500,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
-                    publicKey: Data(),
+                    publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true
                 ),
                 REST.ServerRelay(
@@ -89,7 +90,7 @@ enum ServerRelaysResponseStubs {
                     weight: 1000,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
-                    publicKey: Data(),
+                    publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true
                 ),
                 REST.ServerRelay(
@@ -101,7 +102,7 @@ enum ServerRelaysResponseStubs {
                     weight: 50,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
-                    publicKey: Data(),
+                    publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true
                 ),
                 REST.ServerRelay(
@@ -113,7 +114,7 @@ enum ServerRelaysResponseStubs {
                     weight: 100,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
-                    publicKey: Data(),
+                    publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true
                 ),
                 REST.ServerRelay(
@@ -125,7 +126,7 @@ enum ServerRelaysResponseStubs {
                     weight: 100,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
-                    publicKey: Data(),
+                    publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true
                 ),
                 REST.ServerRelay(
@@ -137,7 +138,7 @@ enum ServerRelaysResponseStubs {
                     weight: 100,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
-                    publicKey: Data(),
+                    publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true
                 ),
             ]
