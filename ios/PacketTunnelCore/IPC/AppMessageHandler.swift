@@ -8,17 +8,16 @@
 
 import Foundation
 import MullvadLogging
-import PacketTunnelCore
 
 /**
  Actor handling packet tunnel IPC (app) messages and patching them through to the right facility.
  */
-struct AppMessageHandler {
+public struct AppMessageHandler {
     private let logger = Logger(label: "AppMessageHandler")
     private let packetTunnelActor: PacketTunnelActor
     private let urlRequestProxy: URLRequestProxy
 
-    init(packetTunnelActor: PacketTunnelActor, urlRequestProxy: URLRequestProxy) {
+    public init(packetTunnelActor: PacketTunnelActor, urlRequestProxy: URLRequestProxy) {
         self.packetTunnelActor = packetTunnelActor
         self.urlRequestProxy = urlRequestProxy
     }
@@ -34,7 +33,7 @@ struct AppMessageHandler {
      the acknowledgment from IPC before starting next operation, hence it's critical to return as soon as possible.
      (See `TunnelManager.reconnectTunnel()`, `SendTunnelProviderMessageOperation`)
      */
-    func handleAppMessage(_ messageData: Data) async -> Data? {
+    public func handleAppMessage(_ messageData: Data) async -> Data? {
         guard let message = decodeMessage(messageData) else { return nil }
 
         logger.debug("Received app message: \(message)")
@@ -51,7 +50,7 @@ struct AppMessageHandler {
             return await encodeReply(packetTunnelActor.state.packetTunnelStatus)
 
         case .privateKeyRotation:
-            packetTunnelActor.notifyKeyRotation(date: nil)
+            packetTunnelActor.notifyKeyRotation(date: Date())
             return nil
 
         case let .reconnectTunnel(selectorResult):

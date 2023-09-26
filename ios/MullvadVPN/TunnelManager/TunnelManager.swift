@@ -289,7 +289,7 @@ final class TunnelManager: StorePaymentObserver {
                     finish(result.error)
                 }
             } catch {
-                if let error = error as? NoRelaysSatisfyingConstraintsError {
+                if error is NoRelaysSatisfyingConstraintsError {
                     _ = self.setTunnelStatus { tunnelStatus in
                         tunnelStatus.state = .error(.noRelaysSatisfyingConstraints)
                     }
