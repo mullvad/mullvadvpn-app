@@ -53,9 +53,23 @@ extension PacketTunnelActor {
         // Tunnel monitor shouldn't run when in error state.
         tunnelMonitor.stop()
 
+        if let blockedState = makeBlockedState(reason: reason) {
+            state = .error(blockedState)
+            await configureAdapterForErrorState()
+        }
+    }
+
+    /**
+     Derive `BlockedState` from current `state` updating it with the given block reason.
+
+     - Parameter reason: block reason
+     - Returns: New blocked state that should be assigned to error state, otherwise `nil` when actor is past or at `disconnecting` phase or
+                when actor is already in the error state and no changes need to be made.
+     */
+    private func makeBlockedState(reason: BlockedStateReason) -> BlockedState? {
         switch state {
         case .initial:
-            let blockedState = BlockedState(
+            return BlockedState(
                 reason: reason,
                 relayConstraints: nil,
                 currentKey: nil,
@@ -64,11 +78,9 @@ extension PacketTunnelActor {
                 recoveryTask: startRecoveryTaskIfNeeded(reason: reason),
                 priorState: state.priorState!
             )
-            state = .error(blockedState)
-            await configureAdapterForErrorState()
 
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
-            let blockedState = BlockedState(
+            return BlockedState(
                 reason: reason,
                 relayConstraints: connState.relayConstraints,
                 currentKey: nil,
@@ -76,17 +88,17 @@ extension PacketTunnelActor {
                 networkReachability: connState.networkReachability,
                 priorState: state.priorState!
             )
-            state = .error(blockedState)
-            await configureAdapterForErrorState()
 
         case var .error(blockedState):
             if blockedState.reason != reason {
                 blockedState.reason = reason
-                state = .error(blockedState)
+                return blockedState
+            } else {
+                return nil
             }
 
         case .disconnecting, .disconnected:
-            break
+            return nil
         }
     }
 
