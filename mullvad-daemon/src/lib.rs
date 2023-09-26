@@ -275,7 +275,7 @@ pub enum DaemonCommand {
     /// Set the API access method to use
     SetApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodId),
     /// Edit an API access method
-    UpdateApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodUpdate),
+    UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
     /// Get the addresses of all known API endpoints
     GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
     /// Get information about the currently running and latest app versions
@@ -2325,7 +2325,7 @@ where
     async fn on_update_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        method: ApiAccessMethodUpdate,
+        method: AccessMethodSetting,
     ) {
         let result = self
             .update_access_method(method)

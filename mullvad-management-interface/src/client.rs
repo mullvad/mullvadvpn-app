@@ -3,7 +3,6 @@
 use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
-    access_method::{daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
     api_access::{AccessMethod, AccessMethodSetting, ApiAccessMethodId},
     custom_list::{CustomList, CustomListLocationUpdate},
@@ -547,16 +546,7 @@ impl MullvadProxyClient {
     ) -> Result<()> {
         let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
         new_api_access_method.enable();
-        let update = ApiAccessMethodUpdate {
-            id: api_access_method_id,
-            access_method: new_api_access_method,
-        };
-
-        self.0
-            .update_api_access_method(types::ApiAccessMethodUpdate::from(update))
-            .await
-            .map_err(Error::Rpc)
-            .map(drop)
+        self.update_access_method(new_api_access_method).await
     }
 
     pub async fn disable_access_method(
@@ -565,16 +555,7 @@ impl MullvadProxyClient {
     ) -> Result<()> {
         let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
         new_api_access_method.disable();
-        let update = ApiAccessMethodUpdate {
-            id: api_access_method_id,
-            access_method: new_api_access_method,
-        };
-
-        self.0
-            .update_api_access_method(types::ApiAccessMethodUpdate::from(update))
-            .await
-            .map_err(Error::Rpc)
-            .map(drop)
+        self.update_access_method(new_api_access_method).await
     }
 
     pub async fn remove_access_method(
@@ -590,14 +571,10 @@ impl MullvadProxyClient {
 
     pub async fn update_access_method(
         &mut self,
-        access_method_update: ApiAccessMethodUpdate,
+        access_method_update: AccessMethodSetting,
     ) -> Result<()> {
-        // Enabled x String x AccessMethod -> tonic::ApiAccessMethodAdd
-        //
-        // E.g.
-        // mullvad::ApiAccessMethodAdd::into
         self.0
-            .update_api_access_method(types::ApiAccessMethodUpdate::from(access_method_update))
+            .update_api_access_method(types::ApiAccessMethod::from(access_method_update))
             .await
             .map_err(Error::Rpc)
             .map(drop)

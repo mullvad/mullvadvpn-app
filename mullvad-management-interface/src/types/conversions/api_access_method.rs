@@ -3,7 +3,7 @@
 /// [`mullvad_types::access_method::Settings`] data type.
 mod settings {
     use crate::types::{proto, FromProtobufTypeError};
-    use mullvad_types::access_method;
+    use mullvad_types::api_access;
 
     impl From<&api_access::Settings> for proto::ApiAccessMethodSettings {
         fn from(settings: &api_access::Settings) -> Self {
@@ -33,40 +33,6 @@ mod settings {
                     .iter()
                     .map(api_access::AccessMethodSetting::try_from)
                     .collect::<Result<Vec<api_access::AccessMethodSetting>, _>>()?,
-            })
-        }
-    }
-
-    impl From<access_method::daemon::ApiAccessMethodUpdate> for proto::ApiAccessMethodUpdate {
-        fn from(value: access_method::daemon::ApiAccessMethodUpdate) -> Self {
-            proto::ApiAccessMethodUpdate {
-                id: Some(proto::Uuid::from(value.id)),
-                access_method: Some(proto::ApiAccessMethod::from(value.access_method)),
-            }
-        }
-    }
-
-    impl TryFrom<proto::ApiAccessMethodUpdate> for access_method::daemon::ApiAccessMethodUpdate {
-        type Error = FromProtobufTypeError;
-
-        fn try_from(value: proto::ApiAccessMethodUpdate) -> Result<Self, Self::Error> {
-            let api_access_method = value
-                .access_method
-                .ok_or(FromProtobufTypeError::InvalidArgument(
-                    "Could not convert Access Method from protobuf",
-                ))
-                .and_then(api_access::AccessMethodSetting::try_from)?;
-
-            let id = value
-                .id
-                .ok_or(FromProtobufTypeError::InvalidArgument(
-                    "Could not convert Access Method from protobuf",
-                ))
-                .map(api_access::ApiAccessMethodId::from)?;
-
-            Ok(access_method::daemon::ApiAccessMethodUpdate {
-                id,
-                access_method: api_access_method,
             })
         }
     }

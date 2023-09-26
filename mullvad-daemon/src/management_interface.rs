@@ -657,13 +657,11 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn update_api_access_method(
         &self,
-        request: Request<types::ApiAccessMethodUpdate>,
+        request: Request<types::ApiAccessMethod>,
     ) -> ServiceResult<()> {
         log::debug!("update_api_access_method");
         let access_method_update =
-            mullvad_types::access_method::daemon::ApiAccessMethodUpdate::try_from(
-                request.into_inner(),
-            )?;
+            mullvad_types::api_access::AccessMethodSetting::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::UpdateApiAccessMethod(
             tx,

@@ -1,8 +1,5 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::access_method::{
-    daemon::ApiAccessMethodUpdate, AccessMethod, ApiAccessMethod, CustomAccessMethod,
-};
 use mullvad_types::api_access::{AccessMethod, AccessMethodSetting, CustomAccessMethod};
 use std::net::IpAddr;
 
@@ -95,7 +92,6 @@ impl ApiAccess {
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let api_access_method = Self::get_access_method(&mut rpc, &cmd.item).await?;
-        let id = api_access_method.get_id();
         let access_method = api_access_method
             .as_custom()
             .cloned()
@@ -143,11 +139,7 @@ impl ApiAccess {
             cmd.item
         ))?;
 
-        rpc.update_access_method(ApiAccessMethodUpdate {
-            id,
-            access_method: edited_access_method,
-        })
-        .await?;
+        rpc.update_access_method(edited_access_method).await?;
 
         Ok(())
     }
