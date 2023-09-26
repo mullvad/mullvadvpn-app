@@ -353,7 +353,7 @@ message CustomLists { repeated CustomList custom_lists = 1; }
 
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
-message ApiAccessMethod {
+message AccessMethod {
   message Direct {}
   message Bridges {}
   message Socks5Local {
@@ -371,20 +371,21 @@ message ApiAccessMethod {
     string password = 4;
     string cipher = 5;
   }
-
-  UUID id = 1;
-  string name = 2;
-  bool enabled = 3;
   oneof access_method {
-    Direct direct = 4;
-    Bridges bridges = 5;
-    Socks5Local socks5local = 6;
-    Socks5Remote socks5remote = 7;
-    Shadowsocks shadowsocks = 8;
+    Direct direct = 1;
+    Bridges bridges = 2;
+    Socks5Local socks5local = 3;
+    Socks5Remote socks5remote = 4;
+    Shadowsocks shadowsocks = 5;
   }
 }
 
-message ApiAccessMethods { repeated ApiAccessMethod api_access_methods = 1; }
+message ApiAccessMethod {
+  UUID id = 1;
+  string name = 2;
+  bool enabled = 3;
+  AccessMethod access_method = 4;
+}
 
 message ApiAccessMethodSettings { repeated ApiAccessMethod api_access_methods = 1; }
 
