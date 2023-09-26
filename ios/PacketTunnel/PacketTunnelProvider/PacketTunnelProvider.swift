@@ -134,8 +134,8 @@ extension PacketTunnelProvider {
             if let selectorResult = try tunnelOptions.getSelectorResult() {
                 parsedOptions.launchSource = .app
                 parsedOptions.selectorResult = selectorResult
-            } else {
-                parsedOptions.launchSource = tunnelOptions.isOnDemand() ? .onDemand : .system
+            } else if !tunnelOptions.isOnDemand() {
+                parsedOptions.launchSource = .system
             }
         } catch {
             providerLogger.error(error: error, message: "Failed to decode relay selector result passed from the app.")
