@@ -187,7 +187,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: relay-list
-          path: build/relays.json
+          path: build
 
       - name: Build Android app
         uses: burrunan/gradle-cache-action@v1
