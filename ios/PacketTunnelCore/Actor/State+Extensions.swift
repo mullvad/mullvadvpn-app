@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import class WireGuardKitTypes.PrivateKey
 
 extension State {
@@ -32,6 +33,50 @@ extension State {
             }
 
         case .disconnecting, .disconnected:
+            return nil
+        }
+    }
+
+    var packetTunnelStatus: PacketTunnelStatus {
+        var status = PacketTunnelStatus()
+
+        switch self {
+        case let .connecting(connState),
+             let .connected(connState),
+             let .reconnecting(connState),
+             let .disconnecting(connState):
+            switch connState.networkReachability {
+            case .reachable:
+                status.isNetworkReachable = true
+            case .unreachable:
+                status.isNetworkReachable = false
+            case .undetermined:
+                // TODO: fix me
+                status.isNetworkReachable = true
+            }
+
+            status.numberOfFailedAttempts = connState.connectionAttemptCount
+            status.tunnelRelay = connState.selectedRelay.packetTunnelRelay
+
+        case .disconnected, .initial:
+            break
+
+        case let .error(blockedState):
+            status.blockedStateReason = blockedState.reason
+        }
+
+        return status
+    }
+
+    public var relayConstraints: RelayConstraints? {
+        switch self {
+        case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
+            return connState.relayConstraints
+
+        case let .error(blockedState):
+            return blockedState.relayConstraints
+
+        case .initial, .disconnecting, .disconnected:
             return nil
         }
     }
@@ -105,7 +150,7 @@ extension BlockedStateReason {
             return true
 
         case .noRelaysSatisfyingConstraints, .readSettings, .invalidAccount, .deviceRevoked, .tunnelAdapter, .unknown,
-             .deviceLoggedOut, .outdatedSchema:
+             .deviceLoggedOut, .outdatedSchema, .invalidPublicKey:
             return false
         }
     }

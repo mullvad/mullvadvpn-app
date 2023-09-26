@@ -27,12 +27,9 @@ enum SetAccountAction {
 
     var taskName: String {
         switch self {
-        case .new:
-            return "Set new account"
-        case .existing:
-            return "Set existing account"
-        case .unset:
-            return "Unset account"
+        case .new: "Set new account"
+        case .existing: "Set existing account"
+        case .unset: "Unset account"
         }
     }
 }
