@@ -16,12 +16,12 @@ impl Settings {
     }
 
     /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
-    pub fn remove(&mut self, api_access_method: &ApiAccessMethodId) {
+    pub fn remove(&mut self, api_access_method: &Id) {
         self.retain(|method| method.get_id() != *api_access_method)
     }
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
-    pub fn find(&self, element: &ApiAccessMethodId) -> Option<&AccessMethodSetting> {
+    pub fn find(&self, element: &Id) -> Option<&AccessMethodSetting> {
         self.access_method_settings
             .iter()
             .find(|api_access_method| *element == api_access_method.get_id())
@@ -32,7 +32,7 @@ impl Settings {
     /// If the [`AccessMethod`] is found to be part of `api_access_methods`, a
     /// mutable reference to that inner element is returned. Otherwise, `None`
     /// is returned.
-    pub fn find_mut(&mut self, element: &ApiAccessMethodId) -> Option<&mut AccessMethodSetting> {
+    pub fn find_mut(&mut self, element: &Id) -> Option<&mut AccessMethodSetting> {
         self.access_method_settings
             .iter_mut()
             .find(|api_access_method| *element == api_access_method.get_id())
@@ -75,28 +75,28 @@ impl Default for Settings {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct AccessMethodSetting {
     /// Some unique id (distinct for each `AccessMethod`).
-    id: ApiAccessMethodId,
+    id: Id,
     pub name: String,
     pub enabled: bool,
     pub access_method: AccessMethod,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct ApiAccessMethodId(uuid::Uuid);
+pub struct Id(uuid::Uuid);
 
-impl ApiAccessMethodId {
+impl Id {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self(uuid::Uuid::new_v4())
     }
     /// Tries to parse a UUID from a raw String. If it is successful, an
-    /// [`ApiAccessMethodId`] is instantiated.
+    /// [`Id`] is instantiated.
     pub fn from_string(id: String) -> Option<Self> {
         uuid::Uuid::from_str(&id).ok().map(Self)
     }
 }
 
-impl std::fmt::Display for ApiAccessMethodId {
+impl std::fmt::Display for Id {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -112,7 +112,7 @@ pub enum AccessMethod {
 impl AccessMethodSetting {
     pub fn new(name: String, enabled: bool, access_method: AccessMethod) -> Self {
         Self {
-            id: ApiAccessMethodId::new(),
+            id: Id::new(),
             name,
             enabled,
             access_method,
@@ -128,12 +128,7 @@ impl AccessMethodSetting {
     ///
     /// [`new`]: ApiAccessMethod::new
     /// [`with_id`]: ApiAccessMethod::with_id
-    pub fn with_id(
-        id: ApiAccessMethodId,
-        name: String,
-        enabled: bool,
-        access_method: AccessMethod,
-    ) -> Self {
+    pub fn with_id(id: Id, name: String, enabled: bool, access_method: AccessMethod) -> Self {
         Self {
             id,
             name,
@@ -142,7 +137,7 @@ impl AccessMethodSetting {
         }
     }
 
-    pub fn get_id(&self) -> ApiAccessMethodId {
+    pub fn get_id(&self) -> Id {
         self.id.clone()
     }
 
