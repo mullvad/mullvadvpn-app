@@ -78,7 +78,7 @@ public enum State {
 
     /// Error state.
     /// This state is normally entered when the tunnel is unable to start or reconnect.
-    /// In this state the tunnel blocks all nework connectivity by setting up a peerless WireGuard tunnel, and either awaits user action or, in cirtain
+    /// In this state the tunnel blocks all nework connectivity by setting up a peerless WireGuard tunnel, and either awaits user action or, in certain
     /// circumstances, attempts to recover automatically using a repeating timer.
     case error(BlockedState)
 }

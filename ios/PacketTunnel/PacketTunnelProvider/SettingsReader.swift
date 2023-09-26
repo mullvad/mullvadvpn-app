@@ -46,7 +46,7 @@ private extension DeviceState {
 
 private extension DNSSettings {
     /**
-     Converys `DNSSettings` to `SelectedDNSServers` structure.
+     Converts `DNSSettings` to `SelectedDNSServers` structure.
      */
     var selectedDNSServers: SelectedDNSServers {
         if effectiveEnableCustomDNS {
