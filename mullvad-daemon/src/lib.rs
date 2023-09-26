@@ -41,7 +41,7 @@ use mullvad_relay_selector::{
 use mullvad_types::{
     access_method::{daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access::{ApiAccessMethod, ApiAccessMethodId},
+    api_access::{AccessMethodSetting, ApiAccessMethodId},
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -262,9 +262,9 @@ pub enum DaemonCommand {
     /// Update a custom list with a given id
     UpdateCustomList(ResponseTx<(), Error>, CustomList),
     /// Get API access methods
-    GetApiAccessMethods(ResponseTx<Vec<ApiAccessMethod>, Error>),
+    GetApiAccessMethods(ResponseTx<Vec<AccessMethodSetting>, Error>),
     /// Add API access methods
-    AddApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethod),
+    AddApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
     /// Remove an API access method
     RemoveApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodId),
     /// Set the API access method to use
@@ -2243,7 +2243,7 @@ where
         Self::oneshot_send(tx, result, "update_custom_list response");
     }
 
-    fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<ApiAccessMethod>, Error>) {
+    fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<AccessMethodSetting>, Error>) {
         let result = Ok(self.settings.api_access_methods.cloned());
         Self::oneshot_send(tx, result, "get_api_access_methods response");
     }
@@ -2251,7 +2251,7 @@ where
     async fn on_add_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        method: ApiAccessMethod,
+        method: AccessMethodSetting,
     ) {
         let result = self
             .add_access_method(method)

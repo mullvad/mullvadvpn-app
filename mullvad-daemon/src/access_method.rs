@@ -26,7 +26,10 @@ impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub async fn add_access_method(&mut self, access_method: ApiAccessMethod) -> Result<(), Error> {
+    pub async fn add_access_method(
+        &mut self,
+        access_method: AccessMethodSetting,
+    ) -> Result<(), Error> {
         self.settings
             .update(|settings| settings.api_access_methods.append(access_method))
             .await
