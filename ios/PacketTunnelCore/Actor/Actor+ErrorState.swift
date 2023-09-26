@@ -131,11 +131,13 @@ extension PacketTunnelActor {
     private func startRecoveryTaskIfNeeded(reason: BlockedStateReason) -> AutoCancellingTask? {
         guard reason.shouldRestartAutomatically else { return nil }
 
-        let periodicity = timings.bootRecoveryPeriodicity
-        let task = Task { [weak self] in
+        // Use detached task to prevent inheriting current context.
+        let task = Task.detached { [weak self] in
             while !Task.isCancelled {
-                try await Task.sleepUsingContinuousClock(for: periodicity)
-                try? await self?.reconnect(to: .random)
+                guard let self else { return }
+
+                try await Task.sleepUsingContinuousClock(for: timings.bootRecoveryPeriodicity)
+                try? await reconnect(to: .random)
             }
         }
 
