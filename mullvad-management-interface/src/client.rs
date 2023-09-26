@@ -4,7 +4,7 @@ use crate::types::{self, rpc};
 use futures::{Stream, StreamExt};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access::{AccessMethodSetting, ApiAccessMethodId},
+    api_access::{AccessMethod, AccessMethodSetting, ApiAccessMethodId},
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
@@ -525,10 +525,17 @@ impl MullvadProxyClient {
 
     pub async fn add_access_method(
         &mut self,
-        api_access_method: AccessMethodSetting,
+        name: String,
+        enabled: bool,
+        access_method: AccessMethod,
     ) -> Result<()> {
+        let request = types::ApiAccessMethodAdd {
+            name,
+            enabled,
+            access_method: Some(types::AccessMethod::from(access_method)),
+        };
         self.0
-            .add_api_access_method(types::ApiAccessMethod::from(api_access_method))
+            .add_api_access_method(request)
             .await
             .map_err(Error::Rpc)
             .map(drop)
@@ -585,6 +592,10 @@ impl MullvadProxyClient {
         &mut self,
         access_method_update: rpc::api_access_method_update::ApiAccessMethodUpdate,
     ) -> Result<()> {
+        // Enabled x String x AccessMethod -> tonic::ApiAccessMethodAdd
+        //
+        // E.g.
+        // mullvad::ApiAccessMethodAdd::into
         self.0
             .update_api_access_method(types::ApiAccessMethodUpdate::from(access_method_update))
             .await
