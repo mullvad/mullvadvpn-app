@@ -125,43 +125,28 @@ extension PacketTunnelActor {
      - Returns: `true` if the key policy switch happened, otherwise `false`.
      */
     private func keySwitchInner() -> Bool {
-        func mutateConnectionState(_ connectionState: inout ConnectionState) -> Bool {
-            switch connectionState.keyPolicy {
-            case .useCurrent:
-                return false
-
-            case .usePrior:
-                connectionState.keyPolicy = .useCurrent
-                return true
-            }
-        }
-
         // Switch key policy to use current key.
         switch state {
         case var .connecting(connState):
-            if mutateConnectionState(&connState) {
+            if setCurrentKeyPolicy(&connState.keyPolicy) {
                 state = .connecting(connState)
                 return true
             }
 
         case var .connected(connState):
-            if mutateConnectionState(&connState) {
+            if setCurrentKeyPolicy(&connState.keyPolicy) {
                 state = .connected(connState)
                 return true
             }
 
         case var .reconnecting(connState):
-            if mutateConnectionState(&connState) {
+            if setCurrentKeyPolicy(&connState.keyPolicy) {
                 state = .reconnecting(connState)
                 return true
             }
 
         case var .error(blockedState):
-            switch blockedState.keyPolicy {
-            case .useCurrent:
-                break
-            case .usePrior:
-                blockedState.keyPolicy = .useCurrent
+            if setCurrentKeyPolicy(&blockedState.keyPolicy) {
                 state = .error(blockedState)
                 return true
             }
@@ -170,5 +155,22 @@ extension PacketTunnelActor {
             break
         }
         return false
+    }
+
+    /**
+     Internal helper that transitions key policy from `.usePrior` to `.useCurrent`.
+
+     - Parameter keyPolicy: a reference to key policy hend either in connection state or blocked state struct.
+     - Returns: `true` when the policy was modified, otherwise `false`.
+     */
+    private func setCurrentKeyPolicy(_ keyPolicy: inout KeyPolicy) -> Bool {
+        switch keyPolicy {
+        case .useCurrent:
+            return false
+
+        case .usePrior:
+            keyPolicy = .useCurrent
+            return true
+        }
     }
 }
