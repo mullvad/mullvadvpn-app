@@ -622,7 +622,7 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn add_api_access_method(
         &self,
-        request: Request<types::ApiAccessMethodAdd>,
+        request: Request<types::AccessMethodSettingAdd>,
     ) -> ServiceResult<types::Uuid> {
         log::debug!("add_api_access_method");
         let request = request.into_inner();
@@ -657,7 +657,7 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn update_api_access_method(
         &self,
-        request: Request<types::ApiAccessMethod>,
+        request: Request<types::AccessMethodSetting>,
     ) -> ServiceResult<()> {
         log::debug!("update_api_access_method");
         let access_method_update =

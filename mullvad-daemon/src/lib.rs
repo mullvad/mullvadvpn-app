@@ -645,7 +645,7 @@ where
             relay_selector.clone(),
             settings
                 .api_access_methods
-                .api_access_methods
+                .access_method_settings
                 .iter()
                 // We only care about the access methods which are set to 'enabled' by the user.
                 .filter(|api_access_method| api_access_method.enabled())

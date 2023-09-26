@@ -8,8 +8,8 @@ mod settings {
     impl From<&api_access::Settings> for proto::ApiAccessMethodSettings {
         fn from(settings: &api_access::Settings) -> Self {
             Self {
-                api_access_methods: settings
-                    .api_access_methods
+                access_method_settings: settings
+                    .access_method_settings
                     .iter()
                     .map(|method| method.clone().into())
                     .collect(),
@@ -28,8 +28,8 @@ mod settings {
 
         fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
             Ok(Self {
-                api_access_methods: settings
-                    .api_access_methods
+                access_method_settings: settings
+                    .access_method_settings
                     .iter()
                     .map(api_access::AccessMethodSetting::try_from)
                     .collect::<Result<Vec<api_access::AccessMethodSetting>, _>>()?,
@@ -48,10 +48,10 @@ mod data {
         CustomAccessMethod, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
     };
 
-    impl TryFrom<proto::ApiAccessMethod> for AccessMethodSetting {
+    impl TryFrom<proto::AccessMethodSetting> for AccessMethodSetting {
         type Error = FromProtobufTypeError;
 
-        fn try_from(value: proto::ApiAccessMethod) -> Result<Self, Self::Error> {
+        fn try_from(value: proto::AccessMethodSetting) -> Result<Self, Self::Error> {
             let id = value
                 .id
                 .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -76,12 +76,12 @@ mod data {
         }
     }
 
-    impl From<AccessMethodSetting> for proto::ApiAccessMethod {
+    impl From<AccessMethodSetting> for proto::AccessMethodSetting {
         fn from(value: AccessMethodSetting) -> Self {
             let id = proto::Uuid::from(value.get_id());
             let name = value.get_name();
             let enabled = value.enabled();
-            proto::ApiAccessMethod {
+            proto::AccessMethodSetting {
                 id: Some(id),
                 name,
                 enabled,
@@ -248,10 +248,10 @@ mod data {
         }
     }
 
-    impl TryFrom<&proto::ApiAccessMethod> for AccessMethodSetting {
+    impl TryFrom<&proto::AccessMethodSetting> for AccessMethodSetting {
         type Error = FromProtobufTypeError;
 
-        fn try_from(value: &proto::ApiAccessMethod) -> Result<Self, Self::Error> {
+        fn try_from(value: &proto::AccessMethodSetting) -> Result<Self, Self::Error> {
             AccessMethodSetting::try_from(value.clone())
         }
     }
