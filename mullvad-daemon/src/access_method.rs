@@ -14,6 +14,9 @@ pub enum Error {
     /// Can not remove built-in access method
     #[error(display = "Cannot remove built-in access method")]
     RemoveBuiltIn,
+    /// Can not edit built-in access method
+    #[error(display = "Cannot edit built-in access method")]
+    EditBuiltIn,
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
     NoSuchMethod(ApiAccessMethodId),
@@ -28,12 +31,17 @@ where
 {
     pub async fn add_access_method(
         &mut self,
-        access_method: AccessMethodSetting,
-    ) -> Result<(), Error> {
+        name: String,
+        enabled: bool,
+        access_method: AccessMethod,
+    ) -> Result<ApiAccessMethodId, Error> {
+        let access_method_setting = AccessMethodSetting::new(name, enabled, access_method);
+        let id = access_method_setting.get_id();
         self.settings
-            .update(|settings| settings.api_access_methods.append(access_method))
+            .update(|settings| settings.api_access_methods.append(access_method_setting))
             .await
             .map(|did_change| self.notify_on_change(did_change))
+            .map(|_| id)
             .map_err(Error::Settings)
     }
 
@@ -59,15 +67,22 @@ where
             .map_err(Error::Settings)
     }
 
+    /// "Updates" an [`AccessMethodSetting`] by replacing the existing entry
+    /// with the argument `access_method_update` if an existing entry with
+    /// matching UUID is found.
     pub async fn update_access_method(
         &mut self,
-        access_method_update: ApiAccessMethodUpdate,
+        access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
+        if access_method_update.is_builtin() {
+            return Err(Error::EditBuiltIn);
+        }
         self.settings
             .update(|settings| {
                 let access_methods = &mut settings.api_access_methods;
-                if let Some(access_method) = access_methods.find_mut(&access_method_update.id) {
-                    *access_method = access_method_update.access_method
+                if let Some(access_method) = access_methods.find_mut(&access_method_update.get_id())
+                {
+                    *access_method = access_method_update
                 }
             })
             .await

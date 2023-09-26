@@ -326,14 +326,3 @@ impl From<Socks5Local> for Socks5 {
         Socks5::Local(value)
     }
 }
-
-/// Some short-lived datastructure used in some RPC calls to the mullvad daemon.
-pub mod daemon {
-    use super::*;
-    /// Argument to protobuf rpc `UpdateApiAccessMethod`.
-    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-    pub struct ApiAccessMethodUpdate {
-        pub id: ApiAccessMethodId,
-        pub access_method: ApiAccessMethod,
-    }
-}
