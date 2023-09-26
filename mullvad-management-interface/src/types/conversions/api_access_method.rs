@@ -1,11 +1,9 @@
 /// Implements conversions for the auxilliary
 /// [`crate::types::proto::ApiAccessMethodSettings`] type to the internal
 /// [`mullvad_types::access_method::Settings`] data type.
-pub mod settings {
-    use crate::types::{
-        proto, rpc::api_access_method_update::ApiAccessMethodUpdate, FromProtobufTypeError,
-    };
-    use mullvad_types::api_access;
+mod settings {
+    use crate::types::{proto, FromProtobufTypeError};
+    use mullvad_types::access_method;
 
     impl From<&api_access::Settings> for proto::ApiAccessMethodSettings {
         fn from(settings: &api_access::Settings) -> Self {
@@ -39,8 +37,8 @@ pub mod settings {
         }
     }
 
-    impl From<ApiAccessMethodUpdate> for proto::ApiAccessMethodUpdate {
-        fn from(value: ApiAccessMethodUpdate) -> Self {
+    impl From<access_method::daemon::ApiAccessMethodUpdate> for proto::ApiAccessMethodUpdate {
+        fn from(value: access_method::daemon::ApiAccessMethodUpdate) -> Self {
             proto::ApiAccessMethodUpdate {
                 id: Some(proto::Uuid::from(value.id)),
                 access_method: Some(proto::ApiAccessMethod::from(value.access_method)),
@@ -48,7 +46,7 @@ pub mod settings {
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethodUpdate> for ApiAccessMethodUpdate {
+    impl TryFrom<proto::ApiAccessMethodUpdate> for access_method::daemon::ApiAccessMethodUpdate {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethodUpdate) -> Result<Self, Self::Error> {
@@ -66,7 +64,7 @@ pub mod settings {
                 ))
                 .map(api_access::ApiAccessMethodId::from)?;
 
-            Ok(ApiAccessMethodUpdate {
+            Ok(access_method::daemon::ApiAccessMethodUpdate {
                 id,
                 access_method: api_access_method,
             })
