@@ -90,7 +90,10 @@ extension PacketTunnelActor {
      2. Reconnect the tunnel using the new key (currently stored in device state)
      */
     private func startKeySwitchTask() -> AutoCancellingTask {
-        let task = Task {
+        // Use detached task to prevent inheriting current context.
+        let task = Task.detached { [weak self] in
+            guard let self else { return }
+
             // Wait for key to propagate across relays.
             try await Task.sleepUsingContinuousClock(for: timings.wgKeyPropagationDelay)
 
