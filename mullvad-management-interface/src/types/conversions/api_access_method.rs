@@ -98,10 +98,48 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethod) -> Result<Self, Self::Error> {
-            // TODO: Should this be used or genertaed anew?
-            // let id = value.id;
+            let id = value
+                .id
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not deserialize Access Method from protobuf",
+                ))
+                .and_then(ApiAccessMethodId::try_from)?;
             let name = value.name;
             let enabled = value.enabled;
+            let access_method = value
+                .access_method
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not deserialize Access Method from protobuf",
+                ))
+                .and_then(AccessMethod::try_from)?;
+
+            Ok(AccessMethodSetting::with_id(
+                id,
+                name,
+                enabled,
+                access_method,
+            ))
+        }
+    }
+
+    impl From<AccessMethodSetting> for proto::ApiAccessMethod {
+        fn from(value: AccessMethodSetting) -> Self {
+            let id = proto::Uuid::from(value.get_id());
+            let name = value.get_name();
+            let enabled = value.enabled();
+            proto::ApiAccessMethod {
+                id: Some(id),
+                name,
+                enabled,
+                access_method: Some(proto::AccessMethod::from(value.access_method)),
+            }
+        }
+    }
+
+    impl TryFrom<proto::AccessMethod> for AccessMethod {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::AccessMethod) -> Result<Self, Self::Error> {
             let access_method =
                 value
                     .access_method
@@ -147,8 +185,7 @@ mod data {
                 }
             };
 
-            // TODO: Should the `id` be used or generated a new?
-            Ok(ApiAccessMethod::new(name, enabled, access_method))
+            Ok(ApiAccessMethod::with_id(id, name, enabled, access_method))
         }
     }
 
@@ -160,9 +197,13 @@ mod data {
         }
     }
 
-    impl From<proto::Uuid> for ApiAccessMethodId {
-        fn from(value: proto::Uuid) -> Self {
-            Self::from_string(value.value)
+    impl TryFrom<proto::Uuid> for ApiAccessMethodId {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::Uuid) -> Result<Self, Self::Error> {
+            Self::from_string(value.value).ok_or(FromProtobufTypeError::InvalidArgument(
+                "Could not parse UUID message from protobuf",
+            ))
         }
     }
 
