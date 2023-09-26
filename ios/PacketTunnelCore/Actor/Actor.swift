@@ -303,7 +303,7 @@ extension PacketTunnelActor {
      - nextRelay: next relay to connect to
      - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
      */
-    private func reconnectInner(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
+    func reconnectInner(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
         // Sleep a bit to provide a debounce in case we get a barrage of calls to reconnect.
         // Task.sleep() throws CancellationError if the task is cancelled.
         try await Task.sleep(duration: timings.reconnectDebounce)
