@@ -44,8 +44,8 @@ mod settings {
 mod data {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method::{
-        AccessMethod, AccessMethodSetting, ApiAccessMethodId, BuiltInAccessMethod,
-        CustomAccessMethod, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
+        AccessMethod, AccessMethodSetting, BuiltInAccessMethod, CustomAccessMethod, Id,
+        Shadowsocks, Socks5, Socks5Local, Socks5Remote,
     };
 
     impl TryFrom<proto::AccessMethodSetting> for AccessMethodSetting {
@@ -57,7 +57,7 @@ mod data {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "Could not deserialize Access Method from protobuf",
                 ))
-                .and_then(ApiAccessMethodId::try_from)?;
+                .and_then(Id::try_from)?;
             let name = value.name;
             let enabled = value.enabled;
             let access_method = value
@@ -230,15 +230,15 @@ mod data {
         }
     }
 
-    impl From<ApiAccessMethodId> for proto::Uuid {
-        fn from(value: ApiAccessMethodId) -> Self {
+    impl From<Id> for proto::Uuid {
+        fn from(value: Id) -> Self {
             proto::Uuid {
                 value: value.to_string(),
             }
         }
     }
 
-    impl TryFrom<proto::Uuid> for ApiAccessMethodId {
+    impl TryFrom<proto::Uuid> for Id {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::Uuid) -> Result<Self, Self::Error> {

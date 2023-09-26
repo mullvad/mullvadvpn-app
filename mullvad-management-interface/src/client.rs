@@ -3,7 +3,7 @@
 use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
-    access_method::{AccessMethod, AccessMethodSetting, ApiAccessMethodId},
+    access_method::{self, AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, CustomListLocationUpdate},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -181,7 +181,7 @@ impl MullvadProxyClient {
 
     pub async fn get_api_access_method(
         &mut self,
-        id: &ApiAccessMethodId,
+        id: &access_method::Id,
     ) -> Result<AccessMethodSetting> {
         self.get_api_access_methods()
             .await?
@@ -542,7 +542,7 @@ impl MullvadProxyClient {
 
     pub async fn enable_access_method(
         &mut self,
-        api_access_method_id: ApiAccessMethodId,
+        api_access_method_id: access_method::Id,
     ) -> Result<()> {
         let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
         new_api_access_method.enable();
@@ -551,7 +551,7 @@ impl MullvadProxyClient {
 
     pub async fn disable_access_method(
         &mut self,
-        api_access_method_id: ApiAccessMethodId,
+        api_access_method_id: access_method::Id,
     ) -> Result<()> {
         let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
         new_api_access_method.disable();
@@ -560,7 +560,7 @@ impl MullvadProxyClient {
 
     pub async fn remove_access_method(
         &mut self,
-        api_access_method: ApiAccessMethodId,
+        api_access_method: access_method::Id,
     ) -> Result<()> {
         self.0
             .remove_api_access_method(types::Uuid::from(api_access_method))
@@ -589,7 +589,7 @@ impl MullvadProxyClient {
     ///     method "randomly"
     ///
     /// [`ApiConnectionModeProvider`]: mullvad_daemon::api::ApiConnectionModeProvider
-    pub async fn set_access_method(&mut self, api_access_method: ApiAccessMethodId) -> Result<()> {
+    pub async fn set_access_method(&mut self, api_access_method: access_method::Id) -> Result<()> {
         self.0
             .set_api_access_method(types::Uuid::from(api_access_method))
             .await
