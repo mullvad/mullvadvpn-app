@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::api_access::{AccessMethod, AccessMethodSetting, CustomAccessMethod};
+use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, CustomAccessMethod};
 use std::net::IpAddr;
 
 use clap::{Args, Subcommand};
@@ -102,21 +102,21 @@ impl ApiAccess {
                     let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
                     let password = cmd.params.password.unwrap_or(shadowsocks.password);
                     let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
-                    mullvad_types::api_access::Shadowsocks::from_args(ip, port, cipher, password)
+                    mullvad_types::access_method::Shadowsocks::from_args(ip, port, cipher, password)
                         .map(AccessMethod::from)
                 }
                 CustomAccessMethod::Socks5(socks) => match socks {
-                    mullvad_types::api_access::Socks5::Local(local) => {
+                    mullvad_types::access_method::Socks5::Local(local) => {
                         let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
                         let port = cmd.params.port.unwrap_or(local.peer.port());
                         let local_port = cmd.params.local_port.unwrap_or(local.port);
-                        mullvad_types::api_access::Socks5Local::from_args(ip, port, local_port)
+                        mullvad_types::access_method::Socks5Local::from_args(ip, port, local_port)
                             .map(AccessMethod::from)
                     }
-                    mullvad_types::api_access::Socks5::Remote(remote) => {
+                    mullvad_types::access_method::Socks5::Remote(remote) => {
                         let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
                         let port = cmd.params.port.unwrap_or(remote.peer.port());
-                        mullvad_types::api_access::Socks5Remote::from_args(ip, port)
+                        mullvad_types::access_method::Socks5Remote::from_args(ip, port)
                             .map(AccessMethod::from)
                     }
                 },
@@ -157,7 +157,7 @@ impl ApiAccess {
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
         rpc.set_access_method(access_method.get_id()).await?;
         // Make the daemon perform an network request which involves talking to the Mullvad API.
-        match rpc.get_api_addressess().await {
+        match rpc.get_api_addresses().await {
             Ok(_) => println!("Connected to the Mullvad API!"),
             Err(_) => println!(
                 "Could *not* connect to the Mullvad API using access method \"{}\"",
@@ -315,7 +315,7 @@ pub struct EditParams {
 /// we define them in a hidden-away module.
 mod conversions {
     use anyhow::{anyhow, Error};
-    use mullvad_types::api_access as daemon_types;
+    use mullvad_types::access_method as daemon_types;
 
     use super::{AddCustomCommands, AddSocks5Commands};
 
@@ -384,7 +384,7 @@ mod conversions {
 
 /// Pretty printing of [`ApiAccessMethod`]s
 mod pp {
-    use mullvad_types::api_access::{
+    use mullvad_types::access_method::{
         AccessMethod, AccessMethodSetting, CustomAccessMethod, Socks5,
     };
 

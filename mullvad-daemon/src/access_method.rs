@@ -2,9 +2,7 @@ use crate::{
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
-use mullvad_types::access_method::{
-    daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId,
-};
+use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -16,7 +14,7 @@ pub enum Error {
     RemoveBuiltIn,
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
-    NoSuchMethod(ApiAccessMethodId),
+    NoSuchMethod(access_method::Id),
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -31,7 +29,7 @@ where
         name: String,
         enabled: bool,
         access_method: AccessMethod,
-    ) -> Result<ApiAccessMethodId, Error> {
+    ) -> Result<access_method::Id, Error> {
         let access_method_setting = AccessMethodSetting::new(name, enabled, access_method);
         let id = access_method_setting.get_id();
         self.settings
@@ -44,7 +42,7 @@ where
 
     pub async fn remove_access_method(
         &mut self,
-        access_method: ApiAccessMethodId,
+        access_method: access_method::Id,
     ) -> Result<(), Error> {
         // Make sure that we are not trying to remove a built-in API access
         // method
@@ -84,7 +82,7 @@ where
             .map_err(Error::Settings)
     }
 
-    pub fn set_api_access_method(&mut self, access_method: ApiAccessMethodId) -> Result<(), Error> {
+    pub fn set_api_access_method(&mut self, access_method: access_method::Id) -> Result<(), Error> {
         if let Some(access_method) = self.settings.api_access_methods.find(&access_method) {
             {
                 let mut connection_modes = self.connection_modes.lock().unwrap();
@@ -108,7 +106,7 @@ where
             connection_modes.update_access_methods(
                 self.settings
                     .api_access_methods
-                    .api_access_methods
+                    .access_method_settings
                     .iter()
                     .filter(|api_access_method| api_access_method.enabled())
                     .map(|api_access_method| api_access_method.access_method.clone())
