@@ -38,7 +38,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
         return inflater.inflate(R.layout.fragment_compose, container, false).apply {
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 AppTheme {
-                    val loginUiState by vm.uiState.collectAsState()
+                    val uiState by vm.uiState.collectAsState()
                     LaunchedEffect(Unit) {
                         vm.viewActions.collect {
                             when (it) {
@@ -52,7 +52,7 @@ class LoginFragment : BaseFragment(), NavigationBarPainter {
                         }
                     }
                     LoginScreen(
-                        loginUiState,
+                        uiState,
                         vm::login,
                         vm::createAccount,
                         vm::clearAccountHistory,

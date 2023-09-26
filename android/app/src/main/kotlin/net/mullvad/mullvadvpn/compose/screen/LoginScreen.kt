@@ -59,36 +59,38 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Preview
 @Composable
 private fun PreviewIdle() {
-    AppTheme { LoginScreen(state = LoginUiState()) }
+    AppTheme { LoginScreen(uiState = LoginUiState()) }
 }
 
 @Preview
 @Composable
 private fun PreviewLoggingIn() {
-    AppTheme { LoginScreen(state = LoginUiState(loginState = Loading.LoggingIn)) }
+    AppTheme { LoginScreen(uiState = LoginUiState(loginState = Loading.LoggingIn)) }
 }
 
 @Preview
 @Composable
 private fun PreviewCreatingAccount() {
-    AppTheme { LoginScreen(state = LoginUiState(loginState = Loading.CreatingAccount)) }
+    AppTheme { LoginScreen(uiState = LoginUiState(loginState = Loading.CreatingAccount)) }
 }
 
 @Preview
 @Composable
 private fun PreviewLoginError() {
-    AppTheme { LoginScreen(state = LoginUiState(loginState = Idle(LoginError.InvalidCredentials))) }
+    AppTheme {
+        LoginScreen(uiState = LoginUiState(loginState = Idle(LoginError.InvalidCredentials)))
+    }
 }
 
 @Preview
 @Composable
 private fun PreviewLoginSuccess() {
-    AppTheme { LoginScreen(state = LoginUiState(loginState = Success)) }
+    AppTheme { LoginScreen(uiState = LoginUiState(loginState = Success)) }
 }
 
 @Composable
 fun LoginScreen(
-    state: LoginUiState,
+    uiState: LoginUiState,
     onLoginClick: (String) -> Unit = {},
     onCreateAccountClick: () -> Unit = {},
     onDeleteHistoryClick: () -> Unit = {},
@@ -113,14 +115,14 @@ fun LoginScreen(
         ) {
             Spacer(modifier = Modifier.weight(1f))
             LoginIcon(
-                state.loginState,
+                uiState.loginState,
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(bottom = Dimens.largePadding)
             )
-            LoginContent(state, onAccountNumberChange, onLoginClick, onDeleteHistoryClick)
+            LoginContent(uiState, onAccountNumberChange, onLoginClick, onDeleteHistoryClick)
             Spacer(modifier = Modifier.weight(3f))
-            CreateAccountPanel(onCreateAccountClick, isEnabled = state.loginState is Idle)
+            CreateAccountPanel(onCreateAccountClick, isEnabled = uiState.loginState is Idle)
         }
     }
 }
@@ -128,14 +130,14 @@ fun LoginScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun LoginContent(
-    state: LoginUiState,
+    uiState: LoginUiState,
     onAccountNumberChange: (String) -> Unit,
     onLoginClick: (String) -> Unit,
     onDeleteHistoryClick: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin)) {
         Text(
-            text = state.loginState.title(),
+            text = uiState.loginState.title(),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.fillMaxWidth().padding(bottom = Dimens.smallPadding)
@@ -145,10 +147,10 @@ private fun LoginContent(
 
         Text(
             modifier = Modifier.padding(bottom = Dimens.smallPadding),
-            text = state.loginState.supportingText() ?: "",
+            text = uiState.loginState.supportingText() ?: "",
             style = MaterialTheme.typography.labelMedium,
             color =
-                if (state.loginState.isError()) {
+                if (uiState.loginState.isError()) {
                     MaterialTheme.colorScheme.error
                 } else {
                     MaterialTheme.colorScheme.onPrimary
@@ -160,10 +162,10 @@ private fun LoginContent(
                     Modifier.then(
                             // Using menuAnchor while not showing a dropdown will cause keyboard to
                             // open and app to crash on navigation
-                            if (state.lastUsedAccount != null) Modifier.menuAnchor() else Modifier
+                            if (uiState.lastUsedAccount != null) Modifier.menuAnchor() else Modifier
                         )
                         .fillMaxWidth(),
-                value = state.accountNumberInput,
+                value = uiState.accountNumberInput,
                 label = {
                     Text(
                         text = stringResource(id = R.string.login_description),
@@ -171,18 +173,18 @@ private fun LoginContent(
                     )
                 },
                 keyboardActions =
-                    KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
+                    KeyboardActions(onDone = { onLoginClick(uiState.accountNumberInput) }),
                 keyboardOptions =
                     KeyboardOptions(
                         imeAction =
-                            if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
+                            if (uiState.loginButtonEnabled) ImeAction.Done else ImeAction.None,
                         keyboardType = KeyboardType.NumberPassword
                     ),
                 onValueChange = onAccountNumberChange,
                 singleLine = true,
                 maxLines = 1,
                 visualTransformation = accountTokenVisualTransformation(),
-                enabled = state.loginState is Idle,
+                enabled = uiState.loginState is Idle,
                 colors =
                     TextFieldDefaults.colors(
                         focusedTextColor = Color.Black,
@@ -198,11 +200,11 @@ private fun LoginContent(
                         focusedLeadingIconColor = Color.Black,
                         unfocusedSupportingTextColor = Color.Black,
                     ),
-                isError = state.loginState.isError(),
+                isError = uiState.loginState.isError(),
             )
 
             // If we have a previous account, show dropdown for quick re-login
-            state.lastUsedAccount?.let { token ->
+            uiState.lastUsedAccount?.let { token ->
                 DropdownMenu(
                     modifier =
                         Modifier.background(MaterialTheme.colorScheme.background)
@@ -233,8 +235,8 @@ private fun LoginContent(
 
         Spacer(modifier = Modifier.size(Dimens.largePadding))
         ActionButton(
-            isEnabled = state.loginButtonEnabled,
-            onClick = { onLoginClick(state.accountNumberInput) },
+            isEnabled = uiState.loginButtonEnabled,
+            onClick = { onLoginClick(uiState.accountNumberInput) },
             colors =
                 ButtonDefaults.buttonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -247,14 +249,14 @@ private fun LoginContent(
 }
 
 @Composable
-private fun LoginIcon(state: LoginState, modifier: Modifier = Modifier) {
+private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.size(Dimens.loginIconContainerSize)
     ) {
-        when (state) {
+        when (loginState) {
             is Idle ->
-                if (state.loginError != null) {
+                if (loginState.loginError != null) {
                     Image(
                         painter = painterResource(id = R.drawable.icon_fail),
                         contentDescription = stringResource(id = R.string.login_fail_title),
