@@ -89,11 +89,10 @@ impl ApiAccessMethodId {
     pub fn new() -> Self {
         Self(uuid::Uuid::new_v4())
     }
-    /// It is up to the caller to make sure that the supplied String is actually
-    /// a valid UUID in the context of [`ApiAccessMethod`]s.
-    pub fn from_string(id: String) -> Self {
-        // TODO: Remove unwrap
-        Self(uuid::Uuid::from_str(&id).unwrap())
+    /// Tries to parse a UUID from a raw String. If it is successful, an
+    /// [`ApiAccessMethodId`] is instantiated.
+    pub fn from_string(id: String) -> Option<Self> {
+        uuid::Uuid::from_str(&id).ok().map(Self)
     }
 }
 
