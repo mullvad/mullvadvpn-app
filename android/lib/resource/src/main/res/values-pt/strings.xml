@@ -189,6 +189,7 @@
     <string name="view_logs">Ver os registos da app</string>
     <string name="virtual_adapter_problem">Erro de adaptador virtual</string>
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
+    <string name="voucher_success_title">O voucher foi reclamado com sucesso.</string>
     <string name="vpn_permission_denied_error">A transmissão foi negada durante a criação do túnel. Tente fazer novamente a ligação.</string>
     <string name="vpn_permission_error_notification_message">A VPN sempre ligada pode estar ativada para outra app</string>
     <string name="vpn_permission_error_notification_title">Erro de permissão da VPN</string>

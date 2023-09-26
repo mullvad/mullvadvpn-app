@@ -189,6 +189,7 @@
     <string name="view_logs">查看应用日志</string>
     <string name="virtual_adapter_problem">虚拟适配器错误</string>
     <string name="voucher_already_used">该优惠券码已被使用。</string>
+    <string name="voucher_success_title">优惠券已成功兑换。</string>
     <string name="vpn_permission_denied_error">创建隧道时，VPN 权限被拒绝。请尝试重新连接。</string>
     <string name="vpn_permission_error_notification_message">可能为另一个应用启用了“始终启用 VPN”</string>
     <string name="vpn_permission_error_notification_title">VPN 权限错误</string>

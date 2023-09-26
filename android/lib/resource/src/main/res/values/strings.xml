@@ -216,4 +216,7 @@
     <string name="custom_port_dialog_remove">Remove custom port</string>
     <string name="custom_port_dialog_valid_ranges">Valid ranges: %s</string>
     <string name="custom_port_dialog_placeholder">Enter port</string>
+    <string name="voucher_success_title">Voucher was successfully redeemed.</string>
+    <string name="verifying_voucher">Verifying voucher…</string>
+    <string name="months_added_to_your_account">%d months was added to your account.</string>
 </resources>

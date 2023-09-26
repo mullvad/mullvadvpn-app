@@ -189,6 +189,7 @@
     <string name="view_logs">Se applogger</string>
     <string name="virtual_adapter_problem">Virtuell adapterfeil</string>
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
+    <string name="voucher_success_title">Kupongkoden er løst inn.</string>
     <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
     <string name="vpn_permission_error_notification_message">VPN som alltid er på, kan være aktivert for en annen app</string>
     <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>

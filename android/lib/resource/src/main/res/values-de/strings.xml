@@ -189,6 +189,7 @@
     <string name="view_logs">App-Protokolle anzeigen</string>
     <string name="virtual_adapter_problem">Virtueller Adapterfehler</string>
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>
+    <string name="voucher_success_title">Der Gutschein wurde erfolgreich eingelöst.</string>
     <string name="vpn_permission_denied_error">VPN-Berechtigungen wurden beim Erstellen des Tunnels abgelehnt.</string>
     <string name="vpn_permission_error_notification_message">Always-on VPN könnte für eine andere App aktiviert sein</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
