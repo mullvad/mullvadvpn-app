@@ -76,7 +76,7 @@ pub mod settings {
 
 /// Implements conversions for the auxilliary
 /// [`crate::types::proto::ApiAccessMethod`] type to the internal
-/// [`mullvad_types::access_method::AccessMethod`] data type.
+/// [`mullvad_types::access_method::AccessMethodSetting`] data type.
 mod data {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::api_access::{
@@ -150,20 +150,6 @@ mod data {
         }
     }
 
-    impl From<ApiAccessMethodId> for proto::Uuid {
-        fn from(value: ApiAccessMethodId) -> Self {
-            proto::Uuid {
-                value: value.to_string(),
-            }
-        }
-    }
-
-    impl From<proto::Uuid> for ApiAccessMethodId {
-        fn from(value: proto::Uuid) -> Self {
-            Self::from_string(value.value)
-        }
-    }
-
     impl From<AccessMethodSetting> for proto::ApiAccessMethod {
         fn from(value: AccessMethodSetting) -> Self {
             let id = proto::Uuid::from(value.get_id());
@@ -219,6 +205,34 @@ mod data {
                     access_method: Some(access_method),
                 }),
             }
+        }
+    }
+
+    impl TryFrom<proto::AccessMethod> for AccessMethod {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(value: proto::AccessMethod) -> Result<Self, Self::Error> {
+            todo!("Implement try_from(proto::AccessMethod) -> mullvad_types::AccessMethod")
+        }
+    }
+
+    impl From<AccessMethod> for proto::AccessMethod {
+        fn from(value: AccessMethod) -> Self {
+            todo!("Implement try_from(mullvad_types::AccessMethod) -> proto::AccessMethod")
+        }
+    }
+
+    impl From<ApiAccessMethodId> for proto::Uuid {
+        fn from(value: ApiAccessMethodId) -> Self {
+            proto::Uuid {
+                value: value.to_string(),
+            }
+        }
+    }
+
+    impl From<proto::Uuid> for ApiAccessMethodId {
+        fn from(value: proto::Uuid) -> Self {
+            Self::from_string(value.value)
         }
     }
 
