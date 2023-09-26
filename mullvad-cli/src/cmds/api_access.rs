@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
-use mullvad_management_interface::{
-    types::rpc::api_access_method_update::ApiAccessMethodUpdate, MullvadProxyClient,
+use mullvad_management_interface::MullvadProxyClient;
+use mullvad_types::access_method::{
+    daemon::ApiAccessMethodUpdate, AccessMethod, ApiAccessMethod, CustomAccessMethod,
 };
 use mullvad_types::api_access::{AccessMethod, AccessMethodSetting, CustomAccessMethod};
 use std::net::IpAddr;
