@@ -14,7 +14,7 @@ import Operations
 import StoreKit
 
 class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse>, SKRequestDelegate {
-    private let apiProxy: REST.APIProxy
+    private let apiProxy: APIQuerying
     private let accountNumber: String
 
     private let forceRefresh: Bool
@@ -26,7 +26,7 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
     private let logger = Logger(label: "SendStoreReceiptOperation")
 
     init(
-        apiProxy: REST.APIProxy,
+        apiProxy: APIQuerying,
         accountNumber: String,
         forceRefresh: Bool,
         receiptProperties: [String: Any]?,

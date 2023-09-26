@@ -16,13 +16,13 @@ import Operations
 class UpdateAccountDataOperation: ResultOperation<Void> {
     private let logger = Logger(label: "UpdateAccountDataOperation")
     private let interactor: TunnelInteractor
-    private let accountsProxy: REST.AccountsProxy
+    private let accountsProxy: RESTAccountHandling
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
-        accountsProxy: REST.AccountsProxy
+        accountsProxy: RESTAccountHandling
     ) {
         self.interactor = interactor
         self.accountsProxy = accountsProxy

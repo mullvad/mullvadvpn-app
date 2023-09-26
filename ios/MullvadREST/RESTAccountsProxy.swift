@@ -9,8 +9,29 @@
 import Foundation
 import MullvadTypes
 
+public protocol RESTAccountHandling {
+    func createAccount(
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<REST.NewAccountData>
+    ) -> Cancellable
+
+    func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account>
+
+    func getAccountData(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<Account>
+    ) -> Cancellable
+
+    func deleteAccount(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<Void>
+    ) -> Cancellable
+}
+
 extension REST {
-    public final class AccountsProxy: Proxy<AuthProxyConfiguration> {
+    public final class AccountsProxy: Proxy<AuthProxyConfiguration>, RESTAccountHandling {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "AccountsProxy",
@@ -25,7 +46,7 @@ extension REST {
 
         public func createAccount(
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<NewAccountData>
+            completion: @escaping ProxyCompletionHandler<NewAccountData>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 try self.requestFactory.createRequest(
@@ -81,7 +102,7 @@ extension REST {
         public func getAccountData(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<Account>
+            completion: @escaping ProxyCompletionHandler<Account>
         ) -> Cancellable {
             return getAccountData(accountNumber: accountNumber).execute(
                 retryStrategy: retryStrategy,
@@ -92,7 +113,7 @@ extension REST {
         public func deleteAccount(
             accountNumber: String,
             retryStrategy: RetryStrategy,
-            completion: @escaping CompletionHandler<Void>
+            completion: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(createURLRequest: { endpoint, authorization in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(

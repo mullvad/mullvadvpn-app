@@ -12,7 +12,7 @@ import MullvadTypes
 
 final class RedeemVoucherInteractor {
     private let tunnelManager: TunnelManager
-    private let accountsProxy: REST.AccountsProxy
+    private let accountsProxy: RESTAccountHandling
     private let shouldVerifyVoucherAsAccount: Bool
 
     private var tasks: [Cancellable] = []
@@ -23,7 +23,7 @@ final class RedeemVoucherInteractor {
 
     init(
         tunnelManager: TunnelManager,
-        accountsProxy: REST.AccountsProxy,
+        accountsProxy: RESTAccountHandling,
         verifyVoucherAsAccount: Bool
     ) {
         self.tunnelManager = tunnelManager

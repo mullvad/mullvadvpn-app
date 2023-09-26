@@ -57,6 +57,10 @@ public struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
             // packet tunnel provider.
             return .tunnelAdapter
 
+        case is PublicKeyError:
+            // Returned when there is an endpoint but its public key is invalid.
+            return .invalidRelayPublicKey
+
         default:
             // Everything else in case we introduce new errors and forget to handle them.
             return .unknown

@@ -15,7 +15,7 @@ import RelaySelector
 
 public final class TransportProvider: RESTTransportProvider {
     private let urlSessionTransport: URLSessionTransport
-    private let relayCache: RelayCache
+    private let relayCache: RelayCacheProtocol
     private let logger = Logger(label: "TransportProvider")
     private let addressCache: REST.AddressCache
     private let shadowsocksCache: ShadowsocksConfigurationCache
@@ -28,7 +28,7 @@ public final class TransportProvider: RESTTransportProvider {
 
     public init(
         urlSessionTransport: URLSessionTransport,
-        relayCache: RelayCache,
+        relayCache: RelayCacheProtocol,
         addressCache: REST.AddressCache,
         shadowsocksCache: ShadowsocksConfigurationCache,
         transportStrategy: TransportStrategy,

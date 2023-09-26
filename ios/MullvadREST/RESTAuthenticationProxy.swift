@@ -23,10 +23,10 @@ extension REST {
             )
         }
 
-        func getAccessToken(
+        public func getAccessToken(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<AccessTokenData>
+            completion: @escaping ProxyCompletionHandler<AccessTokenData>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -57,7 +57,7 @@ extension REST {
         }
     }
 
-    struct AccessTokenData: Decodable {
+    public struct AccessTokenData: Decodable {
         let accessToken: String
         let expiry: Date
     }

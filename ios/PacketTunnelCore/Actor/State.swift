@@ -1,5 +1,5 @@
 //
-//  States.swift
+//  State.swift
 //  PacketTunnel
 //
 //  Created by pronebird on 07/08/2023.
@@ -105,7 +105,7 @@ public struct ConnectionState {
     /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
     public var relayConstraints: RelayConstraints
 
-    /// Last WG key read from setings.
+    /// Last WG key read from settings.
     /// Can be `nil` if moved to `keyPolicy`.
     public var currentKey: PrivateKey?
 
@@ -186,6 +186,9 @@ public enum BlockedStateReason: String, Codable, Equatable {
 
     /// Tunnel adapter error.
     case tunnelAdapter
+
+    /// Invalid public key.
+    case invalidRelayPublicKey
 
     /// Unidentified reason.
     case unknown
