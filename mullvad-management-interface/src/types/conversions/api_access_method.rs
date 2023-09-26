@@ -84,23 +84,11 @@ mod data {
         CustomAccessMethod, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
     };
 
-    impl TryFrom<proto::ApiAccessMethods> for Vec<AccessMethodSetting> {
-        type Error = FromProtobufTypeError;
-
-        fn try_from(value: proto::ApiAccessMethods) -> Result<Self, Self::Error> {
-            value
-                .api_access_methods
-                .iter()
-                .map(AccessMethodSetting::try_from)
-                .collect()
-        }
-    }
-
     impl TryFrom<proto::ApiAccessMethod> for AccessMethodSetting {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethod) -> Result<Self, Self::Error> {
-            let id = value
+            let id: ApiAccessMethodId = value
                 .id
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "Could not deserialize Access Method from protobuf",
@@ -108,22 +96,22 @@ mod data {
                 .into();
             let name = value.name;
             let enabled = value.enabled;
-            let access_method =
-                value
-                    .access_method
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                        "Could not deserialize Access Method from protobuf",
-                    ))?;
+            let access_method = value
+                .access_method
+                .and_then(|access_method_field| access_method_field.access_method)
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not deserialize Access Method from protobuf",
+                ))?;
 
             let access_method = match access_method {
-                proto::api_access_method::AccessMethod::Direct(
-                    proto::api_access_method::Direct {},
-                ) => AccessMethod::from(BuiltInAccessMethod::Direct),
+                proto::access_method::AccessMethod::Direct(proto::access_method::Direct {}) => {
+                    AccessMethod::from(BuiltInAccessMethod::Direct)
+                }
 
-                proto::api_access_method::AccessMethod::Bridges(
-                    proto::api_access_method::Bridges {},
-                ) => AccessMethod::from(BuiltInAccessMethod::Bridge),
-                proto::api_access_method::AccessMethod::Socks5local(local) => {
+                proto::access_method::AccessMethod::Bridges(proto::access_method::Bridges {}) => {
+                    AccessMethod::from(BuiltInAccessMethod::Bridge)
+                }
+                proto::access_method::AccessMethod::Socks5local(local) => {
                     let socks = Socks5Local::from_args(
                         local.ip,
                         local.port as u16,
@@ -135,7 +123,7 @@ mod data {
                     AccessMethod::from(socks)
                 }
 
-                proto::api_access_method::AccessMethod::Socks5remote(remote) => {
+                proto::access_method::AccessMethod::Socks5remote(remote) => {
                     let socks = Socks5Remote::from_args(remote.ip, remote.port as u16).ok_or({
                         FromProtobufTypeError::InvalidArgument(
                             "Could not parse Socks5 (remote) message from protobuf",
@@ -143,7 +131,7 @@ mod data {
                     })?;
                     AccessMethod::from(socks)
                 }
-                proto::api_access_method::AccessMethod::Shadowsocks(ss) => {
+                proto::access_method::AccessMethod::Shadowsocks(ss) => {
                     let socks =
                         Shadowsocks::from_args(ss.ip, ss.port as u16, ss.cipher, ss.password)
                             .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -181,11 +169,11 @@ mod data {
             let id = proto::Uuid::from(value.get_id());
             let name = value.get_name();
             let enabled = value.enabled();
-            let access_method = match value.access_method {
+            let access_method: proto::access_method::AccessMethod = match value.access_method {
                 AccessMethod::Custom(value) => match value {
                     CustomAccessMethod::Shadowsocks(ss) => {
-                        proto::api_access_method::AccessMethod::Shadowsocks(
-                            proto::api_access_method::Shadowsocks {
+                        proto::access_method::AccessMethod::Shadowsocks(
+                            proto::access_method::Shadowsocks {
                                 ip: ss.peer.ip().to_string(),
                                 port: ss.peer.port() as u32,
                                 password: ss.password,
@@ -194,8 +182,8 @@ mod data {
                         )
                     }
                     CustomAccessMethod::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
-                        proto::api_access_method::AccessMethod::Socks5local(
-                            proto::api_access_method::Socks5Local {
+                        proto::access_method::AccessMethod::Socks5local(
+                            proto::access_method::Socks5Local {
                                 ip: peer.ip().to_string(),
                                 port: peer.port() as u32,
                                 local_port: port as u32,
@@ -203,8 +191,8 @@ mod data {
                         )
                     }
                     CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
-                        proto::api_access_method::AccessMethod::Socks5remote(
-                            proto::api_access_method::Socks5Remote {
+                        proto::access_method::AccessMethod::Socks5remote(
+                            proto::access_method::Socks5Remote {
                                 ip: peer.ip().to_string(),
                                 port: peer.port() as u32,
                             },
@@ -213,13 +201,11 @@ mod data {
                 },
                 AccessMethod::BuiltIn(value) => match value {
                     mullvad_types::api_access::BuiltInAccessMethod::Direct => {
-                        proto::api_access_method::AccessMethod::Direct(
-                            proto::api_access_method::Direct {},
-                        )
+                        proto::access_method::AccessMethod::Direct(proto::access_method::Direct {})
                     }
                     mullvad_types::api_access::BuiltInAccessMethod::Bridge => {
-                        proto::api_access_method::AccessMethod::Bridges(
-                            proto::api_access_method::Bridges {},
+                        proto::access_method::AccessMethod::Bridges(
+                            proto::access_method::Bridges {},
                         )
                     }
                 },
@@ -229,7 +215,9 @@ mod data {
                 id: Some(id),
                 name,
                 enabled,
-                access_method: Some(access_method),
+                access_method: Some(proto::AccessMethod {
+                    access_method: Some(access_method),
+                }),
             }
         }
     }
@@ -239,14 +227,6 @@ mod data {
 
         fn try_from(value: &proto::ApiAccessMethod) -> Result<Self, Self::Error> {
             AccessMethodSetting::try_from(value.clone())
-        }
-    }
-
-    impl From<Vec<AccessMethodSetting>> for proto::ApiAccessMethods {
-        fn from(value: Vec<AccessMethodSetting>) -> proto::ApiAccessMethods {
-            proto::ApiAccessMethods {
-                api_access_methods: value.iter().map(|method| method.clone().into()).collect(),
-            }
         }
     }
 }
