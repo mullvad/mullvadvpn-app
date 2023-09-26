@@ -75,10 +75,10 @@ service ManagementService {
   rpc UpdateCustomList(CustomList) returns (google.protobuf.Empty) {}
 
   // API Access methods
-  rpc AddApiAccessMethod(ApiAccessMethodAdd) returns (UUID) {}
+  rpc AddApiAccessMethod(AccessMethodSettingAdd) returns (UUID) {}
   rpc RemoveApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
-  rpc UpdateApiAccessMethod(ApiAccessMethod) returns (google.protobuf.Empty) {}
+  rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -360,25 +360,25 @@ message AccessMethod {
   }
 }
 
-message ApiAccessMethod {
+message AccessMethodSetting {
   UUID id = 1;
   string name = 2;
   bool enabled = 3;
   AccessMethod access_method = 4;
 }
 
-message ApiAccessMethodAdd {
+message AccessMethodSettingAdd {
   string name = 1;
   bool enabled = 2;
   AccessMethod access_method = 3;
 }
 
-message ApiAccessMethodUpdate {
+message AccessMethodSettingUpdate {
   UUID id = 1;
-  ApiAccessMethod access_method = 2;
+  AccessMethodSetting access_method_setting = 2;
 }
 
-message ApiAccessMethodSettings { repeated ApiAccessMethod api_access_methods = 1; }
+message ApiAccessMethodSettings { repeated AccessMethodSetting access_method_settings = 1; }
 
 message Settings {
   RelaySettings relay_settings = 1;

@@ -172,7 +172,7 @@ impl MullvadProxyClient {
             .into_inner()
             .api_access_methods
             .ok_or(Error::ApiAccessMethodSettingsNotFound)?
-            .api_access_methods
+            .access_method_settings
             .into_iter()
             .map(|api_access_method| {
                 AccessMethodSetting::try_from(api_access_method).map_err(Error::InvalidResponse)
@@ -496,7 +496,7 @@ impl MullvadProxyClient {
         enabled: bool,
         access_method: AccessMethod,
     ) -> Result<()> {
-        let request = types::ApiAccessMethodAdd {
+        let request = types::AccessMethodSettingAdd {
             name,
             enabled,
             access_method: Some(types::AccessMethod::from(access_method)),
@@ -542,7 +542,7 @@ impl MullvadProxyClient {
         access_method_update: AccessMethodSetting,
     ) -> Result<()> {
         self.0
-            .update_api_access_method(types::ApiAccessMethod::from(access_method_update))
+            .update_api_access_method(types::AccessMethodSetting::from(access_method_update))
             .await
             .map_err(Error::Rpc)
             .map(drop)

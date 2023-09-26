@@ -6,13 +6,13 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
-    pub api_access_methods: Vec<AccessMethodSetting>,
+    pub access_method_settings: Vec<AccessMethodSetting>,
 }
 
 impl Settings {
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
     pub fn append(&mut self, api_access_method: AccessMethodSetting) {
-        self.api_access_methods.push(api_access_method)
+        self.access_method_settings.push(api_access_method)
     }
 
     /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
@@ -22,7 +22,7 @@ impl Settings {
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
     pub fn find(&self, element: &ApiAccessMethodId) -> Option<&AccessMethodSetting> {
-        self.api_access_methods
+        self.access_method_settings
             .iter()
             .find(|api_access_method| *element == api_access_method.get_id())
     }
@@ -33,7 +33,7 @@ impl Settings {
     /// mutable reference to that inner element is returned. Otherwise, `None`
     /// is returned.
     pub fn find_mut(&mut self, element: &ApiAccessMethodId) -> Option<&mut AccessMethodSetting> {
-        self.api_access_methods
+        self.access_method_settings
             .iter_mut()
             .find(|api_access_method| *element == api_access_method.get_id())
     }
@@ -43,19 +43,19 @@ impl Settings {
     where
         F: FnMut(&AccessMethodSetting) -> bool,
     {
-        self.api_access_methods.retain(f)
+        self.access_method_settings.retain(f)
     }
 
     /// Clone the content of `api_access_methods`.
     pub fn cloned(&self) -> Vec<AccessMethodSetting> {
-        self.api_access_methods.clone()
+        self.access_method_settings.clone()
     }
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            api_access_methods: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
+            access_method_settings: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
                 .into_iter()
                 .map(|built_in| {
                     AccessMethodSetting::new(

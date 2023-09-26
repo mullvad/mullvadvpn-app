@@ -106,7 +106,7 @@ where
             connection_modes.update_access_methods(
                 self.settings
                     .api_access_methods
-                    .api_access_methods
+                    .access_method_settings
                     .iter()
                     .filter(|api_access_method| api_access_method.enabled())
                     .map(|api_access_method| api_access_method.access_method.clone())
