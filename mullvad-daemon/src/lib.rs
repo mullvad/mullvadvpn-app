@@ -39,8 +39,8 @@ use mullvad_relay_selector::{
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
+    access_method::{AccessMethod, AccessMethodSetting, ApiAccessMethodId},
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access::{AccessMethod, AccessMethodSetting, ApiAccessMethodId},
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},

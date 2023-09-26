@@ -3,10 +3,10 @@
 /// [`mullvad_types::access_method::Settings`] data type.
 mod settings {
     use crate::types::{proto, FromProtobufTypeError};
-    use mullvad_types::api_access;
+    use mullvad_types::access_method;
 
-    impl From<&api_access::Settings> for proto::ApiAccessMethodSettings {
-        fn from(settings: &api_access::Settings) -> Self {
+    impl From<&access_method::Settings> for proto::ApiAccessMethodSettings {
+        fn from(settings: &access_method::Settings) -> Self {
             Self {
                 access_method_settings: settings
                     .access_method_settings
@@ -17,13 +17,13 @@ mod settings {
         }
     }
 
-    impl From<api_access::Settings> for proto::ApiAccessMethodSettings {
-        fn from(settings: api_access::Settings) -> Self {
+    impl From<access_method::Settings> for proto::ApiAccessMethodSettings {
+        fn from(settings: access_method::Settings) -> Self {
             proto::ApiAccessMethodSettings::from(&settings)
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethodSettings> for api_access::Settings {
+    impl TryFrom<proto::ApiAccessMethodSettings> for access_method::Settings {
         type Error = FromProtobufTypeError;
 
         fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
@@ -31,8 +31,8 @@ mod settings {
                 access_method_settings: settings
                     .access_method_settings
                     .iter()
-                    .map(api_access::AccessMethodSetting::try_from)
-                    .collect::<Result<Vec<api_access::AccessMethodSetting>, _>>()?,
+                    .map(access_method::AccessMethodSetting::try_from)
+                    .collect::<Result<Vec<access_method::AccessMethodSetting>, _>>()?,
             })
         }
     }
@@ -43,7 +43,7 @@ mod settings {
 /// [`mullvad_types::access_method::AccessMethodSetting`] data type.
 mod data {
     use crate::types::{proto, FromProtobufTypeError};
-    use mullvad_types::api_access::{
+    use mullvad_types::access_method::{
         AccessMethod, AccessMethodSetting, ApiAccessMethodId, BuiltInAccessMethod,
         CustomAccessMethod, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
     };
@@ -179,10 +179,10 @@ mod data {
     impl From<BuiltInAccessMethod> for proto::AccessMethod {
         fn from(value: BuiltInAccessMethod) -> Self {
             let access_method = match value {
-                mullvad_types::api_access::BuiltInAccessMethod::Direct => {
+                mullvad_types::access_method::BuiltInAccessMethod::Direct => {
                     proto::access_method::AccessMethod::Direct(proto::access_method::Direct {})
                 }
-                mullvad_types::api_access::BuiltInAccessMethod::Bridge => {
+                mullvad_types::access_method::BuiltInAccessMethod::Bridge => {
                     proto::access_method::AccessMethod::Bridges(proto::access_method::Bridges {})
                 }
             };
