@@ -159,7 +159,7 @@ extension PacketTunnelActor {
     /**
      Internal helper that transitions key policy from `.usePrior` to `.useCurrent`.
 
-     - Parameter keyPolicy: a reference to key policy hend either in connection state or blocked state struct.
+     - Parameter keyPolicy: a reference to key policy held either in connection state or blocked state struct.
      - Returns: `true` when the policy was modified, otherwise `false`.
      */
     private func setCurrentKeyPolicy(_ keyPolicy: inout KeyPolicy) -> Bool {
