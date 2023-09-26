@@ -8,10 +8,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,28 +23,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite10
-
-internal const val EMPTY_STRING = ""
-internal const val NEWLINE_STRING = "\n"
+import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Composable
 @OptIn(ExperimentalComposeUiApi::class)
-fun CustomTextField(
+fun GroupedTextField(
     value: String,
     keyboardType: KeyboardType,
     modifier: Modifier = Modifier,
@@ -52,17 +49,17 @@ fun CustomTextField(
     onFocusChange: (Boolean) -> Unit,
     onSubmit: (String) -> Unit,
     isEnabled: Boolean = true,
+    visualTransformation: VisualTransformation,
     placeholderText: String = "",
-    placeHolderColor: Color = MullvadBlue,
+    placeHolderColor: Color = MaterialTheme.colorScheme.primary,
     maxCharLength: Int = Int.MAX_VALUE,
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
-    defaultTextColor: Color = Color.White,
+    validateRegex: Regex,
+    defaultTextColor: Color = MaterialTheme.colorScheme.onPrimary,
     textAlign: TextAlign = TextAlign.Start
 ) {
-    val fontSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
-    val shape = RoundedCornerShape(4.dp)
-    val textFieldHeight = 44.dp
+    val textFieldHeight = Dimens.buttonHeight
 
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -71,8 +68,8 @@ fun CustomTextField(
 
     val textColor =
         when {
-            isValidValue.not() -> Color.Red
-            isFocused -> MullvadBlue
+            isValidValue.not() -> MaterialTheme.colorScheme.error
+            isFocused -> MaterialTheme.colorScheme.primary
             else -> defaultTextColor
         }
 
@@ -80,14 +77,16 @@ fun CustomTextField(
         if (isFocused) {
             placeHolderColor
         } else {
-            Color.White
+            MaterialTheme.colorScheme.onPrimary
         }
 
     val backgroundColor =
         if (isFocused) {
-            Color.White
+            MaterialTheme.colorScheme.onPrimary
         } else {
-            MullvadWhite10
+            MaterialTheme.colorScheme.onPrimary
+                .copy(AlphaInactive)
+                .compositeOver(MaterialTheme.colorScheme.primary)
         }
 
     fun triggerSubmit() {
@@ -96,19 +95,20 @@ fun CustomTextField(
         onSubmit(value)
     }
 
-    BasicTextField(
+    FilteredTextField(
         value = value,
-        onValueChange = { input ->
+        onChanged = { input ->
             val isValidInput = if (isDigitsOnlyAllowed) TextUtils.isDigitsOnly(input) else true
             if (input.length <= maxCharLength && isValidInput) {
                 // Remove any newline chars added by enter key clicks
                 onValueChanged(input.replace(NEWLINE_STRING, EMPTY_STRING))
             }
         },
-        textStyle = TextStyle(color = textColor, fontSize = fontSize, textAlign = textAlign),
-        enabled = isEnabled,
+        textStyle = MaterialTheme.typography.titleMedium.copy(color = textColor),
+        isEnabled = isEnabled,
         singleLine = true,
         maxLines = 1,
+        visualTransformation = visualTransformation,
         keyboardOptions =
             KeyboardOptions(
                 keyboardType = keyboardType,
@@ -121,8 +121,8 @@ fun CustomTextField(
                 if (value.isBlank()) {
                     Text(
                         text = placeholderText,
+                        style = MaterialTheme.typography.titleMedium,
                         color = placeholderTextColor,
-                        fontSize = fontSize,
                         textAlign = textAlign,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -130,11 +130,12 @@ fun CustomTextField(
                 decorationBox()
             }
         },
-        cursorBrush = SolidColor(MullvadBlue),
+        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+        validateRegex = validateRegex,
         modifier =
             modifier
                 .background(backgroundColor)
-                .clip(shape)
+                .clip(MaterialTheme.shapes.small)
                 .onFocusChanged { focusState ->
                     isFocused = focusState.isFocused
                     onFocusChange(focusState.isFocused)
@@ -164,5 +165,38 @@ fun CustomTextField(
                         }
                     }
                 }
+    )
+}
+
+@Composable
+fun FilteredTextField(
+    value: String,
+    onChanged: (String) -> Unit,
+    isEnabled: Boolean,
+    singleLine: Boolean,
+    maxLines: Int,
+    visualTransformation: VisualTransformation,
+    textStyle: TextStyle,
+    cursorBrush: Brush,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions,
+    validateRegex: Regex,
+    modifier: Modifier = Modifier,
+    decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
+        @Composable { innerTextField -> innerTextField() }
+) {
+    BasicTextField(
+        value = value,
+        enabled = isEnabled,
+        singleLine = singleLine,
+        maxLines = maxLines,
+        visualTransformation = visualTransformation,
+        textStyle = textStyle,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
+        decorationBox = decorationBox,
+        cursorBrush = cursorBrush,
+        modifier = modifier,
+        onValueChange = { if (validateRegex.matches(it)) onChanged(it) },
     )
 }
