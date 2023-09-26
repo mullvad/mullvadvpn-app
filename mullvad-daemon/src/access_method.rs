@@ -12,9 +12,6 @@ pub enum Error {
     /// Can not remove built-in access method
     #[error(display = "Cannot remove built-in access method")]
     RemoveBuiltIn,
-    /// Can not edit built-in access method
-    #[error(display = "Cannot edit built-in access method")]
-    EditBuiltIn,
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
     NoSuchMethod(ApiAccessMethodId),
@@ -72,9 +69,6 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
-        if access_method_update.is_builtin() {
-            return Err(Error::EditBuiltIn);
-        }
         self.settings
             .update(|settings| {
                 let access_methods = &mut settings.api_access_methods;
