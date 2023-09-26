@@ -1,5 +1,5 @@
 //
-//  Actor+Public.swift
+//  PacketTunnelActor+Public.swift
 //  PacketTunnelCore
 //
 //  Created by pronebird on 27/09/2023.
