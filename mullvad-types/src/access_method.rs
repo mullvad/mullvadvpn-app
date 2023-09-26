@@ -6,23 +6,23 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
-    pub api_access_methods: Vec<AccessMethodSetting>,
+    pub access_method_settings: Vec<AccessMethodSetting>,
 }
 
 impl Settings {
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
     pub fn append(&mut self, api_access_method: AccessMethodSetting) {
-        self.api_access_methods.push(api_access_method)
+        self.access_method_settings.push(api_access_method)
     }
 
     /// Remove an [`ApiAccessMethod`] from `api_access_methods`.
-    pub fn remove(&mut self, api_access_method: &ApiAccessMethodId) {
+    pub fn remove(&mut self, api_access_method: &Id) {
         self.retain(|method| method.get_id() != *api_access_method)
     }
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
-    pub fn find(&self, element: &ApiAccessMethodId) -> Option<&AccessMethodSetting> {
-        self.api_access_methods
+    pub fn find(&self, element: &Id) -> Option<&AccessMethodSetting> {
+        self.access_method_settings
             .iter()
             .find(|api_access_method| *element == api_access_method.get_id())
     }
@@ -32,8 +32,8 @@ impl Settings {
     /// If the [`AccessMethod`] is found to be part of `api_access_methods`, a
     /// mutable reference to that inner element is returned. Otherwise, `None`
     /// is returned.
-    pub fn find_mut(&mut self, element: &ApiAccessMethodId) -> Option<&mut AccessMethodSetting> {
-        self.api_access_methods
+    pub fn find_mut(&mut self, element: &Id) -> Option<&mut AccessMethodSetting> {
+        self.access_method_settings
             .iter_mut()
             .find(|api_access_method| *element == api_access_method.get_id())
     }
@@ -43,19 +43,19 @@ impl Settings {
     where
         F: FnMut(&AccessMethodSetting) -> bool,
     {
-        self.api_access_methods.retain(f)
+        self.access_method_settings.retain(f)
     }
 
     /// Clone the content of `api_access_methods`.
     pub fn cloned(&self) -> Vec<AccessMethodSetting> {
-        self.api_access_methods.clone()
+        self.access_method_settings.clone()
     }
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            api_access_methods: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
+            access_method_settings: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
                 .into_iter()
                 .map(|built_in| {
                     AccessMethodSetting::new(
@@ -75,28 +75,28 @@ impl Default for Settings {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct AccessMethodSetting {
     /// Some unique id (distinct for each `AccessMethod`).
-    id: ApiAccessMethodId,
+    id: Id,
     pub name: String,
     pub enabled: bool,
     pub access_method: AccessMethod,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct ApiAccessMethodId(uuid::Uuid);
+pub struct Id(uuid::Uuid);
 
-impl ApiAccessMethodId {
+impl Id {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self(uuid::Uuid::new_v4())
     }
     /// Tries to parse a UUID from a raw String. If it is successful, an
-    /// [`ApiAccessMethodId`] is instantiated.
+    /// [`Id`] is instantiated.
     pub fn from_string(id: String) -> Option<Self> {
         uuid::Uuid::from_str(&id).ok().map(Self)
     }
 }
 
-impl std::fmt::Display for ApiAccessMethodId {
+impl std::fmt::Display for Id {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -112,7 +112,7 @@ pub enum AccessMethod {
 impl AccessMethodSetting {
     pub fn new(name: String, enabled: bool, access_method: AccessMethod) -> Self {
         Self {
-            id: ApiAccessMethodId::new(),
+            id: Id::new(),
             name,
             enabled,
             access_method,
@@ -128,12 +128,7 @@ impl AccessMethodSetting {
     ///
     /// [`new`]: ApiAccessMethod::new
     /// [`with_id`]: ApiAccessMethod::with_id
-    pub fn with_id(
-        id: ApiAccessMethodId,
-        name: String,
-        enabled: bool,
-        access_method: AccessMethod,
-    ) -> Self {
+    pub fn with_id(id: Id, name: String, enabled: bool, access_method: AccessMethod) -> Self {
         Self {
             id,
             name,
@@ -142,7 +137,7 @@ impl AccessMethodSetting {
         }
     }
 
-    pub fn get_id(&self) -> ApiAccessMethodId {
+    pub fn get_id(&self) -> Id {
         self.id.clone()
     }
 
@@ -324,16 +319,5 @@ impl From<Socks5Remote> for Socks5 {
 impl From<Socks5Local> for Socks5 {
     fn from(value: Socks5Local) -> Self {
         Socks5::Local(value)
-    }
-}
-
-/// Some short-lived datastructure used in some RPC calls to the mullvad daemon.
-pub mod daemon {
-    use super::*;
-    /// Argument to protobuf rpc `UpdateApiAccessMethod`.
-    #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-    pub struct ApiAccessMethodUpdate {
-        pub id: ApiAccessMethodId,
-        pub access_method: ApiAccessMethod,
     }
 }

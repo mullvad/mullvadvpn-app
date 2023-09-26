@@ -10,7 +10,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::api_access::{self, AccessMethod, BuiltInAccessMethod};
+use mullvad_types::access_method::{self, AccessMethod, BuiltInAccessMethod};
 use std::{
     net::SocketAddr,
     path::PathBuf,
@@ -39,7 +39,6 @@ pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
     /// Used for selecting a Relay when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
-    retry_attempt: u32,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
     connection_modes: Arc<Mutex<ConnectionModesIterator>>,
 }
@@ -63,7 +62,6 @@ impl Stream for ApiConnectionModeProvider {
         }
 
         let connection_mode = self.new_connection_mode();
-        self.retry_attempt = self.retry_attempt.wrapping_add(1);
 
         let cache_dir = self.cache_dir.clone();
         self.current_task = Some(Box::pin(async move {
@@ -89,7 +87,6 @@ impl ApiConnectionModeProvider {
         Self {
             cache_dir,
             relay_selector,
-            retry_attempt: 0,
             current_task: None,
             connection_modes: Arc::new(Mutex::new(ConnectionModesIterator::new(connection_modes))),
         }
@@ -131,11 +128,12 @@ impl ApiConnectionModeProvider {
                     .get_bridge_forced()
                     .and_then(|settings| match settings {
                         ProxySettings::Shadowsocks(ss_settings) => {
-                            let ss_settings: api_access::Shadowsocks = api_access::Shadowsocks::new(
-                                ss_settings.peer,
-                                ss_settings.cipher,
-                                ss_settings.password,
-                            );
+                            let ss_settings: access_method::Shadowsocks =
+                                access_method::Shadowsocks::new(
+                                    ss_settings.peer,
+                                    ss_settings.cipher,
+                                    ss_settings.password,
+                                );
                             Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
                                 ss_settings,
                             )))
@@ -148,10 +146,10 @@ impl ApiConnectionModeProvider {
                     .unwrap_or(ApiConnectionMode::Direct),
             },
             AccessMethod::Custom(access_method) => match &access_method {
-                api_access::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
+                access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config.clone()))
                 }
-                api_access::CustomAccessMethod::Socks5(socks_config) => {
+                access_method::CustomAccessMethod::Socks5(socks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
                 }
             },
