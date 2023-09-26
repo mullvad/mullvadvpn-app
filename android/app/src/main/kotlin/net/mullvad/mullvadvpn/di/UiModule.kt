@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
+import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -85,6 +86,7 @@ val uiModule = module {
     viewModel { PrivacyDisclaimerViewModel(get()) }
     viewModel { SelectLocationViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
+    viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get()) }
     viewModel { OutOfTimeViewModel(get(), get()) }
