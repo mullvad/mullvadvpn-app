@@ -180,12 +180,12 @@ impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmiss
 impl From<daemon_interface::Error> for VoucherSubmissionError {
     fn from(error: daemon_interface::Error) -> Self {
         match error {
-            daemon_interface::Error::Api(RestError::ApiError(_, code)) => match code.as_str() {
-                mullvad_api::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
-                mullvad_api::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
-                _ => VoucherSubmissionError::RpcError,
-            },
-            daemon_interface::Error::Api(_) => VoucherSubmissionError::RpcError,
+            daemon_interface::Error::OtherError(mullvad_daemon::Error::VoucherSubmission(
+                device::Error::InvalidVoucher,
+            )) => VoucherSubmissionError::InvalidVoucher,
+            daemon_interface::Error::OtherError(mullvad_daemon::Error::VoucherSubmission(
+                device::Error::UsedVoucher,
+            )) => VoucherSubmissionError::VoucherAlreadyUsed,
             _ => VoucherSubmissionError::OtherError,
         }
     }
