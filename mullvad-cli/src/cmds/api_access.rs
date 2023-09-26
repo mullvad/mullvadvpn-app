@@ -91,55 +91,46 @@ impl ApiAccess {
     /// Edit the data of an API access method.
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let api_access_method = Self::get_access_method(&mut rpc, &cmd.item).await?;
-        let access_method = api_access_method
-            .as_custom()
-            .cloned()
-            .ok_or(anyhow!("Can not edit built-in access method"))?;
+        let mut api_access_method = Self::get_access_method(&mut rpc, &cmd.item).await?;
 
         // Create a new access method combining the new params with the previous values
-        let edited_access_method: AccessMethodSetting = match access_method {
-            CustomAccessMethod::Shadowsocks(shadowsocks) => {
-                let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip()).to_string();
-                let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
-                let password = cmd.params.password.unwrap_or(shadowsocks.password);
-                let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
-                let name = cmd.params.name.unwrap_or(api_access_method.name);
-                let enabled = api_access_method.enabled;
-                mullvad_types::api_access::Shadowsocks::from_args(ip, port, cipher, password).map(
-                    |shadowsocks| {
-                        AccessMethodSetting::new(name, enabled, AccessMethod::from(shadowsocks))
-                    },
-                )
-            }
-            CustomAccessMethod::Socks5(socks) => match socks {
-                mullvad_types::api_access::Socks5::Local(local) => {
-                    let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
-                    let port = cmd.params.port.unwrap_or(local.peer.port());
-                    let local_port = cmd.params.local_port.unwrap_or(local.port);
-                    let name = cmd.params.name.unwrap_or(api_access_method.get_name());
-                    let enabled = api_access_method.enabled();
-                    mullvad_types::api_access::Socks5Local::from_args(ip, port, local_port).map(
-                        |socks| AccessMethodSetting::new(name, enabled, AccessMethod::from(socks)),
-                    )
+        let access_method = match api_access_method.as_custom() {
+            None => return Err(anyhow!("Can not edit built-in access method")),
+            Some(x) => match x.clone() {
+                CustomAccessMethod::Shadowsocks(shadowsocks) => {
+                    let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip()).to_string();
+                    let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
+                    let password = cmd.params.password.unwrap_or(shadowsocks.password);
+                    let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
+                    mullvad_types::api_access::Shadowsocks::from_args(ip, port, cipher, password)
+                        .map(AccessMethod::from)
                 }
-                mullvad_types::api_access::Socks5::Remote(remote) => {
-                    let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
-                    let port = cmd.params.port.unwrap_or(remote.peer.port());
-                    let name = cmd.params.name.unwrap_or(api_access_method.get_name());
-                    let enabled = api_access_method.enabled();
-                    mullvad_types::api_access::Socks5Remote::from_args(ip, port).map(|socks| {
-                        AccessMethodSetting::new(name, enabled, AccessMethod::from(socks))
-                    })
-                }
+                CustomAccessMethod::Socks5(socks) => match socks {
+                    mullvad_types::api_access::Socks5::Local(local) => {
+                        let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
+                        let port = cmd.params.port.unwrap_or(local.peer.port());
+                        let local_port = cmd.params.local_port.unwrap_or(local.port);
+                        mullvad_types::api_access::Socks5Local::from_args(ip, port, local_port)
+                            .map(AccessMethod::from)
+                    }
+                    mullvad_types::api_access::Socks5::Remote(remote) => {
+                        let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
+                        let port = cmd.params.port.unwrap_or(remote.peer.port());
+                        mullvad_types::api_access::Socks5Remote::from_args(ip, port)
+                            .map(AccessMethod::from)
+                    }
+                },
             },
-        }
-        .ok_or(anyhow!(
-            "Could not edit access method {}, reverting changes.",
-            cmd.item
-        ))?;
+        };
 
-        rpc.update_access_method(edited_access_method).await?;
+        if let Some(name) = cmd.params.name {
+            api_access_method.name = name;
+        };
+        if let Some(access_method) = access_method {
+            api_access_method.access_method = access_method;
+        }
+
+        rpc.update_access_method(api_access_method).await?;
 
         Ok(())
     }
