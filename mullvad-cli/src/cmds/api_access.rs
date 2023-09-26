@@ -74,8 +74,10 @@ impl ApiAccess {
     /// Add a custom API access method.
     async fn add(cmd: AddCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = AccessMethodSetting::try_from(cmd)?;
-        rpc.add_access_method(access_method).await?;
+        let name = cmd.name();
+        let enabled = cmd.enabled();
+        let access_method = AccessMethod::try_from(cmd)?;
+        rpc.add_access_method(name, enabled, access_method).await?;
         Ok(())
     }
 
@@ -206,10 +208,26 @@ impl ApiAccess {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum AddCustomCommands {
-    /// Configure SOCKS5 proxy
-    #[clap(subcommand)]
-    Socks5(Socks5AddCommands),
-
+    /// Configure a local SOCKS5 proxy
+    Socks5Local {
+        /// An easy to remember name for this custom proxy
+        name: String,
+        /// The port that the server on localhost is listening on
+        local_port: u16,
+        /// The IP of the remote peer
+        remote_ip: IpAddr,
+        /// The port of the remote peer
+        remote_port: u16,
+    },
+    /// Configure a remote SOCKS5 proxy
+    Socks5Remote {
+        /// An easy to remember name for this custom proxy
+        name: String,
+        /// The IP of the remote proxy server
+        remote_ip: IpAddr,
+        /// The port of the remote proxy server
+        remote_port: u16,
+    },
     /// Configure Shadowsocks proxy
     Shadowsocks {
         /// An easy to remember name for this custom proxy
@@ -228,28 +246,19 @@ pub enum AddCustomCommands {
     },
 }
 
-#[derive(Subcommand, Debug, Clone)]
-pub enum Socks5AddCommands {
-    /// Configure a local SOCKS5 proxy
-    Local {
-        /// An easy to remember name for this custom proxy
-        name: String,
-        /// The port that the server on localhost is listening on
-        local_port: u16,
-        /// The IP of the remote peer
-        remote_ip: IpAddr,
-        /// The port of the remote peer
-        remote_port: u16,
-    },
-    /// Configure a remote SOCKS5 proxy
-    Remote {
-        /// An easy to remember name for this custom proxy
-        name: String,
-        /// The IP of the remote proxy server
-        remote_ip: IpAddr,
-        /// The port of the remote proxy server
-        remote_port: u16,
-    },
+impl AddCustomCommands {
+    fn name(&self) -> String {
+        match self {
+            AddCustomCommands::Socks5Local { name, .. } => name,
+            AddCustomCommands::Socks5Remote { name, .. } => name,
+            AddCustomCommands::Shadowsocks { name, .. } => name,
+        }
+        .clone()
+    }
+    /// TODO: Actually add an `enabled` flag to the variants of `AddCustomCommands`
+    fn enabled(&self) -> bool {
+        true
+    }
 }
 
 /// A minimal wrapper type allowing the user to supply a list index to some
@@ -315,63 +324,48 @@ mod conversions {
     use anyhow::{anyhow, Error};
     use mullvad_types::api_access as daemon_types;
 
-    use super::{AddCustomCommands, Socks5AddCommands};
+    use super::AddCustomCommands;
 
-    impl TryFrom<AddCustomCommands> for daemon_types::AccessMethodSetting {
+    impl TryFrom<AddCustomCommands> for daemon_types::AccessMethod {
         type Error = Error;
 
         fn try_from(value: AddCustomCommands) -> Result<Self, Self::Error> {
-            // All api proxies are automatically enabled from the start.
-            let enabled = true;
             Ok(match value {
-                AddCustomCommands::Socks5(variant) => match variant {
-                    Socks5AddCommands::Local {
-                        local_port,
-                        remote_ip,
-                        remote_port,
-                        name,
-                    } => {
-                        println!("Adding Local SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
-                        let socks_proxy = daemon_types::Socks5::Local(
-                            daemon_types::Socks5Local::from_args(
-                                remote_ip.to_string(),
-                                remote_port,
-                                local_port,
-                            )
-                            .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
-                        );
-                        daemon_types::AccessMethodSetting::new(
-                            name,
-                            enabled,
-                            daemon_types::AccessMethod::from(socks_proxy),
+                AddCustomCommands::Socks5Local {
+                    local_port,
+                    remote_ip,
+                    remote_port,
+                    name: _,
+                } => {
+                    println!("Adding Local SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
+                    let socks_proxy = daemon_types::Socks5::Local(
+                        daemon_types::Socks5Local::from_args(
+                            remote_ip.to_string(),
+                            remote_port,
+                            local_port,
                         )
-                    }
-                    Socks5AddCommands::Remote {
-                        remote_ip,
-                        remote_port,
-                        name,
-                    } => {
-                        println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
-                        let socks_proxy = daemon_types::Socks5::Remote(
-                            daemon_types::Socks5Remote::from_args(
-                                remote_ip.to_string(),
-                                remote_port,
-                            )
+                        .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
+                    );
+                    daemon_types::AccessMethod::from(socks_proxy)
+                }
+                AddCustomCommands::Socks5Remote {
+                    remote_ip,
+                    remote_port,
+                    name: _,
+                } => {
+                    println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
+                    let socks_proxy = daemon_types::Socks5::Remote(
+                        daemon_types::Socks5Remote::from_args(remote_ip.to_string(), remote_port)
                             .ok_or(anyhow!("Could not create a remote Socks5 api proxy"))?,
-                        );
-                        daemon_types::AccessMethodSetting::new(
-                            name,
-                            enabled,
-                            daemon_types::AccessMethod::from(socks_proxy),
-                        )
-                    }
-                },
+                    );
+                    daemon_types::AccessMethod::from(socks_proxy)
+                }
                 AddCustomCommands::Shadowsocks {
                     remote_ip,
                     remote_port,
                     password,
                     cipher,
-                    name,
+                    name: _,
                 } => {
                     println!(
                 "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
@@ -383,12 +377,7 @@ mod conversions {
                         password,
                     )
                     .ok_or(anyhow!("Could not create a Shadowsocks api proxy"))?;
-
-                    daemon_types::AccessMethodSetting::new(
-                        name,
-                        enabled,
-                        daemon_types::AccessMethod::from(shadowsocks_proxy),
-                    )
+                    daemon_types::AccessMethod::from(shadowsocks_proxy)
                 }
             })
         }

@@ -3,7 +3,7 @@ use crate::{
     Daemon, EventListener,
 };
 use mullvad_management_interface::types::rpc::api_access_method_update::ApiAccessMethodUpdate;
-use mullvad_types::api_access::{AccessMethodSetting, ApiAccessMethodId};
+use mullvad_types::api_access::{AccessMethod, AccessMethodSetting, ApiAccessMethodId};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -27,12 +27,17 @@ where
 {
     pub async fn add_access_method(
         &mut self,
-        access_method: AccessMethodSetting,
-    ) -> Result<(), Error> {
+        name: String,
+        enabled: bool,
+        access_method: AccessMethod,
+    ) -> Result<ApiAccessMethodId, Error> {
+        let access_method_setting = AccessMethodSetting::new(name, enabled, access_method);
+        let id = access_method_setting.get_id();
         self.settings
-            .update(|settings| settings.api_access_methods.append(access_method))
+            .update(|settings| settings.api_access_methods.append(access_method_setting))
             .await
             .map(|did_change| self.notify_on_change(did_change))
+            .map(|_| id)
             .map_err(Error::Settings)
     }
 
