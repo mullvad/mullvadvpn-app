@@ -100,8 +100,12 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethod) -> Result<Self, Self::Error> {
-            // TODO: Should this be used or genertaed anew?
-            // let id = value.id;
+            let id = value
+                .id
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "Could not deserialize Access Method from protobuf",
+                ))?
+                .into();
             let name = value.name;
             let enabled = value.enabled;
             let access_method =
@@ -149,8 +153,7 @@ mod data {
                 }
             };
 
-            // TODO: Should the `id` be used or generated a new?
-            Ok(ApiAccessMethod::new(name, enabled, access_method))
+            Ok(ApiAccessMethod::with_id(id, name, enabled, access_method))
         }
     }
 
