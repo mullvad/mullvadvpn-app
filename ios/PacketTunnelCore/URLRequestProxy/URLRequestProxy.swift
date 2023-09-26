@@ -87,3 +87,5 @@ extension URLRequestProxy {
         }
     }
 }
+
+extension URLRequestProxy: URLRequestProxyProtocol {}

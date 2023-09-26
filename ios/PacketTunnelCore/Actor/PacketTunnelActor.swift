@@ -355,3 +355,5 @@ extension PacketTunnelActor {
         }
     }
 }
+
+extension PacketTunnelActor: PacketTunnelActorProtocol {}
