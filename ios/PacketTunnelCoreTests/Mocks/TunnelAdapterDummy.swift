@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import PacketTunnelCore
+@testable import PacketTunnelCore
 
 /// Dummy tunnel adapter that does nothing and reports no errors.
 class TunnelAdapterDummy: TunnelAdapterProtocol {

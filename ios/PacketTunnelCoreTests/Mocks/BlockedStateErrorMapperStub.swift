@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import PacketTunnelCore
+@testable import PacketTunnelCore
 
 /// Blocked state error mapper stub that can be configured with a block to simulate a desired behavior.
 class BlockedStateErrorMapperStub: BlockedStateErrorMapperProtocol {

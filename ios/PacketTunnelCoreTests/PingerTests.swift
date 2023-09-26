@@ -7,7 +7,8 @@
 //
 
 import Network
-import PacketTunnelCore
+@testable import PacketTunnelCore
+import WireGuardKitTypes
 import XCTest
 
 final class PingerTests: XCTestCase {

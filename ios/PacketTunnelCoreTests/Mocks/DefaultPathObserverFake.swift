@@ -8,7 +8,7 @@
 
 import Foundation
 import NetworkExtension
-import PacketTunnelCore
+@testable import PacketTunnelCore
 
 struct NetworkPathStub: NetworkPath {
     var status: NetworkExtension.NWPathStatus = .satisfied
@@ -23,7 +23,7 @@ class DefaultPathObserverFake: DefaultPathObserverProtocol {
     private var innerPath: NetworkPath = NetworkPathStub()
     private var stateLock = NSLock()
 
-    private var defaultPathHandler: ((NetworkPath) -> Void)?
+    var defaultPathHandler: ((NetworkPath) -> Void)?
 
     func start(_ body: @escaping (NetworkPath) -> Void) {
         stateLock.withLock {
