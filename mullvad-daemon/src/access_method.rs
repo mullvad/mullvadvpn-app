@@ -3,7 +3,7 @@ use crate::{
     Daemon, EventListener,
 };
 use mullvad_management_interface::types::rpc::api_access_method_update::ApiAccessMethodUpdate;
-use mullvad_types::api_access::{ApiAccessMethod, ApiAccessMethodId};
+use mullvad_types::api_access::{AccessMethodSetting, ApiAccessMethodId};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -25,7 +25,10 @@ impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub async fn add_access_method(&mut self, access_method: ApiAccessMethod) -> Result<(), Error> {
+    pub async fn add_access_method(
+        &mut self,
+        access_method: AccessMethodSetting,
+    ) -> Result<(), Error> {
         self.settings
             .update(|settings| settings.api_access_methods.append(access_method))
             .await

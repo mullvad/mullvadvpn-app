@@ -33,8 +33,8 @@ pub mod settings {
                 api_access_methods: settings
                     .api_access_methods
                     .iter()
-                    .map(api_access::ApiAccessMethod::try_from)
-                    .collect::<Result<Vec<api_access::ApiAccessMethod>, _>>()?,
+                    .map(api_access::AccessMethodSetting::try_from)
+                    .collect::<Result<Vec<api_access::AccessMethodSetting>, _>>()?,
             })
         }
     }
@@ -57,7 +57,7 @@ pub mod settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "Could not convert Access Method from protobuf",
                 ))
-                .and_then(api_access::ApiAccessMethod::try_from)?;
+                .and_then(api_access::AccessMethodSetting::try_from)?;
 
             let id = value
                 .id
@@ -80,23 +80,23 @@ pub mod settings {
 mod data {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::api_access::{
-        AccessMethod, ApiAccessMethod, ApiAccessMethodId, BuiltInAccessMethod, CustomAccessMethod,
-        Shadowsocks, Socks5, Socks5Local, Socks5Remote,
+        AccessMethod, AccessMethodSetting, ApiAccessMethodId, BuiltInAccessMethod,
+        CustomAccessMethod, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
     };
 
-    impl TryFrom<proto::ApiAccessMethods> for Vec<ApiAccessMethod> {
+    impl TryFrom<proto::ApiAccessMethods> for Vec<AccessMethodSetting> {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethods) -> Result<Self, Self::Error> {
             value
                 .api_access_methods
                 .iter()
-                .map(ApiAccessMethod::try_from)
+                .map(AccessMethodSetting::try_from)
                 .collect()
         }
     }
 
-    impl TryFrom<proto::ApiAccessMethod> for ApiAccessMethod {
+    impl TryFrom<proto::ApiAccessMethod> for AccessMethodSetting {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::ApiAccessMethod) -> Result<Self, Self::Error> {
@@ -153,7 +153,12 @@ mod data {
                 }
             };
 
-            Ok(ApiAccessMethod::with_id(id, name, enabled, access_method))
+            Ok(AccessMethodSetting::with_id(
+                id,
+                name,
+                enabled,
+                access_method,
+            ))
         }
     }
 
@@ -171,8 +176,8 @@ mod data {
         }
     }
 
-    impl From<ApiAccessMethod> for proto::ApiAccessMethod {
-        fn from(value: ApiAccessMethod) -> Self {
+    impl From<AccessMethodSetting> for proto::ApiAccessMethod {
+        fn from(value: AccessMethodSetting) -> Self {
             let id = proto::Uuid::from(value.get_id());
             let name = value.get_name();
             let enabled = value.enabled();
@@ -229,16 +234,16 @@ mod data {
         }
     }
 
-    impl TryFrom<&proto::ApiAccessMethod> for ApiAccessMethod {
+    impl TryFrom<&proto::ApiAccessMethod> for AccessMethodSetting {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: &proto::ApiAccessMethod) -> Result<Self, Self::Error> {
-            ApiAccessMethod::try_from(value.clone())
+            AccessMethodSetting::try_from(value.clone())
         }
     }
 
-    impl From<Vec<ApiAccessMethod>> for proto::ApiAccessMethods {
-        fn from(value: Vec<ApiAccessMethod>) -> proto::ApiAccessMethods {
+    impl From<Vec<AccessMethodSetting>> for proto::ApiAccessMethods {
+        fn from(value: Vec<AccessMethodSetting>) -> proto::ApiAccessMethods {
             proto::ApiAccessMethods {
                 api_access_methods: value.iter().map(|method| method.clone().into()).collect(),
             }

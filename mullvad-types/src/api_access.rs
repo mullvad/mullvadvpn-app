@@ -6,12 +6,12 @@ use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
-    pub api_access_methods: Vec<ApiAccessMethod>,
+    pub api_access_methods: Vec<AccessMethodSetting>,
 }
 
 impl Settings {
     /// Append an [`AccessMethod`] to the end of `api_access_methods`.
-    pub fn append(&mut self, api_access_method: ApiAccessMethod) {
+    pub fn append(&mut self, api_access_method: AccessMethodSetting) {
         self.api_access_methods.push(api_access_method)
     }
 
@@ -21,7 +21,7 @@ impl Settings {
     }
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
-    pub fn find(&self, element: &ApiAccessMethodId) -> Option<&ApiAccessMethod> {
+    pub fn find(&self, element: &ApiAccessMethodId) -> Option<&AccessMethodSetting> {
         self.api_access_methods
             .iter()
             .find(|api_access_method| *element == api_access_method.get_id())
@@ -32,7 +32,7 @@ impl Settings {
     /// If the [`AccessMethod`] is found to be part of `api_access_methods`, a
     /// mutable reference to that inner element is returned. Otherwise, `None`
     /// is returned.
-    pub fn find_mut(&mut self, element: &ApiAccessMethodId) -> Option<&mut ApiAccessMethod> {
+    pub fn find_mut(&mut self, element: &ApiAccessMethodId) -> Option<&mut AccessMethodSetting> {
         self.api_access_methods
             .iter_mut()
             .find(|api_access_method| *element == api_access_method.get_id())
@@ -41,13 +41,13 @@ impl Settings {
     /// Equivalent to [`Vec::retain`].
     pub fn retain<F>(&mut self, f: F)
     where
-        F: FnMut(&ApiAccessMethod) -> bool,
+        F: FnMut(&AccessMethodSetting) -> bool,
     {
         self.api_access_methods.retain(f)
     }
 
     /// Clone the content of `api_access_methods`.
-    pub fn cloned(&self) -> Vec<ApiAccessMethod> {
+    pub fn cloned(&self) -> Vec<AccessMethodSetting> {
         self.api_access_methods.clone()
     }
 }
@@ -58,7 +58,7 @@ impl Default for Settings {
             api_access_methods: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
                 .into_iter()
                 .map(|built_in| {
-                    ApiAccessMethod::new(
+                    AccessMethodSetting::new(
                         built_in.canonical_name(),
                         true,
                         AccessMethod::from(built_in),
@@ -72,9 +72,8 @@ impl Default for Settings {
 /// API Access Method datastructure
 ///
 /// Mirrors the protobuf definition
-/// TODO(Create a constructor functions for this struct (?))
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct ApiAccessMethod {
+pub struct AccessMethodSetting {
     /// Some unique id (distinct for each `AccessMethod`).
     id: ApiAccessMethodId,
     pub name: String,
@@ -110,7 +109,7 @@ pub enum AccessMethod {
     Custom(CustomAccessMethod),
 }
 
-impl ApiAccessMethod {
+impl AccessMethodSetting {
     pub fn new(name: String, enabled: bool, access_method: AccessMethod) -> Self {
         Self {
             id: ApiAccessMethodId::new(),
