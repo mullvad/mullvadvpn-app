@@ -39,9 +39,8 @@ use mullvad_relay_selector::{
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
-    access_method::{daemon::ApiAccessMethodUpdate, ApiAccessMethod, ApiAccessMethodId},
+    access_method::{AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountToken, VoucherSubmission},
-    api_access::{AccessMethodSetting, ApiAccessMethodId},
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -264,13 +263,18 @@ pub enum DaemonCommand {
     /// Get API access methods
     GetApiAccessMethods(ResponseTx<Vec<AccessMethodSetting>, Error>),
     /// Add API access methods
-    AddApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
+    AddApiAccessMethod(
+        ResponseTx<mullvad_types::access_method::Id, Error>,
+        String,
+        bool,
+        AccessMethod,
+    ),
     /// Remove an API access method
-    RemoveApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodId),
+    RemoveApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Set the API access method to use
-    SetApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodId),
+    SetApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Edit an API access method
-    UpdateApiAccessMethod(ResponseTx<(), Error>, ApiAccessMethodUpdate),
+    UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
     /// Get the addresses of all known API endpoints
     GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
     /// Get information about the currently running and latest app versions
@@ -640,7 +644,7 @@ where
             relay_selector.clone(),
             settings
                 .api_access_methods
-                .api_access_methods
+                .access_method_settings
                 .iter()
                 // We only care about the access methods which are set to 'enabled' by the user.
                 .filter(|api_access_method| api_access_method.enabled())
@@ -1064,7 +1068,10 @@ where
             UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx),
             GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
-            AddApiAccessMethod(tx, method) => self.on_add_api_access_method(tx, method).await,
+            AddApiAccessMethod(tx, name, enabled, access_method) => {
+                self.on_add_access_method(tx, name, enabled, access_method)
+                    .await
+            }
             RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method),
@@ -2248,13 +2255,15 @@ where
         Self::oneshot_send(tx, result, "get_api_access_methods response");
     }
 
-    async fn on_add_api_access_method(
+    async fn on_add_access_method(
         &mut self,
-        tx: ResponseTx<(), Error>,
-        method: AccessMethodSetting,
+        tx: ResponseTx<mullvad_types::access_method::Id, Error>,
+        name: String,
+        enabled: bool,
+        access_method: AccessMethod,
     ) {
         let result = self
-            .add_access_method(method)
+            .add_access_method(name, enabled, access_method)
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "add_api_access_method response");
@@ -2263,7 +2272,7 @@ where
     async fn on_remove_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        api_access_method: ApiAccessMethodId,
+        api_access_method: mullvad_types::access_method::Id,
     ) {
         let result = self
             .remove_access_method(api_access_method)
@@ -2275,7 +2284,7 @@ where
     async fn on_update_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        method: ApiAccessMethodUpdate,
+        method: AccessMethodSetting,
     ) {
         let result = self
             .update_access_method(method)
@@ -2287,7 +2296,7 @@ where
     fn on_set_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
-        access_method: ApiAccessMethodId,
+        access_method: mullvad_types::access_method::Id,
     ) {
         let result = self
             .set_api_access_method(access_method)

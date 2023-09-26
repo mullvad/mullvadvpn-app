@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
+mod access_method;
 mod account;
-mod api_access_method;
 mod custom_list;
 mod custom_tunnel;
 mod device;
