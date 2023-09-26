@@ -621,23 +621,30 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn add_api_access_method(
         &self,
-        request: Request<types::ApiAccessMethod>,
-    ) -> ServiceResult<()> {
+        request: Request<types::NewAccessMethodSetting>,
+    ) -> ServiceResult<types::Uuid> {
         log::debug!("add_api_access_method");
-        let api_access_method =
-            mullvad_types::api_access::AccessMethodSetting::try_from(request.into_inner())?;
+        let request = request.into_inner();
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::AddApiAccessMethod(tx, api_access_method))?;
+        self.send_command_to_daemon(DaemonCommand::AddApiAccessMethod(
+            tx,
+            request.name,
+            request.enabled,
+            request
+                .access_method
+                .ok_or(Status::invalid_argument("Could not find access method"))
+                .map(mullvad_types::access_method::AccessMethod::try_from)??,
+        ))?;
         self.wait_for_result(rx)
             .await?
+            .map(types::Uuid::from)
             .map(Response::new)
             .map_err(map_daemon_error)
     }
 
     async fn remove_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<()> {
         log::debug!("remove_api_access_method");
-        let api_access_method =
-            mullvad_types::api_access::ApiAccessMethodId::try_from(request.into_inner())?;
+        let api_access_method = mullvad_types::access_method::Id::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::RemoveApiAccessMethod(tx, api_access_method))?;
         self.wait_for_result(rx)
@@ -648,13 +655,11 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn update_api_access_method(
         &self,
-        request: Request<types::ApiAccessMethodUpdate>,
+        request: Request<types::AccessMethodSetting>,
     ) -> ServiceResult<()> {
         log::debug!("update_api_access_method");
         let access_method_update =
-            mullvad_types::access_method::daemon::ApiAccessMethodUpdate::try_from(
-                request.into_inner(),
-            )?;
+            mullvad_types::access_method::AccessMethodSetting::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::UpdateApiAccessMethod(
             tx,
@@ -668,8 +673,7 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn set_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<()> {
         log::debug!("set_api_access_method");
-        let api_access_method =
-            mullvad_types::api_access::ApiAccessMethodId::try_from(request.into_inner())?;
+        let api_access_method = mullvad_types::access_method::Id::try_from(request.into_inner())?;
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetApiAccessMethod(tx, api_access_method))?;
         self.wait_for_result(rx)
@@ -678,8 +682,8 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn get_api_addressess(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("test_api");
+    async fn get_api_addresses(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("get_api_addresses");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetApiAddresses(tx))?;
         self.wait_for_result(rx)
