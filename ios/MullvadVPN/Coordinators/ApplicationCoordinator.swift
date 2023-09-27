@@ -72,9 +72,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private let storePaymentManager: StorePaymentManager
     private let relayCacheTracker: RelayCacheTracker
 
-    private let apiProxy: REST.APIProxy
-    private let devicesProxy: REST.DevicesProxy
-    private let accountsProxy: REST.AccountsProxy
+    private let apiProxy: APIQuerying
+    private let devicesProxy: DeviceHandling
+    private let accountsProxy: AccountHandling
     private var tunnelObserver: TunnelObserver?
     private var appPreferences: AppPreferencesDataSource
 
@@ -88,9 +88,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         tunnelManager: TunnelManager,
         storePaymentManager: StorePaymentManager,
         relayCacheTracker: RelayCacheTracker,
-        apiProxy: REST.APIProxy,
-        devicesProxy: REST.DevicesProxy,
-        accountsProxy: REST.AccountsProxy,
+        apiProxy: APIQuerying,
+        devicesProxy: DeviceHandling,
+        accountsProxy: AccountHandling,
         appPreferences: AppPreferencesDataSource
     ) {
         self.tunnelManager = tunnelManager
