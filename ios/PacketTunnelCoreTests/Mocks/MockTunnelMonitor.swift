@@ -86,7 +86,7 @@ extension MockTunnelMonitor {
     static func nonFallible() -> MockTunnelMonitor {
         MockTunnelMonitor { command, dispatcher in
             if case .start = command {
-                dispatcher.send(.connectionEstablished, after: .milliseconds(100))
+                dispatcher.send(.connectionEstablished, after: .milliseconds(10))
             }
         }
     }
