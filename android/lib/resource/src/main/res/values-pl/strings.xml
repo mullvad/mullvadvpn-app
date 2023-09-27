@@ -58,9 +58,9 @@
     <string name="device_inactive_title">Urządzenie nieaktywne</string>
     <string name="device_inactive_unblock_warning">Przejście do logowania odblokuje Internet na tym urządzeniu.</string>
     <string name="device_name">Nazwa urządzenia</string>
-    <string name="device_name_info_first_paragraph">Jest to nazwa przypisana do urządzenia. Każde urządzenie zalogowane na koncie Mullvad otrzymuje unikalną nazwę, która pozwala zidentyfikować je podczas zarządzania urządzeniami w aplikacji lub za pośrednictwem witryny internetowej.</string>
-    <string name="device_name_info_second_paragraph">Na jednym koncie Mullvad może być zalogowanych maksymalnie 5 urządzeń.</string>
-    <string name="device_name_info_third_paragraph">Przy wylogowaniu urządzenie i jego nazwa zostają usunięte. Po ponownym zalogowaniu urządzenie otrzymuje nową nazwę.</string>
+    <string name="device_name_info_part1">Jest to nazwa przypisana do urządzenia. Każde urządzenie zalogowane na koncie Mullvad otrzymuje unikalną nazwę, która pozwala zidentyfikować je podczas zarządzania urządzeniami w aplikacji lub za pośrednictwem witryny internetowej.</string>
+    <string name="device_name_info_part2">Na jednym koncie Mullvad może być zalogowanych maksymalnie 5 urządzeń.</string>
+    <string name="device_name_info_part3">Przy wylogowaniu urządzenie i jego nazwa zostają usunięte. Po ponownym zalogowaniu urządzenie otrzymuje nową nazwę.</string>
     <string name="disconnect">Rozłącz</string>
     <string name="disconnecting">Rozłączanie</string>
     <string name="dismiss">Odrzuć</string>
