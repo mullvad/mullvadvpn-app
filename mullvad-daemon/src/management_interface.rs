@@ -619,6 +619,8 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    // Access Methods
+
     async fn add_api_access_method(
         &self,
         request: Request<types::NewAccessMethodSetting>,
@@ -653,6 +655,17 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn set_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<()> {
+        log::debug!("set_api_access_method");
+        let api_access_method = mullvad_types::access_method::Id::try_from(request.into_inner())?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetApiAccessMethod(tx, api_access_method))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
     async fn update_api_access_method(
         &self,
         request: Request<types::AccessMethodSetting>,
@@ -671,13 +684,18 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn set_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<()> {
-        log::debug!("set_api_access_method");
-        let api_access_method = mullvad_types::access_method::Id::try_from(request.into_inner())?;
+    /// Return the [`types::AccessMethodSetting`] which the daemon is using to
+    /// connect to the Mullvad API.
+    async fn get_current_api_access_method(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::AccessMethodSetting> {
+        log::debug!("get_current_api_access_method");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetApiAccessMethod(tx, api_access_method))?;
+        self.send_command_to_daemon(DaemonCommand::GetCurrentAccessMethod(tx))?;
         self.wait_for_result(rx)
             .await?
+            .map(types::AccessMethodSetting::from)
             .map(Response::new)
             .map_err(map_daemon_error)
     }
