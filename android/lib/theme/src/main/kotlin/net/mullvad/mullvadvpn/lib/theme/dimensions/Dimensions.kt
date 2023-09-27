@@ -19,9 +19,11 @@ data class Dimensions(
     val connectButtonHeight: Dp = 50.dp,
     val countryRowPadding: Dp = 18.dp,
     val customPortBoxMinWidth: Dp = 80.dp,
+    val dialogIconSize: Dp = 48.dp,
     val expandableCellChevronSize: Dp = 30.dp,
     val indentedCellStartPadding: Dp = 38.dp,
     val infoButtonVerticalPadding: Dp = 13.dp,
+    val largePadding: Dp = 32.dp,
     val listIconSize: Dp = 24.dp,
     val listItemDivider: Dp = 1.dp,
     val listItemHeight: Dp = 50.dp,
@@ -31,11 +33,9 @@ data class Dimensions(
     val loadingSpinnerSizeMedium: Dp = 28.dp,
     val loadingSpinnerStrokeWidth: Dp = 6.dp,
     val loginIconContainerSize: Dp = 60.dp,
-    val smallPadding: Dp = 8.dp,
     val mediumPadding: Dp = 16.dp,
-    val largePadding: Dp = 32.dp,
-    val notificationBannerStartPadding: Dp = 16.dp,
     val notificationBannerEndPadding: Dp = 12.dp,
+    val notificationBannerStartPadding: Dp = 16.dp,
     val notificationEndIconPadding: Dp = 4.dp,
     val notificationStatusIconSize: Dp = 10.dp,
     val progressIndicatorSize: Dp = 48.dp,
@@ -49,11 +49,11 @@ data class Dimensions(
     val selectLocationTitlePadding: Dp = 12.dp,
     val selectableCellTextMargin: Dp = 12.dp,
     val sideMargin: Dp = 22.dp,
+    val smallPadding: Dp = 8.dp,
     val titleIconSize: Dp = 24.dp,
     val topBarHeight: Dp = 64.dp,
     val verticalSpace: Dp = 20.dp,
     val verticalSpacer: Dp = 1.dp,
-    val dialogIconSize: Dp = 48.dp
 )
 
 val defaultDimensions = Dimensions()
