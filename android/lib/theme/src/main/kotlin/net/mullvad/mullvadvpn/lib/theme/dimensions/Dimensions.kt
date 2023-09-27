@@ -52,7 +52,8 @@ data class Dimensions(
     val titleIconSize: Dp = 24.dp,
     val topBarHeight: Dp = 64.dp,
     val verticalSpace: Dp = 20.dp,
-    val verticalSpacer: Dp = 1.dp
+    val verticalSpacer: Dp = 1.dp,
+    val dialogIconSize: Dp = 48.dp
 )
 
 val defaultDimensions = Dimensions()
