@@ -8,12 +8,12 @@ import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 @Composable
 fun AccountNumberView(
     accountNumber: String,
-    doObfuscateWithPasswordDots: Boolean,
+    obfuscateWithPasswordDots: Boolean,
     modifier: Modifier = Modifier
 ) {
     InformationView(
         content =
-            if (doObfuscateWithPasswordDots) accountNumber.groupPasswordModeWithSpaces()
+            if (obfuscateWithPasswordDots) accountNumber.groupPasswordModeWithSpaces()
             else accountNumber.groupWithSpaces(),
         modifier = modifier,
         whenMissing = MissingPolicy.SHOW_SPINNER

@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -27,8 +29,7 @@ private fun PreviewCopyableObfuscationView() {
 
 @Composable
 fun CopyableObfuscationView(content: String) {
-    val context = LocalContext.current
-    val shouldObfuscated = remember { mutableStateOf(true) }
+    var obfuscationEnabled by remember { mutableStateOf(true) }
 
     Row(
         verticalAlignment = CenterVertically,
@@ -36,7 +37,7 @@ fun CopyableObfuscationView(content: String) {
     ) {
         AccountNumberView(
             accountNumber = content,
-            doObfuscateWithPasswordDots = shouldObfuscated.value,
+            obfuscateWithPasswordDots = obfuscationEnabled,
             modifier = Modifier.weight(1f)
         )
         AnimatedIconButton(
@@ -44,25 +45,34 @@ fun CopyableObfuscationView(content: String) {
             secondaryIcon = painterResource(id = R.drawable.icon_show),
             isToggleButton = true,
             contentDescription = stringResource(id = R.string.hide_account_number),
-            onClick = { shouldObfuscated.value = shouldObfuscated.value.not() }
+            onClick = { obfuscationEnabled = !obfuscationEnabled }
         )
-        AnimatedIconButton(
-            defaultIcon = painterResource(id = R.drawable.icon_copy),
-            secondaryIcon = painterResource(id = R.drawable.icon_tick),
-            secondaryIconColorFilter =
-                ColorFilter.tint(color = MaterialTheme.colorScheme.inversePrimary),
-            isToggleButton = false,
-            contentDescription = stringResource(id = R.string.copy_account_number),
-            onClick = {
-                context.copyToClipboard(
-                    content = content,
-                    clipboardLabel = context.getString(R.string.mullvad_account_number)
-                )
-                SdkUtils.showCopyToastIfNeeded(
-                    context,
-                    context.getString(R.string.copied_mullvad_account_number)
-                )
-            }
-        )
+
+        val context = LocalContext.current
+        val copy = {
+            context.copyToClipboard(
+                content = content,
+                clipboardLabel = context.getString(R.string.mullvad_account_number)
+            )
+            SdkUtils.showCopyToastIfNeeded(
+                context,
+                context.getString(R.string.copied_mullvad_account_number)
+            )
+        }
+
+        CopyAnimatedIconButton(onClick = copy)
     }
+}
+
+@Composable
+fun CopyAnimatedIconButton(onClick: () -> Unit) {
+    AnimatedIconButton(
+        defaultIcon = painterResource(id = R.drawable.icon_copy),
+        secondaryIcon = painterResource(id = R.drawable.icon_tick),
+        secondaryIconColorFilter =
+            ColorFilter.tint(color = MaterialTheme.colorScheme.inversePrimary),
+        isToggleButton = false,
+        contentDescription = stringResource(id = R.string.copy_account_number),
+        onClick = onClick
+    )
 }

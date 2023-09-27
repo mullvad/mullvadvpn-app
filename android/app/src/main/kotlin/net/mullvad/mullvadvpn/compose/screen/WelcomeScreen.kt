@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,11 +35,12 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
+import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.InfoDialog
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
+import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
@@ -78,7 +79,7 @@ fun WelcomeScreen(
     openConnectScreen: () -> Unit
 ) {
     val context = LocalContext.current
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(Unit) {
         viewActions.collect { viewAction ->
             when (viewAction) {
                 is WelcomeViewModel.ViewAction.OpenAccountView ->
@@ -88,6 +89,8 @@ fun WelcomeScreen(
         }
     }
     val scrollState = rememberScrollState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     ScaffoldWithTopBar(
         topBarColor =
             if (uiState.tunnelState.isSecured()) {
@@ -110,11 +113,10 @@ fun WelcomeScreen(
                 }
                 .copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
-        onAccountClicked = onAccountClick
+        onAccountClicked = onAccountClick,
+        snackbarHostState = snackbarHostState
     ) {
         Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.Start,
             modifier =
                 Modifier.fillMaxSize()
                     .verticalScroll(scrollState)
@@ -122,152 +124,184 @@ fun WelcomeScreen(
                     .background(color = MaterialTheme.colorScheme.primary)
                     .padding(it)
         ) {
-            Text(
-                text = stringResource(id = R.string.congrats),
-                modifier =
-                    Modifier.padding(
+            // Welcome info area
+            WelcomeInfo(snackbarHostState, uiState, showSitePayment)
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Payment button area
+            PaymentPanel(showSitePayment, onSitePaymentClick, onRedeemVoucherClick)
+        }
+    }
+}
+
+@Composable
+private fun WelcomeInfo(
+    snackbarHostState: SnackbarHostState,
+    uiState: WelcomeUiState,
+    showSitePayment: Boolean
+) {
+    Column {
+        Text(
+            text = stringResource(id = R.string.congrats),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(
                         top = Dimens.screenVerticalMargin,
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin
                     ),
-                style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Text(
-                text = stringResource(id = R.string.here_is_your_account_number),
-                modifier =
-                    Modifier.padding(
+            style = MaterialTheme.typography.headlineLarge,
+            color = MaterialTheme.colorScheme.onPrimary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = stringResource(id = R.string.here_is_your_account_number),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(
+                        horizontal = Dimens.sideMargin,
                         vertical = Dimens.smallPadding,
-                        horizontal = Dimens.sideMargin
                     ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Text(
-                text = uiState.accountNumber?.groupWithSpaces() ?: "",
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .wrapContentHeight()
-                        .then(
-                            uiState.accountNumber?.let {
-                                Modifier.clickable {
-                                    context.copyToClipboard(
-                                        content = uiState.accountNumber,
-                                        clipboardLabel =
-                                            context.getString(R.string.mullvad_account_number)
-                                    )
-                                    SdkUtils.showCopyToastIfNeeded(
-                                        context,
-                                        context.getString(R.string.copied_mullvad_account_number)
-                                    )
-                                }
-                            }
-                                ?: Modifier
-                        )
-                        .padding(vertical = Dimens.smallPadding, horizontal = Dimens.sideMargin),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Row(
-                modifier = Modifier.padding(horizontal = Dimens.sideMargin),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    modifier = Modifier.weight(1f, fill = false),
-                    text =
-                        buildString {
-                            append(stringResource(id = R.string.device_name))
-                            append(": ")
-                            append(uiState.deviceName)
-                        },
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
 
-                var showDeviceNameDialog by remember { mutableStateOf(false) }
-                IconButton(
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    onClick = { showDeviceNameDialog = true }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_info),
-                        contentDescription = null,
-                        tint = MullvadWhite
-                    )
-                }
-                if (showDeviceNameDialog) {
-                    InfoDialog(
-                        message =
-                            buildString {
-                                appendLine(
-                                    stringResource(id = R.string.device_name_info_first_paragraph)
-                                )
-                                appendLine()
-                                appendLine(
-                                    stringResource(id = R.string.device_name_info_second_paragraph)
-                                )
-                                appendLine()
-                                appendLine(
-                                    stringResource(id = R.string.device_name_info_third_paragraph)
-                                )
-                            },
-                        onDismiss = { showDeviceNameDialog = false }
-                    )
-                }
-            }
-            Text(
-                text =
+        AccountNumberRow(snackbarHostState, uiState)
+
+        DeviceNameRow(deviceName = uiState.deviceName)
+
+        Text(
+            text =
+                buildString {
+                    append(stringResource(id = R.string.pay_to_start_using))
+                    if (showSitePayment) {
+                        append(" ")
+                        append(stringResource(id = R.string.add_time_to_account))
+                    }
+                },
+            modifier =
+                Modifier.padding(
+                    top = Dimens.smallPadding,
+                    bottom = Dimens.verticalSpace,
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin
+                ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+@Composable
+private fun AccountNumberRow(snackbarHostState: SnackbarHostState, uiState: WelcomeUiState) {
+    val copiedAccountNumberMessage = stringResource(id = R.string.copied_mullvad_account_number)
+    val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
+    val onCopyToClipboard = {
+        copyToClipboard(uiState.accountNumber ?: "", copiedAccountNumberMessage)
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier =
+            Modifier.fillMaxWidth()
+                .clickable(onClick = onCopyToClipboard)
+                .padding(horizontal = Dimens.sideMargin)
+    ) {
+        Text(
+            text = uiState.accountNumber?.groupWithSpaces() ?: "",
+            modifier = Modifier.weight(1f).padding(vertical = Dimens.smallPadding),
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+
+        CopyAnimatedIconButton(onCopyToClipboard)
+    }
+}
+
+@Composable
+fun DeviceNameRow(deviceName: String?) {
+    Row(
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.weight(1f, fill = false),
+            text =
+                buildString {
+                    append(stringResource(id = R.string.device_name))
+                    append(": ")
+                    append(deviceName)
+                },
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+
+        var showDeviceNameDialog by remember { mutableStateOf(false) }
+        IconButton(
+            modifier = Modifier.align(Alignment.CenterVertically),
+            onClick = { showDeviceNameDialog = true }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.icon_info),
+                contentDescription = null,
+                tint = MullvadWhite
+            )
+        }
+        if (showDeviceNameDialog) {
+            InfoDialog(
+                message =
                     buildString {
-                        append(stringResource(id = R.string.pay_to_start_using))
-                        if (showSitePayment) {
-                            append(" ")
-                            append(stringResource(id = R.string.add_time_to_account))
-                        }
+                        appendLine(stringResource(id = R.string.device_name_info_first_paragraph))
+                        appendLine()
+                        appendLine(stringResource(id = R.string.device_name_info_second_paragraph))
+                        appendLine()
+                        appendLine(stringResource(id = R.string.device_name_info_third_paragraph))
                     },
+                onDismiss = { showDeviceNameDialog = false }
+            )
+        }
+    }
+}
+
+@Composable
+private fun PaymentPanel(
+    showSitePayment: Boolean,
+    onSitePaymentClick: () -> Unit,
+    onRedeemVoucherClick: () -> Unit
+) {
+    Column(
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(top = Dimens.mediumPadding)
+                .background(color = MaterialTheme.colorScheme.background)
+    ) {
+        Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
+        if (showSitePayment) {
+            SitePaymentButton(
+                onClick = onSitePaymentClick,
+                isEnabled = true,
                 modifier =
                     Modifier.padding(
-                        top = Dimens.smallPadding,
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.verticalSpace
-                    ),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            // Payment button area
-            Column(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(top = Dimens.mediumPadding)
-                        .background(color = MaterialTheme.colorScheme.background)
-            ) {
-                Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
-                if (showSitePayment) {
-                    SitePaymentButton(
-                        onClick = onSitePaymentClick,
-                        isEnabled = true,
-                        modifier =
-                            Modifier.padding(
-                                start = Dimens.sideMargin,
-                                end = Dimens.sideMargin,
-                                bottom = Dimens.screenVerticalMargin
-                            )
+                        bottom = Dimens.screenVerticalMargin
                     )
-                }
-                RedeemVoucherButton(
-                    onClick = onRedeemVoucherClick,
-                    isEnabled = true,
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.screenVerticalMargin
-                        )
-                )
-            }
+            )
         }
+        RedeemVoucherButton(
+            onClick = onRedeemVoucherClick,
+            isEnabled = true,
+            modifier =
+                Modifier.padding(
+                    start = Dimens.sideMargin,
+                    end = Dimens.sideMargin,
+                    bottom = Dimens.screenVerticalMargin
+                )
+        )
     }
 }
