@@ -683,8 +683,8 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn get_api_addressess(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("test_api");
+    async fn get_api_addresses(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("get_api_addresses");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetApiAddresses(tx))?;
         self.wait_for_result(rx)

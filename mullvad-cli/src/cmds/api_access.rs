@@ -157,7 +157,7 @@ impl ApiAccess {
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
         rpc.set_access_method(access_method.get_id()).await?;
         // Make the daemon perform an network request which involves talking to the Mullvad API.
-        match rpc.get_api_addressess().await {
+        match rpc.get_api_addresses().await {
             Ok(_) => println!("Connected to the Mullvad API!"),
             Err(_) => println!(
                 "Could *not* connect to the Mullvad API using access method \"{}\"",
