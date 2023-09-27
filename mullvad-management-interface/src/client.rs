@@ -191,8 +191,8 @@ impl MullvadProxyClient {
             .ok_or(Error::ApiAccessMethodNotFound)
     }
 
-    pub async fn get_api_addressess(&mut self) -> Result<()> {
-        self.0.get_api_addressess(()).await.map_err(Error::Rpc)?;
+    pub async fn get_api_addresses(&mut self) -> Result<()> {
+        self.0.get_api_addresses(()).await.map_err(Error::Rpc)?;
         Ok(())
     }
 
