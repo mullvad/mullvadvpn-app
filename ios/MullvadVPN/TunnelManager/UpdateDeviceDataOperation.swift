@@ -16,14 +16,14 @@ import class WireGuardKitTypes.PublicKey
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
     private let interactor: TunnelInteractor
-    private let devicesProxy: REST.DevicesProxy
+    private let devicesProxy: DeviceHandling
 
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
-        devicesProxy: REST.DevicesProxy
+        devicesProxy: DeviceHandling
     ) {
         self.interactor = interactor
         self.devicesProxy = devicesProxy

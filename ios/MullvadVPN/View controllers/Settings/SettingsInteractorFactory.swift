@@ -13,13 +13,13 @@ import RelayCache
 final class SettingsInteractorFactory {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
-    private let apiProxy: REST.APIProxy
+    private let apiProxy: APIQuerying
     private let relayCacheTracker: RelayCacheTracker
 
     init(
         storePaymentManager: StorePaymentManager,
         tunnelManager: TunnelManager,
-        apiProxy: REST.APIProxy,
+        apiProxy: APIQuerying,
         relayCacheTracker: RelayCacheTracker
     ) {
         self.storePaymentManager = storePaymentManager

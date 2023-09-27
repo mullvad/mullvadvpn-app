@@ -12,10 +12,10 @@ import MullvadTypes
 import Operations
 
 class DeviceManagementInteractor {
-    private let devicesProxy: REST.DevicesProxy
+    private let devicesProxy: DeviceHandling
     private let accountNumber: String
 
-    init(accountNumber: String, devicesProxy: REST.DevicesProxy) {
+    init(accountNumber: String, devicesProxy: DeviceHandling) {
         self.accountNumber = accountNumber
         self.devicesProxy = devicesProxy
     }
