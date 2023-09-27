@@ -138,16 +138,18 @@ impl ApiAccess {
     /// Enable a custom API access method.
     async fn enable(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, &item).await?;
-        rpc.enable_access_method(access_method.get_id()).await?;
+        let mut access_method = Self::get_access_method(&mut rpc, &item).await?;
+        access_method.enable();
+        rpc.update_access_method(access_method).await?;
         Ok(())
     }
 
     /// Disable a custom API access method.
     async fn disable(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, &item).await?;
-        rpc.disable_access_method(access_method.get_id()).await?;
+        let mut access_method = Self::get_access_method(&mut rpc, &item).await?;
+        access_method.disable();
+        rpc.update_access_method(access_method).await?;
         Ok(())
     }
 
