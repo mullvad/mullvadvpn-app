@@ -38,7 +38,8 @@ class ReportProblemViewModel(private val mullvadProblemReporter: MullvadProblemR
     ) {
         viewModelScope.launch {
             val userEmail = email.trim()
-            if (shouldShowConfirmNoEmail(userEmail)) {
+            val nullableEmail = if (email.isEmpty()) null else userEmail
+            if (shouldShowConfirmNoEmail(nullableEmail)) {
                 _uiState.update { it.copy(showConfirmNoEmail = true) }
             } else {
                 _uiState.update {
@@ -46,10 +47,14 @@ class ReportProblemViewModel(private val mullvadProblemReporter: MullvadProblemR
                 }
 
                 // Ensure we show loading for at least 500 ms
-                val deferredResult = async { mullvadProblemReporter.sendReport(UserReport(userEmail, description)) }
+                val deferredResult = async {
+                    mullvadProblemReporter.sendReport(UserReport(nullableEmail, description))
+                }
                 delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
 
-                _uiState.update { it.copy(sendingState = deferredResult.await().toUiResult(userEmail)) }
+                _uiState.update {
+                    it.copy(sendingState = deferredResult.await().toUiResult(nullableEmail))
+                }
             }
         }
     }
@@ -62,12 +67,12 @@ class ReportProblemViewModel(private val mullvadProblemReporter: MullvadProblemR
         _uiState.update { it.copy(showConfirmNoEmail = false) }
     }
 
-    private fun shouldShowConfirmNoEmail(userEmail: String): Boolean =
-        userEmail.isEmpty() &&
+    private fun shouldShowConfirmNoEmail(userEmail: String?): Boolean =
+        userEmail.isNullOrEmpty() &&
             !uiState.value.showConfirmNoEmail &&
             uiState.value.sendingState !is SendingReportUiState
 
-    private fun SendProblemReportResult.toUiResult(email: String): SendingReportUiState =
+    private fun SendProblemReportResult.toUiResult(email: String?): SendingReportUiState =
         when (this) {
             is SendProblemReportResult.Error -> SendingReportUiState.Error(this)
             SendProblemReportResult.Success -> SendingReportUiState.Success(email)
