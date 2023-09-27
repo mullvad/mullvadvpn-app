@@ -622,7 +622,7 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn add_api_access_method(
         &self,
-        request: Request<types::AccessMethodSettingAdd>,
+        request: Request<types::NewAccessMethodSetting>,
     ) -> ServiceResult<types::Uuid> {
         log::debug!("add_api_access_method");
         let request = request.into_inner();

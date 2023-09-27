@@ -528,7 +528,7 @@ impl MullvadProxyClient {
         enabled: bool,
         access_method: AccessMethod,
     ) -> Result<()> {
-        let request = types::AccessMethodSettingAdd {
+        let request = types::NewAccessMethodSetting {
             name,
             enabled,
             access_method: Some(types::AccessMethod::from(access_method)),
