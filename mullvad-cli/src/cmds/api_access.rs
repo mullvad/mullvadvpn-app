@@ -77,7 +77,7 @@ impl ApiAccess {
     /// Add a custom API access method.
     async fn add(cmd: AddCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let name = cmd.name();
+        let name = cmd.name().to_string();
         let enabled = cmd.enabled();
         let access_method = AccessMethod::try_from(cmd)?;
         rpc.add_access_method(name, enabled, access_method).await?;
@@ -143,16 +143,18 @@ impl ApiAccess {
     /// Enable a custom API access method.
     async fn enable(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, &item).await?;
-        rpc.enable_access_method(access_method.get_id()).await?;
+        let mut access_method = Self::get_access_method(&mut rpc, &item).await?;
+        access_method.enable();
+        rpc.update_access_method(access_method).await?;
         Ok(())
     }
 
     /// Disable a custom API access method.
     async fn disable(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, &item).await?;
-        rpc.disable_access_method(access_method.get_id()).await?;
+        let mut access_method = Self::get_access_method(&mut rpc, &item).await?;
+        access_method.disable();
+        rpc.update_access_method(access_method).await?;
         Ok(())
     }
 
@@ -262,24 +264,19 @@ pub enum AddSocks5Commands {
 }
 
 impl AddCustomCommands {
-    fn name(&self) -> String {
+    fn name(&self) -> &str {
         match self {
-            AddCustomCommands::Shadowsocks { name, .. } => name,
-            AddCustomCommands::Socks5(socks) => match socks {
-                AddSocks5Commands::Remote { name, .. } => name,
-                AddSocks5Commands::Local { name, .. } => name,
-            },
+            AddCustomCommands::Shadowsocks { name, .. }
+            | AddCustomCommands::Socks5(AddSocks5Commands::Remote { name, .. })
+            | AddCustomCommands::Socks5(AddSocks5Commands::Local { name, .. }) => name,
         }
-        .clone()
     }
 
     fn enabled(&self) -> bool {
         match self {
-            AddCustomCommands::Shadowsocks { disabled, .. } => !disabled,
-            AddCustomCommands::Socks5(socks) => match socks {
-                AddSocks5Commands::Remote { disabled, .. } => !disabled,
-                AddSocks5Commands::Local { disabled, .. } => !disabled,
-            },
+            AddCustomCommands::Shadowsocks { disabled, .. }
+            | AddCustomCommands::Socks5(AddSocks5Commands::Remote { disabled, .. })
+            | AddCustomCommands::Socks5(AddSocks5Commands::Local { disabled, .. }) => !disabled,
         }
     }
 }
