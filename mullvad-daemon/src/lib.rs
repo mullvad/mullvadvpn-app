@@ -275,6 +275,8 @@ pub enum DaemonCommand {
     SetApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Edit an API access method
     UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
+    /// Get the currently used API access method
+    GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
     /// Get the addresses of all known API endpoints
     GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
     /// Get information about the currently running and latest app versions
@@ -648,7 +650,7 @@ where
                 .iter()
                 // We only care about the access methods which are set to 'enabled' by the user.
                 .filter(|api_access_method| api_access_method.enabled())
-                .map(|api_access_method| api_access_method.access_method.clone())
+                .cloned()
                 .collect(),
         );
 
@@ -1074,6 +1076,7 @@ where
             }
             RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
+            GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx).await,
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method),
             GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
@@ -2281,6 +2284,17 @@ where
         Self::oneshot_send(tx, result, "remove_api_access_method response");
     }
 
+    fn on_set_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        access_method: mullvad_types::access_method::Id,
+    ) {
+        let result = self
+            .set_api_access_method(access_method)
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "set_api_access_method response");
+    }
+
     async fn on_update_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
@@ -2293,15 +2307,15 @@ where
         Self::oneshot_send(tx, result, "update_api_access_method response");
     }
 
-    fn on_set_api_access_method(
+    async fn on_get_current_api_access_method(
         &mut self,
-        tx: ResponseTx<(), Error>,
-        access_method: mullvad_types::access_method::Id,
+        tx: ResponseTx<AccessMethodSetting, Error>,
     ) {
         let result = self
-            .set_api_access_method(access_method)
+            .get_current_access_method()
+            .await
             .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "set_api_access_method response");
+        Self::oneshot_send(tx, result, "get_current_api_access_method response");
     }
 
     async fn on_get_api_addresses(&mut self, tx: ResponseTx<Vec<std::net::SocketAddr>, Error>) {
