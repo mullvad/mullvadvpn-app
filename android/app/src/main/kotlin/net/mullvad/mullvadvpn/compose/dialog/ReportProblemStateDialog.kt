@@ -149,9 +149,8 @@ fun ReportProblemSuccessDialog(email: String?, onConfirm: () -> Unit) {
                         contentColor = Color.White
                     ),
                 onClick = { onConfirm() },
-            ) {
-                Text(text = stringResource(id = R.string.dismiss), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.dismiss)
+            )
         },
         containerColor = colorResource(id = R.color.darkBlue)
     )
@@ -199,9 +198,8 @@ fun ReportProblemErrorDialog(onDismiss: () -> Unit, retry: () -> Unit) {
                         contentColor = Color.White
                     ),
                 onClick = onDismiss,
-            ) {
-                Text(text = stringResource(id = R.string.edit_message), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.edit_message)
+            )
         },
         confirmButton = {
             ActionButton(
@@ -212,9 +210,8 @@ fun ReportProblemErrorDialog(onDismiss: () -> Unit, retry: () -> Unit) {
                         contentColor = Color.White
                     ),
                 onClick = retry,
-            ) {
-                Text(text = stringResource(id = R.string.try_again), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.try_again)
+            )
         },
         containerColor = colorResource(id = R.color.darkBlue)
     )
