@@ -39,7 +39,9 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 &settings.obfuscation_settings,
             )),
             split_tunnel,
-            custom_lists: Some(proto::CustomListSettings::from(&settings.custom_lists)),
+            custom_lists: Some(proto::CustomListSettings::from(
+                settings.custom_lists.clone(),
+            )),
         }
     }
 }

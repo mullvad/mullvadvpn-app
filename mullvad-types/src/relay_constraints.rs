@@ -247,7 +247,7 @@ impl<'a> fmt::Display for RelaySettingsFormatter<'a> {
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum LocationConstraint {
     Location(GeographicLocationConstraint),
@@ -271,11 +271,17 @@ impl ResolvedLocationConstraint {
                 Constraint::Only(Self::Location(location))
             }
             Constraint::Only(LocationConstraint::CustomList { list_id }) => custom_lists
-                .custom_lists
                 .iter()
-                .find(|custom_list| custom_list.id == list_id)
-                .map(|custom_list| Constraint::Only(Self::Locations(custom_list.locations.clone())))
-                .unwrap_or(Constraint::Any),
+                .find(|list| list.id == list_id)
+                .map(|custom_list| {
+                    Constraint::Only(Self::Locations(
+                        custom_list.locations.iter().cloned().collect(),
+                    ))
+                })
+                .unwrap_or_else(|| {
+                    log::warn!("Resolved non-existent custom list");
+                    Constraint::Only(ResolvedLocationConstraint::Locations(vec![]))
+                }),
         }
     }
 }
@@ -347,9 +353,8 @@ impl<'a> fmt::Display for LocationConstraintFormatter<'a> {
             LocationConstraint::Location(location) => write!(f, "{}", location),
             LocationConstraint::CustomList { list_id } => self
                 .custom_lists
-                .custom_lists
                 .iter()
-                .find(|custom_list| &custom_list.id == list_id)
+                .find(|list| &list.id == list_id)
                 .map(|custom_list| write!(f, "{}", custom_list.name))
                 .unwrap_or_else(|| write!(f, "invalid custom list")),
         }
@@ -441,7 +446,7 @@ impl<'a> fmt::Display for RelayConstraintsFormatter<'a> {
 
 /// Limits the set of [`crate::relay_list::Relay`]s used by a `RelaySelector` based on
 /// location.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize, PartialOrd, Ord)]
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]

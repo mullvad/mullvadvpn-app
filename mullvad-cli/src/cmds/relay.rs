@@ -516,7 +516,9 @@ impl Relay {
 
     async fn set_custom_list(custom_list_name: String) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let list_id = rpc.get_custom_list(custom_list_name).await?.id;
+        let list_id = super::custom_list::find_list_by_name(&mut rpc, &custom_list_name)
+            .await?
+            .id;
         rpc.update_relay_settings(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
             location: Some(Constraint::Only(LocationConstraint::CustomList { list_id })),
             ..Default::default()
@@ -617,9 +619,11 @@ impl Relay {
                     };
             }
             Some(EntryLocation::CustomList { custom_list_name }) => {
-                let list = rpc.get_custom_list(custom_list_name).await?;
+                let list_id = super::custom_list::find_list_by_name(&mut rpc, &custom_list_name)
+                    .await?
+                    .id;
                 wireguard_constraints.entry_location =
-                    Constraint::Only(LocationConstraint::CustomList { list_id: list.id });
+                    Constraint::Only(LocationConstraint::CustomList { list_id });
             }
             None => (),
         }
