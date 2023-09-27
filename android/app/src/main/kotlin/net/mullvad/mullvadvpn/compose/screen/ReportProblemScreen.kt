@@ -113,18 +113,29 @@ fun ReportProblemScreen(
     ) {
         var email by rememberSaveable { mutableStateOf("") }
         var description by rememberSaveable { mutableStateOf("") }
+
+        // Dialog to show sending states
+        if (uiState.sendingState != null) {
+            ShowReportProblemStateDialog(
+                uiState.sendingState,
+                onDismiss = onClearSendResult,
+                onClearForm = {
+                    email = ""
+                    description = ""
+                },
+                retry = { onSendReport(email, description) }
+            )
+        }
+
+        // Dialog to show confirm if no email was added
+        if (uiState.showConfirmNoEmail) {
+            ReportProblemNoEmailDialog(
+                onDismiss = onDismissNoEmailDialog,
+                onConfirm = { onSendReport(email, description) }
+            )
+        }
+
         Surface(color = MaterialTheme.colorScheme.background) {
-            if (uiState.sendingState != null) {
-                ShowReportProblemStateDialog(
-                    uiState.sendingState,
-                    onDismiss = onClearSendResult,
-                    onClearForm = {
-                        email = ""
-                        description = ""
-                    },
-                    retry = { onSendReport(email, description) }
-                )
-            }
             Column(
                 modifier =
                     Modifier.padding(
@@ -134,6 +145,7 @@ fun ReportProblemScreen(
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
             ) {
                 Text(text = stringResource(id = R.string.problem_report_description))
+
                 TextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = email,
@@ -143,6 +155,7 @@ fun ReportProblemScreen(
                     placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
                     colors = mullvadWhiteTextFieldColors()
                 )
+
                 TextField(
                     modifier = Modifier.fillMaxWidth().weight(1f),
                     value = description,
@@ -160,6 +173,7 @@ fun ReportProblemScreen(
                     onClick = onNavigateToViewLogs,
                     text = stringResource(id = R.string.view_logs)
                 )
+
                 ActionButton(
                     colors =
                         ButtonDefaults.buttonColors(
@@ -170,13 +184,6 @@ fun ReportProblemScreen(
                     isEnabled = description.isNotEmpty(),
                     text = stringResource(id = R.string.send)
                 )
-
-                if (uiState.showConfirmNoEmail) {
-                    ReportProblemNoEmailDialog(
-                        onDismiss = onDismissNoEmailDialog,
-                        onConfirm = { onSendReport(email, description) }
-                    )
-                }
             }
         }
     }
