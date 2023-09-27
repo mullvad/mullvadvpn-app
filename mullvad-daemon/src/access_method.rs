@@ -102,7 +102,7 @@ where
 
     /// Return the [`AccessMethodSetting`] which is currently used to access the
     /// Mullvad API.
-    pub async fn get_current_access_method(&mut self) -> Result<AccessMethodSetting, Error> {
+    pub fn get_current_access_method(&mut self) -> Result<AccessMethodSetting, Error> {
         let connections_modes = self.connection_modes.lock().unwrap();
         Ok(connections_modes.peek())
     }
