@@ -36,6 +36,7 @@ use std::{
 use talpid_types::ErrorExt;
 
 use tokio::{
+    io::{AsyncRead, AsyncWrite},
     net::{TcpSocket, TcpStream},
     time::timeout,
 };
@@ -81,37 +82,59 @@ enum InnerConnectionMode {
 
 impl InnerConnectionMode {
     async fn connect(
-        &self,
+        self,
         hostname: &str,
         addr: &SocketAddr,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<ApiConnection, std::io::Error> {
-        use InnerConnectionMode::*;
         match self {
-            Direct => {
-                Self::handle_direct_connection(
-                    addr,
+            // Set up a TCP-socket connection.
+            InnerConnectionMode::Direct => {
+                let first_hop = *addr;
+                let make_proxy_stream = |tcp_stream| async { Ok(tcp_stream) };
+                Self::connect_proxied(
+                    first_hop,
                     hostname,
+                    make_proxy_stream,
                     #[cfg(target_os = "android")]
                     socket_bypass_tx,
                 )
                 .await
             }
-            Shadowsocks(config) => {
-                Self::handle_shadowsocks_connection(
-                    config.clone(),
-                    addr,
+            // Set up a Shadowsocks-connection.
+            InnerConnectionMode::Shadowsocks(shadowsocks) => {
+                let first_hop = shadowsocks.params.peer;
+                let make_proxy_stream = |tcp_stream| async {
+                    Ok(ProxyClientStream::from_stream(
+                        shadowsocks.proxy_context,
+                        tcp_stream,
+                        &ServerConfig::from(shadowsocks.params),
+                        *addr,
+                    ))
+                };
+                Self::connect_proxied(
+                    first_hop,
                     hostname,
+                    make_proxy_stream,
                     #[cfg(target_os = "android")]
                     socket_bypass_tx,
                 )
                 .await
             }
-            Socks5(proxy_config) => {
-                Self::handle_socks_connection(
-                    proxy_config.clone(),
-                    addr,
+            // Set up a SOCKS5-connection.
+            InnerConnectionMode::Socks5(socks) => {
+                let first_hop = socks.peer;
+                let make_proxy_stream = |tcp_stream| async {
+                    tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
+                        .await
+                        .map_err(|error| {
+                            io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
+                        })
+                };
+                Self::connect_proxied(
+                    first_hop,
                     hostname,
+                    make_proxy_stream,
                     #[cfg(target_os = "android")]
                     socket_bypass_tx,
                 )
@@ -120,74 +143,37 @@ impl InnerConnectionMode {
         }
     }
 
-    /// Set up a TCP-socket connection.
-    async fn handle_direct_connection(
-        addr: &SocketAddr,
+    /// Create an [`ApiConnection`] from a [`TcpStream`].
+    ///
+    /// The `make_proxy_stream` closure receives a [`TcpStream`] and produces a
+    /// stream which can send to and receive data from some server using any
+    /// proxy protocol. The only restriction is that this stream must implement
+    /// [`tokio::io::AsyncRead`] and [`tokio::io::AsyncWrite`], as well as
+    /// [`Unpin`] and [`Send`].
+    ///
+    /// If a direct connection is to be established (i.e. the stream will not be
+    /// using any proxy protocol) `make_proxy_stream` may return the
+    /// [`TcpStream`] itself. See for example how a connection is established
+    /// from connection mode [`InnerConnectionMode::Direct`].
+    async fn connect_proxied<ProxyFactory, ProxyFuture, Proxy>(
+        first_hop: SocketAddr,
         hostname: &str,
+        make_proxy_stream: ProxyFactory,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> Result<ApiConnection, io::Error> {
+    ) -> Result<ApiConnection, io::Error>
+    where
+        ProxyFactory: FnOnce(TcpStream) -> ProxyFuture,
+        ProxyFuture: Future<Output = io::Result<Proxy>>,
+        Proxy: AsyncRead + AsyncWrite + Unpin + Send + 'static,
+    {
         let socket = HttpsConnectorWithSni::open_socket(
-            *addr,
+            first_hop,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         )
         .await?;
-        #[cfg(feature = "api-override")]
-        if API.disable_tls {
-            return Ok(ApiConnection::new(Box::new(socket)));
-        }
 
-        let tls_stream = TlsStream::connect_https(socket, hostname).await?;
-        Ok(ApiConnection::new(Box::new(tls_stream)))
-    }
-
-    /// Set up a shadowsocks-socket connection.
-    async fn handle_shadowsocks_connection(
-        shadowsocks: ShadowsocksConfig,
-        addr: &SocketAddr,
-        hostname: &str,
-        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> Result<ApiConnection, io::Error> {
-        let socket = HttpsConnectorWithSni::open_socket(
-            shadowsocks.params.peer,
-            #[cfg(target_os = "android")]
-            socket_bypass_tx,
-        )
-        .await?;
-        let proxy = ProxyClientStream::from_stream(
-            shadowsocks.proxy_context,
-            socket,
-            &ServerConfig::from(shadowsocks.params),
-            *addr,
-        );
-
-        #[cfg(feature = "api-override")]
-        if API.disable_tls {
-            return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
-        }
-
-        let tls_stream = TlsStream::connect_https(proxy, hostname).await?;
-        Ok(ApiConnection::new(Box::new(tls_stream)))
-    }
-
-    /// Set up a SOCKS5-socket connection.
-    async fn handle_socks_connection(
-        proxy_config: SocksConfig,
-        addr: &SocketAddr,
-        hostname: &str,
-        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> Result<ApiConnection, io::Error> {
-        let socket = HttpsConnectorWithSni::open_socket(
-            proxy_config.peer,
-            #[cfg(target_os = "android")]
-            socket_bypass_tx.clone(),
-        )
-        .await?;
-        let proxy = tokio_socks::tcp::Socks5Stream::connect_with_socket(socket, addr)
-            .await
-            .map_err(|error| {
-                io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
-            })?;
+        let proxy = make_proxy_stream(socket).await?;
 
         #[cfg(feature = "api-override")]
         if API.disable_tls {
