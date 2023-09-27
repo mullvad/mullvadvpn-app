@@ -4,11 +4,15 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.mockk.MockKAnnotations
+import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.compose.state.WelcomeDialogState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -34,7 +38,11 @@ class WelcomeScreenTest {
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
-                openConnectScreen = {}
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
             )
         }
 
@@ -57,7 +65,11 @@ class WelcomeScreenTest {
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
-                openConnectScreen = {}
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
             )
         }
 
@@ -86,7 +98,11 @@ class WelcomeScreenTest {
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
-                openConnectScreen = {}
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
             )
         }
 
@@ -106,7 +122,11 @@ class WelcomeScreenTest {
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
-                openConnectScreen = {}
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
             )
         }
 
@@ -127,7 +147,11 @@ class WelcomeScreenTest {
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
-                openConnectScreen = mockClickListener
+                openConnectScreen = mockClickListener,
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
             )
         }
 
@@ -148,7 +172,11 @@ class WelcomeScreenTest {
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
-                openConnectScreen = {}
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
             )
         }
 
@@ -172,7 +200,11 @@ class WelcomeScreenTest {
                 onRedeemVoucherClick = mockClickListener,
                 onSettingsClick = {},
                 onAccountClick = {},
-                openConnectScreen = {}
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
             )
         }
 
@@ -181,5 +213,142 @@ class WelcomeScreenTest {
 
         // Assert
         verify(exactly = 1) { mockClickListener.invoke() }
+    }
+
+    @Test
+    fun testShowPurchaseCompleteDialog() {
+        // Arrange
+        composeTestRule.setContent {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState = WelcomeUiState(dialogState = WelcomeDialogState.PurchaseComplete),
+                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenConnectScreen),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
+            )
+        }
+
+        // Assert
+        composeTestRule.onNodeWithText("Time was successfully added").assertExists()
+    }
+
+    @Test
+    fun testShowVerificationErrorDialog() {
+        // Arrange
+        composeTestRule.setContent {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState = WelcomeUiState(dialogState = WelcomeDialogState.VerificationError),
+                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenConnectScreen),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
+            )
+        }
+
+        // Assert
+        composeTestRule.onNodeWithText("Payment was unsuccessful").assertExists()
+    }
+
+    @Test
+    fun testShowBillingErrorDialog() {
+        // Arrange
+        composeTestRule.setContent {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState = WelcomeUiState(dialogState = WelcomeDialogState.BillingError),
+                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenConnectScreen),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
+            )
+        }
+
+        // Assert
+        composeTestRule.onNodeWithText("Google Play services not available").assertExists()
+    }
+
+    @Test
+    fun testShowBillingPaymentAvailable() {
+        // Arrange
+        val mockPaymentProduct: PaymentProduct = mockk()
+        every { mockPaymentProduct.price } returns "$10"
+        composeTestRule.setContent {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState =
+                    WelcomeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    ),
+                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenConnectScreen),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = {},
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
+            )
+        }
+
+        // Assert
+        composeTestRule.onNodeWithText("Add 30 days time ($10)").assertExists()
+    }
+
+    @Test
+    fun testOnPurchaseBillingProductClick() {
+        // Arrange
+        val clickHandler: (String) -> Unit = mockk(relaxed = true)
+        val mockPaymentProduct: PaymentProduct = mockk()
+        every { mockPaymentProduct.price } returns "$10"
+        every { mockPaymentProduct.productId } returns "PRODUCT_ID"
+        composeTestRule.setContent {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState =
+                    WelcomeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    ),
+                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenConnectScreen),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = clickHandler,
+                onDialogClose = {},
+                onTryVerificationAgain = {},
+                onTryFetchProductsAgain = {}
+            )
+        }
+
+        // Act
+        composeTestRule.onNodeWithText("Add 30 days time ($10)").performClick()
+
+        // Assert
+        verify { clickHandler.invoke("PRODUCT_ID") }
     }
 }
