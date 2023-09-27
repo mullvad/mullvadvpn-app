@@ -91,7 +91,7 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get()) }
-    viewModel { OutOfTimeViewModel(get(), get()) }
+    viewModel { OutOfTimeViewModel(get(), get(), get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
