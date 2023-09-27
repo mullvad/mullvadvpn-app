@@ -210,6 +210,10 @@ pub enum AddCustomCommands {
         /// Cipher to use
         #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
         cipher: String,
+        /// Disable the use of this custom access method. It has to be manually
+        /// enabled at a later stage to be used when accessing the Mullvad API.
+        #[arg(default_value_t = false, short, long)]
+        disabled: bool,
     },
 }
 
@@ -223,6 +227,10 @@ pub enum AddSocks5Commands {
         remote_ip: IpAddr,
         /// The port of the remote proxy server
         remote_port: u16,
+        /// Disable the use of this custom access method. It has to be manually
+        /// enabled at a later stage to be used when accessing the Mullvad API.
+        #[arg(default_value_t = false, short, long)]
+        disabled: bool,
     },
     /// Configure a local SOCKS5 proxy
     Local {
@@ -234,6 +242,10 @@ pub enum AddSocks5Commands {
         remote_ip: IpAddr,
         /// The port of the remote peer
         remote_port: u16,
+        /// Disable the use of this custom access method. It has to be manually
+        /// enabled at a later stage to be used when accessing the Mullvad API.
+        #[arg(default_value_t = false, short, long)]
+        disabled: bool,
     },
 }
 
@@ -248,9 +260,15 @@ impl AddCustomCommands {
         }
         .clone()
     }
-    /// TODO: Actually add an `enabled` flag to the variants of `AddCustomCommands`
+
     fn enabled(&self) -> bool {
-        true
+        match self {
+            AddCustomCommands::Shadowsocks { disabled, .. } => !disabled,
+            AddCustomCommands::Socks5(socks) => match socks {
+                AddSocks5Commands::Remote { disabled, .. } => !disabled,
+                AddSocks5Commands::Local { disabled, .. } => !disabled,
+            },
+        }
     }
 }
 
@@ -330,6 +348,7 @@ mod conversions {
                         remote_ip,
                         remote_port,
                         name: _,
+                        disabled: _,
                     } => {
                         println!("Adding Local SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
                         let socks_proxy = daemon_types::Socks5::Local(
@@ -346,6 +365,7 @@ mod conversions {
                         remote_ip,
                         remote_port,
                         name: _,
+                        disabled: _,
                     } => {
                         println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
                         let socks_proxy = daemon_types::Socks5::Remote(
@@ -364,6 +384,7 @@ mod conversions {
                     password,
                     cipher,
                     name: _,
+                    disabled: _,
                 } => {
                     println!(
                 "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
