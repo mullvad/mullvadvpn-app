@@ -22,7 +22,7 @@ service ManagementService {
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
-  rpc GetApiAddressess(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetApiAddresses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
