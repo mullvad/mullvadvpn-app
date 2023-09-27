@@ -11,8 +11,46 @@ import MullvadTypes
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
+public protocol APIQuerying {
+    func getAddressList(
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
+    ) -> Cancellable
+
+    func getRelays(
+        etag: String?,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
+    ) -> Cancellable
+
+    func createApplePayment(
+        accountNumber: String,
+        receiptString: Data
+    ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
+
+    func createApplePayment(
+        accountNumber: String,
+        receiptString: Data,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
+    ) -> Cancellable
+
+    func sendProblemReport(
+        _ body: REST.ProblemReportRequest,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<Void>
+    ) -> Cancellable
+
+    func submitVoucher(
+        voucherCode: String,
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
+    ) -> Cancellable
+}
+
 extension REST {
-    public final class APIProxy: Proxy<AuthProxyConfiguration> {
+    public final class APIProxy: Proxy<AuthProxyConfiguration>, APIQuerying {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "APIProxy",
@@ -27,7 +65,7 @@ extension REST {
 
         public func getAddressList(
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping CompletionHandler<[AnyIPEndpoint]>
+            completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 try self.requestFactory.createRequest(
@@ -54,7 +92,7 @@ extension REST {
         public func getRelays(
             etag: String?,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping CompletionHandler<ServerRelaysCacheResponse>
+            completionHandler: @escaping ProxyCompletionHandler<ServerRelaysCacheResponse>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -170,7 +208,7 @@ extension REST {
             accountNumber: String,
             receiptString: Data,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping CompletionHandler<CreateApplePaymentResponse>
+            completionHandler: @escaping ProxyCompletionHandler<CreateApplePaymentResponse>
         ) -> Cancellable {
             return createApplePayment(accountNumber: accountNumber, receiptString: receiptString).execute(
                 retryStrategy: retryStrategy,
@@ -181,7 +219,7 @@ extension REST {
         public func sendProblemReport(
             _ body: ProblemReportRequest,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping CompletionHandler<Void>
+            completionHandler: @escaping ProxyCompletionHandler<Void>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -222,7 +260,7 @@ extension REST {
             voucherCode: String,
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping CompletionHandler<SubmitVoucherResponse>
+            completionHandler: @escaping ProxyCompletionHandler<SubmitVoucherResponse>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
