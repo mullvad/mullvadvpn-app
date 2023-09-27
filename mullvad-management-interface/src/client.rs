@@ -540,24 +540,6 @@ impl MullvadProxyClient {
             .map(drop)
     }
 
-    pub async fn enable_access_method(
-        &mut self,
-        api_access_method_id: access_method::Id,
-    ) -> Result<()> {
-        let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
-        new_api_access_method.enable();
-        self.update_access_method(new_api_access_method).await
-    }
-
-    pub async fn disable_access_method(
-        &mut self,
-        api_access_method_id: access_method::Id,
-    ) -> Result<()> {
-        let mut new_api_access_method = self.get_api_access_method(&api_access_method_id).await?;
-        new_api_access_method.disable();
-        self.update_access_method(new_api_access_method).await
-    }
-
     pub async fn remove_access_method(
         &mut self,
         api_access_method: access_method::Id,
