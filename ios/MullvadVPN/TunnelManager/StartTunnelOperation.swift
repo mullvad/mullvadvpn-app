@@ -85,7 +85,7 @@ class StartTunnelOperation: ResultOperation<Void> {
         }
     }
 
-    private func startTunnel(tunnel: Tunnel, selectorResult: RelaySelectorResult) throws {
+    private func startTunnel(tunnel: any TunnelProtocol, selectorResult: RelaySelectorResult) throws {
         var tunnelOptions = PacketTunnelOptions()
 
         do {
@@ -108,7 +108,7 @@ class StartTunnelOperation: ResultOperation<Void> {
         try tunnel.start(options: tunnelOptions.rawOptions())
     }
 
-    private func makeTunnelProvider(completionHandler: @escaping (Result<Tunnel, Error>) -> Void) {
+    private func makeTunnelProvider(completionHandler: @escaping (Result<any TunnelProtocol, Error>) -> Void) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
         let configuration = Self.makeTunnelConfiguration()

@@ -94,7 +94,7 @@ class MapConnectionStatusOperation: AsyncOperation {
         request?.cancel()
     }
 
-    private func handleConnectingState(_ tunnelState: TunnelState, _ tunnel: Tunnel) {
+    private func handleConnectingState(_ tunnelState: TunnelState, _ tunnel: any TunnelProtocol) {
         switch tunnelState {
         case .connecting:
             break
@@ -160,7 +160,7 @@ class MapConnectionStatusOperation: AsyncOperation {
     }
 
     private func fetchTunnelStatus(
-        tunnel: Tunnel,
+        tunnel: any TunnelProtocol,
         mapToState: @escaping (PacketTunnelStatus) -> TunnelState?
     ) {
         request = tunnel.getTunnelStatus { [weak self] completion in

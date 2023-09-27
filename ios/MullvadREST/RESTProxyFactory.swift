@@ -40,15 +40,15 @@ extension REST {
             self.configuration = configuration
         }
 
-        public func createAPIProxy() -> REST.APIProxy {
+        public func createAPIProxy() -> APIQuerying {
             REST.APIProxy(configuration: configuration)
         }
 
-        public func createAccountsProxy() -> REST.AccountsProxy {
+        public func createAccountsProxy() -> AccountHandling {
             REST.AccountsProxy(configuration: configuration)
         }
 
-        public func createDevicesProxy() -> REST.DevicesProxy {
+        public func createDevicesProxy() -> DeviceHandling {
             REST.DevicesProxy(configuration: configuration)
         }
     }

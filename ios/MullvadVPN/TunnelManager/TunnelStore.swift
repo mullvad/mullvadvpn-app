@@ -11,16 +11,21 @@ import MullvadLogging
 import NetworkExtension
 import UIKit
 
+protocol TunnelStoreProtocol {
+    func getPersistentTunnels() -> [any TunnelProtocol]
+    func createNewTunnel() -> any TunnelProtocol
+}
+
 /// Wrapper around system VPN tunnels.
-final class TunnelStore: TunnelStatusObserver {
+final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
     private let logger = Logger(label: "TunnelStore")
     private let lock = NSLock()
 
     /// Persistent tunnels registered with the system.
-    private var persistentTunnels: [Tunnel] = []
+    private var persistentTunnels: [any TunnelProtocol] = []
 
     /// Newly created tunnels, stored as collection of weak boxes.
-    private var newTunnels: [WeakBox<Tunnel>] = []
+    private var newTunnels: [WeakBox<any TunnelProtocol>] = []
 
     init(application: UIApplication) {
         NotificationCenter.default.addObserver(
@@ -31,7 +36,7 @@ final class TunnelStore: TunnelStatusObserver {
         )
     }
 
-    func getPersistentTunnels() -> [Tunnel] {
+    func getPersistentTunnels() -> [any TunnelProtocol] {
         lock.lock()
         defer { lock.unlock() }
 
@@ -66,7 +71,7 @@ final class TunnelStore: TunnelStatusObserver {
         }
     }
 
-    func createNewTunnel() -> Tunnel {
+    func createNewTunnel() -> any TunnelProtocol {
         lock.lock()
         defer { lock.unlock() }
 
@@ -82,20 +87,24 @@ final class TunnelStore: TunnelStatusObserver {
         return tunnel
     }
 
-    func tunnel(_ tunnel: Tunnel, didReceiveStatus status: NEVPNStatus) {
+    func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {
         lock.lock()
         defer { lock.unlock() }
 
         handleTunnelStatus(tunnel: tunnel, status: status)
     }
 
-    private func handleTunnelStatus(tunnel: Tunnel, status: NEVPNStatus) {
-        if status == .invalid, let index = persistentTunnels.firstIndex(of: tunnel) {
+    private func handleTunnelStatus(tunnel: any TunnelProtocol, status: NEVPNStatus) {
+        guard let tunnel = tunnel as? Tunnel else { return }
+
+        if status == .invalid,
+           let index = persistentTunnels.map({ $0 as? Tunnel }).firstIndex(of: tunnel) {
             persistentTunnels.remove(at: index)
             logger.debug("Persistent tunnel was removed: \(tunnel.logFormat()).")
         }
 
-        if status != .invalid, let index = newTunnels.firstIndex(where: { $0.value == tunnel }) {
+        if status != .invalid,
+           let index = newTunnels.map({ $0.value as? Tunnel }).firstIndex(where: { $0 == tunnel }) {
             newTunnels.remove(at: index)
             persistentTunnels.append(tunnel)
             logger.debug("New tunnel became persistent: \(tunnel.logFormat()).")

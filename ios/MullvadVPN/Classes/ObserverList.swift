@@ -23,8 +23,8 @@ struct WeakBox<T> {
         }
     }
 
-    static func == (lhs: WeakBox<T>, rhs: T) -> Bool {
-        (lhs.value as AnyObject) === (rhs as AnyObject)
+    static func == (lhs: WeakBox<T>, rhs: WeakBox<T>) -> Bool {
+        (lhs.value as AnyObject) === (rhs.value as AnyObject)
     }
 }
 
@@ -36,7 +36,7 @@ final class ObserverList<T> {
         lock.lock()
 
         let hasObserver = observers.contains { box in
-            box == observer
+            box == WeakBox(observer)
         }
 
         if !hasObserver {
@@ -50,7 +50,7 @@ final class ObserverList<T> {
         lock.lock()
 
         let index = observers.firstIndex { box in
-            box == observer
+            box == WeakBox(observer)
         }
 
         if let index {

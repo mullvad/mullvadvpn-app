@@ -17,7 +17,7 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
     private let inAppPurchaseInteractor: InAppPurchaseInteractor
-    private let accountsProxy: REST.AccountsProxy
+    private let accountsProxy: AccountHandling
 
     private var viewController: WelcomeViewController?
 
@@ -32,7 +32,7 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
         navigationController: RootContainerViewController,
         storePaymentManager: StorePaymentManager,
         tunnelManager: TunnelManager,
-        accountsProxy: REST.AccountsProxy
+        accountsProxy: AccountHandling
     ) {
         self.navigationController = navigationController
         self.storePaymentManager = storePaymentManager

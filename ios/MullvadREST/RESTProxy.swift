@@ -10,10 +10,10 @@ import Foundation
 import MullvadTypes
 import Operations
 
+public typealias ProxyCompletionHandler<Success> = (Result<Success, Swift.Error>) -> Void
+
 extension REST {
     public class Proxy<ConfigurationType: ProxyConfiguration> {
-        public typealias CompletionHandler<Success> = (Result<Success, Swift.Error>) -> Void
-
         /// Synchronization queue used by network operations.
         let dispatchQueue: DispatchQueue
 
@@ -49,7 +49,7 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             requestHandler: RESTRequestHandler,
             responseHandler: some RESTResponseHandler<Success>,
-            completionHandler: @escaping CompletionHandler<Success>
+            completionHandler: @escaping ProxyCompletionHandler<Success>
         ) -> Cancellable {
             let executor = makeRequestExecutor(
                 name: name,
@@ -89,7 +89,7 @@ extension REST {
         /// Creates new network operation but does not schedule it for execution.
         func makeOperation(
             retryStrategy: REST.RetryStrategy,
-            completionHandler: ((Result<Success, Swift.Error>) -> Void)? = nil
+            completionHandler: ProxyCompletionHandler<Success>? = nil
         ) -> NetworkOperation<Success> {
             return NetworkOperation(
                 name: getTaskIdentifier(name: name),
@@ -110,7 +110,7 @@ extension REST {
 
         func execute(
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping (Result<Success, Swift.Error>) -> Void
+            completionHandler: @escaping ProxyCompletionHandler<Success>
         ) -> Cancellable {
             let operation = operationFactory.makeOperation(
                 retryStrategy: retryStrategy,
@@ -137,7 +137,7 @@ extension REST {
             }
         }
 
-        func execute(completionHandler: @escaping (Result<Success, Swift.Error>) -> Void) -> Cancellable {
+        func execute(completionHandler: @escaping ProxyCompletionHandler<Success>) -> Cancellable {
             return execute(retryStrategy: .noRetry, completionHandler: completionHandler)
         }
 
