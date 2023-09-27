@@ -74,11 +74,12 @@ service ManagementService {
   rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc UpdateCustomList(CustomList) returns (google.protobuf.Empty) {}
 
-  // API Access methods
+  // Access methods
   rpc AddApiAccessMethod(NewAccessMethodSetting) returns (UUID) {}
   rpc RemoveApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
+  rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}

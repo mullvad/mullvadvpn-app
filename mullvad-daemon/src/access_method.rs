@@ -15,6 +15,10 @@ pub enum Error {
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
     NoSuchMethod(access_method::Id),
+    /// Can not find *any* access method. This should never happen. If it does,
+    /// the user should do a factory reset.
+    #[error(display = "No access methods are configured")]
+    NoMethodsExist,
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -62,6 +66,20 @@ where
             .map_err(Error::Settings)
     }
 
+    pub fn set_api_access_method(&mut self, access_method: access_method::Id) -> Result<(), Error> {
+        if let Some(access_method) = self.settings.api_access_methods.find(&access_method) {
+            {
+                let mut connection_modes = self.connection_modes.lock().unwrap();
+                connection_modes.set_access_method(access_method.clone());
+            }
+            // Force a rotation of Access Methods.
+            let _ = self.api_handle.service().next_api_endpoint();
+            Ok(())
+        } else {
+            Err(Error::NoSuchMethod(access_method))
+        }
+    }
+
     /// "Updates" an [`AccessMethodSetting`] by replacing the existing entry
     /// with the argument `access_method_update` if an existing entry with
     /// matching UUID is found.
@@ -82,18 +100,11 @@ where
             .map_err(Error::Settings)
     }
 
-    pub fn set_api_access_method(&mut self, access_method: access_method::Id) -> Result<(), Error> {
-        if let Some(access_method) = self.settings.api_access_methods.find(&access_method) {
-            {
-                let mut connection_modes = self.connection_modes.lock().unwrap();
-                connection_modes.set_access_method(access_method.access_method.clone());
-            }
-            // Force a rotation of Access Methods.
-            let _ = self.api_handle.service().next_api_endpoint();
-            Ok(())
-        } else {
-            Err(Error::NoSuchMethod(access_method))
-        }
+    /// Return the [`AccessMethodSetting`] which is currently used to access the
+    /// Mullvad API.
+    pub async fn get_current_access_method(&mut self) -> Result<AccessMethodSetting, Error> {
+        let connections_modes = self.connection_modes.lock().unwrap();
+        Ok(connections_modes.peek())
     }
 
     /// If settings were changed due to an update, notify all listeners.
@@ -109,7 +120,7 @@ where
                     .access_method_settings
                     .iter()
                     .filter(|api_access_method| api_access_method.enabled())
-                    .map(|api_access_method| api_access_method.access_method.clone())
+                    .cloned()
                     .collect(),
             )
         };
