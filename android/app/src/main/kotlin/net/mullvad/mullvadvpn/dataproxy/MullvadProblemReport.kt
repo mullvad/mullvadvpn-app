@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.dataproxy
 
 import android.content.Context
 import java.io.File
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -18,9 +19,10 @@ sealed interface SendProblemReportResult {
     }
 }
 
-data class UserReport(val email: String, val message: String)
+data class UserReport(val email: String?, val message: String)
 
-class MullvadProblemReport(context: Context) {
+class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
+
     private val cacheDirectory = File(context.cacheDir.toURI())
     private val logDirectory = File(context.filesDir.toURI())
     private val logsPath = File(logDirectory, PROBLEM_REPORT_LOGS_FILE)
@@ -30,7 +32,7 @@ class MullvadProblemReport(context: Context) {
     }
 
     suspend fun collectLogs(): Boolean =
-        withContext(Dispatchers.IO) {
+        withContext(dispatcher) {
             // Delete any old report
             deleteLogs()
 
@@ -44,9 +46,9 @@ class MullvadProblemReport(context: Context) {
         }
 
         val sentSuccessfully =
-            withContext(Dispatchers.IO) {
+            withContext(dispatcher) {
                 sendProblemReport(
-                    userReport.email,
+                    userReport.email ?: "",
                     userReport.message,
                     logsPath.absolutePath,
                     cacheDirectory.absolutePath
@@ -73,8 +75,7 @@ class MullvadProblemReport(context: Context) {
         }
     }
 
-    private fun logsExists() =
-        logsPath.exists()
+    private fun logsExists() = logsPath.exists()
 
     fun deleteLogs() {
         logsPath.delete()
