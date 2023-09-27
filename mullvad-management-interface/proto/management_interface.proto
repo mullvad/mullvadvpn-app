@@ -75,7 +75,7 @@ service ManagementService {
   rpc UpdateCustomList(CustomList) returns (google.protobuf.Empty) {}
 
   // API Access methods
-  rpc AddApiAccessMethod(AccessMethodSettingAdd) returns (UUID) {}
+  rpc AddApiAccessMethod(NewAccessMethodSetting) returns (UUID) {}
   rpc RemoveApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
@@ -367,7 +367,7 @@ message AccessMethodSetting {
   AccessMethod access_method = 4;
 }
 
-message AccessMethodSettingAdd {
+message NewAccessMethodSetting {
   string name = 1;
   bool enabled = 2;
   AccessMethod access_method = 3;
