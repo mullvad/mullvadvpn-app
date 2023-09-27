@@ -10,7 +10,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::{self, AccessMethod, BuiltInAccessMethod};
+use mullvad_types::access_method::AccessMethodSetting;
 use std::{
     net::SocketAddr,
     path::PathBuf,
@@ -37,7 +37,7 @@ use talpid_types::{
 /// [`ConnectionModesIterator`].
 pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
-    /// Used for selecting a Relay when the `Mullvad Bridges` access method is used.
+    /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
     connection_modes: Arc<Mutex<ConnectionModesIterator>>,
@@ -82,13 +82,14 @@ impl ApiConnectionModeProvider {
     pub(crate) fn new(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
-        connection_modes: Vec<AccessMethod>,
+        connection_modes: Vec<AccessMethodSetting>,
     ) -> Self {
+        let connection_modes_iterator = ConnectionModesIterator::new(connection_modes);
         Self {
             cache_dir,
             relay_selector,
             current_task: None,
-            connection_modes: Arc::new(Mutex::new(ConnectionModesIterator::new(connection_modes))),
+            connection_modes: Arc::new(Mutex::new(connection_modes_iterator)),
         }
     }
 
@@ -105,12 +106,10 @@ impl ApiConnectionModeProvider {
         log::debug!("Rotating Access mode!");
         let access_method = {
             let mut access_methods_picker = self.connection_modes.lock().unwrap();
-            access_methods_picker
-                .next()
-                .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct))
+            access_methods_picker.next()
         };
 
-        let connection_mode = self.from(&access_method);
+        let connection_mode = self.from(access_method.as_ref());
         log::info!("New API connection mode selected: {}", connection_mode);
         connection_mode
     }
@@ -119,39 +118,45 @@ impl ApiConnectionModeProvider {
     /// [`ApiConnectionMode`]s require extra logic/data from
     /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
     /// can not be implemented.
-    fn from(&mut self, access_method: &AccessMethod) -> ApiConnectionMode {
+    fn from(&mut self, access_method: Option<&AccessMethodSetting>) -> ApiConnectionMode {
+        use mullvad_types::access_method::{self, AccessMethod, BuiltInAccessMethod};
         match access_method {
-            AccessMethod::BuiltIn(access_method) => match access_method {
-                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
-                BuiltInAccessMethod::Bridge => self
-                    .relay_selector
-                    .get_bridge_forced()
-                    .and_then(|settings| match settings {
-                        ProxySettings::Shadowsocks(ss_settings) => {
-                            let ss_settings: access_method::Shadowsocks =
-                                access_method::Shadowsocks::new(
-                                    ss_settings.peer,
-                                    ss_settings.cipher,
-                                    ss_settings.password,
-                                );
-                            Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                                ss_settings,
-                            )))
-                        }
-                        _ => {
-                            log::error!("Received unexpected proxy settings type");
-                            None
-                        }
-                    })
-                    .unwrap_or(ApiConnectionMode::Direct),
-            },
-            AccessMethod::Custom(access_method) => match &access_method {
-                access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config.clone()))
-                }
-                access_method::CustomAccessMethod::Socks5(socks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
-                }
+            None => ApiConnectionMode::Direct,
+            Some(access_method) => match &access_method.access_method {
+                AccessMethod::BuiltIn(access_method) => match access_method {
+                    BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
+                    BuiltInAccessMethod::Bridge => self
+                        .relay_selector
+                        .get_bridge_forced()
+                        .and_then(|settings| match settings {
+                            ProxySettings::Shadowsocks(ss_settings) => {
+                                let ss_settings: access_method::Shadowsocks =
+                                    access_method::Shadowsocks::new(
+                                        ss_settings.peer,
+                                        ss_settings.cipher,
+                                        ss_settings.password,
+                                    );
+                                Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
+                                    ss_settings,
+                                )))
+                            }
+                            _ => {
+                                log::error!("Received unexpected proxy settings type");
+                                None
+                            }
+                        })
+                        .unwrap_or(ApiConnectionMode::Direct),
+                },
+                AccessMethod::Custom(access_method) => match &access_method {
+                    access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
+                        ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
+                            shadowsocks_config.clone(),
+                        ))
+                    }
+                    access_method::CustomAccessMethod::Socks5(socks_config) => {
+                        ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
+                    }
+                },
             },
         }
     }
@@ -166,38 +171,54 @@ impl ApiConnectionModeProvider {
 /// [`unwrap`]: Option::unwrap
 /// [`next`]: std::iter::Iterator::next
 pub struct ConnectionModesIterator {
-    available_modes: Box<dyn Iterator<Item = AccessMethod> + Send>,
-    next: Option<AccessMethod>,
+    available_modes: Box<dyn Iterator<Item = AccessMethodSetting> + Send>,
+    next: Option<AccessMethodSetting>,
+    current: AccessMethodSetting,
 }
 
 impl ConnectionModesIterator {
-    pub fn new(access_methods: Vec<AccessMethod>) -> ConnectionModesIterator {
+    pub fn new(access_methods: Vec<AccessMethodSetting>) -> ConnectionModesIterator {
+        let mut iterator = Self::cycle(access_methods);
         Self {
             next: None,
-            available_modes: Self::cycle(access_methods),
+            current: iterator.next().unwrap(),
+            available_modes: iterator,
         }
     }
 
     /// Set the next [`AccessMethod`] to be returned from this iterator.
-    pub fn set_access_method(&mut self, next: AccessMethod) {
+    pub fn set_access_method(&mut self, next: AccessMethodSetting) {
         self.next = Some(next);
     }
     /// Update the collection of [`AccessMethod`] which this iterator will
     /// return.
-    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethod>) {
+    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethodSetting>) {
         self.available_modes = Self::cycle(access_methods)
     }
 
-    fn cycle(access_methods: Vec<AccessMethod>) -> Box<dyn Iterator<Item = AccessMethod> + Send> {
+    fn cycle(
+        access_methods: Vec<AccessMethodSetting>,
+    ) -> Box<dyn Iterator<Item = AccessMethodSetting> + Send> {
         Box::new(access_methods.into_iter().cycle())
+    }
+
+    /// Look at the currently active [`AccessMethod`]
+    pub fn peek(&self) -> AccessMethodSetting {
+        self.current.clone()
     }
 }
 
 impl Iterator for ConnectionModesIterator {
-    type Item = AccessMethod;
+    type Item = AccessMethodSetting;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.next.take().or_else(|| self.available_modes.next())
+        let next = self
+            .next
+            .take()
+            .or_else(|| self.available_modes.next())
+            .unwrap();
+        self.current = next.clone();
+        Some(next)
     }
 }
 
