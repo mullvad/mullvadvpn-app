@@ -39,7 +39,6 @@ pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
     /// Used for selecting a Relay when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
-    retry_attempt: u32,
     current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
     connection_modes: Arc<Mutex<ConnectionModesIterator>>,
 }
@@ -63,7 +62,6 @@ impl Stream for ApiConnectionModeProvider {
         }
 
         let connection_mode = self.new_connection_mode();
-        self.retry_attempt = self.retry_attempt.wrapping_add(1);
 
         let cache_dir = self.cache_dir.clone();
         self.current_task = Some(Box::pin(async move {
@@ -89,7 +87,6 @@ impl ApiConnectionModeProvider {
         Self {
             cache_dir,
             relay_selector,
-            retry_attempt: 0,
             current_task: None,
             connection_modes: Arc::new(Mutex::new(ConnectionModesIterator::new(connection_modes))),
         }
