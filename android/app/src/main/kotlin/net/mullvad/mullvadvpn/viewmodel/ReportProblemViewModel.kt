@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_SPINNER_TIME_MILLIS
+import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.dataproxy.UserReport
@@ -46,11 +46,11 @@ class ReportProblemViewModel(private val mullvadProblemReporter: MullvadProblemR
                     it.copy(sendingState = SendingReportUiState.Sending, showConfirmNoEmail = false)
                 }
 
-                // Ensure we show loading for at least 500 ms
+                // Ensure we show loading for at least MINIMUM_LOADING_TIME_MILLIS
                 val deferredResult = async {
                     mullvadProblemReporter.sendReport(UserReport(nullableEmail, description))
                 }
-                delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
+                delay(MINIMUM_LOADING_TIME_MILLIS)
 
                 _uiState.update {
                     it.copy(sendingState = deferredResult.await().toUiResult(nullableEmail))

@@ -72,8 +72,9 @@ fun ViewLogsScreen(
             modifier =
                 Modifier.fillMaxSize()
                     .padding(
-                        vertical = Dimens.sideMargin,
-                        horizontal = Dimens.screenVerticalMargin
+                        start = Dimens.sideMargin,
+                        end = Dimens.sideMargin,
+                        bottom = Dimens.screenVerticalMargin
                     ),
         ) {
             if (uiState.isLoading) {
