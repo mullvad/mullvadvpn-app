@@ -37,6 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate out of time view to compose.
 - Migrate login view to compose.
 - Add Social media to content blockers.
+- Migrate Report Problem view to compose.
+- Migrate View Logs view to compose.
 
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.

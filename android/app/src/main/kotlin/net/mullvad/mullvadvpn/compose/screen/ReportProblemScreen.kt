@@ -139,8 +139,9 @@ fun ReportProblemScreen(
             Column(
                 modifier =
                     Modifier.padding(
-                        horizontal = Dimens.sideMargin,
-                        vertical = Dimens.screenVerticalMargin
+                        start = Dimens.sideMargin,
+                        end = Dimens.sideMargin,
+                        bottom = Dimens.verticalSpace,
                     ),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
             ) {

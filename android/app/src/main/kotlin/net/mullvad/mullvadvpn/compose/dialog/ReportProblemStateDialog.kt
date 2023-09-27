@@ -3,34 +3,31 @@ package net.mullvad.mullvadvpn.compose.dialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 
@@ -59,7 +56,7 @@ fun ShowReportProblemStateDialog(
 @Preview
 @Composable
 private fun PreviewReportProblemSendingDialog() {
-    ReportProblemSendingDialog()
+    AppTheme { ReportProblemSendingDialog() }
 }
 
 @Composable
@@ -80,10 +77,7 @@ private fun ReportProblemSendingDialog() {
             ) {
                 Text(
                     text = stringResource(id = R.string.sending),
-                    color = colorResource(id = R.color.white),
-                    fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
-                    fontStyle = FontStyle.Normal,
-                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -94,17 +88,19 @@ private fun ReportProblemSendingDialog() {
                 dismissOnClickOutside = false,
                 dismissOnBackPress = false,
             ),
-        containerColor = colorResource(id = R.color.darkBlue)
+        containerColor = MaterialTheme.colorScheme.background
     )
 }
 
 @Preview
 @Composable
 private fun PreviewReportProblemSuccessDialog() {
-    ReportProblemSuccessDialog(
-        "Email@em.com",
-        onConfirm = {},
-    )
+    AppTheme {
+        ReportProblemSuccessDialog(
+            "Email@em.com",
+            onConfirm = {},
+        )
+    }
 }
 
 @Composable
@@ -118,52 +114,75 @@ fun ReportProblemSuccessDialog(email: String?, onConfirm: () -> Unit) {
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_success),
-                    contentDescription = "Remove",
-                    modifier = Modifier.width(50.dp).height(50.dp)
+                    contentDescription = null,
+                    modifier = Modifier.size(Dimens.dialogIconSize)
                 )
             }
         },
         text = {
-            Text(
-                text =
-                    buildAnnotatedString {
-                        withStyle(SpanStyle(color = colorResource(id = R.color.green))) {
-                            append(stringResource(id = R.string.sent_thanks))
-                        }
-                        append(" ")
+            Column {
+                Text(
+                    text =
+                        buildAnnotatedString {
+                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.surface)) {
+                                append(stringResource(id = R.string.sent_thanks))
+                            }
+                            append(" ")
+                            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onPrimary)) {
+                                append(stringResource(id = R.string.we_will_look_into_this))
+                            }
+                        },
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                        withStyle(SpanStyle(color = colorResource(id = R.color.white))) {
-                            append(stringResource(id = R.string.we_will_look_into_this))
+                Spacer(modifier = Modifier.height(Dimens.smallPadding))
+                email?.let {
+                    val emailTemplate = stringResource(R.string.sent_contact)
+                    val annotatedEmailString =
+                        remember(it) {
+                            val emailStart = emailTemplate.indexOf('%')
+
+                            buildAnnotatedString {
+                                append(emailTemplate.substring(0, emailStart))
+                                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(email) }
+                            }
                         }
-                    },
-                fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
-                modifier = Modifier.fillMaxWidth()
-            )
+
+                    Text(
+                        text = annotatedEmailString,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         },
         confirmButton = {
             ActionButton(
                 modifier = Modifier.fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.blue),
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 onClick = { onConfirm() },
-            ) {
-                Text(text = stringResource(id = R.string.dismiss), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.dismiss)
+            )
         },
-        containerColor = colorResource(id = R.color.darkBlue)
+        containerColor = MaterialTheme.colorScheme.background,
+        properties = DialogProperties(securePolicy = if (email != null) SecureFlagPolicy.SecureOn else SecureFlagPolicy.Inherit)
     )
 }
 
 @Preview
 @Composable
 private fun PreviewReportProblemErrorDialog() {
-    ReportProblemErrorDialog(
-        onDismiss = {},
-        retry = {},
-    )
+    AppTheme {
+        ReportProblemErrorDialog(
+            onDismiss = {},
+            retry = {},
+        )
+    }
 }
 
 @Composable
@@ -178,15 +197,14 @@ fun ReportProblemErrorDialog(onDismiss: () -> Unit, retry: () -> Unit) {
                 Image(
                     painter = painterResource(id = R.drawable.icon_fail),
                     contentDescription = null,
-                    modifier = Modifier.width(50.dp).height(50.dp)
+                    modifier = Modifier.size(Dimens.dialogIconSize)
                 )
             }
         },
         text = {
             Text(
                 text = stringResource(id = R.string.failed_to_send_details),
-                color = colorResource(id = R.color.white),
-                fontSize = dimensionResource(id = R.dimen.text_small).value.sp,
+                style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.fillMaxWidth()
             )
         },
@@ -195,27 +213,25 @@ fun ReportProblemErrorDialog(onDismiss: () -> Unit, retry: () -> Unit) {
                 modifier = Modifier.fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.blue),
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 onClick = onDismiss,
-            ) {
-                Text(text = stringResource(id = R.string.edit_message), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.edit_message)
+            )
         },
         confirmButton = {
             ActionButton(
                 modifier = Modifier.fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.green),
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 onClick = retry,
-            ) {
-                Text(text = stringResource(id = R.string.try_again), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.try_again)
+            )
         },
-        containerColor = colorResource(id = R.color.darkBlue)
+        containerColor = MaterialTheme.colorScheme.background
     )
 }
