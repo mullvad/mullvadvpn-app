@@ -20,7 +20,8 @@ class ViewLogsViewModel(private val mullvadProblemReporter: MullvadProblemReport
         viewModelScope.launch {
             // Loading this much text takes a while, so we show a loading indicator until the
             // fragment transitions is done. I'd very much prefer to use LazyColumn in the view
-            // which would make the loading way faster but then the SelectionContainer is broken.
+            // which would make the loading way faster but then the SelectionContainer is broken and
+            // text would not be copyable.
             delay(500)
             _uiState.update {
                 it.copy(
