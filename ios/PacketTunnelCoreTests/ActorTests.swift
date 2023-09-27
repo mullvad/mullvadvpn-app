@@ -22,7 +22,8 @@ final class ActorTests: XCTestCase {
 
     override func tearDown() async throws {
         stateSink?.cancel()
-        await actor?.stop()
+        actor?.stop()
+        await actor?.waitUntilDisconnected()
     }
 
     /**
@@ -32,9 +33,6 @@ final class ActorTests: XCTestCase {
      */
     func testStart() async throws {
         let actor = PacketTunnelActor.mock()
-
-        // As actor starts it should transition through the following states based on simulation:
-        // .initial → .connecting → .connected
         let initialStateExpectation = expectation(description: "Expect initial state")
         let connectingExpectation = expectation(description: "Expect connecting state")
         let connectedStateExpectation = expectation(description: "Expect connected state")
@@ -58,7 +56,46 @@ final class ActorTests: XCTestCase {
 
         self.actor = actor
 
-        try await actor.start(options: StartOptions(launchSource: .app))
+        actor.start(options: StartOptions(launchSource: .app))
+
+        await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
+    }
+
+    /**
+     Test stopping connected tunnel.
+
+     As actor should transition through the following states: .connected → .disconnecting → .disconnected
+     */
+    func testStopConnectedTunnel() async throws {
+        let actor = PacketTunnelActor.mock()
+        let connectedStateExpectation = expectation(description: "Expect connected state")
+        let disconnectingStateExpectation = expectation(description: "Expect disconnecting state")
+        let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
+
+        let allExpectations = [connectedStateExpectation, disconnectingStateExpectation, disconnectedStateExpectation]
+
+        stateSink = await actor.$state
+            .receive(on: DispatchQueue.main)
+            .sink { newState in
+                switch newState {
+                case .connected:
+                    connectedStateExpectation.fulfill()
+                    actor.stop()
+
+                case .disconnecting:
+                    disconnectingStateExpectation.fulfill()
+
+                case .disconnected:
+                    disconnectedStateExpectation.fulfill()
+
+                default:
+                    break
+                }
+            }
+
+        self.actor = actor
+
+        actor.start(options: StartOptions(launchSource: .app))
 
         await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
     }
@@ -128,8 +165,8 @@ final class ActorTests: XCTestCase {
 
         self.actor = actor
 
-        try await actor.start(options: StartOptions(launchSource: .app))
+        actor.start(options: StartOptions(launchSource: .app))
 
-        await fulfillment(of: allExpectations, timeout: 200, enforceOrder: true)
+        await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
     }
 }

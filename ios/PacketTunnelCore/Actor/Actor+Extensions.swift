@@ -30,7 +30,7 @@ extension PacketTunnelActor {
 
     /// Wait until the `state` moved to `.connected`.
     /// Should return if the state is `.disconnected` as this is the final state of actor.
-    func waitUntilConnected() async {
+    public func waitUntilConnected() async {
         for await newState in states {
             switch newState {
             case .connected, .disconnected:
@@ -39,6 +39,15 @@ extension PacketTunnelActor {
 
             case .connecting, .disconnecting, .error, .initial, .reconnecting:
                 break
+            }
+        }
+    }
+
+    /// Wait until the `state` moved to `.disiconnected`.
+    public func waitUntilDisconnected() async {
+        for await newState in states {
+            if case .disconnected = newState {
+                return
             }
         }
     }

@@ -10,36 +10,23 @@ import Foundation
 
 extension PacketTunnelActor {
     /**
-     Tell actor that key rotation took place.
+     Cache WG active key for a period of time, before switching to using the new one stored in settings.
 
-     When that happens the actor changes key policy to `.usePrior` caching the currently used key in associated value.
+     This function replaces the key policy to `.usePrior` caching the currently used key in associated value.
 
      That cached key is used by actor for some time until the new key is propagated across relays. Then it flips the key policy back to `.useCurrent` and
      reconnects the tunnel using new key.
 
-     The `date` passed as an argument is a simple marker value passed back to UI process with actor state. This date can be used to determine when
+     The `lastKeyRotation` passed as an argument is a simple marker value passed back to UI process with actor state. This date can be used to determine when
      the main app has to re-read device state from Keychain, since there is no other mechanism to notify other process when packet tunnel mutates keychain store.
 
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
-
-     - Parameter date: date when last key rotation took place.
+     - Parameter lastKeyRotation: date when last key rotation took place.
      */
-    public func notifyKeyRotated(date: Date? = nil) async {
-        try? await taskQueue.add(kind: .keyRotated) { [self] in
-            notifyKeyRotatedInner(date: date)
-        }
-    }
-
-    /**
-     Cache currently used WG key and start a task that will change the policy back to use the newest key after some time and reconnect the tunnel.
-
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
-     */
-    private func notifyKeyRotatedInner(date: Date?) {
+    func cacheActiveKey(lastKeyRotation: Date?) {
         func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
             switch connState.keyPolicy {
             case .useCurrent:
-                connState.lastKeyRotation = date
+                connState.lastKeyRotation = lastKeyRotation
                 connState.keyPolicy = .usePrior(connState.currentKey, startKeySwitchTask())
                 return true
 
@@ -69,7 +56,7 @@ extension PacketTunnelActor {
             switch blockedState.keyPolicy {
             case .useCurrent:
                 if let currentKey = blockedState.currentKey {
-                    blockedState.lastKeyRotation = date
+                    blockedState.lastKeyRotation = lastKeyRotation
                     blockedState.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
                     state = .error(blockedState)
                 }
@@ -80,6 +67,17 @@ extension PacketTunnelActor {
 
         case .initial, .disconnected, .disconnecting:
             break
+        }
+    }
+
+    /**
+     Switch key policy  from `.usePrior` to `.useCurrent` policy and reconnect the tunnel.
+
+     Next reconnection attempt will read the new key from settings.
+     */
+    func switchToCurrentKey() {
+        if switchToCurrentKeyInner() {
+            commandChannel.send(.reconnect(.random))
         }
     }
 
@@ -98,36 +96,18 @@ extension PacketTunnelActor {
             try await Task.sleepUsingContinuousClock(for: timings.wgKeyPropagationDelay)
 
             // Enqueue task to change key policy.
-            let isKeySwitched = try await enqueueKeySwitch()
-
-            // Enqueue task to reconnect
-            if isKeySwitched {
-                try await reconnect(to: .random)
-            }
+            commandChannel.send(.switchKey)
         }
 
         return AutoCancellingTask(task)
     }
 
     /**
-     Enqueue a task to switch key policy to `.useCurrent`.
-
-     - Returns: `true` if the key was switched, otherwise `false`.
-     */
-    private func enqueueKeySwitch() async throws -> Bool {
-        try await taskQueue.add(kind: .switchKey) {
-            self.keySwitchInner()
-        }
-    }
-
-    /**
      Switch key policy  from `.usePrior` to `.useCurrent` policy.
-
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
 
      - Returns: `true` if the key policy switch happened, otherwise `false`.
      */
-    private func keySwitchInner() -> Bool {
+    private func switchToCurrentKeyInner() -> Bool {
         // Switch key policy to use current key.
         switch state {
         case var .connecting(connState):

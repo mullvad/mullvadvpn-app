@@ -92,13 +92,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         // This check is allowed to push new key to server if there are some issues with it.
         startDeviceCheck(rotateKeyOnMismatch: true)
 
-        try await actor.start(options: startOptions)
+        actor.start(options: startOptions)
+
+        await actor.waitUntilConnected()
     }
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
+        providerLogger.debug("stopTunnel: \(reason)")
+
         stopObservingActorState()
 
-        await actor.stop()
+        actor.stop()
+
+        await actor.waitUntilDisconnected()
     }
 
     override func handleAppMessage(_ messageData: Data) async -> Data? {
@@ -153,6 +159,7 @@ extension PacketTunnelProvider {
 
         stateObserverTask = Task {
             let stateStream = await self.actor.states
+            var lastConnectionAttempt: UInt = 0
 
             for await newState in stateStream {
                 // Pass relay constraints retrieved during the last read from setting into transport provider.
@@ -174,10 +181,17 @@ extension PacketTunnelProvider {
 
                 switch newState {
                 case let .reconnecting(connState), let .connecting(connState):
+                    let connectionAttempt = connState.connectionAttemptCount
+
                     // Start device check every second failure attempt to connect.
-                    if connState.connectionAttemptCount.isMultiple(of: 2) {
+                    if lastConnectionAttempt != connectionAttempt, connectionAttempt > 0,
+                       connectionAttempt.isMultiple(of: 2) {
                         startDeviceCheck()
                     }
+
+                    // Cache last connection attempt to filter out repeating calls.
+                    lastConnectionAttempt = connectionAttempt
+
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
                 }
@@ -208,12 +222,12 @@ extension PacketTunnelProvider {
         let result = try await deviceChecker.start(rotateKeyOnMismatch: rotateKeyOnMismatch)
 
         if let blockedStateReason = result.blockedStateReason {
-            await actor.setErrorState(with: blockedStateReason)
+            actor.setErrorState(reason: blockedStateReason)
         }
 
         switch result.keyRotationStatus {
         case let .attempted(date), let .succeeded(date):
-            await actor.notifyKeyRotated(date: date)
+            actor.notifyKeyRotated(date: date)
         case .noAction:
             break
         }
