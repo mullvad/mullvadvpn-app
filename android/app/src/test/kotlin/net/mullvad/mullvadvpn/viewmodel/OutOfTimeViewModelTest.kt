@@ -13,6 +13,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.PaymentProvider
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountExpiry
@@ -53,6 +54,7 @@ class OutOfTimeViewModelTest {
     private val mockAccountRepository: AccountRepository = mockk()
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
+    private val mockPaymentProvider: PaymentProvider = mockk(relaxed = true)
 
     private lateinit var viewModel: OutOfTimeViewModel
 
@@ -75,6 +77,7 @@ class OutOfTimeViewModelTest {
                 accountRepository = mockAccountRepository,
                 serviceConnectionManager = mockServiceConnectionManager,
                 deviceRepository = mockDeviceRepository,
+                paymentProvider = mockPaymentProvider,
                 pollAccountExpiry = false
             )
     }
