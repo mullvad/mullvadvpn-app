@@ -27,6 +27,8 @@ pub enum ApiAccess {
     ///
     /// Selecting "Mullvad Bridges" respects your current bridge settings.
     Use(SelectItem),
+    /// Show which access method is currently used to access the Mullvad API.
+    Status,
 }
 
 impl ApiAccess {
@@ -51,6 +53,9 @@ impl ApiAccess {
             }
             ApiAccess::Use(cmd) => {
                 Self::set(cmd).await?;
+            }
+            ApiAccess::Status => {
+                Self::status().await?;
             }
         };
         Ok(())
@@ -177,6 +182,13 @@ impl ApiAccess {
         let mut rpc = MullvadProxyClient::new().await?;
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
         rpc.set_access_method(access_method.get_id()).await?;
+        Ok(())
+    }
+
+    async fn status() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let current = rpc.get_current_api_access_method().await?;
+        println!("{}", pp::ApiAccessMethodFormatter::new(&current));
         Ok(())
     }
 
