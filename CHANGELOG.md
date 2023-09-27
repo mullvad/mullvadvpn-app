@@ -33,6 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 - Move out of time evaluation to connect view model.
 - Migrate out of time view to compose.
 - Migrate login view to compose.
+- Migrate Report Problem view to compose.
+- Migrate View Logs view to compose.
 
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.
