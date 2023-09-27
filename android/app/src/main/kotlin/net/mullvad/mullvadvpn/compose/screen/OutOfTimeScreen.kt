@@ -25,10 +25,13 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
+import net.mullvad.mullvadvpn.compose.button.PlayPaymentButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.dialog.PaymentAvailabilityDialog
+import net.mullvad.mullvadvpn.compose.dialog.PurchaseResultDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -95,7 +98,11 @@ fun OutOfTimeScreen(
     onRedeemVoucherClick: () -> Unit = {},
     openConnectScreen: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onAccountClick: () -> Unit = {}
+    onAccountClick: () -> Unit = {},
+    onPurchaseBillingProductClick: (String) -> Unit = {},
+    onTryFetchProductsAgain: () -> Unit = {},
+    onTryVerificationAgain: () -> Unit = {},
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {}
 ) {
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     LaunchedEffect(key1 = Unit) {
@@ -107,6 +114,20 @@ fun OutOfTimeScreen(
             }
         }
     }
+
+    uiState.purchaseResult?.let {
+        PurchaseResultDialog(
+            purchaseResult = uiState.purchaseResult,
+            onTryAgain = onTryVerificationAgain,
+            onCloseDialog = onClosePurchaseResultDialog
+        )
+    }
+
+    PaymentAvailabilityDialog(
+        paymentAvailability = uiState.billingPaymentState,
+        onTryAgain = onTryFetchProductsAgain
+    )
+
     val scrollState = rememberScrollState()
     ScaffoldWithTopBarAndDeviceName(
         topBarColor =
@@ -191,6 +212,17 @@ fun OutOfTimeScreen(
                         )
                 )
             }
+            PlayPaymentButton(
+                billingPaymentState = uiState.billingPaymentState,
+                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                modifier =
+                    Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.screenVerticalMargin
+                        )
+                        .align(Alignment.CenterHorizontally)
+            )
             if (showSitePayment) {
                 SitePaymentButton(
                     onClick = onSitePaymentClick,
