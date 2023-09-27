@@ -51,7 +51,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
         }
     }
 
-    private func finishOperation(tunnel: Tunnel?) {
+    private func finishOperation(tunnel: (any TunnelProtocol)?) {
         interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
         interactor.setConfigurationLoaded()
 

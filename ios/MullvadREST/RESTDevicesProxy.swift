@@ -11,8 +11,45 @@ import MullvadTypes
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PublicKey
 
+public protocol DeviceHandling {
+    func getDevice(
+        accountNumber: String,
+        identifier: String,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<Device>
+    ) -> Cancellable
+
+    func getDevices(
+        accountNumber: String,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<[Device]>
+    ) -> Cancellable
+
+    func createDevice(
+        accountNumber: String,
+        request: REST.CreateDeviceRequest,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<Device>
+    ) -> Cancellable
+
+    func deleteDevice(
+        accountNumber: String,
+        identifier: String,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<Bool>
+    ) -> Cancellable
+
+    func rotateDeviceKey(
+        accountNumber: String,
+        identifier: String,
+        publicKey: PublicKey,
+        retryStrategy: REST.RetryStrategy,
+        completion: @escaping ProxyCompletionHandler<Device>
+    ) -> Cancellable
+}
+
 extension REST {
-    public final class DevicesProxy: Proxy<AuthProxyConfiguration> {
+    public final class DevicesProxy: Proxy<AuthProxyConfiguration>, DeviceHandling {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "DevicesProxy",
@@ -31,7 +68,7 @@ extension REST {
             accountNumber: String,
             identifier: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<Device>
+            completion: @escaping ProxyCompletionHandler<Device>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -87,7 +124,7 @@ extension REST {
         public func getDevices(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<[Device]>
+            completion: @escaping ProxyCompletionHandler<[Device]>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -125,7 +162,7 @@ extension REST {
             accountNumber: String,
             request: CreateDeviceRequest,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<Device>
+            completion: @escaping ProxyCompletionHandler<Device>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -164,7 +201,7 @@ extension REST {
             accountNumber: String,
             identifier: String,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<Bool>
+            completion: @escaping ProxyCompletionHandler<Bool>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -226,7 +263,7 @@ extension REST {
             identifier: String,
             publicKey: PublicKey,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping CompletionHandler<Device>
+            completion: @escaping ProxyCompletionHandler<Device>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in

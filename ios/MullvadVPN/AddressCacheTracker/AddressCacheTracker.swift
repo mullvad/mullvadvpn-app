@@ -24,7 +24,7 @@ final class AddressCacheTracker {
     private let application: UIApplication
 
     /// REST API proxy.
-    private let apiProxy: REST.APIProxy
+    private let apiProxy: APIQuerying
 
     /// Address cache.
     private let store: REST.AddressCache
@@ -45,7 +45,7 @@ final class AddressCacheTracker {
     private let nslock = NSLock()
 
     /// Designated initializer
-    init(application: UIApplication, apiProxy: REST.APIProxy, store: REST.AddressCache) {
+    init(application: UIApplication, apiProxy: APIQuerying, store: REST.AddressCache) {
         self.application = application
         self.apiProxy = apiProxy
         self.store = store
