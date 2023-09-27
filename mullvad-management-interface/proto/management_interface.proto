@@ -373,11 +373,6 @@ message AccessMethodSettingAdd {
   AccessMethod access_method = 3;
 }
 
-message AccessMethodSettingUpdate {
-  UUID id = 1;
-  AccessMethodSetting access_method_setting = 2;
-}
-
 message ApiAccessMethodSettings { repeated AccessMethodSetting access_method_settings = 1; }
 
 message Settings {
