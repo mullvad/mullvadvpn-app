@@ -108,7 +108,7 @@ class StartTunnelOperation: ResultOperation<Void> {
         try tunnel.start(options: tunnelOptions.rawOptions())
     }
 
-    private func makeTunnelProvider(completionHandler: @escaping (Result<Tunnel, Error>) -> Void) {
+    private func makeTunnelProvider(completionHandler: @escaping (Result<any TunnelProtocol, Error>) -> Void) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
         let configuration = Self.makeTunnelConfiguration()

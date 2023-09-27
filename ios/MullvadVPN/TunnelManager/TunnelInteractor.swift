@@ -13,11 +13,11 @@ import PacketTunnelCore
 protocol TunnelInteractor {
     // MARK: - Tunnel manipulation
 
-    var tunnel: Tunnel? { get }
+    var tunnel: (any TunnelProtocol)? { get }
 
-    func getPersistentTunnels() -> [Tunnel]
-    func createNewTunnel() -> Tunnel
-    func setTunnel(_ tunnel: Tunnel?, shouldRefreshTunnelState: Bool)
+    func getPersistentTunnels() -> [any TunnelProtocol]
+    func createNewTunnel() -> any TunnelProtocol
+    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool)
 
     // MARK: - Tunnel status
 

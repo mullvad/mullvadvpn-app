@@ -16,14 +16,14 @@ class DeleteAccountOperation: ResultOperation<Void> {
     private let logger = Logger(label: "\(DeleteAccountOperation.self)")
 
     private let accountNumber: String
-    private let accountsProxy: REST.AccountsProxy
-    private let accessTokenManager: REST.AccessTokenManager
+    private let accountsProxy: AccountHandling
+    private let accessTokenManager: AccessTokenManagement
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
-        accountsProxy: REST.AccountsProxy,
-        accessTokenManager: REST.AccessTokenManager,
+        accountsProxy: AccountHandling,
+        accessTokenManager: AccessTokenManagement,
         accountNumber: String
     ) {
         self.accountNumber = accountNumber
