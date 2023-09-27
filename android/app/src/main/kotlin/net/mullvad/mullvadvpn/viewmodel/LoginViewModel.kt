@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
-import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_SPINNER_TIME_MILLIS
+import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginResult
@@ -75,7 +75,7 @@ class LoginViewModel(
             // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
             // loading indicator
             val loginDeferred = async { accountRepository.login(accountToken) }
-            delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
+            delay(MINIMUM_LOADING_TIME_MILLIS)
 
             val uiState =
                 when (val result = loginDeferred.await()) {

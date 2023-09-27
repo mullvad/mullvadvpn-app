@@ -47,13 +47,12 @@ class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher
 
         val sentSuccessfully =
             withContext(dispatcher) {
-                true
-                //                sendProblemReport(
-                //                    userReport.email ?: "",
-                //                    userReport.message,
-                //                    logsPath.absolutePath,
-                //                    cacheDirectory.absolutePath
-                //                )
+                sendProblemReport(
+                    userReport.email ?: "",
+                    userReport.message,
+                    logsPath.absolutePath,
+                    cacheDirectory.absolutePath
+                )
             }
 
         return if (sentSuccessfully) {
