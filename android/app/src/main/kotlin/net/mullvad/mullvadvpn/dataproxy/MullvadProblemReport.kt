@@ -5,7 +5,7 @@ import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-const val PROBLEM_REPORT_FILE = "problem_report.txt"
+const val PROBLEM_REPORT_LOGS_FILE = "problem_report.txt"
 
 sealed interface SendProblemReportResult {
     data object Success : SendProblemReportResult
@@ -21,30 +21,25 @@ sealed interface SendProblemReportResult {
 data class UserReport(val email: String, val message: String)
 
 class MullvadProblemReport(context: Context) {
-    private val logDirectory = File(context.filesDir.toURI())
     private val cacheDirectory = File(context.cacheDir.toURI())
-    private val problemReportPath = File(logDirectory, PROBLEM_REPORT_FILE)
-
-    private var hasCollectedReport = false
+    private val logDirectory = File(context.filesDir.toURI())
+    private val logsPath = File(logDirectory, PROBLEM_REPORT_LOGS_FILE)
 
     init {
         System.loadLibrary("mullvad_jni")
     }
 
-    private suspend fun collectReport() =
+    suspend fun collectLogs(): Boolean =
         withContext(Dispatchers.IO) {
-            val logDirectoryPath = logDirectory.absolutePath
-            val reportPath = problemReportPath.absolutePath
             // Delete any old report
-            deleteReport()
-            hasCollectedReport = collectReport(logDirectoryPath, reportPath)
+            deleteLogs()
+
+            collectReport(logDirectory.absolutePath, logsPath.absolutePath)
         }
 
     suspend fun sendReport(userReport: UserReport): SendProblemReportResult {
-        if (!hasCollectedReport) {
-            collectReport()
-        }
-        if (!hasCollectedReport) {
+        // If report is not collected then, collect it, if it fails then return error
+        if (!logsExists() && !collectLogs()) {
             return SendProblemReportResult.Error.CollectLog
         }
 
@@ -53,13 +48,13 @@ class MullvadProblemReport(context: Context) {
                 sendProblemReport(
                     userReport.email,
                     userReport.message,
-                    problemReportPath.absolutePath,
+                    logsPath.absolutePath,
                     cacheDirectory.absolutePath
                 )
             }
 
         return if (sentSuccessfully) {
-            deleteReport()
+            deleteLogs()
             SendProblemReportResult.Success
         } else {
             SendProblemReportResult.Error.SendReport
@@ -67,24 +62,26 @@ class MullvadProblemReport(context: Context) {
     }
 
     suspend fun readLogs(): List<String> {
-        if (!hasCollectedReport) {
-            collectReport()
+        if (!logsExists()) {
+            collectLogs()
         }
 
-        return if (hasCollectedReport) {
-            problemReportPath.readLines()
+        return if (logsExists()) {
+            logsPath.readLines()
         } else {
             listOf("Failed to collect logs for problem report")
         }
     }
 
-    fun deleteReport() {
-        problemReportPath.delete()
-        hasCollectedReport = false
+    private fun logsExists() =
+        logsPath.exists()
+
+    fun deleteLogs() {
+        logsPath.delete()
     }
 
     // TODO We should remove the external functions from this class and migrate it to the service
-    private external fun collectReport(logDirectory: String, reportPath: String): Boolean
+    private external fun collectReport(logDirectory: String, logsPath: String): Boolean
 
     private external fun sendProblemReport(
         userEmail: String,
