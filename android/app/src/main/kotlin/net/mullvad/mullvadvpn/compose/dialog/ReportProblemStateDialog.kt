@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,12 +8,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -63,25 +62,13 @@ private fun PreviewReportProblemSendingDialog() {
 private fun ReportProblemSendingDialog() {
     AlertDialog(
         onDismissRequest = {},
-        title = {
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(Dimens.progressIndicatorSize)
-                )
-            }
+        icon = {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(Dimens.progressIndicatorSize)
+            )
         },
-        text = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(id = R.string.sending),
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
+        title = { Text(text = stringResource(id = R.string.sending)) },
         confirmButton = {},
         properties =
             DialogProperties(
@@ -107,18 +94,15 @@ private fun PreviewReportProblemSuccessDialog() {
 fun ReportProblemSuccessDialog(email: String?, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = { onConfirm() },
-        title = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_success),
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimens.dialogIconSize)
-                )
-            }
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.icon_success),
+                contentDescription = stringResource(id = R.string.sent),
+                modifier = Modifier.size(Dimens.dialogIconSize),
+                tint = Color.Unspecified
+            )
         },
+        title = { Text(text = stringResource(id = R.string.sent)) },
         text = {
             Column {
                 Text(
@@ -170,7 +154,11 @@ fun ReportProblemSuccessDialog(email: String?, onConfirm: () -> Unit) {
             )
         },
         containerColor = MaterialTheme.colorScheme.background,
-        properties = DialogProperties(securePolicy = if (email != null) SecureFlagPolicy.SecureOn else SecureFlagPolicy.Inherit)
+        properties =
+            DialogProperties(
+                securePolicy =
+                    if (email != null) SecureFlagPolicy.SecureOn else SecureFlagPolicy.Inherit
+            )
     )
 }
 
@@ -189,18 +177,15 @@ private fun PreviewReportProblemErrorDialog() {
 fun ReportProblemErrorDialog(onDismiss: () -> Unit, retry: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.icon_fail),
-                    contentDescription = null,
-                    modifier = Modifier.size(Dimens.dialogIconSize)
-                )
-            }
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.icon_fail),
+                contentDescription = stringResource(id = R.string.failed_to_send),
+                modifier = Modifier.size(Dimens.dialogIconSize),
+                tint = Color.Unspecified
+            )
         },
+        title = { Text(text = stringResource(id = R.string.failed_to_send)) },
         text = {
             Text(
                 text = stringResource(id = R.string.failed_to_send_details),
