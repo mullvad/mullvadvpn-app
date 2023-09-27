@@ -73,9 +73,13 @@ class ReportProblemViewModel(private val mullvadProblemReporter: MullvadProblemR
             SendProblemReportResult.Success -> SendingReportUiState.Success(email)
         }
 
+    init {
+        viewModelScope.launch { mullvadProblemReporter.collectLogs() }
+    }
+
     override fun onCleared() {
         super.onCleared()
         // Delete any logs if user leaves the screen
-        mullvadProblemReporter.deleteReport()
+        mullvadProblemReporter.deleteLogs()
     }
 }
