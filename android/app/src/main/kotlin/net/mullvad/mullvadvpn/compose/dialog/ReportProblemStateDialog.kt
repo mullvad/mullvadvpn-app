@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -25,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -151,7 +151,6 @@ fun ReportProblemSuccessDialog(email: String?, onConfirm: () -> Unit) {
 
                     Text(
                         text = annotatedEmailString,
-                        color = Color.White,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -170,7 +169,8 @@ fun ReportProblemSuccessDialog(email: String?, onConfirm: () -> Unit) {
                 text = stringResource(id = R.string.dismiss)
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = MaterialTheme.colorScheme.background,
+        properties = DialogProperties(securePolicy = if (email != null) SecureFlagPolicy.SecureOn else SecureFlagPolicy.Inherit)
     )
 }
 

@@ -12,10 +12,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-// TODO
-// [ ] - Showing enable email secure screen?
-// [ ] - Decide to save logs?
-
 class ProblemReportFragment : BaseFragment() {
     private val vm by viewModel<ReportProblemViewModel>()
 
