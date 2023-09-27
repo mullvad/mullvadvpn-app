@@ -64,9 +64,8 @@ fun ReportProblemNoEmailDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
                         contentColor = Color.White
                     ),
                 onClick = onConfirm,
-            ) {
-                Text(text = stringResource(id = R.string.send_anyway), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.send_anyway)
+            )
         },
         confirmButton = {
             ActionButton(
@@ -77,9 +76,8 @@ fun ReportProblemNoEmailDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
                         contentColor = Color.White
                     ),
                 onClick = { onDismiss() },
-            ) {
-                Text(text = stringResource(id = R.string.back), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.back)
+            )
         },
         containerColor = colorResource(id = R.color.darkBlue)
     )
