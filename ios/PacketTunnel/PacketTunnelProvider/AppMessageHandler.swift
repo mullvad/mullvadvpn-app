@@ -13,13 +13,10 @@ import PacketTunnelCore
 /**
  Actor handling packet tunnel IPC (app) messages and patching them through to the right facility.
  */
-actor AppMessageHandler {
+struct AppMessageHandler {
     private let logger = Logger(label: "AppMessageHandler")
     private let packetTunnelActor: PacketTunnelActor
     private let urlRequestProxy: URLRequestProxy
-
-    /// Last task dispatching a message to packet tunnel actor.
-    private var lastActorTask: AnyTask?
 
     init(packetTunnelActor: PacketTunnelActor, urlRequestProxy: URLRequestProxy) {
         self.packetTunnelActor = packetTunnelActor
@@ -54,19 +51,11 @@ actor AppMessageHandler {
             return await encodeReply(packetTunnelActor.state.packetTunnelStatus)
 
         case .privateKeyRotation:
-            let previousTask = lastActorTask
-            lastActorTask = Task {
-                await previousTask?.waitForCompletion()
-                await self.packetTunnelActor.notifyKeyRotated()
-            }
+            packetTunnelActor.notifyKeyRotated(date: nil)
             return nil
 
         case let .reconnectTunnel(selectorResult):
-            let previousTask = lastActorTask
-            lastActorTask = Task {
-                await previousTask?.waitForCompletion()
-                try await self.packetTunnelActor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .current)
-            }
+            packetTunnelActor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .current)
             return nil
         }
     }

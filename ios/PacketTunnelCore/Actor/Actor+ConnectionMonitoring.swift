@@ -9,37 +9,32 @@
 import Foundation
 
 extension PacketTunnelActor {
-    /**
-     Assign closure receiving tunnel monitor events.
-      */
+    /// Assign a closure receiving tunnel monitor events.
     func setTunnelMonitorEventHandler() {
         tunnelMonitor.onEvent = { [weak self] event in
-            guard let self else { return }
-            Task { await self.enqueueMonitorEvent(event) }
+            /// Dispatch tunnel monitor events via command channel to guarantee the order of execution.
+            self?.commandChannel.send(.monitorEvent(event))
         }
     }
 
     /**
-     Enqueue a task handling monitor event.
+     Handle tunnel monitor event.
 
-     - Important: Internal implementation must not call this method from operation executing on `TaskQueue`.
+     Invoked by comand consumer.
+
+     - Important: this method will suspend and must only be invoked as a part of channel consumer to guarantee transactional execution.
      */
-    private func enqueueMonitorEvent(_ event: TunnelMonitorEvent) async {
-        try? await taskQueue.add(kind: .monitorEvent) { [self] in
-            switch event {
-            case .connectionEstablished:
-                onEstablishConnection()
-            case .connectionLost:
-                await onHandleConnectionRecovery()
-            }
+    func handleMonitorEvent(_ event: TunnelMonitorEvent) async {
+        switch event {
+        case .connectionEstablished:
+            onEstablishConnection()
+
+        case .connectionLost:
+            await onHandleConnectionRecovery()
         }
     }
 
-    /**
-     Reset connection attempt counter and update actor state to `connected` state once connection is established.
-
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
-     */
+    /// Reset connection attempt counter and update actor state to `connected` state once connection is established.
     private func onEstablishConnection() {
         switch state {
         case var .connecting(connState), var .reconnecting(connState):
@@ -52,32 +47,33 @@ extension PacketTunnelActor {
         }
     }
 
-    /**
-     Increment connection attempt counter and reconnect the tunnel.
-
-     - Important: This method must only be invoked as a part of operation scheduled on `TaskQueue`.
-     */
+    /// Increment connection attempt counter and reconnect the tunnel.
     private func onHandleConnectionRecovery() async {
-        switch state {
-        case var .connecting(connState), var .reconnecting(connState), var .connected(connState):
-            guard let targetState = state.targetStateForReconnect else { return }
-
+        func mutateConnectionState(_ connState: inout ConnectionState) {
             // Increment attempt counter
             connState.incrementAttemptCount()
+        }
 
-            switch targetState {
-            case .connecting:
-                state = .connecting(connState)
-            case .reconnecting:
-                state = .reconnecting(connState)
-            }
+        switch state {
+        case var .connecting(connState):
+            mutateConnectionState(&connState)
+            state = .connecting(connState)
 
-            // Tunnel monitor should already be paused at this point so don't stop it to avoid a reset of its internal
-            // counters.
-            try? await reconnectInner(to: .random, shouldStopTunnelMonitor: false)
+        case var .reconnecting(connState):
+            mutateConnectionState(&connState)
+            state = .reconnecting(connState)
+
+        case var .connected(connState):
+            mutateConnectionState(&connState)
+            state = .connected(connState)
 
         case .initial, .disconnected, .disconnecting, .error:
-            break
+            // Explcit return to prevent reconnecting the tunnel.
+            return
         }
+
+        // Tunnel monitor should already be paused at this point so don't stop it to avoid a reset of its internal
+        // counters.
+        commandChannel.send(.reconnect(.random, stopTunnelMonitor: false))
     }
 }

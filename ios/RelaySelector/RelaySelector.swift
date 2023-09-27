@@ -276,7 +276,7 @@ public struct NoRelaysSatisfyingConstraintsError: LocalizedError {
     }
 }
 
-public struct RelaySelectorResult: Codable {
+public struct RelaySelectorResult: Codable, Equatable {
     public var endpoint: MullvadEndpoint
     public var relay: REST.ServerRelay
     public var location: Location
