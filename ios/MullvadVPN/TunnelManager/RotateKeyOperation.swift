@@ -17,10 +17,10 @@ import class WireGuardKitTypes.PrivateKey
 class RotateKeyOperation: ResultOperation<Void> {
     private let logger = Logger(label: "RotateKeyOperation")
     private let interactor: TunnelInteractor
-    private let devicesProxy: REST.DevicesProxy
+    private let devicesProxy: DeviceHandling
     private var task: Cancellable?
 
-    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor, devicesProxy: REST.DevicesProxy) {
+    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor, devicesProxy: DeviceHandling) {
         self.interactor = interactor
         self.devicesProxy = devicesProxy
 

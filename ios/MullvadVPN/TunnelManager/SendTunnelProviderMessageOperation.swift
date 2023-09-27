@@ -24,7 +24,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
     typealias DecoderHandler = (Data?) throws -> Output
 
     private let application: UIApplication
-    private let tunnel: Tunnel
+    private let tunnel: any TunnelProtocol
     private let message: TunnelProviderMessage
     private let timeout: Duration
 
@@ -39,7 +39,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
     init(
         dispatchQueue: DispatchQueue,
         application: UIApplication,
-        tunnel: Tunnel,
+        tunnel: any TunnelProtocol,
         message: TunnelProviderMessage,
         timeout: Duration? = nil,
         decoderHandler: @escaping DecoderHandler,
@@ -219,7 +219,7 @@ extension SendTunnelProviderMessageOperation where Output: Codable {
     convenience init(
         dispatchQueue: DispatchQueue,
         application: UIApplication,
-        tunnel: Tunnel,
+        tunnel: any TunnelProtocol,
         message: TunnelProviderMessage,
         timeout: Duration? = nil,
         completionHandler: @escaping CompletionHandler
@@ -246,7 +246,7 @@ extension SendTunnelProviderMessageOperation where Output == Void {
     convenience init(
         dispatchQueue: DispatchQueue,
         application: UIApplication,
-        tunnel: Tunnel,
+        tunnel: any TunnelProtocol,
         message: TunnelProviderMessage,
         timeout: Duration? = nil,
         completionHandler: CompletionHandler?

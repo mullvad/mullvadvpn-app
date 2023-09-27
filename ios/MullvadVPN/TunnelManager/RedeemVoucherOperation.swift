@@ -18,14 +18,14 @@ class RedeemVoucherOperation: ResultOperation<REST.SubmitVoucherResponse> {
     private let interactor: TunnelInteractor
 
     private let voucherCode: String
-    private let apiProxy: REST.APIProxy
+    private let apiProxy: APIQuerying
     private var task: Cancellable?
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
         voucherCode: String,
-        apiProxy: REST.APIProxy
+        apiProxy: APIQuerying
     ) {
         self.interactor = interactor
         self.voucherCode = voucherCode

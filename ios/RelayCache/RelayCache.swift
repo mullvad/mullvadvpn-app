@@ -10,7 +10,12 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-public final class RelayCache {
+public protocol RelayCacheProtocol {
+    func read() throws -> CachedRelays
+    func write(record: CachedRelays) throws
+}
+
+public final class RelayCache: RelayCacheProtocol {
     private let fileCache: any FileCacheProtocol<CachedRelays>
 
     /// Designated initializer

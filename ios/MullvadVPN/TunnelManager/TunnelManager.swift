@@ -44,13 +44,13 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Internal variables
 
-    private let application: UIApplication
-    fileprivate let tunnelStore: TunnelStore
-    private let relayCacheTracker: RelayCacheTracker
-    private let accountsProxy: REST.AccountsProxy
-    private let devicesProxy: REST.DevicesProxy
-    private let apiProxy: REST.APIProxy
-    private let accessTokenManager: REST.AccessTokenManager
+    private let application: UIApplicationProtocol
+    fileprivate let tunnelStore: TunnelStoreProtocol
+    private let relayCacheTracker: RelayCacheTrackerProtocol
+    private let accountsProxy: AccountHandling
+    private let devicesProxy: DeviceHandling
+    private let apiProxy: APIQuerying
+    private let accessTokenManager: AccessTokenManagement
 
     private let logger = Logger(label: "TunnelManager")
     private var nslock = NSRecursiveLock()
@@ -72,7 +72,7 @@ final class TunnelManager: StorePaymentObserver {
     private var _deviceState: DeviceState = .loggedOut
     private var _tunnelSettings = LatestTunnelSettings()
 
-    private var _tunnel: Tunnel?
+    private var _tunnel: (any TunnelProtocol)?
     private var _tunnelStatus = TunnelStatus()
 
     /// Last processed device check.
@@ -81,13 +81,13 @@ final class TunnelManager: StorePaymentObserver {
     // MARK: - Initialization
 
     init(
-        application: UIApplication,
-        tunnelStore: TunnelStore,
-        relayCacheTracker: RelayCacheTracker,
-        accountsProxy: REST.AccountsProxy,
-        devicesProxy: REST.DevicesProxy,
-        apiProxy: REST.APIProxy,
-        accessTokenManager: REST.AccessTokenManager
+        application: UIApplicationProtocol,
+        tunnelStore: TunnelStoreProtocol,
+        relayCacheTracker: RelayCacheTrackerProtocol,
+        accountsProxy: AccountHandling,
+        devicesProxy: DeviceHandling,
+        apiProxy: APIQuerying,
+        accessTokenManager: AccessTokenManagement
     ) {
         self.application = application
         self.tunnelStore = tunnelStore
@@ -623,7 +623,7 @@ final class TunnelManager: StorePaymentObserver {
         return _isConfigurationLoaded
     }
 
-    fileprivate var tunnel: Tunnel? {
+    fileprivate var tunnel: (any TunnelProtocol)? {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -668,7 +668,7 @@ final class TunnelManager: StorePaymentObserver {
         }
     }
 
-    fileprivate func setTunnel(_ tunnel: Tunnel?, shouldRefreshTunnelState: Bool) {
+    fileprivate func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -867,7 +867,7 @@ final class TunnelManager: StorePaymentObserver {
         }
     }
 
-    private func subscribeVPNStatusObserver(tunnel: Tunnel) {
+    private func subscribeVPNStatusObserver(tunnel: any TunnelProtocol) {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -1255,19 +1255,19 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         self.tunnelManager = tunnelManager
     }
 
-    var tunnel: Tunnel? {
+    var tunnel: (any TunnelProtocol)? {
         tunnelManager.tunnel
     }
 
-    func getPersistentTunnels() -> [Tunnel] {
+    func getPersistentTunnels() -> [any TunnelProtocol] {
         tunnelManager.tunnelStore.getPersistentTunnels()
     }
 
-    func createNewTunnel() -> Tunnel {
+    func createNewTunnel() -> any TunnelProtocol {
         tunnelManager.tunnelStore.createNewTunnel()
     }
 
-    func setTunnel(_ tunnel: Tunnel?, shouldRefreshTunnelState: Bool) {
+    func setTunnel(_ tunnel: (any TunnelProtocol)?, shouldRefreshTunnelState: Bool) {
         tunnelManager.setTunnel(tunnel, shouldRefreshTunnelState: shouldRefreshTunnelState)
     }
 
