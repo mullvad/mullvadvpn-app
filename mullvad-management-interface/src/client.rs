@@ -191,6 +191,17 @@ impl MullvadProxyClient {
             .ok_or(Error::ApiAccessMethodNotFound)
     }
 
+    pub async fn get_current_api_access_method(&mut self) -> Result<AccessMethodSetting> {
+        self.0
+            .get_current_api_access_method(())
+            .await
+            .map_err(Error::Rpc)
+            .map(tonic::Response::into_inner)
+            .and_then(|access_method| {
+                AccessMethodSetting::try_from(access_method).map_err(Error::InvalidResponse)
+            })
+    }
+
     pub async fn get_api_addresses(&mut self) -> Result<()> {
         self.0.get_api_addresses(()).await.map_err(Error::Rpc)?;
         Ok(())
