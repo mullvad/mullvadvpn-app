@@ -14,7 +14,17 @@ import Operations
 import RelayCache
 import UIKit
 
-final class RelayCacheTracker {
+protocol RelayCacheTrackerProtocol {
+    func startPeriodicUpdates()
+    func stopPeriodicUpdates()
+    func updateRelays(completionHandler: ((Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
+    func getCachedRelays() throws -> CachedRelays
+    func getNextUpdateDate() -> Date
+    func addObserver(_ observer: RelayCacheTrackerObserver)
+    func removeObserver(_ observer: RelayCacheTrackerObserver)
+}
+
+final class RelayCacheTracker: RelayCacheTrackerProtocol {
     /// Relay update interval.
     static let relayUpdateInterval: Duration = .hours(1)
 
@@ -22,7 +32,7 @@ final class RelayCacheTracker {
     private let logger = Logger(label: "RelayCacheTracker")
 
     /// Relay cache.
-    private let cache: RelayCache
+    private let cache: RelayCacheProtocol
 
     private let application: UIApplication
 
@@ -39,7 +49,7 @@ final class RelayCacheTracker {
     private var isPeriodicUpdatesEnabled = false
 
     /// API proxy.
-    private let apiProxy: REST.APIProxy
+    private let apiProxy: APIQuerying
 
     /// Observers.
     private let observerList = ObserverList<RelayCacheTrackerObserver>()
@@ -47,7 +57,7 @@ final class RelayCacheTracker {
     /// Memory cache.
     private var cachedRelays: CachedRelays?
 
-    init(relayCache: RelayCache, application: UIApplication, apiProxy: REST.APIProxy) {
+    init(relayCache: RelayCacheProtocol, application: UIApplication, apiProxy: APIQuerying) {
         self.application = application
         self.apiProxy = apiProxy
         cache = relayCache

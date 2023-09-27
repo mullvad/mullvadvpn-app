@@ -12,7 +12,7 @@ import MullvadTypes
 import Operations
 
 final class ProblemReportInteractor {
-    private let apiProxy: REST.APIProxy
+    private let apiProxy: APIQuerying
     private let tunnelManager: TunnelManager
 
     private lazy var consolidatedLog: ConsolidatedApplicationLog = {
@@ -31,7 +31,7 @@ final class ProblemReportInteractor {
         return report
     }()
 
-    init(apiProxy: REST.APIProxy, tunnelManager: TunnelManager) {
+    init(apiProxy: APIQuerying, tunnelManager: TunnelManager) {
         self.apiProxy = apiProxy
         self.tunnelManager = tunnelManager
     }
