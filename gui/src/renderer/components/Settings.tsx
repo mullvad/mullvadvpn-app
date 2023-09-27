@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
 
-import { colors, links } from '../../config.json';
+import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
@@ -148,10 +149,10 @@ function AppVersionButton() {
   const isOffline = useSelector((state) => state.connection.isBlocked);
 
   const { openUrl } = useAppContext();
-  const openDownloadLink = useCallback(
-    () => openUrl(suggestedIsBeta ? links.betaDownload : links.download),
-    [openUrl, suggestedIsBeta],
-  );
+  const openDownloadLink = useCallback(() => openUrl(getDownloadUrl(suggestedIsBeta)), [
+    openUrl,
+    suggestedIsBeta,
+  ]);
 
   let icon;
   let footer;
