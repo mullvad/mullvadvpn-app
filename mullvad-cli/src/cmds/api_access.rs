@@ -77,7 +77,7 @@ impl ApiAccess {
     /// Add a custom API access method.
     async fn add(cmd: AddCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let name = cmd.name();
+        let name = cmd.name().to_string();
         let enabled = cmd.enabled();
         let access_method = AccessMethod::try_from(cmd)?;
         rpc.add_access_method(name, enabled, access_method).await?;
@@ -264,24 +264,19 @@ pub enum AddSocks5Commands {
 }
 
 impl AddCustomCommands {
-    fn name(&self) -> String {
+    fn name(&self) -> &str {
         match self {
-            AddCustomCommands::Shadowsocks { name, .. } => name,
-            AddCustomCommands::Socks5(socks) => match socks {
-                AddSocks5Commands::Remote { name, .. } => name,
-                AddSocks5Commands::Local { name, .. } => name,
-            },
+            AddCustomCommands::Shadowsocks { name, .. }
+            | AddCustomCommands::Socks5(AddSocks5Commands::Remote { name, .. })
+            | AddCustomCommands::Socks5(AddSocks5Commands::Local { name, .. }) => name,
         }
-        .clone()
     }
 
     fn enabled(&self) -> bool {
         match self {
-            AddCustomCommands::Shadowsocks { disabled, .. } => !disabled,
-            AddCustomCommands::Socks5(socks) => match socks {
-                AddSocks5Commands::Remote { disabled, .. } => !disabled,
-                AddSocks5Commands::Local { disabled, .. } => !disabled,
-            },
+            AddCustomCommands::Shadowsocks { disabled, .. }
+            | AddCustomCommands::Socks5(AddSocks5Commands::Remote { disabled, .. })
+            | AddCustomCommands::Socks5(AddSocks5Commands::Local { disabled, .. }) => !disabled,
         }
     }
 }
