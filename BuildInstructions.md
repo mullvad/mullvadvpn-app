@@ -27,7 +27,7 @@ on your platform please submit an issue or a pull request.
   instructions](https://golang.org/doc/install).  Newer versions may work
   too.
 
-- Install a protobuf compiler (version 3 and up), it can be installed on most major Linux distros
+- Install a protobuf compiler (version 3.15 and up), it can be installed on most major Linux distros
   via the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows
   binaries are available on their GitHub [page](https://github.com/protocolbuffers/protobuf/releases)
   and they have to be put in `%PATH`. An additional package might also be required depending on
