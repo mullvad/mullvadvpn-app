@@ -34,6 +34,9 @@ ARG GOLANG_VERSION=1.18.5 \
 # The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
 ARG MOLD_COMMIT_REF=c4722fe5aed96295837d9150b20ef8698c7a28db
 
+# Pinned to commit hash for tag v4.24.3
+ARG PROTOBUF_COMMIT_REF=ee1355459c9ce7ffe264bc40cfdc7b7623d37e99
+
 # === Install/set up the image ===
 
 RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
@@ -42,7 +45,6 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     gcc gcc-aarch64-linux-gnu \
     libdbus-1-dev libdbus-1-dev:arm64 \
     rpm \
-    protobuf-compiler \
     # For cross-compiling/linting towards Windows
     gcc-mingw-w64-x86-64 \
     && rm -rf /var/lib/apt/lists/*
@@ -67,6 +69,21 @@ ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
 # Is targeted for being the default in Rust 1.70. If that happens, this can be removed.
 # https://blog.rust-lang.org/2023/03/09/Rust-1.68.0.html#cargos-sparse-protocol
 ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
+
+# === protobuf (for compiling .proto files) ===
+
+RUN apt-get update -y && \
+    apt-get install -y --mark-auto cmake g++ && \
+    rm -rf /var/lib/apt/lists/* && \
+    git clone https://github.com/protocolbuffers/protobuf.git && \
+    cd protobuf && \
+    git reset --hard "$PROTOBUF_COMMIT_REF" && \
+    git submodule update --init --recursive && \
+    cmake . -DCMAKE_CXX_STANDARD=14 && \
+    cmake --build . -j $(nproc) && \
+    cmake --install . && \
+    cd .. && rm -rf protobuf && \
+    apt-get autoremove -y
 
 # === mold (fast linker) ===
 # Allows linking Rust binaries significantly faster.
