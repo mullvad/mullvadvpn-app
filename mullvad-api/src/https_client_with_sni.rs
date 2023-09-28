@@ -82,7 +82,7 @@ enum InnerConnectionMode {
 
 impl InnerConnectionMode {
     async fn connect(
-        &self,
+        self,
         hostname: &str,
         addr: &SocketAddr,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -102,8 +102,7 @@ impl InnerConnectionMode {
                 .await
             }
             // Set up a Shadowsocks-connection.
-            InnerConnectionMode::Shadowsocks(config) => {
-                let shadowsocks = config.clone();
+            InnerConnectionMode::Shadowsocks(shadowsocks) => {
                 let first_hop = shadowsocks.params.peer;
                 let make_proxy_stream = |tcp_stream| async {
                     Ok(ProxyClientStream::from_stream(
@@ -123,8 +122,7 @@ impl InnerConnectionMode {
                 .await
             }
             // Set up a SOCKS5-connection.
-            InnerConnectionMode::Socks5(config) => {
-                let socks = config.clone();
+            InnerConnectionMode::Socks5(socks) => {
                 let first_hop = socks.peer;
                 let make_proxy_stream = |tcp_stream| async {
                     tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
