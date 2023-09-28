@@ -45,7 +45,7 @@ mod data {
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method::{
         AccessMethod, AccessMethodSetting, BuiltInAccessMethod, CustomAccessMethod, Id,
-        Shadowsocks, Socks5, Socks5Local, Socks5Remote,
+        Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth,
     };
 
     impl TryFrom<proto::AccessMethodSetting> for AccessMethodSetting {
@@ -154,13 +154,24 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::access_method::Socks5Remote) -> Result<Self, Self::Error> {
-            Socks5Remote::from_args(value.ip, value.port as u16)
-                .ok_or({
-                    FromProtobufTypeError::InvalidArgument(
-                        "Could not parse Socks5 (remote) message from protobuf",
-                    )
-                })
-                .map(AccessMethod::from)
+            let proto::access_method::Socks5Remote {
+                ip,
+                port,
+                authentication,
+            } = value;
+            let port = port as u16;
+            match authentication.map(SocksAuth::from) {
+                Some(SocksAuth { username, password }) => {
+                    Socks5Remote::from_args_with_password(ip, port, username, password)
+                }
+                None => Socks5Remote::from_args(ip, port),
+            }
+            .ok_or({
+                FromProtobufTypeError::InvalidArgument(
+                    "Could not parse Socks5 (remote) message from protobuf",
+                )
+            })
+            .map(AccessMethod::from)
         }
     }
 
@@ -214,14 +225,16 @@ mod data {
                         },
                     )
                 }
-                CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote { peer })) => {
-                    proto::access_method::AccessMethod::Socks5remote(
-                        proto::access_method::Socks5Remote {
-                            ip: peer.ip().to_string(),
-                            port: peer.port() as u32,
-                        },
-                    )
-                }
+                CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote {
+                    peer,
+                    authentication,
+                })) => proto::access_method::AccessMethod::Socks5remote(
+                    proto::access_method::Socks5Remote {
+                        ip: peer.ip().to_string(),
+                        port: peer.port() as u32,
+                        authentication: authentication.map(proto::access_method::SocksAuth::from),
+                    },
+                ),
             };
 
             proto::AccessMethod {
@@ -245,6 +258,24 @@ mod data {
             Self::from_string(value.value).ok_or(FromProtobufTypeError::InvalidArgument(
                 "Could not parse UUID message from protobuf",
             ))
+        }
+    }
+
+    impl From<SocksAuth> for proto::access_method::SocksAuth {
+        fn from(value: SocksAuth) -> Self {
+            proto::access_method::SocksAuth {
+                username: value.username,
+                password: value.password,
+            }
+        }
+    }
+
+    impl From<proto::access_method::SocksAuth> for SocksAuth {
+        fn from(value: proto::access_method::SocksAuth) -> Self {
+            Self {
+                username: value.username,
+                password: value.password,
+            }
         }
     }
 
