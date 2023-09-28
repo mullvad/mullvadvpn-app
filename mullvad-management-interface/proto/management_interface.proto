@@ -342,9 +342,14 @@ message AccessMethod {
     uint32 port = 5;
     uint32 local_port = 6;
   }
+  message SocksAuth {
+    string username = 1;
+    string password = 2;
+  }
   message Socks5Remote {
-    string ip = 2;
-    uint32 port = 3;
+    string ip = 1;
+    uint32 port = 2;
+    SocksAuth authentication = 3;
   }
   message Shadowsocks {
     string ip = 2;
