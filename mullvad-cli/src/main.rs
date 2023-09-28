@@ -71,9 +71,20 @@ enum Cli {
     #[clap(subcommand)]
     Relay(relay::Relay),
 
-    /// Manage use of access methods for reaching the Mullvad API.
-    /// Can be used to connect to the the Mullvad API via one of the
-    /// Mullvad bridge servers or a custom proxy (SOCKS5 & Shadowsocks).
+    /// Manage Mullvad API access methods.
+    ///
+    /// Access methods are used to connect to the the Mullvad API via one of
+    /// Mullvad's bridge servers or a custom proxy (SOCKS5 & Shadowsocks) when
+    /// and where establishing a direct connection does not work.
+    ///
+    /// If the Mullvad daemon is unable to connect to the Mullvad API, it will
+    /// automatically try to use any other configured access method and re-try
+    /// the API call. If it succeeds, all subsequent API calls are made using
+    /// the new access method. Otherwise it will re-try using yet another access
+    /// method.
+    ///
+    /// The Mullvad API is used for logging in, accessing the relay list,
+    /// rotating Wireguard keys and more.
     #[clap(subcommand)]
     ApiAccess(api_access::ApiAccess),
 
