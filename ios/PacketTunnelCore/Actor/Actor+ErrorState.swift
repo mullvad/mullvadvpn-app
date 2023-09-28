@@ -89,8 +89,7 @@ extension PacketTunnelActor {
     }
 
     /**
-     Configure tunnel with empty WireGuard configuration that consumes all traffic on device and emitates the blocked state akin to the one we have on desktop
-     which however utilizes firewall to achieve this.
+     Configure tunnel with empty WireGuard configuration that consumes all traffic on device emulating a firewall blocking all traffic.
      */
     private func configureAdapterForErrorState() async {
         do {

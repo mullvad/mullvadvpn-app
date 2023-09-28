@@ -112,7 +112,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func sleep() async {
-        await actor.onSleep()
+        actor.onSleep()
     }
 
     override func wake() {
