@@ -10,7 +10,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::AccessMethodSetting;
+use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
 use std::{
     net::SocketAddr,
     path::PathBuf,
@@ -106,10 +106,13 @@ impl ApiConnectionModeProvider {
         log::debug!("Rotating Access mode!");
         let access_method = {
             let mut access_methods_picker = self.connection_modes.lock().unwrap();
-            access_methods_picker.next()
+            access_methods_picker
+                .next()
+                .map(|access_method_setting| access_method_setting.access_method)
+                .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct))
         };
 
-        let connection_mode = self.from(access_method.as_ref());
+        let connection_mode = self.from(access_method);
         log::info!("New API connection mode selected: {}", connection_mode);
         connection_mode
     }
@@ -118,45 +121,40 @@ impl ApiConnectionModeProvider {
     /// [`ApiConnectionMode`]s require extra logic/data from
     /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
     /// can not be implemented.
-    fn from(&mut self, access_method: Option<&AccessMethodSetting>) -> ApiConnectionMode {
-        use mullvad_types::access_method::{self, AccessMethod, BuiltInAccessMethod};
+    fn from(&mut self, access_method: AccessMethod) -> ApiConnectionMode {
+        use mullvad_types::access_method;
         match access_method {
-            None => ApiConnectionMode::Direct,
-            Some(access_method) => match &access_method.access_method {
-                AccessMethod::BuiltIn(access_method) => match access_method {
-                    BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
-                    BuiltInAccessMethod::Bridge => self
-                        .relay_selector
-                        .get_bridge_forced()
-                        .and_then(|settings| match settings {
-                            ProxySettings::Shadowsocks(ss_settings) => {
-                                let ss_settings: access_method::Shadowsocks =
-                                    access_method::Shadowsocks::new(
-                                        ss_settings.peer,
-                                        ss_settings.cipher,
-                                        ss_settings.password,
-                                    );
-                                Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                                    ss_settings,
-                                )))
-                            }
-                            _ => {
-                                log::error!("Received unexpected proxy settings type");
-                                None
-                            }
-                        })
-                        .unwrap_or(ApiConnectionMode::Direct),
-                },
-                AccessMethod::Custom(access_method) => match &access_method {
-                    access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
-                        ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                            shadowsocks_config.clone(),
-                        ))
-                    }
-                    access_method::CustomAccessMethod::Socks5(socks_config) => {
-                        ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config.clone()))
-                    }
-                },
+            AccessMethod::BuiltIn(access_method) => match access_method {
+                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
+                BuiltInAccessMethod::Bridge => self
+                    .relay_selector
+                    .get_bridge_forced()
+                    .and_then(|settings| match settings {
+                        ProxySettings::Shadowsocks(ss_settings) => {
+                            let ss_settings: access_method::Shadowsocks =
+                                access_method::Shadowsocks::new(
+                                    ss_settings.peer,
+                                    ss_settings.cipher,
+                                    ss_settings.password,
+                                );
+                            Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
+                                ss_settings,
+                            )))
+                        }
+                        _ => {
+                            log::error!("Received unexpected proxy settings type");
+                            None
+                        }
+                    })
+                    .unwrap_or(ApiConnectionMode::Direct),
+            },
+            AccessMethod::Custom(access_method) => match access_method {
+                access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config))
+                }
+                access_method::CustomAccessMethod::Socks5(socks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config))
+                }
             },
         }
     }
