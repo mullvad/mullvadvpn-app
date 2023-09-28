@@ -1,7 +1,7 @@
 import { sprintf } from 'sprintf-js';
 
-import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { getDownloadUrl } from '../version';
 import {
   InAppNotification,
   InAppNotificationProvider,
@@ -33,7 +33,7 @@ export class UpdateAvailableNotificationProvider
       subtitle: this.inAppMessage(),
       action: {
         type: 'open-url',
-        url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
+        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
       },
     };
   }
@@ -45,7 +45,7 @@ export class UpdateAvailableNotificationProvider
       severity: SystemNotificationSeverityType.medium,
       action: {
         type: 'open-url',
-        url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
+        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
         text: messages.pgettext('notifications', 'Upgrade'),
       },
       presentOnce: { value: true, name: this.constructor.name },

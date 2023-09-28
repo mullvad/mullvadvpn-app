@@ -12,8 +12,8 @@ import {
   useState,
 } from 'react';
 
-import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
@@ -326,7 +326,7 @@ function OutdatedVersionWarningDialog() {
   }, []);
 
   const openDownloadLink = useCallback(async () => {
-    await openUrl(suggestedIsBeta ? links.betaDownload : links.download);
+    await openUrl(getDownloadUrl(suggestedIsBeta));
   }, [suggestedIsBeta]);
 
   const onClose = useCallback(() => history.pop(), [history.pop]);

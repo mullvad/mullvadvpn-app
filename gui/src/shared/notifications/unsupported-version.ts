@@ -1,5 +1,5 @@
-import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { getDownloadUrl } from '../version';
 import {
   InAppNotification,
   InAppNotificationProvider,
@@ -31,7 +31,7 @@ export class UnsupportedVersionNotificationProvider
       severity: SystemNotificationSeverityType.high,
       action: {
         type: 'open-url',
-        url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
+        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
         text: messages.pgettext('notifications', 'Upgrade'),
       },
       presentOnce: { value: true, name: this.constructor.name },
@@ -46,7 +46,7 @@ export class UnsupportedVersionNotificationProvider
       subtitle: this.getMessage(),
       action: {
         type: 'open-url',
-        url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
+        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
       },
     };
   }
