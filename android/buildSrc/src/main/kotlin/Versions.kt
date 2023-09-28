@@ -39,7 +39,7 @@ object Versions {
     }
 
     object Compose {
-        const val base = "1.5.0"
+        const val base = "1.5.1"
         const val composeCollapsingToolbar = "2.3.5"
         const val constrainLayout = "1.0.1"
         const val foundation = base
