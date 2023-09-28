@@ -85,6 +85,18 @@ function run_in_build_env {
     fi
 }
 
+# Sign DEB+RPM on Linux
+function sign_linux_packages {
+    for installer_path in dist/MullvadVPN-*.deb; do
+        echo "Signing $installer_path"
+        dpkg-sig --sign builder "$installer_path"
+    done
+    for installer_path in dist/MullvadVPN-*.rpm; do
+        echo "Signing $installer_path"
+        rpm --addsign "$installer_path"
+    done
+}
+
 # Builds the app and test artifacts and move them to the passed in `artifact_dir`.
 # To cross compile pass in `target` as an environment variable
 # to this function. Must also pass `artifact_dir` to show where to move the built artifacts.
@@ -94,6 +106,9 @@ function build {
     local build_args=("${@}")
 
     run_in_build_env TARGETS="$target" ./build.sh "${build_args[@]}" || return 1
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        sign_linux_packages
+    fi
     mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir" || return 1
 
     (run_in_build_env gui/scripts/build-test-executable.sh "$target" && \
