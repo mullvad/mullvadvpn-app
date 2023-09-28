@@ -55,7 +55,7 @@ extension PacketTunnelActor {
     /**
      Tell actor to enter error state.
 
-     - Important: It's safe to call this method from any thread.
+     - Important: It's safe to call this method from any thread. FIFO order is guaranteed as long as there are no competing calls.
      */
     nonisolated public func setErrorState(reason: BlockedStateReason) {
         commandChannel.send(.error(reason))

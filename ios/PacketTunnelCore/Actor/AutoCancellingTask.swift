@@ -8,29 +8,19 @@
 
 import Foundation
 
-/// Type that cancels the given task upon `deinit` (identical to `Combine.AnyCancellable`), unless explicitly told not to.
+/**
+ Type that cancels the task held inside upon `deinit`.
+
+ It behaves identical to `Combine.AnyCancellable`.
+ */
 public final class AutoCancellingTask {
-    private var task: AnyTask?
-    private let taskLock = NSLock()
+    private let task: AnyTask
 
     init(_ task: AnyTask) {
         self.task = task
     }
 
-    /**
-     Forget the task held internally to prevent cancellation on deinit.
-
-     This is particularly useful when the task is already executing and does not want to be interrupted.
-     */
-    func disableCancellation() {
-        taskLock.withLock {
-            task = nil
-        }
-    }
-
     deinit {
-        taskLock.withLock {
-            task?.cancel()
-        }
+        task.cancel()
     }
 }

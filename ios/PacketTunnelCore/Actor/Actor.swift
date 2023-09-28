@@ -75,7 +75,7 @@ public actor PacketTunnelActor {
      - Parameter channel: command channel.
      */
     private nonisolated func consumeCommands(channel: CommandChannel) {
-        Task.detached { [weak self] () in
+        Task.detached { [weak self] in
             for await command in channel {
                 guard let self else { return }
 
@@ -192,8 +192,6 @@ extension PacketTunnelActor {
                 break
             }
         } catch {
-            try Task.checkCancellation()
-
             logger.error(error: error, message: "Failed to reconnect the tunnel.")
 
             await setErrorStateInternal(with: error)
@@ -289,6 +287,7 @@ extension PacketTunnelActor {
                 currentRelay: connState.selectedRelay,
                 connectionAttemptCount: connState.connectionAttemptCount
             )
+            connState.relayConstraints = relayConstraints
             connState.currentKey = privateKey
 
             return connState

@@ -49,22 +49,17 @@ extension PacketTunnelActor {
 
     /// Increment connection attempt counter and reconnect the tunnel.
     private func onHandleConnectionRecovery() async {
-        func mutateConnectionState(_ connState: inout ConnectionState) {
-            // Increment attempt counter
-            connState.incrementAttemptCount()
-        }
-
         switch state {
         case var .connecting(connState):
-            mutateConnectionState(&connState)
+            connState.incrementAttemptCount()
             state = .connecting(connState)
 
         case var .reconnecting(connState):
-            mutateConnectionState(&connState)
+            connState.incrementAttemptCount()
             state = .reconnecting(connState)
 
         case var .connected(connState):
-            mutateConnectionState(&connState)
+            connState.incrementAttemptCount()
             state = .connected(connState)
 
         case .initial, .disconnected, .disconnecting, .error:
