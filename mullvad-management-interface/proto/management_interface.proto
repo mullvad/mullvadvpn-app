@@ -338,9 +338,9 @@ message AccessMethod {
   message Direct {}
   message Bridges {}
   message Socks5Local {
-    string ip = 4;
-    uint32 port = 5;
-    uint32 local_port = 6;
+    string ip = 1;
+    uint32 port = 2;
+    uint32 local_port = 3;
   }
   message SocksAuth {
     string username = 1;
@@ -352,10 +352,10 @@ message AccessMethod {
     SocksAuth authentication = 3;
   }
   message Shadowsocks {
-    string ip = 2;
-    uint32 port = 3;
-    string password = 4;
-    string cipher = 5;
+    string ip = 1;
+    uint32 port = 2;
+    string password = 3;
+    string cipher = 4;
   }
   oneof access_method {
     Direct direct = 1;
