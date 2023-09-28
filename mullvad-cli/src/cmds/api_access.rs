@@ -8,27 +8,31 @@ use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum ApiAccess {
-    /// List the configured API access methods
-    List,
+    /// Display the current API access method.
+    Get,
     /// Add a custom API access method
     #[clap(subcommand)]
     Add(AddCustomCommands),
-    /// Edit an API access method
+    /// Lists all API access methods
+    ///
+    /// * = Enabled
+    List,
+    /// Edit a custom API access method
     Edit(EditCustomCommands),
-    /// Remove an API access method
+    /// Remove a custom API access method
     Remove(SelectItem),
     /// Enable an API access method
     Enable(SelectItem),
     /// Disable an API access method
     Disable(SelectItem),
-    /// Test an API access method
-    Test(SelectItem),
-    /// Force the use of a specific API access method.
+    /// Try to use a specific API access method (If the API is unreachable, reverts back to the previous access method)
     ///
-    /// Selecting "Mullvad Bridges" respects your current bridge settings.
+    /// Selecting "Direct" will connect to the Mullvad API without going through any proxy. This connection use https and is therefore encrypted.
+    ///
+    /// Selecting "Mullvad Bridges" respects your current bridge settings
     Use(SelectItem),
-    /// Show which access method is currently used to access the Mullvad API.
-    Status,
+    /// Try to reach the Mullvad API using a specific access method
+    Test(SelectItem),
 }
 
 impl ApiAccess {
@@ -54,8 +58,8 @@ impl ApiAccess {
             ApiAccess::Use(cmd) => {
                 Self::set(cmd).await?;
             }
-            ApiAccess::Status => {
-                Self::status().await?;
+            ApiAccess::Get => {
+                Self::get().await?;
             }
         };
         Ok(())
@@ -173,34 +177,75 @@ impl ApiAccess {
     /// Test an access method to see if it successfully reaches the Mullvad API.
     async fn test(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
+        // Retrieve the currently used access method. We will reset to this
+        // after we are done testing.
+        let previous_access_method = rpc.get_current_api_access_method().await?;
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
+
+        println!("Testing access method \"{}\"", access_method.name);
         rpc.set_access_method(access_method.get_id()).await?;
         // Make the daemon perform an network request which involves talking to the Mullvad API.
-        match rpc.get_api_addresses().await {
-            Ok(_) => println!("Connected to the Mullvad API!"),
-            Err(_) => println!(
-                "Could *not* connect to the Mullvad API using access method \"{}\"",
-                access_method.name
-            ),
-        }
-
-        Ok(())
+        let result = match rpc.get_api_addresses().await {
+            Ok(_) => {
+                println!("Success!");
+                Ok(())
+            }
+            Err(_) => Err(anyhow!("Could not reach the Mullvad API")),
+        };
+        // In any case, switch back to the previous access method.
+        rpc.set_access_method(previous_access_method.get_id())
+            .await?;
+        result
     }
 
-    /// Force the use of a specific access method when trying to reach the
-    /// Mullvad API. If this method fails, the daemon will resume the automatic
-    /// roll-over behavior (which is the default).
+    /// Try to use of a specific [`AccessMethodSetting`] for subsequent calls to
+    /// the Mullvad API.
+    ///
+    /// First, a test will be performed to check that the new
+    /// [`AccessMethodSetting`] is able to reach the API. If it can, the daemon
+    /// will set this [`AccessMethodSetting`] to be used by the API runtime.
+    ///
+    /// If the new [`AccessMethodSetting`] fails, the daemon will perform a
+    /// roll-back to the previously used [`AccessMethodSetting`]. If that never
+    /// worked, or has recently stopped working, the daemon will start to
+    /// automatically try to find a working [`AccessMethodSetting`] among the
+    /// configured ones.
     async fn set(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let access_method = Self::get_access_method(&mut rpc, &item).await?;
-        rpc.set_access_method(access_method.get_id()).await?;
+        let previous_access_method = rpc.get_current_api_access_method().await?;
+        let mut new_access_method = Self::get_access_method(&mut rpc, &item).await?;
+        // Try to reach the API with the newly selected access method.
+        rpc.set_access_method(new_access_method.get_id()).await?;
+        match rpc.get_api_addresses().await {
+            Ok(_) => (),
+            Err(_) => {
+                // Roll-back to the previous access method
+                rpc.set_access_method(previous_access_method.get_id())
+                    .await?;
+                return Err(anyhow!(
+                    "Could not reach the Mullvad API using access method \"{}\". Rolling back to \"{}\"",
+                    new_access_method.get_name(),
+                    previous_access_method.get_name()
+                ));
+            }
+        };
+        // It worked! Let the daemon keep using this access method.
+        let display_name = new_access_method.get_name();
+        // Toggle the enabled status if needed
+        if !new_access_method.enabled() {
+            new_access_method.enable();
+            rpc.update_access_method(new_access_method).await?;
+        }
+        println!("Using access method \"{}\"", display_name);
         Ok(())
     }
 
-    async fn status() -> Result<()> {
+    async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let current = rpc.get_current_api_access_method().await?;
-        println!("{}", pp::ApiAccessMethodFormatter::new(&current));
+        let mut access_method_formatter = pp::ApiAccessMethodFormatter::new(&current);
+        access_method_formatter.settings.write_enabled = false;
+        println!("{}", access_method_formatter);
         Ok(())
     }
 
@@ -218,16 +263,16 @@ impl ApiAccess {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum AddCustomCommands {
-    /// Configure a local SOCKS5 proxy
+    /// Configure a SOCKS5 proxy
     #[clap(subcommand)]
     Socks5(AddSocks5Commands),
-    /// Configure Shadowsocks proxy
+    /// Configure a custom Shadowsocks proxy to use as an API access method
     Shadowsocks {
         /// An easy to remember name for this custom proxy
         name: String,
-        /// The IP of the remote Shadowsocks server
+        /// The IP of the remote Shadowsocks-proxy
         remote_ip: IpAddr,
-        /// The port of the remote Shadowsocks server
+        /// Port on which the remote Shadowsocks-proxy listens for traffic
         #[arg(default_value = "443")]
         remote_port: u16,
         /// Password for authentication
@@ -249,9 +294,9 @@ pub enum AddSocks5Commands {
     Remote {
         /// An easy to remember name for this custom proxy
         name: String,
-        /// The IP of the remote proxy server
+        /// IP of the remote SOCKS5-proxy
         remote_ip: IpAddr,
-        /// The port of the remote proxy server
+        /// Port on which the remote SOCKS5-proxy listens for traffic
         remote_port: u16,
         #[clap(flatten)]
         authentication: Option<SocksAuthentication>,
@@ -386,16 +431,15 @@ mod conversions {
                         name: _,
                         disabled: _,
                     } => {
-                        println!("Adding Local SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
-                        let socks_proxy = daemon_types::Socks5::Local(
-                            daemon_types::Socks5Local::from_args(
-                                remote_ip.to_string(),
-                                remote_port,
-                                local_port,
-                            )
-                            .ok_or(anyhow!("Could not create a local Socks5 api proxy"))?,
-                        );
-                        daemon_types::AccessMethod::from(socks_proxy)
+                        println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
+                        daemon_types::Socks5Local::from_args(
+                            remote_ip.to_string(),
+                            remote_port,
+                            local_port,
+                        )
+                        .map(daemon_types::Socks5::Local)
+                        .map(daemon_types::AccessMethod::from)
+                        .ok_or(anyhow!("Could not create a local Socks5 access method"))?
                     }
                     AddSocks5Commands::Remote {
                         remote_ip,
@@ -424,7 +468,7 @@ mod conversions {
                         }
                         .map(daemon_types::Socks5::Remote)
                         .map(daemon_types::AccessMethod::from)
-                        .ok_or(anyhow!("Could not create a remote Socks5 api proxy"))?
+                        .ok_or(anyhow!("Could not create a remote Socks5 access method"))?
                     }
                 },
                 AddCustomCommands::Shadowsocks {
@@ -438,14 +482,14 @@ mod conversions {
                     println!(
                 "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
                     );
-                    let shadowsocks_proxy = daemon_types::Shadowsocks::from_args(
+                    daemon_types::Shadowsocks::from_args(
                         remote_ip.to_string(),
                         remote_port,
                         cipher,
                         password,
                     )
-                    .ok_or(anyhow!("Could not create a Shadowsocks api proxy"))?;
-                    daemon_types::AccessMethod::from(shadowsocks_proxy)
+                    .map(daemon_types::AccessMethod::from)
+                    .ok_or(anyhow!("Could not create a Shadowsocks access method"))?
                 }
             })
         }
@@ -460,11 +504,29 @@ mod pp {
 
     pub struct ApiAccessMethodFormatter<'a> {
         api_access_method: &'a AccessMethodSetting,
+        pub settings: FormatterSettings,
+    }
+
+    pub struct FormatterSettings {
+        /// If the formatter should print the enabled status of an
+        /// [`AcessMethodSetting`] (*) next to its name.
+        pub write_enabled: bool,
+    }
+
+    impl Default for FormatterSettings {
+        fn default() -> Self {
+            Self {
+                write_enabled: true,
+            }
+        }
     }
 
     impl<'a> ApiAccessMethodFormatter<'a> {
         pub fn new(api_access_method: &'a AccessMethodSetting) -> ApiAccessMethodFormatter<'a> {
-            ApiAccessMethodFormatter { api_access_method }
+            ApiAccessMethodFormatter {
+                api_access_method,
+                settings: Default::default(),
+            }
         }
     }
 
@@ -483,12 +545,17 @@ mod pp {
             match &self.api_access_method.access_method {
                 AccessMethod::BuiltIn(method) => {
                     write!(f, "{}", method.canonical_name())?;
-                    write_status(f, self.api_access_method.enabled())
+                    if self.settings.write_enabled {
+                        write_status(f, self.api_access_method.enabled())?;
+                    }
+                    Ok(())
                 }
                 AccessMethod::Custom(method) => match &method {
                     CustomAccessMethod::Shadowsocks(shadowsocks) => {
                         write!(f, "{}", self.api_access_method.get_name())?;
-                        write_status(f, self.api_access_method.enabled())?;
+                        if self.settings.write_enabled {
+                            write_status(f, self.api_access_method.enabled())?;
+                        }
                         writeln!(f)?;
                         print_option!("Protocol", format!("Shadowsocks [{}]", shadowsocks.cipher));
                         print_option!("Peer", shadowsocks.peer);
@@ -498,7 +565,9 @@ mod pp {
                     CustomAccessMethod::Socks5(socks) => match socks {
                         Socks5::Remote(remote) => {
                             write!(f, "{}", self.api_access_method.get_name())?;
-                            write_status(f, self.api_access_method.enabled())?;
+                            if self.settings.write_enabled {
+                                write_status(f, self.api_access_method.enabled())?;
+                            }
                             writeln!(f)?;
                             print_option!("Protocol", "Socks5");
                             print_option!("Peer", remote.peer);
@@ -513,7 +582,9 @@ mod pp {
                         }
                         Socks5::Local(local) => {
                             write!(f, "{}", self.api_access_method.get_name())?;
-                            write_status(f, self.api_access_method.enabled())?;
+                            if self.settings.write_enabled {
+                                write_status(f, self.api_access_method.enabled())?;
+                            }
                             writeln!(f)?;
                             print_option!("Protocol", "Socks5 (local)");
                             print_option!("Peer", local.peer);

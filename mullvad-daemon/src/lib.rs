@@ -1077,7 +1077,7 @@ where
             RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
-            SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method),
+            SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -1970,7 +1970,7 @@ where
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
                         .set_config(new_selector_config(&self.settings));
-                    if let Err(error) = self.api_handle.service().next_api_endpoint() {
+                    if let Err(error) = self.api_handle.service().next_api_endpoint().await {
                         log::error!("Failed to rotate API endpoint: {}", error);
                     }
                     self.reconnect_tunnel();
@@ -2284,13 +2284,14 @@ where
         Self::oneshot_send(tx, result, "remove_api_access_method response");
     }
 
-    fn on_set_api_access_method(
+    async fn on_set_api_access_method(
         &mut self,
         tx: ResponseTx<(), Error>,
         access_method: mullvad_types::access_method::Id,
     ) {
         let result = self
             .set_api_access_method(access_method)
+            .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "set_api_access_method response");
     }
