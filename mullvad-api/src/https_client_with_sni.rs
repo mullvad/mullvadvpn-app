@@ -125,11 +125,21 @@ impl InnerConnectionMode {
             InnerConnectionMode::Socks5(socks) => {
                 let first_hop = socks.peer;
                 let make_proxy_stream = |tcp_stream| async {
-                    tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
-                        .await
-                        .map_err(|error| {
-                            io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
-                        })
+                    match socks.authentication {
+                        SocksAuth::None => {
+                            tokio_socks::tcp::Socks5Stream::connect_with_socket(tcp_stream, addr)
+                                .await
+                        }
+                        SocksAuth::Password { username, password } => {
+                            tokio_socks::tcp::Socks5Stream::connect_with_password_and_socket(
+                                tcp_stream, addr, &username, &password,
+                            )
+                            .await
+                        }
+                    }
+                    .map_err(|error| {
+                        io::Error::new(io::ErrorKind::Other, format!("SOCKS error: {error}"))
+                    })
                 };
                 Self::connect_proxied(
                     first_hop,
@@ -201,6 +211,13 @@ impl From<ParsedShadowsocksConfig> for ServerConfig {
 #[derive(Clone)]
 struct SocksConfig {
     peer: SocketAddr,
+    authentication: SocksAuth,
+}
+
+#[derive(Clone)]
+pub enum SocksAuth {
+    None,
+    Password { username: String, password: String },
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -213,6 +230,8 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
     type Error = ProxyConfigError;
 
     fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
+        use mullvad_types::access_method;
+        use std::net::Ipv4Addr;
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
@@ -228,13 +247,23 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     })
                 }
                 ProxyConfig::Socks(config) => match config {
-                    mullvad_types::access_method::Socks5::Local(config) => {
+                    access_method::Socks5::Local(config) => {
                         InnerConnectionMode::Socks5(SocksConfig {
-                            peer: SocketAddr::new("127.0.0.1".parse().unwrap(), config.port),
+                            peer: SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.port),
+                            authentication: SocksAuth::None,
                         })
                     }
-                    mullvad_types::access_method::Socks5::Remote(config) => {
-                        InnerConnectionMode::Socks5(SocksConfig { peer: config.peer })
+                    access_method::Socks5::Remote(config) => {
+                        let authentication = match config.authentication {
+                            Some(access_method::SocksAuth { username, password }) => {
+                                SocksAuth::Password { username, password }
+                            }
+                            None => SocksAuth::None,
+                        };
+                        InnerConnectionMode::Socks5(SocksConfig {
+                            peer: config.peer,
+                            authentication,
+                        })
                     }
                 },
             },
