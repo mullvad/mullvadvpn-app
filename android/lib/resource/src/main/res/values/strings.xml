@@ -180,6 +180,7 @@
     <string name="malware_info">Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.</string>
     <string name="block_gambling_title">Gambling</string>
     <string name="block_adult_content_title">Adult content</string>
+    <string name="block_social_media_title">Social media</string>
     <string name="dns_content_blockers_subtitle">
         <![CDATA[Disable <b>%s</b> below to activate these settings.]]>
     </string>

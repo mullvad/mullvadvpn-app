@@ -289,6 +289,13 @@ class VpnSettingsViewModel(
         showApplySettingChangesWarningToast()
     }
 
+    fun onToggleBlockSocialMedia(isEnabled: Boolean) {
+        updateDefaultDnsOptionsViaRepository(
+            vmState.value.contentBlockersOptions.copy(blockSocialMedia = isEnabled)
+        )
+        showApplySettingChangesWarningToast()
+    }
+
     fun onRemoveDnsClick() =
         viewModelScope.launch(dispatcher) {
             val dialog =
