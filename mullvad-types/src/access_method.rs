@@ -209,6 +209,13 @@ pub struct Socks5Local {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Remote {
     pub peer: SocketAddr,
+    pub authentication: Option<SocksAuth>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct SocksAuth {
+    pub username: String,
+    pub password: String,
 }
 
 impl AccessMethod {
@@ -262,7 +269,10 @@ impl Socks5Local {
 
 impl Socks5Remote {
     pub fn new(peer: SocketAddr) -> Self {
-        Self { peer }
+        Self {
+            peer,
+            authentication: None,
+        }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
@@ -271,6 +281,18 @@ impl Socks5Remote {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
         Some(Self::new(peer))
+    }
+
+    /// Like [from_args()], but with authentication.
+    pub fn from_args_with_password(
+        ip: String,
+        port: u16,
+        username: String,
+        password: String,
+    ) -> Option<Self> {
+        let mut socks = Self::from_args(ip, port)?;
+        socks.authentication = Some(SocksAuth { username, password });
+        Some(socks)
     }
 }
 
