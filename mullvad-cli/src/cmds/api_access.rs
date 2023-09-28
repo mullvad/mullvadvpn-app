@@ -177,6 +177,9 @@ impl ApiAccess {
     /// Test an access method to see if it successfully reaches the Mullvad API.
     async fn test(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
+        // Retrieve the currently used access method. We will reset to this
+        // after we are done testing.
+        let previous_access_method = rpc.get_current_api_access_method().await?;
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
         rpc.set_access_method(access_method.get_id()).await?;
         println!("Testing access method \"{}\"", access_method.name);
@@ -185,6 +188,8 @@ impl ApiAccess {
             Ok(_) => println!("Success!"),
             Err(_) => println!("Failed"),
         }
+        rpc.set_access_method(previous_access_method.get_id())
+            .await?;
 
         Ok(())
     }
