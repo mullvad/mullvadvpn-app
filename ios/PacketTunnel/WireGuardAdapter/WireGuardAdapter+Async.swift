@@ -11,7 +11,7 @@ import WireGuardKit
 
 extension WireGuardAdapter {
     func start(tunnelConfiguration: TunnelConfiguration) async throws {
-        return try await withUnsafeThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             start(tunnelConfiguration: tunnelConfiguration) { error in
                 if let error {
                     continuation.resume(throwing: error)
@@ -23,7 +23,7 @@ extension WireGuardAdapter {
     }
 
     func stop() async throws {
-        return try await withUnsafeThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             stop { error in
                 if let error {
                     continuation.resume(throwing: error)
@@ -35,7 +35,7 @@ extension WireGuardAdapter {
     }
 
     func update(tunnelConfiguration: TunnelConfiguration) async throws {
-        return try await withUnsafeThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { continuation in
             update(tunnelConfiguration: tunnelConfiguration) { error in
                 if let error {
                     continuation.resume(throwing: error)

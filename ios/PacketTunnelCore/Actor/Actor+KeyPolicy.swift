@@ -151,7 +151,7 @@ extension PacketTunnelActor {
         case .useCurrent:
             return false
 
-        case let .usePrior(_, autoCancellingTask):
+        case .usePrior:
             keyPolicy = .useCurrent
             return true
         }
