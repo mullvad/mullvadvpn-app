@@ -19,12 +19,6 @@ import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
 class RelayListListener(endpoint: ServiceEndpoint) {
-    companion object {
-        private enum class Command {
-            SetRelayLocation,
-            SetWireguardConstraints
-        }
-    }
 
     private val commandChannel = spawnActor()
     private val daemon = endpoint.intermittentDaemon
@@ -104,5 +98,12 @@ class RelayListListener(endpoint: ServiceEndpoint) {
             RelaySettingsUpdate.Normal(RelayConstraintsUpdate(location, wireguardConstraints))
 
         daemon.await().updateRelaySettings(update)
+    }
+
+    companion object {
+        private enum class Command {
+            SetRelayLocation,
+            SetWireguardConstraints
+        }
     }
 }
