@@ -15,7 +15,7 @@ import net.mullvad.talpid.tunnel.ErrorStateCause
 
 @Preview
 @Composable
-fun PreviewConnectionStatusText() {
+private fun PreviewConnectionStatusText() {
     AppTheme {
         SpacedColumn {
             ConnectionStatusText(TunnelState.Disconnected)

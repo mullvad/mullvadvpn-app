@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
-fun PreviewSwitchLocationButton() {
+private fun PreviewSwitchLocationButton() {
     AppTheme {
         SpacedColumn {
             SwitchLocationButton(onClick = {}, text = "Switch Location", showChevron = false)

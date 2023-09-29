@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.util.isPortInValidRanges
 
 @Preview
 @Composable
-fun PreviewCustomPortDialog() {
+private fun PreviewCustomPortDialog() {
     AppTheme {
         CustomPortDialog(
             onSave = {},

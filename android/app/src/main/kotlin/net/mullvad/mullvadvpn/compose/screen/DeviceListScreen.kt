@@ -41,7 +41,7 @@ import net.mullvad.mullvadvpn.util.formatDate
 
 @Composable
 @Preview
-fun PreviewDeviceListScreen() {
+private fun PreviewDeviceListScreen() {
     AppTheme {
         DeviceListScreen(
             state =
