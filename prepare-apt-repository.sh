@@ -5,6 +5,7 @@ set -eu
 CODE_SIGNING_KEY_FINGERPRINT=${CODE_SIGNING_KEY_FINGERPRINT:-"A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"}
 
 BASEDIR="deb"
+KEYRING_FILENAME="mullvad-keyring.asc"
 
 # Debian codenames we support.
 SUPPORTED_CODENAMES=("sid" "testing" "bookworm" "bullseye")
@@ -43,6 +44,10 @@ mkdir -p "$BASEDIR/conf"
 
 echo "Writing repository configuration to $BASEDIR/conf/distributions"
 generate_deb_distributions_content > "$BASEDIR/conf/distributions"
+echo ""
+
+echo "Adding GPG keyring to repository as $KEYRING_FILENAME"
+gpg --export --armor "$CODE_SIGNING_KEY_FINGERPRINT" > "$BASEDIR/$KEYRING_FILENAME"
 echo ""
 
 for deb_path in dist/MullvadVPN-*.deb; do
