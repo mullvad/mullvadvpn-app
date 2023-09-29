@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,15 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
 import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
 import net.mullvad.mullvadvpn.constant.MTU_MIN_VALUE
-import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
-import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.util.isValidMtu
 
 @Preview
@@ -115,20 +112,11 @@ fun MtuDialog(
                     modifier = Modifier.padding(top = smallPadding)
                 )
 
-                ActionButton(
+                PrimaryButton(
                     modifier =
                         Modifier.padding(top = Dimens.mediumPadding)
                             .height(Dimens.buttonHeight)
                             .fillMaxWidth(),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            disabledContentColor =
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
-                            disabledContainerColor =
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)
-                        ),
                     isEnabled = isValidMtu,
                     text = stringResource(R.string.submit_button),
                     onClick = {
@@ -139,32 +127,22 @@ fun MtuDialog(
                     }
                 )
 
-                ActionButton(
+                PrimaryButton(
                     modifier =
                         Modifier.padding(top = Dimens.mediumPadding)
                             .height(Dimens.buttonHeight)
                             .defaultMinSize(minHeight = Dimens.buttonHeight)
                             .fillMaxWidth(),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
                     text = stringResource(R.string.reset_to_default_button),
                     onClick = onRestoreDefaultValue
                 )
 
-                ActionButton(
+                PrimaryButton(
                     modifier =
                         Modifier.padding(top = Dimens.mediumPadding)
                             .height(Dimens.buttonHeight)
                             .defaultMinSize(minHeight = Dimens.buttonHeight)
                             .fillMaxWidth(),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
                     text = stringResource(R.string.cancel),
                     onClick = onDismiss
                 )
