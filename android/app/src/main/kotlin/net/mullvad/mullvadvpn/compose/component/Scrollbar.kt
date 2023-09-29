@@ -71,16 +71,6 @@ import kotlinx.coroutines.flow.collectLatest
 
 fun Modifier.drawHorizontalScrollbar(
     state: ScrollState,
-    reverseScrolling: Boolean = false
-): Modifier = composed { drawScrollbar(state, Orientation.Horizontal, BarColor, reverseScrolling) }
-
-fun Modifier.drawVerticalScrollbar(
-    state: ScrollState,
-    reverseScrolling: Boolean = false
-): Modifier = composed { drawScrollbar(state, Orientation.Vertical, BarColor, reverseScrolling) }
-
-fun Modifier.drawHorizontalScrollbar(
-    state: ScrollState,
     color: Color,
     reverseScrolling: Boolean = false
 ): Modifier = drawScrollbar(state, Orientation.Horizontal, color, reverseScrolling)
@@ -118,13 +108,15 @@ private fun Modifier.drawScrollbar(
 
 fun Modifier.drawHorizontalScrollbar(
     state: LazyListState,
+    color: Color,
     reverseScrolling: Boolean = false
-): Modifier = composed { drawScrollbar(state, Orientation.Horizontal, BarColor, reverseScrolling) }
+): Modifier = drawScrollbar(state, Orientation.Horizontal, color, reverseScrolling)
 
 fun Modifier.drawVerticalScrollbar(
     state: LazyListState,
+    color: Color,
     reverseScrolling: Boolean = false
-): Modifier = composed { drawScrollbar(state, Orientation.Vertical, BarColor, reverseScrolling) }
+): Modifier = drawScrollbar(state, Orientation.Vertical, color, reverseScrolling)
 
 private fun Modifier.drawScrollbar(
     state: LazyListState,
@@ -297,9 +289,6 @@ private fun Modifier.drawScrollbar(
     }
 }
 
-private val BarColor: Color
-    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-
 private val Thickness = 8.dp
 private val Radius = 4.dp
 private val FadeOutAnimationSpec =
@@ -310,7 +299,12 @@ private val FadeOutAnimationSpec =
 private fun PreviewScrollbar() {
     val state = rememberScrollState()
     Column(
-        modifier = Modifier.drawVerticalScrollbar(state).verticalScroll(state),
+        modifier =
+            Modifier.drawVerticalScrollbar(
+                    state = state,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
+                .verticalScroll(state),
     ) {
         repeat(50) {
             Text(text = "Item ${it + 1}", modifier = Modifier.fillMaxWidth().padding(16.dp))
@@ -322,7 +316,14 @@ private fun PreviewScrollbar() {
 @Composable
 private fun PreviewLazyListScrollbar() {
     val state = rememberLazyListState()
-    LazyColumn(modifier = Modifier.drawVerticalScrollbar(state), state = state) {
+    LazyColumn(
+        modifier =
+            Modifier.drawVerticalScrollbar(
+                state = state,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            ),
+        state = state
+    ) {
         items(50) {
             Text(text = "Item ${it + 1}", modifier = Modifier.fillMaxWidth().padding(16.dp))
         }
@@ -333,7 +334,14 @@ private fun PreviewLazyListScrollbar() {
 @Composable
 private fun PreviewHorizontalScrollbar() {
     val state = rememberScrollState()
-    Row(modifier = Modifier.drawHorizontalScrollbar(state).horizontalScroll(state)) {
+    Row(
+        modifier =
+            Modifier.drawHorizontalScrollbar(
+                    state = state,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
+                .horizontalScroll(state)
+    ) {
         repeat(50) {
             Text(
                 text = (it + 1).toString(),
@@ -347,7 +355,14 @@ private fun PreviewHorizontalScrollbar() {
 @Composable
 private fun PreviewLazyListHorizontalScrollbar() {
     val state = rememberLazyListState()
-    LazyRow(modifier = Modifier.drawHorizontalScrollbar(state), state = state) {
+    LazyRow(
+        modifier =
+            Modifier.drawHorizontalScrollbar(
+                state = state,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            ),
+        state = state
+    ) {
         items(50) {
             Text(
                 text = (it + 1).toString(),

@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 
 @Preview
@@ -76,7 +77,8 @@ fun ViewLogsScreen(
                         modifier =
                             Modifier.drawVerticalScrollbar(
                                 scrollState,
-                                color = MaterialTheme.colorScheme.primary
+                                color =
+                                    MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar)
                             )
                     ) {
                         TextField(

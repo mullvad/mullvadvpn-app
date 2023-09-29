@@ -37,8 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite10
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite10
 
 private const val EMPTY_STRING = ""
 private const val NEWLINE_STRING = "\n"
