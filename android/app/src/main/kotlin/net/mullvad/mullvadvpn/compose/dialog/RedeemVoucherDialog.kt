@@ -36,11 +36,11 @@ import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.compose.textfield.GroupedTextField
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
-import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
-import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import org.joda.time.DateTimeConstants
 
 @Preview(device = Devices.TV_720p)
