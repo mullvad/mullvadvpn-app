@@ -69,7 +69,7 @@ extension PacketTunnelActor {
             return BlockedState(
                 reason: reason,
                 relayConstraints: connState.relayConstraints,
-                currentKey: nil,
+                currentKey: connState.currentKey,
                 keyPolicy: connState.keyPolicy,
                 networkReachability: connState.networkReachability,
                 priorState: state.priorState!
