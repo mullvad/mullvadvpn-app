@@ -66,7 +66,9 @@ class SelectLocationViewModel(private val serviceConnectionManager: ServiceConne
                 SelectLocationUiState.Loading
             )
 
+    @Suppress("konsist.ensurePublicPropertiesUsePermittedNames")
     val uiCloseAction = _closeAction.asSharedFlow()
+    @Suppress("konsist.ensurePublicPropertiesUsePermittedNames")
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
     fun selectRelay(relayItem: RelayItem?) {

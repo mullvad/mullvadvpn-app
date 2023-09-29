@@ -38,6 +38,7 @@ class AccountViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
 
+    @Suppress("konsist.ensurePublicPropertiesUsePermittedNames")
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
     fun onManageAccountClick() {
