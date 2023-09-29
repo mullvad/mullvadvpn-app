@@ -139,6 +139,7 @@ fun MullvadTopBar(
                 IconButton(onClick = onAccountClicked) {
                     Icon(
                         painter = painterResource(R.drawable.icon_account),
+                        tint = iconTintColor,
                         contentDescription = stringResource(id = R.string.settings_account),
                     )
                 }
@@ -148,6 +149,7 @@ fun MullvadTopBar(
                 IconButton(onClick = onSettingsClicked) {
                     Icon(
                         painter = painterResource(R.drawable.icon_settings),
+                        tint = iconTintColor,
                         contentDescription = stringResource(id = R.string.settings),
                     )
                 }
