@@ -20,8 +20,9 @@ class ViewModelTests {
     // properties that shouldn't be exposed.
     @Test
     fun ensurePublicPropertiesUsePermittedNames() {
-        allViewModels().properties().withPublicOrDefaultModifier().assert { property ->
-            permittedPublicPropertyNames.contains(property.name)
+        allViewModels().properties(includeNested = false).withPublicOrDefaultModifier().assert {
+            property ->
+            property.name == "uiState" || property.name == "uiSideEffect"
         }
     }
 
@@ -34,17 +35,4 @@ class ViewModelTests {
 
     private fun allViewModels() =
         Konsist.scopeFromProject().classes().withAllParentsOf(ViewModel::class)
-
-    companion object {
-        // TODO: The goal is to reduce this list to only "uiState" and "uiSideEffect".
-        private val permittedPublicPropertyNames =
-            listOf(
-                "uiState",
-                "uiSideEffect",
-                "toastMessages",
-                "uiCloseAction",
-                "enterTransitionEndAction",
-                "accountToken"
-            )
-    }
 }
