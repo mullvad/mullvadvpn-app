@@ -55,6 +55,7 @@ export function getDefaultSettings(): ISettings {
           blockMalware: false,
           blockAdultContent: false,
           blockGambling: false,
+          blockSocialMedia: false,
         },
         customOptions: {
           addresses: [],

@@ -155,6 +155,7 @@ const initialState: ISettingsReduxState = {
       blockMalware: false,
       blockAdultContent: false,
       blockGambling: false,
+      blockSocialMedia: false,
     },
     customOptions: {
       addresses: [],
