@@ -36,11 +36,11 @@ import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadGreen
-import net.mullvad.mullvadvpn.lib.theme.MullvadGreen40
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite80
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen40
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite80
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.formatDate
 

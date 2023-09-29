@@ -19,9 +19,9 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
-import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
-import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.PortRange

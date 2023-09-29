@@ -4,7 +4,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
-import androidx.compose.material3.lightColorScheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -14,6 +14,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue20
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue40
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadDarkBlue
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite60
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadYellow
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_error
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onError
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_onPrimary
+import net.mullvad.mullvadvpn.lib.theme.color.md_theme_dark_primary
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
 import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale
@@ -37,26 +49,37 @@ private val MullvadTypography =
             )
     )
 
-private val MullvadColorPalette =
-    lightColorScheme(
-        primary = MullvadBlue,
-        secondary = MullvadDarkBlue,
-        tertiary = MullvadRed,
-        background = MullvadDarkBlue,
-        surface = MullvadGreen,
+private val darkColorScheme =
+    darkColorScheme(
+        primary = md_theme_dark_primary,
+        onPrimary = md_theme_dark_onPrimary,
         primaryContainer = MullvadBlue40,
-        secondaryContainer = MullvadBlue20,
-        onBackground = MullvadWhite,
-        onSurfaceVariant = MullvadWhite,
-        onPrimary = MullvadWhite,
+        // onPrimaryContainer = md_theme_dark_onPrimaryContainer,
+        secondary = MullvadDarkBlue,
         onSecondary = MullvadWhite60,
-        onError = MullvadWhite,
-        onSurface = MullvadWhite,
-        inversePrimary = MullvadGreen,
-        error = MullvadRed,
+        secondaryContainer = MullvadBlue20,
+        // onSecondaryContainer = md_theme_dark_onSecondaryContainer,
+        tertiary = MullvadRed,
+        // onTertiary = md_theme_dark_onTertiary,
+        // tertiaryContainer = md_theme_dark_tertiaryContainer,
+        // onTertiaryContainer = md_theme_dark_onTertiaryContainer,
+        error = md_theme_dark_error,
         errorContainer = MullvadYellow,
-        outlineVariant = Color.Transparent, // Used by divider
-        inverseSurface = MullvadWhite
+        onError = md_theme_dark_onError,
+        // onErrorContainer = md_theme_dark_onErrorContainer,
+        background = MullvadDarkBlue,
+        onBackground = MullvadWhite,
+        surface = MullvadGreen,
+        onSurface = MullvadWhite,
+        // surfaceVariant = md_theme_dark_surfaceVariant,
+        onSurfaceVariant = MullvadWhite,
+        // outline = md_theme_dark_outline,
+        // inverseOnSurface = md_theme_dark_inverseOnSurface,
+        inverseSurface = MullvadWhite,
+        inversePrimary = MullvadGreen,
+        // surfaceTint = md_theme_dark_surfaceTint,
+        outlineVariant = Color.Transparent, // Used by divider,
+        // scrim = md_theme_dark_scrim,
     )
 
 val Shapes =
@@ -80,7 +103,7 @@ private val LocalAppDimens = staticCompositionLocalOf { defaultDimensions }
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val colors = MullvadColorPalette
+    val colors = darkColorScheme
     val typography = MullvadTypography
     // Set dimensions and type scale based on configurations here
     val dimensions = defaultDimensions

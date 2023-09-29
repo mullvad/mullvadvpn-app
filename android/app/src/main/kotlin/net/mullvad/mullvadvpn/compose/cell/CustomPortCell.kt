@@ -26,8 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
-import net.mullvad.mullvadvpn.lib.theme.AlphaInvisible
-import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 

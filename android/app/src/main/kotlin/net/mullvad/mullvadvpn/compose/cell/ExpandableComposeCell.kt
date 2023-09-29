@@ -22,8 +22,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChevronView
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
