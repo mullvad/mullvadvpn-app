@@ -21,6 +21,8 @@ UPLOAD_DIR="$SCRIPT_DIR/upload"
 
 BRANCHES_TO_BUILD=("origin/main")
 
+source "$SCRIPT_DIR/buildserver-config.sh"
+
 # Ask for the passphrase to the signing keys
 case "$(uname -s)" in
     Darwin*|MINGW*|MSYS_NT*)
@@ -41,6 +43,21 @@ case "$(uname -s)" in
         fi
         ;;
 esac
+
+function publish_linux_repositories {
+    local artifact_dir=$1
+    local version=$2
+    local deb_repo_dir="$SCRIPT_DIR/deb/$version"
+
+    "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$version" "$deb_repo_dir"
+
+    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version" "$deb_repo_dir"
+    # If this is a release build, also push to staging.
+    # Publishing to production is done manually.
+    if [[ $version != *"-dev-"* ]]; then
+        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version" "$deb_repo_dir"
+    fi
+}
 
 # Uploads whatever matches the first argument to the Linux build server
 function upload_sftp {
@@ -210,6 +227,7 @@ function build_ref {
         fi
     fi
 
+    publish_linux_repositories "$artifact_dir" "$version"
     (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
