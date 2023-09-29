@@ -48,8 +48,8 @@ class ConnectViewModel(
     private val isVersionInfoNotificationEnabled: Boolean,
     accountRepository: AccountRepository,
 ) : ViewModel() {
-    private val _viewActions = MutableSharedFlow<ViewAction>(extraBufferCapacity = 1)
-    val viewActions = _viewActions.asSharedFlow()
+    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
+    val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
@@ -84,7 +84,7 @@ class ConnectViewModel(
                     accountExpiry,
                     isTunnelInfoExpanded ->
                     if (tunnelRealState.isTunnelErrorStateDueToExpiredAccount()) {
-                        _viewActions.tryEmit(ViewAction.OpenOutOfTimeView)
+                        _uiSideEffect.tryEmit(UiSideEffect.OpenOutOfTimeView)
                     }
                     ConnectUiState(
                         location =
@@ -205,18 +205,18 @@ class ConnectViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            _viewActions.tryEmit(
-                ViewAction.OpenAccountManagementPageInBrowser(
+            _uiSideEffect.tryEmit(
+                UiSideEffect.OpenAccountManagementPageInBrowser(
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
             )
         }
     }
 
-    sealed interface ViewAction {
-        data class OpenAccountManagementPageInBrowser(val token: String) : ViewAction
+    sealed interface UiSideEffect {
+        data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect
 
-        data object OpenOutOfTimeView : ViewAction
+        data object OpenOutOfTimeView : UiSideEffect
     }
 
     companion object {

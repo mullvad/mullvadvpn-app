@@ -32,7 +32,7 @@ class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
                     val state = vm.uiState.collectAsState().value
                     AccountScreen(
                         uiState = state,
-                        viewActions = vm.viewActions,
+                        uiSideEffect = vm.uiSideEffect,
                         enterTransitionEndAction = vm.enterTransitionEndAction,
                         onRedeemVoucherClick = { openRedeemVoucherFragment() },
                         onManageAccountClick = vm::onManageAccountClick,

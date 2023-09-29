@@ -48,7 +48,7 @@ private fun PreviewOutOfTimeScreenDisconnected() {
         OutOfTimeScreen(
             showSitePayment = true,
             uiState = OutOfTimeUiState(tunnelState = TunnelState.Disconnected),
-            viewActions = MutableSharedFlow<OutOfTimeViewModel.ViewAction>().asSharedFlow()
+            uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
 }
@@ -60,7 +60,7 @@ private fun PreviewOutOfTimeScreenConnecting() {
         OutOfTimeScreen(
             showSitePayment = true,
             uiState = OutOfTimeUiState(tunnelState = TunnelState.Connecting(null, null)),
-            viewActions = MutableSharedFlow<OutOfTimeViewModel.ViewAction>().asSharedFlow()
+            uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
 }
@@ -78,7 +78,7 @@ private fun PreviewOutOfTimeScreenError() {
                             ErrorState(cause = ErrorStateCause.IsOffline, isBlocking = true)
                         )
                 ),
-            viewActions = MutableSharedFlow<OutOfTimeViewModel.ViewAction>().asSharedFlow()
+            uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
 }
@@ -87,7 +87,7 @@ private fun PreviewOutOfTimeScreenError() {
 fun OutOfTimeScreen(
     showSitePayment: Boolean,
     uiState: OutOfTimeUiState,
-    viewActions: SharedFlow<OutOfTimeViewModel.ViewAction>,
+    uiSideEffect: SharedFlow<OutOfTimeViewModel.UiSideEffect>,
     onDisconnectClick: () -> Unit = {},
     onSitePaymentClick: () -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
@@ -97,11 +97,11 @@ fun OutOfTimeScreen(
 ) {
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     LaunchedEffect(key1 = Unit) {
-        viewActions.collect { viewAction ->
-            when (viewAction) {
-                is OutOfTimeViewModel.ViewAction.OpenAccountView ->
-                    openAccountPage(viewAction.token)
-                OutOfTimeViewModel.ViewAction.OpenConnectScreen -> openConnectScreen()
+        uiSideEffect.collect { uiSideEffect ->
+            when (uiSideEffect) {
+                is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
+                    openAccountPage(uiSideEffect.token)
+                OutOfTimeViewModel.UiSideEffect.OpenConnectScreen -> openConnectScreen()
             }
         }
     }

@@ -375,21 +375,21 @@ class ConnectViewModelTest {
             coEvery { mockAuthTokenCache.fetchAuthToken() } returns mockToken
 
             // Act, Assert
-            viewModel.viewActions.test {
+            viewModel.uiSideEffect.test {
                 viewModel.onManageAccountClick()
                 val action = awaitItem()
-                assertIs<ConnectViewModel.ViewAction.OpenAccountManagementPageInBrowser>(action)
+                assertIs<ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser>(action)
                 assertEquals(mockToken, action.token)
             }
         }
 
     @Test
-    fun testOutOfTimeViewAction() =
+    fun testOutOfTimeUiSideEffect() =
         runTest(testCoroutineRule.testDispatcher) {
             // Arrange
             val errorStateCause = ErrorStateCause.AuthFailed("[EXPIRED_ACCOUNT]")
             val tunnelRealStateTestItem = TunnelState.Error(ErrorState(errorStateCause, true))
-            val deferred = async { viewModel.viewActions.first() }
+            val deferred = async { viewModel.uiSideEffect.first() }
 
             // Act
             viewModel.uiState.test {
@@ -403,7 +403,7 @@ class ConnectViewModelTest {
             }
 
             // Assert
-            assertIs<ConnectViewModel.ViewAction.OpenOutOfTimeView>(deferred.await())
+            assertIs<ConnectViewModel.UiSideEffect.OpenOutOfTimeView>(deferred.await())
         }
 
     companion object {

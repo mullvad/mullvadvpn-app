@@ -29,7 +29,7 @@ class WelcomeScreenTest {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
-                viewActions = MutableSharedFlow(),
+                uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -52,7 +52,7 @@ class WelcomeScreenTest {
             WelcomeScreen(
                 showSitePayment = false,
                 uiState = WelcomeUiState(),
-                viewActions = MutableSharedFlow(),
+                uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -81,7 +81,7 @@ class WelcomeScreenTest {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(accountNumber = rawAccountNumber),
-                viewActions = MutableSharedFlow(),
+                uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -101,7 +101,8 @@ class WelcomeScreenTest {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
-                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenAccountView("222")),
+                uiSideEffect =
+                    MutableStateFlow(WelcomeViewModel.UiSideEffect.OpenAccountView("222")),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -122,7 +123,7 @@ class WelcomeScreenTest {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
-                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenConnectScreen),
+                uiSideEffect = MutableStateFlow(WelcomeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -143,7 +144,7 @@ class WelcomeScreenTest {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
-                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenConnectScreen),
+                uiSideEffect = MutableStateFlow(WelcomeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = mockClickListener,
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -167,7 +168,7 @@ class WelcomeScreenTest {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
-                viewActions = MutableStateFlow(WelcomeViewModel.ViewAction.OpenConnectScreen),
+                uiSideEffect = MutableStateFlow(WelcomeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = mockClickListener,
                 onSettingsClick = {},
