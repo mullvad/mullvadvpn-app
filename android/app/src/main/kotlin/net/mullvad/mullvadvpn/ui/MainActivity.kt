@@ -253,7 +253,7 @@ open class MainActivity : FragmentActivity() {
         findViewById<ComposeView>(R.id.compose_view).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
             setContent {
-                val state = changelogViewModel.changelogDialogUiState.collectAsState().value
+                val state = changelogViewModel.uiState.collectAsState().value
                 if (state is ChangelogDialogUiState.Show) {
                     AppTheme {
                         ChangelogDialog(
