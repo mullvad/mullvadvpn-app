@@ -16,11 +16,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
 
 @Preview
 @Composable

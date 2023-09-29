@@ -21,11 +21,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
-import net.mullvad.mullvadvpn.lib.theme.MullvadGreen
-import net.mullvad.mullvadvpn.lib.theme.MullvadRed
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
 
 @Preview
 @Composable
