@@ -13,8 +13,6 @@ extension PacketTunnelActor {
      Clients should call this method to notify actor when device wakes up.
 
      `NEPacketTunnelProvider` provides the corresponding lifecycle method.
-
-     - Important: It's safe to call this method from any thread.
      */
     public nonisolated func onWake() {
         tunnelMonitor.onWake()
@@ -24,8 +22,6 @@ extension PacketTunnelActor {
      Clients should call this method to notify actor when device is about to go to sleep.
 
      `NEPacketTunnelProvider` provides the corresponding lifecycle method.
-
-     - Important: It's safe to call this method from any thread.
      */
     public nonisolated func onSleep() {
         tunnelMonitor.onSleep()

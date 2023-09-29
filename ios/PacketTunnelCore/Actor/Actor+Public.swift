@@ -12,14 +12,14 @@ import Foundation
  Public methods for dispatching commands to Actor.
 
  - All methods in this extension are `nonisolated` because the channel they use to pass commands for execution is `nonisolated` too.
- - FIFO order is guaranteed for all these calls for as long as they are not invoked simulatenously from multiple concurrent queues.
+ - FIFO order is guaranteed for all these calls for as long as they are not invoked simultaneously from multiple concurrent queues.
  - There is no way to wait for these tasks to complete, some of them may even be coalesced and never execute. Observe the `state` to follow the progress.
  */
 extension PacketTunnelActor {
     /**
-      Tell actor to start the tunnel.
+     Tell actor to start the tunnel.
 
-      - Important: It's safe to call this method from any thread. FIFO order is guaranteed as long as there are no competing calls.
+     - Parameter options: start options.
      */
     nonisolated public func start(options: StartOptions) {
         commandChannel.send(.start(options))
@@ -27,8 +27,6 @@ extension PacketTunnelActor {
 
     /**
      Tell actor to stop the tunnel.
-
-     - Important: It's safe to call this from any thread. FIFO order is guaranteed as long as there are no competing calls.
      */
     nonisolated public func stop() {
         commandChannel.send(.stop)
@@ -37,7 +35,7 @@ extension PacketTunnelActor {
     /**
      Tell actor to reconnect the tunnel.
 
-     - Important: It's safe to call this method from any thread. FIFO order is guaranteed as long as there are no competing calls.
+     - Parameter nextRelay: next relay to connect to.
      */
     public nonisolated func reconnect(to nextRelay: NextRelay) {
         commandChannel.send(.reconnect(nextRelay))
@@ -46,7 +44,7 @@ extension PacketTunnelActor {
     /**
      Tell actor that key rotation took place.
 
-     - Important: It's safe to call this method from any thread. FIFO order is guaranteed as long as there are no competing calls.
+     - Parameter date: date when last key rotation took place.
      */
     nonisolated public func notifyKeyRotated(date: Date?) {
         commandChannel.send(.notifyKeyRotated(date))
@@ -54,8 +52,6 @@ extension PacketTunnelActor {
 
     /**
      Tell actor to enter error state.
-
-     - Important: It's safe to call this method from any thread. FIFO order is guaranteed as long as there are no competing calls.
      */
     nonisolated public func setErrorState(reason: BlockedStateReason) {
         commandChannel.send(.error(reason))
