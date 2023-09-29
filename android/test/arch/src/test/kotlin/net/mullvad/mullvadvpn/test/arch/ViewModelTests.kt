@@ -28,7 +28,7 @@ class ViewModelTests {
     @Test
     fun ensurePublicFunctionsHaveNoReturnType() {
         allViewModels().functions().withPublicOrDefaultModifier().assertNot { function ->
-            function.hasReturnType
+            function.hasReturnType()
         }
     }
 
