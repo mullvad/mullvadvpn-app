@@ -15,6 +15,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue20
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadDarkBlue
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite60
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadYellow
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
 import net.mullvad.mullvadvpn.lib.theme.typeface.TypeScale

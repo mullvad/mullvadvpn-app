@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -54,7 +53,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
@@ -63,9 +63,9 @@ import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
-import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Preview
 @Composable
@@ -227,14 +227,9 @@ private fun LoginContent(
         }
 
         Spacer(modifier = Modifier.size(Dimens.largePadding))
-        ActionButton(
+        VariantButton(
             isEnabled = uiState.loginButtonEnabled,
             onClick = { onLoginClick(uiState.accountNumberInput) },
-            colors =
-                ButtonDefaults.buttonColors(
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    containerColor = MaterialTheme.colorScheme.surface
-                ),
             text = stringResource(id = R.string.login_title),
             modifier = Modifier.padding(bottom = Dimens.mediumPadding)
         )
@@ -361,15 +356,10 @@ private fun CreateAccountPanel(onCreateAccountClick: () -> Unit, isEnabled: Bool
             text = stringResource(id = R.string.dont_have_an_account),
             color = MaterialTheme.colorScheme.onPrimary,
         )
-        ActionButton(
+        PrimaryButton(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(id = R.string.create_account),
             isEnabled = isEnabled,
-            colors =
-                ButtonDefaults.buttonColors(
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
             onClick = onCreateAccountClick
         )
     }

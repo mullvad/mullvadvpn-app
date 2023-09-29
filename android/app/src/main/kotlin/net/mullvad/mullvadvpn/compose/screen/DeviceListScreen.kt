@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,17 +23,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.ListItem
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.dialog.ShowDeviceRemovalDialog
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.formatDate
 
@@ -229,29 +228,16 @@ fun DeviceListScreen(
                             bottom = Dimens.screenVerticalMargin
                         )
             ) {
-                ActionButton(
+                VariantButton(
                     text = stringResource(id = R.string.continue_login),
                     onClick = onContinueWithLogin,
                     isEnabled = state.hasTooManyDevices.not() && state.isLoading.not(),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.inversePrimary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            disabledContentColor =
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
-                            disabledContainerColor =
-                                MaterialTheme.colorScheme.inversePrimary.copy(alpha = AlphaInactive)
-                        )
+                    background = MaterialTheme.colorScheme.secondary
                 )
 
-                ActionButton(
+                PrimaryButton(
                     text = stringResource(id = R.string.back),
                     onClick = onBackClick,
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
                     modifier = Modifier.padding(top = Dimens.mediumPadding)
                 )
             }
