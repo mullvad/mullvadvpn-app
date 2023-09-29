@@ -28,11 +28,11 @@ import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
-import net.mullvad.mullvadvpn.lib.theme.MullvadRed
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite20
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite60
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite20
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite60
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.StagedDns
 

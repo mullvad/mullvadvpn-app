@@ -15,10 +15,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 
 @Preview
 @Composable

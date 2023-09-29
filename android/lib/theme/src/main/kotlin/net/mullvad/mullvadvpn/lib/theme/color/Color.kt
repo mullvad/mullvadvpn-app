@@ -1,14 +1,10 @@
-package net.mullvad.mullvadvpn.lib.theme
+package net.mullvad.mullvadvpn.lib.theme.color
 
 import androidx.compose.ui.graphics.Color
 
-internal val MullvadBeige = Color(0xFFFFCD86)
-internal val MullvadBlue60 = Color(0x99294D73)
 internal val MullvadBlue40 = Color(0x66294D73)
 internal val MullvadBlue20 = Color(0x33294D73)
-internal val MullvadBrown = Color(0xFFD2943B)
 internal val MullvadYellow = Color(0xFFFFD524)
-internal val MullvadWhite40 = Color(0x66FFFFFF)
 
 @Deprecated(
     "Deprecated for external usage and will be marked as internal in the future. Use material colors instead."
