@@ -8,7 +8,7 @@
 
 import Foundation
 import NetworkExtension
-import PacketTunnelCore
+@testable import PacketTunnelCore
 
 struct MockNetworkPath: NetworkPath {
     var status: NetworkExtension.NWPathStatus = .satisfied

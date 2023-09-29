@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import PacketTunnelCore
+@testable import PacketTunnelCore
 
 /// Mock of tunnel adapter that does nothing and reports no errors.
 class MockTunnelAdapter: TunnelAdapterProtocol {

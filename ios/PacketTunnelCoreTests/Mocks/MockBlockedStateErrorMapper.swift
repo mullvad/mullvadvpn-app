@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import PacketTunnelCore
+@testable import PacketTunnelCore
 
 class MockBlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
     let block: (Error) -> BlockedStateReason
