@@ -66,14 +66,20 @@ where
             .map_err(Error::Settings)
     }
 
-    pub fn set_api_access_method(&mut self, access_method: access_method::Id) -> Result<(), Error> {
+    pub async fn set_api_access_method(
+        &mut self,
+        access_method: access_method::Id,
+    ) -> Result<(), Error> {
         if let Some(access_method) = self.settings.api_access_methods.find(&access_method) {
             {
                 let mut connection_modes = self.connection_modes.lock().unwrap();
                 connection_modes.set_access_method(access_method.clone());
             }
             // Force a rotation of Access Methods.
-            let _ = self.api_handle.service().next_api_endpoint();
+
+            if let Err(error) = self.api_handle.service().next_api_endpoint().await {
+                log::error!("Failed to rotate API endpoint: {}", error);
+            }
             Ok(())
         } else {
             Err(Error::NoSuchMethod(access_method))

@@ -77,6 +77,10 @@ pub enum Error {
     /// The string given was not a valid URI.
     #[error(display = "Not a valid URI")]
     UriError(#[error(source)] http::uri::InvalidUri),
+
+    /// A new API config was requested, but the request could not be completed.
+    #[error(display = "Failed to rotate API config")]
+    NextApiConfigError,
 }
 
 impl Error {
@@ -207,7 +211,10 @@ impl<
                         if err.is_network_error() && !api_availability.get_state().is_offline() {
                             log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
                             if let Some(tx) = tx {
-                                let _ = tx.unbounded_send(RequestCommand::NextApiConfig);
+                                let (completion_tx, completion_rx) = oneshot::channel();
+                                let _ =
+                                    tx.unbounded_send(RequestCommand::NextApiConfig(completion_tx));
+                                let _ = completion_rx.await;
                             }
                         }
                     }
@@ -223,10 +230,11 @@ impl<
             RequestCommand::Reset => {
                 self.connector_handle.reset();
             }
-            RequestCommand::NextApiConfig => {
+            RequestCommand::NextApiConfig(completion_tx) => {
                 #[cfg(feature = "api-override")]
                 if API.force_direct_connection {
                     log::debug!("Ignoring API connection mode");
+                    let _ = completion_tx.send(Ok(()));
                     return;
                 }
 
@@ -240,6 +248,8 @@ impl<
                         self.connector_handle.set_connection_mode(new_config);
                     }
                 }
+
+                let _ = completion_tx.send(Ok(()));
             }
         }
     }
@@ -274,10 +284,13 @@ impl RequestServiceHandle {
     }
 
     /// Forcibly update the connection mode.
-    pub fn next_api_endpoint(&self) -> Result<()> {
+    pub async fn next_api_endpoint(&self) -> Result<()> {
+        let (completion_tx, completion_rx) = oneshot::channel();
         self.tx
-            .unbounded_send(RequestCommand::NextApiConfig)
-            .map_err(|_| Error::SendError)
+            .unbounded_send(RequestCommand::NextApiConfig(completion_tx))
+            .map_err(|_| Error::SendError)?;
+
+        completion_rx.await.map_err(|_| Error::NextApiConfigError)?
     }
 }
 
@@ -288,7 +301,7 @@ pub(crate) enum RequestCommand {
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     Reset,
-    NextApiConfig,
+    NextApiConfig(oneshot::Sender<std::result::Result<(), Error>>),
 }
 
 /// A REST request that is sent to the RequestService to be executed.
