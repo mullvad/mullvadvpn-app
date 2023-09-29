@@ -28,11 +28,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChevronView
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.AlphaInvisible
-import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.selected
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
@@ -148,7 +149,7 @@ private fun PreviewRelayLocationCell() {
 fun RelayLocationCell(
     relay: RelayItem,
     modifier: Modifier = Modifier,
-    activeColor: Color = MaterialTheme.colorScheme.surface,
+    activeColor: Color = MaterialTheme.colorScheme.selected,
     inactiveColor: Color = MaterialTheme.colorScheme.error,
     selectedItem: RelayItem? = null,
     onSelectRelay: (item: RelayItem) -> Unit = {}

@@ -2,31 +2,25 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.NegativeButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
@@ -68,46 +62,17 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
             HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
         },
         dismissButton = {
-            Button(
-                modifier =
-                    Modifier.height(dimensionResource(id = R.dimen.button_height))
-                        .defaultMinSize(
-                            minWidth = 0.dp,
-                            minHeight = dimensionResource(id = R.dimen.button_height)
-                        )
-                        .fillMaxWidth(),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.red),
-                        contentColor = Color.White
-                    ),
+            NegativeButton(
                 onClick = onConfirm,
-                shape = MaterialTheme.shapes.small
-            ) {
-                Text(text = stringResource(id = R.string.confirm_removal), fontSize = 18.sp)
-            }
+                text = stringResource(id = R.string.confirm_removal)
+            )
         },
         confirmButton = {
-            Button(
-                contentPadding = PaddingValues(0.dp),
-                modifier =
-                    Modifier.focusRequester(FocusRequester())
-                        .height(dimensionResource(id = R.dimen.button_height))
-                        .defaultMinSize(
-                            minWidth = 0.dp,
-                            minHeight = dimensionResource(id = R.dimen.button_height)
-                        )
-                        .fillMaxWidth(),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.blue),
-                        contentColor = Color.White
-                    ),
-                onClick = { onDismiss() },
-                shape = MaterialTheme.shapes.small
-            ) {
-                Text(text = stringResource(id = R.string.back), fontSize = 18.sp)
-            }
+            PrimaryButton(
+                modifier = Modifier.focusRequester(FocusRequester()),
+                onClick = onDismiss,
+                text = stringResource(id = R.string.back)
+            )
         },
         containerColor = colorResource(id = R.color.darkBlue)
     )
