@@ -211,10 +211,9 @@ impl<
                         if err.is_network_error() && !api_availability.get_state().is_offline() {
                             log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
                             if let Some(tx) = tx {
-                                let (completion_tx, completion_rx) = oneshot::channel();
+                                let (completion_tx, _completion_rx) = oneshot::channel();
                                 let _ =
                                     tx.unbounded_send(RequestCommand::NextApiConfig(completion_tx));
-                                let _ = completion_rx.await;
                             }
                         }
                     }
