@@ -202,9 +202,15 @@ impl MullvadProxyClient {
             })
     }
 
-    pub async fn get_api_addresses(&mut self) -> Result<()> {
-        self.0.get_api_addresses(()).await.map_err(Error::Rpc)?;
-        Ok(())
+    pub async fn get_api_addresses(&mut self) -> Result<Vec<std::net::SocketAddr>> {
+        self.0
+            .get_api_addresses(())
+            .await
+            .map_err(Error::Rpc)
+            .map(tonic::Response::into_inner)
+            .and_then(|api_addresses| {
+                Vec::<std::net::SocketAddr>::try_from(api_addresses).map_err(Error::InvalidResponse)
+            })
     }
 
     pub async fn update_relay_locations(&mut self) -> Result<()> {
