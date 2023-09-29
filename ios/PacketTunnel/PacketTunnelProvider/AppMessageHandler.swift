@@ -51,7 +51,7 @@ struct AppMessageHandler {
             return await encodeReply(packetTunnelActor.state.packetTunnelStatus)
 
         case .privateKeyRotation:
-            packetTunnelActor.notifyKeyRotated(date: nil)
+            packetTunnelActor.notifyKeyRotation(date: nil)
             return nil
 
         case let .reconnectTunnel(selectorResult):

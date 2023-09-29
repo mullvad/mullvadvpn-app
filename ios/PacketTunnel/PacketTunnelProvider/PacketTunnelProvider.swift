@@ -227,7 +227,7 @@ extension PacketTunnelProvider {
 
         switch result.keyRotationStatus {
         case let .attempted(date), let .succeeded(date):
-            actor.notifyKeyRotated(date: date)
+            actor.notifyKeyRotation(date: date)
         case .noAction:
             break
         }

@@ -46,7 +46,7 @@ extension PacketTunnelActor {
 
      - Parameter date: date when last key rotation took place.
      */
-    nonisolated public func notifyKeyRotated(date: Date?) {
+    nonisolated public func notifyKeyRotation(date: Date?) {
         commandChannel.send(.notifyKeyRotated(date))
     }
 
