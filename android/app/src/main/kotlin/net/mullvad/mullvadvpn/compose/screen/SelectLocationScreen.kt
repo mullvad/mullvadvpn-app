@@ -54,7 +54,7 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 
 @Preview
 @Composable
-fun PreviewSelectLocationScreen() {
+private fun PreviewSelectLocationScreen() {
     val state =
         SelectLocationUiState.ShowData(
             countries = listOf(RelayCountry("Country 1", "Code 1", false, emptyList())),

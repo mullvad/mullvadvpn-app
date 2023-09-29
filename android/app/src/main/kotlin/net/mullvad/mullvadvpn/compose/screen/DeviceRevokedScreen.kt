@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
-fun PreivewDeviceRevokedScreen() {
+private fun PreviewDeviceRevokedScreen() {
     AppTheme { DeviceRevokedScreen(state = DeviceRevokedUiState.SECURED) }
 }
 

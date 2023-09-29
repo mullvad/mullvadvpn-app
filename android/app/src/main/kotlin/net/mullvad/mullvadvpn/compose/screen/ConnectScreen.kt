@@ -55,7 +55,7 @@ private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 
 @Preview
 @Composable
-fun PreviewConnectScreen() {
+private fun PreviewConnectScreen() {
     val state = ConnectUiState.INITIAL
     AppTheme {
         ConnectScreen(
