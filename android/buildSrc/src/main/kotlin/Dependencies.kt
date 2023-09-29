@@ -4,9 +4,10 @@ object Dependencies {
     const val commonsValidator = "commons-validator:commons-validator:${Versions.commonsValidator}"
     const val jodaTime = "joda-time:joda-time:${Versions.jodaTime}"
     const val junit = "junit:junit:${Versions.junit}"
+    const val konsist = "com.lemonappdev:konsist:${Versions.konsist}"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
-    const val turbine = "app.cash.turbine:turbine:${Versions.turbine}"
     const val mockkWebserver = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebserver}"
+    const val turbine = "app.cash.turbine:turbine:${Versions.turbine}"
 
     object AndroidX {
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
