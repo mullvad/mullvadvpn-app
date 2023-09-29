@@ -22,7 +22,7 @@ service ManagementService {
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
-  rpc GetApiAddresses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetApiAddresses(google.protobuf.Empty) returns (ApiAddresses) {}
 
   rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
@@ -111,6 +111,8 @@ message RelaySettingsUpdate {
 message AccountData { google.protobuf.Timestamp expiry = 1; }
 
 message AccountHistory { google.protobuf.StringValue token = 1; }
+
+message ApiAddresses { repeated google.protobuf.StringValue api_addresses = 1; }
 
 message VoucherSubmission {
   uint64 seconds_added = 1;
