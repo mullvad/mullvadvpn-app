@@ -1,6 +1,5 @@
-package net.mullvad.mullvadvpn.test.mockapi
+package net.mullvad.mullvadvpn.test.mockapi.util
 
-import net.mullvad.mullvadvpn.test.mockapi.util.formatStrictlyAccordingToIso8601AndRfc3339
 import org.joda.time.DateTime
 import org.json.JSONObject
 
