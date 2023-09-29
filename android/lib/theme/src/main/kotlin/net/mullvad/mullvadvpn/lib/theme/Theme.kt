@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.dimensions.Dimensions
 import net.mullvad.mullvadvpn.lib.theme.dimensions.defaultDimensions
@@ -37,27 +38,39 @@ private val MullvadTypography =
             )
     )
 
-private val MullvadColorPalette =
-    lightColorScheme(
-        primary = MullvadBlue,
+private val darkColorScheme =
+    darkColorScheme(
+        primary = md_theme_dark_primary,
+        onPrimary = md_theme_dark_onPrimary,
+        //primaryContainer = md_theme_dark_primaryContainer,
+        //onPrimaryContainer = md_theme_dark_onPrimaryContainer,
         secondary = MullvadDarkBlue,
-        tertiary = MullvadRed,
-        background = MullvadDarkBlue,
-        surface = MullvadGreen,
-        primaryContainer = MullvadBlue40,
-        secondaryContainer = MullvadBlue20,
-        onBackground = MullvadWhite,
-        onSurfaceVariant = MullvadWhite,
-        onPrimary = MullvadWhite,
         onSecondary = MullvadWhite60,
-        onError = MullvadWhite,
-        onSurface = MullvadWhite,
-        inversePrimary = MullvadGreen,
-        error = MullvadRed,
+        secondaryContainer = MullvadBlue20,
+        //onSecondaryContainer = md_theme_dark_onSecondaryContainer,
+        tertiary = MullvadRed,
+        //onTertiary = md_theme_dark_onTertiary,
+        //tertiaryContainer = md_theme_dark_tertiaryContainer,
+        //onTertiaryContainer = md_theme_dark_onTertiaryContainer,
+        error = md_theme_dark_error,
         errorContainer = MullvadYellow,
-        outlineVariant = Color.Transparent, // Used by divider
-        inverseSurface = MullvadWhite
+        onError = md_theme_dark_onError,
+        //onErrorContainer = md_theme_dark_onErrorContainer,
+        background = MullvadDarkBlue,
+        onBackground = MullvadWhite,
+        surface = MullvadGreen,
+        onSurface = MullvadWhite,
+        //surfaceVariant = md_theme_dark_surfaceVariant,
+        onSurfaceVariant = MullvadWhite,
+        //outline = md_theme_dark_outline,
+        //inverseOnSurface = md_theme_dark_inverseOnSurface,
+        inverseSurface = MullvadWhite,
+        inversePrimary = MullvadGreen,
+        //surfaceTint = md_theme_dark_surfaceTint,
+        outlineVariant = Color.Transparent, // Used by divider,
+        //scrim = md_theme_dark_scrim,
     )
+
 
 val Shapes =
     Shapes(
@@ -80,7 +93,7 @@ private val LocalAppDimens = staticCompositionLocalOf { defaultDimensions }
 
 @Composable
 fun AppTheme(content: @Composable () -> Unit) {
-    val colors = MullvadColorPalette
+    val colors = darkColorScheme
     val typography = MullvadTypography
     // Set dimensions and type scale based on configurations here
     val dimensions = defaultDimensions

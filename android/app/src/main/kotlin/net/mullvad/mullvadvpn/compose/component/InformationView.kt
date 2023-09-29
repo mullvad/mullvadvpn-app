@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -30,12 +31,14 @@ fun InformationView(
     content: String,
     modifier: Modifier = Modifier,
     whenMissing: MissingPolicy = MissingPolicy.SHOW_VIEW,
+    color: Color = MaterialTheme.colorScheme.onBackground,
     maxLines: Int = 1
 ) {
     return if (content.isNotEmpty()) {
         AutoResizeText(
             style = MaterialTheme.typography.titleSmall,
             text = content,
+            color = color,
             minTextSize = MaterialTheme.typography.labelMedium.fontSize,
             maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
             maxLines = maxLines,
@@ -52,6 +55,7 @@ fun InformationView(
                 AutoResizeText(
                     style = MaterialTheme.typography.titleMedium,
                     text = content,
+                    color = color,
                     minTextSize = MaterialTheme.typography.labelMedium.fontSize,
                     maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
                     maxLines = maxLines,

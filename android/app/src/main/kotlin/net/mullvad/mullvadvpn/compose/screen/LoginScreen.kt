@@ -209,6 +209,8 @@ private fun LoginContent(
                     unfocusedLabelColor = MaterialTheme.colorScheme.background,
                     focusedLeadingIconColor = Color.Black,
                     unfocusedSupportingTextColor = Color.Black,
+                    focusedContainerColor = MaterialTheme.colorScheme.onBackground,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.onBackground,
                 ),
             isError = uiState.loginState.isError(),
         )

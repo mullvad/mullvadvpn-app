@@ -24,10 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChevronView
+import net.mullvad.mullvadvpn.lib.theme.Alpha40
 import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
@@ -165,7 +167,10 @@ fun RelayLocationCell(
         when {
             selected -> MaterialTheme.colorScheme.inversePrimary
             relay.type == RelayItemType.Country -> MaterialTheme.colorScheme.primary
-            relay.type == RelayItemType.City -> MaterialTheme.colorScheme.primaryContainer
+            relay.type == RelayItemType.City ->
+                MaterialTheme.colorScheme.primary
+                    .copy(alpha = Alpha40)
+                    .compositeOver(MaterialTheme.colorScheme.background)
             relay.type == RelayItemType.Relay -> MaterialTheme.colorScheme.secondaryContainer
             else -> MaterialTheme.colorScheme.primary
         }

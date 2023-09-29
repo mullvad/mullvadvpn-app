@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.theme.Alpha40
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
@@ -68,14 +69,15 @@ fun SplitTunnelingCell(
                 .fillMaxWidth()
                 .padding(vertical = Dimens.listItemDivider)
                 .background(
-                    MaterialTheme.colorScheme.primaryContainer.compositeOver(
-                        MaterialTheme.colorScheme.background
-                    )
+                    MaterialTheme.colorScheme.primary
+                        .copy(alpha = Alpha40)
+                        .compositeOver(MaterialTheme.colorScheme.background)
                 )
                 .clickable(onClick = onCellClicked)
     ) {
         Image(
-            painter = icon?.let { iconImage -> BitmapPainter(iconImage) }
+            painter =
+                icon?.let { iconImage -> BitmapPainter(iconImage) }
                     ?: painterResource(id = R.drawable.ic_icons_missing),
             contentDescription = null,
             modifier =

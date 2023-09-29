@@ -67,6 +67,7 @@ fun AutoResizeText(
     text: String,
     minTextSize: TextUnit,
     maxTextSize: TextUnit,
+    color: Color,
     modifier: Modifier = Modifier,
     textSizeStep: TextUnit = DEFAULT_TEXT_STEP,
     style: TextStyle = LocalTextStyle.current,
@@ -77,6 +78,7 @@ fun AutoResizeText(
 
     Text(
         text = text,
+        color = color,
         maxLines = maxLines,
         style = style,
         fontSize = adjustedFontSize.sp,
