@@ -23,7 +23,7 @@ log_header "Building Mullvad VPN $PRODUCT_VERSION"
 
 # If compiler optimization and artifact compression should be turned on or not
 OPTIMIZE="false"
-# If the produced binaries should be signed
+# If the produced binaries should be signed (Windows + macOS only)
 SIGN="false"
 # If the produced app and pkg should be notarized by apple (macOS only)
 NOTARIZE="false"
@@ -356,17 +356,6 @@ if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
     for installer_path in dist/*"$PRODUCT_VERSION"*.exe; do
         log_info "Signing $installer_path"
         sign_win "$installer_path"
-    done
-fi
-# Sign DEB+RPM on Linux
-if [[ "$SIGN" == "true" && "$(uname -s)" == "Linux" ]]; then
-    for installer_path in dist/*"$PRODUCT_VERSION"*.deb; do
-        log_info "Signing $installer_path"
-        dpkg-sig --sign builder "$installer_path"
-    done
-    for installer_path in dist/*"$PRODUCT_VERSION"*.rpm; do
-        log_info "Signing $installer_path"
-        rpm --addsign "$installer_path"
     done
 fi
 
