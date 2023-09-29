@@ -21,6 +21,8 @@ UPLOAD_DIR="$SCRIPT_DIR/upload"
 
 BRANCHES_TO_BUILD=("origin/main")
 
+CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
+
 # Ask for the passphrase to the signing keys
 case "$(uname -s)" in
     Darwin*|MINGW*|MSYS_NT*)
@@ -89,7 +91,7 @@ function run_in_build_env {
 function sign_linux_packages {
     for installer_path in dist/MullvadVPN-*.deb; do
         echo "Signing $installer_path"
-        dpkg-sig --sign builder "$installer_path"
+        dpkg-sig --sign builder -k "$CODE_SIGNING_KEY_FINGERPRINT" "$installer_path"
     done
     for installer_path in dist/MullvadVPN-*.rpm; do
         echo "Signing $installer_path"
