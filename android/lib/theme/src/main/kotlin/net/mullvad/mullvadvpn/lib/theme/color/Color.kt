@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.lib.theme.color
 
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 internal val MullvadBlue20 = Color(0x33294D73)
@@ -48,3 +51,12 @@ const val AlphaDisconnectButton = 0.6f
 const val AlphaScrollbar = 0.6f
 const val AlphaTopBar = 0.8f
 const val AlphaInvisible = 0f
+
+// Custom colors, they only link to normal material 3 colors for now
+val ColorScheme.variant: Color
+    @Composable get() = MaterialTheme.colorScheme.surface
+val ColorScheme.onVariant: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurface
+
+val ColorScheme.selected: Color
+    @Composable get() = MaterialTheme.colorScheme.surface

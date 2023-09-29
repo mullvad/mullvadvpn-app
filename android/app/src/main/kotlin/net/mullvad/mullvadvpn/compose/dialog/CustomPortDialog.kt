@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,14 +15,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.NegativeButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomPortTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.util.asString
 import net.mullvad.mullvadvpn.util.isPortInValidRanges
@@ -63,40 +61,21 @@ fun CustomPortDialog(
         },
         confirmButton = {
             Column {
-                ActionButton(
+                PrimaryButton(
                     text = stringResource(id = R.string.custom_port_dialog_submit),
                     onClick = { onSave(port.value) },
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            disabledContentColor =
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaInactive),
-                            disabledContainerColor =
-                                MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)
-                        ),
                     isEnabled =
                         port.value.isNotEmpty() &&
                             allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0)
                 )
                 if (showReset) {
-                    ActionButton(
+                    NegativeButton(
                         text = stringResource(R.string.custom_port_dialog_remove),
-                        onClick = { onReset() },
+                        onClick = onReset,
                         modifier = Modifier.padding(top = Dimens.mediumPadding),
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError,
-                            )
                     )
                 }
-                ActionButton(
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
+                PrimaryButton(
                     text = stringResource(id = R.string.cancel),
                     modifier = Modifier.padding(top = Dimens.mediumPadding),
                     onClick = onDismissRequest

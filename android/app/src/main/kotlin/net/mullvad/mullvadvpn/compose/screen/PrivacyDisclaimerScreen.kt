@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -119,14 +118,9 @@ fun PrivacyDisclaimerScreen(
                         width = Dimension.fillToConstraints
                     }
             ) {
-                ActionButton(
+                PrimaryButton(
                     text = stringResource(id = R.string.agree_and_continue),
-                    onClick = onAcceptClicked::invoke,
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
+                    onClick = onAcceptClicked::invoke
                 )
             }
         }
