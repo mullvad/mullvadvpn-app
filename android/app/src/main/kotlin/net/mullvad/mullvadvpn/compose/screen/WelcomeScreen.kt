@@ -43,10 +43,11 @@ import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
-import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
+import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 
 @Preview
@@ -119,7 +120,10 @@ fun WelcomeScreen(
             modifier =
                 Modifier.fillMaxSize()
                     .verticalScroll(scrollState)
-                    .drawVerticalScrollbar(scrollState)
+                    .drawVerticalScrollbar(
+                        state = scrollState,
+                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
+                    )
                     .background(color = MaterialTheme.colorScheme.primary)
                     .padding(it)
         ) {
