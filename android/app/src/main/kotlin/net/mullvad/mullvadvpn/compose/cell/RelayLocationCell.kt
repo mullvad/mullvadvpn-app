@@ -28,11 +28,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChevronView
-import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.AlphaInvisible
-import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
