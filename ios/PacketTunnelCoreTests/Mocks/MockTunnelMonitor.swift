@@ -77,7 +77,7 @@ class MockTunnelMonitor: TunnelMonitorProtocol {
         let dispatcher = Dispatcher { [weak self] event, delay in
             self?.dispatch(event, after: delay)
         }
-        simulationBlock(.start, dispatcher)
+        simulationBlock(command, dispatcher)
     }
 }
 
