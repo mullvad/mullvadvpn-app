@@ -700,13 +700,13 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn get_api_addresses(&self, _: Request<()>) -> ServiceResult<()> {
+    async fn get_api_addresses(&self, _: Request<()>) -> ServiceResult<types::ApiAddresses> {
         log::debug!("get_api_addresses");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetApiAddresses(tx))?;
         self.wait_for_result(rx)
             .await?
-            .map(drop)
+            .map(types::ApiAddresses::from)
             .map(Response::new)
             .map_err(map_daemon_error)
     }
