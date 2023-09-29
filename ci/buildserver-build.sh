@@ -18,6 +18,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="$SCRIPT_DIR/upload"
+LINUX_REPOSITORY_SERVER="se-got-cdn002.devmole.eu"
 
 BRANCHES_TO_BUILD=("origin/main")
 
@@ -41,6 +42,13 @@ case "$(uname -s)" in
         fi
         ;;
 esac
+
+function publish_linux_repositories {
+    local artifact_dir=$1
+    local version=$2
+    "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$SCRIPT_DIR/deb-$version"
+    rsync -av --delete --mkpath --rsh='ssh -p 1122' "$SCRIPT_DIR/deb-$version" build@$LINUX_REPOSITORY_SERVER:deb/
+}
 
 # Uploads whatever matches the first argument to the Linux build server
 function upload_sftp {
@@ -210,6 +218,10 @@ function build_ref {
         fi
     fi
 
+    # If this is a release build (stable or beta) then publish it to the repositories
+    if [[ $version != *"-dev-"* ]]; then
+        publish_linux_repositories "$artifact_dir" "$version"
+    fi
     (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
