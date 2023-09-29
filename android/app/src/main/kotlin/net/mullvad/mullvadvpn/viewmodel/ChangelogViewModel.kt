@@ -10,15 +10,14 @@ class ChangelogViewModel(
     private val buildVersionCode: Int,
     private val alwaysShowChangelog: Boolean
 ) : ViewModel() {
-    private val _changelogDialogUiState =
-        MutableStateFlow<ChangelogDialogUiState>(ChangelogDialogUiState.Hide)
-    val changelogDialogUiState = _changelogDialogUiState.asStateFlow()
+    private val _uiState = MutableStateFlow<ChangelogDialogUiState>(ChangelogDialogUiState.Hide)
+    val uiState = _uiState.asStateFlow()
 
     fun refreshChangelogDialogUiState() {
         val shouldShowChangelogDialog =
             alwaysShowChangelog ||
                 changelogRepository.getVersionCodeOfMostRecentChangelogShowed() < buildVersionCode
-        _changelogDialogUiState.value =
+        _uiState.value =
             if (shouldShowChangelogDialog) {
                 val changelogList = changelogRepository.getLastVersionChanges()
                 if (changelogList.isNotEmpty()) {
@@ -33,7 +32,7 @@ class ChangelogViewModel(
 
     fun dismissChangelogDialog() {
         changelogRepository.setVersionCodeOfMostRecentChangelogShowed(buildVersionCode)
-        _changelogDialogUiState.value = ChangelogDialogUiState.Hide
+        _uiState.value = ChangelogDialogUiState.Hide
     }
 }
 

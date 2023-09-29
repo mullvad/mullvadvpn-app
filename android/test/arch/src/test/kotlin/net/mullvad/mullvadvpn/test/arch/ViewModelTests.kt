@@ -35,8 +35,7 @@ class ViewModelTests {
                 "toastMessages",
                 "uiCloseAction",
                 "enterTransitionEndAction",
-                "accountToken",
-                "changelogDialogUiState"
+                "accountToken"
             )
     }
 }
