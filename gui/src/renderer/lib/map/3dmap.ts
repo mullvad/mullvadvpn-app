@@ -1,9 +1,14 @@
 import { mat4 } from 'gl-matrix';
 
-import { landData } from './land-data-50m';
-import { oceanData } from './ocean-data';
-
 type Color = Array<number>;
+
+export interface MapData {
+  landContourIndices: ArrayBuffer;
+  landPositions: ArrayBuffer;
+  landTriangleIndices: ArrayBuffer;
+  oceanIndices: ArrayBuffer;
+  oceanPositions: ArrayBuffer;
+}
 
 interface IndexBuffer {
   indexBuffer: WebGLBuffer;
@@ -121,13 +126,13 @@ class Globe {
 
   private programInfo: ProgramInfo;
 
-  public constructor(private gl: WebGL2RenderingContext) {
-    this.landVertexBuffer = initArrayBuffer(gl, landData.positions);
-    this.oceanVertexBuffer = initArrayBuffer(gl, oceanData.positions);
+  public constructor(private gl: WebGL2RenderingContext, data: MapData) {
+    this.landVertexBuffer = initArrayBuffer(gl, data.landPositions);
+    this.oceanVertexBuffer = initArrayBuffer(gl, data.oceanPositions);
 
-    this.landContourIndexBuffer = initIndexBuffer(gl, landData.contourIndices);
-    this.landTriangleIndexBuffer = initIndexBuffer(gl, landData.triangleIndices);
-    this.oceanIndexBuffer = initIndexBuffer(gl, oceanData.indices);
+    this.landContourIndexBuffer = initIndexBuffer(gl, data.landContourIndices);
+    this.landTriangleIndexBuffer = initIndexBuffer(gl, data.landTriangleIndices);
+    this.oceanIndexBuffer = initIndexBuffer(gl, data.oceanIndices);
 
     const shaderProgram = initShaderProgram(gl, Globe.vsSource, Globe.fsSource);
     this.programInfo = {
@@ -232,9 +237,12 @@ class LocationMarker {
       circleFanVertices(32, 0.185, [0.0, 0.0, 0.00002], [...white, 1.0], [...white, 1.0]), // white ring
       circleFanVertices(32, 0.15, [0.0, 0.0, 0.00003], [...color, 1.0], [...color, 1.0]), // Center colored circle
     ];
+
+    const positionArrayBuffer = new Float32Array(rings.map((r) => r.positions).flat());
+    const colorArrayBuffer = new Float32Array(rings.map((r) => r.colors).flat());
     this.ringPositionCount = rings.map((r) => r.positions.length);
-    this.positionBuffer = initArrayBuffer(gl, rings.map((r) => r.positions).flat());
-    this.colorBuffer = initArrayBuffer(gl, rings.map((r) => r.colors).flat());
+    this.positionBuffer = initArrayBuffer(gl, positionArrayBuffer);
+    this.colorBuffer = initArrayBuffer(gl, colorArrayBuffer);
 
     const shaderProgram = initShaderProgram(gl, LocationMarker.vsSource, LocationMarker.fsSource);
     this.programInfo = {
@@ -406,11 +414,12 @@ export default class Map {
 
   public constructor(
     gl: WebGL2RenderingContext,
+    data: MapData,
     startCoordinate: Coordinate,
     connectionState: ConnectionState,
     private animationEndListener?: () => void,
   ) {
-    this.globe = new Globe(gl);
+    this.globe = new Globe(gl, data);
     this.locationMarkerSecure = new LocationMarker(gl, locationMarkerSecureColor);
     this.locationMarkerUnsecure = new LocationMarker(gl, locationMarkerUnsecureColor);
 
@@ -618,22 +627,23 @@ function drawBufferElements(
 
 // Allocates and returns an ELEMENT_ARRAY_BUFFER filled with the Uint32 indices in `indices`.
 // On a WebGL1 canvas the `OES_element_index_uint` extension must be loaded.
-function initIndexBuffer(gl: WebGL2RenderingContext, indices: Array<number>): IndexBuffer {
+function initIndexBuffer(gl: WebGL2RenderingContext, indices: ArrayBuffer): IndexBuffer {
   const indexBuffer = gl.createBuffer()!;
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(indices), gl.STATIC_DRAW);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
   return {
     indexBuffer: indexBuffer,
-    length: indices.length,
+    // Values are 32 bit, i.e. 4 bytes per value
+    length: indices.byteLength / 4,
   };
 }
 
 // Allocates and returns an ARRAY_BUFFER filled with the Float32 data in `data`.
 // This type of buffer is used for vertex coordinate data and color values.
-function initArrayBuffer(gl: WebGL2RenderingContext, data: Array<number>) {
+function initArrayBuffer(gl: WebGL2RenderingContext, data: ArrayBuffer) {
   const arrayBuffer = gl.createBuffer()!;
   gl.bindBuffer(gl.ARRAY_BUFFER, arrayBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
   return arrayBuffer;
 }
 
