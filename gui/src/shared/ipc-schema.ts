@@ -37,6 +37,7 @@ import {
   IHistoryObject,
   IWindowShapeParameters,
 } from './ipc-types';
+import { MapData } from '../renderer/lib/map/3dmap';
 
 export interface ITranslations {
   locale: string;
@@ -116,6 +117,9 @@ export interface IAppStateSnapshot {
 export const ipcSchema = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
+  },
+  map: {
+    getData: invoke<void, MapData>(),
   },
   window: {
     shape: notifyRenderer<IWindowShapeParameters>(),

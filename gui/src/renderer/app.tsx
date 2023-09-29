@@ -347,6 +347,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.customLists.updateCustomList(customList);
   public setDisplayMap = (displayMap: boolean): void =>
     IpcRendererEventChannel.guiSettings.setDisplayMap(displayMap);
+  public getMapData = () => IpcRendererEventChannel.map.getData();
 
   public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;

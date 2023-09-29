@@ -2,7 +2,8 @@ import { mat4 } from 'gl-matrix';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import GLMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
+import { useAppContext } from '../context';
+import GLMap, { ConnectionState, Coordinate, MapData } from '../lib/map/3dmap';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 
@@ -49,6 +50,7 @@ export default function Map() {
 }
 
 function MapInner(props: MapParams) {
+  const { getMapData } = useAppContext();
   // Callback that should be passed to requestAnimationFrame. This is initialized after the canvas
   // has been rendered.
   const frameCallback = useRef<(now: number) => void>();
@@ -71,7 +73,7 @@ function MapInner(props: MapParams) {
 
   // Called when the canvas has been rendered
   const canvasCallback = useCallback(
-    (canvas: HTMLCanvasElement | null) => {
+    async (canvas: HTMLCanvasElement | null) => {
       if (!canvas) {
         return;
       }
@@ -80,6 +82,7 @@ function MapInner(props: MapParams) {
 
       const innerFrameCallback = getAnimationFramCallback(
         canvas,
+        await getMapData(),
         props.location,
         props.connectionState,
         () => (pause.current = true),
@@ -138,6 +141,7 @@ type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 
 function getAnimationFramCallback(
   canvas: HTMLCanvasElement,
+  data: MapData,
   startingCoordinate: Coordinate,
   connectionState: ConnectionState,
   animationEndListener: () => void,
@@ -147,7 +151,7 @@ function getAnimationFramCallback(
 
   const projectionMatrix = getProjectionMatrix(gl);
 
-  const map = new GLMap(gl, startingCoordinate, connectionState, animationEndListener);
+  const map = new GLMap(gl, data, startingCoordinate, connectionState, animationEndListener);
 
   const drawScene = (now: number) => {
     gl.clearColor(10 / 255, 25 / 255, 35 / 255, 1); // Clear to black, fully opaque
