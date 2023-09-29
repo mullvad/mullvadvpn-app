@@ -22,12 +22,6 @@ import net.mullvad.mullvadvpn.service.util.ExponentialBackoff
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class LocationInfoCache(private val endpoint: ServiceEndpoint) {
-    companion object {
-        private enum class RequestFetch {
-            ForRealLocation,
-            ForRelayLocation,
-        }
-    }
 
     private val fetchRetryDelays =
         ExponentialBackoff().apply {
@@ -134,5 +128,12 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
         val constraint = settings?.relayConstraints?.location as? Constraint.Only
 
         selectedRelayLocation = constraint?.value?.toGeographicLocationConstraint()?.location
+    }
+
+    companion object {
+        private enum class RequestFetch {
+            ForRealLocation,
+            ForRelayLocation,
+        }
     }
 }

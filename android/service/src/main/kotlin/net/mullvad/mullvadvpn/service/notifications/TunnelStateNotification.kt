@@ -18,10 +18,6 @@ import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorStateCause
 
 class TunnelStateNotification(val context: Context) {
-    companion object {
-        val NOTIFICATION_ID: Int = 1
-    }
-
     private val channel =
         NotificationChannel(
             context,
@@ -148,5 +144,9 @@ class TunnelStateNotification(val context: Context) {
             )
 
         return NotificationCompat.Action(action.icon, label, pendingIntent)
+    }
+
+    companion object {
+        val NOTIFICATION_ID: Int = 1
     }
 }

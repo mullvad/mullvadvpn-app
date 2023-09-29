@@ -28,13 +28,6 @@ import net.mullvad.talpid.TalpidVpnService
 import org.koin.core.context.loadKoinModules
 
 class MullvadVpnService : TalpidVpnService() {
-    companion object {
-        private val TAG = "mullvad"
-
-        init {
-            System.loadLibrary("mullvad_jni")
-        }
-    }
 
     private enum class PendingAction {
         Connect,
@@ -272,5 +265,13 @@ class MullvadVpnService : TalpidVpnService() {
             }
 
         startActivity(intent)
+    }
+
+    companion object {
+        private val TAG = "mullvad"
+
+        init {
+            System.loadLibrary("mullvad_jni")
+        }
     }
 }

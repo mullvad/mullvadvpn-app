@@ -17,15 +17,6 @@ import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.talpid.util.EventNotifier
 
 class AccountCache(private val endpoint: ServiceEndpoint) {
-    companion object {
-        private sealed class Command {
-            object CreateAccount : Command()
-
-            data class Login(val account: String) : Command()
-
-            object Logout : Command()
-        }
-    }
 
     private val commandChannel = spawnActor()
 
@@ -178,5 +169,15 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     private suspend fun fetchAccountData(accountToken: String): GetAccountDataResult {
         return daemon.await().getAccountData(accountToken)
+    }
+
+    companion object {
+        private sealed class Command {
+            object CreateAccount : Command()
+
+            data class Login(val account: String) : Command()
+
+            object Logout : Command()
+        }
     }
 }
