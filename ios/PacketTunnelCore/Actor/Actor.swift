@@ -217,6 +217,13 @@ extension PacketTunnelActor {
         guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings),
               let targetState = state.targetStateForReconnect else { return }
 
+        let activeKey = switch connectionState.keyPolicy {
+        case .useCurrent:
+            settings.privateKey
+        case let .usePrior(priorKey, _):
+            priorKey
+        }
+
         switch targetState {
         case .connecting:
             state = .connecting(connectionState)
@@ -226,7 +233,7 @@ extension PacketTunnelActor {
 
         let endpoint = connectionState.selectedRelay.endpoint
         let configurationBuilder = ConfigurationBuilder(
-            privateKey: connectionState.activeKey,
+            privateKey: activeKey,
             interfaceAddresses: settings.interfaceAddresses,
             dns: settings.dnsServers,
             endpoint: endpoint

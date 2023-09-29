@@ -26,9 +26,17 @@ extension PacketTunnelActor {
         func mutateConnectionState(_ connState: inout ConnectionState) -> Bool {
             switch connState.keyPolicy {
             case .useCurrent:
-                connState.lastKeyRotation = lastKeyRotation
-                connState.keyPolicy = .usePrior(connState.currentKey, startKeySwitchTask())
-                return true
+                if let currentKey = connState.currentKey {
+                    connState.lastKeyRotation = lastKeyRotation
+
+                    // Move currentKey into keyPolicy.
+                    connState.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
+                    connState.currentKey = nil
+
+                    return true
+                } else {
+                    return false
+                }
 
             case .usePrior:
                 // It's unlikely that we'll see subsequent key rotations happen frequently.
@@ -55,9 +63,16 @@ extension PacketTunnelActor {
         case var .error(blockedState):
             switch blockedState.keyPolicy {
             case .useCurrent:
+                // Key policy is preserved between states and key rotation may still happen while in blocked state.
+                // Therefore perform the key switch as normal with one exception that it shouldn't reconnect the tunnel
+                // automatically.
                 if let currentKey = blockedState.currentKey {
                     blockedState.lastKeyRotation = lastKeyRotation
+
+                    // Move currentKey into keyPolicy.
                     blockedState.keyPolicy = .usePrior(currentKey, startKeySwitchTask())
+                    blockedState.currentKey = nil
+
                     state = .error(blockedState)
                 }
 
@@ -105,10 +120,9 @@ extension PacketTunnelActor {
     /**
      Switch key policy  from `.usePrior` to `.useCurrent` policy.
 
-     - Returns: `true` if the key policy switch happened, otherwise `false`.
+     - Returns: `true` if the tunnel should reconnect, otherwise `false`.
      */
     private func switchToCurrentKeyInner() -> Bool {
-        // Switch key policy to use current key.
         switch state {
         case var .connecting(connState):
             if setCurrentKeyPolicy(&connState.keyPolicy) {
@@ -131,7 +145,9 @@ extension PacketTunnelActor {
         case var .error(blockedState):
             if setCurrentKeyPolicy(&blockedState.keyPolicy) {
                 state = .error(blockedState)
-                return true
+
+                // Prevent tunnel from reconnecting when in blocked state.
+                return false
             }
 
         case .disconnected, .disconnecting, .initial:

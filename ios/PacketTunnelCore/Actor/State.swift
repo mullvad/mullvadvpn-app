@@ -107,7 +107,8 @@ public struct ConnectionState {
     public var relayConstraints: RelayConstraints
 
     /// Last WG key read from setings.
-    public var currentKey: PrivateKey
+    /// Can be `nil` if moved to `keyPolicy`.
+    public var currentKey: PrivateKey?
 
     /// Policy describing the current key that should be used by the tunnel.
     public var keyPolicy: KeyPolicy
@@ -127,16 +128,6 @@ public struct ConnectionState {
         let (value, isOverflow) = connectionAttemptCount.addingReportingOverflow(1)
         connectionAttemptCount = isOverflow ? 0 : value
     }
-
-    /// Evaluates `keyPolicy` and returns the active key that should be used with tunnel adapter.
-    public var activeKey: PrivateKey {
-        switch keyPolicy {
-        case .useCurrent:
-            return currentKey
-        case let .usePrior(priorKey, _):
-            return priorKey
-        }
-    }
 }
 
 /// Data associated with error state.
@@ -149,6 +140,7 @@ public struct BlockedState {
     public var relayConstraints: RelayConstraints?
 
     /// Last WG key read from setings.
+    /// Can be `nil` if moved to `keyPolicy` or when it's uknown.
     public var currentKey: PrivateKey?
 
     /// Policy describing the current key that should be used by the tunnel.
