@@ -89,7 +89,7 @@ public actor PacketTunnelActor {
                     await stop()
 
                 case let .reconnect(nextRelay, stopTunnelMonitor):
-                    try? await reconnect(to: nextRelay, shouldStopTunnelMonitor: stopTunnelMonitor)
+                    await reconnect(to: nextRelay, shouldStopTunnelMonitor: stopTunnelMonitor)
 
                 case let .error(reason):
                     await setErrorStateInternal(with: reason)
@@ -176,7 +176,7 @@ extension PacketTunnelActor {
          - nextRelay: next relay to connect to
          - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
      */
-    private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
+    private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async {
         do {
             switch state {
             case .connecting, .connected, .reconnecting, .error:
