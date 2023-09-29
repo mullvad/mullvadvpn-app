@@ -52,7 +52,8 @@ export default function CustomDnsSettings() {
         !dns.defaultOptions.blockTrackers &&
         !dns.defaultOptions.blockMalware &&
         !dns.defaultOptions.blockAdultContent &&
-        !dns.defaultOptions.blockGambling),
+        !dns.defaultOptions.blockGambling &&
+        !dns.defaultOptions.blockSocialMedia),
     [dns],
   );
 

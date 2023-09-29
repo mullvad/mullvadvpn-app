@@ -328,6 +328,7 @@ export interface IDnsOptions {
     blockMalware: boolean;
     blockAdultContent: boolean;
     blockGambling: boolean;
+    blockSocialMedia: boolean;
   };
 }
 

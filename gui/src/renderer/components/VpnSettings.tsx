@@ -285,6 +285,7 @@ function DnsBlockers() {
       <BlockMalware />
       <BlockGambling />
       <BlockAdultContent />
+      <BlockSocialMedia />
     </Cell.ExpandableSection>
   );
 }
@@ -417,6 +418,31 @@ function BlockAdultContent() {
           <Cell.Switch
             isOn={dns.state === 'default' && dns.defaultOptions.blockAdultContent}
             onChange={setBlockAdultContent}
+          />
+        </AriaInput>
+      </StyledSectionItem>
+    </AriaInputGroup>
+  );
+}
+
+function BlockSocialMedia() {
+  const [dns, setBlockSocialMedia] = useDns('blockSocialMedia');
+
+  return (
+    <AriaInputGroup>
+      <StyledSectionItem disabled={dns.state === 'custom'}>
+        <AriaLabel>
+          <Cell.InputLabel>
+            {
+              // TRANSLATORS: Label for settings that enables block of social media.
+              messages.pgettext('vpn-settings-view', 'Social media')
+            }
+          </Cell.InputLabel>
+        </AriaLabel>
+        <AriaInput>
+          <Cell.Switch
+            isOn={dns.state === 'default' && dns.defaultOptions.blockSocialMedia}
+            onChange={setBlockSocialMedia}
           />
         </AriaInput>
       </StyledSectionItem>
