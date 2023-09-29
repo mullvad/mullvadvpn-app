@@ -4,7 +4,9 @@ set -eu
 
 CODE_SIGNING_KEY_FINGERPRINT=${CODE_SIGNING_KEY_FINGERPRINT:-"A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"}
 
-BASEDIR="deb"
+artifact_dir=$1
+basedir=$2
+
 KEYRING_FILENAME="mullvad-keyring.asc"
 
 # Debian codenames we support.
@@ -36,21 +38,21 @@ function add_deb_to_repo {
     local deb_path=$1
     local codename=$2
     echo "Adding $deb_path to repository $codename"
-    reprepro -V --basedir "$BASEDIR" --component main includedeb "$codename" "$deb_path"
+    reprepro -V --basedir "$basedir" --component main includedeb "$codename" "$deb_path"
 }
 
-echo "Generating deb repository into $BASEDIR/"
-mkdir -p "$BASEDIR/conf"
+echo "Generating deb repository into $basedir/"
+mkdir -p "$basedir/conf"
 
-echo "Writing repository configuration to $BASEDIR/conf/distributions"
-generate_deb_distributions_content > "$BASEDIR/conf/distributions"
+echo "Writing repository configuration to $basedir/conf/distributions"
+generate_deb_distributions_content > "$basedir/conf/distributions"
 echo ""
 
 echo "Adding GPG keyring to repository as $KEYRING_FILENAME"
-gpg --export --armor "$CODE_SIGNING_KEY_FINGERPRINT" > "$BASEDIR/$KEYRING_FILENAME"
+gpg --export --armor "$CODE_SIGNING_KEY_FINGERPRINT" > "$basedir/$KEYRING_FILENAME"
 echo ""
 
-for deb_path in dist/MullvadVPN-*.deb; do
+for deb_path in "$artifact_dir"/MullvadVPN-*.deb; do
     for codename in "${SUPPORTED_CODENAMES[@]}"; do
         # Add all releases, beta and stable, to the -testing repository
         add_deb_to_repo "$deb_path" "$codename"-testing
