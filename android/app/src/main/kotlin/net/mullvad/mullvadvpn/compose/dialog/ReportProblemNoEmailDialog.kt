@@ -37,7 +37,7 @@ fun ReportProblemNoEmailDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_alert),
                 contentDescription = null,
-                modifier = Modifier.size(Dimens.dialogIconSize),
+                modifier = Modifier.size(Dimens.dialogIconHeight),
                 tint = Color.Unspecified
             )
         },
