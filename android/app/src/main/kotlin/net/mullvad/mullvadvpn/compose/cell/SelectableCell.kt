@@ -14,10 +14,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
-import net.mullvad.mullvadvpn.lib.theme.AlphaInvisible
-import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
 @Composable
@@ -47,7 +48,7 @@ fun SelectableCell(
     },
     titleStyle: TextStyle = MaterialTheme.typography.labelLarge,
     startPadding: Dp = Dimens.cellStartPadding,
-    selectedColor: Color = MaterialTheme.colorScheme.surface,
+    selectedColor: Color = MaterialTheme.colorScheme.selected,
     backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     onCellClicked: () -> Unit = {},
     testTag: String = ""

@@ -45,9 +45,9 @@ import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
-import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -208,7 +208,6 @@ fun ConnectScreen(
             SwitchLocationButton(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .height(Dimens.selectLocationButtonHeight)
                         .padding(horizontal = Dimens.sideMargin)
                         .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
                 onClick = onSwitchLocationClick,
@@ -224,9 +223,7 @@ fun ConnectScreen(
             ConnectionButton(
                 state = uiState.tunnelUiState,
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .height(Dimens.connectButtonHeight)
-                        .padding(horizontal = Dimens.sideMargin)
+                    Modifier.padding(horizontal = Dimens.sideMargin)
                         .testTag(CONNECT_BUTTON_TEST_TAG),
                 disconnectClick = onDisconnectClick,
                 reconnectClick = { handleThrottledAction(onReconnectClick) },
