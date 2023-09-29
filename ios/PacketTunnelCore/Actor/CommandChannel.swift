@@ -25,7 +25,7 @@ import Foundation
  ```
 
  Consuming commands can be implemented using a for-await loop. Note that using a loop should also serialize the command handling as the next command will not
- be consumed until the body of the loop does not complete the iteration.
+ be consumed until the body of the loop completes the iteration.
 
  ```
  Task.detached {
