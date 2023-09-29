@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.SecureFlagPolicy
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -31,7 +30,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 
 @Composable
-fun ShowReportProblemStateDialog(
+fun ShowReportProblemState(
     sendingState: SendingReportUiState,
     onDismiss: () -> Unit,
     onClearForm: () -> Unit,
@@ -98,7 +97,7 @@ fun ReportProblemSuccessDialog(email: String?, onConfirm: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_success),
                 contentDescription = stringResource(id = R.string.sent),
-                modifier = Modifier.size(Dimens.dialogIconSize),
+                modifier = Modifier.size(Dimens.dialogIconHeight),
                 tint = Color.Unspecified
             )
         },
@@ -154,11 +153,6 @@ fun ReportProblemSuccessDialog(email: String?, onConfirm: () -> Unit) {
             )
         },
         containerColor = MaterialTheme.colorScheme.background,
-        properties =
-            DialogProperties(
-                securePolicy =
-                    if (email != null) SecureFlagPolicy.SecureOn else SecureFlagPolicy.Inherit
-            )
     )
 }
 
@@ -181,7 +175,7 @@ fun ReportProblemErrorDialog(onDismiss: () -> Unit, retry: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_fail),
                 contentDescription = stringResource(id = R.string.failed_to_send),
-                modifier = Modifier.size(Dimens.dialogIconSize),
+                modifier = Modifier.size(Dimens.dialogIconHeight),
                 tint = Color.Unspecified
             )
         },
