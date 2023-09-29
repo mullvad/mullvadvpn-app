@@ -25,9 +25,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.lib.theme.AlphaDisconnectButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisconnectButton
+import net.mullvad.mullvadvpn.lib.theme.color.onVariant
+import net.mullvad.mullvadvpn.lib.theme.color.variant
 import net.mullvad.mullvadvpn.model.TunnelState
 
 @Composable
@@ -42,14 +44,14 @@ fun ConnectionButton(
 ) {
     val containerColor =
         if (state is TunnelState.Disconnected) {
-            MaterialTheme.colorScheme.surface
+            MaterialTheme.colorScheme.variant
         } else {
             MaterialTheme.colorScheme.error.copy(alpha = AlphaDisconnectButton)
         }
 
     val contentColor =
         if (state is TunnelState.Disconnected) {
-            MaterialTheme.colorScheme.onSurface
+            MaterialTheme.colorScheme.onVariant
         } else {
             MaterialTheme.colorScheme.onError
         }
