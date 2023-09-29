@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Composable
 fun ScaffoldWithTopBar(

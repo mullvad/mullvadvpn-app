@@ -27,8 +27,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
-import net.mullvad.mullvadvpn.lib.theme.AlphaDisconnectButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisconnectButton
 
 @Preview
 @Composable
