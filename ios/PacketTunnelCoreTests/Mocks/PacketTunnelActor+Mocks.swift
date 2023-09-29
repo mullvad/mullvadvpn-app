@@ -13,8 +13,7 @@ extension PacketTunnelActorTimings {
     static var timingsForTests: PacketTunnelActorTimings {
         return PacketTunnelActorTimings(
             bootRecoveryPeriodicity: .milliseconds(100),
-            wgKeyPropagationDelay: .milliseconds(100),
-            reconnectDebounce: .milliseconds(100)
+            wgKeyPropagationDelay: .milliseconds(100)
         )
     }
 }
