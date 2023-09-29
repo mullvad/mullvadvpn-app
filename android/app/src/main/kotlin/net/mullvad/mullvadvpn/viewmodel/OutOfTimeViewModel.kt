@@ -34,8 +34,8 @@ class OutOfTimeViewModel(
     private val pollAccountExpiry: Boolean = true
 ) : ViewModel() {
 
-    private val _viewActions = MutableSharedFlow<ViewAction>(extraBufferCapacity = 1)
-    val viewActions = _viewActions.asSharedFlow()
+    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
+    val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     val uiState =
         serviceConnectionManager.connectionState
@@ -59,7 +59,7 @@ class OutOfTimeViewModel(
                     val tomorrow = DateTime.now().plusHours(20)
 
                     if (expiry.isAfter(tomorrow)) {
-                        _viewActions.tryEmit(ViewAction.OpenConnectScreen)
+                        _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
                     }
                 }
             }
@@ -77,8 +77,8 @@ class OutOfTimeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            _viewActions.tryEmit(
-                ViewAction.OpenAccountView(
+            _uiSideEffect.tryEmit(
+                UiSideEffect.OpenAccountView(
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
             )
@@ -89,9 +89,9 @@ class OutOfTimeViewModel(
         viewModelScope.launch { serviceConnectionManager.connectionProxy()?.disconnect() }
     }
 
-    sealed interface ViewAction {
-        data class OpenAccountView(val token: String) : ViewAction
+    sealed interface UiSideEffect {
+        data class OpenAccountView(val token: String) : UiSideEffect
 
-        data object OpenConnectScreen : ViewAction
+        data object OpenConnectScreen : UiSideEffect
     }
 }

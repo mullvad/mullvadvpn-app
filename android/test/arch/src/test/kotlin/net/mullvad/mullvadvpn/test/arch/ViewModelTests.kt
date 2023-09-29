@@ -27,11 +27,11 @@ class ViewModelTests {
         Konsist.scopeFromProject().classes().withAllParentsOf(ViewModel::class)
 
     companion object {
-        // TODO: The goal is to reduce this list to only "uiState" and "uiAction".
+        // TODO: The goal is to reduce this list to only "uiState" and "uiSideEffect".
         private val permittedPublicPropertyNames =
             listOf(
                 "uiState",
-                "viewActions",
+                "uiSideEffect",
                 "toastMessages",
                 "uiCloseAction",
                 "enterTransitionEndAction",

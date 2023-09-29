@@ -34,7 +34,7 @@ class ConnectFragment : BaseFragment(), NavigationBarPainter {
                 val state = connectViewModel.uiState.collectAsState().value
                 ConnectScreen(
                     uiState = state,
-                    viewActions = connectViewModel.viewActions,
+                    uiSideEffect = connectViewModel.uiSideEffect,
                     onDisconnectClick = connectViewModel::onDisconnectClick,
                     onReconnectClick = connectViewModel::onReconnectClick,
                     onConnectClick = connectViewModel::onConnectClick,

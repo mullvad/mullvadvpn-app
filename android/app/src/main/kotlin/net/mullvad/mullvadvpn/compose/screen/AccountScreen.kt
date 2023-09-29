@@ -62,7 +62,7 @@ private fun PreviewAccountScreen() {
                 accountNumber = "1234123412341234",
                 accountExpiry = null
             ),
-        viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+        uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
         enterTransitionEndAction = MutableSharedFlow()
     )
 }
@@ -71,7 +71,7 @@ private fun PreviewAccountScreen() {
 @Composable
 fun AccountScreen(
     uiState: AccountUiState,
-    viewActions: SharedFlow<AccountViewModel.ViewAction>,
+    uiSideEffect: SharedFlow<AccountViewModel.UiSideEffect>,
     enterTransitionEndAction: SharedFlow<Unit>,
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
@@ -116,9 +116,11 @@ fun AccountScreen(
         },
     ) {
         LaunchedEffect(Unit) {
-            viewActions.collect { viewAction ->
-                if (viewAction is AccountViewModel.ViewAction.OpenAccountManagementPageInBrowser) {
-                    context.openAccountPageInBrowser(viewAction.token)
+            uiSideEffect.collect { uiSideEffect ->
+                if (
+                    uiSideEffect is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser
+                ) {
+                    context.openAccountPageInBrowser(uiSideEffect.token)
                 }
             }
         }

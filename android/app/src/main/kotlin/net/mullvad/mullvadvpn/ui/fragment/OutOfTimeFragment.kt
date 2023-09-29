@@ -30,7 +30,7 @@ class OutOfTimeFragment : BaseFragment() {
                     OutOfTimeScreen(
                         showSitePayment = IS_PLAY_BUILD.not(),
                         uiState = state,
-                        viewActions = vm.viewActions,
+                        uiSideEffect = vm.uiSideEffect,
                         onSitePaymentClick = vm::onSitePaymentClick,
                         onRedeemVoucherClick = ::openRedeemVoucherFragment,
                         onSettingsClick = ::openSettingsView,

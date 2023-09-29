@@ -60,7 +60,7 @@ fun PreviewConnectScreen() {
     AppTheme {
         ConnectScreen(
             uiState = state,
-            viewActions = MutableSharedFlow<ConnectViewModel.ViewAction>().asSharedFlow()
+            uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
         )
     }
 }
@@ -68,7 +68,7 @@ fun PreviewConnectScreen() {
 @Composable
 fun ConnectScreen(
     uiState: ConnectUiState,
-    viewActions: SharedFlow<ConnectViewModel.ViewAction>,
+    uiSideEffect: SharedFlow<ConnectViewModel.UiSideEffect>,
     onDisconnectClick: () -> Unit = {},
     onReconnectClick: () -> Unit = {},
     onConnectClick: () -> Unit = {},
@@ -83,12 +83,12 @@ fun ConnectScreen(
 ) {
     val context = LocalContext.current
     LaunchedEffect(key1 = Unit) {
-        viewActions.collect { viewAction ->
-            when (viewAction) {
-                is ConnectViewModel.ViewAction.OpenAccountManagementPageInBrowser -> {
-                    context.openAccountPageInBrowser(viewAction.token)
+        uiSideEffect.collect { uiSideEffect ->
+            when (uiSideEffect) {
+                is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
+                    context.openAccountPageInBrowser(uiSideEffect.token)
                 }
-                is ConnectViewModel.ViewAction.OpenOutOfTimeView -> {
+                is ConnectViewModel.UiSideEffect.OpenOutOfTimeView -> {
                     onOpenOutOfTimeScreen()
                 }
             }

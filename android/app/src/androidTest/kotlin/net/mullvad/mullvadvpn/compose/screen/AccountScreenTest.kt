@@ -35,7 +35,7 @@ class AccountScreenTest {
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
                     ),
-                viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+                uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
@@ -60,7 +60,7 @@ class AccountScreenTest {
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
                     ),
-                viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+                uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onManageAccountClick = mockedClickHandler
             )
@@ -86,7 +86,7 @@ class AccountScreenTest {
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
                     ),
-                viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+                uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onRedeemVoucherClick = mockedClickHandler
             )
@@ -112,7 +112,7 @@ class AccountScreenTest {
                         accountNumber = DUMMY_ACCOUNT_NUMBER,
                         accountExpiry = null
                     ),
-                viewActions = MutableSharedFlow<AccountViewModel.ViewAction>().asSharedFlow(),
+                uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onLogoutClick = mockedClickHandler
             )
