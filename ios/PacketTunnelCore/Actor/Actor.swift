@@ -177,9 +177,6 @@ extension PacketTunnelActor {
          - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
      */
     private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async throws {
-        // Sleep a bit to provide a debounce in case we get a barrage of calls to reconnect.
-        try await Task.sleep(duration: timings.reconnectDebounce)
-
         do {
             switch state {
             case .connecting, .connected, .reconnecting, .error:

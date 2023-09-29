@@ -17,17 +17,12 @@ public struct PacketTunnelActorTimings {
     /// Time that takes for new WireGuard key to propagate across relays.
     public var wgKeyPropagationDelay: Duration
 
-    /// Time that the call to reconnect waits before starting work which should provide enough time to issue cancellation when multiple attempts happen in a row.
-    public var reconnectDebounce: Duration
-
     /// Designated initializer.
     public init(
         bootRecoveryPeriodicity: Duration = .seconds(10),
-        wgKeyPropagationDelay: Duration = .seconds(120),
-        reconnectDebounce: Duration = .milliseconds(100)
+        wgKeyPropagationDelay: Duration = .seconds(120)
     ) {
         self.bootRecoveryPeriodicity = bootRecoveryPeriodicity
         self.wgKeyPropagationDelay = wgKeyPropagationDelay
-        self.reconnectDebounce = reconnectDebounce
     }
 }
