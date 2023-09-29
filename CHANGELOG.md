@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add customizable relay lists to the CLI on desktop. Custom lists can be managed through
   `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
 
+#### Linux
+- Start signing the deb and rpm files (GPG)
+
 ### Changed
 #### Android
 - Migrate welcome view to compose.
