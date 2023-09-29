@@ -10,21 +10,6 @@ import Foundation
 import class WireGuardKitTypes.PrivateKey
 
 extension State {
-    var priorState: StatePriorToBlockedState? {
-        switch self {
-        case .initial:
-            return .initial
-        case .connecting:
-            return .connecting
-        case .connected:
-            return .connected
-        case .reconnecting:
-            return .reconnecting
-        case .disconnecting, .disconnected, .error:
-            return nil
-        }
-    }
-
     /// Returns the target state to which the actor state should transition when requested to reconnect.
     /// It returns `nil` when reconnection is not supported such as when already `.disconnecting` or `.disconnected` states.
     var targetStateForReconnect: TargetStateForReconnect? {
