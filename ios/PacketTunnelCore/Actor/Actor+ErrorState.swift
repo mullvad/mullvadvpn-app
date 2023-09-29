@@ -62,18 +62,17 @@ extension PacketTunnelActor {
                 keyPolicy: .useCurrent,
                 networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
                 recoveryTask: startRecoveryTaskIfNeeded(reason: reason),
-                priorState: state.priorState!
+                priorState: .initial
             )
 
-        case let .connected(connState), let .connecting(connState), let .reconnecting(connState):
-            return BlockedState(
-                reason: reason,
-                relayConstraints: connState.relayConstraints,
-                currentKey: connState.currentKey,
-                keyPolicy: connState.keyPolicy,
-                networkReachability: connState.networkReachability,
-                priorState: state.priorState!
-            )
+        case let .connected(connState):
+            return mapConnectionState(connState, reason: reason, priorState: .connected)
+
+        case let .connecting(connState):
+            return mapConnectionState(connState, reason: reason, priorState: .connecting)
+
+        case let .reconnecting(connState):
+            return mapConnectionState(connState, reason: reason, priorState: .reconnecting)
 
         case var .error(blockedState):
             if blockedState.reason != reason {
@@ -86,6 +85,24 @@ extension PacketTunnelActor {
         case .disconnecting, .disconnected:
             return nil
         }
+    }
+
+    /**
+     Map connection state to blocked state.
+     */
+    private func mapConnectionState(
+        _ connState: ConnectionState,
+        reason: BlockedStateReason,
+        priorState: StatePriorToBlockedState
+    ) -> BlockedState {
+        BlockedState(
+            reason: reason,
+            relayConstraints: connState.relayConstraints,
+            currentKey: connState.currentKey,
+            keyPolicy: connState.keyPolicy,
+            networkReachability: connState.networkReachability,
+            priorState: priorState
+        )
     }
 
     /**
