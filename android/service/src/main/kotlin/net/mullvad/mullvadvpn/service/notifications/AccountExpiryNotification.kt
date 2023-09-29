@@ -28,11 +28,6 @@ class AccountExpiryNotification(
     val daemon: Intermittent<MullvadDaemon>,
     val accountCache: AccountCache
 ) {
-    companion object {
-        val NOTIFICATION_ID: Int = 2
-        val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
-        val TIME_BETWEEN_CHECKS: Long = 12 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */
-    }
 
     private val jobTracker = JobTracker()
     private val resources = context.resources
@@ -142,5 +137,11 @@ class AccountExpiryNotification(
 
     private fun getRemainingText(pluralId: Int, quantity: Int): String {
         return resources.getQuantityString(pluralId, quantity, quantity)
+    }
+
+    companion object {
+        val NOTIFICATION_ID: Int = 2
+        val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
+        val TIME_BETWEEN_CHECKS: Long = 12 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */
     }
 }

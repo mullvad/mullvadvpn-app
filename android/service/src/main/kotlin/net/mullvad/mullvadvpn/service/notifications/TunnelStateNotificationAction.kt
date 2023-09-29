@@ -12,28 +12,6 @@ enum class TunnelStateNotificationAction {
     Cancel,
     Dismiss;
 
-    companion object {
-        fun from(tunnelState: TunnelState) =
-            when (tunnelState) {
-                is TunnelState.Disconnected -> Connect
-                is TunnelState.Connecting -> Cancel
-                is TunnelState.Connected -> Disconnect
-                is TunnelState.Disconnecting -> {
-                    when (tunnelState.actionAfterDisconnect) {
-                        ActionAfterDisconnect.Reconnect -> Cancel
-                        else -> Connect
-                    }
-                }
-                is TunnelState.Error -> {
-                    if (tunnelState.errorState.isBlocking) {
-                        Disconnect
-                    } else {
-                        Dismiss
-                    }
-                }
-            }
-    }
-
     val text
         get() =
             when (this) {
@@ -56,4 +34,26 @@ enum class TunnelStateNotificationAction {
                 Connect -> R.drawable.icon_notification_connect
                 else -> R.drawable.icon_notification_disconnect
             }
+
+    companion object {
+        fun from(tunnelState: TunnelState) =
+            when (tunnelState) {
+                is TunnelState.Disconnected -> Connect
+                is TunnelState.Connecting -> Cancel
+                is TunnelState.Connected -> Disconnect
+                is TunnelState.Disconnecting -> {
+                    when (tunnelState.actionAfterDisconnect) {
+                        ActionAfterDisconnect.Reconnect -> Cancel
+                        else -> Connect
+                    }
+                }
+                is TunnelState.Error -> {
+                    if (tunnelState.errorState.isBlocking) {
+                        Disconnect
+                    } else {
+                        Dismiss
+                    }
+                }
+            }
+    }
 }

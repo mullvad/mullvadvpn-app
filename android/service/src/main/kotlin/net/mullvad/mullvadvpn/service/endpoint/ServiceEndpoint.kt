@@ -27,13 +27,6 @@ class ServiceEndpoint(
     val connectivityListener: ConnectivityListener,
     context: Context
 ) {
-    companion object {
-        sealed class Command {
-            data class RegisterListener(val listener: Messenger) : Command()
-
-            data class UnregisterListener(val listenerId: Int) : Command()
-        }
-    }
 
     private val listeners = mutableMapOf<Int, Messenger>()
     private val commands: SendChannel<Command> = startRegistrator()
@@ -164,5 +157,13 @@ class ServiceEndpoint(
         listenerIdCounter += 1
 
         return listenerId
+    }
+
+    companion object {
+        sealed class Command {
+            data class RegisterListener(val listener: Messenger) : Command()
+
+            data class UnregisterListener(val listenerId: Int) : Command()
+        }
     }
 }
