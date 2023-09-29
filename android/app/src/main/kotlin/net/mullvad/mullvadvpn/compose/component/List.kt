@@ -30,7 +30,7 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 
 @Preview
 @Composable
-fun PreviewListItem() {
+private fun PreviewListItem() {
     AppTheme {
         Column {
             ListItem(text = "No subtext No icon not loading", isLoading = false, onClick = {})

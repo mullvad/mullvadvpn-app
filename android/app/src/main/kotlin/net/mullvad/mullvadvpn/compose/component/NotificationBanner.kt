@@ -40,7 +40,7 @@ import org.joda.time.DateTime
 
 @Preview
 @Composable
-fun PreviewNotificationBanner() {
+private fun PreviewNotificationBanner() {
     AppTheme {
         SpacedColumn(Modifier.background(color = MaterialTheme.colorScheme.background)) {
             val versionInfoNotification =

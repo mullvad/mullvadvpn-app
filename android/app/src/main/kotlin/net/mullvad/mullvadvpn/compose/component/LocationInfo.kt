@@ -25,7 +25,7 @@ import net.mullvad.talpid.net.TransportProtocol
 
 @Preview
 @Composable
-fun PreviewLocationInfo() {
+private fun PreviewLocationInfo() {
     AppTheme {
         LocationInfo(
             onToggleTunnelInfo = {},

@@ -100,7 +100,7 @@ fun ConnectionButton(
 
 @Preview
 @Composable
-fun PreviewConnectionButton() {
+private fun PreviewConnectionButton() {
     AppTheme {
         ConnectionButton(
             text = "Disconnect",
