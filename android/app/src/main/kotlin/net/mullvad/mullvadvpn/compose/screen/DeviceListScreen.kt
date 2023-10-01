@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -89,11 +88,11 @@ fun DeviceListScreen(
         )
     }
 
-    val topColor = colorResource(R.color.blue)
+    val topColor = MaterialTheme.colorScheme.primary
     ScaffoldWithTopBar(
         topBarColor = topColor,
         statusBarColor = topColor,
-        navigationBarColor = colorResource(id = R.color.darkBlue),
+        navigationBarColor = MaterialTheme.colorScheme.background,
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
     ) {

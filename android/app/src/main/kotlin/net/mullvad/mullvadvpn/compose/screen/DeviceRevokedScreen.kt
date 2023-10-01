@@ -9,11 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -26,6 +27,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
+import net.mullvad.mullvadvpn.lib.theme.AlphaDisconnectButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
@@ -41,18 +43,16 @@ fun DeviceRevokedScreen(
     onGoToLoginClicked: () -> Unit = {}
 ) {
     val topColor =
-        colorResource(
-            if (state == DeviceRevokedUiState.SECURED) {
-                R.color.green
-            } else {
-                R.color.red
-            }
-        )
+        if (state == DeviceRevokedUiState.SECURED) {
+            MaterialTheme.colorScheme.inversePrimary
+        } else {
+            MaterialTheme.colorScheme.error
+        }
 
     ScaffoldWithTopBar(
         topBarColor = topColor,
         statusBarColor = topColor,
-        navigationBarColor = colorResource(id = R.color.darkBlue),
+        navigationBarColor = MaterialTheme.colorScheme.background,
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null
     ) {
@@ -61,7 +61,7 @@ fun DeviceRevokedScreen(
                 Modifier.fillMaxHeight()
                     .fillMaxWidth()
                     .padding(it)
-                    .background(colorResource(id = R.color.darkBlue))
+                    .background(color = MaterialTheme.colorScheme.background)
         ) {
             val (icon, body, actionButtons) = createRefs()
 
@@ -126,15 +126,15 @@ fun DeviceRevokedScreen(
                     onClick = onGoToLoginClicked,
                     colors =
                         ButtonDefaults.buttonColors(
-                            contentColor = Color.White,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                             containerColor =
-                                colorResource(
-                                    if (state == DeviceRevokedUiState.SECURED) {
-                                        R.color.red60
-                                    } else {
-                                        R.color.blue
-                                    }
-                                )
+                                if (state == DeviceRevokedUiState.SECURED) {
+                                    MaterialTheme.colorScheme.error
+                                        .copy(alpha = AlphaDisconnectButton)
+                                        .compositeOver(MaterialTheme.colorScheme.background)
+                                } else {
+                                    MaterialTheme.colorScheme.primary
+                                }
                         )
                 )
             }

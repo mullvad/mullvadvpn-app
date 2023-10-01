@@ -18,8 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -78,8 +76,8 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
                         .fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.red),
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
                     ),
                 onClick = onConfirm,
                 shape = MaterialTheme.shapes.small
@@ -100,8 +98,8 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
                         .fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = colorResource(id = R.color.blue),
-                        contentColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
                 onClick = { onDismiss() },
                 shape = MaterialTheme.shapes.small
@@ -109,6 +107,6 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
                 Text(text = stringResource(id = R.string.back), fontSize = 18.sp)
             }
         },
-        containerColor = colorResource(id = R.color.darkBlue)
+        containerColor = MaterialTheme.colorScheme.background
     )
 }
