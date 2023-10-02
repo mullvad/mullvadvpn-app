@@ -5,7 +5,6 @@ import java.io.File
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.random.Random
 
 const val PROBLEM_REPORT_LOGS_FILE = "problem_report.txt"
 

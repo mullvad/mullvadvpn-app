@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -252,14 +251,13 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
                 }
             is Loading ->
                 CircularProgressIndicator(
-                    modifier = Modifier.size(Dimens.progressIndicatorSize),
+                    modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = Dimens.loadingSpinnerStrokeWidth,
                     strokeCap = StrokeCap.Round
                 )
             Success ->
                 Image(
-                    modifier = Modifier.offset(-Dimens.smallPadding, -Dimens.smallPadding),
                     painter = painterResource(id = R.drawable.icon_success),
                     contentDescription = stringResource(id = R.string.logged_in_title),
                 )
