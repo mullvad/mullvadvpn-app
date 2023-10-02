@@ -113,6 +113,7 @@ private fun PreviewVpnSettings() {
             onToggleBlockMalware = {},
             onToggleBlockAdultContent = {},
             onToggleBlockGambling = {},
+            onToggleBlockSocialMedia = {},
             onDnsClick = {},
             onDnsInputChange = {},
             onSaveDnsClick = {},
@@ -156,6 +157,7 @@ fun VpnSettingsScreen(
     onToggleBlockMalware: (Boolean) -> Unit = {},
     onToggleBlockAdultContent: (Boolean) -> Unit = {},
     onToggleBlockGambling: (Boolean) -> Unit = {},
+    onToggleBlockSocialMedia: (Boolean) -> Unit = {},
     onDnsClick: (index: Int?) -> Unit = {},
     onDnsInputChange: (String) -> Unit = {},
     onSaveDnsClick: () -> Unit = {},
@@ -391,6 +393,17 @@ fun VpnSettingsScreen(
                         isToggled = uiState.contentBlockersOptions.blockAdultContent,
                         isEnabled = !uiState.isCustomDnsEnabled,
                         onCellClicked = { onToggleBlockAdultContent(it) },
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.indentedCellStartPadding
+                    )
+                }
+
+                itemWithDivider {
+                    NormalSwitchComposeCell(
+                        title = stringResource(R.string.block_social_media_title),
+                        isToggled = uiState.contentBlockersOptions.blockSocialMedia,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockSocialMedia(it) },
                         background = MaterialTheme.colorScheme.secondaryContainer,
                         startPadding = Dimens.indentedCellStartPadding
                     )

@@ -38,6 +38,7 @@ class VpnSettingsFragment : BaseFragment() {
                         onToggleBlockMalware = vm::onToggleBlockMalware,
                         onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
                         onToggleBlockGambling = vm::onToggleBlockGambling,
+                        onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
                         onDnsClick = vm::onDnsClick,
                         onDnsInputChange = vm::onDnsInputChange,
                         onSaveDnsClick = vm::onSaveDnsClick,
