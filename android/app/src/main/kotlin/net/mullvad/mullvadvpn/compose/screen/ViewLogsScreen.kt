@@ -29,13 +29,13 @@ import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 
 @Preview
 @Composable
-private fun ViewLogsScreenPreview() {
+private fun PreviewViewLogsScreen() {
     AppTheme { ViewLogsScreen(uiState = ViewLogsUiState("Lorem ipsum")) }
 }
 
 @Preview
 @Composable
-private fun ViewLogsLoadingScreenPreview() {
+private fun PreviewViewLogsLoadingScreen() {
     AppTheme { ViewLogsScreen(uiState = ViewLogsUiState()) }
 }
 

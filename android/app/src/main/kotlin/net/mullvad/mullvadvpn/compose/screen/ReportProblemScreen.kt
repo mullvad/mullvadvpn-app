@@ -49,13 +49,13 @@ import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
 
 @Preview
 @Composable
-private fun ReportProblemScreenPreview() {
+private fun PreviewReportProblemScreen() {
     AppTheme { ReportProblemScreen(uiState = ReportProblemUiState()) }
 }
 
 @Preview
 @Composable
-private fun ReportProblemSendingScreenPreview() {
+private fun PreviewReportProblemSendingScreen() {
     AppTheme {
         ReportProblemScreen(uiState = ReportProblemUiState(false, SendingReportUiState.Sending))
     }
@@ -63,13 +63,13 @@ private fun ReportProblemSendingScreenPreview() {
 
 @Preview
 @Composable
-private fun ReportProblemConfirmNoEmailScreenPreview() {
+private fun PreviewReportProblemConfirmNoEmailScreen() {
     AppTheme { ReportProblemScreen(uiState = ReportProblemUiState(true)) }
 }
 
 @Preview
 @Composable
-private fun ReportProblemSuccessScreenPreview() {
+private fun PreviewReportProblemSuccessScreen() {
     AppTheme {
         ReportProblemScreen(
             uiState = ReportProblemUiState(false, SendingReportUiState.Success("email@mail.com"))
@@ -79,7 +79,7 @@ private fun ReportProblemSuccessScreenPreview() {
 
 @Preview
 @Composable
-private fun ReportProblemErrorScreenPreview() {
+private fun PreviewReportProblemErrorScreen() {
     AppTheme {
         ReportProblemScreen(
             uiState =
@@ -127,7 +127,7 @@ fun ReportProblemScreen(
         var email by rememberSaveable { mutableStateOf("") }
         var description by rememberSaveable { mutableStateOf("") }
 
-        // Dialog to show sending states
+        // Show sending states
         if (uiState.sendingState != null) {
             Column(
                 modifier =
@@ -140,15 +140,6 @@ fun ReportProblemScreen(
                         ErrorContent({ onSendReport(email, description) }, onClearSendResult)
                     is SendingReportUiState.Success -> SentContent(uiState.sendingState)
                 }
-                //            ShowReportProblemState(
-                //                uiState.sendingState,
-                //                onDismiss = onClearSendResult,
-                //                onClearForm = {
-                //                    email = ""
-                //                    description = ""
-                //                },
-                //                retry = { onSendReport(email, description) }
-                //            )
                 return@CollapsingToolbarScaffold
             }
         }
