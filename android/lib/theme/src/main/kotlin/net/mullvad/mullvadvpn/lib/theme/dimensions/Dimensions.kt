@@ -32,7 +32,7 @@ data class Dimensions(
     val loadingSpinnerSize: Dp = 24.dp,
     val loadingSpinnerSizeMedium: Dp = 28.dp,
     val loadingSpinnerStrokeWidth: Dp = 6.dp,
-    val loginIconContainerSize: Dp = 60.dp,
+    val loginIconContainerSize: Dp = 44.dp,
     val mediumPadding: Dp = 16.dp,
     val notificationBannerEndPadding: Dp = 12.dp,
     val notificationBannerStartPadding: Dp = 16.dp,
