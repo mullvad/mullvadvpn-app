@@ -2438,12 +2438,12 @@
 		58C7A4432A863F490060C66F /* PacketTunnelCoreTests */ = {
 			isa = PBXGroup;
 			children = (
+				586C14572AC463BB00245C01 /* CommandChannelTests.swift */,
+				58EC067D2A8D2B0700BEB973 /* Mocks */,
 				58FE25D32AA729B5003D1918 /* PacketTunnelActorTests.swift */,
 				58C7A46F2A8649ED0060C66F /* PingerTests.swift */,
 				5838321C2AC1C54600EA2071 /* TaskSleepTests.swift */,
 				58092E532A8B832E00C3CC72 /* TunnelMonitorTests.swift */,
-				586C14572AC463BB00245C01 /* CommandChannelTests.swift */,
-				58EC067D2A8D2B0700BEB973 /* Mocks */,
 			);
 			path = PacketTunnelCoreTests;
 			sourceTree = "<group>";
@@ -2692,15 +2692,15 @@
 		58EC067D2A8D2B0700BEB973 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */,
 				581F23AC2A8CF92100788AB6 /* MockDefaultPathObserver.swift */,
 				581F23AE2A8CF94D00788AB6 /* MockPinger.swift */,
-				58EC06792A8D208D00BEB973 /* MockTunnelDeviceInfo.swift */,
-				58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */,
-				58FE25EB2AA77638003D1918 /* MockTunnelMonitor.swift */,
-				58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */,
 				58FE25EF2AA77664003D1918 /* MockRelaySelector.swift */,
 				58FE25F12AA77674003D1918 /* MockSettingsReader.swift */,
-				58F7753C2AB8473200425B47 /* MockBlockedStateErrorMapper.swift */,
+				58FE25ED2AA7764E003D1918 /* MockTunnelAdapter.swift */,
+				58EC06792A8D208D00BEB973 /* MockTunnelDeviceInfo.swift */,
+				58FE25EB2AA77638003D1918 /* MockTunnelMonitor.swift */,
+				58EC067B2A8D2A0B00BEB973 /* NetworkCounters.swift */,
 				5838321A2AC1B18400EA2071 /* PacketTunnelActor+Mocks.swift */,
 			);
 			path = Mocks;
