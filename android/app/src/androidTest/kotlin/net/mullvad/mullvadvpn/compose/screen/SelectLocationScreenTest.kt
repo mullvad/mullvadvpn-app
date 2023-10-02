@@ -75,22 +75,25 @@ class SelectLocationScreenTest {
 
     @Test
     fun testShowRelayListStateSelected() {
+        val updatedDummyList =
+            DUMMY_RELAY_COUNTRIES.let {
+                val cities = it[0].cities.toMutableList()
+                val city = cities.removeAt(0)
+                cities.add(0, city.copy(expanded = true))
+
+                val mutableRelayList = it.toMutableList()
+                mutableRelayList[0] = it[0].copy(expanded = true, cities = cities.toList())
+                mutableRelayList
+            }
+
         // Arrange
         composeTestRule.setContent {
             AppTheme {
                 SelectLocationScreen(
                     uiState =
                         SelectLocationUiState.ShowData(
-                            countries =
-                                DUMMY_RELAY_COUNTRIES.let {
-                                    val cities = it[0].cities.toMutableList()
-                                    val city = cities.removeAt(0)
-                                    cities.add(0, city.copy(expanded = true))
-                                    it.toMutableList()[0] =
-                                        it[0].copy(expanded = true, cities = cities.toList())
-                                    it
-                                },
-                            selectedRelay = DUMMY_RELAY_COUNTRIES[0].cities[0].relays[0]
+                            countries = updatedDummyList,
+                            selectedRelay = updatedDummyList[0].cities[0].relays[0]
                         ),
                     uiCloseAction = MutableSharedFlow(),
                     enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
