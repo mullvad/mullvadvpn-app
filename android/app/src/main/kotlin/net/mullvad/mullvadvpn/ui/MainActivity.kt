@@ -32,7 +32,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.di.uiModule
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.notificationPermissionIsNotGranted
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -358,7 +358,7 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun checkForNotificationPermission() {
-        if (isNotificationPermissionGranted().not()) {
+        if(notificationPermissionIsNotGranted()){
             requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
