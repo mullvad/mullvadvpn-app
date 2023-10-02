@@ -161,22 +161,22 @@ final class PacketTunnelActorTests: XCTestCase {
 
     func testStopGoesToDisconnected() async throws {
         let actor = PacketTunnelActor.mock()
-        var hasFullfilledDisconnected = false
         let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
+        let connectedStateExpectation = expectation(description: "Expect connected state")
 
-        stateSink = await actor.$state.receive(on: DispatchQueue.main).sink { newState in
-            switch newState {
-            case .disconnected:
-                disconnectedStateExpectation.fulfill()
-                hasFullfilledDisconnected = true
-            default:
-                if hasFullfilledDisconnected {
-                    XCTFail("Should not switch states after disconnected state")
-                }
-            }
+        let expression: (State) -> Bool = { if case .connected = $0 { true } else { false } }
+
+        await expect(expression, on: actor) {
+            connectedStateExpectation.fulfill()
         }
 
+        // Wait for the connected state to happen so it doesn't get coalesced immediately after the call to `actor.stop`
         actor.start(options: StartOptions(launchSource: .app))
+        await fulfillment(of: [connectedStateExpectation], timeout: 1)
+
+        await expect(.disconnected, on: actor) {
+            disconnectedStateExpectation.fulfill()
+        }
         actor.stop()
         await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
     }
@@ -207,13 +207,21 @@ final class PacketTunnelActorTests: XCTestCase {
 
         actor.start(options: StartOptions(launchSource: .app))
         await fulfillment(of: [connectedStateExpectation], timeout: 1)
+
+        let disconnectedStateExpectation = expectation(description: "Disconnected state")
+
+        await expect(.disconnected, on: actor) {
+            disconnectedStateExpectation.fulfill()
+        }
         actor.stop()
+        await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
 
         XCTAssertNil(pathObserver.defaultPathHandler)
     }
 
     func testSetErrorStateGetsCancelled() async throws {
         let actor = PacketTunnelActor.mock()
+        let connectingStateExpectation = expectation(description: "Connecting state")
         let disconnectedStateExpectation = expectation(description: "Disconnected state")
 
         stateSink = await actor.$state
@@ -221,12 +229,13 @@ final class PacketTunnelActorTests: XCTestCase {
             .sink { newState in
                 switch newState {
                 case .connecting:
-                    // Guarantee that the task doesn't start before it's cancelled
-                    let task = Task {
+                    // Guarantee that the task doesn't set the actor to error state before it's cancelled
+                    let task = Task.detached {
                         try await Task.sleep(duration: .seconds(1))
                         actor.setErrorState(reason: .readSettings)
                     }
                     task.cancel()
+                    connectingStateExpectation.fulfill()
                 case .error:
                     XCTFail("Should not go to error state")
                 case .disconnected:
@@ -237,6 +246,7 @@ final class PacketTunnelActorTests: XCTestCase {
             }
 
         actor.start(options: StartOptions(launchSource: .app))
+        await fulfillment(of: [connectingStateExpectation], timeout: 1)
         actor.stop()
         await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
     }
@@ -275,7 +285,7 @@ final class PacketTunnelActorTests: XCTestCase {
         await expect(.initial, on: actor) {
             XCTFail("Should not be trying to reconnect after stopping")
         }
-        await actor.reconnect(to: .random)
+        actor.reconnect(to: .random)
     }
 
     func testReconnectionStopsTunnelMonitor() async throws {
