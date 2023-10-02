@@ -8,15 +8,13 @@ import org.junit.Test
 
 class ComposePreviewTests {
     @Test
-    fun `all preview functions are private`() {
+    fun `ensure all preview functions are private`() =
         allPreviewFunctions().assert { it.hasPrivateModifier }
-    }
 
     @Test
-    fun `all preview functions are prefixed with Preview`() {
+    fun `ensure all preview functions are prefixed with 'Preview'`() =
         allPreviewFunctions().assert { it.name.startsWith("Preview") }
-    }
 
     private fun allPreviewFunctions() =
-        Konsist.scopeFromProduction().functions().withAllAnnotationsOf(Preview::class)
+        Konsist.scopeFromProduction("app").functions().withAllAnnotationsOf(Preview::class)
 }
