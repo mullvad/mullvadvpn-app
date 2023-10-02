@@ -24,6 +24,16 @@ object SdkUtils {
                 PackageManager.PERMISSION_GRANTED
     }
 
+    fun Context.requestNotificationPermission(requestPermission: (String) -> Unit) {
+        if (
+            (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU) &&
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
+                    PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermission(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
     fun Tile.setSubtitleIfSupported(subtitleText: CharSequence) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             this.subtitle = subtitleText

@@ -101,17 +101,6 @@
     </issue>
 
     <issue
-        id="InlinedApi"
-        message="Field requires API level 33 (current min is 26): `android.Manifest.permission#POST_NOTIFICATIONS`"
-        errorLine1="            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/ui/MainActivity.kt"
-            line="359"
-            column="58"/>
-    </issue>
-
-    <issue
         id="RedundantLabel"
         message="Redundant label can be removed"
         errorLine1="            android:label=&quot;@string/app_name&quot;"
