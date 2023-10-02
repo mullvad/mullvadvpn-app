@@ -12,7 +12,7 @@ import org.junit.Test
 
 class ViewModelTests {
     @Test
-    fun ensureViewModelsHaveViewModelSuffix() =
+    fun `ensure view models have view model suffix`() =
         allViewModels().assert { it.name.endsWith("ViewModel") }
 
     // The purpose of this check is to both keep the naming consistent and also to avoid exposing
