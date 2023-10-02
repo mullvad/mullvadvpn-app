@@ -127,7 +127,7 @@ fun ReportProblemScreen(
         var email by rememberSaveable { mutableStateOf("") }
         var description by rememberSaveable { mutableStateOf("") }
 
-        // Dialog to show sending states
+        // Show sending states
         if (uiState.sendingState != null) {
             Column(
                 modifier =
@@ -140,15 +140,6 @@ fun ReportProblemScreen(
                         ErrorContent({ onSendReport(email, description) }, onClearSendResult)
                     is SendingReportUiState.Success -> SentContent(uiState.sendingState)
                 }
-                //            ShowReportProblemState(
-                //                uiState.sendingState,
-                //                onDismiss = onClearSendResult,
-                //                onClearForm = {
-                //                    email = ""
-                //                    description = ""
-                //                },
-                //                retry = { onSendReport(email, description) }
-                //            )
                 return@CollapsingToolbarScaffold
             }
         }

@@ -20,6 +20,7 @@ data class Dimensions(
     val countryRowPadding: Dp = 18.dp,
     val customPortBoxMinWidth: Dp = 80.dp,
     val dialogIconHeight: Dp = 44.dp,
+    val dialogIconSize: Dp = 48.dp,
     val expandableCellChevronSize: Dp = 30.dp,
     val iconFailSuccessSize: Dp = 60.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,
@@ -58,7 +59,6 @@ data class Dimensions(
     val topBarHeight: Dp = 64.dp,
     val verticalSpace: Dp = 20.dp,
     val verticalSpacer: Dp = 1.dp,
-    val dialogIconSize: Dp = 48.dp
 )
 
 val defaultDimensions = Dimensions()
