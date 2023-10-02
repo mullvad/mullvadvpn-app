@@ -8,11 +8,10 @@ import org.junit.Test
 class ArchitectureTests {
 
     @Test
-    fun `domain layer depends on nothing`() {
+    fun `ensure model layer depends on nothing`() =
         Konsist.scopeFromProduction().assertArchitecture {
-            val domain = Layer("Domain", "net.mullvad.mullvadvpn.model..")
+            val model = Layer("Model", "net.mullvad.mullvadvpn.model..")
 
-            domain.dependsOnNothing()
+            model.dependsOnNothing()
         }
-    }
 }

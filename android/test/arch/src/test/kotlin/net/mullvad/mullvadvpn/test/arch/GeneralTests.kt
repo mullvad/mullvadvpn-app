@@ -8,20 +8,17 @@ import org.junit.Test
 
 class GeneralTests {
     @Test
-    fun `package name must match file path`() {
+    fun `ensure package name must match file path`() =
         Konsist.scopeFromProject().packages.assert { it.hasMatchingPath }
-    }
 
     @Test
-    fun `no field should have 'm' prefix`() {
+    fun `ensure no field should have 'm' prefix`() =
         Konsist.scopeFromProject().classes().properties().assertNot {
             val secondCharacterIsUppercase = it.name.getOrNull(1)?.isUpperCase() ?: false
             it.name.startsWith('m') && secondCharacterIsUppercase
         }
-    }
 
     @Test
-    fun `no empty files allowed`() {
+    fun `ensure no empty files allowed`() =
         Konsist.scopeFromProject().files.assertNot { it.text.isEmpty() }
-    }
 }

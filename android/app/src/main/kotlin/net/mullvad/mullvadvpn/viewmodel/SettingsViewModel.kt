@@ -45,7 +45,7 @@ class SettingsViewModel(
             SettingsUiState(appVersion = "", isLoggedIn = false, isUpdateAvailable = false)
         )
 
-    @Suppress("konsist.ensurePublicPropertiesUsePermittedNames")
+    @Suppress("konsist.ensure public properties use permitted names")
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
     fun onTransitionAnimationEnd() {
