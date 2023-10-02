@@ -4,11 +4,9 @@ use super::{Error, TestContext};
 use super::config::TEST_CONFIG;
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use mullvad_management_interface::types;
-use once_cell::sync::Lazy;
-use std::collections::HashMap;
-use std::net::ToSocketAddrs;
 use std::{
-    net::{IpAddr, SocketAddr},
+    collections::HashMap,
+    net::{SocketAddr, ToSocketAddrs},
     time::Duration,
 };
 use test_macro::test_function;
@@ -48,10 +46,7 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> Re
 /// * The installer does not successfully complete.
 /// * The VPN service is not running after the upgrade.
 #[test_function(priority = -190)]
-pub async fn test_upgrade_app(
-    ctx: TestContext,
-    rpc: ServiceClient,
-) -> Result<(), Error> {
+pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<(), Error> {
     let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
     let bind_addr: SocketAddr = "0.0.0.0:0".parse().unwrap();
 
@@ -76,15 +71,26 @@ pub async fn test_upgrade_app(
     //
     log::debug!("Entering blocking error state");
 
-    rpc.exec("mullvad", ["relay", "set", "location", "xx"]).await.expect("Failed to set relay location");
-    rpc.exec("mullvad", ["connect"]).await.expect("Failed to begin connecting");
+    rpc.exec("mullvad", ["relay", "set", "location", "xx"])
+        .await
+        .expect("Failed to set relay location");
+    rpc.exec("mullvad", ["connect"])
+        .await
+        .expect("Failed to begin connecting");
 
     tokio::time::timeout(super::WAIT_FOR_TUNNEL_STATE_TIMEOUT, async {
         // use polling for sake of simplicity
         loop {
             const FIND_SLICE: &[u8] = b"Blocked:";
-            let result = rpc.exec("mullvad", ["status"]).await.expect("Failed to poll tunnel status");
-            if result.stdout.windows(FIND_SLICE.len()).any(|subslice| subslice == FIND_SLICE) {
+            let result = rpc
+                .exec("mullvad", ["status"])
+                .await
+                .expect("Failed to poll tunnel status");
+            if result
+                .stdout
+                .windows(FIND_SLICE.len())
+                .any(|subslice| subslice == FIND_SLICE)
+            {
                 break;
             }
             tokio::time::sleep(Duration::from_secs(1)).await;
