@@ -177,7 +177,7 @@ final class PacketTunnelActorTests: XCTestCase {
         }
 
         actor.start(options: StartOptions(launchSource: .app))
-        await actor.stop()
+        actor.stop()
         await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
     }
 
@@ -205,9 +205,9 @@ final class PacketTunnelActorTests: XCTestCase {
             connectedStateExpectation.fulfill()
         }
 
-        try await actor.start(options: StartOptions(launchSource: .app))
+        actor.start(options: StartOptions(launchSource: .app))
         await fulfillment(of: [connectedStateExpectation], timeout: 1)
-        await actor.stop()
+        actor.stop()
 
         XCTAssertNil(pathObserver.defaultPathHandler)
     }
@@ -224,7 +224,7 @@ final class PacketTunnelActorTests: XCTestCase {
                     // Guarantee that the task doesn't start before it's cancelled
                     let task = Task {
                         try await Task.sleep(duration: .seconds(1))
-                        await actor.setErrorState(reason: .readSettings)
+                        actor.setErrorState(reason: .readSettings)
                     }
                     task.cancel()
                 case .error:
@@ -237,7 +237,7 @@ final class PacketTunnelActorTests: XCTestCase {
             }
 
         actor.start(options: StartOptions(launchSource: .app))
-        await actor.stop()
+        actor.stop()
         await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
     }
 
@@ -253,7 +253,7 @@ final class PacketTunnelActorTests: XCTestCase {
             XCTFail("Should not change states before starting the actor")
         }
 
-        try await actor.reconnect(to: .random)
+        actor.reconnect(to: .random)
 
         await fulfillment(of: [initialStateExpectation], timeout: 1)
     }
@@ -267,15 +267,15 @@ final class PacketTunnelActorTests: XCTestCase {
             disconnectedStateExpectation.fulfill()
         }
 
-        try await actor.start(options: StartOptions(launchSource: .app))
-        await actor.stop()
+        actor.start(options: StartOptions(launchSource: .app))
+        actor.stop()
 
         await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
 
         await expect(.initial, on: actor) {
             XCTFail("Should not be trying to reconnect after stopping")
         }
-        try await actor.reconnect(to: .random)
+        await actor.reconnect(to: .random)
     }
 
     func testReconnectionStopsTunnelMonitor() async throws {
@@ -296,13 +296,13 @@ final class PacketTunnelActorTests: XCTestCase {
         await expect(expression, on: actor) {
             connectedExpectation.fulfill()
         }
-        try await actor.start(options: StartOptions(launchSource: .app))
+        actor.start(options: StartOptions(launchSource: .app))
         await fulfillment(of: [connectedExpectation], timeout: 1)
 
         // Cancel the state sink to avoid overfulfilling the connected expectation
         stateSink?.cancel()
 
-        try await actor.reconnect(to: .random)
+        actor.reconnect(to: .random)
         await fulfillment(of: [stopMonitorExpectation], timeout: 1)
     }
 }
