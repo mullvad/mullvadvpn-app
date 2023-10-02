@@ -7,6 +7,9 @@ use ipnetwork::IpNetwork;
 use std::{fmt, net::IpAddr};
 
 #[cfg(target_os = "windows")]
+mod debounce;
+
+#[cfg(target_os = "windows")]
 #[path = "windows/mod.rs"]
 mod imp;
 
