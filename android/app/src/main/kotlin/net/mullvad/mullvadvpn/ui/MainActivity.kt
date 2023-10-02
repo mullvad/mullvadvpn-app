@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.VpnService
@@ -13,7 +12,7 @@ import androidx.core.view.WindowCompat
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -61,7 +60,7 @@ class MainActivity : ComponentActivity() {
     }
 
     fun initializeStateHandlerAndServiceConnection() {
-        checkForNotificationPermission()
+        requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind(
             vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
@@ -100,11 +99,5 @@ class MainActivity : ComponentActivity() {
         val intent = VpnService.prepare(this)
 
         startActivityForResult(intent, 0)
-    }
-
-    private fun checkForNotificationPermission() {
-        if (isNotificationPermissionGranted().not()) {
-            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
     }
 }

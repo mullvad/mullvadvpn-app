@@ -8,6 +8,8 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.service.quicksettings.Tile
+import androidx.activity.result.ActivityResultLauncher
+import androidx.annotation.ChecksSdkIntAtLeast
 
 object SdkUtils {
     fun getSupportedPendingIntentFlags(): Int {
@@ -22,10 +24,17 @@ object SdkUtils {
         }
     }
 
-    fun Context.isNotificationPermissionGranted(): Boolean {
-        return (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) ||
-            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) ==
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.TIRAMISU)
+    fun Context.isNotificationPermissionMissing(): Boolean {
+        return (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
                 PackageManager.PERMISSION_GRANTED
+    }
+
+    fun Context.requestNotificationPermissionIfMissing(launcher: ActivityResultLauncher<String>) {
+        if (isNotificationPermissionMissing()) {
+            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     fun Tile.setSubtitleIfSupported(subtitleText: CharSequence) {
