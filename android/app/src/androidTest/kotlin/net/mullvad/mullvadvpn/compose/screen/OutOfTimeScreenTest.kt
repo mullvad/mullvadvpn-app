@@ -30,7 +30,7 @@ class OutOfTimeScreenTest {
             OutOfTimeScreen(
                 showSitePayment = false,
                 uiState = OutOfTimeUiState(),
-                viewActions = MutableSharedFlow(),
+                uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -58,8 +58,8 @@ class OutOfTimeScreenTest {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(),
-                viewActions =
-                    MutableStateFlow(OutOfTimeViewModel.ViewAction.OpenAccountView("222")),
+                uiSideEffect =
+                    MutableStateFlow(OutOfTimeViewModel.UiSideEffect.OpenAccountView("222")),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -81,7 +81,7 @@ class OutOfTimeScreenTest {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(),
-                viewActions = MutableStateFlow(OutOfTimeViewModel.ViewAction.OpenConnectScreen),
+                uiSideEffect = MutableStateFlow(OutOfTimeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -103,7 +103,7 @@ class OutOfTimeScreenTest {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(),
-                viewActions = MutableSharedFlow(),
+                uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = mockClickListener,
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -128,7 +128,7 @@ class OutOfTimeScreenTest {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(),
-                viewActions = MutableSharedFlow(),
+                uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = mockClickListener,
                 onSettingsClick = {},
@@ -153,7 +153,7 @@ class OutOfTimeScreenTest {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(tunnelState = TunnelState.Connecting(null, null)),
-                viewActions = MutableSharedFlow(),
+                uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},

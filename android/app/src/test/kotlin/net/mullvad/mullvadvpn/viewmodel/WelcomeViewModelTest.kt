@@ -95,10 +95,10 @@ class WelcomeViewModelTest {
             coEvery { mockAuthTokenCache.fetchAuthToken() } returns mockToken
 
             // Act, Assert
-            viewModel.viewActions.test {
+            viewModel.uiSideEffect.test {
                 viewModel.onSitePaymentClick()
                 val action = awaitItem()
-                assertIs<WelcomeViewModel.ViewAction.OpenAccountView>(action)
+                assertIs<WelcomeViewModel.UiSideEffect.OpenAccountView>(action)
                 assertEquals(mockToken, action.token)
             }
         }
@@ -151,10 +151,10 @@ class WelcomeViewModelTest {
             every { mockExpiryDate.isAfter(any<ReadableInstant>()) } returns true
 
             // Act, Assert
-            viewModel.viewActions.test {
+            viewModel.uiSideEffect.test {
                 accountExpiryState.value = AccountExpiry.Available(mockExpiryDate)
                 val action = awaitItem()
-                assertIs<WelcomeViewModel.ViewAction.OpenConnectScreen>(action)
+                assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
             }
         }
 

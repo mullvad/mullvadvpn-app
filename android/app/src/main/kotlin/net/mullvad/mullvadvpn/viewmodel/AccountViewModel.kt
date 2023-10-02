@@ -22,9 +22,9 @@ class AccountViewModel(
     deviceRepository: DeviceRepository
 ) : ViewModel() {
 
-    private val _viewActions = MutableSharedFlow<ViewAction>(extraBufferCapacity = 1)
+    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
     private val _enterTransitionEndAction = MutableSharedFlow<Unit>()
-    val viewActions = _viewActions.asSharedFlow()
+    val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     val uiState =
         combine(deviceRepository.deviceState, accountRepository.accountExpiryState) {
@@ -38,12 +38,13 @@ class AccountViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
 
+    @Suppress("konsist.ensurePublicPropertiesUsePermittedNames")
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            _viewActions.tryEmit(
-                ViewAction.OpenAccountManagementPageInBrowser(
+            _uiSideEffect.tryEmit(
+                UiSideEffect.OpenAccountManagementPageInBrowser(
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
             )
@@ -58,8 +59,8 @@ class AccountViewModel(
         viewModelScope.launch { _enterTransitionEndAction.emit(Unit) }
     }
 
-    sealed class ViewAction {
-        data class OpenAccountManagementPageInBrowser(val token: String) : ViewAction()
+    sealed class UiSideEffect {
+        data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect()
     }
 }
 

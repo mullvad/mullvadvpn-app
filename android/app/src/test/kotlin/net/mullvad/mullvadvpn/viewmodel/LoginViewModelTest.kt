@@ -63,7 +63,7 @@ class LoginViewModelTest {
         turbineScope {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
-            val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
+            val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.createAccount() } returns
                 AccountCreationResult.Success(DUMMY_ACCOUNT_TOKEN)
 
@@ -71,7 +71,7 @@ class LoginViewModelTest {
             uiStates.skipDefaultItem()
             loginViewModel.createAccount()
             assertEquals(Loading.CreatingAccount, uiStates.awaitItem().loginState)
-            assertEquals(LoginViewAction.NavigateToWelcome, sideEffects.awaitItem())
+            assertEquals(LoginUiSideEffect.NavigateToWelcome, sideEffects.awaitItem())
         }
     }
 
@@ -80,7 +80,7 @@ class LoginViewModelTest {
         turbineScope {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
-            val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
+            val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.Ok
 
             // Act, Assert
@@ -88,7 +88,7 @@ class LoginViewModelTest {
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
             assertEquals(Success, uiStates.awaitItem().loginState)
-            assertEquals(LoginViewAction.NavigateToConnect, sideEffects.awaitItem())
+            assertEquals(LoginUiSideEffect.NavigateToConnect, sideEffects.awaitItem())
         }
     }
 
@@ -111,7 +111,7 @@ class LoginViewModelTest {
         turbineScope {
             // Arrange
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
-            val sideEffects = loginViewModel.viewActions.testIn(backgroundScope)
+            val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery {
                 mockedDeviceRepository.refreshAndAwaitDeviceListWithTimeout(
                     any(),
@@ -127,7 +127,7 @@ class LoginViewModelTest {
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
             assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
             assertEquals(
-                LoginViewAction.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
+                LoginUiSideEffect.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
                 sideEffects.awaitItem()
             )
         }

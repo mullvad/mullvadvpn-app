@@ -31,7 +31,7 @@ class ChangelogDialogTest {
     @Test
     fun testShowChangeLogWhenNeeded() {
         // Arrange
-        every { mockedViewModel.changelogDialogUiState } returns
+        every { mockedViewModel.uiState } returns
             MutableStateFlow(ChangelogDialogUiState.Show(listOf(CHANGELOG_ITEM)))
         every { mockedViewModel.dismissChangelogDialog() } just Runs
 

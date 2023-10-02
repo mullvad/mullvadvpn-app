@@ -40,14 +40,12 @@ class ChangelogViewModelTest {
     @Test
     fun testInitialState() = runBlockingTest {
         // Arrange, Act, Assert
-        viewModel.changelogDialogUiState.test {
-            Assert.assertEquals(ChangelogDialogUiState.Hide, awaitItem())
-        }
+        viewModel.uiState.test { Assert.assertEquals(ChangelogDialogUiState.Hide, awaitItem()) }
     }
 
     @Test
     fun testShowAndDismissChangelogDialog() = runBlockingTest {
-        viewModel.changelogDialogUiState.test {
+        viewModel.uiState.test {
             // Arrange
             val fakeList = listOf("test")
             every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
@@ -70,7 +68,7 @@ class ChangelogViewModelTest {
 
     @Test
     fun testShowCaseChangelogWithEmptyListDialog() = runBlockingTest {
-        viewModel.changelogDialogUiState.test {
+        viewModel.uiState.test {
             // Arrange
             val fakeEmptyList = emptyList<String>()
             every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns

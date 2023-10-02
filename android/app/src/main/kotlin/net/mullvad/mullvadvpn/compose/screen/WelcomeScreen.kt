@@ -56,7 +56,7 @@ private fun PreviewWelcomeScreen() {
         WelcomeScreen(
             showSitePayment = true,
             uiState = WelcomeUiState(accountNumber = "4444555566667777", deviceName = "Happy Mole"),
-            viewActions = MutableSharedFlow<WelcomeViewModel.ViewAction>().asSharedFlow(),
+            uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
             onSitePaymentClick = {},
             onRedeemVoucherClick = {},
             onSettingsClick = {},
@@ -70,7 +70,7 @@ private fun PreviewWelcomeScreen() {
 fun WelcomeScreen(
     showSitePayment: Boolean,
     uiState: WelcomeUiState,
-    viewActions: SharedFlow<WelcomeViewModel.ViewAction>,
+    uiSideEffect: SharedFlow<WelcomeViewModel.UiSideEffect>,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -79,11 +79,11 @@ fun WelcomeScreen(
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        viewActions.collect { viewAction ->
-            when (viewAction) {
-                is WelcomeViewModel.ViewAction.OpenAccountView ->
-                    context.openAccountPageInBrowser(viewAction.token)
-                WelcomeViewModel.ViewAction.OpenConnectScreen -> openConnectScreen()
+        uiSideEffect.collect { uiSideEffect ->
+            when (uiSideEffect) {
+                is WelcomeViewModel.UiSideEffect.OpenAccountView ->
+                    context.openAccountPageInBrowser(uiSideEffect.token)
+                WelcomeViewModel.UiSideEffect.OpenConnectScreen -> openConnectScreen()
             }
         }
     }
