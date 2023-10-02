@@ -7,9 +7,12 @@ import org.junit.Test
 
 class DataClasses {
     @Test
-    fun `data classes use only immutable parameters`() {
-        projectScope().classes(includeNested = true).withDataModifier().assert {
-            it.properties(includeNested = true).all { property -> property.hasValModifier }
+    fun `data classes use only immutable declarations`() {
+        projectScope().classes(includeNested = true).withDataModifier().assert { classDeclaration ->
+            classDeclaration
+                .properties(includeNested = false)
+                .filter { classDeclaration == it.containingDeclaration }
+                .none { it.hasVarModifier }
         }
     }
 }
