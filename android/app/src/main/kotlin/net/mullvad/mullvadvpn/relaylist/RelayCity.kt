@@ -6,7 +6,7 @@ data class RelayCity(
     override val name: String,
     override val code: String,
     override val location: GeographicLocationConstraint,
-    override var expanded: Boolean,
+    override val expanded: Boolean,
     val relays: List<Relay>
 ) : RelayItem {
     override val type = RelayItemType.City

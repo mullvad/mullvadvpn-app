@@ -122,8 +122,9 @@ fun List<RelayCountry>.filterOnSearchTerm(
                 // Finally if the city has not already been added to the filtered list, add it, but
                 // do not expand it yet.
                 if (relayCity.name.contains(other = searchTerm, ignoreCase = true)) {
-                    if (filteredCountries.containsKey(relayCountry.code)) {
-                        filteredCountries[relayCountry.code]?.expanded = true
+                    val value = filteredCountries[relayCountry.code]
+                    if (value != null) {
+                        filteredCountries[relayCountry.code] = value.copy(expanded = true)
                     } else {
                         filteredCountries[relayCountry.code] =
                             relayCountry.copy(expanded = true, cities = cities)
@@ -141,15 +142,23 @@ fun List<RelayCountry>.filterOnSearchTerm(
                     // if so expand it, if not add it to the filtered list and expand it.
                     // Finally add the relay to the list.
                     if (relay.name.contains(other = searchTerm, ignoreCase = true)) {
-                        if (filteredCountries.containsKey(relayCountry.code)) {
-                            filteredCountries[relayCountry.code]?.expanded = true
+                        val value = filteredCountries[relayCountry.code]
+                        if (value != null) {
+                            filteredCountries[relayCountry.code] = value.copy(expanded = true)
                         } else {
                             filteredCountries[relayCountry.code] =
                                 relayCountry.copy(expanded = true, cities = cities)
                         }
-                        val city = cities.find { it.code == relayCity.code }
-                        city?.let { city.expanded = true }
-                            ?: run { cities.add(relayCity.copy(expanded = true, relays = relays)) }
+                        val cityIndex = cities.indexOfFirst { it.code == relayCity.code }
+
+                        // No city found
+                        if (cityIndex < 0) {
+                            cities.add(relayCity.copy(expanded = true, relays = relays))
+                        } else {
+                            // Update found city as expanded
+                            cities[cityIndex] = cities[cityIndex].copy(expanded = true)
+                        }
+
                         relays.add(relay.copy())
                     }
                 }

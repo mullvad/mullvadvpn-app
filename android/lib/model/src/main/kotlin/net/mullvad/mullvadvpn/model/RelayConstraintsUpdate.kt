@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.model
 
 data class RelayConstraintsUpdate(
-    var location: Constraint<LocationConstraint>?,
-    var wireguardConstraints: WireguardConstraints?
+    val location: Constraint<LocationConstraint>?,
+    val wireguardConstraints: WireguardConstraints?
 )
