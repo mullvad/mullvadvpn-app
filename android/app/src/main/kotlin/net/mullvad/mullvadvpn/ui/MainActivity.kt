@@ -13,7 +13,7 @@ import androidx.core.view.WindowCompat
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionMissing
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun checkForNotificationPermission() {
-        if (isNotificationPermissionGranted().not()) {
+        if (isNotificationPermissionMissing()) {
             requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }

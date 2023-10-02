@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.Intermittent
 import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionMissing
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.R
@@ -68,7 +68,7 @@ class AccountExpiryNotification(
         val durationUntilExpiry = expiryDate?.remainingTime()
 
         if (accountCache.isNewAccount.not() && durationUntilExpiry?.isCloseToExpiry() == true) {
-            if (context.isNotificationPermissionGranted()) {
+            if (context.isNotificationPermissionMissing().not()) {
                 val notification = build(expiryDate, durationUntilExpiry)
                 channel.notificationManager.notify(NOTIFICATION_ID, notification)
             }
