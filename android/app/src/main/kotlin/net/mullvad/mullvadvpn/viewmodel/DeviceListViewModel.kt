@@ -37,10 +37,11 @@ class DeviceListViewModel(
     private val _loadingDevices = MutableStateFlow<List<DeviceId>>(emptyList())
 
     private val _toastMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    @Suppress("konsist.ensurePublicPropertiesUsePermittedNames")
+    @Suppress("konsist.ensure public properties use permitted names")
     val toastMessages = _toastMessages.asSharedFlow()
 
-    @Suppress("konsist.ensurePublicPropertiesUsePermittedNames") var accountToken: String? = null
+    @Suppress("konsist.ensure public properties use permitted names")
+    var accountToken: String? = null
     private var cachedDeviceList: List<Device>? = null
 
     val uiState =

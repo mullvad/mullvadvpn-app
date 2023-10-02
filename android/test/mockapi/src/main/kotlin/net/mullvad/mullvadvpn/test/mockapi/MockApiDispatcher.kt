@@ -8,7 +8,10 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ACCESS_TOKEN
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID
 import net.mullvad.mullvadvpn.test.mockapi.constant.LOG_TAG
+import net.mullvad.mullvadvpn.test.mockapi.util.accessTokenJsonResponse
+import net.mullvad.mullvadvpn.test.mockapi.util.accountInfoJson
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
+import net.mullvad.mullvadvpn.test.mockapi.util.deviceJson
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest

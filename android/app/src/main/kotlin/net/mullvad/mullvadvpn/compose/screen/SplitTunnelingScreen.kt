@@ -44,7 +44,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
-fun PreviewSplitTunnelingScreen() {
+private fun PreviewSplitTunnelingScreen() {
     AppTheme {
         SplitTunnelingScreen(
             uiState =

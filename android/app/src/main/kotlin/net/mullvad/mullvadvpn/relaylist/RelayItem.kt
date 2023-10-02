@@ -13,5 +13,5 @@ interface RelayItem {
     val locationName: String
         get() = name
 
-    var expanded: Boolean
+    val expanded: Boolean
 }

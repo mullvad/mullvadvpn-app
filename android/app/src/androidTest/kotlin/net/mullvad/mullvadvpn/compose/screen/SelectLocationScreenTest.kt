@@ -82,9 +82,13 @@ class SelectLocationScreenTest {
                     uiState =
                         SelectLocationUiState.ShowData(
                             countries =
-                                DUMMY_RELAY_COUNTRIES.apply {
-                                    this[0].expanded = true
-                                    this[0].cities[0].expanded = true
+                                DUMMY_RELAY_COUNTRIES.let {
+                                    val cities = it[0].cities.toMutableList()
+                                    val city = cities.removeAt(0)
+                                    cities.add(0, city.copy(expanded = true))
+                                    it.toMutableList()[0] =
+                                        it[0].copy(expanded = true, cities = cities.toList())
+                                    it
                                 },
                             selectedRelay = DUMMY_RELAY_COUNTRIES[0].cities[0].relays[0]
                         ),

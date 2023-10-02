@@ -34,6 +34,27 @@ sealed class TunnelState : Parcelable {
         }
     }
 
+    override fun toString(): String =
+        when (this) {
+            is Disconnected -> DISCONNECTED
+            is Connecting -> CONNECTING
+            is Connected -> CONNECTED
+            is Disconnecting -> {
+                if (actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
+                    RECONNECTING
+                } else {
+                    DISCONNECTING
+                }
+            }
+            is Error -> {
+                if (errorState.isBlocking) {
+                    BLOCKING
+                } else {
+                    ERROR
+                }
+            }
+        }
+
     companion object {
         const val DISCONNECTED = "disconnected"
         const val CONNECTING = "connecting"
@@ -58,25 +79,4 @@ sealed class TunnelState : Parcelable {
             }
         }
     }
-
-    override fun toString(): String =
-        when (this) {
-            is Disconnected -> DISCONNECTED
-            is Connecting -> CONNECTING
-            is Connected -> CONNECTED
-            is Disconnecting -> {
-                if (actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
-                    RECONNECTING
-                } else {
-                    DISCONNECTING
-                }
-            }
-            is Error -> {
-                if (errorState.isBlocking) {
-                    BLOCKING
-                } else {
-                    ERROR
-                }
-            }
-        }
 }

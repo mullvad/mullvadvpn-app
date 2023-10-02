@@ -36,7 +36,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
-fun PreviewPrivacyDisclaimerScreen() {
+private fun PreviewPrivacyDisclaimerScreen() {
     AppTheme { PrivacyDisclaimerScreen({}, {}) }
 }
 

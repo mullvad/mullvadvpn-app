@@ -11,12 +11,6 @@ import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
 
 class AuthTokenCache(endpoint: ServiceEndpoint) {
-    companion object {
-        private enum class Command {
-            Fetch
-        }
-    }
-
     private val daemon = endpoint.intermittentDaemon
     private val requestQueue = spawnActor()
 
@@ -46,4 +40,10 @@ class AuthTokenCache(endpoint: ServiceEndpoint) {
                 // Closed sender, so stop the actor
             }
         }
+
+    companion object {
+        private enum class Command {
+            Fetch
+        }
+    }
 }

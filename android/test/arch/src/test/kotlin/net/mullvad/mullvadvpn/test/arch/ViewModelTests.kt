@@ -12,26 +12,23 @@ import org.junit.Test
 
 class ViewModelTests {
     @Test
-    fun ensureViewModelsHaveViewModelSuffix() {
+    fun `ensure view models have view model suffix`() =
         allViewModels().assert { it.name.endsWith("ViewModel") }
-    }
 
     // The purpose of this check is to both keep the naming consistent and also to avoid exposing
     // properties that shouldn't be exposed.
     @Test
-    fun ensurePublicPropertiesUsePermittedNames() {
+    fun `ensure public properties use permitted names`() =
         allViewModels().properties(includeNested = false).withPublicOrDefaultModifier().assert {
             property ->
             property.name == "uiState" || property.name == "uiSideEffect"
         }
-    }
 
     @Test
-    fun ensurePublicFunctionsHaveNoReturnType() {
+    fun `ensure public functions have no return type`() =
         allViewModels().functions().withPublicOrDefaultModifier().assertNot { function ->
             function.hasReturnType()
         }
-    }
 
     private fun allViewModels() =
         Konsist.scopeFromProject().classes().withAllParentsOf(ViewModel::class)
