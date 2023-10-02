@@ -12,7 +12,5 @@ data class Relay(
     override val type = RelayItemType.Relay
     override val hasChildren = false
 
-    override var expanded
-        get() = false
-        set(_) {}
+    override val expanded = false
 }
