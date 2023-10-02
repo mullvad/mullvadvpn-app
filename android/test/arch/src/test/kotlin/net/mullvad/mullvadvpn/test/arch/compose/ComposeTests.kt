@@ -8,9 +8,8 @@ import org.junit.Test
 
 class ComposeTests {
     @Test
-    fun `all app composables are in the compose packages`() {
+    fun `ensure all app composables are in the compose package`() =
         allAppComposeFunctions().assert { it.resideInPackage("net.mullvad.mullvadvpn.compose..") }
-    }
 
     private fun allAppComposeFunctions() =
         Konsist.scopeFromProduction("app").functions().withAllAnnotationsOf(Composable::class)

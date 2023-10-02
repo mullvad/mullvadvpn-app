@@ -51,7 +51,7 @@ class VpnSettingsViewModel(
 ) : ViewModel() {
 
     private val _toastMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    @Suppress("konsist.ensurePublicPropertiesUsePermittedNames")
+    @Suppress("konsist.ensure public properties use permitted names")
     val toastMessages = _toastMessages.asSharedFlow()
 
     private val dialogState =
