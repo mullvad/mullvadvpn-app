@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -45,11 +45,11 @@ fun PrivacyDisclaimerScreen(
     onPrivacyPolicyLinkClicked: () -> Unit,
     onAcceptClicked: () -> Unit,
 ) {
-    val topColor = colorResource(R.color.blue)
+    val topColor = MaterialTheme.colorScheme.primary
     ScaffoldWithTopBar(
         topBarColor = topColor,
         statusBarColor = topColor,
-        navigationBarColor = colorResource(id = R.color.darkBlue),
+        navigationBarColor = MaterialTheme.colorScheme.background,
         onAccountClicked = null,
         onSettingsClicked = null
     ) {
@@ -58,7 +58,7 @@ fun PrivacyDisclaimerScreen(
                 Modifier.fillMaxHeight()
                     .fillMaxWidth()
                     .padding(it)
-                    .background(colorResource(id = R.color.darkBlue))
+                    .background(color = MaterialTheme.colorScheme.background)
         ) {
             val (body, actionButtons) = createRefs()
             val sideMargin = dimensionResource(id = R.dimen.side_margin)
@@ -124,8 +124,8 @@ fun PrivacyDisclaimerScreen(
                     onClick = onAcceptClicked::invoke,
                     colors =
                         ButtonDefaults.buttonColors(
-                            contentColor = Color.White,
-                            containerColor = colorResource(R.color.blue)
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            containerColor = MaterialTheme.colorScheme.primary
                         )
                 )
             }
