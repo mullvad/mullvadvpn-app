@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.Manifest
 import android.app.Activity
 import android.app.UiModeManager
 import android.content.Intent
@@ -30,6 +29,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.getNotificationPermissionResource
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
@@ -334,7 +334,9 @@ open class MainActivity : FragmentActivity() {
 
     private fun checkForNotificationPermission() {
         if (isNotificationPermissionGranted().not()) {
-            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            getNotificationPermissionResource()?.let {
+                requestNotificationPermissionLauncher.launch(it)
+            }
         }
     }
 
