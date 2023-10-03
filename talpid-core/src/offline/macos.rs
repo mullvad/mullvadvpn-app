@@ -12,9 +12,6 @@ use std::sync::{
 };
 use talpid_routing::{DefaultRouteEvent, RouteManagerHandle};
 
-/// How long to wait before announcing changes to the offline state
-//const DEBOUNCE_INTERVAL: Duration = Duration::from_secs(2);
-
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to initialize route monitor")]
@@ -119,11 +116,6 @@ pub async fn spawn_monitor(
                         Some(tx) => tx,
                         None => return,
                     };
-
-                    // Debounce event updates
-                    // FIXME: Debounce is disabled because the DNS config can get messed up
-                    //        when switching between networks otherwise.
-                    //tokio::time::sleep(DEBOUNCE_INTERVAL).await;
 
                     if prev_notified.swap(new_connectivity, Ordering::AcqRel) == new_connectivity {
                         // We don't care about network changes here

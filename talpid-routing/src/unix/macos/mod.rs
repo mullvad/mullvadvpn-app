@@ -1,4 +1,4 @@
-use crate::{NetNode, Node, RequiredRoute, Route};
+use crate::{debounce::BurstGuard, NetNode, Node, RequiredRoute, Route};
 
 use futures::{
     channel::mpsc,
@@ -7,11 +7,11 @@ use futures::{
 };
 use ipnetwork::IpNetwork;
 use nix::sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage};
-use std::pin::Pin;
 use std::{
     collections::{BTreeMap, HashSet},
     time::Duration,
 };
+use std::{pin::Pin, sync::Weak};
 use talpid_types::ErrorExt;
 use watch::RoutingTable;
 
@@ -85,6 +85,7 @@ pub struct RouteManagerImpl {
     applied_routes: BTreeMap<RouteDestination, RouteMessage>,
     v4_default_route: Option<data::RouteMessage>,
     v6_default_route: Option<data::RouteMessage>,
+    update_trigger: BurstGuard,
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
     check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
 }
@@ -92,8 +93,16 @@ pub struct RouteManagerImpl {
 impl RouteManagerImpl {
     /// Create new route manager
     #[allow(clippy::unused_async)]
-    pub async fn new() -> Result<Self> {
+    pub(crate) async fn new(
+        manage_tx: Weak<mpsc::UnboundedSender<RouteManagerCommand>>,
+    ) -> Result<Self> {
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
+        let update_trigger = BurstGuard::new(move || {
+            let Some(manage_tx) = manage_tx.upgrade() else {
+                return;
+            };
+            let _ = manage_tx.unbounded_send(RouteManagerCommand::RefreshRoutes);
+        });
         Ok(Self {
             routing_table,
             non_tunnel_routes: HashSet::new(),
@@ -102,6 +111,7 @@ impl RouteManagerImpl {
             applied_routes: BTreeMap::new(),
             v4_default_route: None,
             v6_default_route: None,
+            update_trigger,
             default_route_listeners: vec![],
             check_default_routes_restored: Box::pin(futures::stream::pending()),
         })
@@ -129,10 +139,12 @@ impl RouteManagerImpl {
                 );
             });
 
+        let mut completion_tx = None;
+
         loop {
             futures::select_biased! {
                 route_message = self.routing_table.next_message().fuse() => {
-                    self.handle_route_message(route_message).await;
+                    self.handle_route_message(route_message);
                 }
 
                 _ = self.check_default_routes_restored.next() => {
@@ -148,11 +160,8 @@ impl RouteManagerImpl {
                 command = manage_rx.next() => {
                     match command {
                         Some(RouteManagerCommand::Shutdown(tx)) => {
-                            if let Err(err) = self.cleanup_routes().await {
-                                log::error!("Failed to clean up routes: {err}");
-                            }
-                            let _ = tx.send(());
-                            return;
+                            completion_tx = Some(tx);
+                            break;
                         },
 
                         Some(RouteManagerCommand::NewDefaultRouteListener(tx)) => {
@@ -214,6 +223,11 @@ impl RouteManagerImpl {
                                 log::error!("Failed to clean up rotues: {err}");
                             }
                         },
+                        Some(RouteManagerCommand::RefreshRoutes) => {
+                            if let Err(error) = self.refresh_routes().await {
+                                log::error!("Failed to refresh routes: {error}")
+                            }
+                        },
                         None => {
                             break;
                         }
@@ -224,6 +238,12 @@ impl RouteManagerImpl {
 
         if let Err(err) = self.cleanup_routes().await {
             log::error!("Failed to clean up routing table when shutting down: {err}");
+        }
+
+        self.update_trigger.stop_nonblocking();
+
+        if let Some(tx) = completion_tx {
+            let _ = tx.send(());
         }
     }
 
@@ -287,7 +307,7 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    async fn handle_route_message(
+    fn handle_route_message(
         &mut self,
         message: std::result::Result<RouteSocketMessage, watch::Error>,
     ) {
@@ -303,17 +323,18 @@ impl RouteManagerImpl {
                         log::error!("Failed to process deleted route: {err}");
                     }
                 }
-
-                if let Err(error) = self.handle_route_socket_message().await {
-                    log::error!("Failed to process route change: {error}");
+                if route.errno() == 0 && route.is_default().unwrap_or(true) {
+                    self.update_trigger.trigger();
                 }
             }
-            Ok(RouteSocketMessage::AddRoute(_))
-            | Ok(RouteSocketMessage::ChangeRoute(_))
-            | Ok(RouteSocketMessage::AddAddress(_) | RouteSocketMessage::DeleteAddress(_)) => {
-                if let Err(error) = self.handle_route_socket_message().await {
-                    log::error!("Failed to process route/address change: {error}");
+            Ok(RouteSocketMessage::AddRoute(route))
+            | Ok(RouteSocketMessage::ChangeRoute(route)) => {
+                if route.errno() == 0 && route.is_default().unwrap_or(true) {
+                    self.update_trigger.trigger();
                 }
+            }
+            Ok(RouteSocketMessage::AddAddress(_) | RouteSocketMessage::DeleteAddress(_)) => {
+                self.update_trigger.trigger();
             }
             // ignore all other message types
             Ok(_) => {}
@@ -329,7 +350,7 @@ impl RouteManagerImpl {
     /// * At the same time, update the route used by non-tunnel interfaces to reach the relay/VPN
     ///   server. The gateway of the relay route is set to the first interface in the network
     ///   service order that has a working ifscoped default route.
-    async fn handle_route_socket_message(&mut self) -> Result<()> {
+    async fn refresh_routes(&mut self) -> Result<()> {
         self.update_best_default_route(interface::Family::V4)
             .await?;
         self.update_best_default_route(interface::Family::V6)

@@ -123,10 +123,8 @@ impl Drop for DefaultRouteMonitor {
         let context = unsafe { Box::from_raw(self.context as *mut ContextAndBurstGuard) };
 
         // Stop the burst guard
-        context.burst_guard.lock().unwrap().stop();
-
-        // Drop the context now that we are guaranteed nothing might try to access the context
-        drop(context);
+        let context = context.burst_guard.into_inner().unwrap();
+        context.stop();
     }
 }
 

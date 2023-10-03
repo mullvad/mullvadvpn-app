@@ -6,7 +6,7 @@
 use ipnetwork::IpNetwork;
 use std::{fmt, net::IpAddr};
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 mod debounce;
 
 #[cfg(target_os = "windows")]
