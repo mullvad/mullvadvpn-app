@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="days">
+        <item quantity="one">1 dia</item>
+        <item quantity="other">%1$d dias</item>
+    </plurals>
     <plurals name="days_left">
         <item quantity="one">1 dia restante</item>
         <item quantity="other">%1$d dias restantes</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">1 mês</item>
+        <item quantity="other">%1$d meses</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">1 mês restante</item>

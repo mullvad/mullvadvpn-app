@@ -1772,6 +1772,9 @@ msgstr ""
 msgid "Valid ranges: %s"
 msgstr ""
 
+msgid "Verifying voucher…"
+msgstr ""
+
 msgid "Virtual adapter error"
 msgstr ""
 
@@ -1797,6 +1800,12 @@ msgid "You are running an unsupported app version."
 msgstr ""
 
 msgid "less than a minute ago"
+msgstr ""
+
+msgid "less than one day was added to your account."
+msgstr ""
+
+msgid "was added to your account."
 msgstr ""
 
 msgid "Account credit expires in a day"
