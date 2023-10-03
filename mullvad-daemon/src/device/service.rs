@@ -3,7 +3,7 @@ use std::{future::Future, time::Duration};
 use chrono::{DateTime, Utc};
 use futures::future::{abortable, AbortHandle};
 use mullvad_types::{
-    account::{AccountToken, VoucherSubmission},
+    account::{AccountToken, PlayPurchase, PlayPurchaseInitResult, VoucherSubmission},
     device::{Device, DeviceId},
     wireguard::WireguardData,
 };
@@ -310,6 +310,45 @@ impl AccountService {
         let api_handle = self.api_availability.clone();
         let result = retry_future(
             move || proxy.submit_voucher(account_token.clone(), voucher.clone()),
+            move |result| should_retry(result, &api_handle),
+            RETRY_ACTION_STRATEGY,
+        )
+        .await;
+        if result.is_ok() {
+            self.initial_check_abort_handle.abort();
+            self.api_availability.resume_background();
+        }
+        result.map_err(map_rest_error)
+    }
+
+    pub async fn init_play_purchase(
+        &self,
+        account_token: AccountToken,
+    ) -> Result<PlayPurchaseInitResult, Error> {
+        let mut proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
+        let result = retry_future(
+            move || proxy.init_play_purchase(account_token.clone()),
+            move |result| should_retry(result, &api_handle),
+            RETRY_ACTION_STRATEGY,
+        )
+        .await;
+        if result.is_ok() {
+            self.initial_check_abort_handle.abort();
+            self.api_availability.resume_background();
+        }
+        result.map_err(map_rest_error)
+    }
+
+    pub async fn verify_play_purchase(
+        &self,
+        account_token: AccountToken,
+        play_purchase: PlayPurchase,
+    ) -> Result<(), Error> {
+        let mut proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
+        let result = retry_future(
+            move || proxy.verify_play_purchase(account_token.clone(), play_purchase.clone()),
             move |result| should_retry(result, &api_handle),
             RETRY_ACTION_STRATEGY,
         )

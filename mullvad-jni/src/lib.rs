@@ -24,7 +24,7 @@ use mullvad_daemon::{
     DaemonCommandChannel,
 };
 use mullvad_types::{
-    account::{AccountData, VoucherSubmission},
+    account::{AccountData, PlayPurchase, VoucherSubmission},
     settings::DnsOptions,
 };
 use std::{
@@ -188,6 +188,62 @@ impl From<daemon_interface::Error> for VoucherSubmissionError {
             )) => VoucherSubmissionError::VoucherAlreadyUsed,
             _ => VoucherSubmissionError::OtherError,
         }
+    }
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum PlayPurchaseInitResult {
+    Ok(String),
+    Error(PlayPurchaseInitError),
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum PlayPurchaseInitError {
+    OtherError,
+}
+
+impl From<Result<String, daemon_interface::Error>> for PlayPurchaseInitResult {
+    fn from(result: Result<String, daemon_interface::Error>) -> Self {
+        match result {
+            Ok(obfuscated_id) => PlayPurchaseInitResult::Ok(obfuscated_id),
+            Err(error) => PlayPurchaseInitResult::Error(error.into()),
+        }
+    }
+}
+
+impl From<daemon_interface::Error> for PlayPurchaseInitError {
+    fn from(error: daemon_interface::Error) -> Self {
+        PlayPurchaseInitError::OtherError
+    }
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum PlayPurchaseVerifyResult {
+    Ok,
+    Error(PlayPurchaseVerifyError),
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum PlayPurchaseVerifyError {
+    OtherError,
+}
+
+impl From<Result<(), daemon_interface::Error>> for PlayPurchaseVerifyResult {
+    fn from(result: Result<(), daemon_interface::Error>) -> Self {
+        match result {
+            Ok(()) => PlayPurchaseVerifyResult::Ok,
+            Err(error) => PlayPurchaseVerifyResult::Error(error.into()),
+        }
+    }
+}
+
+impl From<daemon_interface::Error> for PlayPurchaseVerifyError {
+    fn from(error: daemon_interface::Error) -> Self {
+        PlayPurchaseVerifyError::OtherError
     }
 }
 
@@ -1187,6 +1243,62 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_submitV
             VoucherSubmissionResult::from(raw_result)
         } else {
             VoucherSubmissionResult::Error(VoucherSubmissionError::OtherError)
+        };
+
+    result.into_java(&env).forget()
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initPlayPurchase<'env>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    let result =
+        // SAFETY: The address points to an instance valid for the duration of this function call
+        if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+            let raw_result = daemon_interface.init_play_purchase();
+
+            if let Err(ref error) = &raw_result {
+                log_request_error("init google play purchase", error);
+            }
+
+            PlayPurchaseInitResult::from(raw_result)
+        } else {
+            PlayPurchaseInitResult::Error(PlayPurchaseInitError::OtherError)
+        };
+
+    result.into_java(&env).forget()
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_verifyPlayPurchase<
+    'env,
+>(
+    env: JNIEnv<'env>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    play_purchase: JObject<'_>,
+) -> JObject<'env> {
+    let env = JnixEnv::from(env);
+
+    let result =
+        // SAFETY: The address points to an instance valid for the duration of this function call
+        if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
+            let play_purchase = PlayPurchase::from_java(&env, play_purchase);
+            let raw_result = daemon_interface.verify_play_purchase(play_purchase);
+
+            if let Err(ref error) = &raw_result {
+                log_request_error("verify google play purchase", error);
+            }
+
+            PlayPurchaseVerifyResult::from(raw_result)
+        } else {
+            PlayPurchaseVerifyResult::Error(PlayPurchaseVerifyError::OtherError)
         };
 
     result.into_java(&env).forget()

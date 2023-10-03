@@ -1,7 +1,7 @@
 use futures::{channel::oneshot, executor::block_on};
 use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
-    account::{AccountData, AccountToken, VoucherSubmission},
+    account::{AccountData, AccountToken, PlayPurchase, VoucherSubmission},
     device::{Device, DeviceState},
     location::GeoIpLocation,
     relay_constraints::{ObfuscationSettings, RelaySettingsUpdate},
@@ -301,6 +301,26 @@ impl DaemonInterface {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::SubmitVoucher(tx, voucher))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
+    pub fn init_play_purchase(&self) -> Result<String> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::InitPlayPurchase(tx))?;
+
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
+    }
+
+    pub fn verify_play_purchase(&self, play_purchase: PlayPurchase) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::VerifyPlayPurchase(tx, play_purchase))?;
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
