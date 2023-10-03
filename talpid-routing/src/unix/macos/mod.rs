@@ -313,8 +313,7 @@ impl RouteManagerImpl {
     ) {
         match message {
             Ok(RouteSocketMessage::DeleteRoute(route)) => {
-                // Forget about applied route, if relevant. This is simply prevent ourselves from
-                // deleting it later.
+                // Forget about applied route, if relevant
                 match RouteDestination::try_from(&route).map_err(Error::InvalidData) {
                     Ok(destination) => {
                         self.applied_routes.remove(&destination);
@@ -355,6 +354,12 @@ impl RouteManagerImpl {
             .await?;
         self.update_best_default_route(interface::Family::V6)
             .await?;
+
+        // Remove any existing ifscope route that we've added
+        self.remove_applied_routes(|route| {
+            route.is_ifscope() && route.is_default().unwrap_or(false)
+        })
+        .await;
 
         // Substitute route with a tunnel route
         self.apply_tunnel_default_route().await?;
@@ -456,7 +461,7 @@ impl RouteManagerImpl {
             };
 
             // Replace the default route with an ifscope route
-            self.set_default_route_ifscope(family, true).await?;
+            self.replace_with_scoped_route(family).await?;
 
             // Make sure there is really no other unscoped default route
             let mut msg = RouteMessage::new_route(IpNetwork::from(family).into());
@@ -529,45 +534,17 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    /// Replace a known default route with an ifscope route, if should_be_ifscoped is true.
-    /// If should_be_ifscoped is false, the route is replaced with a non-ifscoped default route
-    /// instead.
-    async fn set_default_route_ifscope(
-        &mut self,
-        family: interface::Family,
-        should_be_ifscoped: bool,
-    ) -> Result<()> {
+    /// Replace a known default route with an ifscope route.
+    async fn replace_with_scoped_route(&mut self, family: interface::Family) -> Result<()> {
         let Some(default_route) = get_current_best_default_route!(self, family) else {
             return Ok(());
         };
 
-        if default_route.is_ifscope() == should_be_ifscoped {
-            return Ok(());
-        }
-
         log::trace!("Setting non-ifscope: {default_route:?}");
 
-        let interface_index = if should_be_ifscoped {
-            let interface_index = default_route.interface_index();
-            if interface_index == 0 {
-                log::error!("Cannot find interface index of default interface");
-            }
-            interface_index
-        } else {
-            0
-        };
+        let interface_index = default_route.interface_index();
         let new_route = default_route.clone().set_ifscope(interface_index);
-        let old_route = std::mem::replace(default_route, new_route);
-
-        self.routing_table
-            .delete_route(&old_route)
-            .await
-            .map_err(Error::DeleteRoute)?;
-
-        self.routing_table
-            .add_route(default_route)
-            .await
-            .map_err(Error::AddRoute)
+        self.add_route_with_record(new_route).await
     }
 
     async fn add_route_with_record(&mut self, route: RouteMessage) -> Result<()> {
@@ -583,17 +560,8 @@ impl RouteManagerImpl {
     }
 
     async fn cleanup_routes(&mut self) -> Result<()> {
-        // Remove all applied routes. This includes default destination routes
-        let old_routes = std::mem::take(&mut self.applied_routes);
-        for (_dest, route) in old_routes.into_iter() {
-            log::trace!("Removing route: {route:?}");
-            match self.routing_table.delete_route(&route).await {
-                Ok(_) | Err(watch::Error::RouteNotFound) | Err(watch::Error::Unreachable) => (),
-                Err(err) => {
-                    log::error!("Failed to remove relay route: {err:?}");
-                }
-            }
-        }
+        self.remove_applied_routes(|r| !r.is_ifscope() || !r.is_default().unwrap_or(false))
+            .await;
 
         // We have already removed the applied default routes
         self.v4_tunnel_default_route = None;
@@ -606,6 +574,29 @@ impl RouteManagerImpl {
         self.non_tunnel_routes.clear();
 
         Ok(())
+    }
+
+    /// Remove all applied routes for which `filter` returns true
+    async fn remove_applied_routes(&mut self, filter: impl Fn(&RouteMessage) -> bool) {
+        let mut deleted_routes = vec![];
+
+        self.applied_routes.retain(|_dest, route| {
+            if filter(route) {
+                deleted_routes.push(route.clone());
+                return false;
+            }
+            true
+        });
+
+        for route in deleted_routes {
+            log::trace!("Removing route: {route:?}");
+            match self.routing_table.delete_route(&route).await {
+                Ok(_) | Err(watch::Error::RouteNotFound) | Err(watch::Error::Unreachable) => (),
+                Err(err) => {
+                    log::error!("Failed to remove relay route: {err:?}");
+                }
+            }
+        }
     }
 
     /// FIXME: Hack. Restoring the default routes during cleanup sometimes fails, so repeatedly try
@@ -642,6 +633,8 @@ impl RouteManagerImpl {
         let current_route = get_current_best_default_route!(self, family);
         let message = RouteMessage::new_route(IpNetwork::from(family).into());
         if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
+            self.remove_applied_routes(|r| r.is_ifscope() && r.is_default().unwrap_or(false))
+                .await;
             return true;
         }
 
@@ -652,7 +645,7 @@ impl RouteManagerImpl {
         let done = if let Some(route) = current_route {
             *route = route.clone().set_ifscope(0);
             if let Err(error) = self.routing_table.add_route(route).await {
-                log::trace!("Failed to add non-ifscope {family} route: {error}");
+                log::trace!("Failed to add unscoped default {family} route: {error}");
             }
             false
         } else {
