@@ -192,6 +192,7 @@
     <string name="view_logs">앱 로그 보기</string>
     <string name="virtual_adapter_problem">가상 어댑터 오류</string>
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
+    <string name="voucher_success_title">바우처가 성공적으로 사용되었습니다.</string>
     <string name="vpn_permission_denied_error">터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요.</string>
     <string name="vpn_permission_error_notification_message">상시 접속 VPN이 다른 앱에 활성화되었을 수 있습니다.</string>
     <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
