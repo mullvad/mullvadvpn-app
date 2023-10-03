@@ -1,21 +1,22 @@
 use ipnetwork::IpNetwork;
-use libc::{if_indextoname, IFNAMSIZ};
-use nix::net::if_::{if_nametoindex, InterfaceFlags};
-use std::{
-    ffi::{CStr, CString},
-    io,
-    net::{Ipv4Addr, Ipv6Addr},
+use nix::{
+    net::if_::{if_nametoindex, InterfaceFlags},
+    sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage},
 };
+use std::{
+    collections::BTreeMap,
+    ffi::CString,
+    io,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+};
+
 use system_configuration::{
     core_foundation::string::CFString,
     network_configuration::{SCNetworkService, SCNetworkSet},
     preferences::SCPreferences,
 };
 
-use super::{
-    data::{Destination, RouteMessage},
-    watch::RoutingTable,
-};
+use super::data::{Destination, RouteMessage};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Family {
@@ -41,48 +42,6 @@ impl From<Family> for IpNetwork {
     }
 }
 
-/// Retrieve the current unscoped default route. That is the only default route that does not have
-/// the IF_SCOPE flag set, if such a route exists.
-///
-/// # Note
-///
-/// For some reason, the socket sometimes returns a route with the IF_SCOPE flag set, if there also
-/// exists a scoped route for the same interface. This does not occur if there is no unscoped route,
-/// so we can still rely on it.
-pub async fn get_unscoped_default_route(
-    routing_table: &mut RoutingTable,
-    family: Family,
-) -> Option<RouteMessage> {
-    let mut msg = RouteMessage::new_route(Destination::Network(IpNetwork::from(family)));
-    msg = msg.set_gateway_route(true);
-
-    let route = routing_table
-        .get_route(&msg)
-        .await
-        .unwrap_or_else(|error| {
-            log::error!("Failed to retrieve unscoped default route: {error}");
-            None
-        })?;
-
-    let idx = u32::from(route.interface_index());
-    if idx != 0 {
-        let mut ifname = [0u8; IFNAMSIZ];
-
-        // SAFETY: The buffer is large to contain any interface name.
-        if !unsafe { if_indextoname(idx, ifname.as_mut_ptr() as _) }.is_null() {
-            let ifname = CStr::from_bytes_until_nul(&ifname).unwrap();
-            let name = ifname.to_str().expect("expected ascii");
-
-            // Ignore the unscoped route if its interface is not "active"
-            if !is_active_interface(name, family).unwrap_or(true) {
-                return None;
-            }
-        }
-    }
-
-    Some(route)
-}
-
 /// Retrieve the best current default route. That is the first scoped default route, ordered by
 /// network service order, and with interfaces filtered out if they do not have valid IP addresses
 /// assigned.
@@ -90,14 +49,15 @@ pub async fn get_unscoped_default_route(
 /// # Note
 ///
 /// The tunnel interface is not even listed in the service order, so it will be skipped.
-pub async fn get_best_default_route(
-    routing_table: &mut RoutingTable,
-    family: Family,
-) -> Option<RouteMessage> {
+pub async fn get_best_default_route(family: Family) -> Option<RouteMessage> {
     let mut msg = RouteMessage::new_route(Destination::Network(IpNetwork::from(family)));
     msg = msg.set_gateway_route(true);
 
     for iface in network_service_order() {
+        let Ok(Some(router_addr)) = get_router_address(family, &iface).await else {
+            continue;
+        };
+
         let iface_bytes = match CString::new(iface.as_bytes()) {
             Ok(name) => name,
             Err(error) => {
@@ -107,23 +67,77 @@ pub async fn get_best_default_route(
         };
 
         // Get interface ID
-        let index = match if_nametoindex(iface_bytes.as_c_str()) {
-            Ok(index) => index,
-            Err(_error) => {
-                continue;
-            }
+        let Ok(index) = if_nametoindex(iface_bytes.as_c_str()) else {
+            continue;
         };
 
         // Request ifscoped default route for this interface
-        let route_msg = msg.clone().set_ifscope(u16::try_from(index).unwrap());
-        if let Ok(Some(route)) = routing_table.get_route(&route_msg).await {
-            if is_active_interface(&iface, family).unwrap_or(true) {
-                return Some(route);
-            }
+        let route_msg = msg
+            .clone()
+            .set_gateway_addr(router_addr)
+            .set_interface_index(u16::try_from(index).unwrap());
+        if is_active_interface(&iface, family).unwrap_or(true) {
+            return Some(route_msg);
         }
     }
 
     None
+}
+
+/// Return a map from interface name to link addresses (AF_LINK)
+pub fn get_interface_link_addresses() -> io::Result<BTreeMap<String, SockaddrStorage>> {
+    let mut gateway_link_addrs = BTreeMap::new();
+    let addrs = nix::ifaddrs::getifaddrs()?;
+    for addr in addrs.into_iter() {
+        if addr.address.and_then(|addr| addr.family()) != Some(AddressFamily::Link) {
+            continue;
+        }
+        gateway_link_addrs.insert(addr.interface_name, addr.address.unwrap());
+    }
+    Ok(gateway_link_addrs)
+}
+
+async fn get_router_address(family: Family, interface_name: &str) -> io::Result<Option<IpAddr>> {
+    let output = tokio::process::Command::new("ipconfig")
+        .arg("getsummary")
+        .arg(interface_name)
+        .output()
+        .await?
+        .stdout;
+
+    let Ok(output_str) = std::str::from_utf8(&output) else {
+        return Ok(None);
+    };
+
+    match family {
+        Family::V4 => Ok(parse_v4_ipconfig_output(output_str)),
+        Family::V6 => Ok(parse_v6_ipconfig_output(output_str)),
+    }
+}
+
+fn parse_v4_ipconfig_output(output: &str) -> Option<IpAddr> {
+    let mut iter = output.split_whitespace();
+    loop {
+        let next_chunk = iter.next()?;
+        if next_chunk == "Router" && iter.next()? == ":" {
+            return iter.next()?.parse().ok();
+        }
+    }
+}
+
+fn parse_v6_ipconfig_output(output: &str) -> Option<IpAddr> {
+    let mut iter = output.split_whitespace();
+    let pattern = ["RouterAdvertisement", ":", "from"];
+    'outer: loop {
+        let mut next_chunk = iter.next()?;
+        for expected_chunk in pattern {
+            if expected_chunk != next_chunk {
+                continue 'outer;
+            }
+            next_chunk = iter.next()?;
+        }
+        return next_chunk.trim_end_matches(",").parse().ok();
+    }
 }
 
 fn network_service_order() -> Vec<String> {
@@ -175,4 +189,77 @@ fn is_routable_v6(addr: &Ipv6Addr) -> bool {
     && !addr.is_loopback()
     // !(link local)
     && (addr.segments()[0] & 0xffc0) != 0xfe80
+}
+
+#[cfg(test)]
+const TEST_IPCONFIG_OUTPUT: &str = "<dictionary> {
+  Hashed-BSSID : 86:a2:7a:bb:7c:5c
+  IPv4 : <array> {
+    0 : <dictionary> {
+      Addresses : <array> {
+        0 : 192.168.1.3
+      }
+      ChildServiceID : LINKLOCAL-en0
+      ConfigMethod : Manual
+      IsPublished : TRUE
+      ManualAddress : 192.168.1.3
+      ManualSubnetMask : 255.255.255.0
+      Router : 192.168.1.1
+      RouterARPVerified : TRUE
+      ServiceID : 400B48FB-2585-41DF-8459-30C5C6D5621C
+      SubnetMasks : <array> {
+        0 : 255.255.255.0
+      }
+    }
+    1 : <dictionary> {
+      ConfigMethod : LinkLocal
+      IsPublished : TRUE
+      ParentServiceID : 400B48FB-2585-41DF-8459-30C5C6D5621C
+      ServiceID : LINKLOCAL-en0
+    }
+  }
+  IPv6 : <array> {
+    0 : <dictionary> {
+      ConfigMethod : Automatic
+      DHCPv6 : <dictionary> {
+        ElapsedTime : 2200
+        Mode : Stateful
+        State : Solicit
+      }
+      IsPublished : TRUE
+      RTADV : <dictionary> {
+        RouterAdvertisement : from fe80::5aef:68ff:fe0d:18db, length 88, hop limit 0, lifetime 1800s, reacha
+ble 0ms, retransmit 0ms, flags 0xc4=[ managed other proxy ], pref=medium
+        source link-address option (1), length 8 (1): 58:ef:68:0d:18:db
+        prefix info option (3), length 32 (4):  ::/64, Flags [ onlink ], valid time 2592000s, pref. time 604
+800s
+        prefix info option (3), length 32 (4):  2a03:1b20:5:7::/64, Flags [ onlink auto ], valid time 259200
+0s, pref. time 604800s
+
+        State : Acquired
+      }
+      ServiceID : 400B48FB-2585-41DF-8459-30C5C6D5621C
+    }
+  }
+  InterfaceType : WiFi
+  LinkStatusActive : TRUE
+  NetworkID : 350BCC68-6D65-4D4A-9187-264D7B543738
+  SSID : app-team-lab
+  Security : WPA2_PSK
+}";
+
+#[test]
+fn test_parsing_v4_ipconfig_output() {
+    assert_eq!(
+        parse_v4_ipconfig_output(&TEST_IPCONFIG_OUTPUT).unwrap(),
+        "192.168.1.1".parse::<IpAddr>().unwrap()
+    )
+}
+
+#[test]
+fn test_parsing_v6_ipconfig_output() {
+    assert_eq!(
+        parse_v6_ipconfig_output(&TEST_IPCONFIG_OUTPUT).unwrap(),
+        "fe80::5aef:68ff:fe0d:18db".parse::<IpAddr>().unwrap()
+    )
 }
