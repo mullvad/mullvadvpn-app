@@ -5,16 +5,16 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
-import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.LoginResult
+import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
+import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 
 // Events that can be sent from the service
 sealed class Event : Message.EventMessage() {
@@ -60,6 +60,11 @@ sealed class Event : Message.EventMessage() {
         val voucher: String,
         val result: net.mullvad.mullvadvpn.model.VoucherSubmissionResult
     ) : Event()
+
+    @Parcelize data class PlayPurchaseInitResultEvent(val result: PlayPurchaseInitResult) : Event()
+
+    @Parcelize
+    data class PlayPurchaseVerifyResultEvent(val result: PlayPurchaseVerifyResult) : Event()
 
     @Parcelize object VpnPermissionRequest : Event()
 
