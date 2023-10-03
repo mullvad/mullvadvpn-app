@@ -192,6 +192,7 @@
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
     <string name="virtual_adapter_problem">Błąd wirtualnej karty sieciowej</string>
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
+    <string name="voucher_success_title">Kupon został zrealizowany.</string>
     <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
     <string name="vpn_permission_error_notification_message">Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji</string>
     <string name="vpn_permission_error_notification_title">Błąd uprawnienia VPN</string>

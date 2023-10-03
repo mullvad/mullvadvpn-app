@@ -40,4 +40,12 @@
         <item quantity="one">Account credit expires in an hour</item>
         <item quantity="other">Account credit expires in %d hours</item>
     </plurals>
+    <plurals name="days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%d month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
 </resources>

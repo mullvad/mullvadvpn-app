@@ -192,6 +192,7 @@
     <string name="view_logs">အက်ပ်မှတ်တမ်းများ ကြည့်ရန်</string>
     <string name="virtual_adapter_problem">စက်တွင်း အဒက်တာ ချို့ယွင်းချက်</string>
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
+    <string name="voucher_success_title">ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်။</string>
     <string name="vpn_permission_denied_error">Tunnel ဖန်တီးနေစဉ် VPN ခွင့်ပြုချက်ကို ပယ်ချခဲ့ပါသည်။ ထပ်မံချိတ်ဆက်ပေးပါ။</string>
     <string name="vpn_permission_error_notification_message">အမြဲဖွင့် VPN ကို နောက်ထပ်အက်ပ်အတွက် ဖွင့်ထားနိုင်ပါသည်</string>
     <string name="vpn_permission_error_notification_title">VPN ခွင့်ပြုချက် ချို့ယွင်းချက်</string>
