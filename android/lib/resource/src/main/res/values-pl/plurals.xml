@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="days">
+        <item quantity="one">1 dzień</item>
+        <item quantity="few">%1$d dni</item>
+        <item quantity="many">%1$d dni</item>
+        <item quantity="other">%1$d dnia</item>
+    </plurals>
     <plurals name="days_left">
         <item quantity="one">Pozostał 1 dzień</item>
         <item quantity="few">Pozostały %1$d dni</item>
         <item quantity="many">Pozostało %1$d dni</item>
         <item quantity="other">Pozostało %1$d dnia</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">1 miesiąc</item>
+        <item quantity="few">%1$d miesiące</item>
+        <item quantity="many">%1$d miesięcy</item>
+        <item quantity="other">%1$d miesiąca</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">Pozostał 1 miesiąc</item>

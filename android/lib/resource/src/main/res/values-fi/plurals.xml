@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="days">
+        <item quantity="one">1 päivä</item>
+        <item quantity="other">%1$d päivää</item>
+    </plurals>
     <plurals name="days_left">
         <item quantity="one">1 päivä jäljellä</item>
         <item quantity="other">%1$d päivää jäljellä</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">1 kuukausi</item>
+        <item quantity="other">%1$d kuukautta</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">1 kuukausi jäljellä</item>

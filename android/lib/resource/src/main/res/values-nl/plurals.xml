@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="days">
+        <item quantity="one">1 dag</item>
+        <item quantity="other">%1$d dagen</item>
+    </plurals>
     <plurals name="days_left">
         <item quantity="one">1 dag resterend</item>
         <item quantity="other">%1$d dagen resterend</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">1 maand</item>
+        <item quantity="other">%1$d maanden</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">1 maand resterend</item>

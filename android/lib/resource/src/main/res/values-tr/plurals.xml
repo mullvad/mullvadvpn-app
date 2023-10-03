@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="days">
+        <item quantity="one">1 gün</item>
+        <item quantity="other">%1$d gün</item>
+    </plurals>
     <plurals name="days_left">
         <item quantity="one">1 gün kaldı</item>
         <item quantity="other">%1$d gün kaldı</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">1 ay</item>
+        <item quantity="other">%1$d ay</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">1 ay kaldı</item>
