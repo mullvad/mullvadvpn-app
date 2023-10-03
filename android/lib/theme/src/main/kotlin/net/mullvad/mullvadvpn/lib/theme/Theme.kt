@@ -44,7 +44,6 @@ private val MullvadColorPalette =
         tertiary = MullvadRed,
         background = MullvadDarkBlue,
         surface = MullvadGreen,
-        primaryContainer = MullvadBlue40,
         secondaryContainer = MullvadBlue20,
         onBackground = MullvadWhite,
         onSurfaceVariant = MullvadWhite,
