@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::{
     sync::mpsc::{channel, RecvTimeoutError, Sender},
     time::{Duration, Instant},
@@ -70,7 +72,7 @@ impl BurstGuard {
 
     /// When `stop` returns an then the `BurstGuard` thread is guaranteed to not make any further
     /// calls to `callback`.
-    pub fn stop(&self) {
+    pub fn stop(self) {
         let (sender, listener) = channel();
         // If we could not send then it means the thread has already shut down and we can return
         if self.sender.send(BurstGuardEvent::Shutdown(sender)).is_ok() {
@@ -78,6 +80,12 @@ impl BurstGuard {
             // it is Err it also means it shut down.
             let _ = listener.recv();
         }
+    }
+
+    /// Stop without waiting for in-flight events to complete.
+    pub fn stop_nonblocking(self) {
+        let (sender, _listener) = channel();
+        let _ = self.sender.send(BurstGuardEvent::Shutdown(sender));
     }
 
     /// Asynchronously trigger burst
