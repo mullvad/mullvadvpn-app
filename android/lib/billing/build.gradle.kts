@@ -48,6 +48,12 @@ dependencies {
     //Billing library
     implementation(Dependencies.billingClient)
 
+    //Model
+    implementation(project(Dependencies.Mullvad.modelLib))
+
+    //IPC
+    implementation(project(Dependencies.Mullvad.ipcLib))
+
     //Tests
     androidTestImplementation(project(Dependencies.Mullvad.commonTestLib))
     androidTestImplementation(Dependencies.MockK.android)

@@ -51,6 +51,8 @@ class ServiceEndpoint(
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
     val voucherRedeemer = VoucherRedeemer(this)
 
+    private val playPurchaseHandler = PlayPurchaseHandler(this)
+
     private val deviceRepositoryBackend = DaemonDeviceDataSource(this)
 
     init {
@@ -80,6 +82,7 @@ class ServiceEndpoint(
         settingsListener.onDestroy()
         splitTunneling.onDestroy()
         voucherRedeemer.onDestroy()
+        playPurchaseHandler.onDestroy()
     }
 
     internal fun sendEvent(event: Event) {
