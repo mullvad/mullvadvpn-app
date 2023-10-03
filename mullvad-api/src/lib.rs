@@ -6,7 +6,7 @@ use futures::channel::mpsc;
 use futures::Stream;
 use hyper::Method;
 use mullvad_types::{
-    account::{AccountToken, VoucherSubmission},
+    account::{AccountToken, PlayPurchase, PlayPurchaseInitResult, VoucherSubmission},
     version::AppVersion,
 };
 use proxy::ApiConnectionMode;
@@ -63,6 +63,7 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
 const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
+const GOOGLE_PAYMENTS_URL_PREFIX: &str = "payments/google-play/v1";
 
 pub static API: LazyManual<ApiEndpoint> = LazyManual::new(ApiEndpoint::from_env_vars);
 
@@ -454,6 +455,73 @@ impl AccountsProxy {
             )
             .await;
             rest::deserialize_body(response?).await
+        }
+    }
+
+    pub fn init_play_purchase(
+        &mut self,
+        account_token: AccountToken,
+    ) -> impl Future<Output = Result<PlayPurchaseInitResult, rest::Error>> {
+        #[derive(serde::Deserialize)]
+        struct PlayPurchaseInitResponse {
+            obfuscated_id: String,
+        }
+
+        let service = self.handle.service.clone();
+        let factory = self.handle.factory.clone();
+        let access_proxy = self.handle.token_store.clone();
+
+        async move {
+            let response = rest::send_json_request(
+                &factory,
+                service,
+                &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"),
+                Method::POST,
+                &(),
+                Some((access_proxy, account_token)),
+                &[StatusCode::OK],
+            )
+            .await;
+
+            let PlayPurchaseInitResponse { obfuscated_id } =
+                rest::deserialize_body(response?).await?;
+
+            Ok(obfuscated_id)
+        }
+    }
+
+    pub fn verify_play_purchase(
+        &mut self,
+        account_token: AccountToken,
+        play_purchase: PlayPurchase,
+    ) -> impl Future<Output = Result<(), rest::Error>> {
+        #[derive(serde::Serialize)]
+        struct PlayPurchaseSubmission {
+            product_id: String,
+            purchase_token: String,
+        }
+
+        let submission = PlayPurchaseSubmission {
+            product_id: play_purchase.product_id,
+            purchase_token: play_purchase.purchase_token,
+        };
+
+        let service = self.handle.service.clone();
+        let factory = self.handle.factory.clone();
+        let access_proxy = self.handle.token_store.clone();
+
+        async move {
+            rest::send_json_request(
+                &factory,
+                service,
+                &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
+                Method::POST,
+                &submission,
+                Some((access_proxy, account_token)),
+                &[StatusCode::ACCEPTED],
+            )
+            .await?;
+            Ok(())
         }
     }
 

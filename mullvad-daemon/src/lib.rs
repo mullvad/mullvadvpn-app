@@ -38,7 +38,7 @@ use mullvad_relay_selector::{
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
-    account::{AccountData, AccountToken, VoucherSubmission},
+    account::{AccountData, AccountToken, PlayPurchase, PlayPurchaseInitResult, VoucherSubmission},
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -173,6 +173,16 @@ pub enum Error {
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
     GroupIdError(#[error(source)] io::Error),
+
+    // TODO
+    //#[cfg(target_os = "android")]
+    #[error(display = "Failed to initialize play purchase")]
+    InitPlayPurchase(#[error(source)] device::Error),
+
+    // TODO
+    //#[cfg(target_os = "android")]
+    #[error(display = "Failed to verify play purchase")]
+    VerifyPlayPurchase(#[error(source)] device::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.
@@ -303,6 +313,14 @@ pub enum DaemonCommand {
     /// to bypass the tunnel in blocking states.
     #[cfg(target_os = "android")]
     BypassSocket(RawFd, oneshot::Sender<()>),
+    /// Initialize a google play purchase through the API.
+    ///TODO
+    //#[cfg(target_os = "android")]
+    InitPlayPurchase(ResponseTx<PlayPurchaseInitResult, Error>),
+    /// Verify that a google play payment was successful through the API.
+    ///TODO
+    //#[cfg(target_os = "android")]
+    VerifyPlayPurchase(ResponseTx<(), Error>, PlayPurchase),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -988,6 +1006,10 @@ where
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
             GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx).await,
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher),
+            InitPlayPurchase(tx) => self.on_init_play_purchase(tx),
+            VerifyPlayPurchase(tx, play_purchase) => {
+                self.on_verify_play_purchase(tx, play_purchase)
+            }
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
             LoginAccount(tx, account_token) => self.on_login_account(tx, account_token),
@@ -1351,6 +1373,34 @@ where
                     .await
                     .map_err(Error::VoucherSubmission),
                 "submit_voucher response",
+            );
+        });
+    }
+
+    fn on_init_play_purchase(&mut self, tx: ResponseTx<PlayPurchaseInitResult, Error>) {
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                manager
+                    .init_play_purchase()
+                    .await
+                    .map_err(Error::InitPlayPurchase),
+                "init_play_purchase response",
+            );
+        });
+    }
+
+    fn on_verify_play_purchase(&mut self, tx: ResponseTx<(), Error>, play_purchase: PlayPurchase) {
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                manager
+                    .verify_play_purchase(play_purchase)
+                    .await
+                    .map_err(Error::VerifyPlayPurchase),
+                "verify_play_purchase response",
             );
         });
     }

@@ -2,7 +2,11 @@ use std::pin::Pin;
 
 use chrono::{DateTime, Utc};
 use futures::{future::FusedFuture, Future};
-use mullvad_types::{account::VoucherSubmission, device::Device, wireguard::WireguardData};
+use mullvad_types::{
+    account::{PlayPurchaseInitResult, VoucherSubmission},
+    device::Device,
+    wireguard::WireguardData,
+};
 
 use super::{Error, PrivateAccountAndDevice, ResponseTx};
 
@@ -45,6 +49,25 @@ impl CurrentApiCall {
         tx: ResponseTx<VoucherSubmission>,
     ) {
         self.current_call = Some(Call::VoucherSubmission(voucher_call, Some(tx)));
+    }
+
+    pub fn set_init_play_purchase(
+        &mut self,
+        init_play_purchase_call: ApiCall<PlayPurchaseInitResult>,
+        tx: ResponseTx<PlayPurchaseInitResult>,
+    ) {
+        self.current_call = Some(Call::InitPlayPurchase(init_play_purchase_call, Some(tx)));
+    }
+
+    pub fn set_verify_play_purchase(
+        &mut self,
+        verify_play_purchase_call: ApiCall<()>,
+        tx: ResponseTx<()>,
+    ) {
+        self.current_call = Some(Call::VerifyPlayPurchase(
+            verify_play_purchase_call,
+            Some(tx),
+        ));
     }
 
     pub fn is_validating(&self) -> bool {
@@ -109,6 +132,11 @@ enum Call {
         ApiCall<VoucherSubmission>,
         Option<ResponseTx<VoucherSubmission>>,
     ),
+    InitPlayPurchase(
+        ApiCall<PlayPurchaseInitResult>,
+        Option<ResponseTx<PlayPurchaseInitResult>>,
+    ),
+    VerifyPlayPurchase(ApiCall<()>, Option<ResponseTx<()>>),
     ExpiryCheck(ApiCall<DateTime<Utc>>),
 }
 
@@ -142,6 +170,26 @@ impl futures::Future for Call {
                     std::task::Poll::Pending
                 }
             }
+            InitPlayPurchase(call, tx) => {
+                if let std::task::Poll::Ready(response) = Pin::new(call).poll(cx) {
+                    std::task::Poll::Ready(ApiResult::InitPlayPurchase(
+                        response,
+                        tx.take().unwrap(),
+                    ))
+                } else {
+                    std::task::Poll::Pending
+                }
+            }
+            VerifyPlayPurchase(call, tx) => {
+                if let std::task::Poll::Ready(response) = Pin::new(call).poll(cx) {
+                    std::task::Poll::Ready(ApiResult::VerifyPlayPurchase(
+                        response,
+                        tx.take().unwrap(),
+                    ))
+                } else {
+                    std::task::Poll::Pending
+                }
+            }
             ExpiryCheck(call) => Pin::new(call).poll(cx).map(ApiResult::ExpiryCheck),
         }
     }
@@ -155,5 +203,10 @@ pub(crate) enum ApiResult {
         Result<VoucherSubmission, Error>,
         ResponseTx<VoucherSubmission>,
     ),
+    InitPlayPurchase(
+        Result<PlayPurchaseInitResult, Error>,
+        ResponseTx<PlayPurchaseInitResult>,
+    ),
+    VerifyPlayPurchase(Result<(), Error>, ResponseTx<()>),
     ExpiryCheck(Result<DateTime<Utc>, Error>),
 }
