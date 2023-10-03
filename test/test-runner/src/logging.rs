@@ -1,5 +1,5 @@
-use lazy_static::lazy_static;
 use log::{Level, LevelFilter, Metadata, Record, SetLoggerError};
+use once_cell::sync::Lazy;
 use std::path::{Path, PathBuf};
 use test_rpc::logging::Error;
 use test_rpc::logging::{LogFile, LogOutput, Output};
@@ -12,12 +12,11 @@ use tokio::{
 };
 
 const MAX_OUTPUT_BUFFER: usize = 10_000;
-lazy_static! {
-    pub static ref LOGGER: StdOutBuffer = {
-        let (sender, listener) = channel(MAX_OUTPUT_BUFFER);
-        StdOutBuffer(Mutex::new(listener), sender)
-    };
-}
+
+pub static LOGGER: Lazy<StdOutBuffer> = Lazy::new(|| {
+    let (sender, listener) = channel(MAX_OUTPUT_BUFFER);
+    StdOutBuffer(Mutex::new(listener), sender)
+});
 
 pub struct StdOutBuffer(pub Mutex<Receiver<Output>>, pub Sender<Output>);
 
