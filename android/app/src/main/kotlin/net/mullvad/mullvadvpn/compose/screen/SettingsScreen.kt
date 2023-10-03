@@ -4,19 +4,14 @@ import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -25,15 +20,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.DefaultExternalLinkView
 import net.mullvad.mullvadvpn.compose.cell.NavigationCellBody
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
-import net.mullvad.mullvadvpn.compose.component.CollapsableAwareToolbarScaffold
-import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
-import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
@@ -64,9 +56,6 @@ fun SettingsScreen(
     onBackClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val lazyListState = rememberLazyListState()
-    val state = rememberCollapsingToolbarScaffoldState()
-    val progress = state.toolbarState.progress
     val backgroundColor = MaterialTheme.colorScheme.background
     val systemUiController = rememberSystemUiController()
 
@@ -74,35 +63,12 @@ fun SettingsScreen(
         enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
     }
 
-    CollapsableAwareToolbarScaffold(
-        backgroundColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize(),
-        state = state,
-        scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-        isEnabledWhenCollapsable = true,
-        toolbar = {
-            val scaffoldModifier =
-                Modifier.road(
-                    whenCollapsed = Alignment.TopCenter,
-                    whenExpanded = Alignment.BottomStart
-                )
-            CollapsingTopBar(
-                backgroundColor = MaterialTheme.colorScheme.secondary,
-                onBackClicked = { onBackClick() },
-                title = stringResource(id = R.string.settings),
-                progress = progress,
-                modifier = scaffoldModifier,
-                shouldRotateBackButtonDown = true
-            )
-        },
-    ) {
+    ScaffoldWithMediumTopBar(
+        appBarTitle = stringResource(id = R.string.settings_vpn),
+        navigationIcon = { NavigateBackDownIconButton(onBackClick) },
+    ) { modifier, lazyListState ->
         LazyColumn(
-            modifier =
-                Modifier.drawVerticalScrollbar(lazyListState)
-                    .testTag(LAZY_LIST_TEST_TAG)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .animateContentSize(),
+            modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
             item { Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding)) }

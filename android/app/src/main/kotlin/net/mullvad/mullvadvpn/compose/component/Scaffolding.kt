@@ -1,32 +1,32 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import me.onebone.toolbar.CollapsingToolbarScaffold
-import me.onebone.toolbar.CollapsingToolbarScaffoldScope
-import me.onebone.toolbar.CollapsingToolbarScaffoldState
-import me.onebone.toolbar.CollapsingToolbarScope
-import me.onebone.toolbar.ExperimentalToolbarApi
-import me.onebone.toolbar.ScrollStrategy
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 
 @Composable
@@ -51,8 +51,8 @@ fun ScaffoldWithTopBar(
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopBar(
-                backgroundColor = topBarColor,
+            MullvadTopBar(
+                containerColor = topBarColor,
                 iconTintColor = iconTintColor,
                 onSettingsClicked = onSettingsClicked,
                 onAccountClicked = onAccountClicked,
@@ -75,50 +75,76 @@ fun MullvadSnackbar(snackbarData: SnackbarData) {
 }
 
 @Composable
-@OptIn(ExperimentalToolbarApi::class)
-fun CollapsableAwareToolbarScaffold(
-    backgroundColor: Color,
+@OptIn(ExperimentalMaterial3Api::class)
+fun ScaffoldWithMediumTopBar(
+    appBarTitle: String,
     modifier: Modifier = Modifier,
-    state: CollapsingToolbarScaffoldState,
-    scrollStrategy: ScrollStrategy,
-    isEnabledWhenCollapsable: Boolean = true,
-    toolbarModifier: Modifier = Modifier,
-    toolbar: @Composable CollapsingToolbarScope.() -> Unit,
-    body: @Composable CollapsingToolbarScaffoldScope.() -> Unit
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    lazyListState: LazyListState = rememberLazyListState(),
+    content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
 ) {
-    val systemUiController = rememberSystemUiController()
-    systemUiController.setNavigationBarColor(backgroundColor)
 
-    var isCollapsable by remember { mutableStateOf(false) }
-
-    LaunchedEffect(isCollapsable) {
-        if (!isCollapsable) {
-            state.toolbarState.expand()
+    val appBarState = rememberTopAppBarState()
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+            appBarState,
+            canScroll = { lazyListState.canScrollBackward || lazyListState.canScrollForward }
+        )
+    Scaffold(
+        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            MediumTopAppBar(
+                title = { Text(appBarTitle, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = navigationIcon,
+                scrollBehavior = scrollBehavior,
+                colors =
+                    TopAppBarDefaults.mediumTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    ),
+                actions = actions
+            )
+        },
+        content = {
+            content(Modifier.fillMaxSize().padding(it).drawVerticalScrollbar(lazyListState), lazyListState)
         }
-    }
+    )
+}
 
-    CollapsingToolbarScaffold(
-        modifier = modifier.background(backgroundColor),
-        state = state,
-        scrollStrategy = scrollStrategy,
-        enabled = isEnabledWhenCollapsable && isCollapsable,
-        toolbarModifier = toolbarModifier,
-        toolbar = toolbar,
-        body = {
-            var bodyHeight by remember { mutableIntStateOf(0) }
-
-            BoxWithConstraints(
-                modifier = Modifier.onGloballyPositioned { bodyHeight = it.size.height }
-            ) {
-                val minMaxToolbarHeightDiff =
-                    with(state) { toolbarState.maxHeight - toolbarState.minHeight }
-                val isContentHigherThanCollapseThreshold =
-                    with(LocalDensity.current) {
-                        bodyHeight > maxHeight.toPx() - minMaxToolbarHeightDiff
-                    }
-                isCollapsable = isContentHigherThanCollapseThreshold
-                body()
-            }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScaffoldWithMediumTopBar(
+    appBarTitle: String,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    content: @Composable (modifier: Modifier) -> Unit
+) {
+    val appBarState = rememberTopAppBarState()
+    val scrollState = rememberScrollState()
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
+            appBarState,
+            canScroll = { scrollState.canScrollBackward || scrollState.canScrollForward }
+        )
+    Scaffold(
+        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            MediumTopAppBar(
+                title = { Text(appBarTitle, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                navigationIcon = navigationIcon,
+                scrollBehavior = scrollBehavior,
+                colors =
+                    TopAppBarDefaults.mediumTopAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    ),
+                actions = actions
+            )
+        },
+        content = {
+            content(
+                Modifier.fillMaxSize().padding(it).drawVerticalScrollbar(scrollState).verticalScroll(scrollState)
+            )
         }
     )
 }
