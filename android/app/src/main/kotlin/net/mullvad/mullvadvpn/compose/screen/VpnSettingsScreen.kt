@@ -5,15 +5,12 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,7 +20,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -39,8 +35,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
@@ -55,9 +49,8 @@ import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
-import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
-import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
-import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.ContentBlockersInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.CustomDnsInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.CustomPortDialog
@@ -246,12 +239,9 @@ fun VpnSettingsScreen(
         }
     }
 
-    val lazyListState = rememberLazyListState()
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
     val topPadding = 6.dp
-    val state = rememberCollapsingToolbarScaffoldState()
-    val progress = state.toolbarState.progress
 
     LaunchedEffect(uiState.selectedWireguardPort) {
         if (
@@ -262,49 +252,27 @@ fun VpnSettingsScreen(
         }
     }
 
-    CollapsingToolbarScaffold(
-        backgroundColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize(),
-        state = state,
-        scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-        isEnabledWhenCollapsable = true,
-        toolbar = {
-            val scaffoldModifier =
-                Modifier.road(
-                    whenCollapsed = Alignment.TopCenter,
-                    whenExpanded = Alignment.BottomStart
-                )
-            CollapsingTopBar(
-                backgroundColor = MaterialTheme.colorScheme.background,
-                onBackClicked = { onBackClick() },
-                title = stringResource(id = R.string.settings_vpn),
-                progress = progress,
-                modifier = scaffoldModifier
-            )
-        },
-    ) {
-        val context = LocalContext.current
-        LaunchedEffect(Unit) {
-            toastMessagesSharedFlow.distinctUntilChanged().collect { message ->
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        toastMessagesSharedFlow.distinctUntilChanged().collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                onStopEvent()
             }
         }
-        DisposableEffect(lifecycleOwner) {
-            val observer = LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_STOP) {
-                    onStopEvent()
-                }
-            }
-            lifecycleOwner.lifecycle.addObserver(observer)
-            onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    ScaffoldWithMediumTopBar(
+        appBarTitle = stringResource(id = R.string.settings_vpn),
+        navigationIcon = { NavigateBackIconButton(onBackClick) },
+    ) { modifier, lazyListState ->
         LazyColumn(
-            modifier =
-                Modifier.drawVerticalScrollbar(lazyListState)
-                    .testTag(LAZY_LIST_TEST_TAG)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .animateContentSize(),
+            modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
             item {
