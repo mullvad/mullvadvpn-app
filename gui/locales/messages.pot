@@ -1653,6 +1653,9 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
+msgid "%s was added to your account."
+msgstr ""
+
 msgid "Account credit expires in a few minutes"
 msgstr ""
 
@@ -1818,6 +1821,9 @@ msgstr ""
 msgid "Valid ranges: %s"
 msgstr ""
 
+msgid "Verifying voucher…"
+msgstr ""
+
 msgid "Virtual adapter error"
 msgstr ""
 
@@ -1844,6 +1850,19 @@ msgstr ""
 
 msgid "less than a minute ago"
 msgstr ""
+
+msgid "less than one day"
+msgstr ""
+
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
