@@ -40,4 +40,12 @@
         <item quantity="one">Account credit expires in an hour</item>
         <item quantity="other">Account credit expires in %d hours</item>
     </plurals>
+    <plurals name="days_added_to_your_account">
+        <item quantity="one">1 day was added to your account.</item>
+        <item quantity="other">%d days was added to your account.</item>
+    </plurals>
+    <plurals name="months_added_to_your_account">
+        <item quantity="one">1 month was added to your account.</item>
+        <item quantity="other">%d months was added to your account.</item>
+    </plurals>
 </resources>

@@ -1772,6 +1772,9 @@ msgstr ""
 msgid "Valid ranges: %s"
 msgstr ""
 
+msgid "Verifying voucher…"
+msgstr ""
+
 msgid "Virtual adapter error"
 msgstr ""
 
@@ -1798,6 +1801,19 @@ msgstr ""
 
 msgid "less than a minute ago"
 msgstr ""
+
+msgid "less than one day was added to your account."
+msgstr ""
+
+msgid "1 day was added to your account."
+msgid_plural "%d days was added to your account."
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 month was added to your account."
+msgid_plural "%d months was added to your account."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

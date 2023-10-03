@@ -192,6 +192,7 @@
     <string name="view_logs">Visualizza registri app</string>
     <string name="virtual_adapter_problem">Errore scheda virtuale</string>
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>
+    <string name="voucher_success_title">Il voucher è stato riscattato correttamente.</string>
     <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata durante la creazione del tunnel. Prova a connetterti di nuovo.</string>
     <string name="vpn_permission_error_notification_message">La VPN sempre attiva potrebbe essere abilitata per un\'altra app</string>
     <string name="vpn_permission_error_notification_title">Errore di autorizzazione VPN</string>
