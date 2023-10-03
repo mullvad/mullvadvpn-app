@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::{
     sync::mpsc::{channel, RecvTimeoutError, Sender},
     time::{Duration, Instant},
@@ -78,6 +80,12 @@ impl BurstGuard {
             // it is Err it also means it shut down.
             let _ = listener.recv();
         }
+    }
+
+    /// Stop without waiting for in-flight events to complete.
+    pub fn stop_nonblocking(&self) {
+        let (sender, _listener) = channel();
+        let _ = self.sender.send(BurstGuardEvent::Shutdown(sender));
     }
 
     /// Asynchronously trigger burst
