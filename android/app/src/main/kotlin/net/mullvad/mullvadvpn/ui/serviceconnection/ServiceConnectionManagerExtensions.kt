@@ -1,8 +1,5 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
-fun ServiceConnectionManager.accountDataSource() =
-    this.connectionState.value.readyContainer()?.accountDataSource
-
 fun ServiceConnectionManager.appVersionInfoCache() =
     this.connectionState.value.readyContainer()?.appVersionInfoCache
 
