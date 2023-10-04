@@ -10,15 +10,8 @@ import Foundation
 
 /// A type-erased `Task`.
 public protocol AnyTask {
-    /// Wait for task to complete execution.
-    func waitForCompletion() async
-
     /// Cancel task.
     func cancel()
 }
 
-extension Task: AnyTask {
-    public func waitForCompletion() async {
-        _ = try? await value
-    }
-}
+extension Task: AnyTask {}
