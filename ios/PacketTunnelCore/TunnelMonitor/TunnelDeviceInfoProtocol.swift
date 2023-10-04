@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Protocol describing a type that can provide statistics and basic information about tunnel device.
+/// A type that can provide statistics and basic information about tunnel device.
 public protocol TunnelDeviceInfoProtocol {
     /// Returns tunnel interface name (i.e utun0) if available.
     var interfaceName: String? { get }

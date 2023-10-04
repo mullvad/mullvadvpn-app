@@ -19,7 +19,7 @@ public enum TunnelMonitorEvent {
     case connectionLost
 }
 
-/// Protocol describing a type that can provide tunnel monitoring.
+/// A type that can provide tunnel monitoring.
 public protocol TunnelMonitorProtocol: AnyObject {
     /// Event handler that starts receiving events after the call to `start(probeAddress:)`.
     var onEvent: ((TunnelMonitorEvent) -> Void)? { get set }
