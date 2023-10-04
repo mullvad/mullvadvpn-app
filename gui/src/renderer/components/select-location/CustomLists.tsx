@@ -82,7 +82,7 @@ export default function CustomLists(props: CustomListsProps) {
     hideAddList();
   }, []);
 
-  if (searchTerm !== '' && customLists.length === 0) {
+  if (searchTerm !== '' && !customLists.some((list) => list.visible)) {
     return null;
   }
 

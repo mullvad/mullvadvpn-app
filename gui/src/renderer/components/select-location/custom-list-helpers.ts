@@ -28,11 +28,16 @@ export function useCustomListsRelayList(
   // Populate all custom lists with the real location trees for the list locations.
   return useMemo(
     () =>
-      customLists
-        .map((list) =>
-          prepareCustomList(list, relayList, selectedLocation, disabledLocation, expandedLocations),
-        )
-        .filter((list) => searchMatch(searchTerm, list.label)),
+      customLists.map((list) =>
+        prepareCustomList(
+          list,
+          relayList,
+          searchTerm,
+          selectedLocation,
+          disabledLocation,
+          expandedLocations,
+        ),
+      ),
     [customLists, relayList, selectedLocation, disabledLocation, expandedLocations],
   );
 }
@@ -41,6 +46,7 @@ export function useCustomListsRelayList(
 function prepareCustomList(
   list: ICustomList,
   fullRelayList: GeographicalRelayList,
+  searchTerm: string,
   selectedLocation?: RelayLocation,
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
   expandedLocations?: Array<RelayLocation>,
@@ -59,6 +65,7 @@ function prepareCustomList(
     disabledReason,
     expanded: isExpanded(location, expandedLocations),
     selected: isSelected(location, selectedLocation),
+    visible: searchMatch(searchTerm, list.name),
     locations,
   };
 }
@@ -121,6 +128,7 @@ function updateCountry(
     location,
     expanded: isExpanded(location, expandedLocations),
     selected: false,
+    visible: true,
     cities: country.cities.map((city) =>
       updateCity(city, customList, locationCounter, expandedLocations),
     ),
@@ -147,6 +155,7 @@ function updateCity(
     location,
     expanded: isExpanded(location, expandedLocations),
     selected: false,
+    visible: true,
     relays: city.relays.map((relay) => updateRelay(relay, customList)),
   };
 }
@@ -158,6 +167,7 @@ function updateRelay(relay: RelaySpecification, customList: string): RelaySpecif
     ...relay,
     location: { ...relay.location, customList },
     selected: false,
+    visible: true,
   };
 }
 
