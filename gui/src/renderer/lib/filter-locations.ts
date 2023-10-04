@@ -3,7 +3,7 @@ import { relayLocations } from '../../shared/gettext';
 import { SpecialLocation } from '../components/select-location/select-location-types';
 import {
   IRelayLocationCityRedux,
-  IRelayLocationRedux,
+  IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
   NormalRelaySettingsRedux,
 } from '../redux/settings/reducers';
@@ -15,18 +15,18 @@ export enum EndpointType {
 }
 
 export function filterLocationsByEndPointType(
-  locations: IRelayLocationRedux[],
+  locations: IRelayLocationCountryRedux[],
   endpointType: EndpointType,
   relaySettings?: NormalRelaySettingsRedux,
-): IRelayLocationRedux[] {
+): IRelayLocationCountryRedux[] {
   return filterLocationsImpl(locations, getTunnelProtocolFilter(endpointType, relaySettings));
 }
 
 export function filterLocations(
-  locations: IRelayLocationRedux[],
+  locations: IRelayLocationCountryRedux[],
   ownership?: Ownership,
   providers?: Array<string>,
-): IRelayLocationRedux[] {
+): IRelayLocationCountryRedux[] {
   const filters = [getOwnershipFilter(ownership), getProviderFilter(providers)];
 
   return filters.some((filter) => filter !== undefined)
@@ -74,9 +74,9 @@ function getProviderFilter(
 }
 
 function filterLocationsImpl(
-  locations: Array<IRelayLocationRedux>,
+  locations: Array<IRelayLocationCountryRedux>,
   filter: (relay: IRelayLocationRelayRedux) => boolean,
-): Array<IRelayLocationRedux> {
+): Array<IRelayLocationCountryRedux> {
   return locations
     .map((country) => ({
       ...country,
@@ -88,9 +88,9 @@ function filterLocationsImpl(
 }
 
 export function searchForLocations(
-  countries: Array<IRelayLocationRedux>,
+  countries: Array<IRelayLocationCountryRedux>,
   searchTerm: string,
-): Array<IRelayLocationRedux> {
+): Array<IRelayLocationCountryRedux> {
   if (searchTerm === '') {
     return countries;
   }
@@ -99,10 +99,11 @@ export function searchForLocations(
     const matchingCities = searchCities(country.cities, searchTerm);
     const expanded = matchingCities.length > 0;
     const match =
-      search(searchTerm, country.code) || search(searchTerm, relayLocations.gettext(country.name));
+      searchMatch(searchTerm, country.code) ||
+      searchMatch(searchTerm, relayLocations.gettext(country.name));
     const resultingCities = match ? country.cities : matchingCities;
     return expanded || match ? [...countries, { ...country, cities: resultingCities }] : countries;
-  }, [] as Array<IRelayLocationRedux>);
+  }, [] as Array<IRelayLocationCountryRedux>);
 }
 
 function searchCities(
@@ -110,17 +111,18 @@ function searchCities(
   searchTerm: string,
 ): Array<IRelayLocationCityRedux> {
   return cities.reduce((cities, city) => {
-    const matchingRelays = city.relays.filter((relay) => search(searchTerm, relay.hostname));
+    const matchingRelays = city.relays.filter((relay) => searchMatch(searchTerm, relay.hostname));
     const expanded = matchingRelays.length > 0;
     const match =
-      search(searchTerm, city.code) || search(searchTerm, relayLocations.gettext(city.name));
+      searchMatch(searchTerm, city.code) ||
+      searchMatch(searchTerm, relayLocations.gettext(city.name));
     const resultingRelays = match ? city.relays : matchingRelays;
     return expanded || match ? [...cities, { ...city, relays: resultingRelays }] : cities;
   }, [] as Array<IRelayLocationCityRedux>);
 }
 
 export function getLocationsExpandedBySearch(
-  countries: Array<IRelayLocationRedux>,
+  countries: Array<IRelayLocationCountryRedux>,
   searchTerm: string,
 ): Array<RelayLocation> {
   return countries.reduce((locations, country) => {
@@ -130,7 +132,7 @@ export function getLocationsExpandedBySearch(
       searchTerm,
     );
     const cityMatches = country.cities.some(
-      (city) => search(searchTerm, city.code) || search(searchTerm, city.name),
+      (city) => searchMatch(searchTerm, city.code) || searchMatch(searchTerm, city.name),
     );
     const location = { country: country.code };
     const expanded = cityMatches || cityLocations.length > 0;
@@ -144,13 +146,14 @@ function getCityLocationsExpandecBySearch(
   searchTerm: string,
 ): Array<RelayLocation> {
   return cities.reduce((locations, city) => {
-    const expanded = city.relays.filter((relay) => search(searchTerm, relay.hostname)).length > 0;
-    const location: RelayLocation = { city: [countryCode, city.code] };
+    const expanded =
+      city.relays.filter((relay) => searchMatch(searchTerm, relay.hostname)).length > 0;
+    const location: RelayLocation = { country: countryCode, city: city.code };
     return expanded ? [...locations, location] : locations;
   }, [] as Array<RelayLocation>);
 }
 
-function search(searchTerm: string, value: string): boolean {
+export function searchMatch(searchTerm: string, value: string): boolean {
   return value.toLowerCase().includes(searchTerm.toLowerCase());
 }
 
@@ -158,5 +161,5 @@ export function filterSpecialLocations<T>(
   searchTerm: string,
   locations: Array<SpecialLocation<T>>,
 ): Array<SpecialLocation<T>> {
-  return locations.filter((location) => search(searchTerm, location.label));
+  return locations.filter((location) => searchMatch(searchTerm, location.label));
 }
