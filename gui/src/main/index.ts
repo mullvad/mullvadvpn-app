@@ -787,6 +787,16 @@ class ApplicationMain
       this.navigationHistory = history;
     });
 
+    IpcMainEventChannel.customLists.handleCreateCustomList((name) => {
+      return this.daemonRpc.createCustomList(name);
+    });
+    IpcMainEventChannel.customLists.handleDeleteCustomList((id) => {
+      return this.daemonRpc.deleteCustomList(id);
+    });
+    IpcMainEventChannel.customLists.handleUpdateCustomList((customList) => {
+      return this.daemonRpc.updateCustomList(customList);
+    });
+
     problemReport.registerIpcListeners();
     this.userInterface!.registerIpcListeners();
     this.settings.registerIpcListeners();

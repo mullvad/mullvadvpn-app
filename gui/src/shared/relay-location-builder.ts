@@ -18,11 +18,11 @@ export default function makeLocationBuilder<T>(
       return context;
     },
     city: (country: string, city: string) => {
-      receiver({ only: { city: [country, city] } });
+      receiver({ only: { country, city } });
       return context;
     },
     hostname: (country: string, city: string, hostname: string) => {
-      receiver({ only: { hostname: [country, city, hostname] } });
+      receiver({ only: { country, city, hostname } });
       return context;
     },
     any: () => {

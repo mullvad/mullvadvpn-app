@@ -132,6 +132,9 @@ export default class Settings implements Readonly<ISettings> {
   public get obfuscationSettings() {
     return this.settingsValue.obfuscationSettings;
   }
+  public get customLists() {
+    return this.settingsValue.customLists;
+  }
 
   public get gui() {
     return this.guiSettings;

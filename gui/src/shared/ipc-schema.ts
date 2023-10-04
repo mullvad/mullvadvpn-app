@@ -6,10 +6,12 @@ import {
   AccountToken,
   BridgeSettings,
   BridgeState,
+  CustomListError,
   DeviceEvent,
   DeviceState,
   IAccountData,
   IAppVersionInfo,
+  ICustomList,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -132,6 +134,11 @@ export const ipcSchema = {
   },
   relays: {
     '': notifyRenderer<IRelayListWithEndpointData>(),
+  },
+  customLists: {
+    createCustomList: invoke<string, void | CustomListError>(),
+    deleteCustomList: invoke<string, void>(),
+    updateCustomList: invoke<ICustomList, void | CustomListError>(),
   },
   currentVersion: {
     '': notifyRenderer<ICurrentAppVersionInfo>(),

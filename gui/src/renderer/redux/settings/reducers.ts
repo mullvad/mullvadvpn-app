@@ -1,6 +1,7 @@
 import { IWindowsApplication } from '../../../shared/application-types';
 import {
   BridgeState,
+  CustomLists,
   IDnsOptions,
   IpVersion,
   IWireguardEndpointData,
@@ -77,7 +78,7 @@ export interface IRelayLocationCityRedux {
   relays: IRelayLocationRelayRedux[];
 }
 
-export interface IRelayLocationRedux {
+export interface IRelayLocationCountryRedux {
   name: string;
   code: string;
   cities: IRelayLocationCityRedux[];
@@ -87,7 +88,7 @@ export interface ISettingsReduxState {
   autoStart: boolean;
   guiSettings: IGuiSettingsState;
   relaySettings: RelaySettingsRedux;
-  relayLocations: IRelayLocationRedux[];
+  relayLocations: IRelayLocationCountryRedux[];
   wireguardEndpointData: IWireguardEndpointData;
   allowLan: boolean;
   enableIpv6: boolean;
@@ -106,6 +107,7 @@ export interface ISettingsReduxState {
   splitTunneling: boolean;
   splitTunnelingApplications: IWindowsApplication[];
   obfuscationSettings: ObfuscationSettings;
+  customLists: CustomLists;
 }
 
 const initialState: ISettingsReduxState = {
@@ -169,6 +171,7 @@ const initialState: ISettingsReduxState = {
       port: 'any',
     },
   },
+  customLists: [],
 };
 
 export default function (
@@ -291,6 +294,12 @@ export default function (
       return {
         ...state,
         obfuscationSettings: action.obfuscationSettings,
+      };
+
+    case 'SET_CUSTOM_LISTS':
+      return {
+        ...state,
+        customLists: action.customLists,
       };
 
     default:

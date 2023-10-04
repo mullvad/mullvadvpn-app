@@ -1,12 +1,13 @@
 import { IWindowsApplication } from '../../../shared/application-types';
 import {
   BridgeState,
+  CustomLists,
   IDnsOptions,
   IWireguardEndpointData,
   ObfuscationSettings,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
-import { BridgeSettingsRedux, IRelayLocationRedux, RelaySettingsRedux } from './reducers';
+import { BridgeSettingsRedux, IRelayLocationCountryRedux, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {
   type: 'UPDATE_GUI_SETTINGS';
@@ -20,7 +21,7 @@ export interface IUpdateRelayAction {
 
 export interface IUpdateRelayLocationsAction {
   type: 'UPDATE_RELAY_LOCATIONS';
-  relayLocations: IRelayLocationRedux[];
+  relayLocations: IRelayLocationCountryRedux[];
 }
 
 export interface IUpdateWireguardEndpointData {
@@ -98,6 +99,11 @@ export interface ISetObfuscationSettings {
   obfuscationSettings: ObfuscationSettings;
 }
 
+export interface ISetCustomLists {
+  type: 'SET_CUSTOM_LISTS';
+  customLists: CustomLists;
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -116,7 +122,8 @@ export type SettingsAction =
   | IUpdateDnsOptionsAction
   | IUpdateSplitTunnelingStateAction
   | ISetSplitTunnelingApplicationsAction
-  | ISetObfuscationSettings;
+  | ISetObfuscationSettings
+  | ISetCustomLists;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -132,7 +139,9 @@ function updateRelay(relay: RelaySettingsRedux): IUpdateRelayAction {
   };
 }
 
-function updateRelayLocations(relayLocations: IRelayLocationRedux[]): IUpdateRelayLocationsAction {
+function updateRelayLocations(
+  relayLocations: IRelayLocationCountryRedux[],
+): IUpdateRelayLocationsAction {
   return {
     type: 'UPDATE_RELAY_LOCATIONS',
     relayLocations,
@@ -254,6 +263,13 @@ function updateObfuscationSettings(
   };
 }
 
+function updateCustomLists(customLists: CustomLists): ISetCustomLists {
+  return {
+    type: 'SET_CUSTOM_LISTS',
+    customLists,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -273,4 +289,5 @@ export default {
   updateSplitTunnelingState,
   setSplitTunnelingApplications,
   updateObfuscationSettings,
+  updateCustomLists,
 };

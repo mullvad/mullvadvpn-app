@@ -17,6 +17,8 @@ import {
   BridgeState,
   ConnectionConfig,
   Constraint,
+  CustomListError,
+  CustomLists,
   DaemonEvent,
   DeviceEvent,
   DeviceState,
@@ -27,6 +29,7 @@ import {
   FirewallPolicyErrorType,
   IAppVersionInfo,
   IBridgeConstraints,
+  ICustomList,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -52,6 +55,7 @@ import {
   ProxyType,
   RelayEndpointType,
   RelayLocation,
+  RelayLocationGeographical,
   RelayProtocol,
   RelaySettings,
   RelaySettingsUpdate,
@@ -611,6 +615,39 @@ export class DaemonRpc {
     await this.call<grpcTypes.DeviceRemoval, Empty>(this.client.removeDevice, grpcDeviceRemoval);
   }
 
+  public async createCustomList(name: string): Promise<void | CustomListError> {
+    try {
+      await this.callString<Empty>(this.client.createCustomList, name);
+    } catch (e) {
+      const error = e as grpc.ServiceError;
+      if (error.code === 6) {
+        return { type: 'name already exists' };
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  public async deleteCustomList(id: string): Promise<void> {
+    await this.callString<Empty>(this.client.deleteCustomList, id);
+  }
+
+  public async updateCustomList(customList: ICustomList): Promise<void | CustomListError> {
+    try {
+      await this.call<grpcTypes.CustomList, Empty>(
+        this.client.updateCustomList,
+        convertToCustomList(customList),
+      );
+    } catch (e) {
+      const error = e as grpc.ServiceError;
+      if (error.code === 6) {
+        return { type: 'name already exists' };
+      } else {
+        throw error;
+      }
+    }
+  }
+
   private subscriptionId(): number {
     const current = this.nextSubscriptionId;
     this.nextSubscriptionId += 1;
@@ -1062,10 +1099,11 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
   const settingsObject = settings.toObject();
   const bridgeState = convertFromBridgeState(settingsObject.bridgeState!.state!);
   const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
-  const bridgeSettings = convertFromBridgeSettings(settingsObject.bridgeSettings!);
+  const bridgeSettings = convertFromBridgeSettings(settings.getBridgeSettings()!);
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
   const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
   const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
+  const customLists = convertFromCustomListSettings(settings.getCustomLists());
   return {
     ...settings.toObject(),
     bridgeState,
@@ -1074,6 +1112,7 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
     tunnelOptions,
     splitTunnel,
     obfuscationSettings,
+    customLists,
   };
 }
 
@@ -1110,10 +1149,8 @@ function convertFromRelaySettings(
       }
       case grpcTypes.RelaySettings.EndpointCase.NORMAL: {
         const normal = relaySettings.getNormal()!;
-        const grpcLocation = normal.getLocation();
-        const location = grpcLocation
-          ? { only: convertFromLocation(grpcLocation.toObject()) }
-          : 'any';
+        const locationConstraint = convertFromLocationConstraint(normal.getLocation());
+        const location = locationConstraint ? { only: locationConstraint } : 'any';
         const tunnelProtocol = convertFromTunnelTypeConstraint(normal.getTunnelType()!);
         const providers = normal.getProvidersList();
         const ownership = convertFromOwnership(normal.getOwnership());
@@ -1139,13 +1176,14 @@ function convertFromRelaySettings(
   }
 }
 
-function convertFromBridgeSettings(
-  bridgeSettings: grpcTypes.BridgeSettings.AsObject,
-): BridgeSettings {
-  const normalSettings = bridgeSettings.normal;
+function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): BridgeSettings {
+  const bridgeSettingsObject = bridgeSettings.toObject();
+  const normalSettings = bridgeSettingsObject.normal;
   if (normalSettings) {
-    const grpcLocation = normalSettings.location;
-    const location = grpcLocation ? { only: convertFromLocation(grpcLocation) } : 'any';
+    const locationConstraint = convertFromLocationConstraint(
+      bridgeSettings.getNormal()?.getLocation(),
+    );
+    const location = locationConstraint ? { only: locationConstraint } : 'any';
     const providers = normalSettings.providersList;
     const ownership = convertFromOwnership(normalSettings.ownership);
     return {
@@ -1161,7 +1199,7 @@ function convertFromBridgeSettings(
     return { custom: settings };
   };
 
-  const localSettings = bridgeSettings.local;
+  const localSettings = bridgeSettingsObject.local;
   if (localSettings) {
     return customSettings({
       port: localSettings.port,
@@ -1169,7 +1207,7 @@ function convertFromBridgeSettings(
     });
   }
 
-  const remoteSettings = bridgeSettings.remote;
+  const remoteSettings = bridgeSettingsObject.remote;
   if (remoteSettings) {
     return customSettings({
       address: remoteSettings.address,
@@ -1177,7 +1215,7 @@ function convertFromBridgeSettings(
     });
   }
 
-  const shadowsocksSettings = bridgeSettings.shadowsocks!;
+  const shadowsocksSettings = bridgeSettingsObject.shadowsocks!;
   return customSettings({
     peer: shadowsocksSettings.peer!,
     password: shadowsocksSettings.password!,
@@ -1229,23 +1267,32 @@ function convertFromConnectionConfig(
   }
 }
 
-function convertFromLocation(location: grpcTypes.LocationConstraint.AsObject): RelayLocation {
-  // FIXME: This is a hack that assumes that the LocationConstraint is not a custom list.
-  // If it is we just set the country to "any" even if that isn't correct.
-  if (location.location == undefined) {
-    return { country: 'any' };
+function convertFromLocationConstraint(
+  location?: grpcTypes.LocationConstraint,
+): RelayLocation | undefined {
+  if (location === undefined) {
+    return undefined;
+  } else if (location.getTypeCase() === grpcTypes.LocationConstraint.TypeCase.CUSTOM_LIST) {
+    return { customList: location.getCustomList() };
+  } else {
+    const innerLocation = location.getLocation()?.toObject();
+    return innerLocation && convertFromRelayLocation(innerLocation);
   }
-  const loc = location.location;
+}
 
-  if (loc.hostname) {
-    return { hostname: [loc.country, loc.city, loc.hostname] };
+function convertFromRelayLocation(location: grpcTypes.RelayLocation.AsObject): RelayLocation {
+  if (location.hostname) {
+    return location;
+  } else if (location.city) {
+    return {
+      country: location.country,
+      city: location.city,
+    };
+  } else {
+    return {
+      country: location.country,
+    };
   }
-
-  if (loc.city) {
-    return { city: [loc.country, loc.city] };
-  }
-
-  return { country: loc.country };
 }
 
 function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObject): ITunnelOptions {
@@ -1423,7 +1470,8 @@ function convertFromWireguardConstraints(
 
   const entryLocation = constraints.getEntryLocation();
   if (entryLocation) {
-    result.entryLocation = { only: convertFromLocation(entryLocation.toObject()) };
+    const location = convertFromLocationConstraint(entryLocation);
+    result.entryLocation = location ? { only: location } : 'any';
   }
 
   return result;
@@ -1467,22 +1515,30 @@ function convertToLocation(
   constraint: RelayLocation | undefined,
 ): grpcTypes.LocationConstraint | undefined {
   const locationConstraint = new grpcTypes.LocationConstraint();
-  const location = new grpcTypes.RelayLocation();
-  if (constraint && 'hostname' in constraint) {
-    const [countryCode, cityCode, hostname] = constraint.hostname;
-    location.setCountry(countryCode);
-    location.setCity(cityCode);
-    location.setHostname(hostname);
-  } else if (constraint && 'city' in constraint) {
-    location.setCountry(constraint.city[0]);
-    location.setCity(constraint.city[1]);
-  } else if (constraint && 'country' in constraint) {
-    location.setCountry(constraint.country);
+  if (constraint && 'customList' in constraint && constraint.customList) {
+    locationConstraint.setCustomList(constraint.customList);
   } else {
-    return undefined;
+    const location = constraint && convertToRelayLocation(constraint);
+    locationConstraint.setLocation(location);
   }
-  locationConstraint.setLocation(location);
+
   return locationConstraint;
+}
+
+function convertToRelayLocation(location: RelayLocation): grpcTypes.RelayLocation {
+  const relayLocation = new grpcTypes.RelayLocation();
+  if ('hostname' in location) {
+    relayLocation.setCountry(location.country);
+    relayLocation.setCity(location.city);
+    relayLocation.setHostname(location.hostname);
+  } else if ('city' in location) {
+    relayLocation.setCountry(location.country);
+    relayLocation.setCity(location.city);
+  } else if ('country' in location) {
+    relayLocation.setCountry(location.country);
+  }
+
+  return relayLocation;
 }
 
 function convertToTunnelTypeConstraint(
@@ -1616,6 +1672,35 @@ function convertFromDevice(device: grpcTypes.Device): IDevice {
     ...asObject,
     created: created,
   };
+}
+
+function convertFromCustomListSettings(
+  customListSettings?: grpcTypes.CustomListSettings,
+): CustomLists {
+  return customListSettings ? convertFromCustomLists(customListSettings.getCustomListsList()) : [];
+}
+
+function convertFromCustomLists(customLists: Array<grpcTypes.CustomList>): CustomLists {
+  return customLists.map((list) => ({
+    id: list.getId(),
+    name: list.getName(),
+    locations: list
+      .getLocationsList()
+      .map((location) =>
+        convertFromRelayLocation(location.toObject()),
+      ) as Array<RelayLocationGeographical>,
+  }));
+}
+
+function convertToCustomList(customList: ICustomList): grpcTypes.CustomList {
+  const grpcCustomList = new grpcTypes.CustomList();
+  grpcCustomList.setId(customList.id);
+  grpcCustomList.setName(customList.name);
+
+  const locations = customList.locations.map(convertToRelayLocation);
+  grpcCustomList.setLocationsList(locations);
+
+  return grpcCustomList;
 }
 
 function ensureExists<T>(value: T | undefined, errorMessage: string): T {
