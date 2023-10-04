@@ -214,11 +214,12 @@ extension PacketTunnelActor {
         guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings),
               let targetState = state.targetStateForReconnect else { return }
 
-        let activeKey = switch connectionState.keyPolicy {
+        let activeKey: PrivateKey
+        switch connectionState.keyPolicy {
         case .useCurrent:
-            settings.privateKey
+            activeKey = settings.privateKey
         case let .usePrior(priorKey, _):
-            priorKey
+            activeKey = priorKey
         }
 
         switch targetState {
