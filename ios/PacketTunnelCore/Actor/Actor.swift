@@ -133,7 +133,7 @@ extension PacketTunnelActor {
         setTunnelMonitorEventHandler()
 
         do {
-            try await tryStart(nextRelay: options.selectorResult.map { .preSelected($0) } ?? .random)
+            try await tryStart(nextRelay: options.selectedRelay.map { .preSelected($0) } ?? .random)
         } catch {
             logger.error(error: error, message: "Failed to start the tunnel.")
 
@@ -332,9 +332,9 @@ extension PacketTunnelActor {
     private func selectRelay(
         nextRelay: NextRelay,
         relayConstraints: RelayConstraints,
-        currentRelay: RelaySelectorResult?,
+        currentRelay: SelectedRelay?,
         connectionAttemptCount: UInt
-    ) throws -> RelaySelectorResult {
+    ) throws -> SelectedRelay {
         switch nextRelay {
         case .current:
             if let currentRelay {
@@ -350,8 +350,14 @@ extension PacketTunnelActor {
                 connectionAttemptFailureCount: connectionAttemptCount
             )
 
-        case let .preSelected(selectorResult):
-            return selectorResult
+        case let .preSelected(selectedRelay):
+            return selectedRelay
         }
+    }
+}
+
+extension RelaySelectorResult {
+    func asSelectedRelay() -> SelectedRelay {
+        return SelectedRelay(endpoint: endpoint, hostname: relay.hostname, location: location)
     }
 }

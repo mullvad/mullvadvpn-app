@@ -7,20 +7,18 @@
 //
 
 import Foundation
-@testable import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
-@testable import RelaySelector
 import class WireGuardKitTypes.PrivateKey
 
-/// Relay selector stub that accepts a block that can be used to provide custom implementation.
-struct RelaySelectorStub: RelaySelectorProtocol {
-    let block: (RelayConstraints, UInt) throws -> RelaySelectorResult
+/// Relay selector mock that accepts a block that can be used to provide custom implementation.
+struct MockRelaySelector: RelaySelectorProtocol {
+    let block: (RelayConstraints, UInt) throws -> SelectedRelay
 
     func selectRelay(
         with constraints: RelayConstraints,
         connectionAttemptFailureCount: UInt
-    ) throws -> RelaySelectorResult {
+    ) throws -> SelectedRelay {
         return try block(constraints, connectionAttemptFailureCount)
     }
 }
@@ -30,27 +28,23 @@ extension RelaySelectorStub {
     static func nonFallible() -> RelaySelectorStub {
         let publicKey = PrivateKey().publicKey.rawValue
 
-        return RelaySelectorStub { _, _ in
-            return RelaySelectorResult(
+        return MockRelaySelector { _, _ in
+            return SelectedRelay(
                 endpoint: MullvadEndpoint(
                     ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
                     ipv4Gateway: .loopback,
                     ipv6Gateway: .loopback,
                     publicKey: publicKey
                 ),
-                relay: REST.ServerRelay(
-                    hostname: "se-got",
-                    active: true,
-                    owned: true,
-                    location: "se-got",
-                    provider: "",
-                    weight: 0,
-                    ipv4AddrIn: .loopback,
-                    ipv6AddrIn: .loopback,
-                    publicKey: publicKey,
-                    includeInCountry: true
-                ),
-                location: Location(country: "", countryCode: "se", city: "", cityCode: "got", latitude: 0, longitude: 0)
+                hostname: "se-got",
+                location: Location(
+                    country: "",
+                    countryCode: "se",
+                    city: "",
+                    cityCode: "got",
+                    latitude: 0,
+                    longitude: 0
+                )
             )
         }
     }

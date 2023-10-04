@@ -18,11 +18,17 @@ struct RelaySelectorWrapper: RelaySelectorProtocol {
     func selectRelay(
         with constraints: RelayConstraints,
         connectionAttemptFailureCount: UInt
-    ) throws -> RelaySelectorResult {
-        try RelaySelector.evaluate(
+    ) throws -> SelectedRelay {
+        let selectorResult = try RelaySelector.evaluate(
             relays: relayCache.read().relays,
             constraints: constraints,
             numberOfFailedAttempts: connectionAttemptFailureCount
+        )
+
+        return SelectedRelay(
+            endpoint: selectorResult.endpoint,
+            hostname: selectorResult.relay.hostname,
+            location: selectorResult.location
         )
     }
 }

@@ -286,7 +286,6 @@
 		58C7AF112ABD8480007EDD7A /* TunnelProviderMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */; };
 		58C7AF122ABD8480007EDD7A /* TunnelProviderReply.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5898D2A7290182B000EB5EBA /* TunnelProviderReply.swift */; };
 		58C7AF132ABD8480007EDD7A /* PacketTunnelStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */; };
-		58C7AF142ABD8480007EDD7A /* RelaySelectorResult+PacketTunnelRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C9B8CC2ABB247700040B46 /* RelaySelectorResult+PacketTunnelRelay.swift */; };
 		58C7AF152ABD8480007EDD7A /* PacketTunnelRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5898D2B62902A9EA00EB5EBA /* PacketTunnelRelay.swift */; };
 		58C7AF162ABD84A8007EDD7A /* URLRequestProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D229B6298D1D5200BB5A2D /* URLRequestProxy.swift */; };
 		58C7AF172ABD84AA007EDD7A /* ProxyURLRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687AF28EB083800BE7161 /* ProxyURLRequest.swift */; };
@@ -414,7 +413,6 @@
 		58FE25BF2AA72311003D1918 /* MigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D96B192A8247C100A5C673 /* MigrationManager.swift */; };
 		58FE25C22AA72729003D1918 /* MullvadREST.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 06799ABC28F98E1D00ACD94E /* MullvadREST.framework */; };
 		58FE25C62AA72779003D1918 /* PacketTunnelCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58C7A4362A863F440060C66F /* PacketTunnelCore.framework */; };
-		58FE25CB2AA727A9003D1918 /* libRelaySelector.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5898D29829017DAC00EB5EBA /* libRelaySelector.a */; };
 		58FE25CE2AA72802003D1918 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
 		58FE25D42AA729B5003D1918 /* ActorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25D32AA729B5003D1918 /* ActorTests.swift */; };
 		58FE25D72AA72A8F003D1918 /* State.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5824030C2A811B0000163DE8 /* State.swift */; };
@@ -819,13 +817,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 58C7A4352A863F440060C66F;
 			remoteInfo = PacketTunnelCore;
-		};
-		58FE25CC2AA727A9003D1918 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 5898D29729017DAC00EB5EBA;
-			remoteInfo = RelaySelector;
 		};
 		58FE25D02AA72802003D1918 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1324,7 +1315,6 @@
 		58C7A43D2A863F460060C66F /* PacketTunnelCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PacketTunnelCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58C7A46F2A8649ED0060C66F /* PingerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingerTests.swift; sourceTree = "<group>"; };
 		58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationConfiguration.swift; sourceTree = "<group>"; };
-		58C9B8CC2ABB247700040B46 /* RelaySelectorResult+PacketTunnelRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelectorResult+PacketTunnelRelay.swift"; sourceTree = "<group>"; };
 		58CAF9F72983D36800BE19F7 /* Coordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coordinator.swift; sourceTree = "<group>"; };
 		58CAF9FF2983FF0200BE19F7 /* LoginInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginInteractor.swift; sourceTree = "<group>"; };
 		58CAFA01298530DC00BE19F7 /* Promise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
@@ -1593,7 +1583,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */,
-				58FE25CB2AA727A9003D1918 /* libRelaySelector.a in Frameworks */,
 				58C9B8DA2ABB271D00040B46 /* MullvadTransport.framework in Frameworks */,
 				58FE65952AB1D90600E53CB5 /* MullvadTypes.framework in Frameworks */,
 				58C7A45C2A8640490060C66F /* MullvadLogging.framework in Frameworks */,
@@ -2454,7 +2443,6 @@
 				587C575226D2615F005EF767 /* PacketTunnelOptions.swift */,
 				5898D2B62902A9EA00EB5EBA /* PacketTunnelRelay.swift */,
 				585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */,
-				58C9B8CC2ABB247700040B46 /* RelaySelectorResult+PacketTunnelRelay.swift */,
 				585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */,
 				5898D2A7290182B000EB5EBA /* TunnelProviderReply.swift */,
 			);
@@ -3160,7 +3148,6 @@
 			);
 			dependencies = (
 				58C7A45F2A8640490060C66F /* PBXTargetDependency */,
-				58FE25CD2AA727A9003D1918 /* PBXTargetDependency */,
 				58FE65982AB1D90600E53CB5 /* PBXTargetDependency */,
 				58C9B8DD2ABB271D00040B46 /* PBXTargetDependency */,
 			);
@@ -3934,7 +3921,6 @@
 				58C7A4522A863FB50060C66F /* Pinger.swift in Sources */,
 				580D6B8C2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift in Sources */,
 				58C7AF172ABD84AA007EDD7A /* ProxyURLRequest.swift in Sources */,
-				58C7AF142ABD8480007EDD7A /* RelaySelectorResult+PacketTunnelRelay.swift in Sources */,
 				5838321F2AC3160A00EA2071 /* Actor+KeyPolicy.swift in Sources */,
 				58C7AF122ABD8480007EDD7A /* TunnelProviderReply.swift in Sources */,
 				58C7A4572A863FB90060C66F /* TunnelDeviceInfoProtocol.swift in Sources */,
@@ -4586,11 +4572,6 @@
 			isa = PBXTargetDependency;
 			target = 58C7A4352A863F440060C66F /* PacketTunnelCore */;
 			targetProxy = 58FE25C82AA72779003D1918 /* PBXContainerItemProxy */;
-		};
-		58FE25CD2AA727A9003D1918 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 5898D29729017DAC00EB5EBA /* RelaySelector */;
-			targetProxy = 58FE25CC2AA727A9003D1918 /* PBXContainerItemProxy */;
 		};
 		58FE25D12AA72802003D1918 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

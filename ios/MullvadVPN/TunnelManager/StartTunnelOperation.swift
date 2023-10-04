@@ -51,9 +51,9 @@ class StartTunnelOperation: ResultOperation<Void> {
 
         case .disconnected, .pendingReconnect:
             do {
-                let selectorResult = try interactor.selectRelay()
+                let selectedRelay = try interactor.selectRelay()
 
-                makeTunnelProviderAndStartTunnel(selectorResult: selectorResult) { error in
+                makeTunnelProviderAndStartTunnel(selectedRelay: selectedRelay) { error in
                     self.finish(result: error.map { .failure($0) } ?? .success(()))
                 }
             } catch {
@@ -66,7 +66,7 @@ class StartTunnelOperation: ResultOperation<Void> {
     }
 
     private func makeTunnelProviderAndStartTunnel(
-        selectorResult: RelaySelectorResult,
+        selectedRelay: SelectedRelay,
         completionHandler: @escaping (Error?) -> Void
     ) {
         makeTunnelProvider { result in
@@ -74,7 +74,7 @@ class StartTunnelOperation: ResultOperation<Void> {
                 do {
                     try self.startTunnel(
                         tunnel: try result.get(),
-                        selectorResult: selectorResult
+                        selectedRelay: selectedRelay
                     )
 
                     completionHandler(nil)
@@ -85,11 +85,11 @@ class StartTunnelOperation: ResultOperation<Void> {
         }
     }
 
-    private func startTunnel(tunnel: Tunnel, selectorResult: RelaySelectorResult) throws {
+    private func startTunnel(tunnel: Tunnel, selectedRelay: SelectedRelay) throws {
         var tunnelOptions = PacketTunnelOptions()
 
         do {
-            try tunnelOptions.setSelectorResult(selectorResult)
+            try tunnelOptions.setSelectedRelay(selectedRelay)
         } catch {
             logger.error(
                 error: error,
@@ -101,8 +101,8 @@ class StartTunnelOperation: ResultOperation<Void> {
 
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
-            tunnelStatus.packetTunnelStatus.tunnelRelay = selectorResult.packetTunnelRelay
-            tunnelStatus.state = .connecting(selectorResult.packetTunnelRelay)
+            tunnelStatus.packetTunnelStatus.tunnelRelay = selectedRelay.packetTunnelRelay
+            tunnelStatus.state = .connecting(selectedRelay.packetTunnelRelay)
         }
 
         try tunnel.start(options: tunnelOptions.rawOptions())
