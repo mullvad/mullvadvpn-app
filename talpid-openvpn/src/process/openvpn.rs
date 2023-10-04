@@ -378,7 +378,7 @@ impl OpenVpnProcHandle {
     /// Configures the expression to run OpenVPN in a way compatible with this handle
     /// and spawns it. Returns the handle.
     pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
-        use is_terminal::IsTerminal;
+        use std::io::IsTerminal;
 
         if !std::io::stdout().is_terminal() {
             cmd = cmd.stdout_null();

@@ -3490,7 +3490,6 @@ dependencies = [
  "duct",
  "err-derive",
  "futures",
- "is-terminal",
  "log",
  "once_cell",
  "os_pipe",
