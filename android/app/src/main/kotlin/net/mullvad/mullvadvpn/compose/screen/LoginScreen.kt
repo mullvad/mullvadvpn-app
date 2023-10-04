@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -28,7 +27,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,6 +57,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -195,21 +194,7 @@ private fun LoginContent(
             maxLines = 1,
             visualTransformation = accountTokenVisualTransformation(),
             enabled = uiState.loginState is Idle,
-            colors =
-                TextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Gray,
-                    disabledTextColor = Color.Gray,
-                    errorTextColor = Color.Black,
-                    cursorColor = MaterialTheme.colorScheme.background,
-                    focusedPlaceholderColor = MaterialTheme.colorScheme.background,
-                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.primary,
-                    focusedLabelColor = MaterialTheme.colorScheme.background,
-                    disabledLabelColor = Color.Gray,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.background,
-                    focusedLeadingIconColor = Color.Black,
-                    unfocusedSupportingTextColor = Color.Black,
-                ),
+            colors = mullvadWhiteTextFieldColors(),
             isError = uiState.loginState.isError(),
         )
 
@@ -266,14 +251,13 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
                 }
             is Loading ->
                 CircularProgressIndicator(
-                    modifier = Modifier.size(Dimens.progressIndicatorSize),
+                    modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.onPrimary,
                     strokeWidth = Dimens.loadingSpinnerStrokeWidth,
                     strokeCap = StrokeCap.Round
                 )
             Success ->
                 Image(
-                    modifier = Modifier.offset(-Dimens.smallPadding, -Dimens.smallPadding),
                     painter = painterResource(id = R.drawable.icon_success),
                     contentDescription = stringResource(id = R.string.logged_in_title),
                 )

@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
@@ -26,9 +27,11 @@ import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
+import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
+import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -70,6 +73,7 @@ val uiModule = module {
         )
     }
     single { SettingsRepository(get()) }
+    single { MullvadProblemReport(get()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
@@ -87,6 +91,8 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get()) }
+    viewModel { ReportProblemViewModel(get()) }
+    viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get()) }
 }
 

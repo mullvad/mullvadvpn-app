@@ -72,19 +72,33 @@ import kotlinx.coroutines.flow.collectLatest
 fun Modifier.drawHorizontalScrollbar(
     state: ScrollState,
     reverseScrolling: Boolean = false
-): Modifier = drawScrollbar(state, Orientation.Horizontal, reverseScrolling)
+): Modifier = composed { drawScrollbar(state, Orientation.Horizontal, BarColor, reverseScrolling) }
 
 fun Modifier.drawVerticalScrollbar(
     state: ScrollState,
     reverseScrolling: Boolean = false
-): Modifier = drawScrollbar(state, Orientation.Vertical, reverseScrolling)
+): Modifier = composed { drawScrollbar(state, Orientation.Vertical, BarColor, reverseScrolling) }
+
+fun Modifier.drawHorizontalScrollbar(
+    state: ScrollState,
+    color: Color,
+    reverseScrolling: Boolean = false
+): Modifier = drawScrollbar(state, Orientation.Horizontal, color, reverseScrolling)
+
+fun Modifier.drawVerticalScrollbar(
+    state: ScrollState,
+    color: Color,
+    reverseScrolling: Boolean = false
+): Modifier = drawScrollbar(state, Orientation.Vertical, color, reverseScrolling)
 
 private fun Modifier.drawScrollbar(
     state: ScrollState,
     orientation: Orientation,
+    color: Color,
     reverseScrolling: Boolean
 ): Modifier =
-    drawScrollbar(orientation, reverseScrolling) { reverseDirection, atEnd, color, alpha ->
+    drawScrollbar(orientation, color, reverseScrolling) { reverseDirection, atEnd, paintColor, alpha
+        ->
         if (state.maxValue > 0) {
             val canvasSize = if (orientation == Orientation.Horizontal) size.width else size.height
             val totalSize = canvasSize + state.maxValue
@@ -94,7 +108,7 @@ private fun Modifier.drawScrollbar(
                 orientation,
                 reverseDirection,
                 atEnd,
-                color,
+                paintColor,
                 alpha,
                 thumbSize,
                 startOffset
@@ -105,19 +119,21 @@ private fun Modifier.drawScrollbar(
 fun Modifier.drawHorizontalScrollbar(
     state: LazyListState,
     reverseScrolling: Boolean = false
-): Modifier = drawScrollbar(state, Orientation.Horizontal, reverseScrolling)
+): Modifier = composed { drawScrollbar(state, Orientation.Horizontal, BarColor, reverseScrolling) }
 
 fun Modifier.drawVerticalScrollbar(
     state: LazyListState,
     reverseScrolling: Boolean = false
-): Modifier = drawScrollbar(state, Orientation.Vertical, reverseScrolling)
+): Modifier = composed { drawScrollbar(state, Orientation.Vertical, BarColor, reverseScrolling) }
 
 private fun Modifier.drawScrollbar(
     state: LazyListState,
     orientation: Orientation,
+    color: Color,
     reverseScrolling: Boolean
 ): Modifier =
-    drawScrollbar(orientation, reverseScrolling) { reverseDirection, atEnd, color, alpha ->
+    drawScrollbar(orientation, color, reverseScrolling) { reverseDirection, atEnd, paintColor, alpha
+        ->
         val layoutInfo = state.layoutInfo
         val viewportSize = layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset
         val items = layoutInfo.visibleItemsInfo
@@ -137,7 +153,7 @@ private fun Modifier.drawScrollbar(
                 orientation,
                 reverseDirection,
                 atEnd,
-                color,
+                paintColor,
                 alpha,
                 thumbSize,
                 startOffset
@@ -148,9 +164,14 @@ private fun Modifier.drawScrollbar(
 fun Modifier.drawVerticalScrollbar(
     state: LazyGridState,
     spanCount: Int,
-    reverseScrolling: Boolean = false
+    color: Color,
+    reverseScrolling: Boolean = false,
 ): Modifier =
-    drawScrollbar(Orientation.Vertical, reverseScrolling) { reverseDirection, atEnd, color, alpha ->
+    drawScrollbar(Orientation.Vertical, color, reverseScrolling) {
+        reverseDirection,
+        atEnd,
+        paintColor,
+        alpha ->
         val layoutInfo = state.layoutInfo
         val viewportSize = layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset
         val items = layoutInfo.visibleItemsInfo
@@ -176,7 +197,7 @@ fun Modifier.drawVerticalScrollbar(
                 Orientation.Vertical,
                 reverseDirection,
                 atEnd,
-                color,
+                paintColor,
                 alpha,
                 thumbSize,
                 startOffset
@@ -225,6 +246,7 @@ private fun DrawScope.drawScrollbar(
 
 private fun Modifier.drawScrollbar(
     orientation: Orientation,
+    color: Color,
     reverseScrolling: Boolean,
     onDraw:
         DrawScope.(
@@ -268,8 +290,6 @@ private fun Modifier.drawScrollbar(
             if (isLtr) reverseScrolling else !reverseScrolling
         } else reverseScrolling
     val atEnd = if (orientation == Orientation.Vertical) isLtr else true
-
-    val color = BarColor
 
     Modifier.nestedScroll(nestedScrollConnection).drawWithContent {
         drawContent()

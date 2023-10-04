@@ -20,6 +20,7 @@ data class Dimensions(
     val countryRowPadding: Dp = 18.dp,
     val customPortBoxMinWidth: Dp = 80.dp,
     val dialogIconHeight: Dp = 44.dp,
+    val dialogIconSize: Dp = 48.dp,
     val expandableCellChevronSize: Dp = 30.dp,
     val iconFailSuccessSize: Dp = 60.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,
@@ -34,12 +35,13 @@ data class Dimensions(
     val loadingSpinnerSize: Dp = 24.dp,
     val loadingSpinnerSizeMedium: Dp = 28.dp,
     val loadingSpinnerStrokeWidth: Dp = 6.dp,
-    val loginIconContainerSize: Dp = 60.dp,
+    val loginIconContainerSize: Dp = 44.dp,
     val mediumPadding: Dp = 16.dp,
     val notificationBannerEndPadding: Dp = 12.dp,
     val notificationBannerStartPadding: Dp = 16.dp,
     val notificationEndIconPadding: Dp = 4.dp,
     val notificationStatusIconSize: Dp = 10.dp,
+    val problemReportIconToTitlePadding: Dp = 60.dp,
     val progressIndicatorSize: Dp = 48.dp,
     val relayCircleSize: Dp = 16.dp,
     val relayRowPadding: Dp = 50.dp,
@@ -56,7 +58,7 @@ data class Dimensions(
     val titleIconSize: Dp = 24.dp,
     val topBarHeight: Dp = 64.dp,
     val verticalSpace: Dp = 20.dp,
-    val verticalSpacer: Dp = 1.dp
+    val verticalSpacer: Dp = 1.dp,
 )
 
 val defaultDimensions = Dimensions()
