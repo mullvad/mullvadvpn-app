@@ -18,6 +18,7 @@ interface ScrollPositionContext {
   saveScrollPosition: () => void;
   resetScrollPositions: () => void;
   scrollIntoView: (rect: DOMRect) => void;
+  resetHeight: () => void;
 }
 
 type ScrollPosition = [number, number];
@@ -63,6 +64,8 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
     scrollViewRef.current?.scrollIntoView(rect);
   }, []);
 
+  const resetHeight = useCallback(() => spacePreAllocationViewRef.current?.reset(), []);
+
   const value = useMemo(
     () => ({
       scrollPositions,
@@ -72,6 +75,7 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
       saveScrollPosition,
       resetScrollPositions,
       scrollIntoView,
+      resetHeight,
     }),
     [saveScrollPosition, resetScrollPositions],
   );
@@ -86,7 +90,7 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
     } else {
       scrollViewRef.current?.scrollToTop();
     }
-  }, [locationType, searchTerm, relaySettings?.ownership, relaySettings?.providers]);
+  }, [locationType, searchTerm, relaySettings?.ownership, relaySettings?.providers.length]);
 
   return (
     <scrollPositionContext.Provider value={value}>{props.children}</scrollPositionContext.Provider>
