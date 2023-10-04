@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.openLink
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 
@@ -38,11 +39,17 @@ import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 @Preview
 @Composable
 private fun PreviewSettings() {
-    SettingsScreen(
-        uiState =
-            SettingsUiState(appVersion = "2222.22", isLoggedIn = true, isUpdateAvailable = true),
-        enterTransitionEndAction = MutableSharedFlow()
-    )
+    AppTheme {
+        SettingsScreen(
+            uiState =
+                SettingsUiState(
+                    appVersion = "2222.22",
+                    isLoggedIn = true,
+                    isUpdateAvailable = true
+                ),
+            enterTransitionEndAction = MutableSharedFlow()
+        )
+    }
 }
 
 @ExperimentalMaterial3Api
@@ -64,7 +71,7 @@ fun SettingsScreen(
     }
 
     ScaffoldWithMediumTopBar(
-        appBarTitle = stringResource(id = R.string.settings_vpn),
+        appBarTitle = stringResource(id = R.string.settings),
         navigationIcon = { NavigateBackDownIconButton(onBackClick) },
     ) { modifier, lazyListState ->
         LazyColumn(

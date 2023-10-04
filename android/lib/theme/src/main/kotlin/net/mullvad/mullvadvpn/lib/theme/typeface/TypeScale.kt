@@ -16,4 +16,5 @@ internal object TypeScale {
     val TextMediumPlus = 18.sp
     val TextMedium = 16.sp
     val TextSmall = 13.sp
+    val TitleLarge = 22.sp
 }
