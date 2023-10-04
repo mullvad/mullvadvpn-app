@@ -12,20 +12,20 @@ import PacketTunnelCore
 extension PacketTunnelActorTimings {
     static var timingsForTests: PacketTunnelActorTimings {
         return PacketTunnelActorTimings(
-            bootRecoveryPeriodicity: .milliseconds(100),
-            wgKeyPropagationDelay: .milliseconds(100)
+            bootRecoveryPeriodicity: .milliseconds(10),
+            wgKeyPropagationDelay: .milliseconds(10)
         )
     }
 }
 
 extension PacketTunnelActor {
     static func mock(
-        tunnelAdapter: TunnelAdapterProtocol = MockTunnelAdapter(),
-        tunnelMonitor: TunnelMonitorProtocol = MockTunnelMonitor.nonFallible(),
-        defaultPathObserver: DefaultPathObserverProtocol = MockDefaultPathObserver(),
-        blockedStateErrorMapper: BlockedStateErrorMapperProtocol = MockBlockedStateErrorMapper.mock(),
-        relaySelector: RelaySelectorProtocol = MockRelaySelector.nonFallible(),
-        settingsReader: SettingsReaderProtocol = MockSettingsReader.staticConfiguration()
+        tunnelAdapter: TunnelAdapterProtocol = TunnelAdapterDummy(),
+        tunnelMonitor: TunnelMonitorProtocol = TunnelMonitorStub.nonFallible(),
+        defaultPathObserver: DefaultPathObserverProtocol = DefaultPathObserverFake(),
+        blockedStateErrorMapper: BlockedStateErrorMapperProtocol = BlockedStateErrorMapperStub(),
+        relaySelector: RelaySelectorProtocol = RelaySelectorStub.nonFallible(),
+        settingsReader: SettingsReaderProtocol = SettingsReaderStub.staticConfiguration()
     ) -> PacketTunnelActor {
         return PacketTunnelActor(
             timings: .timingsForTests,

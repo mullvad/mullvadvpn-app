@@ -12,14 +12,14 @@ import Network
 import XCTest
 
 final class TunnelMonitorTests: XCTestCase {
-    let networkCounters = NetworkCounters()
+    let networkCounters = NetworkCountersFake()
 
     func testShouldDetermineConnectionEstablished() throws {
         let connectedExpectation = expectation(description: "Should report connected.")
         let connectionLostExpectation = expectation(description: "Should not report connection loss")
         connectionLostExpectation.isInverted = true
 
-        let pinger = MockPinger(networkStatsReporting: networkCounters) { _, _ in
+        let pinger = PingerMock(networkStatsReporting: networkCounters) { _, _ in
             return .sendReply()
         }
 
@@ -42,7 +42,7 @@ final class TunnelMonitorTests: XCTestCase {
 
     func testInitialConnectionTimings() {
         // Setup pinger so that it never receives any replies.
-        let pinger = MockPinger(networkStatsReporting: networkCounters) { _, _ in .ignore }
+        let pinger = PingerMock(networkStatsReporting: networkCounters) { _, _ in .ignore }
 
         let timings = TunnelMonitorTimings(
             pingTimeout: .milliseconds(300),
@@ -116,8 +116,8 @@ extension TunnelMonitorTests {
         return TunnelMonitor(
             eventQueue: .main,
             pinger: pinger,
-            tunnelDeviceInfo: MockTunnelDeviceInfo(networkStatsProviding: networkCounters),
-            defaultPathObserver: MockDefaultPathObserver(),
+            tunnelDeviceInfo: TunnelDeviceInfoStub(networkStatsProviding: networkCounters),
+            defaultPathObserver: DefaultPathObserverFake(),
             timings: timings
         )
     }

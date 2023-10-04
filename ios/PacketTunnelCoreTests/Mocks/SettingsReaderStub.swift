@@ -1,5 +1,5 @@
 //
-//  MockSettingsReader.swift
+//  SettingsReaderStub.swift
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 05/09/2023.
@@ -12,7 +12,8 @@ import PacketTunnelCore
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 
-struct MockSettingsReader: SettingsReaderProtocol {
+/// Settings reader stub that can be configured with a block to proovide the desired behavior when testing.
+struct SettingsReaderStub: SettingsReaderProtocol {
     let block: () throws -> Settings
 
     func read() throws -> Settings {
@@ -20,9 +21,9 @@ struct MockSettingsReader: SettingsReaderProtocol {
     }
 }
 
-extension MockSettingsReader {
-    /// Initialize non-fallible settings reader that will always return the same static configuration generated at the time of creation.
-    static func staticConfiguration() -> MockSettingsReader {
+extension SettingsReaderStub {
+    /// Initialize non-fallible settings reader stub that will always return the same static configuration generated at the time of creation.
+    static func staticConfiguration() -> SettingsReaderStub {
         let staticSettings = Settings(
             privateKey: PrivateKey(),
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
@@ -30,7 +31,7 @@ extension MockSettingsReader {
             dnsServers: .gateway
         )
 
-        return MockSettingsReader {
+        return SettingsReaderStub {
             return staticSettings
         }
     }
