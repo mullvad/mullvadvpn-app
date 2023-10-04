@@ -208,6 +208,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             let selectorResult = tunnelConfiguration.selectorResult
             self.selectorResult = selectorResult
             self.providerLogger.debug("Set tunnel relay to \(selectorResult.relay.hostname).")
+            self.logIfDeviceHasSameIP(than: tunnelConfiguration.wgTunnelConfig.interface.addresses)
 
             // Start tunnel.
             self.adapter.start(tunnelConfiguration: tunnelConfiguration.wgTunnelConfig) { error in
@@ -236,6 +237,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 }
             }
         }
+    }
+
+    private func logIfDeviceHasSameIP(than addresses: [IPAddressRange]) {
+        let hasIPv4SameAddress = addresses.compactMap { $0.address as? IPv4Address }
+            .contains { $0 == ApplicationConfiguration.sameIPv4 }
+        let hasIPv6SameAddress = addresses.compactMap { $0.address as? IPv6Address }
+            .contains { $0 == ApplicationConfiguration.sameIPv6 }
+
+        let isNotUsingSameIP = (hasIPv4SameAddress || hasIPv6SameAddress) == false ? " NOT " : " "
+        providerLogger.debug("Same IP is\(isNotUsingSameIP)being used")
     }
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
