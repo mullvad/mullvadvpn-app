@@ -62,8 +62,11 @@ fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () ->
                     Spacer(modifier = Modifier.height(Dimens.verticalSpace))
                     val htmlFormattedString =
                         HtmlCompat.fromHtml(additionalInfo, HtmlCompat.FROM_HTML_MODE_COMPACT)
+                    val annotated = htmlFormattedString.toAnnotatedString()
+                    // fromHtml may add a trailing newline when using HTML tags, so we remove it
+                    val trimmed = annotated.substring(0, annotated.trimEnd().length)
                     Text(
-                        text = htmlFormattedString.toAnnotatedString(),
+                        text = trimmed,
                         color = MaterialTheme.colorScheme.onBackground,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.fillMaxWidth()
