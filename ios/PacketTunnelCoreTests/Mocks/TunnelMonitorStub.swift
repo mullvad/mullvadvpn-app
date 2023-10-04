@@ -1,5 +1,5 @@
 //
-//  MockTunnelMonitor.swift
+//  TunnelMonitorStub.swift
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 05/09/2023.
@@ -10,7 +10,7 @@ import Foundation
 import Network
 import PacketTunnelCore
 
-class MockTunnelMonitor: TunnelMonitorProtocol {
+class TunnelMonitorStub: TunnelMonitorProtocol {
     enum Command {
         case start, stop
     }
@@ -81,12 +81,12 @@ class MockTunnelMonitor: TunnelMonitorProtocol {
     }
 }
 
-extension MockTunnelMonitor {
-    /// Returns a mock of tunnel monitor that always reports that connection is established after 100ms after starting connection monitoring.
-    static func nonFallible() -> MockTunnelMonitor {
-        MockTunnelMonitor { command, dispatcher in
+extension TunnelMonitorStub {
+    /// Returns a mock of tunnel monitor that always reports that connection is established after a short delay.
+    static func nonFallible() -> TunnelMonitorStub {
+        TunnelMonitorStub { command, dispatcher in
             if case .start = command {
-                dispatcher.send(.connectionEstablished, after: .milliseconds(100))
+                dispatcher.send(.connectionEstablished, after: .milliseconds(10))
             }
         }
     }

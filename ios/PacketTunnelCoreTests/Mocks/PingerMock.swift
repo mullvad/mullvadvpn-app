@@ -1,5 +1,5 @@
 //
-//  MockPinger.swift
+//  PingerMock.swift
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 16/08/2023.
@@ -12,7 +12,7 @@ import Network
 @testable import PacketTunnelCore
 
 /// Ping client mock implementation that can be used to simulate network transmission errors and delays.
-class MockPinger: PingerProtocol {
+class PingerMock: PingerProtocol {
     typealias OutcomeDecider = (IPv4Address, UInt16) -> Outcome
 
     private let decideOutcome: OutcomeDecider

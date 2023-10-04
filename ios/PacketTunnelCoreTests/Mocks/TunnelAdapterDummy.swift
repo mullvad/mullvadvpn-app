@@ -1,5 +1,5 @@
 //
-//  MockTunnelAdapter.swift
+//  TunnelAdapterDummy.swift
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 05/09/2023.
@@ -10,7 +10,7 @@ import Foundation
 import PacketTunnelCore
 
 /// Mock of tunnel adapter that does nothing and reports no errors.
-class MockTunnelAdapter: TunnelAdapterProtocol {
+class TunnelAdapterDummy: TunnelAdapterProtocol {
     func start(configuration: TunnelAdapterConfiguration) async throws {}
 
     func stop() async throws {}
