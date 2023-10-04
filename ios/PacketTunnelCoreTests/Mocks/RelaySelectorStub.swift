@@ -1,5 +1,5 @@
 //
-//  MockRelaySelector.swift
+//  RelaySelectorStub.swift
 //  PacketTunnelCoreTests
 //
 //  Created by pronebird on 05/09/2023.
@@ -13,8 +13,8 @@ import PacketTunnelCore
 @testable import RelaySelector
 import class WireGuardKitTypes.PrivateKey
 
-/// Relay selector mock that accepts a block that can be used to provide custom implementation.
-struct MockRelaySelector: RelaySelectorProtocol {
+/// Relay selector stub that accepts a block that can be used to provide custom implementation.
+struct RelaySelectorStub: RelaySelectorProtocol {
     let block: (RelayConstraints, UInt) throws -> RelaySelectorResult
 
     func selectRelay(
@@ -25,12 +25,12 @@ struct MockRelaySelector: RelaySelectorProtocol {
     }
 }
 
-extension MockRelaySelector {
+extension RelaySelectorStub {
     /// Returns a relay selector that never fails.
-    static func nonFallible() -> MockRelaySelector {
+    static func nonFallible() -> RelaySelectorStub {
         let publicKey = PrivateKey().publicKey.rawValue
 
-        return MockRelaySelector { _, _ in
+        return RelaySelectorStub { _, _ in
             return RelaySelectorResult(
                 endpoint: MullvadEndpoint(
                     ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
