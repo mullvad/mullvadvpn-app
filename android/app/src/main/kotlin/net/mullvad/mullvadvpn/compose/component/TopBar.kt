@@ -1,7 +1,10 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -9,8 +12,11 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
@@ -105,13 +112,14 @@ fun MullvadTopBar(
                         val logoHeight = Dimens.mediumPadding
                         val logoStartEndPadding = Dimens.mediumPadding
 
-                        val shouldShowText = remember(maxWidth) {
-                            val logoHeightWidthRatio =
-                                logoTextPainter.intrinsicSize.width /
-                                    logoTextPainter.intrinsicSize.height
-                            val expectedLength = logoHeightWidthRatio * logoHeight.value
-                            maxWidth > (expectedLength + logoStartEndPadding.value * 2).dp
-                        }
+                        val shouldShowText =
+                            remember(maxWidth) {
+                                val logoHeightWidthRatio =
+                                    logoTextPainter.intrinsicSize.width /
+                                        logoTextPainter.intrinsicSize.height
+                                val expectedLength = logoHeightWidthRatio * logoHeight.value
+                                maxWidth > (expectedLength + logoStartEndPadding.value * 2).dp
+                            }
 
                         if (shouldShowText) {
                             Icon(
@@ -150,5 +158,53 @@ fun MullvadTopBar(
             TopAppBarDefaults.topAppBarColors(
                 containerColor = containerColor,
             ),
+    )
+}
+
+@Preview
+@Composable
+private fun PreviewMediumTopBar() {
+    AppTheme {
+        MullvadMediumTopBar(
+            title = "Title",
+        )
+    }
+}
+
+@Preview(widthDp = 260)
+@Composable
+private fun PreviewSlimMediumTopBar() {
+    AppTheme {
+        MullvadMediumTopBar(
+            title = "Long top bar with long title",
+            actions = {
+                IconButton(onClick = {}) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_settings),
+                        contentDescription = null
+                    )
+                }
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MullvadMediumTopBar(
+    title: String,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    scrollBehavior: TopAppBarScrollBehavior? = null
+) {
+    MediumTopAppBar(
+        title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        navigationIcon = navigationIcon,
+        scrollBehavior = scrollBehavior,
+        colors =
+            TopAppBarDefaults.mediumTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background
+            ),
+        actions = actions
     )
 }
