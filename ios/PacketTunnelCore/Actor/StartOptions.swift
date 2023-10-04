@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import RelaySelector
 
 /// Packet tunnel start options parsed from dictionary passed to packet tunnel with a call to `startTunnel()`.
 public struct StartOptions {
@@ -15,19 +14,19 @@ public struct StartOptions {
     public var launchSource: LaunchSource
 
     /// Pre-selected relay received from UI when available.
-    public var selectorResult: RelaySelectorResult?
+    public var selectedRelay: SelectedRelay?
 
     /// Designated initializer.
-    public init(launchSource: LaunchSource, selectorResult: RelaySelectorResult? = nil) {
+    public init(launchSource: LaunchSource, selectedRelay: SelectedRelay? = nil) {
         self.launchSource = launchSource
-        self.selectorResult = selectorResult
+        self.selectedRelay = selectedRelay
     }
 
     /// Returns a brief description suitable for output to tunnel provider log.
     public func logFormat() -> String {
         var s = "Start the tunnel via \(launchSource)"
-        if let selectorResult {
-            s += ", connect to \(selectorResult.relay.hostname)"
+        if let selectedRelay {
+            s += ", connect to \(selectedRelay.hostname)"
         }
         s += "."
         return s
