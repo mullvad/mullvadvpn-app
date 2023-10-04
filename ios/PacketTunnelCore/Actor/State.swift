@@ -100,7 +100,7 @@ public enum NetworkReachability: Equatable {
 /// Data associated with states that hold connection data.
 public struct ConnectionState {
     /// Current selected relay.
-    public var selectedRelay: RelaySelectorResult
+    public var selectedRelay: SelectedRelay
 
     /// Last relay constraints read from settings.
     /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
@@ -203,7 +203,7 @@ public enum TargetStateForReconnect {
 }
 
 /// Describes which relay the tunnel should connect to next.
-public enum NextRelay: Equatable {
+public enum NextRelay: Equatable, Codable {
     /// Select next relay randomly.
     case random
 
@@ -211,5 +211,5 @@ public enum NextRelay: Equatable {
     case current
 
     /// Use pre-selected relay.
-    case preSelected(RelaySelectorResult)
+    case preSelected(SelectedRelay)
 }

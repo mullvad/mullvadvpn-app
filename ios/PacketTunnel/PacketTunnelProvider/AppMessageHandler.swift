@@ -54,8 +54,8 @@ struct AppMessageHandler {
             packetTunnelActor.notifyKeyRotation(date: nil)
             return nil
 
-        case let .reconnectTunnel(selectorResult):
-            packetTunnelActor.reconnect(to: selectorResult.map { .preSelected($0) } ?? .current)
+        case let .reconnectTunnel(nextRelay):
+            packetTunnelActor.reconnect(to: nextRelay)
             return nil
         }
     }

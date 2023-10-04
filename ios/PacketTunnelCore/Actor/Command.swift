@@ -50,7 +50,7 @@ enum Command {
             case .random:
                 return "reconnect(random, \(stopTunnelMonitor))"
             case let .preSelected(selectedRelay):
-                return "reconnect(\(selectedRelay.relay.hostname), \(stopTunnelMonitor))"
+                return "reconnect(\(selectedRelay.hostname), \(stopTunnelMonitor))"
             }
         case let .error(reason):
             return "error(\(reason))"

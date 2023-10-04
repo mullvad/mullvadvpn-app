@@ -8,8 +8,7 @@
 
 import Foundation
 import MullvadSettings
-import RelayCache
-import RelaySelector
+import PacketTunnelCore
 
 protocol TunnelInteractor {
     // MARK: - Tunnel manipulation
@@ -38,5 +37,5 @@ protocol TunnelInteractor {
 
     func startTunnel()
     func prepareForVPNConfigurationDeletion()
-    func selectRelay() throws -> RelaySelectorResult
+    func selectRelay() throws -> SelectedRelay
 }

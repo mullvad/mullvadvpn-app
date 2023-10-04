@@ -7,15 +7,13 @@
 //
 
 import Foundation
-import RelaySelector
 
 public struct PacketTunnelOptions {
     /// Keys for options dictionary
     private enum Keys: String {
-        /// Option key that holds the `NSData` value with `RelaySelectorResult`
-        /// encoded using `JSONEncoder`.
+        /// Option key that holds serialized`SelectedRelay` value encoded using `JSONEncoder`.
         /// Used for passing the pre-selected relay in the GUI process to the Packet tunnel process.
-        case relaySelectorResult = "relay-selector-result"
+        case selectedRelay = "selected-relay"
 
         /// Option key that holds the `NSNumber` value, which is when set to `1` indicates that
         /// the tunnel was started by the system.
@@ -37,14 +35,14 @@ public struct PacketTunnelOptions {
         _rawOptions = rawOptions
     }
 
-    public func getSelectorResult() throws -> RelaySelectorResult? {
-        guard let data = _rawOptions[Keys.relaySelectorResult.rawValue] as? Data else { return nil }
+    public func getSelectedRelay() throws -> SelectedRelay? {
+        guard let data = _rawOptions[Keys.selectedRelay.rawValue] as? Data else { return nil }
 
-        return try Self.decode(RelaySelectorResult.self, data)
+        return try Self.decode(SelectedRelay.self, data)
     }
 
-    public mutating func setSelectorResult(_ value: RelaySelectorResult) throws {
-        _rawOptions[Keys.relaySelectorResult.rawValue] = try Self.encode(value) as NSData
+    public mutating func setSelectedRelay(_ value: SelectedRelay) throws {
+        _rawOptions[Keys.selectedRelay.rawValue] = try Self.encode(value) as NSData
     }
 
     public func isOnDemand() -> Bool {

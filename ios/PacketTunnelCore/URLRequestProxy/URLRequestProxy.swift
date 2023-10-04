@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadREST
-import MullvadTransport
 import MullvadTypes
 
 /// Network request proxy capable of passing serializable requests and responses over the given transport provider.
