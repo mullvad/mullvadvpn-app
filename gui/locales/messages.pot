@@ -170,6 +170,9 @@ msgstr ""
 msgid "Reconnect"
 msgstr ""
 
+msgid "Save"
+msgstr ""
+
 msgid "Search for..."
 msgstr ""
 
@@ -1005,6 +1008,33 @@ msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr ""
 
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "select-location-view"
+msgid "Add <b>%(locationType)s</b> to list"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "All locations"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "City"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Country"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Custom lists"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Edit list name"
+msgstr ""
+
 msgctxt "select-location-view"
 msgid "Entry"
 msgstr ""
@@ -1018,7 +1048,19 @@ msgid "Filtered:"
 msgstr ""
 
 msgctxt "select-location-view"
+msgid "List names must be unique."
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Name is already taken."
+msgstr ""
+
+msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Relay"
 msgstr ""
 
 msgctxt "select-location-view"
