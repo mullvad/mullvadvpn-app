@@ -355,7 +355,7 @@ function LocationList<T>(props: CombinedLocationListProps<T>) {
 
   if (
     searchTerm !== '' &&
-    props.relayLocations.length === 0 &&
+    !props.relayLocations.some((country) => country.visible) &&
     (props.specialLocations === undefined || props.specialLocations.length === 0)
   ) {
     return null;
@@ -381,8 +381,8 @@ function NoSearchResult(props: NoSearchResultProps) {
 
   if (
     searchTerm === '' ||
-    relayList.length > 0 ||
-    customLists.length > 0 ||
+    relayList.some((country) => country.visible) ||
+    customLists.some((list) => list.visible) ||
     props.specialLocationsLength > 0
   ) {
     return null;
@@ -393,7 +393,7 @@ function NoSearchResult(props: NoSearchResultProps) {
       <StyledNoResultText>
         {formatHtml(
           sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), {
-            searchTerm: searchTerm,
+            searchTerm,
           }),
         )}
       </StyledNoResultText>

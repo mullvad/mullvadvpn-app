@@ -27,6 +27,7 @@ import {
   DisabledReason,
   GeographicalRelayList,
   LocationType,
+  RelayLocationCountryWithVisibility,
 } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
@@ -127,7 +128,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
 // Return the final filtered and formatted relay list. This should be the only place in the app
 // where processing of the relay list is performed.
 function useRelayList(
-  relayList: Array<IRelayLocationCountryRedux>,
+  relayList: Array<RelayLocationCountryWithVisibility>,
   expandedLocations?: Array<RelayLocation>,
 ): GeographicalRelayList {
   const locale = useSelector((state) => state.userInterface.locale);

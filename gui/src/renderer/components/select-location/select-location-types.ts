@@ -28,6 +28,10 @@ export enum SpecialLocationIcon {
   geoLocation = 'icon-nearest',
 }
 
+export interface LocationVisibility {
+  visible: boolean;
+}
+
 interface CommonLocationSpecification {
   label: string;
   selected: boolean;
@@ -48,10 +52,25 @@ type GeographicalLocationSpecification =
 
 export type LocationSpecification = GeographicalLocationSpecification | CustomListSpecification;
 
-interface CommonNormalLocationSpecification extends CommonLocationSpecification {
+export interface RelayLocationCountryWithVisibility
+  extends IRelayLocationCountryRedux,
+    LocationVisibility {
+  cities: Array<RelayLocationCityWithVisibility>;
+}
+
+export interface RelayLocationCityWithVisibility
+  extends IRelayLocationCityRedux,
+    LocationVisibility {
+  relays: Array<RelayLocationRelayWithVisibility>;
+}
+
+export type RelayLocationRelayWithVisibility = IRelayLocationRelayRedux & LocationVisibility;
+
+interface CommonNormalLocationSpecification
+  extends CommonLocationSpecification,
+    LocationVisibility {
   location: RelayLocation;
   disabled: boolean;
-  selected: boolean;
   active: boolean;
 }
 

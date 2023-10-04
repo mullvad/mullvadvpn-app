@@ -1,6 +1,11 @@
 import { Ownership, RelayEndpointType, RelayLocation } from '../../shared/daemon-rpc-types';
 import { relayLocations } from '../../shared/gettext';
-import { SpecialLocation } from '../components/select-location/select-location-types';
+import {
+  RelayLocationCityWithVisibility,
+  RelayLocationCountryWithVisibility,
+  RelayLocationRelayWithVisibility,
+  SpecialLocation,
+} from '../components/select-location/select-location-types';
 import {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
@@ -90,35 +95,44 @@ function filterLocationsImpl(
 export function searchForLocations(
   countries: Array<IRelayLocationCountryRedux>,
   searchTerm: string,
-): Array<IRelayLocationCountryRedux> {
-  if (searchTerm === '') {
-    return countries;
-  }
-
-  return countries.reduce((countries, country) => {
-    const matchingCities = searchCities(country.cities, searchTerm);
-    const expanded = matchingCities.length > 0;
+): Array<RelayLocationCountryWithVisibility> {
+  return countries.map((country) => {
     const match =
+      searchTerm === '' ||
       searchMatch(searchTerm, country.code) ||
       searchMatch(searchTerm, relayLocations.gettext(country.name));
-    const resultingCities = match ? country.cities : matchingCities;
-    return expanded || match ? [...countries, { ...country, cities: resultingCities }] : countries;
-  }, [] as Array<IRelayLocationCountryRedux>);
+    const cities = searchCities(country.cities, searchTerm, match);
+    const expanded = cities.some((city) => city.visible);
+    return { ...country, cities: cities, visible: expanded || match };
+  });
 }
 
 function searchCities(
   cities: Array<IRelayLocationCityRedux>,
   searchTerm: string,
-): Array<IRelayLocationCityRedux> {
-  return cities.reduce((cities, city) => {
-    const matchingRelays = city.relays.filter((relay) => searchMatch(searchTerm, relay.hostname));
-    const expanded = matchingRelays.length > 0;
+  countryMatch: boolean,
+): Array<RelayLocationCityWithVisibility> {
+  return cities.map((city) => {
     const match =
+      searchTerm === '' ||
+      countryMatch ||
       searchMatch(searchTerm, city.code) ||
       searchMatch(searchTerm, relayLocations.gettext(city.name));
-    const resultingRelays = match ? city.relays : matchingRelays;
-    return expanded || match ? [...cities, { ...city, relays: resultingRelays }] : cities;
-  }, [] as Array<IRelayLocationCityRedux>);
+    const relays = searchRelays(city.relays, searchTerm, match);
+    const expanded = match || relays.some((relay) => relay.visible);
+    return { ...city, relays: relays, visible: expanded };
+  });
+}
+
+function searchRelays(
+  relays: Array<IRelayLocationRelayRedux>,
+  searchTerm: string,
+  cityMatch: boolean,
+): Array<RelayLocationRelayWithVisibility> {
+  return relays.map((relay) => ({
+    ...relay,
+    visible: searchTerm === '' || cityMatch || searchMatch(searchTerm, relay.hostname),
+  }));
 }
 
 export function getLocationsExpandedBySearch(

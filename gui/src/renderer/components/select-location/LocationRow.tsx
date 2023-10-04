@@ -143,7 +143,7 @@ interface IProps<C extends LocationSpecification> {
 
 // Renders the rows and its children for countries, cities and relays
 function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
-  const hasChildren = React.Children.count(props.children) > 0;
+  const hasChildren = getLocationChildren(props.source).some((child) => child.visible);
   const buttonRef = useRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement>;
   const userInvokedExpand = useRef(false);
 
@@ -203,6 +203,10 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
       void deleteCustomList(props.source.location.customList);
     }
   }, [props.source.location.customList]);
+
+  if (!props.source.visible) {
+    return null;
+  }
 
   // The selectedRef should only be used if the element is selected
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
@@ -329,6 +333,7 @@ function compareLocation(
   nextLocation: LocationSpecification,
 ): boolean {
   return (
+    oldLocation.visible === nextLocation.visible &&
     oldLocation.label === nextLocation.label &&
     oldLocation.active === nextLocation.active &&
     oldLocation.disabled === nextLocation.disabled &&
@@ -343,16 +348,16 @@ function compareChildren(
   oldLocation: LocationSpecification,
   nextLocation: LocationSpecification,
 ): boolean {
-  const oldChildren = getLocationChildren(oldLocation);
-  const nextChildren = getLocationChildren(nextLocation);
+  const oldVisibleChildren = getLocationChildren(oldLocation).filter((child) => child.visible);
+  const nextVisibleChildren = getLocationChildren(nextLocation).filter((child) => child.visible);
 
   // Children shouldn't be checked if the row is collapsed
   const nextExpanded = 'expanded' in nextLocation && nextLocation.expanded;
 
   return (
-    (!nextExpanded && oldChildren.length > 0 && nextChildren.length > 0) ||
-    (oldChildren.length === nextChildren.length &&
-      oldChildren.every((oldChild, i) => compareLocation(oldChild, nextChildren[i])))
+    (!nextExpanded && oldVisibleChildren.length > 0 && nextVisibleChildren.length > 0) ||
+    (oldVisibleChildren.length === nextVisibleChildren.length &&
+      oldVisibleChildren.every((oldChild, i) => compareLocation(oldChild, nextVisibleChildren[i])))
   );
 }
 
