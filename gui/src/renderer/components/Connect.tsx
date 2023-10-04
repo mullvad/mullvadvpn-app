@@ -2,12 +2,13 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
+import { ICustomList } from '../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
+import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
@@ -66,6 +67,7 @@ export default function Connect() {
   const blockWhenDisconnected = useSelector((state) => state.settings.blockWhenDisconnected);
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const relayLocations = useSelector((state) => state.settings.relayLocations);
+  const customLists = useSelector((state) => state.settings.customLists);
 
   const mapCenter = useMemo<[number, number] | undefined>(() => {
     const { longitude, latitude } = connection;
@@ -136,10 +138,10 @@ export default function Connect() {
     history.push(RoutePath.selectLocation, { transition: transitions.show });
   }, [history.push]);
 
-  const selectedRelayName = useMemo(() => getRelayName(relaySettings, relayLocations), [
-    relaySettings,
-    relayLocations,
-  ]);
+  const selectedRelayName = useMemo(
+    () => getRelayName(relaySettings, customLists, relayLocations),
+    [relaySettings, customLists, relayLocations],
+  );
 
   const onConnect = useCallback(async () => {
     try {
@@ -200,31 +202,22 @@ export default function Connect() {
   );
 }
 
-function getRelayName(relaySettings: RelaySettingsRedux, locations: IRelayLocationRedux[]): string {
+function getRelayName(
+  relaySettings: RelaySettingsRedux,
+  customLists: Array<ICustomList>,
+  locations: IRelayLocationCountryRedux[],
+): string {
   if ('normal' in relaySettings) {
     const location = relaySettings.normal.location;
 
     if (location === 'any') {
       return 'Automatic';
-    } else if ('country' in location) {
+    } else if ('customList' in location) {
+      return customLists.find((list) => list.id === location.customList)?.name ?? 'Unknown';
+    } else if ('hostname' in location) {
       const country = locations.find(({ code }) => code === location.country);
       if (country) {
-        return relayLocations.gettext(country.name);
-      }
-    } else if ('city' in location) {
-      const [countryCode, cityCode] = location.city;
-      const country = locations.find(({ code }) => code === countryCode);
-      if (country) {
-        const city = country.cities.find(({ code }) => code === cityCode);
-        if (city) {
-          return relayLocations.gettext(city.name);
-        }
-      }
-    } else if ('hostname' in location) {
-      const [countryCode, cityCode, hostname] = location.hostname;
-      const country = locations.find(({ code }) => code === countryCode);
-      if (country) {
-        const city = country.cities.find(({ code }) => code === cityCode);
+        const city = country.cities.find(({ code }) => code === location.city);
         if (city) {
           return sprintf(
             // TRANSLATORS: The selected location label displayed on the main view, when a user selected a specific host to connect to.
@@ -235,10 +228,23 @@ function getRelayName(relaySettings: RelaySettingsRedux, locations: IRelayLocati
             messages.pgettext('connect-container', '%(city)s (%(hostname)s)'),
             {
               city: relayLocations.gettext(city.name),
-              hostname,
+              hostname: location.hostname,
             },
           );
         }
+      }
+    } else if ('city' in location) {
+      const country = locations.find(({ code }) => code === location.country);
+      if (country) {
+        const city = country.cities.find(({ code }) => code === location.city);
+        if (city) {
+          return relayLocations.gettext(city.name);
+        }
+      }
+    } else if ('country' in location) {
+      const country = locations.find(({ code }) => code === location.country);
+      if (country) {
+        return relayLocations.gettext(country.name);
       }
     }
 
