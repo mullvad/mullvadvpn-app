@@ -2,6 +2,7 @@ import { sprintf } from 'sprintf-js';
 
 import {
   compareRelayLocation,
+  compareRelayLocationCount,
   compareRelayLocationLoose,
   LiftedConstraint,
   RelayLocation,
@@ -27,9 +28,13 @@ export function isSelected(
   return selected !== 'any' && compareRelayLocationLoose(selected, relayLocation);
 }
 
-export function isExpanded(relayLocation: RelayLocation, expandedLocations?: Array<RelayLocation>) {
+export function isExpanded(
+  relayLocation: RelayLocation & { count?: number },
+  expandedLocations?: Array<RelayLocation>,
+) {
   return (
-    expandedLocations?.some((location) => compareRelayLocation(location, relayLocation)) ?? false
+    expandedLocations?.some((location) => compareRelayLocationCount(location, relayLocation)) ??
+    false
   );
 }
 
@@ -177,6 +182,37 @@ export function isCountryDisabled(
     disabledLocation &&
     compareRelayLocation(location, disabledLocation.location) &&
     country.cities.flatMap((city) => city.relays).filter((relay) => relay.active).length <= 1
+  ) {
+    return disabledLocation.reason;
+  }
+
+  return undefined;
+}
+
+export function isCustomListDisabled(
+  location: RelayLocationCustomList,
+  locations: Array<LocationSpecification>,
+  disabledLocation?: { location: RelayLocation; reason: DisabledReason },
+) {
+  const locationsDisabled = locations.map((location) => location.disabledReason);
+  if (locationsDisabled.every((status) => status === DisabledReason.inactive)) {
+    return DisabledReason.inactive;
+  }
+
+  const disabledDueToSelection = locationsDisabled.find(
+    (status) => status === DisabledReason.entry || status === DisabledReason.exit,
+  );
+  if (
+    locationsDisabled.every((status) => status !== undefined) &&
+    disabledDueToSelection !== undefined
+  ) {
+    return disabledDueToSelection;
+  }
+
+  if (
+    disabledLocation &&
+    compareRelayLocation(location, disabledLocation.location) &&
+    locations.filter((location) => location.active).length <= 1
   ) {
     return disabledLocation.reason;
   }

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import * as Cell from '../cell';
-import { tinyText } from '../common-styles';
+import { normalText, tinyText } from '../common-styles';
 import SearchBar from '../SearchBar';
 import { HeaderSubTitle } from '../SettingsHeader';
 import { ScopeBar } from './ScopeBar';
@@ -75,4 +75,8 @@ export const StyledNoResult = styled(Cell.CellFooter)({
 
 export const StyledNoResultText = styled(Cell.CellFooterText)({
   textAlign: 'center',
+});
+
+export const StyledAllLocationsTitle = styled(Cell.Label)(normalText, {
+  fontWeight: 'normal',
 });
