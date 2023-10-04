@@ -9,8 +9,9 @@ import {
   searchForLocations,
 } from '../../lib/filter-locations';
 import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
-import { IRelayLocationRedux } from '../../redux/settings/reducers';
+import { IRelayLocationCountryRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
+import { useCustomListsRelayList } from './custom-list-helpers';
 import { useScrollPositionContext } from './ScrollPositionContext';
 import {
   defaultExpandedLocations,
@@ -22,16 +23,18 @@ import {
   isSelected,
 } from './select-location-helpers';
 import {
+  CustomListSpecification,
   DisabledReason,
-  LocationList,
-  LocationSelectionType,
+  GeographicalRelayList,
   LocationType,
 } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
 // Context containing the relay list and related data and callbacks
 interface RelayListContext {
-  relayList: LocationList<never>;
+  relayList: GeographicalRelayList;
+  customLists: Array<CustomListSpecification>;
+  expandedLocations?: Array<RelayLocation>;
   expandLocation: (location: RelayLocation) => void;
   collapseLocation: (location: RelayLocation) => void;
   onBeforeExpand: (
@@ -44,7 +47,7 @@ interface RelayListContext {
 
 type ExpandedLocations = Partial<Record<LocationType, Array<RelayLocation>>>;
 
-const relayListContext = React.createContext<RelayListContext | undefined>(undefined);
+export const relayListContext = React.createContext<RelayListContext | undefined>(undefined);
 
 export function useRelayListContext() {
   return useContext(relayListContext)!;
@@ -93,15 +96,27 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   // Prepares all relays and combines the data needed for rendering them
   const relayList = useRelayList(relayListForSearch, expandedLocations);
 
+  const customLists = useCustomListsRelayList(relayList, expandedLocations);
+
   const contextValue = useMemo(
     () => ({
       relayList,
+      customLists,
+      expandedLocations,
       expandLocation,
       collapseLocation,
       onBeforeExpand,
       expandSearchResults,
     }),
-    [relayList, expandLocation, collapseLocation, onBeforeExpand, expandSearchResults],
+    [
+      relayList,
+      customLists,
+      expandedLocations,
+      expandLocation,
+      collapseLocation,
+      onBeforeExpand,
+      expandSearchResults,
+    ],
   );
 
   return (
@@ -112,9 +127,9 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
 // Return the final filtered and formatted relay list. This should be the only place in the app
 // where processing of the relay list is performed.
 function useRelayList(
-  relayList: Array<IRelayLocationRedux>,
+  relayList: Array<IRelayLocationCountryRedux>,
   expandedLocations?: Array<RelayLocation>,
-): LocationList<never> {
+): GeographicalRelayList {
   const locale = useSelector((state) => state.userInterface.locale);
   const selectedLocation = useSelectedLocation();
   const disabledLocation = useDisabledLocation();
@@ -123,46 +138,50 @@ function useRelayList(
     return relayList
       .map((country) => {
         const countryLocation = { country: country.code };
-        const countryDisabled = isCountryDisabled(country, country.code, disabledLocation);
+        const countryDisabledReason = isCountryDisabled(country, countryLocation, disabledLocation);
 
         return {
           ...country,
-          type: LocationSelectionType.relay as const,
-          label: formatRowName(country.name, countryLocation, countryDisabled),
+          label: formatRowName(country.name, countryLocation, countryDisabledReason),
           location: countryLocation,
-          active: countryDisabled !== DisabledReason.inactive,
-          disabled: countryDisabled !== undefined,
+          active: countryDisabledReason !== DisabledReason.inactive,
+          disabled: countryDisabledReason !== undefined,
+          disabledReason: countryDisabledReason,
           expanded: isExpanded(countryLocation, expandedLocations),
           selected: isSelected(countryLocation, selectedLocation),
           cities: country.cities
             .map((city) => {
-              const cityLocation: RelayLocation = { city: [country.code, city.code] };
-              const cityDisabled =
-                countryDisabled ?? isCityDisabled(city, cityLocation.city, disabledLocation);
+              const cityLocation: RelayLocation = { country: country.code, city: city.code };
+              const cityDisabledReason =
+                countryDisabledReason ?? isCityDisabled(city, cityLocation, disabledLocation);
 
               return {
                 ...city,
-                label: formatRowName(city.name, cityLocation, cityDisabled),
+                label: formatRowName(city.name, cityLocation, cityDisabledReason),
                 location: cityLocation,
-                active: cityDisabled !== DisabledReason.inactive,
-                disabled: cityDisabled !== undefined,
+                active: cityDisabledReason !== DisabledReason.inactive,
+                disabled: cityDisabledReason !== undefined,
+                disabledReason: cityDisabledReason,
                 expanded: isExpanded(cityLocation, expandedLocations),
                 selected: isSelected(cityLocation, selectedLocation),
                 relays: city.relays
                   .map((relay) => {
                     const relayLocation: RelayLocation = {
-                      hostname: [country.code, city.code, relay.hostname],
+                      country: country.code,
+                      city: city.code,
+                      hostname: relay.hostname,
                     };
-                    const relayDisabled =
-                      countryDisabled ??
-                      cityDisabled ??
-                      isRelayDisabled(relay, relayLocation.hostname, disabledLocation);
+                    const relayDisabledReason =
+                      countryDisabledReason ??
+                      cityDisabledReason ??
+                      isRelayDisabled(relay, relayLocation, disabledLocation);
 
                     return {
                       ...relay,
-                      label: formatRowName(relay.hostname, relayLocation, relayDisabled),
+                      label: formatRowName(relay.hostname, relayLocation, relayDisabledReason),
                       location: relayLocation,
-                      disabled: relayDisabled !== undefined,
+                      disabled: relayDisabledReason !== undefined,
+                      disabledReason: relayDisabledReason,
                       selected: isSelected(relayLocation, selectedLocation),
                     };
                   })
@@ -177,7 +196,7 @@ function useRelayList(
 }
 
 // Return all RelayLocations that should be expanded
-function useExpandedLocations(filteredLocations: Array<IRelayLocationRedux>) {
+function useExpandedLocations(filteredLocations: Array<IRelayLocationCountryRedux>) {
   const { locationType, searchTerm } = useSelectLocationContext();
   const { spacePreAllocationViewRef, scrollIntoView } = useScrollPositionContext();
   const relaySettings = useNormalRelaySettings();
@@ -259,7 +278,7 @@ function useExpandedLocations(filteredLocations: Array<IRelayLocationRedux>) {
 
 // Returns the location (if any) that should be disabled. This is currently used for disabling the
 // entry location when selecting exit location etc.
-function useDisabledLocation() {
+export function useDisabledLocation() {
   const { locationType } = useSelectLocationContext();
   const relaySettings = useNormalRelaySettings();
 
@@ -286,7 +305,7 @@ function useDisabledLocation() {
 }
 
 // Returns the selected location for the current tunnel protocol and location type
-function useSelectedLocation() {
+export function useSelectedLocation(): RelayLocation | undefined {
   const { locationType } = useSelectLocationContext();
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useNormalBridgeSettings();
@@ -299,7 +318,7 @@ function useSelectedLocation() {
         ? undefined
         : relaySettings?.wireguard.entryLocation;
     } else {
-      return bridgeSettings?.location;
+      return bridgeSettings?.location === 'any' ? undefined : bridgeSettings?.location;
     }
   }, [
     locationType,
