@@ -10,13 +10,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarData
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -25,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.style.TextOverflow
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
 
@@ -94,19 +91,18 @@ fun ScaffoldWithMediumTopBar(
     Scaffold(
         modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            MediumTopAppBar(
-                title = { Text(appBarTitle, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            MullvadMediumTopBar(
+                title = appBarTitle,
                 navigationIcon = navigationIcon,
-                scrollBehavior = scrollBehavior,
-                colors =
-                    TopAppBarDefaults.mediumTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    ),
-                actions = actions
+                actions,
+                scrollBehavior = scrollBehavior
             )
         },
         content = {
-            content(Modifier.fillMaxSize().padding(it).drawVerticalScrollbar(lazyListState), lazyListState)
+            content(
+                Modifier.fillMaxSize().padding(it).drawVerticalScrollbar(lazyListState),
+                lazyListState
+            )
         }
     )
 }
@@ -130,20 +126,19 @@ fun ScaffoldWithMediumTopBar(
     Scaffold(
         modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            MediumTopAppBar(
-                title = { Text(appBarTitle, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            MullvadMediumTopBar(
+                title = appBarTitle,
                 navigationIcon = navigationIcon,
-                scrollBehavior = scrollBehavior,
-                colors =
-                    TopAppBarDefaults.mediumTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background
-                    ),
-                actions = actions
+                actions,
+                scrollBehavior = scrollBehavior
             )
         },
         content = {
             content(
-                Modifier.fillMaxSize().padding(it).drawVerticalScrollbar(scrollState).verticalScroll(scrollState)
+                Modifier.fillMaxSize()
+                    .padding(it)
+                    .drawVerticalScrollbar(scrollState)
+                    .verticalScroll(scrollState)
             )
         }
     )

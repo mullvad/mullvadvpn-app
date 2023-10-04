@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -13,7 +13,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -33,12 +32,10 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
-import me.onebone.toolbar.ScrollStrategy
-import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
-import net.mullvad.mullvadvpn.compose.component.CollapsingToolbarScaffold
-import net.mullvad.mullvadvpn.compose.component.CollapsingTopBar
+import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.ReportProblemNoEmailDialog
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
@@ -100,39 +97,30 @@ fun ReportProblemScreen(
     onNavigateToViewLogs: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    var email by rememberSaveable { mutableStateOf("") }
+    var description by rememberSaveable { mutableStateOf("") }
 
-    val scaffoldState = rememberCollapsingToolbarScaffoldState()
-    val progress = scaffoldState.toolbarState.progress
-    CollapsingToolbarScaffold(
-        backgroundColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxSize(),
-        state = scaffoldState,
-        scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
-        isEnabledWhenCollapsable = false,
-        toolbar = {
-            val scaffoldModifier =
-                Modifier.road(
-                    whenCollapsed = Alignment.TopCenter,
-                    whenExpanded = Alignment.BottomStart
-                )
-            CollapsingTopBar(
-                backgroundColor = MaterialTheme.colorScheme.background,
-                onBackClicked = onBackClick,
-                title = stringResource(id = R.string.report_a_problem),
-                progress = progress,
-                modifier = scaffoldModifier,
-            )
-        },
-    ) {
-        var email by rememberSaveable { mutableStateOf("") }
-        var description by rememberSaveable { mutableStateOf("") }
+    // Dialog to show confirm if no email was added
+    if (uiState.showConfirmNoEmail) {
+        ReportProblemNoEmailDialog(
+            onDismiss = onDismissNoEmailDialog,
+            onConfirm = { onSendReport(email, description) }
+        )
+    }
+
+    ScaffoldWithMediumTopBar(
+        appBarTitle = stringResource(id = R.string.report_a_problem),
+        navigationIcon = { NavigateBackIconButton(onBackClick) }
+    ) { modifier ->
 
         // Show sending states
         if (uiState.sendingState != null) {
             Column(
                 modifier =
-                    Modifier.fillMaxSize()
-                        .padding(vertical = Dimens.mediumPadding, horizontal = Dimens.sideMargin)
+                    modifier.padding(
+                        vertical = Dimens.mediumPadding,
+                        horizontal = Dimens.sideMargin
+                    )
             ) {
                 when (uiState.sendingState) {
                     SendingReportUiState.Sending -> SendingContent()
@@ -140,69 +128,61 @@ fun ReportProblemScreen(
                         ErrorContent({ onSendReport(email, description) }, onClearSendResult)
                     is SendingReportUiState.Success -> SentContent(uiState.sendingState)
                 }
-                return@CollapsingToolbarScaffold
+                return@ScaffoldWithMediumTopBar
             }
         }
 
-        // Dialog to show confirm if no email was added
-        if (uiState.showConfirmNoEmail) {
-            ReportProblemNoEmailDialog(
-                onDismiss = onDismissNoEmailDialog,
-                onConfirm = { onSendReport(email, description) }
-            )
-        }
-
-        Surface(color = MaterialTheme.colorScheme.background) {
-            Column(
-                modifier =
-                    Modifier.padding(
+        Column(
+            modifier =
+                modifier
+                    .padding(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
                         bottom = Dimens.verticalSpace,
+                    )
+                    .height(IntrinsicSize.Max),
+            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+        ) {
+            Text(text = stringResource(id = R.string.problem_report_description))
+
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = email,
+                onValueChange = { email = it },
+                maxLines = 1,
+                singleLine = true,
+                placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
+                colors = mullvadWhiteTextFieldColors()
+            )
+
+            TextField(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                value = description,
+                onValueChange = { description = it },
+                placeholder = { Text(stringResource(R.string.user_message_hint)) },
+                colors = mullvadWhiteTextFieldColors()
+            )
+
+            ActionButton(
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     ),
-                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
-            ) {
-                Text(text = stringResource(id = R.string.problem_report_description))
+                onClick = onNavigateToViewLogs,
+                text = stringResource(id = R.string.view_logs)
+            )
 
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = email,
-                    onValueChange = { email = it },
-                    maxLines = 1,
-                    singleLine = true,
-                    placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
-                    colors = mullvadWhiteTextFieldColors()
-                )
-
-                TextField(
-                    modifier = Modifier.fillMaxWidth().weight(1f),
-                    value = description,
-                    onValueChange = { description = it },
-                    placeholder = { Text(stringResource(R.string.user_message_hint)) },
-                    colors = mullvadWhiteTextFieldColors()
-                )
-
-                ActionButton(
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary
-                        ),
-                    onClick = onNavigateToViewLogs,
-                    text = stringResource(id = R.string.view_logs)
-                )
-
-                ActionButton(
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                    onClick = { onSendReport(email, description) },
-                    isEnabled = description.isNotEmpty(),
-                    text = stringResource(id = R.string.send)
-                )
-            }
+            ActionButton(
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                onClick = { onSendReport(email, description) },
+                isEnabled = description.isNotEmpty(),
+                text = stringResource(id = R.string.send)
+            )
         }
     }
 }
