@@ -63,7 +63,7 @@ extension PacketTunnelActor {
             state = .connected(connState)
 
         case .initial, .disconnected, .disconnecting, .error:
-            // Explcit return to prevent reconnecting the tunnel.
+            // Explicit return to prevent reconnecting the tunnel.
             return
         }
 
