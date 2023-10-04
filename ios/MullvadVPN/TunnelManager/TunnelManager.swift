@@ -1077,9 +1077,7 @@ final class TunnelManager: StorePaymentObserver {
 
         isPolling = true
 
-        logger.debug(
-            "Start polling tunnel status every \(interval) second(s)."
-        )
+        logger.debug("Start polling tunnel status every \(interval.logFormat()).")
 
         let timer = DispatchSource.makeTimerSource(queue: .main)
         timer.setEventHandler { [weak self] in
