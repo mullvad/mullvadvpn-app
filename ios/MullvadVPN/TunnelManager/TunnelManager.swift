@@ -283,9 +283,9 @@ final class TunnelManager: StorePaymentObserver {
                     throw UnsetTunnelError()
                 }
 
-                let selectorResult = selectNewRelay ? try self.selectRelay() : nil
+                let nextRelay: NextRelay = selectNewRelay ? .preSelected(try self.selectRelay()) : .current
 
-                return tunnel.reconnectTunnel(relaySelectorResult: selectorResult) { result in
+                return tunnel.reconnectTunnel(to: nextRelay) { result in
                     finish(result.error)
                 }
             } catch {
@@ -819,13 +819,18 @@ final class TunnelManager: StorePaymentObserver {
         updateTunnelStatus(tunnel?.status ?? .disconnected)
     }
 
-    fileprivate func selectRelay() throws -> RelaySelectorResult {
+    fileprivate func selectRelay() throws -> SelectedRelay {
         let cachedRelays = try relayCacheTracker.getCachedRelays()
-
-        return try RelaySelector.evaluate(
+        let selectorResult = try RelaySelector.evaluate(
             relays: cachedRelays.relays,
             constraints: settings.relayConstraints,
             numberOfFailedAttempts: tunnelStatus.packetTunnelStatus.numberOfFailedAttempts
+        )
+
+        return SelectedRelay(
+            endpoint: selectorResult.endpoint,
+            hostname: selectorResult.relay.hostname,
+            location: selectorResult.location
         )
     }
 
@@ -1306,7 +1311,7 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.prepareForVPNConfigurationDeletion()
     }
 
-    func selectRelay() throws -> RelaySelectorResult {
+    func selectRelay() throws -> SelectedRelay {
         try tunnelManager.selectRelay()
     }
 

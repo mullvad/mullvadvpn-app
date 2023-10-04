@@ -20,7 +20,7 @@ import RelayCache
 import RelaySelector
 
 final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
-    private var selectorResult: RelaySelectorResult?
+    private var selectedRelay: SelectedRelay?
     private let urlRequestProxy: URLRequestProxy
     private let relayCacheTracker: RelayCacheTracker
 
@@ -40,24 +40,24 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         completionHandler: @escaping (Error?) -> Void
     ) {
         dispatchQueue.async {
-            var selectorResult: RelaySelectorResult?
+            var selectedRelay: SelectedRelay?
 
             do {
                 let tunnelOptions = PacketTunnelOptions(rawOptions: options ?? [:])
 
-                selectorResult = try tunnelOptions.getSelectorResult()
+                selectedRelay = try tunnelOptions.getSelectedRelay()
             } catch {
                 self.providerLogger.error(
                     error: error,
                     message: """
-                    Failed to decode relay selector result passed from the app. \
+                    Failed to decode selected relay passed from the app. \
                     Will continue by picking new relay.
                     """
                 )
             }
 
             do {
-                self.selectorResult = try selectorResult ?? self.pickRelay()
+                self.selectedRelay = try selectedRelay ?? self.pickRelay()
 
                 completionHandler(nil)
             } catch {
@@ -72,7 +72,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
         dispatchQueue.async {
-            self.selectorResult = nil
+            self.selectedRelay = nil
 
             completionHandler()
         }
@@ -99,7 +99,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         switch message {
         case .getTunnelStatus:
             var tunnelStatus = PacketTunnelStatus()
-            tunnelStatus.tunnelRelay = self.selectorResult?.packetTunnelRelay
+            tunnelStatus.tunnelRelay = self.selectedRelay?.packetTunnelRelay
 
             var reply: Data?
             do {
@@ -113,10 +113,17 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
             completionHandler?(reply)
 
-        case let .reconnectTunnel(aSelectorResult):
+        case let .reconnectTunnel(nextRelay):
             reasserting = true
-            if let aSelectorResult {
-                selectorResult = aSelectorResult
+            switch nextRelay {
+            case let .preSelected(selectedRelay):
+                self.selectedRelay = selectedRelay
+            case .random:
+                if let nextRelay = try? pickRelay() {
+                    self.selectedRelay = nextRelay
+                }
+            case .current:
+                break
             }
             reasserting = false
             completionHandler?(nil)
@@ -145,14 +152,18 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    private func pickRelay() throws -> RelaySelectorResult {
+    private func pickRelay() throws -> SelectedRelay {
         let cachedRelays = try relayCacheTracker.getCachedRelays()
         let tunnelSettings = try SettingsManager.readSettings()
-
-        return try RelaySelector.evaluate(
+        let selectorResult = try RelaySelector.evaluate(
             relays: cachedRelays.relays,
             constraints: tunnelSettings.relayConstraints,
             numberOfFailedAttempts: 0
+        )
+        return SelectedRelay(
+            endpoint: selectorResult.endpoint,
+            hostname: selectorResult.relay.hostname,
+            location: selectorResult.location
         )
     }
 }

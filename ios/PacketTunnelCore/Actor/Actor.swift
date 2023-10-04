@@ -10,7 +10,6 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 import NetworkExtension
-import struct RelaySelector.RelaySelectorResult
 import class WireGuardKitTypes.PrivateKey
 
 /**
@@ -133,7 +132,7 @@ extension PacketTunnelActor {
         setTunnelMonitorEventHandler()
 
         do {
-            try await tryStart(nextRelay: options.selectorResult.map { .preSelected($0) } ?? .random)
+            try await tryStart(nextRelay: options.selectedRelay.map { .preSelected($0) } ?? .random)
         } catch {
             logger.error(error: error, message: "Failed to start the tunnel.")
 
@@ -332,9 +331,9 @@ extension PacketTunnelActor {
     private func selectRelay(
         nextRelay: NextRelay,
         relayConstraints: RelayConstraints,
-        currentRelay: RelaySelectorResult?,
+        currentRelay: SelectedRelay?,
         connectionAttemptCount: UInt
-    ) throws -> RelaySelectorResult {
+    ) throws -> SelectedRelay {
         switch nextRelay {
         case .current:
             if let currentRelay {
@@ -350,8 +349,8 @@ extension PacketTunnelActor {
                 connectionAttemptFailureCount: connectionAttemptCount
             )
 
-        case let .preSelected(selectorResult):
-            return selectorResult
+        case let .preSelected(selectedRelay):
+            return selectedRelay
         }
     }
 }

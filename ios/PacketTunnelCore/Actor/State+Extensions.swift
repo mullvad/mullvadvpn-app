@@ -41,7 +41,7 @@ extension State {
     func logFormat() -> String {
         switch self {
         case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
-            let hostname = connState.selectedRelay.relay.hostname
+            let hostname = connState.selectedRelay.hostname
 
             return """
             \(name) to \(hostname), \
