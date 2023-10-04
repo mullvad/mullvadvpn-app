@@ -179,10 +179,28 @@ export type TunnelState =
   | { state: 'disconnecting'; details: AfterDisconnect }
   | { state: 'error'; details: ErrorState };
 
-export type RelayLocation =
-  | { hostname: [string, string, string] }
-  | { city: [string, string] }
-  | { country: string };
+export interface RelayLocationCountry extends Partial<RelayLocationCustomList> {
+  country: string;
+}
+
+export interface RelayLocationCity extends RelayLocationCountry {
+  city: string;
+}
+
+export interface RelayLocationRelay extends RelayLocationCity {
+  hostname: string;
+}
+
+export interface RelayLocationCustomList {
+  customList: string;
+}
+
+export type RelayLocationGeographical =
+  | RelayLocationRelay
+  | RelayLocationCountry
+  | RelayLocationCity;
+
+export type RelayLocation = RelayLocationGeographical | RelayLocationCustomList;
 
 export interface IOpenVpnConstraints {
   port: Constraint<number>;
@@ -386,6 +404,16 @@ export interface IDeviceRemoval {
   deviceId: string;
 }
 
+export type CustomLists = Array<ICustomList>;
+
+export interface ICustomList {
+  id: string;
+  name: string;
+  locations: Array<RelayLocationGeographical>;
+}
+
+export type CustomListError = { type: 'name already exists' };
+
 export interface ISettings {
   allowLan: boolean;
   autoConnect: boolean;
@@ -397,6 +425,7 @@ export interface ISettings {
   bridgeState: BridgeState;
   splitTunnel: SplitTunnelSettings;
   obfuscationSettings: ObfuscationSettings;
+  customLists: CustomLists;
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';
@@ -452,25 +481,51 @@ export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
   return socketAddress;
 }
 
-export function relayLocationComponents(location: RelayLocation): string[] {
-  if ('country' in location) {
-    return [location.country];
-  } else if ('city' in location) {
-    return location.city;
-  } else {
-    return location.hostname;
+export function compareRelayLocationCount(lhs: RelayLocation, rhs: RelayLocation): boolean {
+  if (
+    ('count' in lhs || 'count' in rhs) &&
+    !('count' in lhs && 'count' in rhs && lhs.count === rhs.count)
+  ) {
+    return false;
   }
+
+  return compareRelayLocation(lhs, rhs);
 }
 
 export function compareRelayLocation(lhs: RelayLocation, rhs: RelayLocation): boolean {
-  const lhsComponents = relayLocationComponents(lhs);
-  const rhsComponents = relayLocationComponents(rhs);
-
-  if (lhsComponents.length === rhsComponents.length) {
-    return lhsComponents.every((value, index) => value === rhsComponents[index]);
-  } else {
+  if (
+    ('customList' in lhs || 'customList' in rhs) &&
+    !('customList' in lhs && 'customList' in rhs && lhs.customList === rhs.customList)
+  ) {
     return false;
   }
+
+  return compareRelayLocationGeographical(lhs, rhs);
+}
+
+export function compareRelayLocationGeographical(lhs: RelayLocation, rhs: RelayLocation): boolean {
+  if (
+    ('country' in lhs || 'country' in rhs) &&
+    !('country' in lhs && 'country' in rhs && lhs.country === rhs.country)
+  ) {
+    return false;
+  }
+
+  if (
+    ('city' in lhs || 'city' in rhs) &&
+    !('city' in lhs && 'city' in rhs && lhs.city === rhs.city)
+  ) {
+    return false;
+  }
+
+  if (
+    ('hostname' in lhs || 'hostname' in rhs) &&
+    !('hostname' in lhs && 'hostname' in rhs && lhs.hostname === rhs.hostname)
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 export function compareRelayLocationLoose(lhs?: RelayLocation, rhs?: RelayLocation) {

@@ -5,16 +5,20 @@ import {
   compareRelayLocationLoose,
   LiftedConstraint,
   RelayLocation,
+  RelayLocationCity,
+  RelayLocationCountry,
+  RelayLocationCustomList,
+  RelayLocationRelay,
 } from '../../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../shared/gettext';
 import {
   IRelayLocationCityRedux,
-  IRelayLocationRedux,
+  IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
   NormalBridgeSettingsRedux,
   NormalRelaySettingsRedux,
 } from '../../redux/settings/reducers';
-import { DisabledReason, LocationType } from './select-location-types';
+import { DisabledReason, LocationSpecification, LocationType } from './select-location-types';
 
 export function isSelected(
   relayLocation: RelayLocation,
@@ -58,13 +62,10 @@ export function defaultExpandedLocations(
 
 // Expands a relay location and its parents
 function expandRelayLocation(location: RelayLocation): RelayLocation[] {
-  if ('city' in location) {
-    return [{ country: location.city[0] }];
-  } else if ('hostname' in location) {
-    return [
-      { country: location.hostname[0] },
-      { city: [location.hostname[0], location.hostname[1]] },
-    ];
+  if ('hostname' in location) {
+    return [{ country: location.country }, { country: location.country, city: location.city }];
+  } else if ('city' in location) {
+    return [{ country: location.country }];
   } else {
     return [];
   }
@@ -104,15 +105,12 @@ export function formatRowName(
 
 export function isRelayDisabled(
   relay: IRelayLocationRelayRedux,
-  location: [string, string, string],
+  location: RelayLocationRelay,
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
 ): DisabledReason | undefined {
   if (!relay.active) {
     return DisabledReason.inactive;
-  } else if (
-    disabledLocation &&
-    compareRelayLocation({ hostname: location }, disabledLocation.location)
-  ) {
+  } else if (disabledLocation && compareRelayLocation(location, disabledLocation.location)) {
     return disabledLocation.reason;
   } else {
     return undefined;
@@ -121,11 +119,11 @@ export function isRelayDisabled(
 
 export function isCityDisabled(
   city: IRelayLocationCityRedux,
-  location: [string, string],
+  location: RelayLocationCity,
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
 ): DisabledReason | undefined {
   const relaysDisabled = city.relays.map((relay) =>
-    isRelayDisabled(relay, [...location, relay.hostname]),
+    isRelayDisabled(relay, { ...location, hostname: relay.hostname }),
   );
   if (relaysDisabled.every((status) => status === DisabledReason.inactive)) {
     return DisabledReason.inactive;
@@ -144,7 +142,7 @@ export function isCityDisabled(
 
   if (
     disabledLocation &&
-    compareRelayLocation({ city: location }, disabledLocation.location) &&
+    compareRelayLocation(location, disabledLocation.location) &&
     city.relays.filter((relay) => relay.active).length <= 1
   ) {
     return disabledLocation.reason;
@@ -154,11 +152,13 @@ export function isCityDisabled(
 }
 
 export function isCountryDisabled(
-  country: IRelayLocationRedux,
-  location: string,
+  country: IRelayLocationCountryRedux,
+  location: RelayLocationCountry,
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
 ): DisabledReason | undefined {
-  const citiesDisabled = country.cities.map((city) => isCityDisabled(city, [location, city.code]));
+  const citiesDisabled = country.cities.map((city) =>
+    isCityDisabled(city, { ...location, city: city.code }),
+  );
   if (citiesDisabled.every((status) => status === DisabledReason.inactive)) {
     return DisabledReason.inactive;
   }
@@ -175,7 +175,7 @@ export function isCountryDisabled(
 
   if (
     disabledLocation &&
-    compareRelayLocation({ country: location }, disabledLocation.location) &&
+    compareRelayLocation(location, disabledLocation.location) &&
     country.cities.flatMap((city) => city.relays).filter((relay) => relay.active).length <= 1
   ) {
     return disabledLocation.reason;

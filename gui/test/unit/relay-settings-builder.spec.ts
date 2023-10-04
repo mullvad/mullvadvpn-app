@@ -16,7 +16,7 @@ describe('Relay settings builder', () => {
       normal: {
         location: {
           only: {
-            city: ['se', 'mma'],
+            country: 'se', city: 'mma',
           },
         },
       },
@@ -86,12 +86,12 @@ describe('Relay settings builder', () => {
 
     expect(
       RelaySettingsBuilder.normal()
-        .location.fromRaw({ city: ['se', 'mma'] })
+        .location.fromRaw({ country: 'se', city: 'mma' })
         .build(),
     ).to.deep.equal({
       normal: {
         location: {
-          only: { city: ['se', 'mma'] },
+          only: { country: 'se', city: 'mma' },
         },
       },
     });

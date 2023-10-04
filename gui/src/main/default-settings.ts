@@ -68,5 +68,6 @@ export function getDefaultSettings(): ISettings {
         port: 'any',
       },
     },
+    customLists: [],
   };
 }
