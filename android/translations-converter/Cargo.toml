@@ -11,7 +11,7 @@ publish.workspace = true
 [dependencies]
 err-derive = { workspace = true }
 htmlize = { version = "1.0.2", features = ["unescape"] }
-once_cell = "1.13"
+once_cell = { workspace = true }
 regex = "1"
 serde = { version = "1", features = ["derive"] }
 quick-xml = { version = "0.27.1", features = ["serialize"] }
