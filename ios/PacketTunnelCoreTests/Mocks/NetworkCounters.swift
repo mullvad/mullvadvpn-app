@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Protocol describing a type capable of receiving and updating network counters.
+/// A type capable of receiving and updating network counters.
 protocol NetworkStatsReporting {
     /// Increment number of bytes sent.
     func reportBytesSent(_ byteCount: UInt64)
@@ -17,7 +17,7 @@ protocol NetworkStatsReporting {
     func reportBytesReceived(_ byteCount: UInt64)
 }
 
-/// Protocol describing a type providing network statistics.
+/// A type providing network statistics.
 protocol NetworkStatsProviding {
     /// Returns number of bytes sent.
     var bytesSent: UInt64 { get }

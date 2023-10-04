@@ -27,7 +27,7 @@ public struct PingerSendResult {
     public var bytesSent: UInt
 }
 
-/// Protocol describing a type capable of sending and receving ICMP traffic.
+/// A type capable of sending and receving ICMP traffic.
 public protocol PingerProtocol {
     var onReply: ((PingerReply) -> Void)? { get set }
 

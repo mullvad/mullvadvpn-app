@@ -9,7 +9,7 @@
 import Foundation
 import NetworkExtension
 
-/// Protocol describing a type providing default path access and observation.
+/// A type providing default path access and observation.
 public protocol DefaultPathObserverProtocol {
     /// Returns current default path or `nil` if unknown yet.
     var defaultPath: NetworkPath? { get }
@@ -22,7 +22,7 @@ public protocol DefaultPathObserverProtocol {
     func stop()
 }
 
-/// Protocol describing a type that represents a network path.
+/// A type that represents a network path.
 public protocol NetworkPath {
     var status: NetworkExtension.NWPathStatus { get }
 }

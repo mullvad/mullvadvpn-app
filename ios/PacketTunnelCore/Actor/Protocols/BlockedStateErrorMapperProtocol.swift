@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 
-/// Protocol describing a type responsible for mapping errors returned by dependencies of `PacketTunnelActor` to `BlockedStateReason`.
+/// A type responsible for mapping errors returned by dependencies of `PacketTunnelActor` to `BlockedStateReason`.
 public protocol BlockedStateErrorMapperProtocol {
     func mapError(_ error: Error) -> BlockedStateReason
 }

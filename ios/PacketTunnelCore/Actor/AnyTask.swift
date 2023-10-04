@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Protocol describing a type-erased `Task`.
+/// A type-erased `Task`.
 public protocol AnyTask {
     /// Wait for task to complete execution.
     func waitForCompletion() async
