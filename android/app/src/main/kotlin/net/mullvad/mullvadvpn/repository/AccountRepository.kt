@@ -10,54 +10,40 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
-import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.accountDataSource
-import net.mullvad.mullvadvpn.util.flatMapReadyConnectionOrDefault
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionAccountDataSource
 
 class AccountRepository(
-    private val serviceConnectionManager: ServiceConnectionManager,
-    val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dataSource: ServiceConnectionAccountDataSource,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     private val _cachedCreatedAccount = MutableStateFlow<String?>(null)
     val cachedCreatedAccount = _cachedCreatedAccount.asStateFlow()
 
     private val accountCreationEvents: SharedFlow<AccountCreationResult> =
-        serviceConnectionManager.connectionState
-            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
-                state.container.accountDataSource.accountCreationResult
-            }
+        dataSource.accountCreationResult
             .onEach {
                 _cachedCreatedAccount.value = (it as? AccountCreationResult.Success)?.accountToken
             }
             .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
 
     val accountExpiryState: StateFlow<AccountExpiry> =
-        serviceConnectionManager.connectionState
-            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
-                state.container.accountDataSource.accountExpiry
-            }
-            .stateIn(
-                CoroutineScope(dispatcher),
-                SharingStarted.WhileSubscribed(),
-                AccountExpiry.Missing
-            )
+        dataSource.accountExpiry.stateIn(
+            CoroutineScope(dispatcher),
+            SharingStarted.WhileSubscribed(),
+            AccountExpiry.Missing
+        )
 
     val accountHistory: StateFlow<AccountHistory> =
-        serviceConnectionManager.connectionState
-            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
-                state.container.accountDataSource.accountHistory
-            }
+        dataSource.accountHistory
             .onStart { fetchAccountHistory() }
             .stateIn(
                 CoroutineScope(dispatcher),
@@ -65,42 +51,38 @@ class AccountRepository(
                 AccountHistory.Missing
             )
 
-    private val loginEvents: SharedFlow<Event.LoginEvent> =
-        serviceConnectionManager.connectionState
-            .flatMapReadyConnectionOrDefault(flowOf()) { state ->
-                state.container.accountDataSource.loginEvents
-            }
-            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
+    private val loginEvents: SharedFlow<LoginResult> =
+        dataSource.loginEvents.shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
 
     suspend fun createAccount(): AccountCreationResult =
         withContext(dispatcher) {
             val deferred = async { accountCreationEvents.first() }
-            serviceConnectionManager.accountDataSource()?.createAccount()
+            dataSource.createAccount()
             deferred.await()
         }
 
     suspend fun login(accountToken: String): LoginResult =
         withContext(Dispatchers.IO) {
-            val deferred = async { loginEvents.first().result }
-            serviceConnectionManager.accountDataSource()?.login(accountToken)
+            val deferred = async { loginEvents.first() }
+            dataSource.login(accountToken)
             deferred.await()
         }
 
     fun logout() {
         clearCreatedAccountCache()
-        serviceConnectionManager.accountDataSource()?.logout()
+        dataSource.logout()
     }
 
     fun fetchAccountExpiry() {
-        serviceConnectionManager.accountDataSource()?.fetchAccountExpiry()
+        dataSource.fetchAccountExpiry()
     }
 
     fun fetchAccountHistory() {
-        serviceConnectionManager.accountDataSource()?.fetchAccountHistory()
+        dataSource.fetchAccountHistory()
     }
 
     fun clearAccountHistory() {
-        serviceConnectionManager.accountDataSource()?.clearAccountHistory()
+        dataSource.clearAccountHistory()
     }
 
     private fun clearCreatedAccountCache() {

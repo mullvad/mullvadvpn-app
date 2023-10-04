@@ -1,58 +1,30 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
-import android.os.Messenger
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.Request
 
-class ServiceConnectionAccountDataSource(
-    private val connection: Messenger,
-    private val dispatcher: EventDispatcher
-) {
-    val accountCreationResult = callbackFlow {
-        val handler: (Event.AccountCreationEvent) -> Unit = { event -> trySend(event.result) }
-        dispatcher.registerHandler(Event.AccountCreationEvent::class, handler)
-        awaitClose {
-            // The current dispatcher doesn't support unregistration of handlers.
-        }
-    }
+class ServiceConnectionAccountDataSource(private val messageHandler: MessageHandler) {
+    val accountCreationResult =
+        messageHandler.events.filterIsInstance(Event.AccountCreationEvent::class).map { it.result }
+    // TODO: We previously also sent a Request here. How should we handle it now?
+    val accountExpiry =
+        messageHandler.events.filterIsInstance(Event.AccountExpiryEvent::class).map { it.expiry }
+    val accountHistory =
+        messageHandler.events.filterIsInstance(Event.AccountHistoryEvent::class).map { it.history }
+    val loginEvents =
+        messageHandler.events.filterIsInstance(Event.LoginEvent::class).map { it.result }
 
-    val accountExpiry = callbackFlow {
-        val handler: (Event.AccountExpiryEvent) -> Unit = { event -> trySend(event.expiry) }
-        dispatcher.registerHandler(Event.AccountExpiryEvent::class, handler)
-        connection.send(Request.FetchAccountExpiry.message)
-        awaitClose {
-            // The current dispatcher doesn't support unregistration of handlers.
-        }
-    }
+    fun createAccount() = messageHandler.trySendRequest(Request.CreateAccount)
 
-    val accountHistory = callbackFlow {
-        val handler: (Event.AccountHistoryEvent) -> Unit = { event -> trySend(event.history) }
-        dispatcher.registerHandler(Event.AccountHistoryEvent::class, handler)
-        awaitClose {
-            // The current dispatcher doesn't support unregistration of handlers.
-        }
-    }
+    fun login(accountToken: String) = messageHandler.trySendRequest(Request.Login(accountToken))
 
-    val loginEvents = callbackFlow {
-        val handler: (Event.LoginEvent) -> Unit = { event -> trySend(event) }
-        dispatcher.registerHandler(Event.LoginEvent::class, handler)
-        awaitClose {
-            // The current dispatcher doesn't support unregistration of handlers.
-        }
-    }
+    fun logout() = messageHandler.trySendRequest(Request.Logout)
 
-    fun createAccount() = connection.send(Request.CreateAccount.message)
+    fun fetchAccountExpiry() = messageHandler.trySendRequest(Request.FetchAccountExpiry)
 
-    fun login(accountToken: String) = connection.send(Request.Login(accountToken).message)
+    fun fetchAccountHistory() = messageHandler.trySendRequest(Request.FetchAccountHistory)
 
-    fun logout() = connection.send(Request.Logout.message)
-
-    fun fetchAccountExpiry() = connection.send(Request.FetchAccountExpiry.message)
-
-    fun fetchAccountHistory() = connection.send(Request.FetchAccountHistory.message)
-
-    fun clearAccountHistory() = connection.send(Request.ClearAccountHistory.message)
+    fun clearAccountHistory() = messageHandler.trySendRequest(Request.ClearAccountHistory)
 }

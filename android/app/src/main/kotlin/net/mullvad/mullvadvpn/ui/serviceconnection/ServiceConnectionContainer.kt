@@ -25,7 +25,6 @@ class ServiceConnectionContainer(
 
     val events = dispatcher.parsedMessages.filterIsInstance<Event>()
 
-    val accountDataSource = ServiceConnectionAccountDataSource(connection, dispatcher)
     val authTokenCache = AuthTokenCache(connection, dispatcher)
     val connectionProxy = ConnectionProxy(connection, dispatcher)
     val deviceDataSource = ServiceConnectionDeviceDataSource(connection, dispatcher)
