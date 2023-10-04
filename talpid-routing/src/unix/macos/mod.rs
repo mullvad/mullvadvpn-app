@@ -119,7 +119,6 @@ impl RouteManagerImpl {
         // Initialize default routes
         // NOTE: This isn't race-free, as we're not listening for route changes before initializing
         self.update_best_default_route(interface::Family::V4)
-            .await
             .unwrap_or_else(|error| {
                 log::error!(
                     "{}",
@@ -128,7 +127,6 @@ impl RouteManagerImpl {
                 false
             });
         self.update_best_default_route(interface::Family::V6)
-            .await
             .unwrap_or_else(|error| {
                 log::error!(
                     "{}",
@@ -201,10 +199,8 @@ impl RouteManagerImpl {
                             }
 
                             // Reset known best route
-                            let _ = self.update_best_default_route(interface::Family::V4)
-                                .await;
-                            let _ = self.update_best_default_route(interface::Family::V6)
-                                .await;
+                            let _ = self.update_best_default_route(interface::Family::V4);
+                            let _ = self.update_best_default_route(interface::Family::V6);
 
                             log::debug!("Adding routes: {routes:?}");
                             let _ = tx.send(self.add_required_routes(routes).await);
@@ -342,10 +338,8 @@ impl RouteManagerImpl {
     ///   server. The gateway of the relay route is set to the first interface in the network
     ///   service order that has a working ifscoped default route.
     async fn refresh_routes(&mut self) -> Result<()> {
-        self.update_best_default_route(interface::Family::V4)
-            .await?;
-        self.update_best_default_route(interface::Family::V6)
-            .await?;
+        self.update_best_default_route(interface::Family::V4)?;
+        self.update_best_default_route(interface::Family::V6)?;
 
         // Remove any existing ifscope route that we've added
         self.remove_applied_routes(|route| {
@@ -357,23 +351,19 @@ impl RouteManagerImpl {
         self.apply_tunnel_default_route().await?;
 
         // Update routes using default interface
-        self.apply_non_tunnel_routes().await?;
-
-        Ok(())
+        self.apply_non_tunnel_routes().await
     }
 
     /// Figure out what the best default routes to use are, and send updates to default route change
     /// subscribers. The "best routes" are used by the tunnel device to send packets to the VPN
     /// relay.
     ///
-    /// If there is a tunnel device, the "best route" is the first ifscope default route found,
-    /// ordered after network service order (after filtering out interfaces without valid IP
-    /// addresses).
+    /// The "best route" is determined by the first interface in the network service order that has
+    /// a valid IP address and gateway.
     ///
-    /// If there is no tunnel device, the "best route" is the unscoped default route, whatever it
-    /// is.
-    async fn update_best_default_route(&mut self, family: interface::Family) -> Result<bool> {
-        let best_route = interface::get_best_default_route(family).await;
+    /// On success, the function returns whether the previously known best default changed.
+    fn update_best_default_route(&mut self, family: interface::Family) -> Result<bool> {
+        let best_route = interface::get_best_default_route(family);
         let current_route = get_current_best_default_route!(self, family);
 
         log::trace!("Best route ({family:?}): {best_route:?}");
@@ -381,7 +371,13 @@ impl RouteManagerImpl {
             return Ok(false);
         }
 
-        log::debug!("Best default route changed from {current_route:?} to {best_route:?}");
+        let old_pair = current_route
+            .as_ref()
+            .map(|r| (r.interface_index(), r.gateway_ip()));
+        let new_pair = best_route
+            .as_ref()
+            .map(|r| (r.interface_index(), r.gateway_ip()));
+        log::debug!("Best default route changed from {old_pair:?} to {new_pair:?}");
         let _ = std::mem::replace(current_route, best_route);
 
         let changed = current_route.is_some();
@@ -605,7 +601,7 @@ impl RouteManagerImpl {
     /// Add back unscoped default route for the given `family`, if it is still missing. This
     /// function returns true when no route had to be added.
     async fn restore_default_route(&mut self, family: interface::Family) -> bool {
-        let Some(desired_default_route) = interface::get_best_default_route(family).await else {
+        let Some(desired_default_route) = interface::get_best_default_route(family) else {
             return true;
         };
 
