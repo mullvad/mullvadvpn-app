@@ -12,7 +12,7 @@ import Network
 import XCTest
 
 final class TunnelMonitorTests: XCTestCase {
-    let networkCounters = NetworkCountersFake()
+    let networkCounters = NetworkCounters()
 
     func testShouldDetermineConnectionEstablished() throws {
         let connectedExpectation = expectation(description: "Should report connected.")
