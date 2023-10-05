@@ -83,11 +83,9 @@ fun ScaffoldWithMediumTopBar(
 ) {
 
     val appBarState = rememberTopAppBarState()
+    val canScroll = lazyListState.canScrollForward || lazyListState.canScrollBackward
     val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-            appBarState,
-            canScroll = { lazyListState.canScrollBackward || lazyListState.canScrollForward }
-        )
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
     Scaffold(
         modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -95,7 +93,7 @@ fun ScaffoldWithMediumTopBar(
                 title = appBarTitle,
                 navigationIcon = navigationIcon,
                 actions,
-                scrollBehavior = scrollBehavior
+                scrollBehavior = if (canScroll) scrollBehavior else null
             )
         },
         content = {
@@ -118,11 +116,9 @@ fun ScaffoldWithMediumTopBar(
 ) {
     val appBarState = rememberTopAppBarState()
     val scrollState = rememberScrollState()
+    val canScroll = scrollState.canScrollForward || scrollState.canScrollBackward
     val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-            appBarState,
-            canScroll = { scrollState.canScrollBackward || scrollState.canScrollForward }
-        )
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
     Scaffold(
         modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -130,7 +126,12 @@ fun ScaffoldWithMediumTopBar(
                 title = appBarTitle,
                 navigationIcon = navigationIcon,
                 actions,
-                scrollBehavior = scrollBehavior
+                scrollBehavior =
+                    if (canScroll) {
+                        scrollBehavior
+                    } else {
+                        null
+                    }
             )
         },
         content = {

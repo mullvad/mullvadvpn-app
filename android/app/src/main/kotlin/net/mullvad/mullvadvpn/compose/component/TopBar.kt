@@ -85,7 +85,6 @@ private fun PreviewNothingTopBar() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MullvadTopBar(
     containerColor: Color,
@@ -189,7 +188,6 @@ private fun PreviewSlimMediumTopBar() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MullvadMediumTopBar(
     title: String,
