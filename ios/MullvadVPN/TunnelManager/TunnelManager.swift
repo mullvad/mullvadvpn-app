@@ -289,6 +289,12 @@ final class TunnelManager: StorePaymentObserver {
                     finish(result.error)
                 }
             } catch {
+                if let error = error as? NoRelaysSatisfyingConstraintsError {
+                    _ = self.setTunnelStatus { tunnelStatus in
+                        tunnelStatus.state = .error(.noRelaysSatisfyingConstraints)
+                    }
+                }
+
                 finish(error)
 
                 return AnyCancellable()
@@ -703,21 +709,29 @@ final class TunnelManager: StorePaymentObserver {
             lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
             refreshDeviceState()
         }
-
-        // TODO: handle blocked state (error state). See how handleRestError() manages invalid account or revoked device.
-
         switch newTunnelStatus.state {
         case .connecting, .reconnecting:
             // Start polling tunnel status to keep the relay information up to date
             // while the tunnel process is trying to connect.
             startPollingTunnelStatus(interval: establishingTunnelStatusPollInterval)
 
-        case .connected, .waitingForConnectivity(.noConnection), .error:
+        case .connected, .waitingForConnectivity(.noConnection):
             // Start polling tunnel status to keep connectivity status up to date.
             startPollingTunnelStatus(interval: establishedTunnelStatusPollInterval)
 
         case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork):
             // Stop polling tunnel status once connection moved to final state.
+            cancelPollingTunnelStatus()
+
+        case let .error(blockedStateReason):
+            switch blockedStateReason {
+            case .deviceRevoked, .invalidAccount:
+                handleBlockedState(reason: blockedStateReason)
+            default:
+                break
+            }
+
+            // Stop polling tunnel status once blocked state has been determined.
             cancelPollingTunnelStatus()
         }
 
@@ -1084,13 +1098,24 @@ final class TunnelManager: StorePaymentObserver {
         guard let restError = error as? REST.Error else { return }
 
         if restError.compareErrorCode(.deviceNotFound) {
-            setDeviceState(.revoked, persist: true)
+            handleBlockedState(reason: .deviceRevoked)
         } else if restError.compareErrorCode(.invalidAccount) {
+            handleBlockedState(reason: .invalidAccount)
+        }
+    }
+
+    private func handleBlockedState(reason: BlockedStateReason) {
+        switch reason {
+        case .deviceRevoked:
+            setDeviceState(.revoked, persist: true)
+        case .invalidAccount:
             unsetTunnelConfiguration {
                 self.setDeviceState(.revoked, persist: true)
                 self.operationQueue.cancelAllOperations()
                 self.wipeAllUserData()
             }
+        default:
+            break
         }
     }
 

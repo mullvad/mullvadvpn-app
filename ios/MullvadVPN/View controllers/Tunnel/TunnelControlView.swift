@@ -496,7 +496,7 @@ private extension TunnelState {
                 comment: ""
             )
 
-        case .waitingForConnectivity(.noConnection):
+        case .waitingForConnectivity(.noConnection), .error:
             return NSLocalizedString(
                 "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY",
                 tableName: "Main",
@@ -511,10 +511,6 @@ private extension TunnelState {
                 value: "No network",
                 comment: ""
             )
-
-        case let .error(blockedStateReason):
-            // TODO: Fix me
-            return ""
         }
     }
 
@@ -535,17 +531,14 @@ private extension TunnelState {
                 value: "Select location",
                 comment: ""
             )
-        case .connecting, .connected, .reconnecting, .waitingForConnectivity:
+
+        case .connecting, .connected, .reconnecting, .waitingForConnectivity, .error:
             return NSLocalizedString(
                 "SWITCH_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
                 value: "Switch location",
                 comment: ""
             )
-
-        case let .error(blockedStateReason):
-            // TODO: Fix me
-            return ""
         }
     }
 
@@ -591,7 +584,7 @@ private extension TunnelState {
                 tunnelInfo.location.country
             )
 
-        case .waitingForConnectivity(.noConnection):
+        case .waitingForConnectivity(.noConnection), .error:
             return NSLocalizedString(
                 "TUNNEL_STATE_WAITING_FOR_CONNECTIVITY_ACCESSIBILITY_LABEL",
                 tableName: "Main",
@@ -622,10 +615,6 @@ private extension TunnelState {
                 value: "Reconnecting",
                 comment: ""
             )
-
-        case let .error(blockedStateReason):
-            // TODO: Fix me
-            return ""
         }
     }
 

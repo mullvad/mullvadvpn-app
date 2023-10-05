@@ -17,8 +17,8 @@ import WireGuardKit
 /**
  Struct responsible for mapping errors that may occur in the packet tunnel to the `BlockedStateReason`.
  */
-struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
-    func mapError(_ error: Error) -> BlockedStateReason {
+public struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
+    public func mapError(_ error: Error) -> BlockedStateReason {
         switch error {
         case let error as ReadDeviceDataError:
             // Such error is thrown by implementations of `SettingsReaderProtocol`.
