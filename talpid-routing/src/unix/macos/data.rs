@@ -321,6 +321,11 @@ impl RouteMessage {
         self.interface_index
     }
 
+    pub fn set_interface_index(mut self, index: u16) -> Self {
+        self.interface_index = index;
+        self
+    }
+
     pub fn interface_address(&self) -> Option<IpAddr> {
         self.get_address(&AddressFlag::RTA_IFA)
     }

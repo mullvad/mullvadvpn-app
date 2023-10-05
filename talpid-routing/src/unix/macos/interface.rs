@@ -1,21 +1,30 @@
 use ipnetwork::IpNetwork;
-use libc::{if_indextoname, IFNAMSIZ};
-use nix::net::if_::{if_nametoindex, InterfaceFlags};
-use std::{
-    ffi::{CStr, CString},
-    io,
-    net::{Ipv4Addr, Ipv6Addr},
+use nix::{
+    net::if_::{if_nametoindex, InterfaceFlags},
+    sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage},
 };
-use system_configuration::{
-    core_foundation::string::CFString,
-    network_configuration::{SCNetworkService, SCNetworkSet},
-    preferences::SCPreferences,
+use std::{
+    collections::BTreeMap,
+    io,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 
-use super::{
-    data::{Destination, RouteMessage},
-    watch::RoutingTable,
+use system_configuration::{
+    core_foundation::{
+        base::{CFType, TCFType, ToVoid},
+        dictionary::CFDictionary,
+        string::CFString,
+    },
+    dynamic_store::SCDynamicStoreBuilder,
+    network_configuration::SCNetworkSet,
+    preferences::SCPreferences,
+    sys::schema_definitions::{
+        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Router,
+        kSCPropNetIPv6Router,
+    },
 };
+
+use super::data::{Destination, RouteMessage};
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Family {
@@ -41,48 +50,6 @@ impl From<Family> for IpNetwork {
     }
 }
 
-/// Retrieve the current unscoped default route. That is the only default route that does not have
-/// the IF_SCOPE flag set, if such a route exists.
-///
-/// # Note
-///
-/// For some reason, the socket sometimes returns a route with the IF_SCOPE flag set, if there also
-/// exists a scoped route for the same interface. This does not occur if there is no unscoped route,
-/// so we can still rely on it.
-pub async fn get_unscoped_default_route(
-    routing_table: &mut RoutingTable,
-    family: Family,
-) -> Option<RouteMessage> {
-    let mut msg = RouteMessage::new_route(Destination::Network(IpNetwork::from(family)));
-    msg = msg.set_gateway_route(true);
-
-    let route = routing_table
-        .get_route(&msg)
-        .await
-        .unwrap_or_else(|error| {
-            log::error!("Failed to retrieve unscoped default route: {error}");
-            None
-        })?;
-
-    let idx = u32::from(route.interface_index());
-    if idx != 0 {
-        let mut ifname = [0u8; IFNAMSIZ];
-
-        // SAFETY: The buffer is large to contain any interface name.
-        if !unsafe { if_indextoname(idx, ifname.as_mut_ptr() as _) }.is_null() {
-            let ifname = CStr::from_bytes_until_nul(&ifname).unwrap();
-            let name = ifname.to_str().expect("expected ascii");
-
-            // Ignore the unscoped route if its interface is not "active"
-            if !is_active_interface(name, family).unwrap_or(true) {
-                return None;
-            }
-        }
-    }
-
-    Some(route)
-}
-
 /// Retrieve the best current default route. That is the first scoped default route, ordered by
 /// network service order, and with interfaces filtered out if they do not have valid IP addresses
 /// assigned.
@@ -90,56 +57,113 @@ pub async fn get_unscoped_default_route(
 /// # Note
 ///
 /// The tunnel interface is not even listed in the service order, so it will be skipped.
-pub async fn get_best_default_route(
-    routing_table: &mut RoutingTable,
-    family: Family,
-) -> Option<RouteMessage> {
-    let mut msg = RouteMessage::new_route(Destination::Network(IpNetwork::from(family)));
-    msg = msg.set_gateway_route(true);
-
-    for iface in network_service_order() {
-        let iface_bytes = match CString::new(iface.as_bytes()) {
-            Ok(name) => name,
-            Err(error) => {
-                log::error!("Invalid interface name: {iface}, {error}");
-                continue;
-            }
-        };
-
-        // Get interface ID
-        let index = match if_nametoindex(iface_bytes.as_c_str()) {
-            Ok(index) => index,
-            Err(_error) => {
-                continue;
-            }
+pub fn get_best_default_route(family: Family) -> Option<RouteMessage> {
+    for iface in network_service_order(family) {
+        let Ok(index) = if_nametoindex(iface.name.as_str()) else {
+            continue;
         };
 
         // Request ifscoped default route for this interface
-        let route_msg = msg.clone().set_ifscope(u16::try_from(index).unwrap());
-        if let Ok(Some(route)) = routing_table.get_route(&route_msg).await {
-            if is_active_interface(&iface, family).unwrap_or(true) {
-                return Some(route);
-            }
+        let msg = RouteMessage::new_route(Destination::Network(IpNetwork::from(family)))
+            .set_gateway_addr(iface.router_ip)
+            .set_interface_index(u16::try_from(index).unwrap());
+        let active = is_active_interface(&iface.name, family).unwrap_or_else(|error| {
+            log::error!("is_active_interface() returned an error for interface \"{}\", assuming active. Error: {error}", iface.name);
+            true
+        });
+        if active {
+            return Some(msg);
         }
     }
 
     None
 }
 
-fn network_service_order() -> Vec<String> {
+/// Return a map from interface name to link addresses (AF_LINK)
+pub fn get_interface_link_addresses() -> io::Result<BTreeMap<String, SockaddrStorage>> {
+    let mut gateway_link_addrs = BTreeMap::new();
+    let addrs = nix::ifaddrs::getifaddrs()?;
+    for addr in addrs.into_iter() {
+        if addr.address.and_then(|addr| addr.family()) != Some(AddressFamily::Link) {
+            continue;
+        }
+        gateway_link_addrs.insert(addr.interface_name, addr.address.unwrap());
+    }
+    Ok(gateway_link_addrs)
+}
+
+struct NetworkServiceDetails {
+    name: String,
+    router_ip: IpAddr,
+}
+
+fn network_service_order(family: Family) -> Vec<NetworkServiceDetails> {
     let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
-    let services = SCNetworkService::get_services(&prefs);
     let set = SCNetworkSet::new(&prefs);
     let service_order = set.service_order();
+    let store = SCDynamicStoreBuilder::new("talpid-routing").build();
+
+    let global_dict = if family == Family::V4 {
+        "State:/Network/Global/IPv4"
+    } else {
+        "State:/Network/Global/IPv6"
+    };
+    let global_dict = store
+        .get(CFString::new(global_dict))
+        .and_then(|v| v.downcast_into::<CFDictionary>());
+    let primary_interface = if let Some(ref dict) = global_dict {
+        dict.find(unsafe { kSCDynamicStorePropNetPrimaryInterface }.to_void())
+            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+            .and_then(|s| s.downcast::<CFString>())
+            .map(|s| s.to_string())
+    } else {
+        None
+    };
+
+    let router_key = if family == Family::V4 {
+        unsafe { kSCPropNetIPv4Router.to_void() }
+    } else {
+        unsafe { kSCPropNetIPv6Router.to_void() }
+    };
 
     service_order
         .iter()
         .filter_map(|service_id| {
-            services
-                .iter()
-                .find(|service| service.id().as_ref() == Some(&*service_id))
-                .and_then(|service| service.network_interface()?.bsd_name())
-                .map(|cf_name| cf_name.to_string())
+            let service_id_s = service_id.to_string();
+            let key = if family == Family::V4 {
+                format!("State:/Network/Service/{service_id_s}/IPv4")
+            } else {
+                format!("State:/Network/Service/{service_id_s}/IPv6")
+            };
+
+            let ip_dict = store
+                .get(CFString::new(&key))
+                .and_then(|v| v.downcast_into::<CFDictionary>())?;
+            let name = ip_dict
+                .find(unsafe { kSCPropInterfaceName }.to_void())
+                .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+                .and_then(|s| s.downcast::<CFString>())
+                .map(|s| s.to_string())?;
+            let router_ip = ip_dict
+                .find(router_key)
+                .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+                .and_then(|s| s.downcast::<CFString>())
+                .and_then(|ip| ip.to_string().parse().ok())
+                .or_else(|| {
+                    if Some(&name) != primary_interface.as_ref() {
+                        return None;
+                    }
+                    let Some(ref dict) = global_dict else {
+                        return None;
+                    };
+                    // Sometimes only the primary interface contains the router IPv6 addr
+                    dict.find(router_key)
+                        .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+                        .and_then(|s| s.downcast::<CFString>())
+                        .and_then(|ip| ip.to_string().parse().ok())
+                })?;
+
+            Some(NetworkServiceDetails { name, router_ip })
         })
         .collect::<Vec<_>>()
 }
