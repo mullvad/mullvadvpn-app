@@ -101,11 +101,11 @@ extension BlockedStateReason {
      */
     var shouldRestartAutomatically: Bool {
         switch self {
-        case .deviceLocked, .outdatedSchema:
+        case .deviceLocked:
             return true
 
         case .noRelaysSatisfyingConstraints, .readSettings, .invalidAccount, .deviceRevoked, .tunnelAdapter, .unknown,
-             .deviceLoggedOut:
+             .deviceLoggedOut, .outdatedSchema:
             return false
         }
     }
