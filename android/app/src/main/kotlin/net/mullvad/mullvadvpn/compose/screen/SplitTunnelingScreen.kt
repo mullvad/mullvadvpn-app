@@ -87,8 +87,12 @@ fun SplitTunnelingScreen(
         modifier = Modifier.fillMaxSize(),
         appBarTitle = stringResource(id = R.string.split_tunneling),
         navigationIcon = { NavigateBackIconButton(onBackClick) }
-    ) { _, lazyListState ->
-        LazyColumn(horizontalAlignment = Alignment.CenterHorizontally, state = lazyListState) {
+    ) { modifier, lazyListState ->
+        LazyColumn(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            state = lazyListState
+        ) {
             item(key = CommonContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     Text(
