@@ -6,7 +6,7 @@ use futures::{
 
 use mullvad_api::rest;
 use mullvad_types::{
-    account::{AccountToken, PlayPurchase, PlayPurchaseInitResult, VoucherSubmission},
+    account::{AccountToken, PlayPurchase, PlayPurchasePaymentToken, VoucherSubmission},
     device::{
         AccountAndDevice, Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceName, DeviceState,
     },
@@ -305,7 +305,7 @@ enum AccountManagerCommand {
     SetRotationInterval(RotationInterval, ResponseTx<()>),
     ValidateDevice(ResponseTx<()>),
     SubmitVoucher(String, ResponseTx<VoucherSubmission>),
-    InitPlayPurchase(ResponseTx<PlayPurchaseInitResult>),
+    InitPlayPurchase(ResponseTx<PlayPurchasePaymentToken>),
     VerifyPlayPurchase(ResponseTx<()>, PlayPurchase),
     CheckExpiry(ResponseTx<DateTime<Utc>>),
     Shutdown(oneshot::Sender<()>),
@@ -361,7 +361,7 @@ impl AccountManagerHandle {
             .await
     }
 
-    pub async fn init_play_purchase(&self) -> Result<PlayPurchaseInitResult, Error> {
+    pub async fn init_play_purchase(&self) -> Result<PlayPurchasePaymentToken, Error> {
         self.send_command(AccountManagerCommand::InitPlayPurchase)
             .await
     }
@@ -609,7 +609,7 @@ impl AccountManager {
 
     fn handle_init_play_purchase(
         &mut self,
-        tx: ResponseTx<PlayPurchaseInitResult>,
+        tx: ResponseTx<PlayPurchasePaymentToken>,
         current_api_call: &mut api::CurrentApiCall,
     ) {
         if current_api_call.is_logging_in() {
@@ -752,8 +752,8 @@ impl AccountManager {
 
     async fn consume_init_play_purchase_result(
         &mut self,
-        response: Result<PlayPurchaseInitResult, Error>,
-        tx: ResponseTx<PlayPurchaseInitResult>,
+        response: Result<PlayPurchasePaymentToken, Error>,
+        tx: ResponseTx<PlayPurchasePaymentToken>,
     ) {
         match &response {
             Ok(_) => (),

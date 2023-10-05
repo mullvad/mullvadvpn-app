@@ -6,7 +6,7 @@ use futures::channel::mpsc;
 use futures::Stream;
 use hyper::Method;
 use mullvad_types::{
-    account::{AccountToken, PlayPurchase, PlayPurchaseInitResult, VoucherSubmission},
+    account::{AccountToken, PlayPurchase, PlayPurchasePaymentToken, VoucherSubmission},
     version::AppVersion,
 };
 use proxy::ApiConnectionMode;
@@ -461,7 +461,7 @@ impl AccountsProxy {
     pub fn init_play_purchase(
         &mut self,
         account_token: AccountToken,
-    ) -> impl Future<Output = Result<PlayPurchaseInitResult, rest::Error>> {
+    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct PlayPurchaseInitResponse {
             obfuscated_id: String,
@@ -495,17 +495,6 @@ impl AccountsProxy {
         account_token: AccountToken,
         play_purchase: PlayPurchase,
     ) -> impl Future<Output = Result<(), rest::Error>> {
-        #[derive(serde::Serialize)]
-        struct PlayPurchaseSubmission {
-            product_id: String,
-            purchase_token: String,
-        }
-
-        let submission = PlayPurchaseSubmission {
-            product_id: play_purchase.product_id,
-            purchase_token: play_purchase.purchase_token,
-        };
-
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
@@ -516,7 +505,7 @@ impl AccountsProxy {
                 service,
                 &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
                 Method::POST,
-                &submission,
+                &play_purchase,
                 Some((access_proxy, account_token)),
                 &[StatusCode::ACCEPTED],
             )

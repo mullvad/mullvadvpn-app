@@ -3,7 +3,7 @@ use std::{future::Future, time::Duration};
 use chrono::{DateTime, Utc};
 use futures::future::{abortable, AbortHandle};
 use mullvad_types::{
-    account::{AccountToken, PlayPurchase, PlayPurchaseInitResult, VoucherSubmission},
+    account::{AccountToken, PlayPurchase, PlayPurchasePaymentToken, VoucherSubmission},
     device::{Device, DeviceId},
     wireguard::WireguardData,
 };
@@ -324,7 +324,7 @@ impl AccountService {
     pub async fn init_play_purchase(
         &self,
         account_token: AccountToken,
-    ) -> Result<PlayPurchaseInitResult, Error> {
+    ) -> Result<PlayPurchasePaymentToken, Error> {
         let mut proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let result = retry_future(
