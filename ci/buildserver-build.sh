@@ -18,7 +18,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="$SCRIPT_DIR/upload"
-LINUX_REPOSITORY_SERVER="se-got-cdn002.devmole.eu"
+LINUX_REPOSITORY_SERVERS=("se-got-cdn002.devmole.eu")
 
 BRANCHES_TO_BUILD=("origin/main")
 
@@ -43,11 +43,28 @@ case "$(uname -s)" in
         ;;
 esac
 
+function rsync_repo {
+    local local_repo_dir=$1
+    local remote_repo_dir=$2
+
+    for server in "${LINUX_REPOSITORY_SERVERS[@]}"; do
+        rsync -av --delete --mkpath --rsh='ssh -p 1122' "$local_repo_dir" build@"$server":"$remote_repo_dir"
+    done
+}
+
 function publish_linux_repositories {
     local artifact_dir=$1
     local version=$2
-    "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$SCRIPT_DIR/deb-$version"
-    rsync -av --delete --mkpath --rsh='ssh -p 1122' "$SCRIPT_DIR/deb-$version" build@$LINUX_REPOSITORY_SERVER:deb/
+    local repo_dir="$SCRIPT_DIR/deb-$version"
+
+    "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$version" "$repo_dir"
+
+    echo "Uploading APT repository to deb/beta"
+    rsync_repo "$repo_dir" "deb/beta"
+    if [[ $version != *"-beta"* ]]; then
+        echo "Uploading APT repository to deb/stable"
+        rsync_repo "$repo_dir" "deb/stable"
+    fi
 }
 
 # Uploads whatever matches the first argument to the Linux build server
