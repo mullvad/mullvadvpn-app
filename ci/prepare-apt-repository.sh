@@ -7,12 +7,14 @@ CODE_SIGNING_KEY_FINGERPRINT=${CODE_SIGNING_KEY_FINGERPRINT:-"A1198702FC3E0A09A9
 artifact_dir=$1
 basedir=$2
 
-KEYRING_FILENAME="mullvad-keyring.asc"
+# Slimmed down set for testing
+SUPPORTED_CODENAMES=("bookworm")
+SUPPORTED_CODENAMES+=("jammy")
 
-# Debian codenames we support.
-SUPPORTED_CODENAMES=("sid" "testing" "bookworm" "bullseye")
-# Ubuntu codenames we support (latest two LTS + latest non-LTS)
-SUPPORTED_CODENAMES+=("jammy" "focal" "lunar")
+# # Debian codenames we support.
+# SUPPORTED_CODENAMES=("sid" "testing" "bookworm" "bullseye")
+# # Ubuntu codenames we support (latest two LTS + latest non-LTS)
+# SUPPORTED_CODENAMES+=("jammy" "focal" "lunar")
 
 function generate_repository_configuration {
     local codename=$1
@@ -48,19 +50,15 @@ echo "Writing repository configuration to $basedir/conf/distributions"
 generate_deb_distributions_content > "$basedir/conf/distributions"
 echo ""
 
-echo "Adding GPG keyring to repository as $KEYRING_FILENAME"
-gpg --export --armor "$CODE_SIGNING_KEY_FINGERPRINT" > "$basedir/$KEYRING_FILENAME"
-echo ""
-
 for deb_path in "$artifact_dir"/MullvadVPN-*.deb; do
     for codename in "${SUPPORTED_CODENAMES[@]}"; do
-        # Add all releases, beta and stable, to the -testing repository
-        add_deb_to_repo "$deb_path" "$codename"-testing
+        # # Add all releases, beta and stable, to the -testing repository
+        # add_deb_to_repo "$deb_path" "$codename"-testing
 
         # If this is a stable release, also add it to the stable repo
-        if [[ $(basename "$deb_path") != *"-beta"* ]]; then
+        # if [[ $(basename "$deb_path") != *"-beta"* ]]; then
             add_deb_to_repo "$deb_path" "$codename"
-        fi
+        # fi
         echo ""
     done
     echo ""
