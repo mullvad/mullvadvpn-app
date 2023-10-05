@@ -3,7 +3,7 @@ use std::pin::Pin;
 use chrono::{DateTime, Utc};
 use futures::{future::FusedFuture, Future};
 use mullvad_types::{
-    account::{PlayPurchaseInitResult, VoucherSubmission},
+    account::{PlayPurchasePaymentToken, VoucherSubmission},
     device::Device,
     wireguard::WireguardData,
 };
@@ -53,8 +53,8 @@ impl CurrentApiCall {
 
     pub fn set_init_play_purchase(
         &mut self,
-        init_play_purchase_call: ApiCall<PlayPurchaseInitResult>,
-        tx: ResponseTx<PlayPurchaseInitResult>,
+        init_play_purchase_call: ApiCall<PlayPurchasePaymentToken>,
+        tx: ResponseTx<PlayPurchasePaymentToken>,
     ) {
         self.current_call = Some(Call::InitPlayPurchase(init_play_purchase_call, Some(tx)));
     }
@@ -133,8 +133,8 @@ enum Call {
         Option<ResponseTx<VoucherSubmission>>,
     ),
     InitPlayPurchase(
-        ApiCall<PlayPurchaseInitResult>,
-        Option<ResponseTx<PlayPurchaseInitResult>>,
+        ApiCall<PlayPurchasePaymentToken>,
+        Option<ResponseTx<PlayPurchasePaymentToken>>,
     ),
     VerifyPlayPurchase(ApiCall<()>, Option<ResponseTx<()>>),
     ExpiryCheck(ApiCall<DateTime<Utc>>),
@@ -204,8 +204,8 @@ pub(crate) enum ApiResult {
         ResponseTx<VoucherSubmission>,
     ),
     InitPlayPurchase(
-        Result<PlayPurchaseInitResult, Error>,
-        ResponseTx<PlayPurchaseInitResult>,
+        Result<PlayPurchasePaymentToken, Error>,
+        ResponseTx<PlayPurchasePaymentToken>,
     ),
     VerifyPlayPurchase(Result<(), Error>, ResponseTx<()>),
     ExpiryCheck(Result<DateTime<Utc>, Error>),

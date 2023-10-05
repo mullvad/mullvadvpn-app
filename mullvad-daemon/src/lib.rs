@@ -38,7 +38,7 @@ use mullvad_relay_selector::{
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
-    account::{AccountData, AccountToken, PlayPurchase, PlayPurchaseInitResult, VoucherSubmission},
+    account::{AccountData, AccountToken, PlayPurchase, PlayPurchasePaymentToken, VoucherSubmission},
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -316,7 +316,7 @@ pub enum DaemonCommand {
     /// Initialize a google play purchase through the API.
     ///TODO
     //#[cfg(target_os = "android")]
-    InitPlayPurchase(ResponseTx<PlayPurchaseInitResult, Error>),
+    InitPlayPurchase(ResponseTx<PlayPurchasePaymentToken, Error>),
     /// Verify that a google play payment was successful through the API.
     ///TODO
     //#[cfg(target_os = "android")]
@@ -1377,7 +1377,7 @@ where
         });
     }
 
-    fn on_init_play_purchase(&mut self, tx: ResponseTx<PlayPurchaseInitResult, Error>) {
+    fn on_init_play_purchase(&mut self, tx: ResponseTx<PlayPurchasePaymentToken, Error>) {
         let manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
