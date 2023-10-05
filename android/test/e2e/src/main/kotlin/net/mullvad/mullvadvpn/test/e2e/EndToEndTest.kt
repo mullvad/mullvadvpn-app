@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.e2e
 
 import android.Manifest
 import android.content.Context
+import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
@@ -24,10 +25,14 @@ abstract class EndToEndTest {
     @Rule
     @JvmField
     val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            GrantPermissionRule.grant(Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            GrantPermissionRule.grant(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
 
     lateinit var device: UiDevice
     lateinit var targetContext: Context
