@@ -139,7 +139,8 @@ struct PreferencesViewModel: Equatable {
 
     /// Precondition for enabling Custom DNS.
     var customDNSPrecondition: CustomDNSPrecondition {
-        if blockAdvertising || blockTracking || blockMalware || blockAdultContent || blockGambling {
+        if blockAdvertising || blockTracking || blockMalware ||
+            blockAdultContent || blockGambling || blockSocialMedia {
             return .conflictsWithOtherSettings
         } else {
             let hasValidDNSDomains = customDNSDomains.contains { entry in
