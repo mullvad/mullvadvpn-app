@@ -12,7 +12,7 @@ import PacketTunnelCore
 import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 
-/// Settings reader stub that can be configured with a block to proovide the desired behavior when testing.
+/// Settings reader stub that can be configured with a block to provide the desired behavior when testing.
 struct SettingsReaderStub: SettingsReaderProtocol {
     let block: () throws -> Settings
 
