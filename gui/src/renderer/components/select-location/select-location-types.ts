@@ -74,9 +74,7 @@ interface CommonNormalLocationSpecification
   active: boolean;
 }
 
-export interface CustomListSpecification
-  extends Omit<ICustomList, 'locations'>,
-    CommonNormalLocationSpecification {
+export interface CustomListSpecification extends CommonNormalLocationSpecification {
   location: RelayLocationCustomList;
   list: ICustomList;
   expanded: boolean;
@@ -84,7 +82,7 @@ export interface CustomListSpecification
 }
 
 export interface CountrySpecification
-  extends Omit<IRelayLocationCountryRedux, 'cities'>,
+  extends Pick<IRelayLocationCountryRedux, 'name' | 'code'>,
     CommonNormalLocationSpecification {
   location: RelayLocationCountry;
   expanded: boolean;
@@ -92,7 +90,7 @@ export interface CountrySpecification
 }
 
 export interface CitySpecification
-  extends Omit<IRelayLocationCityRedux, 'relays'>,
+  extends Pick<IRelayLocationCityRedux, 'name' | 'code'>,
     CommonNormalLocationSpecification {
   location: RelayLocationCity;
   expanded: boolean;
@@ -100,7 +98,7 @@ export interface CitySpecification
 }
 
 export interface RelaySpecification
-  extends IRelayLocationRelayRedux,
+  extends Omit<IRelayLocationRelayRedux, 'ipv4AddrIn' | 'includeInCountry' | 'weight'>,
     CommonNormalLocationSpecification {
   location: RelayLocationRelay;
 }

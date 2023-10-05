@@ -56,7 +56,6 @@ function prepareCustomList(
 
   const disabledReason = isCustomListDisabled(location, locations, disabledLocation);
   return {
-    ...list,
     label: list.name,
     list,
     location,
