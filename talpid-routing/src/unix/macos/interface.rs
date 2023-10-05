@@ -97,7 +97,7 @@ fn network_service_order(family: Family) -> Vec<NetworkServiceDetails> {
     let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
     let set = SCNetworkSet::new(&prefs);
     let service_order = set.service_order();
-    let store = SCDynamicStoreBuilder::new("mullvad-routing").build();
+    let store = SCDynamicStoreBuilder::new("talpid-routing").build();
 
     let global_dict = if family == Family::V4 {
         "State:/Network/Global/IPv4"
