@@ -379,7 +379,13 @@ impl RouteManagerImpl {
             return Ok(false);
         }
 
-        log::debug!("Best default route changed from {current_route:?} to {best_route:?}");
+        let old_pair = current_route
+            .as_ref()
+            .map(|r| (r.interface_index(), r.gateway_ip()));
+        let new_pair = best_route
+            .as_ref()
+            .map(|r| (r.interface_index(), r.gateway_ip()));
+        log::debug!("Best default route changed from {old_pair:?} to {new_pair:?}");
         let _ = std::mem::replace(current_route, best_route);
 
         let changed = current_route.is_some();

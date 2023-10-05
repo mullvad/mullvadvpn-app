@@ -11,14 +11,17 @@ use std::{
 
 use system_configuration::{
     core_foundation::{
-        base::{CFType, TCFType, ToVoid},
+        base::{Boolean, CFType, TCFType, ToVoid},
         dictionary::CFDictionary,
-        string::CFString,
+        string::{CFString, CFStringRef},
     },
     dynamic_store::SCDynamicStoreBuilder,
     network_configuration::SCNetworkSet,
     preferences::SCPreferences,
-    sys::schema_definitions::{kSCPropInterfaceName, kSCPropNetIPv4Router},
+    sys::schema_definitions::{
+        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Router,
+        kSCPropNetIPv6Router,
+    },
 };
 
 use super::data::{Destination, RouteMessage};
@@ -96,6 +99,29 @@ fn network_service_order(family: Family) -> Vec<NetworkServiceDetails> {
     let service_order = set.service_order();
     let store = SCDynamicStoreBuilder::new("mullvad-routing").build();
 
+    let global_dict = if family == Family::V4 {
+        "State:/Network/Global/IPv4"
+    } else {
+        "State:/Network/Global/IPv6"
+    };
+    let global_dict = store
+        .get(CFString::new(global_dict))
+        .and_then(|v| v.downcast_into::<CFDictionary>());
+    let primary_interface = if let Some(ref dict) = global_dict {
+        dict.find(unsafe { kSCDynamicStorePropNetPrimaryInterface }.to_void())
+            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+            .and_then(|s| s.downcast::<CFString>())
+            .map(|s| s.to_string())
+    } else {
+        None
+    };
+
+    let router_key = if family == Family::V4 {
+        unsafe { kSCPropNetIPv4Router.to_void() }
+    } else {
+        unsafe { kSCPropNetIPv6Router.to_void() }
+    };
+
     service_order
         .iter()
         .filter_map(|service_id| {
@@ -115,10 +141,23 @@ fn network_service_order(family: Family) -> Vec<NetworkServiceDetails> {
                 .and_then(|s| s.downcast::<CFString>())
                 .map(|s| s.to_string())?;
             let router_ip = ip_dict
-                .find(unsafe { kSCPropNetIPv4Router }.to_void())
+                .find(router_key)
                 .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
                 .and_then(|s| s.downcast::<CFString>())
-                .and_then(|ip| ip.to_string().parse().ok())?;
+                .and_then(|ip| ip.to_string().parse().ok())
+                .or_else(|| {
+                    if Some(&name) != primary_interface.as_ref() {
+                        return None;
+                    }
+                    let Some(ref dict) = global_dict else {
+                        return None;
+                    };
+                    // Sometimes only the primary interface contains the router IPv6 addr
+                    dict.find(router_key)
+                        .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+                        .and_then(|s| s.downcast::<CFString>())
+                        .and_then(|ip| ip.to_string().parse().ok())
+                })?;
 
             Some(NetworkServiceDetails { name, router_ip })
         })
