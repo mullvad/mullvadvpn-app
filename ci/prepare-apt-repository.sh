@@ -5,7 +5,8 @@ set -eu
 CODE_SIGNING_KEY_FINGERPRINT=${CODE_SIGNING_KEY_FINGERPRINT:-"A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"}
 
 artifact_dir=$1
-basedir=$2
+version=$2
+basedir=$3
 
 # Slimmed down set for testing
 SUPPORTED_CODENAMES=("bookworm")
@@ -18,7 +19,8 @@ SUPPORTED_CODENAMES+=("jammy")
 
 function generate_repository_configuration {
     local codename=$1
-    echo -e "Origin: repository.devmole.eu
+
+    echo -e "Origin: repository.mullvad.net
 Label: Mullvad apt repository
 Description: Mullvad package repository for Debian/Ubuntu
 Codename: $codename
@@ -50,15 +52,9 @@ echo "Writing repository configuration to $basedir/conf/distributions"
 generate_deb_distributions_content > "$basedir/conf/distributions"
 echo ""
 
-for deb_path in "$artifact_dir"/MullvadVPN-*.deb; do
+for deb_path in "$artifact_dir"/MullvadVPN-"$version"*.deb; do
     for codename in "${SUPPORTED_CODENAMES[@]}"; do
-        # # Add all releases, beta and stable, to the -testing repository
-        # add_deb_to_repo "$deb_path" "$codename"-testing
-
-        # If this is a stable release, also add it to the stable repo
-        # if [[ $(basename "$deb_path") != *"-beta"* ]]; then
-            add_deb_to_repo "$deb_path" "$codename"
-        # fi
+        add_deb_to_repo "$deb_path" "$codename"
         echo ""
     done
     echo ""
