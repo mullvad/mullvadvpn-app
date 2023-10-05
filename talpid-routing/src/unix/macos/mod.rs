@@ -1,4 +1,4 @@
-use crate::{NetNode, Node, RequiredRoute, Route};
+use crate::{debounce::BurstGuard, NetNode, Node, RequiredRoute, Route};
 
 use futures::{
     channel::mpsc,
@@ -6,10 +6,10 @@ use futures::{
     stream::{FusedStream, StreamExt},
 };
 use ipnetwork::IpNetwork;
-use nix::sys::socket::{AddressFamily, SockaddrLike, SockaddrStorage};
-use std::pin::Pin;
+use std::sync::Weak;
 use std::{
     collections::{BTreeMap, HashSet},
+    pin::Pin,
     time::Duration,
 };
 use talpid_types::ErrorExt;
@@ -43,15 +43,11 @@ pub enum Error {
 
     /// Failed to fetch link addresses
     #[error(display = "Failed to fetch link addresses")]
-    FetchLinkAddresses(nix::Error),
+    FetchLinkAddresses(#[error(source)] std::io::Error),
 
     /// Received message isn't valid
     #[error(display = "Invalid data")]
     InvalidData(data::Error),
-
-    /// Restoring unscoped default routes
-    #[error(display = "Restoring unscoped default routes")]
-    RestoringUnscopedRoutes,
 }
 
 /// Convenience macro to get the current default route. Macro because I don't want to borrow `self`
@@ -85,6 +81,7 @@ pub struct RouteManagerImpl {
     applied_routes: BTreeMap<RouteDestination, RouteMessage>,
     v4_default_route: Option<data::RouteMessage>,
     v6_default_route: Option<data::RouteMessage>,
+    update_trigger: BurstGuard,
     default_route_listeners: Vec<mpsc::UnboundedSender<DefaultRouteEvent>>,
     check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
 }
@@ -92,8 +89,16 @@ pub struct RouteManagerImpl {
 impl RouteManagerImpl {
     /// Create new route manager
     #[allow(clippy::unused_async)]
-    pub async fn new() -> Result<Self> {
+    pub(crate) async fn new(
+        manage_tx: Weak<mpsc::UnboundedSender<RouteManagerCommand>>,
+    ) -> Result<Self> {
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
+        let update_trigger = BurstGuard::new(move || {
+            let Some(manage_tx) = manage_tx.upgrade() else {
+                return;
+            };
+            let _ = manage_tx.unbounded_send(RouteManagerCommand::RefreshRoutes);
+        });
         Ok(Self {
             routing_table,
             non_tunnel_routes: HashSet::new(),
@@ -102,6 +107,7 @@ impl RouteManagerImpl {
             applied_routes: BTreeMap::new(),
             v4_default_route: None,
             v6_default_route: None,
+            update_trigger,
             default_route_listeners: vec![],
             check_default_routes_restored: Box::pin(futures::stream::pending()),
         })
@@ -113,26 +119,28 @@ impl RouteManagerImpl {
         // Initialize default routes
         // NOTE: This isn't race-free, as we're not listening for route changes before initializing
         self.update_best_default_route(interface::Family::V4)
-            .await
             .unwrap_or_else(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to get initial default v4 route")
                 );
+                false
             });
         self.update_best_default_route(interface::Family::V6)
-            .await
             .unwrap_or_else(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to get initial default v6 route")
                 );
+                false
             });
+
+        let mut completion_tx = None;
 
         loop {
             futures::select_biased! {
                 route_message = self.routing_table.next_message().fuse() => {
-                    self.handle_route_message(route_message).await;
+                    self.handle_route_message(route_message);
                 }
 
                 _ = self.check_default_routes_restored.next() => {
@@ -148,11 +156,8 @@ impl RouteManagerImpl {
                 command = manage_rx.next() => {
                     match command {
                         Some(RouteManagerCommand::Shutdown(tx)) => {
-                            if let Err(err) = self.cleanup_routes().await {
-                                log::error!("Failed to clean up routes: {err}");
-                            }
-                            let _ = tx.send(());
-                            return;
+                            completion_tx = Some(tx);
+                            break;
                         },
 
                         Some(RouteManagerCommand::NewDefaultRouteListener(tx)) => {
@@ -189,22 +194,13 @@ impl RouteManagerImpl {
 
                         Some(RouteManagerCommand::AddRoutes(routes, tx)) => {
                             if !self.check_default_routes_restored.is_terminated() {
-                                // Give it some time to recover, but not too much
-                                if !self.try_restore_default_routes().await {
-                                    let _ = tokio::time::timeout(
-                                        Duration::from_millis(500),
-                                        self.check_default_routes_restored.next(),
-                                    ).await;
-
-                                    if !self.try_restore_default_routes().await {
-                                        log::warn!("Unscoped routes were not restored");
-                                        let _ = tx.send(Err(Error::RestoringUnscopedRoutes));
-                                        continue;
-                                    }
-                                }
+                                log::debug!("Cancelling restoration of default routes");
                                 self.check_default_routes_restored = Box::pin(futures::stream::pending());
-                                log::debug!("Unscoped routes were already restored");
                             }
+
+                            // Reset known best route
+                            let _ = self.update_best_default_route(interface::Family::V4);
+                            let _ = self.update_best_default_route(interface::Family::V6);
 
                             log::debug!("Adding routes: {routes:?}");
                             let _ = tx.send(self.add_required_routes(routes).await);
@@ -212,6 +208,11 @@ impl RouteManagerImpl {
                         Some(RouteManagerCommand::ClearRoutes) => {
                             if let Err(err) = self.cleanup_routes().await {
                                 log::error!("Failed to clean up rotues: {err}");
+                            }
+                        },
+                        Some(RouteManagerCommand::RefreshRoutes) => {
+                            if let Err(error) = self.refresh_routes().await {
+                                log::error!("Failed to refresh routes: {error}")
                             }
                         },
                         None => {
@@ -224,6 +225,12 @@ impl RouteManagerImpl {
 
         if let Err(err) = self.cleanup_routes().await {
             log::error!("Failed to clean up routing table when shutting down: {err}");
+        }
+
+        self.update_trigger.stop_nonblocking();
+
+        if let Some(tx) = completion_tx {
+            let _ = tx.send(());
         }
     }
 
@@ -241,7 +248,8 @@ impl RouteManagerImpl {
         }
 
         // Map all interfaces to their link addresses
-        let interface_link_addrs = get_interface_link_addresses()?;
+        let interface_link_addrs =
+            interface::get_interface_link_addresses().map_err(Error::FetchLinkAddresses)?;
 
         // Add routes not using the default interface
         for route in routes_to_apply {
@@ -287,14 +295,13 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    async fn handle_route_message(
+    fn handle_route_message(
         &mut self,
         message: std::result::Result<RouteSocketMessage, watch::Error>,
     ) {
         match message {
             Ok(RouteSocketMessage::DeleteRoute(route)) => {
-                // Forget about applied route, if relevant. This is simply prevent ourselves from
-                // deleting it later.
+                // Forget about applied route, if relevant
                 match RouteDestination::try_from(&route).map_err(Error::InvalidData) {
                     Ok(destination) => {
                         self.applied_routes.remove(&destination);
@@ -303,17 +310,18 @@ impl RouteManagerImpl {
                         log::error!("Failed to process deleted route: {err}");
                     }
                 }
-
-                if let Err(error) = self.handle_route_socket_message().await {
-                    log::error!("Failed to process route change: {error}");
+                if route.errno() == 0 && route.is_default().unwrap_or(true) {
+                    self.update_trigger.trigger();
                 }
             }
-            Ok(RouteSocketMessage::AddRoute(_))
-            | Ok(RouteSocketMessage::ChangeRoute(_))
-            | Ok(RouteSocketMessage::AddAddress(_) | RouteSocketMessage::DeleteAddress(_)) => {
-                if let Err(error) = self.handle_route_socket_message().await {
-                    log::error!("Failed to process route/address change: {error}");
+            Ok(RouteSocketMessage::AddRoute(route))
+            | Ok(RouteSocketMessage::ChangeRoute(route)) => {
+                if route.errno() == 0 && route.is_default().unwrap_or(true) {
+                    self.update_trigger.trigger();
                 }
+            }
+            Ok(RouteSocketMessage::AddAddress(_) | RouteSocketMessage::DeleteAddress(_)) => {
+                self.update_trigger.trigger();
             }
             // ignore all other message types
             Ok(_) => {}
@@ -329,11 +337,15 @@ impl RouteManagerImpl {
     /// * At the same time, update the route used by non-tunnel interfaces to reach the relay/VPN
     ///   server. The gateway of the relay route is set to the first interface in the network
     ///   service order that has a working ifscoped default route.
-    async fn handle_route_socket_message(&mut self) -> Result<()> {
-        self.update_best_default_route(interface::Family::V4)
-            .await?;
-        self.update_best_default_route(interface::Family::V6)
-            .await?;
+    async fn refresh_routes(&mut self) -> Result<()> {
+        self.update_best_default_route(interface::Family::V4)?;
+        self.update_best_default_route(interface::Family::V6)?;
+
+        // Remove any existing ifscope route that we've added
+        self.remove_applied_routes(|route| {
+            route.is_ifscope() && route.is_default().unwrap_or(false)
+        })
+        .await;
 
         // Substitute route with a tunnel route
         self.apply_tunnel_default_route().await?;
@@ -346,46 +358,31 @@ impl RouteManagerImpl {
     /// subscribers. The "best routes" are used by the tunnel device to send packets to the VPN
     /// relay.
     ///
-    /// If there is a tunnel device, the "best route" is the first ifscope default route found,
-    /// ordered after network service order (after filtering out interfaces without valid IP
-    /// addresses).
+    /// The "best route" is determined by the first interface in the network service order that has
+    /// a valid IP address and gateway.
     ///
-    /// If there is no tunnel device, the "best route" is the unscoped default route, whatever it
-    /// is.
-    async fn update_best_default_route(&mut self, family: interface::Family) -> Result<()> {
-        let use_scoped_route = (family == interface::Family::V4
-            && self.v4_tunnel_default_route.is_some())
-            || (family == interface::Family::V6 && self.v6_tunnel_default_route.is_some());
+    /// On success, the function returns whether the previously known best default changed.
+    fn update_best_default_route(&mut self, family: interface::Family) -> Result<bool> {
+        let best_route = interface::get_best_default_route(family);
+        let current_route = get_current_best_default_route!(self, family);
 
-        let best_route = if use_scoped_route {
-            interface::get_best_default_route(&mut self.routing_table, family).await
-        } else {
-            interface::get_unscoped_default_route(&mut self.routing_table, family).await
-        };
         log::trace!("Best route ({family:?}): {best_route:?}");
-
-        let default_route = get_current_best_default_route!(self, family);
-
-        if default_route == &best_route {
-            log::trace!("Default route ({family:?}) is unchanged");
-            return Ok(());
+        if best_route == *current_route {
+            return Ok(false);
         }
 
-        let old_route = std::mem::replace(default_route, best_route);
+        let old_pair = current_route
+            .as_ref()
+            .map(|r| (r.interface_index(), r.gateway_ip()));
+        let new_pair = best_route
+            .as_ref()
+            .map(|r| (r.interface_index(), r.gateway_ip()));
+        log::debug!("Best default route changed from {old_pair:?} to {new_pair:?}");
+        let _ = std::mem::replace(current_route, best_route);
 
-        log::debug!(
-            "Default route change ({family:?}): interface {} -> {}",
-            old_route.map(|r| r.interface_index()).unwrap_or(0),
-            default_route
-                .as_ref()
-                .map(|r| r.interface_index())
-                .unwrap_or(0),
-        );
-
-        let changed = default_route.is_some();
+        let changed = current_route.is_some();
         self.notify_default_route_listeners(family, changed);
-
-        Ok(())
+        Ok(true)
     }
 
     fn notify_default_route_listeners(&mut self, family: interface::Family, changed: bool) {
@@ -435,7 +432,7 @@ impl RouteManagerImpl {
             };
 
             // Replace the default route with an ifscope route
-            self.set_default_route_ifscope(family, true).await?;
+            self.replace_with_scoped_route(family).await?;
 
             // Make sure there is really no other unscoped default route
             let mut msg = RouteMessage::new_route(IpNetwork::from(family).into());
@@ -508,45 +505,18 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    /// Replace a known default route with an ifscope route, if should_be_ifscoped is true.
-    /// If should_be_ifscoped is false, the route is replaced with a non-ifscoped default route
-    /// instead.
-    async fn set_default_route_ifscope(
-        &mut self,
-        family: interface::Family,
-        should_be_ifscoped: bool,
-    ) -> Result<()> {
+    /// Replace a known default route with an ifscope route.
+    async fn replace_with_scoped_route(&mut self, family: interface::Family) -> Result<()> {
         let Some(default_route) = get_current_best_default_route!(self, family) else {
             return Ok(());
         };
 
-        if default_route.is_ifscope() == should_be_ifscoped {
-            return Ok(());
-        }
-
-        log::trace!("Setting non-ifscope: {default_route:?}");
-
-        let interface_index = if should_be_ifscoped {
-            let interface_index = default_route.interface_index();
-            if interface_index == 0 {
-                log::error!("Cannot find interface index of default interface");
-            }
-            interface_index
-        } else {
-            0
-        };
+        let interface_index = default_route.interface_index();
         let new_route = default_route.clone().set_ifscope(interface_index);
-        let old_route = std::mem::replace(default_route, new_route);
 
-        self.routing_table
-            .delete_route(&old_route)
-            .await
-            .map_err(Error::DeleteRoute)?;
+        log::trace!("Setting ifscope: {new_route:?}");
 
-        self.routing_table
-            .add_route(default_route)
-            .await
-            .map_err(Error::AddRoute)
+        self.add_route_with_record(new_route).await
     }
 
     async fn add_route_with_record(&mut self, route: RouteMessage) -> Result<()> {
@@ -562,17 +532,7 @@ impl RouteManagerImpl {
     }
 
     async fn cleanup_routes(&mut self) -> Result<()> {
-        // Remove all applied routes. This includes default destination routes
-        let old_routes = std::mem::take(&mut self.applied_routes);
-        for (_dest, route) in old_routes.into_iter() {
-            log::trace!("Removing route: {route:?}");
-            match self.routing_table.delete_route(&route).await {
-                Ok(_) | Err(watch::Error::RouteNotFound) | Err(watch::Error::Unreachable) => (),
-                Err(err) => {
-                    log::error!("Failed to remove relay route: {err:?}");
-                }
-            }
-        }
+        self.remove_applied_routes(|_| true).await;
 
         // We have already removed the applied default routes
         self.v4_tunnel_default_route = None;
@@ -585,6 +545,29 @@ impl RouteManagerImpl {
         self.non_tunnel_routes.clear();
 
         Ok(())
+    }
+
+    /// Remove all applied routes for which `filter` returns true
+    async fn remove_applied_routes(&mut self, filter: impl Fn(&RouteMessage) -> bool) {
+        let mut deleted_routes = vec![];
+
+        self.applied_routes.retain(|_dest, route| {
+            if filter(route) {
+                deleted_routes.push(route.clone());
+                return false;
+            }
+            true
+        });
+
+        for route in deleted_routes {
+            log::trace!("Removing route: {route:?}");
+            match self.routing_table.delete_route(&route).await {
+                Ok(_) | Err(watch::Error::RouteNotFound) | Err(watch::Error::Unreachable) => (),
+                Err(err) => {
+                    log::error!("Failed to remove relay route: {err:?}");
+                }
+            }
+        }
     }
 
     /// FIXME: Hack. Restoring the default routes during cleanup sometimes fails, so repeatedly try
@@ -618,44 +601,44 @@ impl RouteManagerImpl {
     /// Add back unscoped default route for the given `family`, if it is still missing. This
     /// function returns true when no route had to be added.
     async fn restore_default_route(&mut self, family: interface::Family) -> bool {
-        let current_route = get_current_best_default_route!(self, family);
-        let message = RouteMessage::new_route(IpNetwork::from(family).into());
-        if matches!(self.routing_table.get_route(&message).await, Ok(Some(_))) {
+        let Some(desired_default_route) = interface::get_best_default_route(family) else {
             return true;
-        }
-
-        let new_route = interface::get_best_default_route(&mut self.routing_table, family).await;
-        let old_route = std::mem::replace(current_route, new_route);
-        let notify = &old_route != current_route;
-
-        let done = if let Some(route) = current_route {
-            *route = route.clone().set_ifscope(0);
-            if let Err(error) = self.routing_table.add_route(route).await {
-                log::trace!("Failed to add non-ifscope {family} route: {error}");
-            }
-            false
-        } else {
-            true
         };
 
-        if notify {
-            let changed = current_route.is_some();
-            self.notify_default_route_listeners(family, changed);
+        let current_default_route = RouteMessage::new_route(IpNetwork::from(family).into());
+        if let Ok(Some(current_default)) =
+            self.routing_table.get_route(&current_default_route).await
+        {
+            // We're done if the route we're looking for is already here
+            if route_matches_interface(Some(&current_default), Some(&desired_default_route)) {
+                return true;
+            }
+            let _ = self
+                .routing_table
+                .delete_route(&current_default_route)
+                .await;
+        };
+
+        if let Err(error) = self.routing_table.add_route(&desired_default_route).await {
+            log::trace!("Failed to add unscoped default {family} route: {error}");
         }
 
-        done
+        self.update_trigger.trigger();
+
+        false
     }
 }
 
-/// Return a map from interface name to link addresses (AF_LINK)
-fn get_interface_link_addresses() -> Result<BTreeMap<String, SockaddrStorage>> {
-    let mut gateway_link_addrs = BTreeMap::new();
-    let addrs = nix::ifaddrs::getifaddrs().map_err(Error::FetchLinkAddresses)?;
-    for addr in addrs.into_iter() {
-        if addr.address.and_then(|addr| addr.family()) != Some(AddressFamily::Link) {
-            continue;
+fn route_matches_interface(
+    default_route: Option<&RouteMessage>,
+    interface_route: Option<&RouteMessage>,
+) -> bool {
+    match (default_route, interface_route) {
+        (Some(default_route), Some(interface_route)) => {
+            default_route.gateway_ip() == interface_route.gateway_ip()
+                && default_route.interface_index() == interface_route.interface_index()
         }
-        gateway_link_addrs.insert(addr.interface_name, addr.address.unwrap());
+        (None, None) => true,
+        _ => false,
     }
-    Ok(gateway_link_addrs)
 }

@@ -7,7 +7,7 @@ use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::{collections::HashSet, io};
+use std::{collections::HashSet, io, sync::Arc};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
@@ -55,7 +55,7 @@ pub enum Error {
 /// Handle to a route manager.
 #[derive(Clone)]
 pub struct RouteManagerHandle {
-    tx: UnboundedSender<RouteManagerCommand>,
+    tx: Arc<UnboundedSender<RouteManagerCommand>>,
 }
 
 impl RouteManagerHandle {
@@ -181,6 +181,8 @@ pub(crate) enum RouteManagerCommand {
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
     #[cfg(target_os = "macos")]
+    RefreshRoutes,
+    #[cfg(target_os = "macos")]
     NewDefaultRouteListener(oneshot::Sender<mpsc::UnboundedReceiver<DefaultRouteEvent>>),
     #[cfg(target_os = "macos")]
     GetDefaultRoutes(oneshot::Sender<(Option<Route>, Option<Route>)>),
@@ -227,7 +229,7 @@ pub enum CallbackMessage {
 /// If a destination has to be routed through the default node,
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
-    manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
+    manage_tx: Option<Arc<UnboundedSender<RouteManagerCommand>>>,
     runtime: tokio::runtime::Handle,
 }
 
@@ -238,11 +240,14 @@ impl RouteManager {
         #[cfg(target_os = "linux")] table_id: u32,
     ) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
+        let manage_tx = Arc::new(manage_tx);
         let manager = imp::RouteManagerImpl::new(
             #[cfg(target_os = "linux")]
             fwmark,
             #[cfg(target_os = "linux")]
             table_id,
+            #[cfg(target_os = "macos")]
+            Arc::downgrade(&manage_tx),
         )
         .await?;
         tokio::spawn(manager.run(manage_rx));

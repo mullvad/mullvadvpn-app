@@ -14,7 +14,7 @@ futures = "0.3.15"
 ipnetwork = "0.16"
 log = "0.4"
 talpid-types = { path = "../talpid-types" }
-tokio = { version = "1.8", features = ["process", "rt-multi-thread", "net"] }
+tokio = { version = "1.8", features = ["process", "rt-multi-thread", "net", "io-util", "time"] }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 talpid-types = { path = "../talpid-types" }
