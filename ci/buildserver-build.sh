@@ -18,7 +18,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="$SCRIPT_DIR/upload"
-LINUX_REPOSITORY_SERVERS=("se-got-cdn002.devmole.eu")
+LINUX_REPOSITORY_SERVERS=("se-got-cdn-002.devmole.eu")
 
 BRANCHES_TO_BUILD=("origin/main")
 
@@ -55,7 +55,7 @@ function rsync_repo {
 function publish_linux_repositories {
     local artifact_dir=$1
     local version=$2
-    local repo_dir="$SCRIPT_DIR/deb-$version"
+    local repo_dir="$SCRIPT_DIR/deb/$version"
 
     "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$version" "$repo_dir"
 
