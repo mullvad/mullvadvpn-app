@@ -18,9 +18,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="$SCRIPT_DIR/upload"
-LINUX_REPOSITORY_SERVERS=("se-got-cdn-001.stagemole.eu" "se-got-cdn-002.stagemole.eu")
 
 BRANCHES_TO_BUILD=("origin/main")
+
+source "$SCRIPT_DIR/buildserver-config.sh"
 
 # Ask for the passphrase to the signing keys
 case "$(uname -s)" in
@@ -47,7 +48,7 @@ function rsync_repo {
     local local_repo_dir=$1
     local remote_repo_dir=$2
 
-    for server in "${LINUX_REPOSITORY_SERVERS[@]}"; do
+    for server in "${STAGING_LINUX_REPOSITORY_SERVERS[@]}"; do
         rsync -av --delete --mkpath --rsh='ssh -p 1122' \
             "$local_repo_dir"/ \
             build@"$server":"$remote_repo_dir"
