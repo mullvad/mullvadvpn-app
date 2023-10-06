@@ -236,9 +236,9 @@ function build_ref {
     fi
 
     # If this is a release build (stable or beta) then publish it to the repositories
-    #if [[ $version != *"-dev-"* ]]; then
+    if [[ $version != *"-dev-"* ]]; then
         publish_linux_repositories "$artifact_dir" "$version"
-    #fi
+    fi
     (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
