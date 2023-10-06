@@ -7,17 +7,13 @@
 
 set -eu
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 artifact_dir=$1
 version=$2
 repo_dir=$3
 
-# Debian codenames we support.
-SUPPORTED_CODENAMES=("sid" "testing" "bookworm" "bullseye")
-# Ubuntu codenames we support (latest two LTS + latest non-LTS)
-SUPPORTED_CODENAMES+=("jammy" "focal" "lunar")
-
-# Use the default GPG key. Must be explicitly configured
-code_signing_key_fingerprint="$(grep -m 1 "default-key" ~/.gnupg/gpg.conf | awk '{print $2}')"
+source "$SCRIPT_DIR/buildserver-config.sh"
 
 function generate_repository_configuration {
     local codename=$1
@@ -28,12 +24,12 @@ Description: Mullvad package repository for Debian/Ubuntu
 Codename: $codename
 Architectures: amd64 arm64
 Components: main
-SignWith: $code_signing_key_fingerprint"
+SignWith: $CODE_SIGNING_KEY_FINGERPRINT"
 }
 
 function generate_deb_distributions_content {
     local distributions=""
-    for codename in "${SUPPORTED_CODENAMES[@]}"; do
+    for codename in "${SUPPORTED_DEB_CODENAMES[@]}"; do
         distributions+=$(generate_repository_configuration "$codename")$'\n'$'\n'
         distributions+=$(generate_repository_configuration "$codename"-testing)$'\n'$'\n'
     done
@@ -55,7 +51,7 @@ generate_deb_distributions_content > "$repo_dir/conf/distributions"
 echo ""
 
 for deb_path in "$artifact_dir"/MullvadVPN-"$version"*.deb; do
-    for codename in "${SUPPORTED_CODENAMES[@]}"; do
+    for codename in "${SUPPORTED_DEB_CODENAMES[@]}"; do
         add_deb_to_repo "$deb_path" "$codename"
         echo ""
     done
