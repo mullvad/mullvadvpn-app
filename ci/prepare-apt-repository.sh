@@ -8,14 +8,14 @@ artifact_dir=$1
 version=$2
 basedir=$3
 
-# Slimmed down set for testing
-SUPPORTED_CODENAMES=("bookworm")
-SUPPORTED_CODENAMES+=("jammy")
+# # Slimmed down set for testing
+# SUPPORTED_CODENAMES=("bookworm")
+# SUPPORTED_CODENAMES+=("jammy")
 
-# # Debian codenames we support.
-# SUPPORTED_CODENAMES=("sid" "testing" "bookworm" "bullseye")
-# # Ubuntu codenames we support (latest two LTS + latest non-LTS)
-# SUPPORTED_CODENAMES+=("jammy" "focal" "lunar")
+# Debian codenames we support.
+SUPPORTED_CODENAMES=("sid" "testing" "bookworm" "bullseye")
+# Ubuntu codenames we support (latest two LTS + latest non-LTS)
+SUPPORTED_CODENAMES+=("jammy" "focal" "lunar")
 
 function generate_repository_configuration {
     local codename=$1
