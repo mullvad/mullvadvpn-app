@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# Usage: ./publish-linux-repositories.sh <app version> [--production/--staging]
+# Usage: ./publish-linux-repositories.sh [--production/--staging] <app version>
 #
-# Rsyncs a locally prepared and stored DEB repository to staging or production
+# Rsyncs a locally prepared and stored DEB repository to the dev/staging/production
 # repository servers.
 
 set -eu
@@ -38,7 +38,7 @@ if [[ -z ${version+x} ]]; then
     exit 1
 fi
 if [[ -z ${repository_servers+x} ]]; then
-    echo "Pass either --staging or --production to select target servers"
+    echo "Pass either --dev, --staging or --production to select target servers"
     exit 1
 fi
 
