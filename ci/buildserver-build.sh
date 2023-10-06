@@ -48,7 +48,9 @@ function rsync_repo {
     local remote_repo_dir=$2
 
     for server in "${LINUX_REPOSITORY_SERVERS[@]}"; do
-        rsync -av --delete --mkpath --rsh='ssh -p 1122' "$local_repo_dir"/ build@"$server":"$remote_repo_dir"
+        rsync -av --delete --mkpath --rsh='ssh -p 1122' \
+            "$local_repo_dir"/ \
+            build@"$server":"$remote_repo_dir"
     done
 }
 
