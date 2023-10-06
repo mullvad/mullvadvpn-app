@@ -25,6 +25,9 @@ mod watch;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+const BURST_BUFFER_PERIOD: Duration = Duration::from_secs(1);
+const BURST_LONGEST_BUFFER_PERIOD: Duration = Duration::from_secs(3);
+
 /// Errors that can happen in the macOS routing integration.
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -93,12 +96,18 @@ impl RouteManagerImpl {
         manage_tx: Weak<mpsc::UnboundedSender<RouteManagerCommand>>,
     ) -> Result<Self> {
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
-        let update_trigger = BurstGuard::new(move || {
-            let Some(manage_tx) = manage_tx.upgrade() else {
-                return;
-            };
-            let _ = manage_tx.unbounded_send(RouteManagerCommand::RefreshRoutes);
-        });
+
+        let update_trigger = BurstGuard::new(
+            BURST_BUFFER_PERIOD,
+            BURST_LONGEST_BUFFER_PERIOD,
+            move || {
+                let Some(manage_tx) = manage_tx.upgrade() else {
+                    return;
+                };
+                let _ = manage_tx.unbounded_send(RouteManagerCommand::RefreshRoutes);
+            },
+        );
+
         Ok(Self {
             routing_table,
             non_tunnel_routes: HashSet::new(),
