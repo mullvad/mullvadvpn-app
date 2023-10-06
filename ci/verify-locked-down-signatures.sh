@@ -52,7 +52,7 @@ fi
 readonly SEPARATOR=';'
 locked_down_paths=$(\
     < "$REPO_DIR/.github/workflows/verify-locked-down-signatures.yml" tr '\n' $SEPARATOR \
-    | sed "s/.*paths:$SEPARATOR\(\(\s*-\s[a-zA-Z\/\.-]*$SEPARATOR\)*\).*/\1/" \
+    | sed "s/.*paths:$SEPARATOR\(\(\s*-\s[a-zA-Z\/.*-]*$SEPARATOR\)*\).*/\1/" \
     | tr $SEPARATOR '\n' \
     | awk '{print $2}')
 
