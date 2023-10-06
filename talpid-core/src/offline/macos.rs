@@ -2,14 +2,9 @@
 //! that the app gets stuck in an offline state, blocking all internet access and preventing the
 //! user from connecting to a relay.
 //!
-//! Currently, this functionality is implemented by watching for changes to the default route
-//! in [`RouteManager`] using a `PF_ROUTE` socket. If there is no default route for neither IPv4 nor
-//! IPv6, the host is considered to be offline.
+//! See [RouteManagerHandle::default_route_listener].
 use futures::{channel::mpsc::UnboundedSender, StreamExt};
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc, Mutex,
-};
+use std::sync::{Arc, Mutex};
 use talpid_routing::{DefaultRouteEvent, RouteManagerHandle};
 
 #[derive(err_derive::Error, Debug)]
@@ -35,7 +30,7 @@ impl ConnectivityState {
 }
 
 impl MonitorHandle {
-    /// Host is considered to be offline if macOS doesn't assign a non-tunnel default route
+    /// Return whether the host is offline
     #[allow(clippy::unused_async)]
     pub async fn host_is_offline(&self) -> bool {
         let state = self.state.lock().unwrap();
@@ -48,6 +43,9 @@ pub async fn spawn_monitor(
     route_manager_handle: RouteManagerHandle,
 ) -> Result<MonitorHandle, Error> {
     let notify_tx = Arc::new(notify_tx);
+
+    // note: begin observing before initializing the state
+    let mut route_listener = route_manager_handle.default_route_listener().await?;
 
     let (v4_connectivity, v6_connectivity) = match route_manager_handle.get_default_routes().await {
         Ok((v4_route, v6_route)) => (v4_route.is_some(), v6_route.is_some()),
@@ -63,27 +61,18 @@ pub async fn spawn_monitor(
         v4_connectivity,
         v6_connectivity,
     };
-    let initial_connectivity = state.get_connectivity();
     let state = Arc::new(Mutex::new(state));
 
-    let mut route_listener = route_manager_handle.default_route_listener().await?;
     let weak_state = Arc::downgrade(&state);
     let weak_notify_tx = Arc::downgrade(&notify_tx);
 
     // Detect changes to the default route
     tokio::spawn(async move {
-        let mut state_update_handle: Option<tokio::task::JoinHandle<()>> = None;
-        let prev_notified_state = Arc::new(AtomicBool::new(initial_connectivity));
-
         while let Some(event) = route_listener.next().await {
-            let state = match weak_state.upgrade() {
-                Some(state) => state,
-                None => break,
+            let Some(state) = weak_state.upgrade() else {
+                break;
             };
-
             let mut state = state.lock().unwrap();
-
-            log::trace!("Default route event: {event:?}");
 
             let previous_connectivity = state.get_connectivity();
 
@@ -104,37 +93,18 @@ pub async fn spawn_monitor(
 
             let new_connectivity = state.get_connectivity();
             if previous_connectivity != new_connectivity {
-                if let Some(update_state) = state_update_handle.take() {
-                    update_state.abort();
-                }
-
-                let prev_notified = prev_notified_state.clone();
-
-                let notify_copy = weak_notify_tx.clone();
-                let update_task = tokio::spawn(async move {
-                    let notify_tx = match notify_copy.upgrade() {
-                        Some(tx) => tx,
-                        None => return,
-                    };
-
-                    if prev_notified.swap(new_connectivity, Ordering::AcqRel) == new_connectivity {
-                        // We don't care about network changes here
-                        return;
+                log::info!(
+                    "Connectivity changed: {}",
+                    if new_connectivity {
+                        "Connected"
+                    } else {
+                        "Offline"
                     }
-
-                    log::info!(
-                        "Connectivity changed: {}",
-                        if new_connectivity {
-                            "Connected"
-                        } else {
-                            "Offline"
-                        }
-                    );
-
-                    let _ = notify_tx.unbounded_send(!new_connectivity);
-                });
-
-                state_update_handle = Some(update_task);
+                );
+                let Some(tx) = weak_notify_tx.upgrade() else {
+                    break;
+                };
+                let _ = tx.unbounded_send(!new_connectivity);
             }
         }
 
