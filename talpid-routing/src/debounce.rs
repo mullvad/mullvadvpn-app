@@ -14,34 +14,39 @@ use std::{
 /// `buffer_period`. At which point the wrapped function will be called.
 pub struct BurstGuard {
     sender: Sender<BurstGuardEvent>,
+    /// This is the period of time the `BurstGuard` will wait for a new trigger to be sent
+    /// before it calls the callback.
+    buffer_period: Duration,
+    /// This is the longest period that the `BurstGuard` will wait from the first trigger till
+    /// it calls the callback.
+    longest_buffer_period: Duration,
 }
 
 enum BurstGuardEvent {
-    Trigger,
+    Trigger(Duration),
     Shutdown(Sender<()>),
 }
 
 impl BurstGuard {
-    pub fn new<F: Fn() + Send + 'static>(callback: F) -> Self {
-        /// This is the period of time the `BurstGuard` will wait for a new trigger to be sent
-        /// before it calls the callback.
-        const BURST_BUFFER_PERIOD: Duration = Duration::from_millis(200);
-        /// This is the longest period that the `BurstGuard` will wait from the first trigger till
-        /// it calls the callback.
-        const BURST_LONGEST_BUFFER_PERIOD: Duration = Duration::from_secs(2);
-
+    pub fn new<F: Fn() + Send + 'static>(
+        buffer_period: Duration,
+        longest_buffer_period: Duration,
+        callback: F,
+    ) -> Self {
         let (sender, listener) = channel();
         std::thread::spawn(move || {
             // The `stop` implementation assumes that this thread will not call `callback` again
             // if the listener has been dropped.
             while let Ok(message) = listener.recv() {
                 match message {
-                    BurstGuardEvent::Trigger => {
+                    BurstGuardEvent::Trigger(mut period) => {
                         let start = Instant::now();
                         loop {
-                            match listener.recv_timeout(BURST_BUFFER_PERIOD) {
-                                Ok(BurstGuardEvent::Trigger) => {
-                                    if start.elapsed() >= BURST_LONGEST_BUFFER_PERIOD {
+                            match listener.recv_timeout(period) {
+                                Ok(BurstGuardEvent::Trigger(new_period)) => {
+                                    period = new_period;
+                                    let max_period = std::cmp::max(longest_buffer_period, period);
+                                    if start.elapsed() >= max_period {
                                         callback();
                                         break;
                                     }
@@ -67,7 +72,11 @@ impl BurstGuard {
                 }
             }
         });
-        Self { sender }
+        Self {
+            sender,
+            buffer_period,
+            longest_buffer_period,
+        }
     }
 
     /// When `stop` returns an then the `BurstGuard` thread is guaranteed to not make any further
@@ -90,6 +99,13 @@ impl BurstGuard {
 
     /// Asynchronously trigger burst
     pub fn trigger(&self) {
-        self.sender.send(BurstGuardEvent::Trigger).unwrap();
+        self.trigger_with_period(self.buffer_period)
+    }
+
+    /// Asynchronously trigger burst
+    pub fn trigger_with_period(&self, buffer_period: Duration) {
+        self.sender
+            .send(BurstGuardEvent::Trigger(buffer_period))
+            .unwrap();
     }
 }
