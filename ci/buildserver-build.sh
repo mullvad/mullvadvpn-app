@@ -49,7 +49,13 @@ function publish_linux_repositories {
     local version=$2
 
     "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$version"
-    "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version"
+
+    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version"
+    # If this is a release build, also push to staging.
+    # Publishing to production is done manually.
+    if [[ $version != *"-dev-"* ]]; then
+        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version"
+    fi
 }
 
 # Uploads whatever matches the first argument to the Linux build server
@@ -220,10 +226,7 @@ function build_ref {
         fi
     fi
 
-    # If this is a release build (stable or beta) then publish it to the repositories
-    if [[ $version != *"-dev-"* ]]; then
-        publish_linux_repositories "$artifact_dir" "$version"
-    fi
+    publish_linux_repositories "$artifact_dir" "$version"
     (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
