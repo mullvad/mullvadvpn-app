@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Usage: prepare-apt-repository <artifact dir> <app version> <repo dir>
+# Usage: ./prepare-apt-repository.sh <artifact dir> <app version> <repo dir>
 #
 # Will create a deb repository in <repo_dir> and add all .deb files from <artifact dir> matching
 # <app version> to the repository.
