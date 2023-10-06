@@ -19,6 +19,9 @@ while [ "$#" -gt 0 ]; do
         "--staging")
             repository_servers=("${STAGING_LINUX_REPOSITORY_SERVERS[@]}")
             ;;
+        "--dev")
+            repository_servers=("${DEV_LINUX_REPOSITORY_SERVERS[@]}")
+            ;;
         -*)
             echo "Unknown option \"$1\""
             exit 1
