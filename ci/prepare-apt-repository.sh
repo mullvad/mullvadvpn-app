@@ -9,11 +9,12 @@ set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source "$SCRIPT_DIR/buildserver-config.sh"
+
 artifact_dir=$1
 version=$2
-repo_dir=$3
 
-source "$SCRIPT_DIR/buildserver-config.sh"
+repo_dir="$DEB_REPOSITORY_ARCHIVE_DIR/$version"
 
 function generate_repository_configuration {
     local codename=$1

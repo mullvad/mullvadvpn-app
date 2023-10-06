@@ -1,24 +1,52 @@
 #!/usr/bin/env bash
 #
-# Usage: ./publish_linux_repositories.sh <app version>
+# Usage: ./publish-linux-repositories.sh <app version> [--production/--staging]
 #
-# Rsyncs a locally prepared and stored DEB repository to production repository servers
+# Rsyncs a locally prepared and stored DEB repository to staging or production
+# repository servers.
 
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
 
 source "$SCRIPT_DIR/buildserver-config.sh"
 
-version=$1
-deb_repo_dir="deb/$version"
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        "--production")
+            repository_servers=("${PRODUCTION_LINUX_REPOSITORY_SERVERS[@]}")
+            ;;
+        "--staging")
+            repository_servers=("${STAGING_LINUX_REPOSITORY_SERVERS[@]}")
+            ;;
+        -*)
+            echo "Unknown option \"$1\""
+            exit 1
+            ;;
+        *)
+            version=$1
+            ;;
+    esac
+    shift
+done
+
+if [[ -z ${version+x} ]]; then
+    echo "Please give the release version as an argument to this script"
+    exit 1
+fi
+if [[ -z ${repository_servers+x} ]]; then
+    echo "Pass either --staging or --production to select target servers"
+    exit 1
+fi
+
+deb_repo_dir="$DEB_REPOSITORY_ARCHIVE_DIR/$version"
 
 function rsync_repo {
     local local_repo_dir=$1
     local remote_repo_dir=$2
 
-    for server in "${PRODUCTION_LINUX_REPOSITORY_SERVERS[@]}"; do
+    for server in "${repository_servers[@]}"; do
+        echo "Syncing to $server"
         rsync -av --delete --mkpath --rsh='ssh -p 1122' \
             "$local_repo_dir"/ \
             build@"$server":"$remote_repo_dir"
