@@ -175,6 +175,8 @@
     <string name="switch_location">Alterar local</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Alternar VPN</string>
+    <string name="top_bar_device_name">Nome do dispositivo: %1$s</string>
+    <string name="top_bar_time_left">Tempo restante: %1$s</string>
     <string name="try_again">Tentar novamente</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN.</string>

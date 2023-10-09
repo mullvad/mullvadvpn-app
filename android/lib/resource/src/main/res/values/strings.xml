@@ -224,4 +224,6 @@
     <string name="verifying_voucher">Verifying voucher…</string>
     <string name="added_to_your_account">%s was added to your account.</string>
     <string name="less_than_one_day">less than one day</string>
+    <string name="top_bar_time_left">Time left: %s</string>
+    <string name="top_bar_device_name">Device name: %s</string>
 </resources>

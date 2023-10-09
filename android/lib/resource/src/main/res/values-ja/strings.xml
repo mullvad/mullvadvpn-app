@@ -175,6 +175,8 @@
     <string name="switch_location">場所を切り替える</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPNの切り替え</string>
+    <string name="top_bar_device_name">デバイス名: %1$s</string>
+    <string name="top_bar_time_left">残り時間: %1$s</string>
     <string name="try_again">再試行</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
