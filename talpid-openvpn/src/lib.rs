@@ -7,10 +7,7 @@ use crate::proxy::{ProxyMonitor, ProxyResourceData};
 use futures::channel::oneshot;
 #[cfg(windows)]
 use once_cell::sync::Lazy;
-use process::{
-    openvpn::{OpenVpnCommand, OpenVpnProcHandle},
-    stoppable_process::StoppableProcess,
-};
+use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
 #[cfg(target_os = "linux")]
 use std::collections::{HashMap, HashSet};
 #[cfg(windows)]
@@ -22,16 +19,15 @@ use std::{
     process::ExitStatus,
     sync::{
         atomic::{AtomicBool, Ordering},
-        mpsc, Arc, Mutex,
+        mpsc, Arc,
     },
-    thread,
     time::Duration,
 };
 #[cfg(target_os = "linux")]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::TunnelEvent;
 use talpid_types::{net::openvpn, ErrorExt};
-use tokio::task;
+use tokio::{sync::Mutex, task};
 
 #[cfg(windows)]
 use widestring::U16CString;
@@ -437,16 +433,12 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         let close_handle = monitor.close_handle();
         tokio::spawn(async move {
             if tunnel_close_rx.await.is_ok() {
-                tokio::task::spawn_blocking(move || {
-                    if let Err(error) = close_handle.close() {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to close the tunnel")
-                        );
-                    }
-                })
-                .await
-                .expect("close handle panic");
+                if let Err(error) = close_handle.close().await {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to close the tunnel")
+                    );
+                }
             }
         });
 
@@ -491,17 +483,18 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             }
 
             let handle = self.runtime.clone();
-
-            thread::spawn(move || {
-                tx_tunnel.send(Stopped::Tunnel(self.wait_tunnel())).unwrap();
+            handle.spawn(async move {
+                tx_tunnel
+                    .send(Stopped::Tunnel(self.wait_tunnel().await))
+                    .unwrap();
                 let _ = proxy_close_handle.close();
             });
 
-            thread::spawn(move || {
+            handle.spawn(async move {
                 tx_proxy
-                    .send(Stopped::Proxy(handle.block_on(proxy_monitor.wait())))
+                    .send(Stopped::Proxy(proxy_monitor.wait().await))
                     .unwrap();
-                let _ = tunnel_close_handle.close();
+                tunnel_close_handle.close().await
             });
 
             let result = rx.recv().expect("wait got no result");
@@ -516,13 +509,19 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             }
         } else {
             // No proxy active, wait only for the tunnel.
-            self.wait_tunnel()
+            let handle = self.runtime.clone();
+            let (tx_tunnel, rx) = mpsc::channel();
+            handle.spawn(async move {
+                let x = self.wait_tunnel();
+                tx_tunnel.send(x.await).unwrap();
+            });
+            rx.recv().expect("wait_tunnel got no result")
         }
     }
 
     /// Supplement `inner_wait_tunnel()` with logging and error handling.
-    fn wait_tunnel(self) -> Result<()> {
-        let result = self.inner_wait_tunnel();
+    async fn wait_tunnel(self) -> Result<()> {
+        let result = self.inner_wait_tunnel().await;
         match result {
             WaitResult::Preparation(result) => match result {
                 Err(error) => {
@@ -559,10 +558,12 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
     /// Waits for both the child process and the event dispatcher in parallel. After both have
     /// returned this returns the earliest result.
-    fn inner_wait_tunnel(mut self) -> WaitResult {
+    async fn inner_wait_tunnel(mut self) -> WaitResult {
         let child = match self
-            .runtime
-            .block_on(self.spawn_task.take().unwrap())
+            .spawn_task
+            .take()
+            .unwrap()
+            .await
             .expect("spawn task panicked")
         {
             Ok(Ok(child)) => Arc::new(child),
@@ -574,41 +575,33 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         };
 
         if self.closed.load(Ordering::SeqCst) {
-            let _ = child.kill();
+            let _ = child.kill().await;
             return WaitResult::Preparation(Ok(()));
         }
 
         {
-            self.child.lock().unwrap().replace(child.clone());
+            self.child.lock().await.replace(child.clone());
         }
-
-        let closed_handle = self.closed.clone();
-        let child_close_handle = self.close_handle();
-
-        let (child_tx, rx) = mpsc::channel();
-        let dispatcher_tx = child_tx.clone();
 
         let event_server_abort_tx = self.event_server_abort_tx.clone();
 
-        thread::spawn(move || {
-            let result = child.wait();
-            let closed = closed_handle.load(Ordering::SeqCst);
-            child_tx.send(WaitResult::Child(result, closed)).unwrap();
+        let kill_child = async move {
+            let result = child.wait().await;
+            let closed = self.closed.load(Ordering::SeqCst);
+            let result = WaitResult::Child(result, closed);
             event_server_abort_tx.trigger();
-        });
-
-        let server_join_handle = self
-            .server_join_handle
-            .take()
-            .expect("No event server quit handle");
-        self.runtime.spawn(async move {
+            result
+        };
+        let kill_event_dispatcher = async move {
+            let server_join_handle = self
+                .server_join_handle
+                .take()
+                .expect("No event server quit handle");
             let _ = server_join_handle.await;
-            dispatcher_tx.send(WaitResult::EventDispatcher).unwrap();
-            let _ = child_close_handle.close();
-        });
+            WaitResult::EventDispatcher
+        };
 
-        let result = rx.recv().expect("inner_wait_tunnel no result");
-        let _ = rx.recv().expect("inner_wait_tunnel no second result");
+        let (result, _) = tokio::join!(kill_child, kill_event_dispatcher);
         result
     }
 
@@ -733,11 +726,11 @@ pub struct OpenVpnCloseHandle<H: ProcessHandle = OpenVpnProcHandle> {
 
 impl<H: ProcessHandle> OpenVpnCloseHandle<H> {
     /// Kills the underlying OpenVPN process, making the `OpenVpnMonitor::wait` method return.
-    pub fn close(self) -> io::Result<()> {
+    pub async fn close(self) -> io::Result<()> {
         if !self.closed.swap(true, Ordering::SeqCst) {
             self.abort_spawn.abort();
-            if let Some(child) = self.child.lock().unwrap().as_ref() {
-                child.kill()
+            if let Some(child) = self.child.lock().await.as_ref() {
+                child.kill().await
             } else {
                 Ok(())
             }
@@ -775,12 +768,13 @@ pub trait OpenVpnBuilder {
 }
 
 /// Trait for types acting as handles to subprocesses for `OpenVpnMonitor`
+#[async_trait::async_trait]
 pub trait ProcessHandle: Send + Sync + 'static {
     /// Block until the subprocess exits or there is an error in the wait syscall.
-    fn wait(&self) -> io::Result<ExitStatus>;
+    async fn wait(&self) -> io::Result<ExitStatus>;
 
     /// Kill the subprocess.
-    fn kill(&self) -> io::Result<()>;
+    async fn kill(&self) -> io::Result<()>;
 }
 
 impl OpenVpnBuilder for OpenVpnCommand {
@@ -799,7 +793,7 @@ impl OpenVpnBuilder for OpenVpnCommand {
     }
 
     fn start(&self) -> io::Result<OpenVpnProcHandle> {
-        OpenVpnProcHandle::new(self.build())
+        OpenVpnProcHandle::new(&mut self.build())
     }
 
     #[cfg(target_os = "linux")]
@@ -809,13 +803,14 @@ impl OpenVpnBuilder for OpenVpnCommand {
     }
 }
 
+#[async_trait::async_trait]
 impl ProcessHandle for OpenVpnProcHandle {
-    fn wait(&self) -> io::Result<ExitStatus> {
-        self.inner.wait().map(|output| output.status)
+    async fn wait(&self) -> io::Result<ExitStatus> {
+        self.wait().await
     }
 
-    fn kill(&self) -> io::Result<()> {
-        self.nice_kill(OPENVPN_DIE_TIMEOUT)
+    async fn kill(&self) -> io::Result<()> {
+        self.nice_kill(OPENVPN_DIE_TIMEOUT).await
     }
 }
 
@@ -1219,20 +1214,21 @@ mod tests {
     #[derive(Debug, Copy, Clone)]
     struct TestProcessHandle(i32);
 
+    #[async_trait::async_trait]
     impl ProcessHandle for TestProcessHandle {
         #[cfg(unix)]
-        fn wait(&self) -> io::Result<ExitStatus> {
+        async fn wait(&self) -> io::Result<ExitStatus> {
             use std::os::unix::process::ExitStatusExt;
             Ok(ExitStatus::from_raw(self.0))
         }
 
         #[cfg(windows)]
-        fn wait(&self) -> io::Result<ExitStatus> {
+        async fn wait(&self) -> io::Result<ExitStatus> {
             use std::os::windows::process::ExitStatusExt;
             Ok(ExitStatus::from_raw(self.0 as u32))
         }
 
-        fn kill(&self) -> io::Result<()> {
+        async fn kill(&self) -> io::Result<()> {
             Ok(())
         }
     }
@@ -1374,8 +1370,11 @@ mod tests {
             })
             .unwrap();
 
-        testee.close_handle().close().unwrap();
-        assert!(testee.wait().is_ok());
+        // TODO: Remove this?
+        runtime.block_on(testee.close_handle().close()).unwrap();
+        let result = testee.wait();
+        println!("[testee.wait(): {:?}]", result);
+        assert!(result.is_ok());
     }
 
     #[test]
