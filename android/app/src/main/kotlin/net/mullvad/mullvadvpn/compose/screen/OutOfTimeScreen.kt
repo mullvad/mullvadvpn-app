@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
@@ -47,7 +47,7 @@ private fun PreviewOutOfTimeScreenDisconnected() {
     AppTheme {
         OutOfTimeScreen(
             showSitePayment = true,
-            uiState = OutOfTimeUiState(tunnelState = TunnelState.Disconnected),
+            uiState = OutOfTimeUiState(tunnelState = TunnelState.Disconnected, "Heroic Frog"),
             uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
@@ -59,7 +59,8 @@ private fun PreviewOutOfTimeScreenConnecting() {
     AppTheme {
         OutOfTimeScreen(
             showSitePayment = true,
-            uiState = OutOfTimeUiState(tunnelState = TunnelState.Connecting(null, null)),
+            uiState =
+                OutOfTimeUiState(tunnelState = TunnelState.Connecting(null, null), "Strong Rabbit"),
             uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
@@ -76,7 +77,8 @@ private fun PreviewOutOfTimeScreenError() {
                     tunnelState =
                         TunnelState.Error(
                             ErrorState(cause = ErrorStateCause.IsOffline, isBlocking = true)
-                        )
+                        ),
+                    deviceName = "Stable Horse"
                 ),
             uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
@@ -106,7 +108,7 @@ fun OutOfTimeScreen(
         }
     }
     val scrollState = rememberScrollState()
-    ScaffoldWithTopBar(
+    ScaffoldWithTopBarAndDeviceName(
         topBarColor =
             if (uiState.tunnelState.isSecured()) {
                 MaterialTheme.colorScheme.inversePrimary
@@ -128,7 +130,9 @@ fun OutOfTimeScreen(
                 }
                 .copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
-        onAccountClicked = onAccountClick
+        onAccountClicked = onAccountClick,
+        deviceName = uiState.deviceName,
+        timeLeft = null
     ) {
         Column(
             verticalArrangement = Arrangement.Bottom,

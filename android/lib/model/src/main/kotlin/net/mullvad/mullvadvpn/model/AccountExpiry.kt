@@ -15,8 +15,7 @@ sealed class AccountExpiry : Parcelable {
                 .toInt(DurationUnit.DAYS)
     }
 
-    @Parcelize
-    data object Missing : AccountExpiry()
+    @Parcelize data object Missing : AccountExpiry()
 
     fun date(): DateTime? {
         return (this as? Available)?.expiryDateTime

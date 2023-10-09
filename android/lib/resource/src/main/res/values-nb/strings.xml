@@ -175,6 +175,8 @@
     <string name="switch_location">Bytt plassering</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Velg VPN</string>
+    <string name="top_bar_device_name">Enhetsnavn: %1$s</string>
+    <string name="top_bar_time_left">Tid igjen: %1$s</string>
     <string name="try_again">Prøv på nytt</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP-porten som UDP-over-TCP-tilsløringen skal koble til på VPN-serveren.</string>

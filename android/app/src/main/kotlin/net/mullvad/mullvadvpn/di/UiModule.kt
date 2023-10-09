@@ -32,7 +32,6 @@ import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
-import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -83,19 +82,21 @@ val uiModule = module {
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
-    viewModel { ConnectViewModel(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get()) }
+    viewModel {
+        ConnectViewModel(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get(), get())
+    }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get()) }
-    viewModel { OutOfTimeViewModel(get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
-    viewModel { ReportProblemViewModel(get()) }
     viewModel { SelectLocationViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
-    viewModel { ViewLogsViewModel(get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get()) }
+    viewModel { ReportProblemViewModel(get()) }
+    viewModel { ViewLogsViewModel(get()) }
+    viewModel { OutOfTimeViewModel(get(), get(), get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"

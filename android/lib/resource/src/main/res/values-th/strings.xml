@@ -175,6 +175,8 @@
     <string name="switch_location">สลับตำแหน่ง</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">เปิด/ปิด VPN</string>
+    <string name="top_bar_device_name">ชื่ออุปกรณ์: %1$s</string>
+    <string name="top_bar_time_left">เหลือเวลา: %1$s</string>
     <string name="try_again">ลองอีกครั้ง</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
