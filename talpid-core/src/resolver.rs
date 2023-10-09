@@ -30,7 +30,7 @@ use trust_dns_server::{
     ServerFuture,
 };
 
-const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::AAAA, RecordType::CNAME];
+const ALLOWED_RECORD_TYPES: &[RecordType] = &[RecordType::A, RecordType::CNAME];
 const CAPTIVE_PORTAL_DOMAINS: &[&str] = &["captive.apple.com", "netcts.cdn-apple.com"];
 
 static ALLOWED_DOMAINS: Lazy<Vec<LowerName>> = Lazy::new(|| {
