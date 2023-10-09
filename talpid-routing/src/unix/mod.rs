@@ -93,6 +93,14 @@ impl RouteManagerHandle {
         response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
 
+    /// Get current non-tunnel default routes.
+    #[cfg(target_os = "macos")]
+    pub fn refresh_routes(&self) -> Result<(), Error> {
+        self.tx
+            .unbounded_send(RouteManagerCommand::RefreshRoutes)
+            .map_err(|_| Error::RouteManagerDown)
+    }
+
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
     pub async fn create_routing_rules(&self, enable_ipv6: bool) -> Result<(), Error> {
