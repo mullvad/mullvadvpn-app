@@ -590,7 +590,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
         let event_server_abort_tx = self.event_server_abort_tx.clone();
 
-        thread::spawn(move || {
+        self.runtime.spawn_blocking(move || {
             let result = child.wait();
             let closed = closed_handle.load(Ordering::SeqCst);
             child_tx.send(WaitResult::Child(result, closed)).unwrap();
@@ -799,7 +799,7 @@ impl OpenVpnBuilder for OpenVpnCommand {
     }
 
     fn start(&self) -> io::Result<OpenVpnProcHandle> {
-        OpenVpnProcHandle::new(self.build())
+        OpenVpnProcHandle::new(&mut self.build())
     }
 
     #[cfg(target_os = "linux")]
@@ -811,7 +811,10 @@ impl OpenVpnBuilder for OpenVpnCommand {
 
 impl ProcessHandle for OpenVpnProcHandle {
     fn wait(&self) -> io::Result<ExitStatus> {
-        self.inner.wait().map(|output| output.status)
+        let handle = tokio::runtime::Handle::current();
+        let inner_handle = self.inner.clone();
+        let wait_exit = async move { inner_handle.lock().await.wait().await };
+        handle.block_on(wait_exit)
     }
 
     fn kill(&self) -> io::Result<()> {

@@ -1,5 +1,3 @@
-use duct;
-
 use super::stoppable_process::StoppableProcess;
 use os_pipe::{pipe, PipeWriter};
 use parking_lot::Mutex;
@@ -190,9 +188,11 @@ impl OpenVpnCommand {
     }
 
     /// Build a runnable expression from the current state of the command.
-    pub fn build(&self) -> duct::Expression {
+    pub fn build(&self) -> tokio::process::Command {
         log::debug!("Building expression: {}", &self);
-        duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
+        let mut handle = tokio::process::Command::new(&self.openvpn_bin);
+        handle.args(self.get_arguments());
+        handle
     }
 
     /// Returns all arguments that the subprocess would be spawned with.
@@ -365,8 +365,11 @@ impl fmt::Display for OpenVpnCommand {
 
 /// Handle to a running OpenVPN process.
 pub struct OpenVpnProcHandle {
-    /// Duct handle
-    pub inner: duct::Handle,
+    /// Handle to the child process running OpenVPN.
+    ///
+    /// This handle is acquired by calling [`OpenVpnCommand::build`] (or
+    /// [`tokio::process::Command::spawn`]).
+    pub inner: std::sync::Arc<tokio::sync::Mutex<tokio::process::Child>>,
     /// Pipe handle to stdin of the OpenVPN process. Our custom fork of OpenVPN
     /// has been changed so that it exits cleanly when stdin is closed. This is a hack
     /// solution to cleanly shut OpenVPN down without using the
@@ -377,22 +380,22 @@ pub struct OpenVpnProcHandle {
 impl OpenVpnProcHandle {
     /// Configures the expression to run OpenVPN in a way compatible with this handle
     /// and spawns it. Returns the handle.
-    pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
+    pub fn new(mut cmd: &mut tokio::process::Command) -> io::Result<Self> {
         use std::io::IsTerminal;
 
         if !std::io::stdout().is_terminal() {
-            cmd = cmd.stdout_null();
+            cmd = cmd.stdout(std::process::Stdio::null())
         }
 
         if !std::io::stderr().is_terminal() {
-            cmd = cmd.stderr_null();
+            cmd = cmd.stderr(std::process::Stdio::null())
         }
 
         let (reader, writer) = pipe()?;
-        let proc_handle = cmd.stdin_file(reader).start()?;
+        let proc_handle = cmd.stdin(reader).spawn()?;
 
         Ok(Self {
-            inner: proc_handle,
+            inner: std::sync::Arc::new(tokio::sync::Mutex::new(proc_handle)),
             stdin: Mutex::new(Some(writer)),
         })
     }
@@ -409,13 +412,23 @@ impl StoppableProcess for OpenVpnProcHandle {
 
     fn kill(&self) -> io::Result<()> {
         log::warn!("Killing OpenVPN process");
-        self.inner.kill()?;
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap();
+        let inner_handle = self.inner.clone();
+        let kill = async move { inner_handle.lock().await.kill().await };
+        rt.block_on(kill)?;
         log::debug!("OpenVPN forcefully killed");
         Ok(())
     }
 
     fn has_stopped(&self) -> io::Result<bool> {
-        match self.inner.try_wait() {
+        let rt = tokio::runtime::Builder::new_current_thread()
+            .build()
+            .unwrap();
+        let inner_handle = self.inner.clone();
+        let exit_status = rt.block_on(async move { inner_handle.lock().await.try_wait() });
+        match exit_status {
             Ok(None) => Ok(false),
             Ok(Some(_)) => Ok(true),
             Err(e) => Err(e),
