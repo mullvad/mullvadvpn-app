@@ -1,3 +1,4 @@
+use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use ipnetwork::IpNetwork;
 use nix::{
     net::if_::{if_nametoindex, InterfaceFlags},
@@ -9,13 +10,16 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 
+use super::data::{Destination, RouteMessage};
 use system_configuration::{
     core_foundation::{
+        array::CFArray,
         base::{CFType, TCFType, ToVoid},
         dictionary::CFDictionary,
+        runloop::{kCFRunLoopCommonModes, CFRunLoop},
         string::CFString,
     },
-    dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder},
+    dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
     network_configuration::SCNetworkSet,
     preferences::SCPreferences,
     sys::schema_definitions::{
@@ -24,7 +28,9 @@ use system_configuration::{
     },
 };
 
-use super::data::{Destination, RouteMessage};
+const STATE_IPV4_KEY: &str = "State:/Network/Global/IPv4";
+const STATE_IPV6_KEY: &str = "State:/Network/Global/IPv6";
+const STATE_SERVICE_PATTERN: &str = "State:/Network/Service/.*/IP.*";
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Family {
@@ -57,18 +63,64 @@ struct NetworkServiceDetails {
 
 pub struct PrimaryInterfaceMonitor {
     store: SCDynamicStore,
-    set: SCNetworkSet,
+    prefs: SCPreferences,
 }
 
 // FIXME: Implement Send on SCDynamicStore, if it's safe
 unsafe impl Send for PrimaryInterfaceMonitor {}
 
+pub enum InterfaceEvent {
+    Update,
+}
+
 impl PrimaryInterfaceMonitor {
-    pub fn new() -> Self {
+    pub fn new() -> (Self, UnboundedReceiver<InterfaceEvent>) {
         let store = SCDynamicStoreBuilder::new("talpid-routing").build();
         let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
-        let set = SCNetworkSet::new(&prefs);
-        Self { store, set }
+
+        let (tx, rx) = mpsc::unbounded();
+        Self::start_listener(tx);
+
+        (Self { store, prefs }, rx)
+    }
+
+    fn start_listener(tx: UnboundedSender<InterfaceEvent>) {
+        std::thread::spawn(|| {
+            let listener_store = SCDynamicStoreBuilder::new("talpid-routing-listener")
+                .callback_context(SCDynamicStoreCallBackContext {
+                    callout: Self::store_change_handler,
+                    info: tx,
+                })
+                .build();
+
+            let watch_keys: CFArray<CFString> = CFArray::from_CFTypes(&[
+                CFString::new(STATE_IPV4_KEY),
+                CFString::new(STATE_IPV6_KEY),
+            ]);
+            let watch_patterns = CFArray::from_CFTypes(&[CFString::new(STATE_SERVICE_PATTERN)]);
+
+            if !listener_store.set_notification_keys(&watch_keys, &watch_patterns) {
+                log::error!("Failed to start interface listener");
+                return;
+            }
+
+            let run_loop_source = listener_store.create_run_loop_source();
+            CFRunLoop::get_current().add_source(&run_loop_source, unsafe { kCFRunLoopCommonModes });
+            CFRunLoop::run_current();
+
+            log::debug!("Interface listener exiting");
+        });
+    }
+
+    fn store_change_handler(
+        _store: SCDynamicStore,
+        changed_keys: CFArray<CFString>,
+        tx: &mut UnboundedSender<InterfaceEvent>,
+    ) {
+        for k in changed_keys.iter() {
+            log::debug!("Interface change, key {}", k.to_string());
+        }
+        let _ = tx.unbounded_send(InterfaceEvent::Update);
     }
 
     /// Retrieve the best current default route. This is based on the primary interface, or else
@@ -114,9 +166,9 @@ impl PrimaryInterfaceMonitor {
 
     fn get_primary_interface(&self, family: Family) -> Option<NetworkServiceDetails> {
         let global_name = if family == Family::V4 {
-            "State:/Network/Global/IPv4"
+            STATE_IPV4_KEY
         } else {
-            "State:/Network/Global/IPv6"
+            STATE_IPV6_KEY
         };
         let global_dict = self
             .store
@@ -158,7 +210,7 @@ impl PrimaryInterfaceMonitor {
             unsafe { kSCPropNetIPv6Router.to_void() }
         };
 
-        self.set
+        SCNetworkSet::new(&self.prefs)
             .service_order()
             .iter()
             .filter_map(|service_id| {
