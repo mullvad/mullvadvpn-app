@@ -6,17 +6,18 @@ import { messages } from '../../../shared/gettext';
 import * as Cell from '../cell';
 import InfoButton from '../InfoButton';
 import {
+  getButtonColor,
   StyledLocationRowButton,
   StyledLocationRowContainer,
   StyledLocationRowIcon,
   StyledLocationRowLabel,
 } from './LocationRow';
-import { LocationSelection, LocationSelectionType, SpecialLocation } from './select-location-types';
+import { SpecialLocation } from './select-location-types';
 
 interface SpecialLocationsProps<T> {
   source: Array<SpecialLocation<T>>;
   selectedElementRef: React.Ref<HTMLDivElement>;
-  onSelect: (value: LocationSelection<T>) => void;
+  onSelect: (value: T) => void;
 }
 
 export default function SpecialLocationList<T>({ source, ...props }: SpecialLocationsProps<T>) {
@@ -48,24 +49,22 @@ const StyledSpecialLocationInfoButton = styled(InfoButton)({
 interface SpecialLocationRowProps<T> {
   source: SpecialLocation<T>;
   selectedElementRef: React.Ref<HTMLDivElement>;
-  onSelect: (value: LocationSelection<T>) => void;
+  onSelect: (value: T) => void;
 }
 
 function SpecialLocationRow<T>(props: SpecialLocationRowProps<T>) {
   const onSelect = useCallback(() => {
     if (!props.source.selected) {
-      props.onSelect({
-        type: LocationSelectionType.special,
-        value: props.source.value,
-      });
+      props.onSelect(props.source.value);
     }
   }, [props.source.selected, props.onSelect, props.source.value]);
 
   const icon = props.source.selected ? 'icon-tick' : props.source.icon ?? undefined;
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
+  const background = getButtonColor(props.source.selected, 0, props.source.disabled);
   return (
     <StyledLocationRowContainerWithMargin ref={selectedRef}>
-      <StyledLocationRowButton onClick={onSelect} selected={props.source.selected}>
+      <StyledLocationRowButton onClick={onSelect} level={0} {...background}>
         {icon && (
           <StyledSpecialLocationIcon
             source={icon}

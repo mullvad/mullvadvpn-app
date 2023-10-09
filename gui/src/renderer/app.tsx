@@ -12,6 +12,7 @@ import {
   DeviceState,
   IAccountData,
   IAppVersionInfo,
+  ICustomList,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -336,6 +337,12 @@ export default class AppRenderer {
   public openUrl = (url: string) => IpcRendererEventChannel.app.openUrl(url);
   public showOpenDialog = (options: Electron.OpenDialogOptions) =>
     IpcRendererEventChannel.app.showOpenDialog(options);
+  public createCustomList = (name: string) =>
+    IpcRendererEventChannel.customLists.createCustomList(name);
+  public deleteCustomList = (id: string) =>
+    IpcRendererEventChannel.customLists.deleteCustomList(id);
+  public updateCustomList = (customList: ICustomList) =>
+    IpcRendererEventChannel.customLists.updateCustomList(customList);
 
   public login = async (accountToken: AccountToken) => {
     const actions = this.reduxActions;
@@ -778,6 +785,7 @@ export default class AppRenderer {
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
+    reduxSettings.updateCustomLists(newSettings.customLists);
 
     this.setRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);
@@ -1002,20 +1010,11 @@ export default class AppRenderer {
       const location = relaySettings.normal.location;
       if (location !== 'any' && 'only' in location) {
         const constraint = location.only;
-
         const relayLocations = state.settings.relayLocations;
-        if ('country' in constraint) {
+
+        if ('hostname' in constraint) {
           const country = relayLocations.find(({ code }) => constraint.country === code);
-
-          return { country: country?.name, ...coordinates };
-        } else if ('city' in constraint) {
-          const country = relayLocations.find(({ code }) => constraint.city[0] === code);
-          const city = country?.cities.find(({ code }) => constraint.city[1] === code);
-
-          return { country: country?.name, city: city?.name, ...coordinates };
-        } else if ('hostname' in constraint) {
-          const country = relayLocations.find(({ code }) => constraint.hostname[0] === code);
-          const city = country?.cities.find((location) => location.code === constraint.hostname[1]);
+          const city = country?.cities.find(({ code }) => constraint.city === code);
 
           let entryHostname: string | undefined;
           const multihopConstraint = relaySettings.normal.wireguardConstraints.useMultihop;
@@ -1026,16 +1025,25 @@ export default class AppRenderer {
             'hostname' in entryLocationConstraint.only &&
             entryLocationConstraint.only.hostname.length === 3
           ) {
-            entryHostname = entryLocationConstraint.only.hostname[2];
+            entryHostname = entryLocationConstraint.only.hostname;
           }
 
           return {
             country: country?.name,
             city: city?.name,
-            hostname: constraint.hostname[2],
+            hostname: constraint.hostname,
             entryHostname,
             ...coordinates,
           };
+        } else if ('city' in constraint) {
+          const country = relayLocations.find(({ code }) => constraint.country === code);
+          const city = country?.cities.find(({ code }) => constraint.city === code);
+
+          return { country: country?.name, city: city?.name, ...coordinates };
+        } else if ('country' in constraint) {
+          const country = relayLocations.find(({ code }) => constraint.country === code);
+
+          return { country: country?.name, ...coordinates };
         }
       }
     }

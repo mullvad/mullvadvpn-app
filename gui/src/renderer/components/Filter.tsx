@@ -12,7 +12,7 @@ import {
 } from '../lib/filter-locations';
 import { useHistory } from '../lib/history';
 import { useBoolean, useNormalRelaySettings } from '../lib/utilityHooks';
-import { IRelayLocationRedux } from '../redux/settings/reducers';
+import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
 import { IReduxState, useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -158,7 +158,7 @@ function useFilteredFilters(providers: string[], ownership: Ownership) {
 }
 
 // Returns all available providers in the provided relay list.
-function providersFromRelays(relays: IRelayLocationRedux[]) {
+function providersFromRelays(relays: IRelayLocationCountryRedux[]) {
   const providers = relays.flatMap((country) =>
     country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
   );

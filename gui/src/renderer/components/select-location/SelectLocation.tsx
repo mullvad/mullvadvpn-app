@@ -11,6 +11,7 @@ import { formatHtml } from '../../lib/html-formatter';
 import { RoutePath } from '../../lib/routes';
 import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
+import * as Cell from '../cell';
 import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../Layout';
@@ -22,6 +23,7 @@ import {
   TitleBarItem,
 } from '../NavigationBar';
 import CombinedLocationList, { CombinedLocationListProps } from './CombinedLocationList';
+import CustomLists from './CustomLists';
 import { useRelayListContext } from './RelayListContext';
 import { ScopeBarItem } from './ScopeBar';
 import { useScrollPositionContext } from './ScrollPositionContext';
@@ -31,7 +33,6 @@ import {
   useOnSelectExitLocation,
 } from './select-location-hooks';
 import {
-  LocationSelectionType,
   LocationType,
   SpecialBridgeLocationType,
   SpecialLocation,
@@ -248,16 +249,16 @@ function ownershipFilterLabel(ownership: Ownership): string {
 
 function SelectLocationContent() {
   const { locationType, searchTerm } = useSelectLocationContext();
-  const { selectedLocationRef, spacePreAllocationViewRef } = useScrollPositionContext();
+  const { selectedLocationRef, resetHeight } = useScrollPositionContext();
   const { relayList, expandLocation, collapseLocation, onBeforeExpand } = useRelayListContext();
-  const onSelectExitLocation = useOnSelectExitLocation();
-  const onSelectEntryLocation = useOnSelectEntryLocation();
-  const onSelectBridgeLocation = useOnSelectBridgeLocation();
+  const [onSelectExitRelay, onSelectExitSpecial] = useOnSelectExitLocation();
+  const [onSelectEntryRelay, onSelectEntrySpecial] = useOnSelectEntryLocation();
+  const [onSelectBridgeRelay, onSelectBridgeSpecial] = useOnSelectBridgeLocation();
 
   const relaySettings = useNormalRelaySettings();
   const bridgeSettings = useNormalBridgeSettings();
 
-  const resetHeight = useCallback(() => spacePreAllocationViewRef.current?.reset(), []);
+  const allowAddToCustomList = useSelector((state) => state.settings.customLists.length > 0);
 
   if (locationType === LocationType.exit) {
     // Add "Custom" item if a custom relay is selected
@@ -265,7 +266,6 @@ function SelectLocationContent() {
       relaySettings === undefined
         ? [
             {
-              type: LocationSelectionType.special,
               label: messages.gettext('Custom'),
               value: undefined,
               selected: true,
@@ -273,37 +273,49 @@ function SelectLocationContent() {
           ]
         : [];
 
-    const relayListWithSpecial = [...filterSpecialLocations(searchTerm, specialList), ...relayList];
+    const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (
-      <LocationList
-        key={locationType}
-        source={relayListWithSpecial}
-        selectedElementRef={selectedLocationRef}
-        onSelect={onSelectExitLocation}
-        onExpand={expandLocation}
-        onCollapse={collapseLocation}
-        onWillExpand={onBeforeExpand}
-        onTransitionEnd={resetHeight}
-      />
+      <>
+        <CustomLists selectedElementRef={selectedLocationRef} onSelect={onSelectExitRelay} />
+        <LocationList
+          key={locationType}
+          relayLocations={relayList}
+          specialLocations={specialLocations}
+          selectedElementRef={selectedLocationRef}
+          onSelectRelay={onSelectExitRelay}
+          onSelectSpecial={onSelectExitSpecial}
+          onExpand={expandLocation}
+          onCollapse={collapseLocation}
+          onWillExpand={onBeforeExpand}
+          onTransitionEnd={resetHeight}
+          allowAddToCustomList={allowAddToCustomList}
+        />
+        <NoSearchResult specialLocationsLength={specialLocations.length} />
+      </>
     );
   } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
     return (
-      <LocationList
-        key={locationType}
-        source={relayList}
-        selectedElementRef={selectedLocationRef}
-        onSelect={onSelectEntryLocation}
-        onExpand={expandLocation}
-        onCollapse={collapseLocation}
-        onWillExpand={onBeforeExpand}
-        onTransitionEnd={resetHeight}
-      />
+      <>
+        <CustomLists selectedElementRef={selectedLocationRef} onSelect={onSelectEntryRelay} />
+        <LocationList
+          key={locationType}
+          relayLocations={relayList}
+          selectedElementRef={selectedLocationRef}
+          onSelectRelay={onSelectEntryRelay}
+          onSelectSpecial={onSelectEntrySpecial}
+          onExpand={expandLocation}
+          onCollapse={collapseLocation}
+          onWillExpand={onBeforeExpand}
+          onTransitionEnd={resetHeight}
+          allowAddToCustomList={allowAddToCustomList}
+        />
+        <NoSearchResult specialLocationsLength={0} />
+      </>
     );
   } else {
     // Add the "Automatic" item
     const specialList: Array<SpecialLocation<SpecialBridgeLocationType>> = [
       {
-        type: LocationSelectionType.special,
         label: messages.gettext('Automatic'),
         icon: SpecialLocationIcon.geoLocation,
         info: messages.pgettext(
@@ -315,18 +327,25 @@ function SelectLocationContent() {
       },
     ];
 
-    const relayListWithSpecial = [...filterSpecialLocations(searchTerm, specialList), ...relayList];
+    const specialLocations = filterSpecialLocations(searchTerm, specialList);
     return (
-      <LocationList
-        key={locationType}
-        source={relayListWithSpecial}
-        selectedElementRef={selectedLocationRef}
-        onSelect={onSelectBridgeLocation}
-        onExpand={expandLocation}
-        onCollapse={collapseLocation}
-        onWillExpand={onBeforeExpand}
-        onTransitionEnd={resetHeight}
-      />
+      <>
+        <CustomLists selectedElementRef={selectedLocationRef} onSelect={onSelectBridgeRelay} />
+        <LocationList
+          key={locationType}
+          relayLocations={relayList}
+          specialLocations={specialLocations}
+          selectedElementRef={selectedLocationRef}
+          onSelectRelay={onSelectBridgeRelay}
+          onSelectSpecial={onSelectBridgeSpecial}
+          onExpand={expandLocation}
+          onCollapse={collapseLocation}
+          onWillExpand={onBeforeExpand}
+          onTransitionEnd={resetHeight}
+          allowAddToCustomList={allowAddToCustomList}
+        />
+        <NoSearchResult specialLocationsLength={specialLocations.length} />
+      </>
     );
   }
 }
@@ -334,18 +353,51 @@ function SelectLocationContent() {
 function LocationList<T>(props: CombinedLocationListProps<T>) {
   const { searchTerm } = useSelectLocationContext();
 
-  if (searchTerm !== '' && props.source.length === 0) {
-    return (
-      <StyledNoResult>
-        <StyledNoResultText>
-          {formatHtml(
-            sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
-          )}
-        </StyledNoResultText>
-        <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
-      </StyledNoResult>
-    );
+  if (
+    searchTerm !== '' &&
+    !props.relayLocations.some((country) => country.visible) &&
+    (props.specialLocations === undefined || props.specialLocations.length === 0)
+  ) {
+    return null;
   } else {
-    return <CombinedLocationList {...props} />;
+    return (
+      <>
+        <Cell.Row>
+          <Cell.Label>{messages.pgettext('select-location-view', 'All locations')}</Cell.Label>
+        </Cell.Row>
+        <CombinedLocationList {...props} />
+      </>
+    );
   }
+}
+
+interface NoSearchResultProps {
+  specialLocationsLength: number;
+}
+
+function NoSearchResult(props: NoSearchResultProps) {
+  const { relayList, customLists } = useRelayListContext();
+  const { searchTerm } = useSelectLocationContext();
+
+  if (
+    searchTerm === '' ||
+    relayList.some((country) => country.visible) ||
+    customLists.some((list) => list.visible) ||
+    props.specialLocationsLength > 0
+  ) {
+    return null;
+  }
+
+  return (
+    <StyledNoResult>
+      <StyledNoResultText>
+        {formatHtml(
+          sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), {
+            searchTerm,
+          }),
+        )}
+      </StyledNoResultText>
+      <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
+    </StyledNoResult>
+  );
 }

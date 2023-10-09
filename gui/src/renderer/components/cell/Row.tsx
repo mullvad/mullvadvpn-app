@@ -4,7 +4,7 @@ import { colors } from '../../../config.json';
 import { measurements } from '../common-styles';
 import { Group } from './Group';
 
-export const Row = styled.div({
+export const Row = styled.div((props: { includeMarginBottomOnLast?: boolean }) => ({
   display: 'flex',
   alignItems: 'center',
   backgroundColor: colors.blue,
@@ -13,6 +13,6 @@ export const Row = styled.div({
   paddingRight: measurements.viewMargin,
   marginBottom: '1px',
   [`${Group} > &:last-child`]: {
-    marginBottom: '0px',
+    marginBottom: props.includeMarginBottomOnLast ? '1px' : '0px',
   },
-});
+}));
