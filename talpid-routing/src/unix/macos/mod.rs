@@ -152,6 +152,8 @@ impl RouteManagerImpl {
                 false
             });
 
+        self.debug_offline();
+
         let mut completion_tx = None;
 
         loop {
@@ -365,6 +367,8 @@ impl RouteManagerImpl {
         self.update_best_default_route(interface::Family::V4)?;
         self.update_best_default_route(interface::Family::V6)?;
 
+        self.debug_offline();
+
         if !self.unhandled_default_route_changes {
             return Ok(());
         }
@@ -384,6 +388,12 @@ impl RouteManagerImpl {
         self.unhandled_default_route_changes = false;
 
         Ok(())
+    }
+
+    fn debug_offline(&self) {
+        if self.v4_default_route.is_none() && self.v6_default_route.is_none() {
+            self.primary_interface_monitor.debug();
+        }
     }
 
     /// Figure out what the best default routes to use are, and send updates to default route change
