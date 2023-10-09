@@ -64,7 +64,7 @@ struct NetworkServiceDetails {
 
 pub struct PrimaryInterfaceMonitor {
     store: SCDynamicStore,
-    set: SCNetworkSet,
+    prefs: SCPreferences,
 }
 
 // FIXME: Implement Send on SCDynamicStore, if it's safe
@@ -78,12 +78,11 @@ impl PrimaryInterfaceMonitor {
     pub fn new() -> (Self, UnboundedReceiver<InterfaceEvent>) {
         let store = SCDynamicStoreBuilder::new("talpid-routing").build();
         let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
-        let set = SCNetworkSet::new(&prefs);
 
         let (tx, rx) = mpsc::unbounded();
         Self::start_listener(tx);
 
-        (Self { store, set }, rx)
+        (Self { store, prefs }, rx)
     }
 
     fn start_listener(tx: UnboundedSender<InterfaceEvent>) {
@@ -212,7 +211,7 @@ impl PrimaryInterfaceMonitor {
             unsafe { kSCPropNetIPv6Router.to_void() }
         };
 
-        self.set
+        SCNetworkSet::new(&self.prefs)
             .service_order()
             .iter()
             .filter_map(|service_id| {
