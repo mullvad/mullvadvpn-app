@@ -57,10 +57,7 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
         },
         text = {
             val htmlFormattedDialogText =
-                textResource(
-                    id = R.string.max_devices_confirm_removal_description,
-                    device.name
-                )
+                textResource(id = R.string.max_devices_confirm_removal_description, device.name)
 
             HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
         },

@@ -175,6 +175,8 @@
     <string name="switch_location">Vaihda sijaintia</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Vaihda VPN:ää</string>
+    <string name="top_bar_device_name">Laitteen nimi: %1$s</string>
+    <string name="top_bar_time_left">Aikaa jäljellä: %1$s</string>
     <string name="try_again">Yritä uudelleen</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>

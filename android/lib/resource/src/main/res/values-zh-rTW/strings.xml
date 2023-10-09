@@ -175,6 +175,8 @@
     <string name="switch_location">切換位置</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">切換 VPN</string>
+    <string name="top_bar_device_name">裝置名稱：%1$s</string>
+    <string name="top_bar_time_left">剩餘時間：%1$s</string>
     <string name="try_again">再試一次</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>

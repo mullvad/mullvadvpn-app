@@ -82,7 +82,9 @@ val uiModule = module {
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
-    viewModel { ConnectViewModel(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get()) }
+    viewModel {
+        ConnectViewModel(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get(), get())
+    }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get()) }
@@ -93,7 +95,7 @@ val uiModule = module {
     viewModel { WelcomeViewModel(get(), get(), get()) }
     viewModel { ReportProblemViewModel(get()) }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel { OutOfTimeViewModel(get(), get()) }
+    viewModel { OutOfTimeViewModel(get(), get(), get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"

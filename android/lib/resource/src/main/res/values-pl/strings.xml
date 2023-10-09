@@ -175,6 +175,8 @@
     <string name="switch_location">Zmień lokalizację</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Przełącz VPN</string>
+    <string name="top_bar_device_name">Nazwa urządzenia: %1$s</string>
+    <string name="top_bar_time_left">Pozostało: %1$s</string>
     <string name="try_again">Spróbuj ponownie</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN.</string>

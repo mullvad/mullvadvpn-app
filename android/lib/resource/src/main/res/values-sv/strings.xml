@@ -175,6 +175,8 @@
     <string name="switch_location">Växla plats</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Växla VPN</string>
+    <string name="top_bar_device_name">Enhetsnamn: %1$s</string>
+    <string name="top_bar_time_left">Tid kvar: %1$s</string>
     <string name="try_again">Försök igen</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern.</string>

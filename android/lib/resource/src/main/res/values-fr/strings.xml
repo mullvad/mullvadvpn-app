@@ -175,6 +175,8 @@
     <string name="switch_location">Changer de localisation</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Activer/désactiver le VPN</string>
+    <string name="top_bar_device_name">Nom de l\'appareil : %1$s</string>
+    <string name="top_bar_time_left">Temps restant : %1$s</string>
     <string name="try_again">Réessayer</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>

@@ -2,9 +2,17 @@
 
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,16 +21,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -205,4 +216,103 @@ fun MullvadMediumTopBar(
             ),
         actions = actions
     )
+}
+
+@Preview
+@Composable
+fun PreviewMullvadTopBarWithLongDeviceName() {
+    AppTheme {
+        Surface {
+            MullvadTopBarWithDeviceName(
+                containerColor = MaterialTheme.colorScheme.error,
+                iconTintColor = MaterialTheme.colorScheme.onError,
+                onSettingsClicked = null,
+                onAccountClicked = null,
+                deviceName = "Superstitious Hippopotamus with extra weight",
+                daysLeftUntilExpiry = 1
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewMullvadTopBarWithShortDeviceName() {
+    AppTheme {
+        Surface {
+            MullvadTopBarWithDeviceName(
+                containerColor = MaterialTheme.colorScheme.error,
+                iconTintColor = MaterialTheme.colorScheme.onError,
+                onSettingsClicked = null,
+                onAccountClicked = null,
+                deviceName = "Fit Ant",
+                daysLeftUntilExpiry = 1
+            )
+        }
+    }
+}
+
+@Composable
+fun MullvadTopBarWithDeviceName(
+    containerColor: Color,
+    onSettingsClicked: (() -> Unit)?,
+    onAccountClicked: (() -> Unit)?,
+    iconTintColor: Color,
+    isIconAndLogoVisible: Boolean = true,
+    deviceName: String?,
+    daysLeftUntilExpiry: Int?
+) {
+    Column {
+        MullvadTopBar(
+            containerColor,
+            onSettingsClicked,
+            onAccountClicked,
+            Modifier,
+            iconTintColor,
+            isIconAndLogoVisible,
+        )
+
+        // Align animation of extra row with the rest of the Topbar
+        val appBarContainerColor by
+            animateColorAsState(
+                targetValue = containerColor,
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                label = "ColorAnimation"
+            )
+        Row(
+            modifier =
+                Modifier.background(appBarContainerColor)
+                    .padding(
+                        bottom = Dimens.smallPadding,
+                        start = Dimens.mediumPadding,
+                        end = Dimens.mediumPadding
+                    )
+                    .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
+        ) {
+            Text(
+                modifier = Modifier.weight(1f, fill = false),
+                text = stringResource(id = R.string.top_bar_device_name, deviceName ?: ""),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodySmall
+            )
+            if (daysLeftUntilExpiry != null) {
+                Text(
+                    text =
+                        stringResource(
+                            id = R.string.top_bar_time_left,
+                            pluralStringResource(
+                                id = R.plurals.days,
+                                daysLeftUntilExpiry,
+                                daysLeftUntilExpiry
+                            )
+                        ),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            } else {
+                Spacer(Modifier)
+            }
+        }
+    }
 }

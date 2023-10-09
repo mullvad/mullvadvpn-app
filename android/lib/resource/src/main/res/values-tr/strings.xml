@@ -175,6 +175,8 @@
     <string name="switch_location">Konum değiştir</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN\'i aç/kapat</string>
+    <string name="top_bar_device_name">Cihaz adı: %1$s</string>
+    <string name="top_bar_time_left">Kalan süre: %1$s</string>
     <string name="try_again">Tekrar dene</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>

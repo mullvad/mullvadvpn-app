@@ -220,4 +220,6 @@
     <string name="custom_port_dialog_remove">Remove custom port</string>
     <string name="custom_port_dialog_valid_ranges">Valid ranges: %s</string>
     <string name="custom_port_dialog_placeholder">Enter port</string>
+    <string name="top_bar_time_left">Time left: %s</string>
+    <string name="top_bar_device_name">Device name: %s</string>
 </resources>

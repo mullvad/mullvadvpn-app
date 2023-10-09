@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,6 +25,7 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
@@ -47,6 +49,7 @@ class ConnectViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val isVersionInfoNotificationEnabled: Boolean,
     accountRepository: AccountRepository,
+    private val deviceRepository: DeviceRepository,
 ) : ViewModel() {
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
     val uiSideEffect = _uiSideEffect.asSharedFlow()
@@ -74,7 +77,8 @@ class ConnectViewModel(
                     serviceConnection.connectionProxy.tunnelUiStateFlow(),
                     serviceConnection.connectionProxy.tunnelRealStateFlow(),
                     accountRepository.accountExpiryState,
-                    _isTunnelInfoExpanded
+                    _isTunnelInfoExpanded,
+                    deviceRepository.deviceState.map { it.deviceName() }
                 ) {
                     location,
                     relayLocation,
@@ -82,7 +86,8 @@ class ConnectViewModel(
                     tunnelUiState,
                     tunnelRealState,
                     accountExpiry,
-                    isTunnelInfoExpanded ->
+                    isTunnelInfoExpanded,
+                    deviceName ->
                     if (tunnelRealState.isTunnelErrorStateDueToExpiredAccount()) {
                         _uiSideEffect.tryEmit(UiSideEffect.OpenOutOfTimeView)
                     }
@@ -124,7 +129,9 @@ class ConnectViewModel(
                                 tunnelUiState = tunnelUiState,
                                 versionInfo = versionInfo,
                                 accountExpiry = accountExpiry
-                            )
+                            ),
+                        deviceName = deviceName,
+                        daysLeftUntilExpiry = accountExpiry.daysLeft()
                     )
                 }
             }

@@ -175,6 +175,8 @@
     <string name="switch_location">위치 전환</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN 전환</string>
+    <string name="top_bar_device_name">장치 이름: %1$s</string>
+    <string name="top_bar_time_left">남은 시간: %1$s</string>
     <string name="try_again">다시 시도</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>

@@ -175,6 +175,8 @@
     <string name="switch_location">တည်နေရာ ပြောင်းရန်</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN ရွေးသုံးရန်</string>
+    <string name="top_bar_device_name">စက်အမည်- %1$s</string>
+    <string name="top_bar_time_left">ကျန်သည့် အချိန်- %1$s</string>
     <string name="try_again">ထပ်ကြိုးစားရန်</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>

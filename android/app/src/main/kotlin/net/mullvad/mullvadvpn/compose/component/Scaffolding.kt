@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,6 +56,52 @@ fun ScaffoldWithTopBar(
                 onAccountClicked = onAccountClicked,
                 isIconAndLogoVisible = isIconAndLogoVisible
             )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
+            )
+        },
+        content = content
+    )
+}
+
+@Composable
+fun ScaffoldWithTopBarAndDeviceName(
+    topBarColor: Color,
+    statusBarColor: Color,
+    navigationBarColor: Color,
+    modifier: Modifier = Modifier,
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+    onSettingsClicked: (() -> Unit)?,
+    onAccountClicked: (() -> Unit)?,
+    isIconAndLogoVisible: Boolean = true,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    deviceName: String?,
+    timeLeft: Int?,
+    content: @Composable (PaddingValues) -> Unit,
+) {
+    val systemUiController = rememberSystemUiController()
+    LaunchedEffect(key1 = statusBarColor, key2 = navigationBarColor) {
+        systemUiController.setStatusBarColor(statusBarColor)
+        systemUiController.setNavigationBarColor(navigationBarColor)
+    }
+
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            Column {
+                MullvadTopBarWithDeviceName(
+                    containerColor = topBarColor,
+                    iconTintColor = iconTintColor,
+                    onSettingsClicked = onSettingsClicked,
+                    onAccountClicked = onAccountClicked,
+                    isIconAndLogoVisible = isIconAndLogoVisible,
+                    deviceName = deviceName,
+                    daysLeftUntilExpiry = timeLeft
+                )
+            }
         },
         snackbarHost = {
             SnackbarHost(
