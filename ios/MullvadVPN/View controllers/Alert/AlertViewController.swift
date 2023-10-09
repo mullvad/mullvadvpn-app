@@ -58,19 +58,27 @@ class AlertViewController: UIViewController {
 
     private var handlers = [UIButton: Handler]()
 
-    init(header: String? = nil, title: String? = nil, message: String? = nil, icon: AlertIcon? = nil) {
+    init(presentation: AlertPresentation) {
         super.init(nibName: nil, bundle: nil)
 
-        setUp(header: header, title: title, icon: icon) {
-            message.flatMap { addMessage($0) }
+        setUp(
+            header: presentation.header,
+            title: presentation.title,
+            icon: presentation.icon
+        ) {
+            if let message = presentation.attributedMessage {
+                addMessage(message)
+            } else if let message = presentation.message {
+                addMessage(message)
+            }
         }
-    }
 
-    init(header: String? = nil, title: String? = nil, attributedMessage: NSAttributedString?, icon: AlertIcon? = nil) {
-        super.init(nibName: nil, bundle: nil)
-
-        setUp(header: header, title: title, icon: icon) {
-            attributedMessage.flatMap { addMessage($0) }
+        presentation.buttons.forEach { action in
+            addAction(
+                title: action.title,
+                style: action.style,
+                handler: action.handler
+            )
         }
     }
 
@@ -120,14 +128,13 @@ class AlertViewController: UIViewController {
         }
     }
 
-    func addAction(title: String, style: AlertActionStyle, accessibilityId: String?, handler: (() -> Void)? = nil) {
+    func addAction(title: String, style: AlertActionStyle, handler: (() -> Void)? = nil) {
         // The presence of a button should reset any custom button margin to default.
         containerView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.bottom
 
         let button = AppButton(style: style.buttonStyle)
 
         button.setTitle(title, for: .normal)
-        button.accessibilityIdentifier = accessibilityId
         button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
 
         containerView.addArrangedSubview(button)
@@ -185,6 +192,7 @@ class AlertViewController: UIViewController {
         let label = UILabel()
 
         label.attributedText = message
+        label.textColor = .white.withAlphaComponent(0.8)
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
 

@@ -24,27 +24,28 @@ final class ChangeLogCoordinator: Coordinator, Presentable {
     }
 
     func start() {
-        let alertController = AlertViewController(
+        let presentation = AlertPresentation(
+            id: "change-log-ok-alert",
             header: interactor.viewModel.header,
             title: interactor.viewModel.title,
-            attributedMessage: interactor.viewModel.body
+            attributedMessage: interactor.viewModel.body,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "CHANGE_LOG_OK_ACTION",
+                        tableName: "Account",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default,
+                    handler: { [weak self] in
+                        guard let self else { return }
+                        didFinish?(self)
+                    }
+                ),
+            ]
         )
 
-        alertController.addAction(
-            title: NSLocalizedString(
-                "CHANGE_LOG_OK_ACTION",
-                tableName: "Account",
-                value: "Got it!",
-                comment: ""
-            ),
-            style: .default,
-            accessibilityId: "OkButton",
-            handler: { [weak self] in
-                guard let self else { return }
-                didFinish?(self)
-            }
-        )
-
-        self.alertController = alertController
+        alertController = AlertViewController(presentation: presentation)
     }
 }

@@ -27,7 +27,8 @@ struct AlertPresentation: Identifiable, CustomDebugStringConvertible {
     var header: String?
     var icon: AlertIcon?
     var title: String?
-    let message: String?
+    var message: String?
+    var attributedMessage: NSAttributedString?
     let buttons: [AlertAction]
 
     var debugDescription: String {
