@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -28,7 +29,7 @@ class LoginMockApiTest : MockApiTest() {
         app.attemptLogin(validAccountToken)
 
         // Assert
-        device.findObjectWithTimeout(By.text("Login failed"))
+        device.findObjectWithTimeout(By.text("Login failed"), LOGIN_FAILURE_TIMEOUT)
     }
 
     @Test
