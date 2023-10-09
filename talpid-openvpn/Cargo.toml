@@ -11,7 +11,6 @@ publish.workspace = true
 
 [dependencies]
 async-trait = "0.1"
-duct = "0.13"
 err-derive = { workspace = true }
 futures = "0.3.15"
 once_cell = { workspace = true }
