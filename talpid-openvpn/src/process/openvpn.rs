@@ -1,5 +1,3 @@
-use duct;
-
 use super::stoppable_process::StoppableProcess;
 use os_pipe::{pipe, PipeWriter};
 use parking_lot::Mutex;
@@ -190,9 +188,11 @@ impl OpenVpnCommand {
     }
 
     /// Build a runnable expression from the current state of the command.
-    pub fn build(&self) -> duct::Expression {
+    pub fn build(&self) -> tokio::process::Command {
         log::debug!("Building expression: {}", &self);
-        duct::cmd(&self.openvpn_bin, self.get_arguments()).unchecked()
+        let mut handle = tokio::process::Command::new(&self.openvpn_bin);
+        handle.args(self.get_arguments());
+        handle
     }
 
     /// Returns all arguments that the subprocess would be spawned with.
@@ -365,8 +365,11 @@ impl fmt::Display for OpenVpnCommand {
 
 /// Handle to a running OpenVPN process.
 pub struct OpenVpnProcHandle {
-    /// Duct handle
-    pub inner: duct::Handle,
+    /// Handle to the child process running OpenVPN.
+    ///
+    /// This handle is acquired by calling [`OpenVpnCommand::build`] (or
+    /// [`tokio::process::Command::spawn`]).
+    pub inner: std::sync::Arc<tokio::sync::Mutex<tokio::process::Child>>,
     /// Pipe handle to stdin of the OpenVPN process. Our custom fork of OpenVPN
     /// has been changed so that it exits cleanly when stdin is closed. This is a hack
     /// solution to cleanly shut OpenVPN down without using the
@@ -377,68 +380,65 @@ pub struct OpenVpnProcHandle {
 impl OpenVpnProcHandle {
     /// Configures the expression to run OpenVPN in a way compatible with this handle
     /// and spawns it. Returns the handle.
-    pub fn new(mut cmd: duct::Expression) -> io::Result<Self> {
+    pub fn new(mut cmd: &mut tokio::process::Command) -> io::Result<Self> {
         use std::io::IsTerminal;
 
         if !std::io::stdout().is_terminal() {
-            cmd = cmd.stdout_null();
+            cmd = cmd.stdout(std::process::Stdio::null())
         }
 
         if !std::io::stderr().is_terminal() {
-            cmd = cmd.stderr_null();
+            cmd = cmd.stderr(std::process::Stdio::null())
         }
 
         let (reader, writer) = pipe()?;
-        let proc_handle = cmd.stdin_file(reader).start()?;
+        let proc_handle = cmd.stdin(reader).spawn()?;
 
         Ok(Self {
-            inner: proc_handle,
+            inner: std::sync::Arc::new(tokio::sync::Mutex::new(proc_handle)),
             stdin: Mutex::new(Some(writer)),
         })
     }
-}
 
-impl StoppableProcess for OpenVpnProcHandle {
-    fn stop(&self) {
-        // Dropping our stdin handle so that it is closed once. Closing the handle should
-        // gracefully stop our OpenVPN child process.
-        if self.stdin.lock().take().is_none() {
-            log::warn!("Tried to close OpenVPN stdin handle twice, this is a bug");
-        }
-    }
-
-    fn kill(&self) -> io::Result<()> {
-        log::warn!("Killing OpenVPN process");
-        self.inner.kill()?;
-        log::debug!("OpenVPN forcefully killed");
-        Ok(())
-    }
-
-    fn has_stopped(&self) -> io::Result<bool> {
-        match self.inner.try_wait() {
-            Ok(None) => Ok(false),
-            Ok(Some(_)) => Ok(true),
-            Err(e) => Err(e),
-        }
-    }
-}
-
-impl Drop for OpenVpnProcHandle {
-    fn drop(&mut self) {
-        let result = match self.has_stopped() {
-            Ok(false) => self.kill(),
+    async fn clean_up(&self) {
+        let result = match self.has_stopped().await {
+            Ok(false) => self.kill().await,
             Err(e) => {
                 log::error!(
                     "{}",
                     e.display_chain_with_msg("Failed to check if OpenVPN is running")
                 );
-                self.kill()
+                self.kill().await
             }
             _ => Ok(()),
         };
         if let Err(error) = result {
             log::error!("{}", error.display_chain_with_msg("Failed to kill OpenVPN"));
         }
+    }
+}
+
+#[async_trait::async_trait]
+impl StoppableProcess for OpenVpnProcHandle {
+    async fn stop(&self) {
+        // Dropping our stdin handle so that it is closed once. Closing the handle should
+        // gracefully stop our OpenVPN child process.
+        if self.stdin.lock().take().is_none() {
+            log::warn!("Tried to close OpenVPN stdin handle twice, this is a bug");
+        }
+        self.clean_up().await
+    }
+
+    async fn kill(&self) -> io::Result<()> {
+        log::warn!("Killing OpenVPN process");
+        self.inner.lock().await.kill().await?;
+        log::debug!("OpenVPN forcefully killed");
+        Ok(())
+    }
+
+    async fn has_stopped(&self) -> io::Result<bool> {
+        let exit_status = self.inner.lock().await.try_wait()?;
+        Ok(exit_status.is_some())
     }
 }
 

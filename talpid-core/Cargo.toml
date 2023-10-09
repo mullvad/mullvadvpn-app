@@ -9,7 +9,6 @@ edition.workspace = true
 publish.workspace = true
 
 [dependencies]
-duct = "0.13"
 err-derive = { workspace = true }
 futures = "0.3.15"
 ipnetwork = "0.16"
@@ -42,6 +41,7 @@ nftnl = { version = "0.6.2", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.2", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 talpid-dbus = { path = "../talpid-dbus" }
+duct = "0.13"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -51,6 +51,7 @@ trust-dns-server = { version = "0.23.0", features = ["resolver"] }
 trust-dns-proto = "0.23.0"
 subslice = "0.2"
 async-trait = "0.1"
+duct = "0.13"
 
 
 [target.'cfg(windows)'.dependencies]
