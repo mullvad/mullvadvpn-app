@@ -30,7 +30,6 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.dialog.ShowDeviceRemovalDialog
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
-import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
@@ -196,7 +195,7 @@ fun DeviceListScreen(
                             state.deviceUiItems.forEach { deviceUiState ->
                                 ListItem(
                                     text =
-                                        deviceUiState.device.name.capitalizeFirstCharOfEachWord(),
+                                        deviceUiState.device.name,
                                     subText =
                                         deviceUiState.device.created.parseAsDateTime()?.let {
                                             creationDate ->

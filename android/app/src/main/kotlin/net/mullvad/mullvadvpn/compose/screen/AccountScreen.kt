@@ -37,7 +37,6 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
-import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -112,7 +111,7 @@ fun AccountScreen(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 InformationView(
-                    content = uiState.deviceName?.capitalizeFirstCharOfEachWord() ?: "",
+                    content = uiState.deviceName ?: "",
                     whenMissing = MissingPolicy.SHOW_SPINNER
                 )
                 IconButton(

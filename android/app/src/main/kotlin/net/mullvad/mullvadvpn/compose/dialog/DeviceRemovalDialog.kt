@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
 import net.mullvad.mullvadvpn.model.Device
 
 @Preview
@@ -60,7 +59,7 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
             val htmlFormattedDialogText =
                 textResource(
                     id = R.string.max_devices_confirm_removal_description,
-                    device.name.capitalizeFirstCharOfEachWord()
+                    device.name
                 )
 
             HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
