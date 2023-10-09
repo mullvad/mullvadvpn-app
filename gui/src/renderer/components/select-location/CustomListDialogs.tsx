@@ -123,7 +123,9 @@ function SelectList(props: SelectListProps) {
 
   return (
     <Cell.CellButton onClick={onAdd} disabled={disabled}>
-      <StyledSelectListItemLabel>{props.list.name}</StyledSelectListItemLabel>
+      <StyledSelectListItemLabel>
+        {props.list.name} {disabled && messages.pgettext('select-location-view', '(Added)')}
+      </StyledSelectListItemLabel>
       <StyledSelectListItemIcon source="icon-add" width={18} />
     </Cell.CellButton>
   );
