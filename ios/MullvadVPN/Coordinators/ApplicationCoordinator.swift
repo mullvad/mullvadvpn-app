@@ -728,11 +728,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
             animated: animated,
             configuration: ModalPresentationConfiguration(
                 preferredContentSize: UIMetrics.preferredFormSheetContentSize,
-                modalPresentationStyle: .custom,
-                transitioningDelegate: FormSheetTransitioningDelegate(options: FormSheetPresentationOptions(
-                    useFullScreenPresentationInCompactWidth: true,
-                    adjustViewWhenKeyboardAppears: false
-                ))
+                modalPresentationStyle: .formSheet
             )
         ) { [weak self] in
             completion(coordinator)
