@@ -51,6 +51,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
 
+#### macOS
+- Fix connectivity issues when switching between networks or disconnecting.
+
 
 ## [android/2023.6] - 2023-09-25
 ### Fixed
