@@ -32,6 +32,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,7 +59,8 @@ fun CustomTextField(
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
     defaultTextColor: Color = Color.White,
-    textAlign: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start,
+    visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     val fontSize = dimensionResource(id = R.dimen.text_medium_plus).value.sp
     val shape = RoundedCornerShape(4.dp)
@@ -131,6 +133,7 @@ fun CustomTextField(
             }
         },
         cursorBrush = SolidColor(MullvadBlue),
+        visualTransformation = visualTransformation,
         modifier =
             modifier
                 .background(backgroundColor)
