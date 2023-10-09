@@ -1,31 +1,69 @@
-//! Use this crate as such with the following attribute macro above test functions.
-//! #[test_function]
-//! pub async fn test_function(
-//!     rpc: ServiceClient,
-//!     mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
-//! ) -> Result<(), Error> {
-//! The `test_function` macro takes 4 optional arguments
-//! #[test_function(priority = -1337, cleanup = false, must_succeed = true, always_run = true)]
-//!
-//! `priority` is the order in which tests will
-//! be run where low numbers run before high numbers and tests with the same number run in
-//! undefined order.
-//! `priority` defaults to 0.
-//!
-//! `cleanup` means that the cleanup function will run after the test is finished
-//! and among other things reset the settings to the default value for the daemon.
-//! `cleanup` defaults to true.
-//!
-//! `must_succeed` means that the testing suite stops running if this test fails.
-//! `must_succeed` defaults to false.
-//!
-//! `always_run` means that the test is always run regardless of what test filters are provided by
-//! the user.
-//! `always_run` defaults to false.
 use proc_macro::TokenStream;
 use quote::{quote, ToTokens};
 use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 
+/// Register an `async` function to be run by `test-manager`.
+///
+/// The `test_function` macro will inject two arguments to your function:
+///
+/// * `rpc` - a [`test_rpc::client::ServiceClient]` used to make
+/// remote-procedure calls inside the virtual machine running the test. This can
+/// be used to perform arbitrary network requests, inspect the local file
+/// system, rebooting ..
+///
+/// * `mullvad_client` - a
+/// [`mullvad_management_interface::ManagementServiceClient`] which provides a
+/// bi-directional communication channel with the `mullvad-daemon` running
+/// inside of the virtual machine. All RPC-calls as defined by
+/// [`mullvad_management_interface::client`] are available on `mullvad_client`.
+///
+///# Arguments
+///
+/// The `test_function` macro takes 4 optional arguments
+///
+/// * `priority` - The order in which tests will be run where low numbers run
+/// before high numbers and tests with the same number run in undefined order.
+/// `priority` defaults to 0.
+///
+/// * `cleanup` - If the cleanup function will run after the test is finished
+/// and among other things reset the settings to the default value for the
+/// daemon.
+/// `cleanup` defaults to true.
+///
+/// * `must_succeed` - If the testing suite stops running if this test fails.
+/// `must_succeed` defaults to false.
+///
+/// * `always_run` - If the test should always run regardless of what test
+/// filters are provided by the user.
+/// `always_run` defaults to false.
+///
+/// # Examples
+///
+/// Create a standard test. Remember that [`test_function`] will inject `rpc`
+/// and `mullvad_client` for us.
+///
+/// ```
+/// #[test_function]
+/// pub async fn test_function(
+///     rpc: ServiceClient,
+///     mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
+/// ) -> Result<(), Error> {
+///     Ok(())
+/// }
+/// ```
+///
+/// Create a test which will run early in the test loop, won't perform any
+/// cleanup, must succeed and will always run.
+///
+/// ```
+/// #[test_function(priority = -1337, cleanup = false, must_succeed = true, always_run = true)]
+/// pub async fn test_function(
+///     rpc: ServiceClient,
+///     mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
+/// ) -> Result<(), Error> {
+///     Ok(())
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn test_function(attributes: TokenStream, code: TokenStream) -> TokenStream {
     let function: syn::ItemFn = syn::parse(code).unwrap();

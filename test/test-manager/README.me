@@ -1,0 +1,26 @@
+# Writing tests for [MullvadVPN App](https://github.com/mullvad/mullvadvpn-app/)
+
+The `test-manager` crate is where the tests for the [MullvadVPN
+App](https://github.com/mullvad/mullvadvpn-app/) resides. The tests are located
+in different modules under `test-manager/src/tests/`.
+
+## Getting started
+
+Tests are regular Rust functions! Except that they are also `async` and are
+marked with the `#[test_function]` attribute
+
+```rust
+#[test_function]
+pub async fn test(
+    rpc: ServiceClient,
+    mut mullvad_client: mullvad_management_interface::ManagementServiceClient,
+) -> Result<(), Error> {
+    Ok(())
+}
+```
+
+A more detailed writeup on how the `#[test_function]` macro works is given as a
+doc-comment in [test_macro::lib.rs](./test_macro/src/lib.rs).
+
+If a new module is created, make sure to add it in
+`test-manager/src/tests/mod.rs`.
