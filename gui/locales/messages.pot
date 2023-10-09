@@ -999,6 +999,10 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
 
+msgctxt "select-location-view"
+msgid "(Added)"
+msgstr ""
+
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
 #. Available placeholders:
