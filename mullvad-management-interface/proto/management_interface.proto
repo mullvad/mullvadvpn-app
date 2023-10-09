@@ -22,6 +22,7 @@ service ManagementService {
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
+  rpc GetApiAddresses(google.protobuf.Empty) returns (ApiAddresses) {}
 
   rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
@@ -73,6 +74,13 @@ service ManagementService {
   rpc DeleteCustomList(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc UpdateCustomList(CustomList) returns (google.protobuf.Empty) {}
 
+  // Access methods
+  rpc AddApiAccessMethod(NewAccessMethodSetting) returns (UUID) {}
+  rpc RemoveApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
+  rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
+  rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
+  rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
+
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
@@ -91,6 +99,8 @@ service ManagementService {
   rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
+message UUID { string value = 1; }
+
 message RelaySettingsUpdate {
   oneof type {
     CustomRelaySettings custom = 1;
@@ -101,6 +111,8 @@ message RelaySettingsUpdate {
 message AccountData { google.protobuf.Timestamp expiry = 1; }
 
 message AccountHistory { google.protobuf.StringValue token = 1; }
+
+message ApiAddresses { repeated google.protobuf.StringValue api_addresses = 1; }
 
 message VoucherSubmission {
   uint64 seconds_added = 1;
@@ -324,6 +336,53 @@ message CustomList {
 
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
+message AccessMethod {
+  message Direct {}
+  message Bridges {}
+  message Socks5Local {
+    string ip = 1;
+    uint32 port = 2;
+    uint32 local_port = 3;
+  }
+  message SocksAuth {
+    string username = 1;
+    string password = 2;
+  }
+  message Socks5Remote {
+    string ip = 1;
+    uint32 port = 2;
+    SocksAuth authentication = 3;
+  }
+  message Shadowsocks {
+    string ip = 1;
+    uint32 port = 2;
+    string password = 3;
+    string cipher = 4;
+  }
+  oneof access_method {
+    Direct direct = 1;
+    Bridges bridges = 2;
+    Socks5Local socks5local = 3;
+    Socks5Remote socks5remote = 4;
+    Shadowsocks shadowsocks = 5;
+  }
+}
+
+message AccessMethodSetting {
+  UUID id = 1;
+  string name = 2;
+  bool enabled = 3;
+  AccessMethod access_method = 4;
+}
+
+message NewAccessMethodSetting {
+  string name = 1;
+  bool enabled = 2;
+  AccessMethod access_method = 3;
+}
+
+message ApiAccessMethodSettings { repeated AccessMethodSetting access_method_settings = 1; }
+
 message Settings {
   RelaySettings relay_settings = 1;
   BridgeSettings bridge_settings = 2;
@@ -336,6 +395,7 @@ message Settings {
   SplitTunnelSettings split_tunnel = 9;
   ObfuscationSettings obfuscation_settings = 10;
   CustomListSettings custom_lists = 11;
+  ApiAccessMethodSettings api_access_methods = 12;
 }
 
 message SplitTunnelSettings {

@@ -1,6 +1,7 @@
 #![deny(rust_2018_idioms)]
 #![recursion_limit = "512"]
 
+mod access_method;
 pub mod account_history;
 mod api;
 #[cfg(not(target_os = "android"))]
@@ -38,6 +39,7 @@ use mullvad_relay_selector::{
     RelaySelector, SelectorConfig,
 };
 use mullvad_types::{
+    access_method::{AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
     custom_list::CustomList,
@@ -60,7 +62,7 @@ use std::{
     mem,
     path::PathBuf,
     pin::Pin,
-    sync::{Arc, Weak},
+    sync::{Arc, Mutex, Weak},
     time::Duration,
 };
 #[cfg(any(target_os = "linux", windows))]
@@ -170,6 +172,9 @@ pub enum Error {
     #[error(display = "A list with that name does not exist")]
     CustomListNotFound,
 
+    #[error(display = "Access method error")]
+    AccessMethodError(#[error(source)] access_method::Error),
+
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
     GroupIdError(#[error(source)] io::Error),
@@ -255,6 +260,25 @@ pub enum DaemonCommand {
     DeleteCustomList(ResponseTx<(), Error>, mullvad_types::custom_list::Id),
     /// Update a custom list with a given id
     UpdateCustomList(ResponseTx<(), Error>, CustomList),
+    /// Get API access methods
+    GetApiAccessMethods(ResponseTx<Vec<AccessMethodSetting>, Error>),
+    /// Add API access methods
+    AddApiAccessMethod(
+        ResponseTx<mullvad_types::access_method::Id, Error>,
+        String,
+        bool,
+        AccessMethod,
+    ),
+    /// Remove an API access method
+    RemoveApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
+    /// Set the API access method to use
+    SetApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
+    /// Edit an API access method
+    UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
+    /// Get the currently used API access method
+    GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
+    /// Get the addresses of all known API endpoints
+    GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -554,6 +578,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
+    connection_modes: Arc<Mutex<api::ConnectionModesIterator>>,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -616,8 +641,21 @@ where
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
 
-        let proxy_provider =
-            api::ApiConnectionModeProvider::new(cache_dir.clone(), relay_selector.clone());
+        let proxy_provider = api::ApiConnectionModeProvider::new(
+            cache_dir.clone(),
+            relay_selector.clone(),
+            settings
+                .api_access_methods
+                .access_method_settings
+                .iter()
+                // We only care about the access methods which are set to 'enabled' by the user.
+                .filter(|api_access_method| api_access_method.enabled())
+                .cloned()
+                .collect(),
+        );
+
+        let connection_modes = proxy_provider.handle();
+
         let api_handle = api_runtime
             .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
             .await;
@@ -754,6 +792,7 @@ where
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
+            connection_modes,
             api_runtime,
             api_handle,
             version_updater_handle,
@@ -1030,6 +1069,16 @@ where
             DeleteCustomList(tx, id) => self.on_delete_custom_list(tx, id).await,
             UpdateCustomList(tx, update) => self.on_update_custom_list(tx, update).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx),
+            GetApiAccessMethods(tx) => self.on_get_api_access_methods(tx),
+            AddApiAccessMethod(tx, name, enabled, access_method) => {
+                self.on_add_access_method(tx, name, enabled, access_method)
+                    .await
+            }
+            RemoveApiAccessMethod(tx, method) => self.on_remove_api_access_method(tx, method).await,
+            UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
+            GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
+            SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
+            GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -1921,7 +1970,7 @@ where
                         .notify_settings(self.settings.to_settings());
                     self.relay_selector
                         .set_config(new_selector_config(&self.settings));
-                    if let Err(error) = self.api_handle.service().next_api_endpoint() {
+                    if let Err(error) = self.api_handle.service().next_api_endpoint().await {
                         log::error!("Failed to rotate API endpoint: {}", error);
                     }
                     self.reconnect_tunnel();
@@ -2202,6 +2251,75 @@ where
     async fn on_update_custom_list(&mut self, tx: ResponseTx<(), Error>, new_list: CustomList) {
         let result = self.update_custom_list(new_list).await;
         Self::oneshot_send(tx, result, "update_custom_list response");
+    }
+
+    fn on_get_api_access_methods(&mut self, tx: ResponseTx<Vec<AccessMethodSetting>, Error>) {
+        let result = Ok(self.settings.api_access_methods.cloned());
+        Self::oneshot_send(tx, result, "get_api_access_methods response");
+    }
+
+    async fn on_add_access_method(
+        &mut self,
+        tx: ResponseTx<mullvad_types::access_method::Id, Error>,
+        name: String,
+        enabled: bool,
+        access_method: AccessMethod,
+    ) {
+        let result = self
+            .add_access_method(name, enabled, access_method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "add_api_access_method response");
+    }
+
+    async fn on_remove_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        api_access_method: mullvad_types::access_method::Id,
+    ) {
+        let result = self
+            .remove_access_method(api_access_method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "remove_api_access_method response");
+    }
+
+    async fn on_set_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        access_method: mullvad_types::access_method::Id,
+    ) {
+        let result = self
+            .set_api_access_method(access_method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "set_api_access_method response");
+    }
+
+    async fn on_update_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        method: AccessMethodSetting,
+    ) {
+        let result = self
+            .update_access_method(method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "update_api_access_method response");
+    }
+
+    fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {
+        let result = self
+            .get_current_access_method()
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "get_current_api_access_method response");
+    }
+
+    async fn on_get_api_addresses(&mut self, tx: ResponseTx<Vec<std::net::SocketAddr>, Error>) {
+        let api_proxy = mullvad_api::ApiProxy::new(self.api_handle.clone());
+        let result = api_proxy.get_api_addrs().await.map_err(Error::RestError);
+
+        Self::oneshot_send(tx, result, "on_get_api_adressess response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

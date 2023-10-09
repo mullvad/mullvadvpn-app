@@ -3,6 +3,7 @@
 use crate::types;
 use futures::{Stream, StreamExt};
 use mullvad_types::{
+    access_method::{self, AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, Id},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -161,6 +162,55 @@ impl MullvadProxyClient {
             .map_err(Error::Rpc)?
             .into_inner();
         mullvad_types::relay_list::RelayList::try_from(list).map_err(Error::InvalidResponse)
+    }
+
+    pub async fn get_api_access_methods(&mut self) -> Result<Vec<AccessMethodSetting>> {
+        self.0
+            .get_settings(())
+            .await
+            .map_err(Error::Rpc)?
+            .into_inner()
+            .api_access_methods
+            .ok_or(Error::ApiAccessMethodSettingsNotFound)?
+            .access_method_settings
+            .into_iter()
+            .map(|api_access_method| {
+                AccessMethodSetting::try_from(api_access_method).map_err(Error::InvalidResponse)
+            })
+            .collect()
+    }
+
+    pub async fn get_api_access_method(
+        &mut self,
+        id: &access_method::Id,
+    ) -> Result<AccessMethodSetting> {
+        self.get_api_access_methods()
+            .await?
+            .into_iter()
+            .find(|api_access_method| api_access_method.get_id() == *id)
+            .ok_or(Error::ApiAccessMethodNotFound)
+    }
+
+    pub async fn get_current_api_access_method(&mut self) -> Result<AccessMethodSetting> {
+        self.0
+            .get_current_api_access_method(())
+            .await
+            .map_err(Error::Rpc)
+            .map(tonic::Response::into_inner)
+            .and_then(|access_method| {
+                AccessMethodSetting::try_from(access_method).map_err(Error::InvalidResponse)
+            })
+    }
+
+    pub async fn get_api_addresses(&mut self) -> Result<Vec<std::net::SocketAddr>> {
+        self.0
+            .get_api_addresses(())
+            .await
+            .map_err(Error::Rpc)
+            .map(tonic::Response::into_inner)
+            .and_then(|api_addresses| {
+                Vec::<std::net::SocketAddr>::try_from(api_addresses).map_err(Error::InvalidResponse)
+            })
     }
 
     pub async fn update_relay_locations(&mut self) -> Result<()> {
@@ -455,6 +505,63 @@ impl MullvadProxyClient {
             .await
             .map_err(map_custom_list_error)?;
         Ok(())
+    }
+
+    pub async fn add_access_method(
+        &mut self,
+        name: String,
+        enabled: bool,
+        access_method: AccessMethod,
+    ) -> Result<()> {
+        let request = types::NewAccessMethodSetting {
+            name,
+            enabled,
+            access_method: Some(types::AccessMethod::from(access_method)),
+        };
+        self.0
+            .add_api_access_method(request)
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
+    pub async fn remove_access_method(
+        &mut self,
+        api_access_method: access_method::Id,
+    ) -> Result<()> {
+        self.0
+            .remove_api_access_method(types::Uuid::from(api_access_method))
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
+    pub async fn update_access_method(
+        &mut self,
+        access_method_update: AccessMethodSetting,
+    ) -> Result<()> {
+        self.0
+            .update_api_access_method(types::AccessMethodSetting::from(access_method_update))
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
+    }
+
+    /// Set the [`AccessMethod`] which [`ApiConnectionModeProvider`] should
+    /// pick.
+    ///
+    /// - `access_method`: If `Some(access_method)`, [`ApiConnectionModeProvider`] will skip
+    ///     ahead and return `access_method` when asked for a new access method.
+    ///     If `None`, [`ApiConnectionModeProvider`] will pick the next access
+    ///     method "randomly"
+    ///
+    /// [`ApiConnectionModeProvider`]: mullvad_daemon::api::ApiConnectionModeProvider
+    pub async fn set_access_method(&mut self, api_access_method: access_method::Id) -> Result<()> {
+        self.0
+            .set_api_access_method(types::Uuid::from(api_access_method))
+            .await
+            .map_err(Error::Rpc)
+            .map(drop)
     }
 
     #[cfg(target_os = "linux")]

@@ -1,5 +1,6 @@
 use futures::Stream;
 use hyper::client::connect::Connected;
+use mullvad_types::access_method;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -8,7 +9,7 @@ use std::{
     pin::Pin,
     task::{self, Poll},
 };
-use talpid_types::{net::openvpn::ShadowsocksProxySettings, ErrorExt};
+use talpid_types::ErrorExt;
 use tokio::{
     fs,
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
@@ -16,7 +17,7 @@ use tokio::{
 
 const CURRENT_CONFIG_FILENAME: &str = "api-endpoint.json";
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ApiConnectionMode {
     /// Connect directly to the target.
     Direct,
@@ -33,9 +34,23 @@ impl fmt::Display for ApiConnectionMode {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ProxyConfig {
-    Shadowsocks(ShadowsocksProxySettings),
+    Shadowsocks(access_method::Shadowsocks),
+    Socks(access_method::Socks5),
+}
+
+impl ProxyConfig {
+    /// Returns the remote address to reach the proxy.
+    fn get_endpoint(&self) -> SocketAddr {
+        match self {
+            ProxyConfig::Shadowsocks(ss) => ss.peer,
+            ProxyConfig::Socks(socks) => match socks {
+                access_method::Socks5::Local(s) => s.peer,
+                access_method::Socks5::Remote(s) => s.peer,
+            },
+        }
+    }
 }
 
 impl fmt::Display for ProxyConfig {
@@ -43,6 +58,12 @@ impl fmt::Display for ProxyConfig {
         match self {
             // TODO: Do not hardcode TCP
             ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
+            ProxyConfig::Socks(socks) => match socks {
+                access_method::Socks5::Local(s) => {
+                    write!(f, "Socks5 {}/TCP via localhost:{}", s.peer, s.port)
+                }
+                access_method::Socks5::Remote(s) => write!(f, "Socks5 {}/TCP", s.peer),
+            },
         }
     }
 }
@@ -107,11 +128,11 @@ impl ApiConnectionMode {
         }
     }
 
-    /// Returns the remote address, or `None` for `ApiConnectionMode::Direct`.
+    /// Returns the remote address required to reach the API, or `None` for `ApiConnectionMode::Direct`.
     pub fn get_endpoint(&self) -> Option<SocketAddr> {
         match self {
-            ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(ss)) => Some(ss.peer),
             ApiConnectionMode::Direct => None,
+            ApiConnectionMode::Proxied(proxy_config) => Some(proxy_config.get_endpoint()),
         }
     }
 

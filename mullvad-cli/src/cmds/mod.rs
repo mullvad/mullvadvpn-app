@@ -2,6 +2,7 @@ use clap::builder::{PossibleValuesParser, TypedValueParser, ValueParser};
 use std::ops::Deref;
 
 pub mod account;
+pub mod api_access;
 pub mod auto_connect;
 pub mod beta_program;
 pub mod bridge;
