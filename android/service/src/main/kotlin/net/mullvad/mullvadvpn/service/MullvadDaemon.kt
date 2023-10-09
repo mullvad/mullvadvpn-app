@@ -14,6 +14,9 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.PlayPurchase
+import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
+import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
@@ -171,6 +174,14 @@ class MullvadDaemon(
         return submitVoucher(daemonInterfaceAddress, voucher)
     }
 
+    fun initPlayPurchase(): PlayPurchaseInitResult {
+        return initPlayPurchase(daemonInterfaceAddress)
+    }
+
+    fun verifyPlayPurchase(playPurchase: PlayPurchase): PlayPurchaseVerifyResult {
+        return verifyPlayPurchase(daemonInterfaceAddress, playPurchase)
+    }
+
     fun updateRelaySettings(update: RelaySettingsUpdate) {
         updateRelaySettings(daemonInterfaceAddress, update)
     }
@@ -270,6 +281,13 @@ class MullvadDaemon(
         daemonInterfaceAddress: Long,
         voucher: String
     ): VoucherSubmissionResult
+
+    private external fun initPlayPurchase(daemonInterfaceAddress: Long): PlayPurchaseInitResult
+
+    private external fun verifyPlayPurchase(
+        daemonInterfaceAddress: Long,
+        playPurchase: PlayPurchase,
+    ): PlayPurchaseVerifyResult
 
     private external fun updateRelaySettings(
         daemonInterfaceAddress: Long,
