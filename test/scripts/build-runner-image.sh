@@ -35,7 +35,7 @@ case $TARGET in
         mkfs.ext4 -F "${TEST_RUNNER_IMAGE_PATH}"
         e2cp \
             -P 500 \
-            "${SCRIPT_DIR}/../../target/$TARGET/release/test-runner" \
+            "${SCRIPT_DIR}/../target/$TARGET/release/test-runner" \
             "${SCRIPT_DIR}/../packages/"app-e2e-* \
             "${TEST_RUNNER_IMAGE_PATH}:/"
         e2cp \
@@ -50,7 +50,7 @@ case $TARGET in
         mformat -F -i "${TEST_RUNNER_IMAGE_PATH}" "::"
         mcopy \
             -i "${TEST_RUNNER_IMAGE_PATH}" \
-            "${SCRIPT_DIR}/../../target/$TARGET/release/test-runner.exe" \
+            "${SCRIPT_DIR}/../target/$TARGET/release/test-runner.exe" \
             "${SCRIPT_DIR}/../packages/"*.exe \
             "${SCRIPT_DIR}/../openvpn.ca.crt" \
             "::"

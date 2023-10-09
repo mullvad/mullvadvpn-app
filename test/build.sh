@@ -14,7 +14,7 @@ if [[ $TARGET == x86_64-unknown-linux-gnu ]]; then
         -v "${SCRIPT_DIR}/..":/src:Z \
         -e CARGO_HOME=/root/.cargo/registry \
         mullvadvpn-app-tests \
-        /bin/bash -c "cd /src/; cargo build --bin test-runner --release --target ${TARGET}"
+        /bin/bash -c "cd /src/test/; cargo build --bin test-runner --release --target ${TARGET}"
 else
     cargo build --bin test-runner --release --target "${TARGET}"
 fi
