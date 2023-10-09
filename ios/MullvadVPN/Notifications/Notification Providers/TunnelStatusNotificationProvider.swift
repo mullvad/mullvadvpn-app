@@ -55,9 +55,13 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     // MARK: - Private
 
     private func handleTunnelStatus(_ tunnelStatus: TunnelStatus) {
-        let invalidateForTunnelError = updateLastTunnelError(
-            tunnelStatus.packetTunnelStatus.lastErrors.first?.localizedDescription
-        )
+        let invalidateForTunnelError: Bool
+        if case let .error(blockStateReason) = tunnelStatus.state {
+            invalidateForTunnelError = updateLastTunnelError(blockStateReason.rawValue)
+        } else {
+            invalidateForTunnelError = updateLastTunnelError(nil)
+        }
+
         let invalidateForManagerError = updateTunnelManagerError(tunnelStatus.state)
         let invalidateForConnectivity = updateConnectivity(tunnelStatus.state)
         let invalidateForNetwork = updateNetwork(tunnelStatus.state)
