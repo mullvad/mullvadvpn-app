@@ -3,6 +3,7 @@
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+APP_DIR="$SCRIPT_DIR/../"
 cd "$SCRIPT_DIR"
 
 MAX_CONCURRENT_JOBS=1
@@ -14,7 +15,7 @@ BUILD_DEV_REPOSITORY="https://releases.mullvad.net/builds"
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
 OLD_APP_VERSION=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
-NEW_APP_VERSION=$(cargo run -q --bin mullvad-version)
+NEW_APP_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
 commit=$(git rev-parse HEAD^\{commit\})
 commit=${commit:0:6}
 
