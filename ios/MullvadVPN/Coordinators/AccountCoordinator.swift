@@ -172,6 +172,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
 
         let presentation = AlertPresentation(
             id: "account-device-info-alert",
+            icon: .info,
             message: message,
             buttons: [AlertAction(
                 title: NSLocalizedString(

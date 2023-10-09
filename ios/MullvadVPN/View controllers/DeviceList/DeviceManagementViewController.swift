@@ -183,30 +183,27 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         deviceName: String,
         completion: @escaping (_ shouldDelete: Bool) -> Void
     ) {
+        let text = String(
+            format: NSLocalizedString(
+                "DELETE_ALERT_TITLE",
+                tableName: "DeviceManagement",
+                value: "Are you sure you want to log **\(deviceName)** out?",
+                comment: ""
+            )
+        )
+
+        let attributedText = NSAttributedString(
+            markdownString: text,
+            options: MarkdownStylingOptions(
+                font: .preferredFont(forTextStyle: .body)
+            )
+        )
+
         let presentation = AlertPresentation(
             id: "logout-confirmation-alert",
             icon: .alert,
-            message: String(
-                format: NSLocalizedString(
-                    "DELETE_ALERT_TITLE",
-                    tableName: "DeviceManagement",
-                    value: "Are you sure you want to log %@ out?",
-                    comment: ""
-                ), deviceName
-            ),
+            attributedMessage: attributedText,
             buttons: [
-                AlertAction(
-                    title: NSLocalizedString(
-                        "DELETE_ALERT_CANCEL_ACTION",
-                        tableName: "DeviceManagement",
-                        value: "Back",
-                        comment: ""
-                    ),
-                    style: .default,
-                    handler: {
-                        completion(false)
-                    }
-                ),
                 AlertAction(
                     title: NSLocalizedString(
                         "DELETE_ALERT_CONFIRM_ACTION",
@@ -217,6 +214,18 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                     style: .destructive,
                     handler: {
                         completion(true)
+                    }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "DELETE_ALERT_CANCEL_ACTION",
+                        tableName: "DeviceManagement",
+                        value: "Back",
+                        comment: ""
+                    ),
+                    style: .default,
+                    handler: {
+                        completion(false)
                     }
                 ),
             ]
