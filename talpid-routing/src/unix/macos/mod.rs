@@ -1,7 +1,7 @@
 use crate::{debounce::BurstGuard, NetNode, Node, RequiredRoute, Route};
 
 use futures::{
-    channel::mpsc,
+    channel::mpsc::{self, UnboundedReceiver},
     future::FutureExt,
     stream::{FusedStream, StreamExt},
 };
@@ -89,6 +89,7 @@ pub struct RouteManagerImpl {
     check_default_routes_restored: Pin<Box<dyn FusedStream<Item = ()> + Send>>,
     unhandled_default_route_changes: bool,
     primary_interface_monitor: interface::PrimaryInterfaceMonitor,
+    interface_change_rx: UnboundedReceiver<interface::InterfaceEvent>,
 }
 
 impl RouteManagerImpl {
@@ -97,7 +98,8 @@ impl RouteManagerImpl {
     pub(crate) async fn new(
         manage_tx: Weak<mpsc::UnboundedSender<RouteManagerCommand>>,
     ) -> Result<Self> {
-        let primary_interface_monitor = interface::PrimaryInterfaceMonitor::new();
+        let (primary_interface_monitor, interface_change_rx) =
+            interface::PrimaryInterfaceMonitor::new();
         let routing_table = RoutingTable::new().map_err(Error::RoutingTable)?;
 
         let update_trigger = BurstGuard::new(
@@ -124,6 +126,7 @@ impl RouteManagerImpl {
             check_default_routes_restored: Box::pin(futures::stream::pending()),
             unhandled_default_route_changes: false,
             primary_interface_monitor,
+            interface_change_rx,
         })
     }
 
@@ -165,6 +168,10 @@ impl RouteManagerImpl {
                         log::debug!("Unscoped routes were already restored");
                         self.check_default_routes_restored = Box::pin(futures::stream::pending());
                     }
+                }
+
+                _event = self.interface_change_rx.next() => {
+                    self.update_trigger.trigger();
                 }
 
                 command = manage_rx.next() => {
