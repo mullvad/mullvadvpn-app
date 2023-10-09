@@ -14,7 +14,9 @@ data class ConnectUiState(
     val outAddress: String,
     val showLocation: Boolean,
     val connectNotificationState: ConnectNotificationState,
-    val isTunnelInfoExpanded: Boolean
+    val isTunnelInfoExpanded: Boolean,
+    val deviceName: String?,
+    val daysLeftUntilExpiry: Int?
 ) {
     companion object {
         val INITIAL =
@@ -27,7 +29,9 @@ data class ConnectUiState(
                 outAddress = "",
                 showLocation = false,
                 isTunnelInfoExpanded = false,
-                connectNotificationState = ConnectNotificationState.HideNotification
+                connectNotificationState = ConnectNotificationState.HideNotification,
+                deviceName = null,
+                daysLeftUntilExpiry = null
             )
     }
 }
