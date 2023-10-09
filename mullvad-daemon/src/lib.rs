@@ -179,13 +179,11 @@ pub enum Error {
     #[error(display = "Failed to set exclusion group")]
     GroupIdError(#[error(source)] io::Error),
 
-    // TODO
-    //#[cfg(target_os = "android")]
+    #[cfg(target_os = "android")]
     #[error(display = "Failed to initialize play purchase")]
     InitPlayPurchase(#[error(source)] device::Error),
 
-    // TODO
-    //#[cfg(target_os = "android")]
+    #[cfg(target_os = "android")]
     #[error(display = "Failed to verify play purchase")]
     VerifyPlayPurchase(#[error(source)] device::Error),
 }
@@ -338,12 +336,10 @@ pub enum DaemonCommand {
     #[cfg(target_os = "android")]
     BypassSocket(RawFd, oneshot::Sender<()>),
     /// Initialize a google play purchase through the API.
-    ///TODO
-    //#[cfg(target_os = "android")]
+    #[cfg(target_os = "android")]
     InitPlayPurchase(ResponseTx<PlayPurchasePaymentToken, Error>),
     /// Verify that a google play payment was successful through the API.
-    ///TODO
-    //#[cfg(target_os = "android")]
+    #[cfg(target_os = "android")]
     VerifyPlayPurchase(ResponseTx<(), Error>, PlayPurchase),
 }
 
