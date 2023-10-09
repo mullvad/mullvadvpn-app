@@ -56,6 +56,7 @@ impl Family {
     }
 }
 
+#[derive(Debug)]
 struct NetworkServiceDetails {
     name: String,
     router_ip: IpAddr,
@@ -251,6 +252,19 @@ impl PrimaryInterfaceMonitor {
                 Some(NetworkServiceDetails { name, router_ip })
             })
             .collect::<Vec<_>>()
+    }
+
+    pub fn debug(&self) {
+        for family in [Family::V4, Family::V6] {
+            log::debug!(
+                "Primary interface ({family}): {:?}",
+                self.get_primary_interface(family)
+            );
+            log::debug!(
+                "Network services ({family}): {:?}",
+                self.network_services(family)
+            );
+        }
     }
 }
 
