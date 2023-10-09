@@ -224,7 +224,7 @@ private fun EnterVoucherBody(
     GroupedTextField(
         value = uiState.voucherInput,
         onSubmit = { input ->
-            if (input.isNotEmpty()) {
+            if (uiState.voucherInput.length == VOUCHER_LENGTH) {
                 onRedeem(input)
             }
         },
