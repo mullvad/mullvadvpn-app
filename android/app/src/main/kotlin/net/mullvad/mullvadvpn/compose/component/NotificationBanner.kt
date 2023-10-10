@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
+import net.mullvad.mullvadvpn.compose.util.rememberPrevious
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -82,6 +83,7 @@ fun Notification(
     onClickShowAccount: () -> Unit,
     onClickDismissNewDevice: () -> Unit
 ) {
+    val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
     // Fix for animating to hide
     AnimatedVisibility(
         visible = notification != null,
@@ -89,13 +91,14 @@ fun Notification(
         exit = slideOutVertically(),
         modifier = Modifier.animateContentSize()
     ) {
-        if (notification == null) return@AnimatedVisibility
-        ShowNotification(
-            notification = notification,
-            onClickUpdateVersion = onClickUpdateVersion,
-            onClickShowAccount = onClickShowAccount,
-            onDismiss = onClickDismissNewDevice
-        )
+        val visibleNotification = notification ?: previous
+        if (visibleNotification != null)
+            ShowNotification(
+                notification = visibleNotification,
+                onClickUpdateVersion = onClickUpdateVersion,
+                onClickShowAccount = onClickShowAccount,
+                onDismiss = onClickDismissNewDevice
+            )
     }
 }
 

@@ -197,7 +197,7 @@ class VersionInfoNotificationUseCase(
             } else {
                 container.appVersionInfoCache.appVersionCallbackFlow().map { versionInfo ->
                     listOfNotNull(
-                        unsupportedVerisonNotification(versionInfo),
+                        unsupportedVersionNotification(versionInfo),
                         updateAvailableNotification(versionInfo)
                     )
                 }
@@ -214,7 +214,7 @@ class VersionInfoNotificationUseCase(
         } else null
     }
 
-    private fun unsupportedVerisonNotification(versionInfo: VersionInfo): InAppNotification? {
+    private fun unsupportedVersionNotification(versionInfo: VersionInfo): InAppNotification? {
         if (!isVersionInfoNotificationEnabled) {
             return null
         }
