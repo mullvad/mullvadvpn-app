@@ -2,8 +2,6 @@
 
 set -eu
 
-source "$HOME/.cargo/env"
-
 EMAIL_SUBJECT_PREFIX="App test results"
 SENDER_EMAIL_ADDR=${SENDER_EMAIL_ADDR-"test@app-test-linux"}
 REPORT_ON_SUCCESS=1
