@@ -1,3 +1,4 @@
+use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use ipnetwork::IpNetwork;
 use nix::{
     net::if_::{if_nametoindex, InterfaceFlags},
@@ -9,13 +10,16 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 
+use super::data::{Destination, RouteMessage};
 use system_configuration::{
     core_foundation::{
+        array::CFArray,
         base::{CFType, TCFType, ToVoid},
         dictionary::CFDictionary,
+        runloop::{kCFRunLoopCommonModes, CFRunLoop},
         string::CFString,
     },
-    dynamic_store::SCDynamicStoreBuilder,
+    dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
     network_configuration::SCNetworkSet,
     preferences::SCPreferences,
     sys::schema_definitions::{
@@ -24,7 +28,9 @@ use system_configuration::{
     },
 };
 
-use super::data::{Destination, RouteMessage};
+const STATE_IPV4_KEY: &str = "State:/Network/Global/IPv4";
+const STATE_IPV6_KEY: &str = "State:/Network/Global/IPv6";
+const STATE_SERVICE_PATTERN: &str = "State:/Network/Service/.*/IP.*";
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Family {
@@ -41,42 +47,225 @@ impl std::fmt::Display for Family {
     }
 }
 
-impl From<Family> for IpNetwork {
-    fn from(fam: Family) -> Self {
-        match fam {
+impl Family {
+    pub fn default_network(self) -> IpNetwork {
+        match self {
             Family::V4 => IpNetwork::new(Ipv4Addr::UNSPECIFIED.into(), 0).unwrap(),
             Family::V6 => IpNetwork::new(Ipv6Addr::UNSPECIFIED.into(), 0).unwrap(),
         }
     }
 }
 
-/// Retrieve the best current default route. That is the first scoped default route, ordered by
-/// network service order, and with interfaces filtered out if they do not have valid IP addresses
-/// assigned.
-///
-/// # Note
-///
-/// The tunnel interface is not even listed in the service order, so it will be skipped.
-pub fn get_best_default_route(family: Family) -> Option<RouteMessage> {
-    for iface in network_service_order(family) {
-        let Ok(index) = if_nametoindex(iface.name.as_str()) else {
-            continue;
-        };
+#[derive(Debug)]
+struct NetworkServiceDetails {
+    name: String,
+    router_ip: IpAddr,
+}
 
-        // Request ifscoped default route for this interface
-        let msg = RouteMessage::new_route(Destination::Network(IpNetwork::from(family)))
-            .set_gateway_addr(iface.router_ip)
-            .set_interface_index(u16::try_from(index).unwrap());
-        let active = is_active_interface(&iface.name, family).unwrap_or_else(|error| {
-            log::error!("is_active_interface() returned an error for interface \"{}\", assuming active. Error: {error}", iface.name);
-            true
-        });
-        if active {
-            return Some(msg);
-        }
+pub struct PrimaryInterfaceMonitor {
+    store: SCDynamicStore,
+    prefs: SCPreferences,
+}
+
+// FIXME: Implement Send on SCDynamicStore, if it's safe
+unsafe impl Send for PrimaryInterfaceMonitor {}
+
+pub enum InterfaceEvent {
+    Update,
+}
+
+impl PrimaryInterfaceMonitor {
+    pub fn new() -> (Self, UnboundedReceiver<InterfaceEvent>) {
+        let store = SCDynamicStoreBuilder::new("talpid-routing").build();
+        let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
+
+        let (tx, rx) = mpsc::unbounded();
+        Self::start_listener(tx);
+
+        (Self { store, prefs }, rx)
     }
 
-    None
+    fn start_listener(tx: UnboundedSender<InterfaceEvent>) {
+        std::thread::spawn(|| {
+            let listener_store = SCDynamicStoreBuilder::new("talpid-routing-listener")
+                .callback_context(SCDynamicStoreCallBackContext {
+                    callout: Self::store_change_handler,
+                    info: tx,
+                })
+                .build();
+
+            let watch_keys: CFArray<CFString> = CFArray::from_CFTypes(&[
+                CFString::new(STATE_IPV4_KEY),
+                CFString::new(STATE_IPV6_KEY),
+            ]);
+            let watch_patterns = CFArray::from_CFTypes(&[CFString::new(STATE_SERVICE_PATTERN)]);
+
+            if !listener_store.set_notification_keys(&watch_keys, &watch_patterns) {
+                log::error!("Failed to start interface listener");
+                return;
+            }
+
+            let run_loop_source = listener_store.create_run_loop_source();
+            CFRunLoop::get_current().add_source(&run_loop_source, unsafe { kCFRunLoopCommonModes });
+            CFRunLoop::run_current();
+
+            log::debug!("Interface listener exiting");
+        });
+    }
+
+    fn store_change_handler(
+        _store: SCDynamicStore,
+        changed_keys: CFArray<CFString>,
+        tx: &mut UnboundedSender<InterfaceEvent>,
+    ) {
+        for k in changed_keys.iter() {
+            log::debug!("Interface change, key {}", k.to_string());
+        }
+        let _ = tx.unbounded_send(InterfaceEvent::Update);
+    }
+
+    /// Retrieve the best current default route. This is based on the primary interface, or else
+    /// the first active interface in the network service order.
+    pub fn get_route(&self, family: Family) -> Option<RouteMessage> {
+        let ifaces = self
+            .get_primary_interface(family)
+            .map(|iface| {
+                log::debug!("Found primary interface for {family}");
+                vec![iface]
+            })
+            .unwrap_or_else(|| {
+                log::debug!("No primary interface for {family}. Checking service order");
+                self.network_services(family)
+            });
+
+        let (iface, index) = ifaces
+            .into_iter()
+            .filter_map(|iface| {
+                let index = if_nametoindex(iface.name.as_str()).map_err(|error| {
+                    log::error!("Failed to retrieve interface index for \"{}\": {error}", iface.name);
+                    error
+                }).ok()?;
+
+                let active = is_active_interface(&iface.name, family).unwrap_or_else(|error| {
+                    log::error!("is_active_interface() returned an error for interface \"{}\", assuming active. Error: {error}", iface.name);
+                    true
+                });
+                if !active {
+                    log::debug!("Skipping inactive interface {}, router IP {}", iface.name, iface.router_ip);
+                    return None;
+                }
+                Some((iface, index))
+            })
+            .next()?;
+
+        // Synthesize a scoped route for the interface
+        let msg = RouteMessage::new_route(Destination::Network(family.default_network()))
+            .set_gateway_addr(iface.router_ip)
+            .set_interface_index(u16::try_from(index).unwrap());
+        Some(msg)
+    }
+
+    fn get_primary_interface(&self, family: Family) -> Option<NetworkServiceDetails> {
+        let global_name = if family == Family::V4 {
+            STATE_IPV4_KEY
+        } else {
+            STATE_IPV6_KEY
+        };
+        let global_dict = self
+            .store
+            .get(CFString::new(global_name))
+            .and_then(|v| v.downcast_into::<CFDictionary>())?;
+        let name = global_dict
+            .find(unsafe { kSCDynamicStorePropNetPrimaryInterface }.to_void())
+            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+            .and_then(|s| s.downcast::<CFString>())
+            .map(|s| s.to_string())
+            .or_else(|| {
+                log::debug!("Missing name for primary interface ({family})");
+                None
+            })?;
+
+        let router_key = if family == Family::V4 {
+            unsafe { kSCPropNetIPv4Router.to_void() }
+        } else {
+            unsafe { kSCPropNetIPv6Router.to_void() }
+        };
+
+        let router_ip = global_dict
+            .find(router_key)
+            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+            .and_then(|s| s.downcast::<CFString>())
+            .and_then(|ip| ip.to_string().parse().ok())
+            .or_else(|| {
+                log::debug!("Missing router IP for primary interface \"{name}\"");
+                None
+            })?;
+
+        Some(NetworkServiceDetails { name, router_ip })
+    }
+
+    fn network_services(&self, family: Family) -> Vec<NetworkServiceDetails> {
+        let router_key = if family == Family::V4 {
+            unsafe { kSCPropNetIPv4Router.to_void() }
+        } else {
+            unsafe { kSCPropNetIPv6Router.to_void() }
+        };
+
+        SCNetworkSet::new(&self.prefs)
+            .service_order()
+            .iter()
+            .filter_map(|service_id| {
+                let service_id_s = service_id.to_string();
+                let key = if family == Family::V4 {
+                    format!("State:/Network/Service/{service_id_s}/IPv4")
+                } else {
+                    format!("State:/Network/Service/{service_id_s}/IPv6")
+                };
+
+                let ip_dict = self
+                    .store
+                    .get(CFString::new(&key))
+                    .and_then(|v| v.downcast_into::<CFDictionary>())
+                    .or_else(|| {
+                        log::debug!("No {family} dict for {service_id_s}");
+                        None
+                    })?;
+                let name = ip_dict
+                    .find(unsafe { kSCPropInterfaceName }.to_void())
+                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+                    .and_then(|s| s.downcast::<CFString>())
+                    .map(|s| s.to_string())
+                    .or_else(|| {
+                        log::debug!("Missing name for service {service_id_s} ({family})");
+                        None
+                    })?;
+                let router_ip = ip_dict
+                    .find(router_key)
+                    .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
+                    .and_then(|s| s.downcast::<CFString>())
+                    .and_then(|ip| ip.to_string().parse().ok())
+                    .or_else(|| {
+                        log::debug!("Missing router IP for {service_id_s} ({name}, {family})");
+                        None
+                    })?;
+
+                Some(NetworkServiceDetails { name, router_ip })
+            })
+            .collect::<Vec<_>>()
+    }
+
+    pub fn debug(&self) {
+        for family in [Family::V4, Family::V6] {
+            log::debug!(
+                "Primary interface ({family}): {:?}",
+                self.get_primary_interface(family)
+            );
+            log::debug!(
+                "Network services ({family}): {:?}",
+                self.network_services(family)
+            );
+        }
+    }
 }
 
 /// Return a map from interface name to link addresses (AF_LINK)
@@ -90,82 +279,6 @@ pub fn get_interface_link_addresses() -> io::Result<BTreeMap<String, SockaddrSto
         gateway_link_addrs.insert(addr.interface_name, addr.address.unwrap());
     }
     Ok(gateway_link_addrs)
-}
-
-struct NetworkServiceDetails {
-    name: String,
-    router_ip: IpAddr,
-}
-
-fn network_service_order(family: Family) -> Vec<NetworkServiceDetails> {
-    let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
-    let set = SCNetworkSet::new(&prefs);
-    let service_order = set.service_order();
-    let store = SCDynamicStoreBuilder::new("talpid-routing").build();
-
-    let global_dict = if family == Family::V4 {
-        "State:/Network/Global/IPv4"
-    } else {
-        "State:/Network/Global/IPv6"
-    };
-    let global_dict = store
-        .get(CFString::new(global_dict))
-        .and_then(|v| v.downcast_into::<CFDictionary>());
-    let primary_interface = if let Some(ref dict) = global_dict {
-        dict.find(unsafe { kSCDynamicStorePropNetPrimaryInterface }.to_void())
-            .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-            .and_then(|s| s.downcast::<CFString>())
-            .map(|s| s.to_string())
-    } else {
-        None
-    };
-
-    let router_key = if family == Family::V4 {
-        unsafe { kSCPropNetIPv4Router.to_void() }
-    } else {
-        unsafe { kSCPropNetIPv6Router.to_void() }
-    };
-
-    service_order
-        .iter()
-        .filter_map(|service_id| {
-            let service_id_s = service_id.to_string();
-            let key = if family == Family::V4 {
-                format!("State:/Network/Service/{service_id_s}/IPv4")
-            } else {
-                format!("State:/Network/Service/{service_id_s}/IPv6")
-            };
-
-            let ip_dict = store
-                .get(CFString::new(&key))
-                .and_then(|v| v.downcast_into::<CFDictionary>())?;
-            let name = ip_dict
-                .find(unsafe { kSCPropInterfaceName }.to_void())
-                .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-                .and_then(|s| s.downcast::<CFString>())
-                .map(|s| s.to_string())?;
-            let router_ip = ip_dict
-                .find(router_key)
-                .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-                .and_then(|s| s.downcast::<CFString>())
-                .and_then(|ip| ip.to_string().parse().ok())
-                .or_else(|| {
-                    if Some(&name) != primary_interface.as_ref() {
-                        return None;
-                    }
-                    let Some(ref dict) = global_dict else {
-                        return None;
-                    };
-                    // Sometimes only the primary interface contains the router IPv6 addr
-                    dict.find(router_key)
-                        .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
-                        .and_then(|s| s.downcast::<CFString>())
-                        .and_then(|ip| ip.to_string().parse().ok())
-                })?;
-
-            Some(NetworkServiceDetails { name, router_ip })
-        })
-        .collect::<Vec<_>>()
 }
 
 /// Return whether the given interface has an assigned (unicast) IP address.

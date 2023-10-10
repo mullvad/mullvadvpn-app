@@ -539,6 +539,12 @@ impl TunnelState for ConnectingState {
         retry_attempt: u32,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         if shared_values.is_offline {
+            // FIXME: Temporary: Nudge route manager to update the default interface
+            #[cfg(target_os = "macos")]
+            if let Ok(handle) = shared_values.route_manager.handle() {
+                log::debug!("Poking route manager to update default routes");
+                let _ = handle.refresh_routes();
+            }
             return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
         }
         match shared_values.runtime.block_on(

@@ -7,6 +7,7 @@ use crate::debounce::BurstGuard;
 use std::{
     ffi::c_void,
     sync::{Arc, Mutex},
+    time::Duration,
 };
 use talpid_types::win32_err;
 use windows_sys::Win32::{
@@ -173,10 +174,17 @@ impl DefaultRouteMonitor {
             family,
         )));
 
+        const BURST_BUFFER_PERIOD: Duration = Duration::from_millis(200);
+        const BURST_LONGEST_BUFFER_PERIOD: Duration = Duration::from_secs(2);
+
         let moved_context = context.clone();
-        let burst_guard = Mutex::new(BurstGuard::new(move || {
-            moved_context.lock().unwrap().evaluate_routes();
-        }));
+        let burst_guard = Mutex::new(BurstGuard::new(
+            BURST_BUFFER_PERIOD,
+            BURST_LONGEST_BUFFER_PERIOD,
+            move || {
+                moved_context.lock().unwrap().evaluate_routes();
+            },
+        ));
 
         // SAFETY: We need to send the ContextAndBurstGuard to the windows notification functions as
         // a raw pointer. This imposes the requirement it is not mutated or dropped until
