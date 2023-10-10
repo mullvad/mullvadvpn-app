@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
 import net.mullvad.mullvadvpn.compose.util.rememberPrevious
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
+import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.repository.InAppNotification
@@ -87,31 +88,20 @@ fun Notification(
     // Fix for animating to hide
     AnimatedVisibility(
         visible = notification != null,
-        enter = slideInVertically(),
-        exit = slideOutVertically(),
+        enter = slideInVertically(initialOffsetY = { -it }),
+        exit = slideOutVertically(targetOffsetY = { -it }),
         modifier = Modifier.animateContentSize()
     ) {
         val visibleNotification = notification ?: previous
         if (visibleNotification != null)
-            ShowNotification(
-                notification = visibleNotification,
-                onClickUpdateVersion = onClickUpdateVersion,
-                onClickShowAccount = onClickShowAccount,
-                onDismiss = onClickDismissNewDevice
+            NotificationBanner(
+                visibleNotification.toNotificationData(
+                    onClickUpdateVersion,
+                    onClickShowAccount,
+                    onClickDismissNewDevice
+                )
             )
     }
-}
-
-@Composable
-private fun ShowNotification(
-    notification: InAppNotification,
-    onClickUpdateVersion: () -> Unit,
-    onClickShowAccount: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    val notificationData =
-        notification.toNotificationData(onClickUpdateVersion, onClickShowAccount, onDismiss)
-    NotificationBanner(notificationData)
 }
 
 @Composable
@@ -176,6 +166,7 @@ private fun NotificationBanner(notificationBannerData: NotificationBannerData) {
                             width = Dimension.fillToConstraints
                         }
                         .padding(start = Dimens.smallPadding),
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
                 style = MaterialTheme.typography.labelMedium
             )
         }
