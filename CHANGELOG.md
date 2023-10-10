@@ -41,6 +41,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix connection header flickering.
 
+
+## [2023.5] - 2023-10-10
+### Fixed
 #### macOS
 - Fix connectivity issues when switching between networks or disconnecting.
 
