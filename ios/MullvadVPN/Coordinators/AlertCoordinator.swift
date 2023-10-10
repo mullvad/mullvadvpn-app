@@ -25,26 +25,10 @@ final class AlertCoordinator: Coordinator, Presentable {
     }
 
     func start() {
-        let alertController = AlertViewController(
-            header: presentation.header,
-            title: presentation.title,
-            message: presentation.message,
-            icon: presentation.icon
-        )
+        alertController = AlertViewController(presentation: presentation)
 
-        self.alertController = alertController
-
-        alertController.onDismiss = { [weak self] in
+        alertController?.onDismiss = { [weak self] in
             self?.didFinish?()
-        }
-
-        presentation.buttons.forEach { action in
-            alertController.addAction(
-                title: action.title,
-                style: action.style,
-                accessibilityId: action.accessibilityID,
-                handler: action.handler
-            )
         }
     }
 }
