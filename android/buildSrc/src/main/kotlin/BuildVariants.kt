@@ -6,6 +6,7 @@ import Flavors.DEVMOLE
 import Flavors.OSS
 import Flavors.PLAY
 import Flavors.PROD
+import Flavors.STAGEMOLE
 
 object BuildTypes {
     const val DEBUG = "debug"
@@ -29,6 +30,7 @@ object Flavors {
 
     const val PROD = "prod"
     const val DEVMOLE = "devmole"
+    const val STAGEMOLE = "stagemole"
 }
 
 val enabledVariantTriples =
@@ -40,5 +42,7 @@ val enabledVariantTriples =
         Triple(PLAY, PROD, DEBUG),
         Triple(PLAY, PROD, RELEASE),
         Triple(PLAY, DEVMOLE, DEBUG),
-        Triple(PLAY, DEVMOLE, RELEASE)
+        Triple(PLAY, DEVMOLE, RELEASE),
+        Triple(PLAY, STAGEMOLE, DEBUG),
+        Triple(PLAY, STAGEMOLE, RELEASE)
     )
