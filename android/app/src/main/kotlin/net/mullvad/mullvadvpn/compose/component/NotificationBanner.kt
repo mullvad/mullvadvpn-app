@@ -23,13 +23,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.core.text.HtmlCompat
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
+import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
@@ -155,7 +159,7 @@ private fun NotificationBanner(notificationBannerData: NotificationBannerData) {
                     }
                     .padding(start = Dimens.smallPadding),
             style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Bold
+            color = MaterialTheme.colorScheme.onBackground,
         )
         message?.let {
             Text(
@@ -203,7 +207,21 @@ fun InAppNotification.toNotificationData(
         is InAppNotification.NewDeviceNotification ->
             NotificationBannerData(
                 title = stringResource(id = R.string.new_device_notification_title),
-                message = stringResource(id = R.string.new_device_notification_message, deviceName),
+                message =
+                    HtmlCompat.fromHtml(
+                            stringResource(
+                                id = R.string.new_device_notification_message,
+                                deviceName
+                            ),
+                            HtmlCompat.FROM_HTML_MODE_COMPACT
+                        )
+                        .toAnnotatedString(
+                            boldSpanStyle =
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                    fontWeight = FontWeight.ExtraBold
+                                ),
+                        ),
                 statusLevel = StatusLevel.Info,
                 action = NotificationAction(R.drawable.icon_close, dismiss)
             )
@@ -255,18 +273,27 @@ private fun errorMessageBannerData(error: ErrorState) =
     error.getErrorNotificationResources(LocalContext.current).run {
         NotificationBannerData(
             title = stringResource(id = titleResourceId),
-            message = optionalMessageArgument?.let { stringResource(id = messageResourceId, it) }
+            message =
+                optionalMessageArgument?.let { stringResource(id = messageResourceId, it) }
                     ?: stringResource(id = messageResourceId),
-            statusLevel = StatusLevel.Error
+            statusLevel = StatusLevel.Error,
+            action = null
         )
     }
 
 data class NotificationBannerData(
     val title: String,
-    val message: String? = null,
+    val message: AnnotatedString? = null,
     val statusLevel: StatusLevel,
     val action: NotificationAction? = null
-)
+) {
+    constructor(
+        title: String,
+        message: String?,
+        statusLevel: StatusLevel,
+        action: NotificationAction?
+    ) : this(title, message?.let { AnnotatedString(it) }, statusLevel, action)
+}
 
 data class NotificationAction(
     @DrawableRes val icon: Int,
