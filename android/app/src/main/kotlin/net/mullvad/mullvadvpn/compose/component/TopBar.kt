@@ -221,7 +221,7 @@ fun MullvadMediumTopBar(
 
 @Preview
 @Composable
-fun PreviewMullvadTopBarWithLongDeviceName() {
+private fun PreviewMullvadTopBarWithLongDeviceName() {
     AppTheme {
         Surface {
             MullvadTopBarWithDeviceName(
@@ -238,7 +238,7 @@ fun PreviewMullvadTopBarWithLongDeviceName() {
 
 @Preview
 @Composable
-fun PreviewMullvadTopBarWithShortDeviceName() {
+private fun PreviewMullvadTopBarWithShortDeviceName() {
     AppTheme {
         Surface {
             MullvadTopBarWithDeviceName(
