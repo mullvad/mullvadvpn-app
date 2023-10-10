@@ -1,2 +1,1 @@
-Add social media blocking.
-Improve UI and fix bugs related to account management.
+Minor addition to problem report logs to aid debugging of user issues.
