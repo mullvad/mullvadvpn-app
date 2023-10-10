@@ -1233,14 +1233,6 @@ mod tests {
         }
     }
 
-    fn new_runtime() -> Result<tokio::runtime::Runtime> {
-        tokio::runtime::Builder::new_multi_thread()
-            .worker_threads(2)
-            .enable_all()
-            .build()
-            .map_err(Error::RuntimeError)
-    }
-
     fn create_init_args_plugin_log(
         plugin_path: PathBuf,
         log_path: Option<PathBuf>,
@@ -1265,134 +1257,111 @@ mod tests {
         create_init_args_plugin_log("".into(), None)
     }
 
-    #[test]
-    fn sets_plugin() {
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn sets_plugin() {
         let builder = TestOpenVpnBuilder::default();
-        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args_plugin_log("./my_test_plugin".into(), None);
-        let _ = runtime.block_on(async {
-            OpenVpnMonitor::new_internal(
-                builder.clone(),
-                openvpn_init_args,
-                TestOpenvpnEventProxy {},
-                #[cfg(windows)]
-                Box::new(TestWintunContext {}),
-            )
-        });
+        let _ = OpenVpnMonitor::new_internal(
+            builder.clone(),
+            openvpn_init_args,
+            TestOpenvpnEventProxy {},
+            #[cfg(windows)]
+            Box::new(TestWintunContext {}),
+        );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
             *builder.plugin.lock()
         );
     }
 
-    #[test]
-    fn sets_log() {
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn sets_log() {
         let builder = TestOpenVpnBuilder::default();
-        let runtime = new_runtime().unwrap();
         let openvpn_init_args =
             create_init_args_plugin_log("".into(), Some(PathBuf::from("./my_test_log_file")));
-        let _ = runtime.block_on(async {
-            OpenVpnMonitor::new_internal(
-                builder.clone(),
-                openvpn_init_args,
-                TestOpenvpnEventProxy {},
-                #[cfg(windows)]
-                Box::new(TestWintunContext {}),
-            )
-        });
+        let _ = OpenVpnMonitor::new_internal(
+            builder.clone(),
+            openvpn_init_args,
+            TestOpenvpnEventProxy {},
+            #[cfg(windows)]
+            Box::new(TestWintunContext {}),
+        );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
             *builder.log.lock()
         );
     }
 
-    #[test]
-    fn exit_successfully() {
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn exit_successfully() {
         let builder = TestOpenVpnBuilder {
             process_handle: Some(TestProcessHandle(0)),
             ..Default::default()
         };
-        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
-        let testee = runtime
-            .block_on(async {
-                OpenVpnMonitor::new_internal(
-                    builder,
-                    openvpn_init_args,
-                    TestOpenvpnEventProxy {},
-                    #[cfg(windows)]
-                    Box::new(TestWintunContext {}),
-                )
-            })
-            .unwrap();
+        let testee = OpenVpnMonitor::new_internal(
+            builder,
+            openvpn_init_args,
+            TestOpenvpnEventProxy {},
+            #[cfg(windows)]
+            Box::new(TestWintunContext {}),
+        )
+        .unwrap();
         assert!(testee.wait().is_ok());
     }
 
-    #[test]
-    fn exit_error() {
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn exit_error() {
         let builder = TestOpenVpnBuilder {
             process_handle: Some(TestProcessHandle(1)),
             ..Default::default()
         };
-        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
-        let testee = runtime
-            .block_on(async move {
-                OpenVpnMonitor::new_internal(
-                    builder,
-                    openvpn_init_args,
-                    TestOpenvpnEventProxy {},
-                    #[cfg(windows)]
-                    Box::new(TestWintunContext {}),
-                )
-            })
-            .unwrap();
+        let testee = OpenVpnMonitor::new_internal(
+            builder,
+            openvpn_init_args,
+            TestOpenvpnEventProxy {},
+            #[cfg(windows)]
+            Box::new(TestWintunContext {}),
+        )
+        .unwrap();
         assert!(testee.wait().is_err());
     }
 
-    #[test]
-    fn wait_closed() {
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn wait_closed() {
         let builder = TestOpenVpnBuilder {
             process_handle: Some(TestProcessHandle(1)),
             ..Default::default()
         };
-        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
-        let testee = runtime
-            .block_on(async {
-                OpenVpnMonitor::new_internal(
-                    builder,
-                    openvpn_init_args,
-                    TestOpenvpnEventProxy {},
-                    #[cfg(windows)]
-                    Box::new(TestWintunContext {}),
-                )
-            })
-            .unwrap();
+        let testee = OpenVpnMonitor::new_internal(
+            builder,
+            openvpn_init_args,
+            TestOpenvpnEventProxy {},
+            #[cfg(windows)]
+            Box::new(TestWintunContext {}),
+        )
+        .unwrap();
 
-        // TODO: Remove this?
-        runtime.block_on(testee.close_handle().close()).unwrap();
+        testee.close_handle().close().await.unwrap();
         let result = testee.wait();
         println!("[testee.wait(): {:?}]", result);
         assert!(result.is_ok());
     }
 
-    #[test]
-    fn failed_process_start() {
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn failed_process_start() {
         let builder = TestOpenVpnBuilder::default();
-        let runtime = new_runtime().unwrap();
         let openvpn_init_args = create_init_args();
-        let result = runtime
-            .block_on(async {
-                OpenVpnMonitor::new_internal(
-                    builder,
-                    openvpn_init_args,
-                    TestOpenvpnEventProxy {},
-                    #[cfg(windows)]
-                    Box::new(TestWintunContext {}),
-                )
-            })
-            .unwrap();
+        let result = OpenVpnMonitor::new_internal(
+            builder,
+            openvpn_init_args,
+            TestOpenvpnEventProxy {},
+            #[cfg(windows)]
+            Box::new(TestWintunContext {}),
+        )
+        .unwrap();
         match result.wait() {
             Err(Error::StartProcessError) => (),
             _ => panic!("Wrong error"),
