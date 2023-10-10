@@ -16,8 +16,10 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
@@ -39,6 +41,7 @@ class OutOfTimeViewModelTest {
     private val serviceConnectionState =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
     private val accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+    private val deviceState = MutableStateFlow<DeviceState>(DeviceState.Initial)
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -48,6 +51,7 @@ class OutOfTimeViewModelTest {
     private val eventNotifierTunnelRealState = EventNotifier<TunnelState>(TunnelState.Disconnected)
 
     private val mockAccountRepository: AccountRepository = mockk()
+    private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
 
     private lateinit var viewModel: OutOfTimeViewModel
@@ -64,10 +68,13 @@ class OutOfTimeViewModelTest {
 
         every { mockAccountRepository.accountExpiryState } returns accountExpiryState
 
+        every { mockDeviceRepository.deviceState } returns deviceState
+
         viewModel =
             OutOfTimeViewModel(
                 accountRepository = mockAccountRepository,
                 serviceConnectionManager = mockServiceConnectionManager,
+                deviceRepository = mockDeviceRepository,
                 pollAccountExpiry = false
             )
     }
@@ -104,7 +111,7 @@ class OutOfTimeViewModelTest {
 
             // Act, Assert
             viewModel.uiState.test {
-                assertEquals(OutOfTimeUiState(), awaitItem())
+                assertEquals(OutOfTimeUiState(deviceName = ""), awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)

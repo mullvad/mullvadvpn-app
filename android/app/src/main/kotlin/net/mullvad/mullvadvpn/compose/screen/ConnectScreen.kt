@@ -36,7 +36,6 @@ import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.LocationInfo
 import net.mullvad.mullvadvpn.compose.component.Notification
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
