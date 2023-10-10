@@ -29,7 +29,7 @@ class OutOfTimeScreenTest {
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = false,
-                uiState = OutOfTimeUiState(),
+                uiState = OutOfTimeUiState(deviceName = ""),
                 uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
@@ -57,7 +57,7 @@ class OutOfTimeScreenTest {
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
-                uiState = OutOfTimeUiState(),
+                uiState = OutOfTimeUiState(deviceName = ""),
                 uiSideEffect =
                     MutableStateFlow(OutOfTimeViewModel.UiSideEffect.OpenAccountView("222")),
                 onSitePaymentClick = {},
@@ -80,7 +80,7 @@ class OutOfTimeScreenTest {
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
-                uiState = OutOfTimeUiState(),
+                uiState = OutOfTimeUiState(deviceName = ""),
                 uiSideEffect = MutableStateFlow(OutOfTimeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
@@ -102,7 +102,7 @@ class OutOfTimeScreenTest {
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
-                uiState = OutOfTimeUiState(),
+                uiState = OutOfTimeUiState(deviceName = ""),
                 uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = mockClickListener,
                 onRedeemVoucherClick = {},
@@ -127,7 +127,7 @@ class OutOfTimeScreenTest {
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
-                uiState = OutOfTimeUiState(),
+                uiState = OutOfTimeUiState(deviceName = ""),
                 uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = mockClickListener,
@@ -152,7 +152,11 @@ class OutOfTimeScreenTest {
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
-                uiState = OutOfTimeUiState(tunnelState = TunnelState.Connecting(null, null)),
+                uiState =
+                    OutOfTimeUiState(
+                        tunnelState = TunnelState.Connecting(null, null),
+                        deviceName = ""
+                    ),
                 uiSideEffect = MutableSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
