@@ -119,6 +119,8 @@
     <string name="max_devices_warning_description">Logga ut på minst en enhet genom att ta bort den från listan nedan. Du hittar motsvarande enhetsnamn i enhetens kontoinställningar.</string>
     <string name="max_devices_warning_title">För många enheter</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
+    <string name="new_device_notification_message">Välkommen! Den här enheten heter nu &lt;b&gt;%1$s&lt;/b&gt;. Använd informationsknappen i Konto för mer information.</string>
+    <string name="new_device_notification_title">NY ENHET HAR SKAPATS</string>
     <string name="no_matching_relay">Inga servrar matchar dina inställningar. Försök att byta server eller ändra inställningarna.</string>
     <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_blocking_internet">DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN</string>

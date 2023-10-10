@@ -96,6 +96,7 @@ class InAppNotificationController(
 class AccountExpiryNotificationUseCase(
     private val serviceConnectionManager: ServiceConnectionManager,
 ) {
+    // TODO this piece of logic should be removed
     private val readyContainer =
         serviceConnectionManager.connectionState.map {
             if (it is ServiceConnectionState.ConnectedReady) {
@@ -107,6 +108,7 @@ class AccountExpiryNotificationUseCase(
 
     fun notification(): Flow<InAppNotification?> =
         readyContainer.flatMapLatest { container ->
+            // TODO This should be done in a neater way
             if (container == null) {
                 flowOf(null)
             } else {
@@ -130,6 +132,7 @@ class AccountExpiryNotificationUseCase(
 class TunnelStateNotificationUseCase(
     private val serviceConnectionManager: ServiceConnectionManager,
 ) {
+    // TODO this piece of logic should be removed
     private val readyContainer =
         serviceConnectionManager.connectionState.map {
             if (it is ServiceConnectionState.ConnectedReady) {
@@ -141,6 +144,7 @@ class TunnelStateNotificationUseCase(
 
     fun notification(): Flow<InAppNotification?> =
         readyContainer.flatMapLatest { container ->
+            // TODO This should be done in a neater way
             if (container == null) {
                 flowOf(null)
             } else {
@@ -175,6 +179,7 @@ class VersionInfoNotificationUseCase(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val isVersionInfoNotificationEnabled: Boolean,
 ) {
+    // TODO This piece of logic should be removed
     private val readyContainer =
         serviceConnectionManager.connectionState.map {
             if (it is ServiceConnectionState.ConnectedReady) {
@@ -186,6 +191,7 @@ class VersionInfoNotificationUseCase(
 
     fun notification(): Flow<List<InAppNotification>> =
         readyContainer.flatMapLatest { container ->
+            // TODO This should be done in a neater way
             if (container == null) {
                 flowOf(emptyList())
             } else {
