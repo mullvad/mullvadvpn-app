@@ -11,7 +11,7 @@ import Foundation
 public struct PacketTunnelOptions {
     /// Keys for options dictionary
     private enum Keys: String {
-        /// Option key that holds serialized`SelectedRelay` value encoded using `JSONEncoder`.
+        /// Option key that holds serialized `SelectedRelay` value encoded using `JSONEncoder`.
         /// Used for passing the pre-selected relay in the GUI process to the Packet tunnel process.
         case selectedRelay = "selected-relay"
 

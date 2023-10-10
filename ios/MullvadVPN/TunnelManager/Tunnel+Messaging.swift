@@ -24,7 +24,6 @@ private let proxyRequestTimeout = REST.defaultAPINetworkTimeout + 2
 
 extension Tunnel {
     /// Request packet tunnel process to reconnect the tunnel with the given relay.
-    /// Packet tunnel will reconnect to the current relay if relay is not provided.
     func reconnectTunnel(
         to nextRelay: NextRelay,
         completionHandler: @escaping (Result<Void, Error>) -> Void
