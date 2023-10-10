@@ -10,7 +10,6 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 import NetworkExtension
-import struct RelaySelector.RelaySelectorResult
 import class WireGuardKitTypes.PrivateKey
 
 /**
@@ -353,11 +352,5 @@ extension PacketTunnelActor {
         case let .preSelected(selectedRelay):
             return selectedRelay
         }
-    }
-}
-
-extension RelaySelectorResult {
-    func asSelectedRelay() -> SelectedRelay {
-        return SelectedRelay(endpoint: endpoint, hostname: relay.hostname, location: location)
     }
 }

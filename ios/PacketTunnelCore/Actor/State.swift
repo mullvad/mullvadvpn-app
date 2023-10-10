@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadTypes
-import struct RelaySelector.RelaySelectorResult
 import TunnelObfuscation
 import class WireGuardKitTypes.PrivateKey
 
