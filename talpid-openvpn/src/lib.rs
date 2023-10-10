@@ -166,7 +166,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     >,
     abort_spawn: futures::future::AbortHandle,
 
-    child: Arc<Mutex<Option<Arc<C::ProcessHandle>>>>,
+    child: Arc<Mutex<Option<C::ProcessHandle>>>,
     proxy_monitor: Option<Box<dyn ProxyMonitor>>,
     closed: Arc<AtomicBool>,
     /// Keep the `TempFile` for the user-pass file in the struct, so it's removed on drop.
@@ -566,7 +566,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             .await
             .expect("spawn task panicked")
         {
-            Ok(Ok(child)) => Arc::new(child),
+            Ok(Ok(child)) => child,
             Ok(Err(error)) => {
                 self.closed.swap(true, Ordering::SeqCst);
                 return WaitResult::Preparation(Err(error));
@@ -580,13 +580,13 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         }
 
         {
-            self.child.lock().await.replace(child.clone());
+            self.child.lock().await.replace(child);
         }
 
         let event_server_abort_tx = self.event_server_abort_tx.clone();
 
         let kill_child = async move {
-            let result = child.wait().await;
+            let result = self.child.lock().await.as_ref().unwrap().wait().await;
             let closed = self.closed.load(Ordering::SeqCst);
             let result = WaitResult::Child(result, closed);
             event_server_abort_tx.trigger();
@@ -719,7 +719,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 /// A handle to an `OpenVpnMonitor` for closing it.
 #[derive(Debug, Clone)]
 pub struct OpenVpnCloseHandle<H: ProcessHandle = OpenVpnProcHandle> {
-    child: Arc<Mutex<Option<Arc<H>>>>,
+    child: Arc<Mutex<Option<H>>>,
     abort_spawn: futures::future::AbortHandle,
     closed: Arc<AtomicBool>,
 }
