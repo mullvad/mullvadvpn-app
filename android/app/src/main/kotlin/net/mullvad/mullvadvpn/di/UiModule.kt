@@ -5,16 +5,22 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
+import net.mullvad.mullvadvpn.repository.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.repository.InAppNotificationController
+import net.mullvad.mullvadvpn.repository.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.repository.TunnelStateNotificationUseCase
+import net.mullvad.mullvadvpn.repository.VersionInfoNotificationUseCase
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
@@ -75,6 +81,15 @@ val uiModule = module {
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
 
+    single { AccountExpiryNotificationUseCase(get()) }
+    single { TunnelStateNotificationUseCase(get()) }
+    single {
+        VersionInfoNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS)
+    }
+    single { NewDeviceNotificationUseCase(get()) }
+
+    single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
+
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
     // View models
@@ -82,12 +97,10 @@ val uiModule = module {
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
-    viewModel {
-        ConnectViewModel(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get(), get())
-    }
+    viewModel { ConnectViewModel(get(), get(), get(), get()) }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
-    viewModel { LoginViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
     viewModel { SelectLocationViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }

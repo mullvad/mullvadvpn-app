@@ -83,7 +83,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowTunnelStateNotificationBlocked
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -118,7 +118,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowTunnelStateNotificationBlocked
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -151,7 +151,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
@@ -182,7 +182,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
@@ -214,7 +214,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
@@ -246,7 +246,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
@@ -280,7 +280,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowTunnelStateNotificationError(
                                 ErrorState(ErrorStateCause.StartTunnelError, true)
                             )
@@ -318,7 +318,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowTunnelStateNotificationError(
                                 ErrorState(ErrorStateCause.StartTunnelError, false)
                             )
@@ -353,7 +353,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowTunnelStateNotificationBlocked
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -388,7 +388,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = true,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowTunnelStateNotificationBlocked
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -423,7 +423,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onSwitchLocationClick = mockedClickHandler
@@ -454,7 +454,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onDisconnectClick = mockedClickHandler
@@ -485,7 +485,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onReconnectClick = mockedClickHandler
@@ -515,7 +515,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onConnectClick = mockedClickHandler
@@ -545,7 +545,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onCancelClick = mockedClickHandler
@@ -576,7 +576,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onToggleTunnelInfo = mockedClickHandler
@@ -614,7 +614,7 @@ class ConnectScreenTest {
                         outAddress = mockOutAddress,
                         showLocation = false,
                         isTunnelInfoExpanded = true,
-                        connectNotificationState = ConnectNotificationState.HideNotification
+                        inAppNotification = ConnectNotificationState.HideNotification
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
@@ -651,7 +651,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowVersionInfoNotification(versionInfo)
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -687,7 +687,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowVersionInfoNotification(versionInfo)
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -720,7 +720,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowAccountExpiryNotification(expiryDate)
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -758,7 +758,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowVersionInfoNotification(versionInfo)
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -790,7 +790,7 @@ class ConnectScreenTest {
                         outAddress = "",
                         showLocation = false,
                         isTunnelInfoExpanded = false,
-                        connectNotificationState =
+                        inAppNotification =
                             ConnectNotificationState.ShowAccountExpiryNotification(expiryDate)
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()

@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,27 +12,30 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
-import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
-import net.mullvad.mullvadvpn.compose.util.rememberPrevious
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
 import net.mullvad.talpid.tunnel.ErrorState
@@ -42,130 +45,76 @@ import org.joda.time.DateTime
 @Composable
 private fun PreviewNotificationBanner() {
     AppTheme {
-        SpacedColumn(Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            val versionInfoNotification =
-                versionInfoNotification(
-                    versionInfo =
-                        VersionInfo(
-                            currentVersion = null,
-                            upgradeVersion = null,
-                            isOutdated = true,
-                            isSupported = false
+        SpacedColumn(
+            Modifier.background(color = MaterialTheme.colorScheme.background),
+            spacing = 8.dp
+        ) {
+            val bannerDataList =
+                listOf(
+                        InAppNotification.UnsupportedVersion(
+                            versionInfo =
+                                VersionInfo(
+                                    currentVersion = null,
+                                    upgradeVersion = null,
+                                    isOutdated = true,
+                                    isSupported = false
+                                ),
                         ),
-                    onClickUpdateVersion = {}
-                )
-            NotificationBanner(
-                title = versionInfoNotification.title,
-                message = versionInfoNotification.message,
-                onClick = versionInfoNotification.onClick,
-                statusLevel = versionInfoNotification.statusLevel
-            )
-            val accountExpiryNotification =
-                accountExpiryNotification(expiry = DateTime.now(), onClickShowAccount = {})
-            NotificationBanner(
-                title = accountExpiryNotification.title,
-                message = accountExpiryNotification.message,
-                statusLevel = accountExpiryNotification.statusLevel,
-                onClick = accountExpiryNotification.onClick
-            )
-            val genericBlockingMessage = genericBlockingMessage()
-            NotificationBanner(
-                title = genericBlockingMessage.title,
-                message = genericBlockingMessage.message,
-                onClick = genericBlockingMessage.onClick,
-                statusLevel = genericBlockingMessage.statusLevel
-            )
+                        InAppNotification.AccountExpiryNotification(expiry = DateTime.now()),
+                        InAppNotification.ShowTunnelStateBlockedNotification,
+                        InAppNotification.NewDeviceNotification("Courageous Turtle") {},
+                    )
+                    .map { it.toNotificationData({}, {}, {}) }
+
+            bannerDataList.forEach { NotificationBanner(it) }
         }
     }
 }
 
 @Composable
 fun Notification(
-    connectNotificationState: ConnectNotificationState,
+    notification: InAppNotification?,
     onClickUpdateVersion: () -> Unit,
-    onClickShowAccount: () -> Unit
+    onClickShowAccount: () -> Unit,
+    onClickDismissNewDevice: () -> Unit
 ) {
-    val isVisible = connectNotificationState != ConnectNotificationState.HideNotification
     // Fix for animating to hide
-    val lastState: ConnectNotificationState =
-        rememberPrevious(connectNotificationState) ?: ConnectNotificationState.HideNotification
     AnimatedVisibility(
-        visible = isVisible,
+        visible = notification != null,
         enter = slideInVertically(),
         exit = slideOutVertically(),
         modifier = Modifier.animateContentSize()
     ) {
+        if (notification == null) return@AnimatedVisibility
         ShowNotification(
-            connectNotificationState = if (isVisible) connectNotificationState else lastState,
+            notification = notification,
             onClickUpdateVersion = onClickUpdateVersion,
-            onClickShowAccount = onClickShowAccount
+            onClickShowAccount = onClickShowAccount,
+            onDismiss = onClickDismissNewDevice
         )
     }
 }
 
 @Composable
 private fun ShowNotification(
-    connectNotificationState: ConnectNotificationState,
+    notification: InAppNotification,
     onClickUpdateVersion: () -> Unit,
-    onClickShowAccount: () -> Unit
+    onClickShowAccount: () -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val notificationData: NotificationBannerData? =
-        when (connectNotificationState) {
-            ConnectNotificationState.ShowTunnelStateNotificationBlocked -> {
-                genericBlockingMessage()
-            }
-            is ConnectNotificationState.ShowTunnelStateNotificationError -> {
-                errorMessage(error = connectNotificationState.error)
-            }
-            is ConnectNotificationState.ShowVersionInfoNotification -> {
-                versionInfoNotification(
-                    versionInfo = connectNotificationState.versionInfo,
-                    onClickUpdateVersion =
-                        if (IS_PLAY_BUILD) {
-                            null
-                        } else {
-                            onClickUpdateVersion
-                        }
-                )
-            }
-            is ConnectNotificationState.ShowAccountExpiryNotification -> {
-                accountExpiryNotification(
-                    expiry = connectNotificationState.expiry,
-                    onClickShowAccount =
-                        if (IS_PLAY_BUILD) {
-                            null
-                        } else {
-                            onClickShowAccount
-                        }
-                )
-            }
-            is ConnectNotificationState.HideNotification -> {
-                // Hide notification banner
-                null
-            }
-        }
-    notificationData?.let {
-        NotificationBanner(
-            title = notificationData.title,
-            message = notificationData.message,
-            statusLevel = notificationData.statusLevel,
-            onClick = notificationData.onClick
-        )
-    }
+    val notificationData =
+        notification.toNotificationData(onClickUpdateVersion, onClickShowAccount, onDismiss)
+    NotificationBanner(notificationData)
 }
 
 @Composable
-private fun NotificationBanner(
-    title: String,
-    message: String?,
-    statusLevel: StatusLevel,
-    onClick: (() -> Unit)?
-) {
+private fun NotificationBanner(notificationBannerData: NotificationBannerData) {
+    val (title, message, statusLevel, action) = notificationBannerData
     ConstraintLayout(
         modifier =
             Modifier.fillMaxWidth()
                 .background(color = MaterialTheme.colorScheme.background)
-                .then(onClick?.let { Modifier.clickable(onClick = onClick) } ?: Modifier)
+                .then(action?.let { Modifier.clickable(onClick = action.onClick) } ?: Modifier)
                 .padding(
                     start = Dimens.notificationBannerStartPadding,
                     end = Dimens.notificationBannerEndPadding,
@@ -180,10 +129,10 @@ private fun NotificationBanner(
             modifier =
                 Modifier.background(
                         color =
-                            if (statusLevel == StatusLevel.Warning) {
-                                MaterialTheme.colorScheme.errorContainer
-                            } else {
-                                MaterialTheme.colorScheme.error
+                            when (statusLevel) {
+                                StatusLevel.Error -> MaterialTheme.colorScheme.error
+                                StatusLevel.Warning -> MaterialTheme.colorScheme.errorContainer
+                                StatusLevel.Info -> MaterialTheme.colorScheme.surface
                             },
                         shape = CircleShape
                     )
@@ -223,31 +172,86 @@ private fun NotificationBanner(
                 style = MaterialTheme.typography.labelMedium
             )
         }
-        onClick?.let {
-            Image(
-                painter = painterResource(id = R.drawable.icon_extlink),
-                contentDescription = null,
+        action?.let {
+            IconButton(
                 modifier =
                     Modifier.constrainAs(icon) {
                             top.linkTo(parent.top)
                             end.linkTo(parent.end)
                             bottom.linkTo(parent.bottom)
                         }
-                        .padding(all = Dimens.notificationEndIconPadding)
-            )
+                        .padding(all = Dimens.notificationEndIconPadding),
+                onClick = it.onClick
+            ) {
+                Icon(
+                    painter = painterResource(id = it.icon),
+                    contentDescription = null,
+                    tint = Color.Unspecified
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun genericBlockingMessage() =
-    NotificationBannerData(
-        title = stringResource(id = R.string.blocking_internet),
-        statusLevel = StatusLevel.Error
-    )
+fun InAppNotification.toNotificationData(
+    onClickUpdateVersion: () -> Unit,
+    onClickShowAccount: () -> Unit,
+    onDismiss: () -> Unit
+) =
+    when (this) {
+        is InAppNotification.NewDeviceNotification ->
+            NotificationBannerData(
+                title = stringResource(id = R.string.new_device_notification_title),
+                message = stringResource(id = R.string.new_device_notification_message, deviceName),
+                statusLevel = StatusLevel.Info,
+                action = NotificationAction(R.drawable.icon_close, dismiss)
+            )
+        is InAppNotification.AccountExpiryNotification ->
+            NotificationBannerData(
+                title = stringResource(id = R.string.account_credit_expires_soon),
+                message = LocalContext.current.resources.getExpiryQuantityString(expiry),
+                statusLevel = StatusLevel.Error,
+                action =
+                    if (IS_PLAY_BUILD) null
+                    else
+                        NotificationAction(
+                            R.drawable.icon_extlink,
+                            onClickShowAccount,
+                        ),
+            )
+        InAppNotification.ShowTunnelStateBlockedNotification ->
+            NotificationBannerData(
+                title = stringResource(id = R.string.blocking_internet),
+                statusLevel = StatusLevel.Error
+            )
+        is InAppNotification.ShowTunnelStateErrorNotification -> errorMessageBannerData(error)
+        is InAppNotification.UnsupportedVersion ->
+            NotificationBannerData(
+                title = stringResource(id = R.string.unsupported_version),
+                message = stringResource(id = R.string.unsupported_version_description),
+                statusLevel = StatusLevel.Error,
+                action =
+                    if (IS_PLAY_BUILD) null
+                    else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion)
+            )
+        is InAppNotification.UpdateAvailable ->
+            NotificationBannerData(
+                title = stringResource(id = R.string.update_available),
+                message =
+                    stringResource(
+                        id = R.string.update_available_description,
+                        versionInfo.upgradeVersion ?: "" // TODO Verify
+                    ),
+                statusLevel = StatusLevel.Warning,
+                action =
+                    if (IS_PLAY_BUILD) null
+                    else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion)
+            )
+    }
 
 @Composable
-private fun errorMessage(error: ErrorState) =
+private fun errorMessageBannerData(error: ErrorState) =
     error.getErrorNotificationResources(LocalContext.current).run {
         NotificationBannerData(
             title = stringResource(id = titleResourceId),
@@ -257,41 +261,14 @@ private fun errorMessage(error: ErrorState) =
         )
     }
 
-@Composable
-private fun accountExpiryNotification(expiry: DateTime, onClickShowAccount: (() -> Unit)?) =
-    NotificationBannerData(
-        title = stringResource(id = R.string.account_credit_expires_soon),
-        message = LocalContext.current.resources.getExpiryQuantityString(expiry),
-        statusLevel = StatusLevel.Error,
-        onClick = onClickShowAccount
-    )
-
-@Composable
-private fun versionInfoNotification(versionInfo: VersionInfo, onClickUpdateVersion: (() -> Unit)?) =
-    when {
-        versionInfo.upgradeVersion != null && versionInfo.isSupported ->
-            NotificationBannerData(
-                title = stringResource(id = R.string.update_available),
-                message =
-                    stringResource(
-                        id = R.string.update_available_description,
-                        versionInfo.upgradeVersion
-                    ),
-                statusLevel = StatusLevel.Warning,
-                onClick = onClickUpdateVersion
-            )
-        else ->
-            NotificationBannerData(
-                title = stringResource(id = R.string.unsupported_version),
-                message = stringResource(id = R.string.unsupported_version_description),
-                statusLevel = StatusLevel.Error,
-                onClick = onClickUpdateVersion
-            )
-    }
-
-private data class NotificationBannerData(
+data class NotificationBannerData(
     val title: String,
     val message: String? = null,
     val statusLevel: StatusLevel,
-    val onClick: (() -> Unit)? = null
+    val action: NotificationAction? = null
+)
+
+data class NotificationAction(
+    @DrawableRes val icon: Int,
+    val onClick: (() -> Unit),
 )

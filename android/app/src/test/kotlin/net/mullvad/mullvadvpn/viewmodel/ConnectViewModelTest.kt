@@ -295,7 +295,7 @@ class ConnectViewModelTest {
                 relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelUiState.notify(tunnelUiState)
                 val result = awaitItem()
-                assertEquals(expectedConnectNotificationState, result.connectNotificationState)
+                assertEquals(expectedConnectNotificationState, result.inAppNotification)
             }
         }
 
@@ -317,7 +317,7 @@ class ConnectViewModelTest {
                 relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelUiState.notify(tunnelUiState)
                 val result = awaitItem()
-                assertEquals(expectedConnectNotificationState, result.connectNotificationState)
+                assertEquals(expectedConnectNotificationState, result.inAppNotification)
             }
         }
 
@@ -339,7 +339,7 @@ class ConnectViewModelTest {
                 relaySlot.captured.invoke(mockk(), mockk())
                 versionInfo.value = mockVersionInfo
                 val result = awaitItem()
-                assertEquals(expectedConnectNotificationState, result.connectNotificationState)
+                assertEquals(expectedConnectNotificationState, result.inAppNotification)
             }
         }
 
@@ -361,7 +361,7 @@ class ConnectViewModelTest {
                 relaySlot.captured.invoke(mockk(), mockk())
                 accountExpiryState.value = AccountExpiry.Available(mockDateTime)
                 val result = awaitItem()
-                assertEquals(expectedConnectNotificationState, result.connectNotificationState)
+                assertEquals(expectedConnectNotificationState, result.inAppNotification)
             }
         }
 

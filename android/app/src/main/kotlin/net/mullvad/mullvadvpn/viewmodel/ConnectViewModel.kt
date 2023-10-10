@@ -20,13 +20,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
-import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
-import net.mullvad.mullvadvpn.ui.VersionInfo
+import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
@@ -35,21 +33,19 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
-import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorStateCause
-import org.joda.time.DateTime
 
 @OptIn(FlowPreview::class)
 class ConnectViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val isVersionInfoNotificationEnabled: Boolean,
     accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
+    private val inAppNotificationController: InAppNotificationController
 ) : ViewModel() {
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
     val uiSideEffect = _uiSideEffect.asSharedFlow()
@@ -73,7 +69,7 @@ class ConnectViewModel(
                 combine(
                     serviceConnection.locationInfoCache.locationCallbackFlow(),
                     serviceConnection.relayListListener.relayListCallbackFlow(),
-                    serviceConnection.appVersionInfoCache.appVersionCallbackFlow(),
+                    inAppNotificationController.notifications,
                     serviceConnection.connectionProxy.tunnelUiStateFlow(),
                     serviceConnection.connectionProxy.tunnelRealStateFlow(),
                     accountRepository.accountExpiryState,
@@ -82,7 +78,7 @@ class ConnectViewModel(
                 ) {
                     location,
                     relayLocation,
-                    versionInfo,
+                    notifications,
                     tunnelUiState,
                     tunnelRealState,
                     accountExpiry,
@@ -124,12 +120,7 @@ class ConnectViewModel(
                                 is TunnelState.Connected -> false
                                 is TunnelState.Error -> true
                             },
-                        connectNotificationState =
-                            evaluateNotificationState(
-                                tunnelUiState = tunnelUiState,
-                                versionInfo = versionInfo,
-                                accountExpiry = accountExpiry
-                            ),
+                        inAppNotification = notifications.firstOrNull(),
                         deviceName = deviceName,
                         daysLeftUntilExpiry = accountExpiry.daysLeft()
                     )
@@ -153,36 +144,6 @@ class ConnectViewModel(
 
     private fun ConnectionProxy.tunnelRealStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onStateChange)
-
-    private fun evaluateNotificationState(
-        tunnelUiState: TunnelState,
-        versionInfo: VersionInfo?,
-        accountExpiry: AccountExpiry
-    ): ConnectNotificationState =
-        when {
-            tunnelUiState is TunnelState.Connecting ->
-                ConnectNotificationState.ShowTunnelStateNotificationBlocked
-            tunnelUiState is TunnelState.Disconnecting &&
-                (tunnelUiState.actionAfterDisconnect == ActionAfterDisconnect.Block ||
-                    tunnelUiState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect) ->
-                ConnectNotificationState.ShowTunnelStateNotificationBlocked
-            tunnelUiState is TunnelState.Error ->
-                ConnectNotificationState.ShowTunnelStateNotificationError(tunnelUiState.errorState)
-            isVersionInfoNotificationEnabled &&
-                versionInfo != null &&
-                (versionInfo.isOutdated || !versionInfo.isSupported) ->
-                ConnectNotificationState.ShowVersionInfoNotification(versionInfo)
-            accountExpiry.isCloseToExpiring() ->
-                ConnectNotificationState.ShowAccountExpiryNotification(
-                    accountExpiry.date() ?: DateTime.now()
-                )
-            else -> ConnectNotificationState.HideNotification
-        }
-
-    private fun AccountExpiry.isCloseToExpiring(): Boolean {
-        val threeDaysFromNow = DateTime.now().plusDays(3)
-        return this.date()?.isBefore(threeDaysFromNow) == true
-    }
 
     private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
         return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)

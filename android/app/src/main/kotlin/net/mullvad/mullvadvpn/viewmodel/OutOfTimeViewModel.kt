@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,7 +26,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import org.joda.time.DateTime
 
-@OptIn(FlowPreview::class)
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
     private val serviceConnectionManager: ServiceConnectionManager,

@@ -144,9 +144,10 @@ fun ConnectScreen(
                     .testTag(SCROLLABLE_COLUMN_TEST_TAG)
         ) {
             Notification(
-                connectNotificationState = uiState.connectNotificationState,
+                notification = uiState.inAppNotification,
                 onClickUpdateVersion = onUpdateVersionClick,
-                onClickShowAccount = onManageAccountClick
+                onClickShowAccount = onManageAccountClick,
+                onClickDismissNewDevice = {}
             )
             Spacer(modifier = Modifier.weight(1f))
             if (
