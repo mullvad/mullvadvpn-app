@@ -96,6 +96,10 @@ android {
             dimension = FlavorDimensions.INFRASTRUCTURE
             applicationId = "net.mullvad.mullvadvpn.devmole"
         }
+        create(Flavors.STAGEMOLE) {
+            dimension = FlavorDimensions.INFRASTRUCTURE
+            applicationId = "net.mullvad.mullvadvpn.stagemole"
+        }
     }
 
     sourceSets {
