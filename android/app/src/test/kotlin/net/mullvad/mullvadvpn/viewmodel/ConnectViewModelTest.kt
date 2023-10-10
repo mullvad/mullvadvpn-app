@@ -20,11 +20,13 @@ import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
@@ -65,6 +67,7 @@ class ConnectViewModelTest {
             )
         )
     private val accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+    private val deviceState = MutableStateFlow<DeviceState>(DeviceState.Initial)
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -76,6 +79,9 @@ class ConnectViewModelTest {
 
     // Account Repository
     private val mockAccountRepository: AccountRepository = mockk()
+
+    // Device Repository
+    private val mockDeviceRepository: DeviceRepository = mockk()
 
     // Captures
     private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
@@ -103,6 +109,8 @@ class ConnectViewModelTest {
 
         every { mockAccountRepository.accountExpiryState } returns accountExpiryState
 
+        every { mockDeviceRepository.deviceState } returns deviceState
+
         every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
         every { mockConnectionProxy.onStateChange } returns eventNotifierTunnelRealState
 
@@ -117,6 +125,7 @@ class ConnectViewModelTest {
             ConnectViewModel(
                 serviceConnectionManager = mockServiceConnectionManager,
                 accountRepository = mockAccountRepository,
+                deviceRepository = mockDeviceRepository,
                 isVersionInfoNotificationEnabled = true
             )
     }
@@ -351,6 +360,7 @@ class ConnectViewModelTest {
             val expectedConnectNotificationState =
                 ConnectNotificationState.ShowAccountExpiryNotification(mockDateTime)
             every { mockDateTime.isBefore(any<ReadableInstant>()) } returns true
+            every { mockDateTime.toInstant().millis } returns 0
 
             // Act, Assert
             viewModel.uiState.test {
@@ -360,6 +370,7 @@ class ConnectViewModelTest {
                 locationSlot.captured.invoke(mockLocation)
                 relaySlot.captured.invoke(mockk(), mockk())
                 accountExpiryState.value = AccountExpiry.Available(mockDateTime)
+
                 val result = awaitItem()
                 assertEquals(expectedConnectNotificationState, result.connectNotificationState)
             }
