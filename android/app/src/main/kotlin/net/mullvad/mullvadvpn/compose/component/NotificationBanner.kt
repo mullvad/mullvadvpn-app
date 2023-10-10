@@ -6,7 +6,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -45,6 +44,7 @@ import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
 import net.mullvad.talpid.tunnel.ErrorState
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 
 @Preview
@@ -69,6 +69,9 @@ private fun PreviewNotificationBanner() {
                         InAppNotification.AccountExpiryNotification(expiry = DateTime.now()),
                         InAppNotification.ShowTunnelStateBlockedNotification,
                         InAppNotification.NewDeviceNotification("Courageous Turtle") {},
+                        InAppNotification.ShowTunnelStateErrorNotification(
+                            error = ErrorState(ErrorStateCause.SetFirewallPolicyError, true)
+                        )
                     )
                     .map { it.toNotificationData({}, {}, {}) }
 
@@ -111,7 +114,6 @@ private fun NotificationBanner(notificationBannerData: NotificationBannerData) {
         modifier =
             Modifier.fillMaxWidth()
                 .background(color = MaterialTheme.colorScheme.background)
-                .then(action?.let { Modifier.clickable(onClick = action.onClick) } ?: Modifier)
                 .padding(
                     start = Dimens.notificationBannerStartPadding,
                     end = Dimens.notificationBannerEndPadding,
