@@ -13,12 +13,11 @@ import net.mullvad.mullvadvpn.compose.screen.LoginScreen
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.ui.NavigationBarPainter
 import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class LoginFragment : BaseFragment(), NavigationBarPainter {
+class LoginFragment : BaseFragment() {
     private val vm: LoginViewModel by viewModel()
 
     override fun onCreateView(

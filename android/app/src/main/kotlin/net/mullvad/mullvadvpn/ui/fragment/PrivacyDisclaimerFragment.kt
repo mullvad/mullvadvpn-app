@@ -13,13 +13,11 @@ import net.mullvad.mullvadvpn.compose.screen.PrivacyDisclaimerScreen
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.ui.NavigationBarPainter
-import net.mullvad.mullvadvpn.ui.StatusBarPainter
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import org.koin.android.ext.android.inject
 
-class PrivacyDisclaimerFragment : Fragment(), StatusBarPainter, NavigationBarPainter {
+class PrivacyDisclaimerFragment : Fragment() {
 
     private val privacyDisclaimerViewModel: PrivacyDisclaimerViewModel by inject()
 

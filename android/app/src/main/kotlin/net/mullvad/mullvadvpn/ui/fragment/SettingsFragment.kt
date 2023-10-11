@@ -11,12 +11,10 @@ import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.SettingsScreen
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.ui.NavigationBarPainter
-import net.mullvad.mullvadvpn.ui.StatusBarPainter
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SettingsFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
+class SettingsFragment : BaseFragment() {
     private val vm by viewModel<SettingsViewModel>()
 
     @OptIn(ExperimentalMaterial3Api::class)

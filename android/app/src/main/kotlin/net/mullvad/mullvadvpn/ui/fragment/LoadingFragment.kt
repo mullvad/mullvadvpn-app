@@ -10,10 +10,8 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.LoadingScreen
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.ui.NavigationBarPainter
-import net.mullvad.mullvadvpn.ui.StatusBarPainter
 
-class LoadingFragment : Fragment(), StatusBarPainter, NavigationBarPainter {
+class LoadingFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
