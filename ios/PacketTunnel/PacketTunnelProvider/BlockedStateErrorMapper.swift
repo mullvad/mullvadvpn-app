@@ -59,7 +59,7 @@ public struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
 
         case is PublicKeyError:
             // Returned when there is an endpoint but its public key is invalid.
-            return .invalidPublicKey
+            return .invalidRelayPublicKey
 
         default:
             // Everything else in case we introduce new errors and forget to handle them.

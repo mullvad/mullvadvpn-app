@@ -22,19 +22,23 @@ class DefaultPathObserverFake: DefaultPathObserverProtocol {
 
     private var innerPath: NetworkPath = NetworkPathStub()
     private var stateLock = NSLock()
+    private var defaultPathHandler: ((NetworkPath) -> Void)?
 
-    var defaultPathHandler: ((NetworkPath) -> Void)?
+    public var onStart: (() -> Void)?
+    public var onStop: (() -> Void)?
 
     func start(_ body: @escaping (NetworkPath) -> Void) {
         stateLock.withLock {
             defaultPathHandler = body
         }
+        onStart?()
     }
 
     func stop() {
         stateLock.withLock {
             defaultPathHandler = nil
         }
+        onStop?()
     }
 
     /// Simulate network path update.

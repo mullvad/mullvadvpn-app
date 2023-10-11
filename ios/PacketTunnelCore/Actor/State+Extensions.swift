@@ -150,7 +150,7 @@ extension BlockedStateReason {
             return true
 
         case .noRelaysSatisfyingConstraints, .readSettings, .invalidAccount, .deviceRevoked, .tunnelAdapter, .unknown,
-             .deviceLoggedOut, .outdatedSchema, .invalidPublicKey:
+             .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey:
             return false
         }
     }
