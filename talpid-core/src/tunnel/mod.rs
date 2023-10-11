@@ -224,11 +224,18 @@ impl TunnelMonitor {
             config,
             log,
             resource_dir,
-            tunnel_close_rx,
             #[cfg(target_os = "linux")]
             route_manager,
         )
         .await?;
+
+        let close_handle = monitor.close_handle();
+        tokio::spawn(async move {
+            if tunnel_close_rx.await.is_ok() {
+                close_handle.close();
+            }
+        });
+
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::OpenVpn(monitor),
         })
@@ -298,9 +305,11 @@ enum InternalTunnelMonitor {
 
 impl InternalTunnelMonitor {
     fn wait(self) -> Result<()> {
+        let handle = tokio::runtime::Handle::current();
+
         match self {
             #[cfg(not(target_os = "android"))]
-            InternalTunnelMonitor::OpenVpn(tun) => tun.wait()?,
+            InternalTunnelMonitor::OpenVpn(tun) => handle.block_on(tun.wait())?,
             InternalTunnelMonitor::Wireguard(tun) => tun.wait()?,
         }
 
