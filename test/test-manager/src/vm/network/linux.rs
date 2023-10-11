@@ -222,12 +222,12 @@ async fn start_dnsmasq() -> Result<DhcpProcHandle> {
     cmd.stderr(Stdio::piped());
 
     cmd.args([
+        "--bind-interfaces",
+        "-C", "/dev/null",
         "-i",
         BRIDGE_NAME,
         "-F",
         &format!("{},{}", TEST_SUBNET_DHCP_FIRST, TEST_SUBNET_DHCP_LAST),
-        "-i",
-        BRIDGE_NAME,
         "--no-daemon",
     ]);
 
