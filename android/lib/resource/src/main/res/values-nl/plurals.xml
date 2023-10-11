@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="days">
-        <item quantity="one">1 dag</item>
-        <item quantity="other">%1$d dagen</item>
-    </plurals>
     <plurals name="days_left">
         <item quantity="one">1 dag resterend</item>
         <item quantity="other">%1$d dagen resterend</item>
