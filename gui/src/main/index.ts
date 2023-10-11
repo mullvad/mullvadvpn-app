@@ -183,7 +183,6 @@ class ApplicationMain
       );
     });
 
-    app.on('activate', this.onActivate);
     app.on('ready', this.onReady);
 
     app.on('before-quit', this.onBeforeQuit);
@@ -195,9 +194,6 @@ class ApplicationMain
       log.info('quit received');
       this.onQuit();
     });
-
-    powerMonitor.on('suspend', this.onSuspend);
-    powerMonitor.on('resume', this.onResume);
   }
 
   public async performPostUpgradeCheck(): Promise<void> {
@@ -368,6 +364,10 @@ class ApplicationMain
   }
 
   private onReady = async () => {
+    app.on('activate', this.onActivate);
+    powerMonitor.on('suspend', this.onSuspend);
+    powerMonitor.on('resume', this.onResume);
+
     // Disable built-in DNS resolver.
     app.configureHostResolver({
       enableBuiltInResolver: false,
