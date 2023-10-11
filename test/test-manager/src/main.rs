@@ -284,7 +284,7 @@ async fn main() -> Result<()> {
             result
         }
         Commands::FormatTestReports { reports } => {
-            summary::print_summary_table(&reports).await?;
+            summary::print_summary_table(&reports).await;
             Ok(())
         }
         Commands::Update { name } => {

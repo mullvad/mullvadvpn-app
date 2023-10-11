@@ -121,12 +121,12 @@ pub struct Summary {
 
 impl Summary {
     /// Read test summary from `path`.
-    pub async fn parse_log(path: &Path) -> Result<Summary, Error> {
+    pub async fn parse_log<P: AsRef<Path>>(path: P) -> Result<Summary, Error> {
         let file = fs::OpenOptions::new()
             .read(true)
-            .open(path)
+            .open(&path)
             .await
-            .map_err(|err| Error::Open(err, path.to_path_buf()))?;
+            .map_err(|err| Error::Open(err, path.as_ref().to_path_buf()))?;
 
         let mut lines = tokio::io::BufReader::new(file).lines();
 
@@ -160,10 +160,18 @@ impl Summary {
 }
 
 /// Outputs an HTML table, to stdout, containing the results of the given log files.
-pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) -> Result<(), Error> {
-    let mut summaries = vec![];
+///
+/// This is a best effort attempt at summarizing the log files which do
+/// exist. If some log file which is expected to exist, but for any reason fails to
+/// be parsed, we should not abort the entire summarization.
+pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
+    let mut summaries = Vec::new();
+    let mut failed_to_parse = Vec::new();
     for sumfile in summary_files {
-        summaries.push(Summary::parse_log(sumfile.as_ref()).await?);
+        match Summary::parse_log(sumfile).await {
+            Ok(summary) => summaries.push(summary),
+            Err(_) => failed_to_parse.push(sumfile),
+        }
     }
 
     // Collect test details
@@ -274,6 +282,4 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) -> Result<
     // Print explanation of test result
     println!("<p>{} = Test passed</p>", TestResult::PASS_STR);
     println!("<p>{} = Test failed</p>", TestResult::FAIL_STR);
-
-    Ok(())
 }
