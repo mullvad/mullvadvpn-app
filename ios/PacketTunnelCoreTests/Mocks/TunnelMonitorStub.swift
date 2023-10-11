@@ -64,7 +64,7 @@ class TunnelMonitorStub: TunnelMonitorProtocol {
 
     func onSleep() {}
 
-    private func dispatch(_ event: TunnelMonitorEvent, after delay: DispatchTimeInterval = .never) {
+    func dispatch(_ event: TunnelMonitorEvent, after delay: DispatchTimeInterval = .never) {
         if case .never = delay {
             onEvent?(event)
         } else {

@@ -88,8 +88,8 @@ public actor PacketTunnelActor {
                 case .stop:
                     await stop()
 
-                case let .reconnect(nextRelay, stopTunnelMonitor):
-                    await reconnect(to: nextRelay, shouldStopTunnelMonitor: stopTunnelMonitor)
+                case let .reconnect(nextRelay, reason):
+                    await reconnect(to: nextRelay, reason: reason)
 
                 case let .error(reason):
                     await setErrorStateInternal(with: reason)
@@ -174,16 +174,22 @@ extension PacketTunnelActor {
 
      - Parameters:
          - nextRelay: next relay to connect to
-         - shouldStopTunnelMonitor: whether tunnel monitor should be stopped
+         - reason: reason for reconnect
      */
-    private func reconnect(to nextRelay: NextRelay, shouldStopTunnelMonitor: Bool) async {
+    private func reconnect(to nextRelay: NextRelay, reason: ReconnectReason) async {
         do {
             switch state {
             case .connecting, .connected, .reconnecting, .error:
-                if shouldStopTunnelMonitor {
+                switch reason {
+                case .connectionLoss:
+                    // Tunnel monitor is already paused at this point. Avoid calling stop() to prevent the reset of
+                    // internal state
+                    break
+                case .userInitiated:
                     tunnelMonitor.stop()
                 }
-                try await tryStart(nextRelay: nextRelay)
+
+                try await tryStart(nextRelay: nextRelay, reason: reason)
 
             case .disconnected, .disconnecting, .initial:
                 break
@@ -206,12 +212,14 @@ extension PacketTunnelActor {
      - Start tunnel monitor.
      - Reactivate default path observation (disabled when configuring tunnel adapter)
 
-     - Parameter nextRelay: which relay should be selected next.
+     - Parameters:
+         - nextRelay: which relay should be selected next.
+         - reason: reason for reconnect
      */
-    private func tryStart(nextRelay: NextRelay = .random) async throws {
+    private func tryStart(nextRelay: NextRelay = .random, reason: ReconnectReason = .userInitiated) async throws {
         let settings: Settings = try settingsReader.read()
 
-        guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings),
+        guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason),
               let targetState = state.targetStateForReconnect else { return }
 
         let activeKey: PrivateKey
@@ -262,10 +270,15 @@ extension PacketTunnelActor {
      - Parameters:
          - nextRelay: relay preference that should be used when selecting next relay.
          - settings: current settings
+         - reason: reason for reconnect
 
      - Returns: New connection state or `nil` if current state is at or past `.disconnecting` phase.
      */
-    private func makeConnectionState(nextRelay: NextRelay, settings: Settings) throws -> ConnectionState? {
+    private func makeConnectionState(
+        nextRelay: NextRelay,
+        settings: Settings,
+        reason: ReconnectReason
+    ) throws -> ConnectionState? {
         let relayConstraints = settings.relayConstraints
         let privateKey = settings.privateKey
 
@@ -285,7 +298,18 @@ extension PacketTunnelActor {
                 connectionAttemptCount: 0
             )
 
-        case var .connecting(connState), var .connected(connState), var .reconnecting(connState):
+        case var .connecting(connState), var .reconnecting(connState):
+            switch reason {
+            case .connectionLoss:
+                // Increment attempt counter when reconnection is requested due to connectivity loss.
+                connState.incrementAttemptCount()
+            case .userInitiated:
+                break
+            }
+            // Explicit fallthrough
+            fallthrough
+
+        case var .connected(connState):
             connState.selectedRelay = try selectRelay(
                 nextRelay: nextRelay,
                 relayConstraints: relayConstraints,
