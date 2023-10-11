@@ -47,7 +47,7 @@ public struct AppMessageHandler {
             return nil
 
         case .getTunnelStatus:
-            return await encodeReply(packetTunnelActor.state.packetTunnelStatus)
+            return await encodeReply(packetTunnelActor.observedState.packetTunnelStatus)
 
         case .privateKeyRotation:
             packetTunnelActor.notifyKeyRotation(date: Date())

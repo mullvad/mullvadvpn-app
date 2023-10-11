@@ -9,11 +9,11 @@
 import Foundation
 
 extension PacketTunnelActor {
-    /// Returns a stream yielding new value when `state` changes.
-    /// The stream starts with current `state` and ends upon moving to `.disconnected` state.
-    public var states: AsyncStream<State> {
-        AsyncStream { continuation in
-            let cancellable = self.$state.sink { newState in
+    /// Returns a stream yielding `ObservedState`.
+    /// Note that the stream yields current value when created.
+    public var observedStates: AsyncStream<ObservedState> {
+        return AsyncStream { continuation in
+            let cancellable = self.$observedState.sink { newState in
                 continuation.yield(newState)
 
                 // Finish stream once entered `.disconnected` state.
@@ -28,10 +28,10 @@ extension PacketTunnelActor {
         }
     }
 
-    /// Wait until the `state` moved to `.connected`.
+    /// Wait until the `observedState` moved to `.connected`.
     /// Should return if the state is `.disconnected` as this is the final state of actor.
     public func waitUntilConnected() async {
-        for await newState in states {
+        for await newState in observedStates {
             switch newState {
             case .connected, .disconnected:
                 // Return once either desired or final state is reached.
@@ -43,9 +43,9 @@ extension PacketTunnelActor {
         }
     }
 
-    /// Wait until the `state` moved to `.disiconnected`.
+    /// Wait until the `observedState` moved to `.disiconnected`.
     public func waitUntilDisconnected() async {
-        for await newState in states {
+        for await newState in observedStates {
             if case .disconnected = newState {
                 return
             }

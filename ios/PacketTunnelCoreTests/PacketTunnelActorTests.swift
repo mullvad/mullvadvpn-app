@@ -40,7 +40,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
         let allExpectations = [initialStateExpectation, connectingExpectation, connectedStateExpectation]
 
-        stateSink = await actor.$state
+        stateSink = await actor.$observedState
             .receive(on: DispatchQueue.main)
             .sink { newState in
                 switch newState {
@@ -71,7 +71,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
         let allExpectations = [initialStateExpectation, connectingExpectation, connectedStateExpectation]
 
-        stateSink = await actor.$state
+        stateSink = await actor.$observedState
             .receive(on: DispatchQueue.main)
             .sink { newState in
                 switch newState {
@@ -102,7 +102,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let connectingStateExpectation = expectation(description: "Expect connecting state")
         connectingStateExpectation.expectedFulfillmentCount = 5
         var nextAttemptCount: UInt = 0
-        stateSink = await actor.$state
+        stateSink = await actor.$observedState
             .receive(on: DispatchQueue.main)
             .sink { newState in
                 switch newState {
@@ -136,7 +136,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let reconnectingStateExpectation = expectation(description: "Expect reconnecting state")
         reconnectingStateExpectation.expectedFulfillmentCount = 5
         var nextAttemptCount: UInt = 0
-        stateSink = await actor.$state
+        stateSink = await actor.$observedState
             .receive(on: DispatchQueue.main)
             .sink { newState in
                 switch newState {
@@ -214,7 +214,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
         let actor = PacketTunnelActor.mock(blockedStateErrorMapper: blockedStateMapper, settingsReader: settingsReader)
 
-        stateSink = await actor.$state
+        stateSink = await actor.$observedState
             .receive(on: DispatchQueue.main)
             .sink { newState in
                 switch newState {
@@ -241,7 +241,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
         let connectedStateExpectation = expectation(description: "Expect connected state")
 
-        let expression: (State) -> Bool = { if case .connected = $0 { true } else { false } }
+        let expression: (ObservedState) -> Bool = { if case .connected = $0 { true } else { false } }
 
         await expect(expression, on: actor) {
             connectedStateExpectation.fulfill()
@@ -284,7 +284,7 @@ final class PacketTunnelActorTests: XCTestCase {
         didStopObserverExpectation.expectedFulfillmentCount = 2
         pathObserver.onStop = { didStopObserverExpectation.fulfill() }
 
-        let expression: (State) -> Bool = { if case .connected = $0 { true } else { false } }
+        let expression: (ObservedState) -> Bool = { if case .connected = $0 { true } else { false } }
 
         await expect(expression, on: actor) {
             connectedStateExpectation.fulfill()
@@ -309,7 +309,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let errorStateExpectation = expectation(description: "Should not enter error state")
         errorStateExpectation.isInverted = true
 
-        stateSink = await actor.$state
+        stateSink = await actor.$observedState
             .receive(on: DispatchQueue.main)
             .sink { newState in
                 switch newState {
@@ -337,7 +337,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let reconnectingStateExpectation = expectation(description: "Expect initial state")
         reconnectingStateExpectation.isInverted = true
 
-        let expression: (State) -> Bool = { if case .reconnecting = $0 { true } else { false } }
+        let expression: (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
 
         await expect(expression, on: actor) {
             reconnectingStateExpectation.fulfill()
@@ -365,7 +365,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
         let reconnectingStateExpectation = expectation(description: "Expect initial state")
         reconnectingStateExpectation.isInverted = true
-        let expression: (State) -> Bool = { if case .reconnecting = $0 { true } else { false } }
+        let expression: (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
 
         await expect(expression, on: actor) { reconnectingStateExpectation.fulfill() }
 
@@ -390,7 +390,7 @@ final class PacketTunnelActorTests: XCTestCase {
         let actor = PacketTunnelActor.mock(tunnelMonitor: tunnelMonitor)
         let connectedExpectation = expectation(description: "Expect connected state")
 
-        let expression: (State) -> Bool = { if case .connected = $0 { return true } else { return false } }
+        let expression: (ObservedState) -> Bool = { if case .connected = $0 { return true } else { return false } }
         await expect(expression, on: actor) {
             connectedExpectation.fulfill()
         }
@@ -406,8 +406,8 @@ final class PacketTunnelActorTests: XCTestCase {
 }
 
 extension PacketTunnelActorTests {
-    func expect(_ state: State, on actor: PacketTunnelActor, _ action: @escaping () -> Void) async {
-        stateSink = await actor.$state.receive(on: DispatchQueue.main).sink { newState in
+    func expect(_ state: ObservedState, on actor: PacketTunnelActor, _ action: @escaping () -> Void) async {
+        stateSink = await actor.$observedState.receive(on: DispatchQueue.main).sink { newState in
             if state == newState {
                 action()
             }
@@ -415,21 +415,15 @@ extension PacketTunnelActorTests {
     }
 
     func expect(
-        _ expression: @escaping (State) -> Bool,
+        _ expression: @escaping (ObservedState) -> Bool,
         on actor: PacketTunnelActor,
         _ action: @escaping () -> Void
     ) async {
-        stateSink = await actor.$state.receive(on: DispatchQueue.main).sink { newState in
+        stateSink = await actor.$observedState.receive(on: DispatchQueue.main).sink { newState in
             if expression(newState) {
                 action()
             }
         }
-    }
-}
-
-extension State: Equatable {
-    public static func == (lhs: State, rhs: State) -> Bool {
-        lhs.name == rhs.name
     }
 }
 
