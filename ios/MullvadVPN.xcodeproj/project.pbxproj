@@ -161,6 +161,7 @@
 		5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5878F4FF29CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift */; };
 		587988C728A2A01F00E3DF54 /* AccountDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */; };
 		587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */; };
+		587A5E522ADD7569003A70F1 /* ObservedState+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587A5E512ADD7569003A70F1 /* ObservedState+Extensions.swift */; };
 		587B7536266528A200DEF7E9 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B7535266528A200DEF7E9 /* NotificationManager.swift */; };
 		587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B753A2666467500DEF7E9 /* NotificationBannerView.swift */; };
 		587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B753C2666468F00DEF7E9 /* NotificationController.swift */; };
@@ -292,6 +293,7 @@
 		58CE5E66224146200008646E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E65224146200008646E /* LoginViewController.swift */; };
 		58CE5E6B224146210008646E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E6A224146210008646E /* Assets.xcassets */; };
 		58CE5E81224146470008646E /* PacketTunnel.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 58CE5E79224146470008646E /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		58CF95A22AD6F35800B59F5D /* ObservedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CF95A12AD6F35800B59F5D /* ObservedState.swift */; };
 		58D0C79E23F1CEBA00FE9BA7 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */; };
 		58D0C7A223F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */; };
 		58D223A8294C8A490029F5F8 /* Operations.h in Headers */ = {isa = PBXBuildFile; fileRef = 58D223A7294C8A490029F5F8 /* Operations.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1315,6 +1317,7 @@
 		587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDataThrottling.swift; sourceTree = "<group>"; };
 		58799A352A84FC9F007BE51F /* PingerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingerProtocol.swift; sourceTree = "<group>"; };
 		587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProviderHost.swift; sourceTree = "<group>"; };
+		587A5E512ADD7569003A70F1 /* ObservedState+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ObservedState+Extensions.swift"; sourceTree = "<group>"; };
 		587AD7C523421D7000E93A53 /* TunnelSettingsV1.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV1.swift; sourceTree = "<group>"; };
 		587B7535266528A200DEF7E9 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		587B753A2666467500DEF7E9 /* NotificationBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationBannerView.swift; sourceTree = "<group>"; };
@@ -1432,6 +1435,7 @@
 		58CE5E79224146470008646E /* PacketTunnel.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PacketTunnel.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		58CE5E7D224146470008646E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58CE5E7E224146470008646E /* PacketTunnel.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PacketTunnel.entitlements; sourceTree = "<group>"; };
+		58CF95A12AD6F35800B59F5D /* ObservedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservedState.swift; sourceTree = "<group>"; };
 		58D0C79323F1CE7000FE9BA7 /* MullvadVPNScreenshots.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNScreenshots.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
 		58D0C79F23F1CECF00FE9BA7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -2336,6 +2340,8 @@
 				5838322A2AC3EF9600EA2071 /* CommandChannel.swift */,
 				583E60952A9F6D0800DC61EF /* ConfigurationBuilder.swift */,
 				580D6B892AB31AB400B2D6E0 /* NetworkPath+NetworkReachability.swift */,
+				58CF95A12AD6F35800B59F5D /* ObservedState.swift */,
+				587A5E512ADD7569003A70F1 /* ObservedState+Extensions.swift */,
 				58E9C3852A4EF1CB00CFDEAC /* PacketTunnelActor.swift */,
 				583832242AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift */,
 				583832222AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift */,
@@ -4188,12 +4194,14 @@
 				58C7A4572A863FB90060C66F /* TunnelDeviceInfoProtocol.swift in Sources */,
 				58C7A4562A863FB90060C66F /* DefaultPathObserverProtocol.swift in Sources */,
 				58FE25DA2AA72A8F003D1918 /* PacketTunnelActor.swift in Sources */,
+				587A5E522ADD7569003A70F1 /* ObservedState+Extensions.swift in Sources */,
 				58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */,
 				583832252AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift in Sources */,
 				58C7A4552A863FB90060C66F /* TunnelMonitor.swift in Sources */,
 				58C7AF182ABD84AB007EDD7A /* ProxyURLResponse.swift in Sources */,
 				58C7A4512A863FB50060C66F /* PingerProtocol.swift in Sources */,
 				583832292AC3DF1300EA2071 /* Command.swift in Sources */,
+				58CF95A22AD6F35800B59F5D /* ObservedState.swift in Sources */,
 				583832232AC3181400EA2071 /* PacketTunnelActor+ErrorState.swift in Sources */,
 				58C7AF112ABD8480007EDD7A /* TunnelProviderMessage.swift in Sources */,
 				58C7AF162ABD84A8007EDD7A /* URLRequestProxy.swift in Sources */,
