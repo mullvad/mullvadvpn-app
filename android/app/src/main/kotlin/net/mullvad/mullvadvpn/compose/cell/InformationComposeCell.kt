@@ -12,13 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AlphaInactive
 import net.mullvad.mullvadvpn.lib.theme.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.MullvadBlue
 import net.mullvad.mullvadvpn.lib.theme.MullvadWhite
 
@@ -62,7 +62,6 @@ fun InformationComposeCell(
 
 @Composable
 private fun InformationComposeCellBody(modifier: Modifier, onInfoClicked: (() -> Unit)? = null) {
-    val horizontalPadding = dimensionResource(id = R.dimen.medium_padding)
     val verticalPadding = 13.dp
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
@@ -73,8 +72,8 @@ private fun InformationComposeCellBody(modifier: Modifier, onInfoClicked: (() ->
                 modifier =
                     Modifier.clickable { onInfoClicked() }
                         .padding(
-                            start = horizontalPadding,
-                            end = horizontalPadding,
+                            start = Dimens.mediumPadding,
+                            end = Dimens.mediumPadding,
                             top = verticalPadding,
                             bottom = verticalPadding
                         )

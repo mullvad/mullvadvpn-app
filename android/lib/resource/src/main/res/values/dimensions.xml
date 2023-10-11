@@ -1,7 +1,4 @@
 <resources>
-    <dimen name="text_small">13sp</dimen>
-    <dimen name="text_medium">16sp</dimen>
     <dimen name="text_medium_plus">18sp</dimen>
-    <dimen name="text_big">24sp</dimen>
     <dimen name="zero_size">0px</dimen>
 </resources>
