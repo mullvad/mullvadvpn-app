@@ -3487,10 +3487,8 @@ name = "talpid-openvpn"
 version = "0.0.0"
 dependencies = [
  "async-trait",
- "duct",
  "err-derive",
  "futures",
- "is-terminal",
  "log",
  "once_cell",
  "os_pipe",
