@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.combine
+import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -131,7 +132,7 @@ class ConnectViewModel(
                                 accountExpiry = accountExpiry
                             ),
                         deviceName = deviceName,
-                        daysLeftUntilExpiry = accountExpiry.daysLeft()
+                        daysLeftUntilExpiry = accountExpiry.date()?.daysFromNow()
                     )
                 }
             }

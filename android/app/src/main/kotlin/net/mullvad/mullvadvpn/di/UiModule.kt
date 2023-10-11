@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
+import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.apache.commons.validator.routines.InetAddressValidator

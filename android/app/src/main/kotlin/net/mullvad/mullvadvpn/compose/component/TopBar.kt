@@ -3,6 +3,7 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
@@ -287,12 +288,17 @@ fun MullvadTopBarWithDeviceName(
                         start = Dimens.mediumPadding,
                         end = Dimens.mediumPadding
                     )
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .animateContentSize(),
             horizontalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)
         ) {
             Text(
                 modifier = Modifier.weight(1f, fill = false),
-                text = stringResource(id = R.string.top_bar_device_name, deviceName ?: ""),
+                text =
+                    deviceName?.let {
+                        stringResource(id = R.string.top_bar_device_name, deviceName)
+                    }
+                        ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall
