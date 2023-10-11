@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -33,6 +32,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
@@ -61,7 +61,7 @@ fun PrivacyDisclaimerScreen(
                     .background(color = MaterialTheme.colorScheme.background)
         ) {
             val (body, actionButtons) = createRefs()
-            val sideMargin = dimensionResource(id = R.dimen.side_margin)
+            val sideMargin = Dimens.sideMargin
 
             Column(
                 modifier =
