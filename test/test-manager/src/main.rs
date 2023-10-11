@@ -203,6 +203,15 @@ async fn main() -> Result<()> {
             verbose,
             test_report,
         } => {
+            let summary_logger = match test_report {
+                Some(path) => Some(
+                    summary::SummaryLogger::new(&name, &path)
+                        .await
+                        .context("Failed to create summary logger")?,
+                ),
+                None => None,
+            };
+
             let mut config = config.clone();
             config.runtime_opts.display = match (display, vnc.is_some()) {
                 (false, false) => config::Display::None,
@@ -231,15 +240,6 @@ async fn main() -> Result<()> {
                 .context("Failed to run provisioning for VM")?;
 
             let skip_wait = vm_config.provisioner != config::Provisioner::Noop;
-
-            let summary_logger = match test_report {
-                Some(path) => Some(
-                    summary::SummaryLogger::new(&name, &path)
-                        .await
-                        .context("Failed to create summary logger")?,
-                ),
-                None => None,
-            };
 
             let result = run_tests::run(
                 tests::config::TestConfig {
