@@ -57,6 +57,12 @@ Line wrap the file at 100 chars.                                              Th
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
 
 
+## [android/2023.7] - 2023-10-11
+### Changed
+#### Android
+- Minor addition to problem report logs to aid debugging of user issues.
+
+
 ## [2023.5] - 2023-10-10
 ### Added
 #### Linux
