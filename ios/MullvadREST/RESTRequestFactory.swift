@@ -62,6 +62,7 @@ extension REST {
             request.httpShouldHandleCookies = false
             request.addValue(hostname, forHTTPHeaderField: HTTPHeader.host)
             request.addValue("application/json", forHTTPHeaderField: HTTPHeader.contentType)
+            request.addValue("mullvad-app", forHTTPHeaderField: HTTPHeader.userAgent)
             request.httpMethod = method.rawValue
 
             let prefixedPathTemplate = URLPathTemplate(stringLiteral: pathPrefix) + pathTemplate
