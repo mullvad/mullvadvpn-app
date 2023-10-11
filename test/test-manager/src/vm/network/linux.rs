@@ -100,7 +100,6 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 // TODO: probably provider dependent
-
 pub struct NetworkHandle {
     dhcp_proc: DhcpProcHandle,
 }
@@ -177,7 +176,7 @@ table ip mullvad_test_nat {{
 
 impl NetworkHandle {
     /// Return the first IP address acknowledged by the DHCP server. This can only be called once.
-    pub fn first_dhcp_ack(&mut self) -> impl std::future::Future<Output = Option<IpAddr>> {
+    pub async fn first_dhcp_ack(&mut self) -> Option<IpAddr> {
         const LOG_PREFIX: &str = "[dnsmasq] ";
         const LOG_LEVEL: log::Level = log::Level::Debug;
 
@@ -186,33 +185,31 @@ impl NetworkHandle {
 
         let stderr = self.dhcp_proc.child.stderr.take();
 
-        async move {
-            let reader = BufReader::new(stderr?);
-            let mut lines = reader.lines();
+        let reader = BufReader::new(stderr?);
+        let mut lines = reader.lines();
 
-            while let Ok(Some(line)) = lines.next_line().await {
-                log::log!(LOG_LEVEL, "{LOG_PREFIX}{}", line);
+        while let Ok(Some(line)) = lines.next_line().await {
+            log::log!(LOG_LEVEL, "{LOG_PREFIX}{}", line);
 
-                if let Some(addr) = re
-                    .captures(&line)
-                    .and_then(|cap| cap.get(1))
-                    .map(|addr| addr.as_str())
-                {
-                    if let Ok(parsed_addr) = IpAddr::from_str(addr) {
-                        log::debug!("Captured DHCPACK: {}", parsed_addr);
-                        return Some(parsed_addr);
-                    }
+            if let Some(addr) = re
+                .captures(&line)
+                .and_then(|cap| cap.get(1))
+                .map(|addr| addr.as_str())
+            {
+                if let Ok(parsed_addr) = IpAddr::from_str(addr) {
+                    log::debug!("Captured DHCPACK: {}", parsed_addr);
+                    return Some(parsed_addr);
                 }
             }
-
-            tokio::spawn(crate::vm::logging::forward_logs(
-                LOG_PREFIX,
-                lines.into_inner().into_inner(),
-                LOG_LEVEL,
-            ));
-
-            None
         }
+
+        tokio::spawn(crate::vm::logging::forward_logs(
+            LOG_PREFIX,
+            lines.into_inner().into_inner(),
+            LOG_LEVEL,
+        ));
+
+        None
     }
 }
 
