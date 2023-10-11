@@ -7,8 +7,8 @@ use tokio::{
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    #[error(display = "Failed to open log file")]
-    Open(#[error(source)] io::Error),
+    #[error(display = "Failed to open log file {:?}", _1)]
+    Open(#[error(source)] io::Error, std::path::PathBuf),
     #[error(display = "Failed to write to log file")]
     Write(#[error(source)] io::Error),
     #[error(display = "Failed to read from log file")]
@@ -67,7 +67,7 @@ impl SummaryLogger {
             .truncate(true)
             .open(path)
             .await
-            .map_err(Error::Open)?;
+            .map_err(|err| Error::Open(err, path.to_path_buf()))?;
 
         // The first row is the summary name
         file.write_all(name.as_bytes())
@@ -126,7 +126,7 @@ impl Summary {
             .read(true)
             .open(path)
             .await
-            .map_err(Error::Open)?;
+            .map_err(|err| Error::Open(err, path.to_path_buf()))?;
 
         let mut lines = tokio::io::BufReader::new(file).lines();
 
