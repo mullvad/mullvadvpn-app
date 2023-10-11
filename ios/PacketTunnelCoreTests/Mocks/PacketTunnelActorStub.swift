@@ -11,12 +11,12 @@ import PacketTunnelCore
 import XCTest
 
 struct PacketTunnelActorStub: PacketTunnelActorProtocol {
-    let innerState: State = .disconnected
+    let innerState: ObservedState = .disconnected
     var stateExpectation: XCTestExpectation?
     var reconnectExpectation: XCTestExpectation?
     var keyRotationExpectation: XCTestExpectation?
 
-    var state: State {
+    var observedState: ObservedState {
         get async {
             stateExpectation?.fulfill()
             return innerState

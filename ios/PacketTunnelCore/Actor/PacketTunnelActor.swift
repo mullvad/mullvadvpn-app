@@ -25,11 +25,14 @@ import class WireGuardKitTypes.PrivateKey
    same anyway.
  */
 public actor PacketTunnelActor {
-    @Published internal(set) public var state: State = .initial {
+    var state: State = .initial {
         didSet {
             logger.debug("\(state.logFormat())")
+            observedState = state.observedState
         }
     }
+
+    @Published internal(set) public var observedState: ObservedState = .initial
 
     let logger = Logger(label: "PacketTunnelActor")
 
