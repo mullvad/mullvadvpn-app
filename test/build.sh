@@ -19,4 +19,7 @@ else
     cargo build --bin test-runner --release --target "${TARGET}"
 fi
 
-./scripts/build-runner-image.sh
+# Don't build a runner image for macOS.
+if [[ $TARGET != aarch64-apple-darwin ]]; then
+    ./scripts/build-runner-image.sh
+fi
