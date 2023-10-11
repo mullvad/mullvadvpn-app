@@ -3,7 +3,9 @@
 # Buildserver configuration. Runtime values are defined here instead of
 # the scripts where they are used.
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+function script_dir {
+    ( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+}
 
 # Which gpg key to sign things with
 export CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
@@ -15,7 +17,8 @@ SUPPORTED_DEB_CODENAMES+=("jammy" "focal" "lunar")
 export SUPPORTED_DEB_CODENAMES
 
 # Where to store deb repositories locally when building releases
-export DEB_REPOSITORY_ARCHIVE_DIR="$SCRIPT_DIR/deb"
+# shellcheck disable=SC2155
+export DEB_REPOSITORY_ARCHIVE_DIR="$(script_dir)/deb"
 
 # Servers to upload Linux deb/rpm repositories to
 export DEV_LINUX_REPOSITORY_SERVERS=("se-got-cdn-001.devmole.eu" "se-got-cdn-002.devmole.eu")
