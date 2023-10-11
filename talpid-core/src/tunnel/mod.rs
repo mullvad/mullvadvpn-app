@@ -298,9 +298,11 @@ enum InternalTunnelMonitor {
 
 impl InternalTunnelMonitor {
     fn wait(self) -> Result<()> {
+        let handle = tokio::runtime::Handle::current();
+
         match self {
             #[cfg(not(target_os = "android"))]
-            InternalTunnelMonitor::OpenVpn(tun) => tun.wait()?,
+            InternalTunnelMonitor::OpenVpn(tun) => handle.block_on(tun.wait())?,
             InternalTunnelMonitor::Wireguard(tun) => tun.wait()?,
         }
 

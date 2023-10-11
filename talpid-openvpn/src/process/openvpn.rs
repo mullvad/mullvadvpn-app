@@ -368,7 +368,7 @@ pub struct OpenVpnProcHandle {
     ///
     /// This handle is acquired by calling [`OpenVpnCommand::build`] (or
     /// [`tokio::process::Command::spawn`]).
-    pub inner: std::sync::Arc<tokio::sync::Mutex<tokio::process::Child>>,
+    pub inner: tokio::process::Child,
     /// Pipe handle to stdin of the OpenVPN process. Our custom fork of OpenVPN
     /// has been changed so that it exits cleanly when stdin is closed. This is a hack
     /// solution to cleanly shut OpenVPN down without using the
@@ -394,14 +394,14 @@ impl OpenVpnProcHandle {
         let proc_handle = cmd.stdin(reader).spawn()?;
 
         Ok(Self {
-            inner: std::sync::Arc::new(tokio::sync::Mutex::new(proc_handle)),
+            inner: proc_handle,
             stdin: Mutex::new(Some(writer)),
         })
     }
 
     /// Attempts to stop the OpenVPN process gracefully in the given time
     /// period, otherwise kills the process.
-    pub async fn nice_kill(&self, timeout: std::time::Duration) -> io::Result<()> {
+    pub async fn nice_kill(&mut self, timeout: std::time::Duration) -> io::Result<()> {
         log::debug!("Trying to stop child process gracefully");
         self.stop().await;
 
@@ -422,12 +422,12 @@ impl OpenVpnProcHandle {
     /// Waits for the child to exit completely, returning the status that it
     /// exited with. See [tokio::process::Child::wait] for in-depth
     /// documentation.
-    async fn wait(&self) -> io::Result<std::process::ExitStatus> {
-        self.inner.lock().await.wait().await
+    async fn wait(&mut self) -> io::Result<std::process::ExitStatus> {
+        self.inner.wait().await
     }
 
     /// Kill the OpenVPN process and drop its stdin handle.
-    async fn stop(&self) {
+    async fn stop(&mut self) {
         // Dropping our stdin handle so that it is closed once. Closing the handle should
         // gracefully stop our OpenVPN child process.
         if self.stdin.lock().take().is_none() {
@@ -436,20 +436,20 @@ impl OpenVpnProcHandle {
         self.clean_up().await
     }
 
-    async fn kill(&self) -> io::Result<()> {
+    async fn kill(&mut self) -> io::Result<()> {
         log::warn!("Killing OpenVPN process");
-        self.inner.lock().await.kill().await?;
+        self.inner.kill().await?;
         log::debug!("OpenVPN forcefully killed");
         Ok(())
     }
 
-    async fn has_stopped(&self) -> io::Result<bool> {
-        let exit_status = self.inner.lock().await.try_wait()?;
+    async fn has_stopped(&mut self) -> io::Result<bool> {
+        let exit_status = self.inner.try_wait()?;
         Ok(exit_status.is_some())
     }
 
     /// Try to kill the OpenVPN process.
-    async fn clean_up(&self) {
+    async fn clean_up(&mut self) {
         let result = match self.has_stopped().await {
             Ok(false) => self.kill().await,
             Err(e) => {
