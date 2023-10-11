@@ -47,28 +47,14 @@ extension PacketTunnelActor {
         }
     }
 
-    /// Increment connection attempt counter and reconnect the tunnel.
+    /// Tell the tunnel to reconnect providing the correct reason to ensure that the attempt counter is incremented before reconnect.
     private func onHandleConnectionRecovery() async {
         switch state {
-        case var .connecting(connState):
-            connState.incrementAttemptCount()
-            state = .connecting(connState)
-
-        case var .reconnecting(connState):
-            connState.incrementAttemptCount()
-            state = .reconnecting(connState)
-
-        case var .connected(connState):
-            connState.incrementAttemptCount()
-            state = .connected(connState)
+        case .connecting, .reconnecting, .connected:
+            commandChannel.send(.reconnect(.random, reason: .connectionLoss))
 
         case .initial, .disconnected, .disconnecting, .error:
-            // Explicit return to prevent reconnecting the tunnel.
-            return
+            break
         }
-
-        // Tunnel monitor should already be paused at this point so don't stop it to avoid a reset of its internal
-        // counters.
-        commandChannel.send(.reconnect(.random, stopTunnelMonitor: false))
     }
 }

@@ -99,4 +99,98 @@ final class ActorTests: XCTestCase {
 
         await fulfillment(of: allExpectations, timeout: 1, enforceOrder: true)
     }
+
+    /**
+     Each subsequent connection attempt should produce a single change to `state` containing the incremented attempt counter and new relay.
+
+     .connecting (attempt: 0) → .connecting (attempt: 1) → .connecting (attempt: 2) → ...
+     */
+    func testConnectionAttemptTransition() async throws {
+        let tunnelMonitor = TunnelMonitorStub { _, _ in }
+        let actor = PacketTunnelActor.mock(tunnelMonitor: tunnelMonitor)
+        let connectingStateExpectation = expectation(description: "Expect connecting state")
+        connectingStateExpectation.expectedFulfillmentCount = 5
+
+        var nextAttemptCount: UInt = 0
+        stateSink = await actor.$state
+            .receive(on: DispatchQueue.main)
+            .sink { newState in
+                switch newState {
+                case .initial:
+                    break
+
+                case let .connecting(connState):
+                    XCTAssertEqual(connState.connectionAttemptCount, nextAttemptCount)
+                    nextAttemptCount += 1
+                    connectingStateExpectation.fulfill()
+
+                    if nextAttemptCount < connectingStateExpectation.expectedFulfillmentCount {
+                        tunnelMonitor.dispatch(.connectionLost, after: .milliseconds(10))
+                    }
+
+                default:
+                    XCTFail("Received invalid state: \(newState.name).")
+                }
+            }
+
+        self.actor = actor
+
+        actor.start(options: StartOptions(launchSource: .app))
+
+        await fulfillment(of: [connectingStateExpectation], timeout: 1)
+    }
+
+    /**
+     Each subsequent re-connection attempt should produce a single change to `state` containing the incremented attempt counter and new relay.
+
+     .reconnecting (attempt: 0) → .reconnecting (attempt: 1) → .reconnecting (attempt: 2) → ...
+     */
+    func testReconnectionAttemptTransition() async throws {
+        let tunnelMonitor = TunnelMonitorStub { _, _ in }
+        let actor = PacketTunnelActor.mock(tunnelMonitor: tunnelMonitor)
+        let connectingStateExpectation = expectation(description: "Expect connecting state")
+        let connectedStateExpectation = expectation(description: "Expect connected state")
+        let reconnectingStateExpectation = expectation(description: "Expect reconnecting state")
+        reconnectingStateExpectation.expectedFulfillmentCount = 5
+
+        var nextAttemptCount: UInt = 0
+        stateSink = await actor.$state
+            .receive(on: DispatchQueue.main)
+            .sink { newState in
+                switch newState {
+                case .initial:
+                    break
+
+                case .connecting:
+                    connectingStateExpectation.fulfill()
+                    tunnelMonitor.dispatch(.connectionEstablished, after: .milliseconds(10))
+
+                case .connected:
+                    connectedStateExpectation.fulfill()
+                    tunnelMonitor.dispatch(.connectionLost, after: .milliseconds(10))
+
+                case let .reconnecting(connState):
+                    XCTAssertEqual(connState.connectionAttemptCount, nextAttemptCount)
+                    nextAttemptCount += 1
+                    reconnectingStateExpectation.fulfill()
+
+                    if nextAttemptCount < reconnectingStateExpectation.expectedFulfillmentCount {
+                        tunnelMonitor.dispatch(.connectionLost, after: .milliseconds(10))
+                    }
+
+                default:
+                    XCTFail("Received invalid state: \(newState.name).")
+                }
+            }
+
+        self.actor = actor
+
+        actor.start(options: StartOptions(launchSource: .app))
+
+        await fulfillment(
+            of: [connectingStateExpectation, connectedStateExpectation, reconnectingStateExpectation],
+            timeout: 1,
+            enforceOrder: true
+        )
+    }
 }

@@ -17,9 +17,7 @@ enum Command {
     case stop
 
     /// Reconnect tunnel.
-    /// `stopTunnelMonitor = false` is only used when tunnel monitor is paused in response to connectivity loss and shouldn't be stopped explicitly,
-    /// as this would reset its internal counters.
-    case reconnect(NextRelay, stopTunnelMonitor: Bool = true)
+    case reconnect(NextRelay, reason: ReconnectReason = .userInitiated)
 
     /// Enter blocked state.
     case error(BlockedStateReason)
