@@ -129,6 +129,10 @@ pub async fn ping_with_timeout(
         .map_err(Error::Rpc)
 }
 
+/// Try to connect to a Mullvad Tunnel.
+///
+/// If that fails for whatever reason, the Mullvad daemon ends up in the
+/// [`TunnelState::Error`] state & [`Error::DaemonError`] is returned.
 pub async fn connect_and_wait(mullvad_client: &mut ManagementServiceClient) -> Result<(), Error> {
     log::info!("Connecting");
 
