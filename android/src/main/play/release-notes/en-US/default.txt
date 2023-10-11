@@ -1,8 +1,1 @@
-Add quantum-resistant tunneling.
-Add UDP-over-TCP WireGuard obfuscation.
-Add WireGuard port configuration.
-Add search bar to the Select location view.
-Improve Android firewall integration.
-Rearrange settings menus.
-Fix UI inconsistencies and flickering.
-Fix unused bundled relay list.
+Minor addition to problem report logs to aid debugging of user issues.
