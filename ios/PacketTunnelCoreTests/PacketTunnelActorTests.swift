@@ -197,7 +197,11 @@ final class PacketTunnelActorTests: XCTestCase {
     func testStopCancelsDefaultPathObserver() async throws {
         let pathObserver = DefaultPathObserverFake()
         let actor = PacketTunnelActor.mock(defaultPathObserver: pathObserver)
+
         let connectedStateExpectation = expectation(description: "Connected state")
+        let didStopObserverExpectation = expectation(description: "Did stop path observer")
+        didStopObserverExpectation.expectedFulfillmentCount = 2
+        pathObserver.onStop = { didStopObserverExpectation.fulfill() }
 
         let expression: (State) -> Bool = { if case .connected = $0 { true } else { false } }
 
@@ -214,9 +218,7 @@ final class PacketTunnelActorTests: XCTestCase {
             disconnectedStateExpectation.fulfill()
         }
         actor.stop()
-        await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
-
-        XCTAssertNil(pathObserver.defaultPathHandler)
+        await fulfillment(of: [disconnectedStateExpectation, didStopObserverExpectation], timeout: 1)
     }
 
     func testSetErrorStateGetsCancelled() async throws {

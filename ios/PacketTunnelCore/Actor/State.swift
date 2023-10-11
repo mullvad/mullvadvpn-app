@@ -193,7 +193,7 @@ public enum BlockedStateReason: String, Codable, Equatable {
     case tunnelAdapter
 
     /// Invalid public key.
-    case invalidPublicKey
+    case invalidRelayPublicKey
 
     /// Unidentified reason.
     case unknown
