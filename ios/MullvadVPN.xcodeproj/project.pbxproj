@@ -2670,10 +2670,10 @@
 		58E7A0312AA0715100C57861 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
-				5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */,
-				586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */,
-				5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */,
 				580D6B8B2AB3369300B2D6E0 /* BlockedStateErrorMapperProtocol.swift */,
+				5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */,
+				586E7A2C2A987689006DAB1B /* SettingsReaderProtocol.swift */,
+				5819ABC22A8CF02C007B59A6 /* TunnelAdapterProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
