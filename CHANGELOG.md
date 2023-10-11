@@ -25,11 +25,14 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add customizable relay lists to the CLI on desktop. Custom lists can be managed through
   `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
+- Add custom lists to location selector in desktop app.
 
 #### Linux
 - Start signing the deb and rpm files (GPG)
 
 ### Changed
+- Update Electron from 25.2.0 to 26.3.0.
+
 #### Android
 - Migrate welcome view to compose.
 - Migrate in app notifications to compose.
