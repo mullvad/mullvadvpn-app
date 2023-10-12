@@ -61,7 +61,8 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void> {
     private func readSettings() -> Result<LatestTunnelSettings?, Error> {
         Result { try SettingsManager.readSettings() }
             .flatMapError { error in
-                if let error = error as? KeychainError, error == .itemNotFound {
+                if let error = error as? ReadSettingsVersionError,
+                   let keychainError = error.underlyingError as? KeychainError, keychainError == .itemNotFound {
                     logger.debug("Settings not found in keychain.")
 
                     return .success(nil)
