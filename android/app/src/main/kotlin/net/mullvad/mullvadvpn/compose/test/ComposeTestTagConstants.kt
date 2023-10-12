@@ -24,3 +24,5 @@ const val LOCATION_INFO_TEST_TAG = "location_info_test_tag"
 
 // ConnectScreen - Notification banner
 const val NOTIFICATION_BANNER = "notification_banner"
+
+const val LOGIN_TITLE_TEST_TAG = "login_title_test_tag"
