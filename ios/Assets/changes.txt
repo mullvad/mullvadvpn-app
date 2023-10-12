@@ -1,1 +1,2 @@
 Minor addition to problem report logs to aid debugging of user issues.
+Remove voucher redemption due to changes in App Store guidelines.
