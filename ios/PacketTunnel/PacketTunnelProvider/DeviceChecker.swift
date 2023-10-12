@@ -16,10 +16,10 @@ final class DeviceChecker {
     private let dispatchQueue = DispatchQueue(label: "DeviceCheckerQueue")
     private let operationQueue = AsyncOperationQueue.makeSerial()
 
-    private let accountsProxy: AccountHandling
+    private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
 
-    init(accountsProxy: AccountHandling, devicesProxy: DeviceHandling) {
+    init(accountsProxy: RESTAccountHandling, devicesProxy: DeviceHandling) {
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
     }

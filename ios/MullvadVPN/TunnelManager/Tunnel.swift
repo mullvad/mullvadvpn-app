@@ -20,13 +20,13 @@ protocol TunnelStatusObserver {
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus)
 }
 
-protocol TunnelProtocol: AnyObject, Equatable {
-    func addObserver(_ observer: TunnelStatusObserver)
-    func removeObserver(_ observer: TunnelStatusObserver)
+protocol TunnelProtocol: AnyObject {
     var status: NEVPNStatus { get }
     var isOnDemandEnabled: Bool { get set }
     var startDate: Date? { get }
 
+    func addObserver(_ observer: TunnelStatusObserver)
+    func removeObserver(_ observer: TunnelStatusObserver)
     func addBlockObserver(
         queue: DispatchQueue?,
         handler: @escaping (any TunnelProtocol, NEVPNStatus) -> Void

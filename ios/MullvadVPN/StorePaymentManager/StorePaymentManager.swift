@@ -30,7 +30,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private let application: UIApplication
     private let paymentQueue: SKPaymentQueue
     private let apiProxy: APIQuerying
-    private let accountsProxy: AccountHandling
+    private let accountsProxy: RESTAccountHandling
     private var observerList = ObserverList<StorePaymentObserver>()
 
     private weak var classDelegate: StorePaymentManagerDelegate?
@@ -67,7 +67,7 @@ final class StorePaymentManager: NSObject, SKPaymentTransactionObserver {
         application: UIApplication,
         queue: SKPaymentQueue,
         apiProxy: APIQuerying,
-        accountsProxy: AccountHandling
+        accountsProxy: RESTAccountHandling
     ) {
         self.application = application
         paymentQueue = queue
