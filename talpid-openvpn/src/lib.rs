@@ -4,7 +4,6 @@
 #![deny(rust_2018_idioms)]
 
 use crate::proxy::{ProxyMonitor, ProxyResourceData};
-use futures::channel::oneshot;
 #[cfg(windows)]
 use once_cell::sync::Lazy;
 use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
@@ -17,7 +16,6 @@ use std::{
     io::{self, Write},
     path::{Path, PathBuf},
     process::ExitStatus,
-    sync::{Arc, Mutex},
     time::Duration,
 };
 #[cfg(target_os = "linux")]
@@ -156,8 +154,8 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     event_server_abort_tx: triggered::Trigger,
     server_join_handle: task::JoinHandle<std::result::Result<(), event_server::Error>>,
 
-    monitor_abort_tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
-    monitor_abort_rx: oneshot::Receiver<()>,
+    monitor_abort_tx: triggered::Trigger,
+    monitor_abort_rx: triggered::Listener,
 
     #[cfg(windows)]
     _wintun: Arc<Box<dyn WintunContext>>,
@@ -389,7 +387,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             wintun.clone(),
         ));
 
-        let (monitor_abort_tx, monitor_abort_rx) = oneshot::channel();
+        let (monitor_abort_tx, monitor_abort_rx) = triggered::trigger();
 
         let monitor = OpenVpnMonitor {
             prepare_task,
@@ -400,7 +398,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             event_server_abort_tx,
             server_join_handle,
 
-            monitor_abort_tx: Arc::new(Mutex::new(Some(monitor_abort_tx))),
+            monitor_abort_tx,
             monitor_abort_rx,
 
             #[cfg(windows)]
@@ -643,7 +641,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 /// A handle to an `OpenVpnMonitor` for closing it.
 #[derive(Debug)]
 pub struct OpenVpnCloseHandle {
-    monitor_abort_tx: Arc<Mutex<Option<oneshot::Sender<()>>>>,
+    monitor_abort_tx: triggered::Trigger,
     prepare_task: tokio::task::AbortHandle,
 }
 
@@ -651,9 +649,7 @@ impl OpenVpnCloseHandle {
     /// Begin killing the OpenVPN monitor, making the `OpenVpnMonitor::wait` method return.
     pub fn close(self) {
         self.prepare_task.abort();
-        if let Some(tx) = self.monitor_abort_tx.lock().unwrap().take() {
-            let _ = tx.send(());
-        }
+        self.monitor_abort_tx.trigger();
     }
 }
 
@@ -1063,10 +1059,9 @@ mod event_server {
 mod tests {
     use super::*;
     use crate::mktemp::TempFile;
-    use parking_lot::Mutex;
     use std::{
         path::{Path, PathBuf},
-        sync::Arc,
+        sync::{Arc, Mutex},
     };
 
     #[cfg(windows)]
@@ -1128,12 +1123,12 @@ mod tests {
         type ProcessHandle = TestProcessHandle;
 
         fn plugin(&mut self, path: impl AsRef<Path>, _args: Vec<String>) -> &mut Self {
-            *self.plugin.lock() = Some(path.as_ref().to_path_buf());
+            *self.plugin.lock().unwrap() = Some(path.as_ref().to_path_buf());
             self
         }
 
         fn log(&mut self, log: Option<impl AsRef<Path>>) -> &mut Self {
-            *self.log.lock() = log.as_ref().map(|path| path.as_ref().to_path_buf());
+            *self.log.lock().unwrap() = log.as_ref().map(|path| path.as_ref().to_path_buf());
             self
         }
 
@@ -1172,7 +1167,6 @@ mod tests {
         plugin_path: PathBuf,
         log_path: Option<PathBuf>,
     ) -> OpenVpnTunnelInitArgs {
-        let (_close_tx, close_rx) = oneshot::channel();
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
         OpenVpnTunnelInitArgs {
             event_server_abort_tx,
@@ -1182,7 +1176,6 @@ mod tests {
             user_pass_file: TempFile::new(),
             proxy_auth_file: None,
             proxy_monitor: None,
-            tunnel_close_rx: close_rx,
             #[cfg(target_os = "linux")]
             fwmark: 0,
         }
@@ -1205,7 +1198,7 @@ mod tests {
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
-            *builder.plugin.lock()
+            *builder.plugin.lock().unwrap()
         );
     }
 
@@ -1223,7 +1216,7 @@ mod tests {
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
-            *builder.log.lock()
+            *builder.log.lock().unwrap()
         );
     }
 
