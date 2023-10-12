@@ -1,30 +1,6 @@
 <resources>
     <color name="colorPrimary">#294D73</color>
     <color name="blue">#294D73</color>
-    <color name="blue80">#CC294D73</color>
-    <color name="blue60">#99294D73</color>
-    <color name="blue40">#66294D73</color>
-    <color name="blue20">#33294D73</color>
     <color name="darkBlue">#192E45</color>
-    <color name="white">#FFFFFF</color>
-    <color name="white80">#CCFFFFFF</color>
-    <color name="white60">#99FFFFFF</color>
-    <color name="white40">#66FFFFFF</color>
-    <color name="white20">#33FFFFFF</color>
-    <color name="green">#44AD4D</color>
-    <color name="green90">#E644AD4D</color>
-    <color name="green80">#CC44AD4D</color>
-    <color name="red">#FFE34039</color>
-    <color name="red95">#F2E34039</color>
-    <color name="red80">#CCE34039</color>
-    <color name="red60">#99E34039</color>
-    <color name="yellow">#FFD323</color>
     <color name="icon_background">@color/darkBlue</color>
-    <!-- Switch Colors -->
-    <color name="switch_thumb_fill_checked">@color/green</color>
-    <color name="switch_thumb_fill_unchecked">@color/red</color>
-    <color name="switch_thumb_fill">@color/switch_thumb_fill_selector</color>
-    <color name="switch_thumb_border">@android:color/transparent</color>
-    <color name="switch_track_fill">@android:color/transparent</color>
-    <color name="switch_track_border">@color/white80</color>
 </resources>

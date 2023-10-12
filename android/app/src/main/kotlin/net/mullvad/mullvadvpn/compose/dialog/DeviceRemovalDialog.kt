@@ -18,7 +18,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +27,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.lib.common.util.capitalizeFirstCharOfEachWord
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.Device
 
 @Preview
@@ -68,11 +68,8 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
         dismissButton = {
             Button(
                 modifier =
-                    Modifier.height(dimensionResource(id = R.dimen.button_height))
-                        .defaultMinSize(
-                            minWidth = 0.dp,
-                            minHeight = dimensionResource(id = R.dimen.button_height)
-                        )
+                    Modifier.height(Dimens.buttonHeight)
+                        .defaultMinSize(minWidth = 0.dp, minHeight = Dimens.buttonHeight)
                         .fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(
@@ -90,11 +87,8 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
                 contentPadding = PaddingValues(0.dp),
                 modifier =
                     Modifier.focusRequester(FocusRequester())
-                        .height(dimensionResource(id = R.dimen.button_height))
-                        .defaultMinSize(
-                            minWidth = 0.dp,
-                            minHeight = dimensionResource(id = R.dimen.button_height)
-                        )
+                        .height(Dimens.buttonHeight)
+                        .defaultMinSize(minWidth = 0.dp, minHeight = Dimens.buttonHeight)
                         .fillMaxWidth(),
                 colors =
                     ButtonDefaults.buttonColors(

@@ -11,13 +11,11 @@ import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.AccountScreen
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.ui.NavigationBarPainter
-import net.mullvad.mullvadvpn.ui.StatusBarPainter
 import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class AccountFragment : BaseFragment(), StatusBarPainter, NavigationBarPainter {
+class AccountFragment : BaseFragment() {
     private val vm by viewModel<AccountViewModel>()
 
     @OptIn(ExperimentalMaterial3Api::class)
