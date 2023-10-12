@@ -11,7 +11,11 @@ const val VOUCHER_CHUNK_SIZE = 4
 const val MAX_VOUCHER_LENGTH = 16
 
 fun vouchersVisualTransformation() = VisualTransformation { text ->
-    var out = text.chunked(VOUCHER_CHUNK_SIZE).joinToString(VOUCHER_SEPARATOR)
+    var out =
+        text
+            .substring(0, min(MAX_VOUCHER_LENGTH, text.length))
+            .chunked(VOUCHER_CHUNK_SIZE)
+            .joinToString(VOUCHER_SEPARATOR)
     if (
         text.length % VOUCHER_CHUNK_SIZE == 0 &&
             text.isNotEmpty() &&
