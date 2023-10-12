@@ -9,8 +9,8 @@ use once_cell::sync::Lazy;
 use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
 #[cfg(target_os = "linux")]
 use std::collections::{HashMap, HashSet};
-#[cfg(windows)]
-use std::ffi::OsString;
+#[cfg(target_os = "windows")]
+use std::{ffi::OsString, sync::Arc};
 use std::{
     fs,
     io::{self, Write},

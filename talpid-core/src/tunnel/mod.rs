@@ -305,6 +305,7 @@ enum InternalTunnelMonitor {
 
 impl InternalTunnelMonitor {
     fn wait(self) -> Result<()> {
+        #[cfg(not(target_os = "android"))]
         let handle = tokio::runtime::Handle::current();
 
         match self {
