@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -136,17 +135,15 @@ fun OutOfTimeScreen(
         timeLeft = null
     ) {
         Column(
-            verticalArrangement = Arrangement.Bottom,
-            horizontalAlignment = Alignment.Start,
             modifier =
                 Modifier.fillMaxSize()
+                    .padding(it)
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
                     )
                     .background(color = MaterialTheme.colorScheme.background)
-                    .padding(it)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_fail),
