@@ -201,7 +201,7 @@ jobs:
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk17
-          arguments: testDebugUnitTest -x :test:arch:testDebugUnitTest
+          arguments: test -x :test:arch:testDebugUnitTest
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: true
