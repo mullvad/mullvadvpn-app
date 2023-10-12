@@ -33,7 +33,8 @@ class VoucherDialogViewModel(
     private val vmState = MutableStateFlow<VoucherDialogState>(VoucherDialogState.Default)
     private val voucherInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
 
-    private lateinit var voucherRedeemer: VoucherRedeemer
+    @Suppress("konsist.ensure public properties use permitted names")
+    lateinit var voucherRedeemer: VoucherRedeemer
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
