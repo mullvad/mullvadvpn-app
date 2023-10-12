@@ -34,7 +34,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private var proxyFactory: REST.ProxyFactory!
     private(set) var apiProxy: APIQuerying!
-    private(set) var accountsProxy: AccountHandling!
+    private(set) var accountsProxy: RESTAccountHandling!
     private(set) var devicesProxy: DeviceHandling!
 
     private(set) var addressCacheTracker: AddressCacheTracker!

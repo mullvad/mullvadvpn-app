@@ -11,7 +11,7 @@ import UIKit
 
 @testable import MullvadTypes
 
-struct UIApplicationStub: UIApplicationProtocol {
+struct UIApplicationStub: BackgroundTaskProvider {
     func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier) {}
 
     func beginBackgroundTask(

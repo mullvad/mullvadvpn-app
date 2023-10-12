@@ -11,7 +11,7 @@ import MullvadLogging
 import MullvadTypes
 import Operations
 
-public protocol AccessTokenManagement {
+public protocol RESTAccessTokenManagement {
     func getAccessToken(
         accountNumber: String,
         completionHandler: @escaping ProxyCompletionHandler<REST.AccessTokenData>
@@ -21,7 +21,7 @@ public protocol AccessTokenManagement {
 }
 
 extension REST {
-    public final class AccessTokenManager: AccessTokenManagement {
+    public final class AccessTokenManager: RESTAccessTokenManagement {
         private let logger = Logger(label: "REST.AccessTokenManager")
         private let operationQueue = AsyncOperationQueue.makeSerial()
         private let dispatchQueue = DispatchQueue(label: "REST.AccessTokenManager.dispatchQueue")

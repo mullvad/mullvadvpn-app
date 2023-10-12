@@ -11,7 +11,7 @@
 import Foundation
 import UIKit
 
-public protocol UIApplicationProtocol {
+public protocol BackgroundTaskProvider {
     func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier)
 
     func beginBackgroundTask(
@@ -20,6 +20,6 @@ public protocol UIApplicationProtocol {
     ) -> UIBackgroundTaskIdentifier
 }
 
-extension UIApplication: UIApplicationProtocol {}
+extension UIApplication: BackgroundTaskProvider {}
 
 #endif

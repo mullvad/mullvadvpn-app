@@ -10,7 +10,7 @@ import Foundation
 @testable import MullvadREST
 @testable import MullvadTypes
 
-struct AccessTokenManagerStub: AccessTokenManagement {
+struct AccessTokenManagerStub: RESTAccessTokenManagement {
     func getAccessToken(
         accountNumber: String,
         completionHandler: @escaping ProxyCompletionHandler<REST.AccessTokenData>

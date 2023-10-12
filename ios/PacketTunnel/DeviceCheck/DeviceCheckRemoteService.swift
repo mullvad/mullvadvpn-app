@@ -13,10 +13,10 @@ import class WireGuardKitTypes.PublicKey
 
 /// An object that implements remote service used by `DeviceCheckOperation`.
 struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
-    private let accountsProxy: AccountHandling
+    private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
 
-    init(accountsProxy: AccountHandling, devicesProxy: DeviceHandling) {
+    init(accountsProxy: RESTAccountHandling, devicesProxy: DeviceHandling) {
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
     }

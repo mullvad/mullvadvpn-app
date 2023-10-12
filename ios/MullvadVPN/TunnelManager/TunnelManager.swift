@@ -44,13 +44,13 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Internal variables
 
-    private let application: UIApplicationProtocol
+    private let application: BackgroundTaskProvider
     fileprivate let tunnelStore: TunnelStoreProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
-    private let accountsProxy: AccountHandling
+    private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
     private let apiProxy: APIQuerying
-    private let accessTokenManager: AccessTokenManagement
+    private let accessTokenManager: RESTAccessTokenManagement
 
     private let logger = Logger(label: "TunnelManager")
     private var nslock = NSRecursiveLock()
@@ -81,13 +81,13 @@ final class TunnelManager: StorePaymentObserver {
     // MARK: - Initialization
 
     init(
-        application: UIApplicationProtocol,
+        application: BackgroundTaskProvider,
         tunnelStore: TunnelStoreProtocol,
         relayCacheTracker: RelayCacheTrackerProtocol,
-        accountsProxy: AccountHandling,
+        accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
         apiProxy: APIQuerying,
-        accessTokenManager: AccessTokenManagement
+        accessTokenManager: RESTAccessTokenManagement
     ) {
         self.application = application
         self.tunnelStore = tunnelStore

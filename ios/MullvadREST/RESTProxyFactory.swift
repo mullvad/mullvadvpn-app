@@ -44,7 +44,7 @@ extension REST {
             REST.APIProxy(configuration: configuration)
         }
 
-        public func createAccountsProxy() -> AccountHandling {
+        public func createAccountsProxy() -> RESTAccountHandling {
             REST.AccountsProxy(configuration: configuration)
         }
 
