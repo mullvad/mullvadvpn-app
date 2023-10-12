@@ -43,8 +43,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -57,6 +60,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
@@ -95,6 +99,7 @@ private fun PreviewLoginSuccess() {
     AppTheme { LoginScreen(uiState = LoginUiState(loginState = Success)) }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginScreen(
     uiState: LoginUiState,
@@ -105,6 +110,7 @@ fun LoginScreen(
     onSettingsClick: () -> Unit = {},
 ) {
     ScaffoldWithTopBar(
+        modifier = Modifier.semantics { testTagsAsResourceId = true },
         topBarColor = MaterialTheme.colorScheme.primary,
         statusBarColor = MaterialTheme.colorScheme.primary,
         navigationBarColor = MaterialTheme.colorScheme.background,
@@ -147,7 +153,10 @@ private fun LoginContent(
             text = uiState.loginState.title(),
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.fillMaxWidth().padding(bottom = Dimens.smallPadding)
+            modifier =
+                Modifier.testTag(LOGIN_TITLE_TEST_TAG)
+                    .fillMaxWidth()
+                    .padding(bottom = Dimens.smallPadding)
         )
 
         var tfFocusState: FocusState? by remember { mutableStateOf(null) }

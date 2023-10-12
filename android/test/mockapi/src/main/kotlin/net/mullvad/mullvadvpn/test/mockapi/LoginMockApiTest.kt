@@ -2,10 +2,14 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.Until
+import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
+import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -28,7 +32,12 @@ class LoginMockApiTest : MockApiTest() {
         app.attemptLogin(validAccountToken)
 
         // Assert
-        device.findObjectWithTimeout(By.text("Login failed"))
+        val result =
+            device
+                .findObject(By.res(LOGIN_TITLE_TEST_TAG))
+                .wait(Until.textEquals("Login failed"), DEFAULT_INTERACTION_TIMEOUT)
+
+        assertTrue(result)
     }
 
     @Test
