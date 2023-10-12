@@ -14,6 +14,7 @@ import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
 import RelayCache
+import struct RelaySelector.RelaySelectorResult
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
@@ -24,7 +25,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
-    private var isLoggedSameIP = false
 
     override init() {
         Self.configureLogging()
@@ -122,36 +122,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 }
 
 extension PacketTunnelProvider {
-    override func setTunnelNetworkSettings(
-        _ tunnelNetworkSettings: NETunnelNetworkSettings?,
-        completionHandler: ((Error?) -> Void)? = nil
-    ) {
-        if let networkSettings = tunnelNetworkSettings as? NEPacketTunnelNetworkSettings {
-            let ipv4Addresses = networkSettings.ipv4Settings?.addresses.compactMap { IPv4Address($0) } ?? []
-            let ipv6Addresses = networkSettings.ipv6Settings?.addresses.compactMap { IPv6Address($0) } ?? []
-            let allIPAddresses: [IPAddress] = ipv4Addresses + ipv6Addresses
-
-            if !allIPAddresses.isEmpty, !isLoggedSameIP {
-                isLoggedSameIP = true
-                logIfDeviceHasSameIP(than: allIPAddresses)
-            }
-        }
-
-        super.setTunnelNetworkSettings(tunnelNetworkSettings, completionHandler: completionHandler)
-    }
-
-    private func logIfDeviceHasSameIP(than addresses: [IPAddress]) {
-        let hasIPv4SameAddress = addresses.compactMap { $0 as? IPv4Address }
-            .contains { $0 == ApplicationConfiguration.sameIPv4 }
-        let hasIPv6SameAddress = addresses.compactMap { $0 as? IPv6Address }
-            .contains { $0 == ApplicationConfiguration.sameIPv6 }
-
-        let isUsingSameIP = (hasIPv4SameAddress || hasIPv6SameAddress) ? "" : "NOT "
-        providerLogger.debug("Same IP is \(isUsingSameIP)being used")
-    }
-}
-
-extension PacketTunnelProvider {
     private static func configureLogging() {
         var loggerBuilder = LoggerBuilder()
         let pid = ProcessInfo.processInfo.processIdentifier
@@ -180,6 +150,16 @@ extension PacketTunnelProvider {
 
         return parsedOptions
     }
+
+    private func logIfDeviceHasSameIP(than addresses: [IPAddress]) {
+        let hasIPv4SameAddress = addresses.compactMap { $0 as? IPv4Address }
+            .contains { $0 == ApplicationConfiguration.sameIPv4 }
+        let hasIPv6SameAddress = addresses.compactMap { $0 as? IPv6Address }
+            .contains { $0 == ApplicationConfiguration.sameIPv6 }
+
+        let isUsingSameIP = (hasIPv4SameAddress || hasIPv6SameAddress) ? "" : "NOT "
+        providerLogger.debug("Same IP is \(isUsingSameIP)being used")
+    }
 }
 
 // MARK: - State observer
@@ -190,11 +170,14 @@ extension PacketTunnelProvider {
 
         stateObserverTask = Task {
             let stateStream = await self.actor.states
-            var lastConnectionAttempt: UInt = 0
+            var lastConnectionAttempt: UInt?
+            var lastRelayConstraints: RelayConstraints?
+            var lastSelectedRelay: RelaySelectorResult?
 
             for await newState in stateStream {
                 // Pass relay constraints retrieved during the last read from setting into transport provider.
-                if let relayConstraints = newState.relayConstraints {
+                if let relayConstraints = newState.relayConstraints, relayConstraints != lastRelayConstraints {
+                    lastRelayConstraints = relayConstraints
                     constraintsUpdater.onNewConstraints?(relayConstraints)
                 }
 
@@ -213,6 +196,14 @@ extension PacketTunnelProvider {
                 switch newState {
                 case let .reconnecting(connState), let .connecting(connState):
                     let connectionAttempt = connState.connectionAttemptCount
+                    let selectedRelay = connState.selectedRelay
+
+                    // Connection attempt remains the same when user initiates reconnect manually while tunnel is
+                    // already reconnecting. In that case rely on selected relay to tell when tunnel is being
+                    // reconfigured.
+                    if lastConnectionAttempt != connectionAttempt || lastSelectedRelay != selectedRelay {
+                        logIfDeviceHasSameIP(than: connState.interfaceAddresses.map { $0.address })
+                    }
 
                     // Start device check every second failure attempt to connect.
                     if lastConnectionAttempt != connectionAttempt, connectionAttempt > 0,
@@ -222,9 +213,15 @@ extension PacketTunnelProvider {
 
                     // Cache last connection attempt to filter out repeating calls.
                     lastConnectionAttempt = connectionAttempt
+                    lastSelectedRelay = selectedRelay
 
-                case .initial, .connected, .disconnecting, .disconnected, .error:
+                case .initial, .disconnecting, .disconnected:
                     break
+
+                case .connected, .error:
+                    // Reset last connection attempt once state moved to connected or error state.
+                    lastConnectionAttempt = nil
+                    lastSelectedRelay = nil
                 }
             }
         }

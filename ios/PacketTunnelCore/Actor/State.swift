@@ -10,6 +10,7 @@ import Foundation
 import MullvadTypes
 import struct RelaySelector.RelaySelectorResult
 import TunnelObfuscation
+import struct WireGuardKitTypes.IPAddressRange
 import class WireGuardKitTypes.PrivateKey
 
 /**
@@ -105,6 +106,10 @@ public struct ConnectionState {
     /// Last relay constraints read from settings.
     /// This is primarily used by packet tunnel for updating constraints in tunnel provider.
     public var relayConstraints: RelayConstraints
+
+    /// TUN interface addresses.
+    /// Primarily used for inspection by packet tunnel provider.
+    public var interfaceAddresses: [IPAddressRange]
 
     /// Last WG key read from setings.
     /// Can be `nil` if moved to `keyPolicy`.

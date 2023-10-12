@@ -279,23 +279,29 @@ extension PacketTunnelActor {
                     connectionAttemptCount: 0
                 ),
                 relayConstraints: relayConstraints,
+                interfaceAddresses: settings.interfaceAddresses,
                 currentKey: privateKey,
                 keyPolicy: .useCurrent,
                 networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
                 connectionAttemptCount: 0
             )
 
-        case var .connecting(connState), var .connected(connState), var .reconnecting(connState):
-            connState.selectedRelay = try selectRelay(
-                nextRelay: nextRelay,
+        case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
+            return ConnectionState(
+                selectedRelay: try selectRelay(
+                    nextRelay: nextRelay,
+                    relayConstraints: relayConstraints,
+                    currentRelay: connState.selectedRelay,
+                    connectionAttemptCount: connState.connectionAttemptCount
+                ),
                 relayConstraints: relayConstraints,
-                currentRelay: connState.selectedRelay,
-                connectionAttemptCount: connState.connectionAttemptCount
+                interfaceAddresses: settings.interfaceAddresses,
+                currentKey: privateKey,
+                keyPolicy: connState.keyPolicy,
+                networkReachability: connState.networkReachability,
+                connectionAttemptCount: connState.connectionAttemptCount,
+                lastKeyRotation: connState.lastKeyRotation
             )
-            connState.relayConstraints = relayConstraints
-            connState.currentKey = privateKey
-
-            return connState
 
         case let .error(blockedState):
             return ConnectionState(
@@ -306,6 +312,7 @@ extension PacketTunnelActor {
                     connectionAttemptCount: 0
                 ),
                 relayConstraints: relayConstraints,
+                interfaceAddresses: settings.interfaceAddresses,
                 currentKey: privateKey,
                 keyPolicy: blockedState.keyPolicy,
                 networkReachability: blockedState.networkReachability,
