@@ -395,7 +395,7 @@ impl OpenVpnProcHandle {
                     // Dropping our stdin handle so that it is closed once. Closing the handle should
                     // gracefully stop our OpenVPN child process. This only works because our OpenVPN
                     // fork expects this.
-                    let _ = drop(stdin);
+                    drop(stdin);
 
                     if let Ok(timeout) = timeout {
                         //

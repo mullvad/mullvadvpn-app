@@ -445,7 +445,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
             let proxy_task = async move {
                 let result = proxy_monitor.wait().await;
-                let _ = tunnel_close_handle.close();
+                tunnel_close_handle.close();
                 result.map_err(Error::ProxyError)
             };
 
