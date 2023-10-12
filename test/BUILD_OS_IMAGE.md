@@ -23,62 +23,6 @@ additional libraries. They are likely already installed if gnome is installed. O
 apt install libnss3 libgbm1 libasound2 libatk1.0-0 libatk-bridge2.0-0 libcups2 libgtk-3-0 wireguard-tools
 ```
 
-## Bootstrapping test runner
-
-The testing image needs to be mounted to `/opt/testing`, and the test runner needs to be started on
-boot.
-
-* In the guest, create a mount point for the runner: `mkdir -p /opt/testing`.
-
-* Add an entry to `/etc/fstab`:
-
-    ```
-    # Mount testing image
-    /dev/sdb /opt/testing ext4 defaults 0 1
-    ```
-
-* Create a systemd service that starts the test runner, `/etc/systemd/system/testrunner.service`:
-
-    ```
-    [Unit]
-    Description=Mullvad Test Runner
-
-    [Service]
-    ExecStart=/opt/testing/test-runner /dev/ttyS0 serve
-
-    [Install]
-    WantedBy=multi-user.target
-    ```
-
-* Enable the service: `systemctl enable testrunner.service`.
-
-### Note about SELinux (Fedora)
-
-SELinux prevents services from executing files that do not have the `bin_t` attribute set. Building
-the test runner image stripts extended file attributes, and `e2tools` does not yet support setting
-these. As a workaround, we currently need to reapply these on each boot.
-
-First, set `bin_t` for all files in `/opt/testing`:
-
-```
-semanage fcontext -a -t bin_t "/opt/testing/.*"
-```
-
-Secondly, update the systemd unit file to run `restorecon` before the `test-runner`, using the
-`ExecStartPre` option:
-
-```
-[Unit]
-Description=Mullvad Test Runner
-
-[Service]
-ExecStartPre=restorecon -v "/opt/testing/*"
-ExecStart=/opt/testing/test-runner /dev/ttyS0 serve
-
-[Install]
-WantedBy=multi-user.target
-```
-
 # Creating a base Windows image
 
 ## Windows 10
