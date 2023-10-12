@@ -14,16 +14,17 @@ import PacketTunnelCore
 import WireGuardKit
 
 struct WgAdapter: TunnelAdapterProtocol {
+    let logger = Logger(label: "WgAdapter")
     let adapter: WireGuardAdapter
 
     init(packetTunnelProvider: NEPacketTunnelProvider) {
-        let logger = Logger(label: "WireGuard")
+        let wgGoLogger = Logger(label: "WireGuard")
 
         adapter = WireGuardAdapter(
             with: packetTunnelProvider,
             shouldHandleReasserting: false,
             logHandler: { logLevel, string in
-                logger.log(level: logLevel.loggerLevel, "\(string)")
+                wgGoLogger.log(level: logLevel.loggerLevel, "\(string)")
             }
         )
     }
@@ -35,10 +36,26 @@ struct WgAdapter: TunnelAdapterProtocol {
         } catch WireGuardAdapterError.invalidState {
             try await adapter.start(tunnelConfiguration: wgConfig)
         }
+
+        let tunAddresses = wgConfig.interface.addresses.map { $0.address }
+        // TUN addresses can be empty when adapter is configured for blocked state.
+        if !tunAddresses.isEmpty {
+            logIfDeviceHasSameIP(than: tunAddresses)
+        }
     }
 
     func stop() async throws {
         try await adapter.stop()
+    }
+
+    private func logIfDeviceHasSameIP(than addresses: [IPAddress]) {
+        let hasIPv4SameAddress = addresses.compactMap { $0 as? IPv4Address }
+            .contains { $0 == ApplicationConfiguration.sameIPv4 }
+        let hasIPv6SameAddress = addresses.compactMap { $0 as? IPv6Address }
+            .contains { $0 == ApplicationConfiguration.sameIPv6 }
+
+        let isUsingSameIP = (hasIPv4SameAddress || hasIPv6SameAddress) ? "" : "NOT "
+        logger.debug("Same IP is \(isUsingSameIP)being used")
     }
 }
 
