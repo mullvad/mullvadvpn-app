@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add customizable relay lists to the CLI on desktop. Custom lists can be managed through
   `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
 - Add custom lists to location selector in desktop app.
+- Add custom API access methods to the CLI on desktop. Custom API access methods allow the user to
+  proxy API traffic through a peer before connecting to a tunnel. They are managed through
+  `mullvad api-access`, and the initially supported network protocols are `Shadowsocks` and
+  `SOCKS5`.
 
 #### Linux
 - Start signing the deb and rpm files (GPG)
