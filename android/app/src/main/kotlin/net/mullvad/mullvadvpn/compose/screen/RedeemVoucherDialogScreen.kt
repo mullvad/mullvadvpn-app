@@ -26,7 +26,7 @@ internal fun RedeemVoucherDialogScreen(
     uiState: VoucherDialogUiState,
     onVoucherInputChange: (String) -> Unit = {},
     onRedeem: (voucherCode: String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: (isTimeAdded: Boolean) -> Unit
 ) {
     RedeemVoucherDialog(uiState, onVoucherInputChange, onRedeem, onDismiss)
 }
