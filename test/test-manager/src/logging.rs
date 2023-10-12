@@ -115,7 +115,7 @@ pub struct TestOutput {
     pub error_messages: Vec<Output>,
     pub test_name: &'static str,
     pub result: Result<Result<(), Error>, PanicMessage>,
-    pub log_output: LogOutput,
+    pub log_output: Option<LogOutput>,
 }
 
 impl TestOutput {
@@ -150,21 +150,28 @@ impl TestOutput {
         }
 
         println!("{}", format!("TEST {} HAD LOGS:", self.test_name).red());
-        match &self.log_output.settings_json {
-            Ok(settings) => println!("settings.json: {}", settings),
-            Err(e) => println!("Could not get settings.json: {}", e),
-        }
+        match &self.log_output {
+            Some(log) => {
+                match &log.settings_json {
+                    Ok(settings) => println!("settings.json: {}", settings),
+                    Err(e) => println!("Could not get settings.json: {}", e),
+                }
 
-        match &self.log_output.log_files {
-            Ok(log_files) => {
-                for log in log_files {
-                    match log {
-                        Ok(log) => println!("Log {}:\n{}", log.name.to_str().unwrap(), log.content),
-                        Err(e) => println!("Could not get log: {}", e),
+                match &log.log_files {
+                    Ok(log_files) => {
+                        for log in log_files {
+                            match log {
+                                Ok(log) => {
+                                    println!("Log {}:\n{}", log.name.to_str().unwrap(), log.content)
+                                }
+                                Err(e) => println!("Could not get log: {}", e),
+                            }
+                        }
                     }
+                    Err(e) => println!("Could not get logs: {}", e),
                 }
             }
-            Err(e) => println!("Could not get logs: {}", e),
+            None => println!("Missing logs for {}", self.test_name),
         }
 
         println!(

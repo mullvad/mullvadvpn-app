@@ -100,8 +100,7 @@ pub async fn run(
             test.name,
             test_context.clone(),
         )
-        .await
-        .context("Failed to run test")?;
+        .await;
 
         if test.mullvad_client_version == MullvadClientVersion::New {
             // Try to reset the daemon state if the test failed OR if the test doesn't explicitly
@@ -183,7 +182,7 @@ pub async fn run_test<F, R, MullvadClient>(
     test: &F,
     test_name: &'static str,
     test_context: super::tests::TestContext,
-) -> Result<TestOutput, Error>
+) -> TestOutput
 where
     F: Fn(super::tests::TestContext, ServiceClient, MullvadClient) -> R,
     R: Future<Output = Result<(), Error>>,
@@ -211,15 +210,13 @@ where
             }
         }
     }
-    let log_output = runner_rpc
-        .get_mullvad_app_logs()
-        .await
-        .map_err(Error::Rpc)?;
 
-    Ok(TestOutput {
+    let log_output = runner_rpc.get_mullvad_app_logs().await.ok();
+
+    TestOutput {
         log_output,
         test_name,
         error_messages: output,
         result,
-    })
+    }
 }
