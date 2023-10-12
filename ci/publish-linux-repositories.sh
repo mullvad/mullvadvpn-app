@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
-# Usage: ./publish-linux-repositories.sh [--production/--staging] <app version>
+# Usage: ./publish-linux-repositories.sh [--production/--staging] <app version> <deb repository dir>
 #
-# Rsyncs a locally prepared and stored DEB repository to the dev/staging/production
+# Rsyncs a locally prepared and stored apt repository to the dev/staging/production
 # repository servers.
 
 set -eu
@@ -27,7 +27,11 @@ while [ "$#" -gt 0 ]; do
             exit 1
             ;;
         *)
-            version=$1
+            if [[ -z ${version+x} ]]; then
+                version=$1
+            else
+                deb_repo_dir=$1
+            fi
             ;;
     esac
     shift
@@ -37,19 +41,21 @@ if [[ -z ${version+x} ]]; then
     echo "Please give the release version as an argument to this script"
     exit 1
 fi
+if [[ -z ${deb_repo_dir+x} ]]; then
+    echo "Please specify the deb repository directory as an argument to this script"
+    exit 1
+fi
 if [[ -z ${repository_servers+x} ]]; then
     echo "Pass either --dev, --staging or --production to select target servers"
     exit 1
 fi
-
-deb_repo_dir="$DEB_REPOSITORY_ARCHIVE_DIR/$version"
 
 function rsync_repo {
     local local_repo_dir=$1
     local remote_repo_dir=$2
 
     for server in "${repository_servers[@]}"; do
-        echo "Syncing to $server"
+        echo "Syncing to $server:$remote_repo_dir"
         rsync -av --delete --mkpath --rsh='ssh -p 1122' \
             "$local_repo_dir"/ \
             build@"$server":"$remote_repo_dir"
@@ -57,13 +63,11 @@ function rsync_repo {
 }
 
 if [[ ! -d "$deb_repo_dir" ]]; then
-    echo "$version is not a version we have a repository for"
+    echo "$deb_repo_dir does not exist"
     exit 1
 fi
 
-echo "Uploading DEB repository to deb/beta"
 rsync_repo "$deb_repo_dir" "deb/beta"
 if [[ $version != *"-beta"* ]]; then
-    echo "Uploading DEB repository to deb/stable"
     rsync_repo "$deb_repo_dir" "deb/stable"
 fi

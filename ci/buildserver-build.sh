@@ -47,14 +47,15 @@ esac
 function publish_linux_repositories {
     local artifact_dir=$1
     local version=$2
+    local deb_repo_dir="$SCRIPT_DIR/deb/$version"
 
-    "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$version"
+    "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$version" "$deb_repo_dir"
 
-    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version"
+    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version" "$deb_repo_dir"
     # If this is a release build, also push to staging.
     # Publishing to production is done manually.
     if [[ $version != *"-dev-"* ]]; then
-        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version"
+        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version" "$deb_repo_dir"
     fi
 }
 
