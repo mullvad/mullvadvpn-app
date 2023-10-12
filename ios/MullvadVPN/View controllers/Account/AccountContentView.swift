@@ -101,7 +101,7 @@ class AccountContentView: UIView {
     lazy var buttonStackView: UIStackView = {
         let stackView =
             UIStackView(arrangedSubviews: [
-                redeemVoucherButton,
+//                redeemVoucherButton,
                 purchaseButton,
                 restorePurchasesButton,
                 logoutButton,
