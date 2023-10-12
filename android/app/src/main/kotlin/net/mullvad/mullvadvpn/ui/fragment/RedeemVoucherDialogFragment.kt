@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class RedeemVoucherDialogFragment : DialogFragment() {
+class RedeemVoucherDialogFragment(val onDialogDismiss: (Boolean) -> Unit = {}) : DialogFragment() {
 
     private val vm by viewModel<VoucherDialogViewModel>()
     private lateinit var voucherDialog: Dialog
@@ -31,7 +31,10 @@ class RedeemVoucherDialogFragment : DialogFragment() {
                         uiState = vm.uiState.collectAsState().value,
                         onVoucherInputChange = { vm.onVoucherInputChange(it) },
                         onRedeem = { vm.onRedeem(it) },
-                        onDismiss = { onDismiss(voucherDialog) }
+                        onDismiss = {
+                            onDismiss(voucherDialog)
+                            onDialogDismiss(it)
+                        }
                     )
                 }
             }
