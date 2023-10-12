@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -40,6 +42,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.RelayLocationCell
+import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
@@ -132,8 +135,13 @@ fun SelectLocationScreen(
             onSearchTermInput.invoke(searchString)
         }
         Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+        val lazyListState = rememberLazyListState()
         LazyColumn(
-            modifier = Modifier.focusRequester(listFocus).fillMaxWidth().fillMaxHeight(),
+            modifier =
+                Modifier.focusRequester(listFocus)
+                    .fillMaxSize()
+                    .drawVerticalScrollbar(lazyListState),
+            state = lazyListState,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             when (uiState) {
