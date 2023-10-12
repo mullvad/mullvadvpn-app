@@ -24,7 +24,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
-    private var isLoggedSameIP = false
 
     override init() {
         Self.configureLogging()
@@ -124,36 +123,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     override func wake() {
         actor.onWake()
-    }
-}
-
-extension PacketTunnelProvider {
-    override func setTunnelNetworkSettings(
-        _ tunnelNetworkSettings: NETunnelNetworkSettings?,
-        completionHandler: ((Error?) -> Void)? = nil
-    ) {
-        if let networkSettings = tunnelNetworkSettings as? NEPacketTunnelNetworkSettings {
-            let ipv4Addresses = networkSettings.ipv4Settings?.addresses.compactMap { IPv4Address($0) } ?? []
-            let ipv6Addresses = networkSettings.ipv6Settings?.addresses.compactMap { IPv6Address($0) } ?? []
-            let allIPAddresses: [IPAddress] = ipv4Addresses + ipv6Addresses
-
-            if !allIPAddresses.isEmpty, !isLoggedSameIP {
-                isLoggedSameIP = true
-                logIfDeviceHasSameIP(than: allIPAddresses)
-            }
-        }
-
-        super.setTunnelNetworkSettings(tunnelNetworkSettings, completionHandler: completionHandler)
-    }
-
-    private func logIfDeviceHasSameIP(than addresses: [IPAddress]) {
-        let hasIPv4SameAddress = addresses.compactMap { $0 as? IPv4Address }
-            .contains { $0 == ApplicationConfiguration.sameIPv4 }
-        let hasIPv6SameAddress = addresses.compactMap { $0 as? IPv6Address }
-            .contains { $0 == ApplicationConfiguration.sameIPv6 }
-
-        let isUsingSameIP = (hasIPv4SameAddress || hasIPv6SameAddress) ? "" : "NOT "
-        providerLogger.debug("Same IP is \(isUsingSameIP)being used")
     }
 }
 
