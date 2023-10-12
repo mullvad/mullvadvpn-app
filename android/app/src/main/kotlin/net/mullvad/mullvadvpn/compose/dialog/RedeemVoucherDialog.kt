@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.compose.textfield.GroupedTextField
 import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
+import net.mullvad.mullvadvpn.compose.util.VOUCHER_SEPARATOR
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -225,7 +226,12 @@ private fun EnterVoucherBody(
                 onRedeem(input)
             }
         },
-        onValueChanged = { input -> onVoucherInputChange(input.uppercase()) },
+        onValueChanged = { input ->
+            val str = input.replace(VOUCHER_SEPARATOR, "")
+            onVoucherInputChange(
+                str.substring(0, Integer.min(VOUCHER_LENGTH, str.length)).uppercase()
+            )
+        },
         isValidValue =
             uiState.voucherInput.isEmpty() || uiState.voucherInput.length == MAX_VOUCHER_LENGTH,
         keyboardType = KeyboardType.Password,
@@ -234,7 +240,7 @@ private fun EnterVoucherBody(
         maxCharLength = VOUCHER_LENGTH,
         isDigitsOnlyAllowed = false,
         isEnabled = true,
-        validateRegex = "^[A-Za-z0-9]*$".toRegex()
+        validateRegex = "^[A-Za-z0-9-]*$".toRegex()
     )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(
