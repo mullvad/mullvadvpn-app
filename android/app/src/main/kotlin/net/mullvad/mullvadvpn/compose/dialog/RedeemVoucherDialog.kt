@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.compose.textfield.GroupedTextField
+import net.mullvad.mullvadvpn.compose.util.VOUCHER_SEPARATOR
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -240,7 +241,12 @@ private fun EnterVoucherBody(
                     onRedeem(input)
                 }
             },
-            onValueChanged = { input -> onVoucherInputChange(input.uppercase()) },
+            onValueChanged = { input ->
+                val str = input.replace(VOUCHER_SEPARATOR, "")
+                onVoucherInputChange(
+                    str.substring(0, Integer.min(VOUCHER_LENGTH, str.length)).uppercase()
+                )
+            },
             isValidValue = uiState.voucherInput.isNotEmpty(),
             keyboardType = KeyboardType.Password,
             placeholderText = stringResource(id = R.string.voucher_hint),
@@ -249,12 +255,11 @@ private fun EnterVoucherBody(
                     .copy(alpha = AlphaDisabled)
                     .compositeOver(MaterialTheme.colorScheme.primary),
             visualTransformation = vouchersVisualTransformation(),
-            maxCharLength = VOUCHER_LENGTH,
             onFocusChange = {},
             isDigitsOnlyAllowed = false,
             isEnabled = true,
             modifier = Modifier.focusRequester(textFieldFocusRequester),
-            validateRegex = "^[A-Za-z0-9]*$".toRegex()
+            validateRegex = "^[A-Za-z0-9-]*$".toRegex()
         )
     }
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
