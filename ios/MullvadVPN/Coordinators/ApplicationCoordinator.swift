@@ -74,7 +74,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private let apiProxy: APIQuerying
     private let devicesProxy: DeviceHandling
-    private let accountsProxy: AccountHandling
+    private let accountsProxy: RESTAccountHandling
     private var tunnelObserver: TunnelObserver?
     private var appPreferences: AppPreferencesDataSource
 
@@ -90,7 +90,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         relayCacheTracker: RelayCacheTracker,
         apiProxy: APIQuerying,
         devicesProxy: DeviceHandling,
-        accountsProxy: AccountHandling,
+        accountsProxy: RESTAccountHandling,
         appPreferences: AppPreferencesDataSource
     ) {
         self.tunnelManager = tunnelManager

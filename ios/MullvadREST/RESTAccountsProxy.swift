@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 
-public protocol AccountHandling {
+public protocol RESTAccountHandling {
     func createAccount(
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<REST.NewAccountData>
@@ -31,7 +31,7 @@ public protocol AccountHandling {
 }
 
 extension REST {
-    public final class AccountsProxy: Proxy<AuthProxyConfiguration>, AccountHandling {
+    public final class AccountsProxy: Proxy<AuthProxyConfiguration>, RESTAccountHandling {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "AccountsProxy",

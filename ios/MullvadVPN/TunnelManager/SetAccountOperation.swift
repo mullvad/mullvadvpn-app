@@ -36,10 +36,10 @@ enum SetAccountAction {
 
 class SetAccountOperation: ResultOperation<StoredAccountData?> {
     private let interactor: TunnelInteractor
-    private let accountsProxy: AccountHandling
+    private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
     private let action: SetAccountAction
-    private let accessTokenManager: AccessTokenManagement
+    private let accessTokenManager: RESTAccessTokenManagement
 
     private let logger = Logger(label: "SetAccountOperation")
     private var tasks: [Cancellable] = []
@@ -47,9 +47,9 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
-        accountsProxy: AccountHandling,
+        accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
-        accessTokenManager: AccessTokenManagement,
+        accessTokenManager: RESTAccessTokenManagement,
         action: SetAccountAction
     ) {
         self.interactor = interactor

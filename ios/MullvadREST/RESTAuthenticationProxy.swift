@@ -23,7 +23,7 @@ extension REST {
             )
         }
 
-        func getAccessToken(
+        public func getAccessToken(
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping ProxyCompletionHandler<AccessTokenData>

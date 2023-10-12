@@ -30,15 +30,15 @@ class DefaultPathObserverFake: DefaultPathObserverProtocol {
     func start(_ body: @escaping (NetworkPath) -> Void) {
         stateLock.withLock {
             defaultPathHandler = body
+            onStart?()
         }
-        onStart?()
     }
 
     func stop() {
         stateLock.withLock {
             defaultPathHandler = nil
+            onStop?()
         }
-        onStop?()
     }
 
     /// Simulate network path update.

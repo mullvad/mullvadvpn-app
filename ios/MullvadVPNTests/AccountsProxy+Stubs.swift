@@ -10,7 +10,7 @@ import Foundation
 @testable import MullvadREST
 @testable import MullvadTypes
 
-struct AccountsProxyStub: AccountHandling {
+struct AccountsProxyStub: RESTAccountHandling {
     func createAccount(
         retryStrategy: REST.RetryStrategy,
         completion: @escaping MullvadREST.ProxyCompletionHandler<REST.NewAccountData>
