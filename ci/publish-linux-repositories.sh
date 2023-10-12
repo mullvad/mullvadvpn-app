@@ -23,14 +23,17 @@ while [ "$#" -gt 0 ]; do
             repository_servers=("${DEV_LINUX_REPOSITORY_SERVERS[@]}")
             ;;
         -*)
-            echo "Unknown option \"$1\""
+            echo "Unknown option \"$1\"" >&2
             exit 1
             ;;
         *)
             if [[ -z ${version+x} ]]; then
                 version=$1
-            else
+            elif [[ -z ${deb_repo_dir+x} ]]; then
                 deb_repo_dir=$1
+            else
+                echo "Too many arguments" >&2
+                exit 1
             fi
             ;;
     esac
@@ -38,15 +41,15 @@ while [ "$#" -gt 0 ]; do
 done
 
 if [[ -z ${version+x} ]]; then
-    echo "Please give the release version as an argument to this script"
+    echo "Please give the release version as an argument to this script" >&2
     exit 1
 fi
 if [[ -z ${deb_repo_dir+x} ]]; then
-    echo "Please specify the deb repository directory as an argument to this script"
+    echo "Please specify the deb repository directory as an argument to this script" >&2
     exit 1
 fi
 if [[ -z ${repository_servers+x} ]]; then
-    echo "Pass either --dev, --staging or --production to select target servers"
+    echo "Pass either --dev, --staging or --production to select target servers" >&2
     exit 1
 fi
 
@@ -63,7 +66,7 @@ function rsync_repo {
 }
 
 if [[ ! -d "$deb_repo_dir" ]]; then
-    echo "$deb_repo_dir does not exist"
+    echo "$deb_repo_dir does not exist" >&2
     exit 1
 fi
 
