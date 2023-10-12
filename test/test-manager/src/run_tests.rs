@@ -1,9 +1,18 @@
 use crate::summary::{self, maybe_log_test_result};
 use crate::tests::TestContext;
-use crate::{logging::run_test, mullvad_daemon, tests, vm};
+use crate::{
+    logging::{panic_as_string, TestOutput},
+    mullvad_daemon, tests,
+    tests::Error,
+    vm,
+};
 use anyhow::{Context, Result};
+use futures::FutureExt;
 use mullvad_management_interface::ManagementServiceClient;
+use std::future::Future;
+use std::panic;
 use std::time::Duration;
+use test_rpc::logging::Output;
 use test_rpc::{mullvad_daemon::MullvadClientVersion, ServiceClient};
 
 const BAUD: u32 = 115200;
@@ -166,4 +175,51 @@ pub async fn run(
     let _ = tokio::time::timeout(Duration::from_secs(5), completion_handle).await;
 
     final_result
+}
+
+pub async fn run_test<F, R, MullvadClient>(
+    runner_rpc: ServiceClient,
+    mullvad_rpc: MullvadClient,
+    test: &F,
+    test_name: &'static str,
+    test_context: super::tests::TestContext,
+) -> Result<TestOutput, Error>
+where
+    F: Fn(super::tests::TestContext, ServiceClient, MullvadClient) -> R,
+    R: Future<Output = Result<(), Error>>,
+{
+    let _flushed = runner_rpc.try_poll_output().await;
+
+    // Assert that the test is unwind safe, this is the same assertion that cargo tests do. This
+    // assertion being incorrect can not lead to memory unsafety however it could theoretically
+    // lead to logic bugs. The problem of forcing the test to be unwind safe is that it causes a
+    // large amount of unergonomic design.
+    let result = panic::AssertUnwindSafe(test(test_context, runner_rpc.clone(), mullvad_rpc))
+        .catch_unwind()
+        .await
+        .map_err(panic_as_string);
+
+    let mut output = vec![];
+    if matches!(result, Ok(Err(_)) | Err(_)) {
+        let output_after_test = runner_rpc.try_poll_output().await;
+        match output_after_test {
+            Ok(mut output_after_test) => {
+                output.append(&mut output_after_test);
+            }
+            Err(e) => {
+                output.push(Output::Other(format!("could not get logs: {:?}", e)));
+            }
+        }
+    }
+    let log_output = runner_rpc
+        .get_mullvad_app_logs()
+        .await
+        .map_err(Error::Rpc)?;
+
+    Ok(TestOutput {
+        log_output,
+        test_name,
+        error_messages: output,
+        result,
+    })
 }

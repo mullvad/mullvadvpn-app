@@ -1,13 +1,7 @@
 use crate::tests::Error;
 use colored::Colorize;
-use futures::FutureExt;
-use std::panic;
-use std::sync::Mutex;
-use std::{future::Future, sync::Arc};
-use test_rpc::{
-    logging::{LogOutput, Output},
-    ServiceClient,
-};
+use std::sync::{Arc, Mutex};
+use test_rpc::logging::{LogOutput, Output};
 
 /// Logger that optionally supports logging records to a buffer
 #[derive(Clone)]
@@ -118,10 +112,10 @@ impl log::Log for Logger {
 pub struct PanicMessage(String);
 
 pub struct TestOutput {
-    error_messages: Vec<Output>,
-    test_name: &'static str,
+    pub error_messages: Vec<Output>,
+    pub test_name: &'static str,
     pub result: Result<Result<(), Error>, PanicMessage>,
-    log_output: LogOutput,
+    pub log_output: LogOutput,
 }
 
 impl TestOutput {
@@ -189,54 +183,7 @@ impl TestOutput {
     }
 }
 
-pub async fn run_test<F, R, MullvadClient>(
-    runner_rpc: ServiceClient,
-    mullvad_rpc: MullvadClient,
-    test: &F,
-    test_name: &'static str,
-    test_context: super::tests::TestContext,
-) -> Result<TestOutput, Error>
-where
-    F: Fn(super::tests::TestContext, ServiceClient, MullvadClient) -> R,
-    R: Future<Output = Result<(), Error>>,
-{
-    let _flushed = runner_rpc.try_poll_output().await;
-
-    // Assert that the test is unwind safe, this is the same assertion that cargo tests do. This
-    // assertion being incorrect can not lead to memory unsafety however it could theoretically
-    // lead to logic bugs. The problem of forcing the test to be unwind safe is that it causes a
-    // large amount of unergonomic design.
-    let result = panic::AssertUnwindSafe(test(test_context, runner_rpc.clone(), mullvad_rpc))
-        .catch_unwind()
-        .await
-        .map_err(panic_as_string);
-
-    let mut output = vec![];
-    if matches!(result, Ok(Err(_)) | Err(_)) {
-        let output_after_test = runner_rpc.try_poll_output().await;
-        match output_after_test {
-            Ok(mut output_after_test) => {
-                output.append(&mut output_after_test);
-            }
-            Err(e) => {
-                output.push(Output::Other(format!("could not get logs: {:?}", e)));
-            }
-        }
-    }
-    let log_output = runner_rpc
-        .get_mullvad_app_logs()
-        .await
-        .map_err(Error::Rpc)?;
-
-    Ok(TestOutput {
-        log_output,
-        test_name,
-        error_messages: output,
-        result,
-    })
-}
-
-fn panic_as_string(error: Box<dyn std::any::Any + Send + 'static>) -> PanicMessage {
+pub fn panic_as_string(error: Box<dyn std::any::Any + Send + 'static>) -> PanicMessage {
     if let Some(result) = error.downcast_ref::<String>() {
         return PanicMessage(result.clone());
     }
