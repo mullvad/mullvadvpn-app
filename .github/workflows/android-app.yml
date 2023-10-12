@@ -204,7 +204,7 @@ jobs:
           arguments: |
             testDebugUnitTest -x :test:arch:testDebugUnitTest
             :app:testOssProdDebugUnitTest
-            :service:testOssDebugUnitTest
+            :service:testOssProdDebugUnitTest
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: true
