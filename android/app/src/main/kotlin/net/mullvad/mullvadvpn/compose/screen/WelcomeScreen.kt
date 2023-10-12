@@ -118,10 +118,10 @@ fun WelcomeScreen(
         Column(
             modifier =
                 Modifier.fillMaxSize()
+                    .padding(it)
                     .verticalScroll(scrollState)
                     .drawVerticalScrollbar(scrollState)
                     .background(color = MaterialTheme.colorScheme.primary)
-                    .padding(it)
         ) {
             // Welcome info area
             WelcomeInfo(snackbarHostState, uiState, showSitePayment)
