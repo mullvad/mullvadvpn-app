@@ -81,14 +81,20 @@ final class AppMessageHandlerTests: XCTestCase {
         let appMessageHandler = createAppMessageHandler(actor: actor)
 
         let relayConstraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
-        let selectorResult = try? RelaySelector.evaluate(
+        let selectorResult = try XCTUnwrap(try? RelaySelector.evaluate(
             relays: ServerRelaysResponseStubs.sampleRelays,
             constraints: relayConstraints,
             numberOfFailedAttempts: 0
+        ))
+
+        let selectedRelay = SelectedRelay(
+            endpoint: selectorResult.endpoint,
+            hostname: selectorResult.relay.hostname,
+            location: selectorResult.location
         )
 
         _ = try? await appMessageHandler.handleAppMessage(
-            TunnelProviderMessage.reconnectTunnel(selectorResult).encode()
+            TunnelProviderMessage.reconnectTunnel(.preSelected(selectedRelay)).encode()
         )
 
         await fulfillment(of: [reconnectExpectation], timeout: 1)

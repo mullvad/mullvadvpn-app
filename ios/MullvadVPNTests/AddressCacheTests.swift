@@ -42,10 +42,14 @@ final class AddressCacheTests: XCTestCase {
         addressCache.setEndpoints([apiEndpoint])
 
         let dateBeforeUpdate = addressCache.getLastUpdateDate()
+        // Calling `Date()` several times in a row can result in the same Date object being returned.
+        // Force a sleep before setting the next endpoint to avoid getting the same Date object twice in a row.
+        Thread.sleep(forTimeInterval: Duration.milliseconds(10).timeInterval)
         addressCache.setEndpoints([apiEndpoint])
         let dateAfterUpdate = addressCache.getLastUpdateDate()
 
-        XCTAssertNotEqual(dateBeforeUpdate, dateAfterUpdate)
+        let timeDifference = dateAfterUpdate.timeIntervalSince(dateBeforeUpdate)
+        XCTAssertNotEqual(0.0, timeDifference)
     }
 
     func testSetEndpointsDoesNotDoAnythingIfSettingEmptyEndpoints() throws {

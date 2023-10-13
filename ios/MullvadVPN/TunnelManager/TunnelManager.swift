@@ -45,7 +45,7 @@ final class TunnelManager: StorePaymentObserver {
     // MARK: - Internal variables
 
     private let application: BackgroundTaskProvider
-    fileprivate let tunnelStore: TunnelStoreProtocol
+    fileprivate let tunnelStore: any TunnelStoreProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
@@ -82,7 +82,7 @@ final class TunnelManager: StorePaymentObserver {
 
     init(
         application: BackgroundTaskProvider,
-        tunnelStore: TunnelStoreProtocol,
+        tunnelStore: any TunnelStoreProtocol,
         relayCacheTracker: RelayCacheTrackerProtocol,
         accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
