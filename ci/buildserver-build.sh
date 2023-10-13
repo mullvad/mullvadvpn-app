@@ -56,7 +56,7 @@ function upload {
     version=$1
 
     files=( * )
-    checksums_path="$version+$(hostname).sha256"
+    checksums_path="desktop+$(hostname)+$version.sha256"
     sha256sum "${files[@]}" > "$checksums_path"
 
     case "$(uname -s)" in

@@ -22,7 +22,7 @@ function upload {
     version=$1
 
     files=( * )
-    checksums_path="$version+$(hostname).sha256"
+    checksums_path="android+$(hostname)+$version.sha256"
     sha256sum "${files[@]}" > "$checksums_path"
 
     mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"

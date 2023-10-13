@@ -21,18 +21,18 @@ while true; do
     for checksums_path in *.sha256; do
         sleep 1
 
-        # Strip everything from the last "+" in the file name to only keep the version and tag (if
-        # present).
-        version="${checksums_path%+*}"
+        # Parse the platform name and version out of the filename of the checksums file.
+        platform="$(echo "$checksums_path" | cut -d + -f 1)"
+        version="$(echo "$checksums_path" | cut -d + -f 3,4 | sed 's/\.sha256//')"
         if ! sha256sum --quiet -c "$checksums_path"; then
             echo "Failed to verify checksums for $version"
             continue
         fi
 
         if [[ $version == *"-dev-"* ]]; then
-            upload_path="builds"
+            upload_path="$platform/builds"
         else
-            upload_path="releases"
+            upload_path="$platform/releases"
         fi
 
         files=$(awk '{print $2}' < "$checksums_path")
