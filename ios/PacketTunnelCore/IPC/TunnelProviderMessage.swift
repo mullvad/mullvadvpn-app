@@ -7,13 +7,11 @@
 //
 
 import Foundation
-import RelaySelector
 
 /// Enum describing supported app messages handled by packet tunnel provider.
 public enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Request the tunnel to reconnect.
-    /// The packet tunnel reconnects to the current relay when selector result is `nil`.
-    case reconnectTunnel(RelaySelectorResult?)
+    case reconnectTunnel(NextRelay)
 
     /// Request the tunnel status.
     case getTunnelStatus
