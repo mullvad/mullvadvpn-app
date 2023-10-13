@@ -10,11 +10,12 @@ import Foundation
 import NetworkExtension
 
 struct TunnelStoreStub: TunnelStoreProtocol {
-    func getPersistentTunnels() -> [any TunnelProtocol] {
+    typealias TunnelType = TunnelStub
+    func getPersistentTunnels() -> [TunnelType] {
         []
     }
 
-    func createNewTunnel() -> any TunnelProtocol {
+    func createNewTunnel() -> TunnelType {
         TunnelStub(status: .invalid, isOnDemandEnabled: false)
     }
 }
@@ -23,7 +24,11 @@ class DummyTunnelStatusObserver: TunnelStatusObserver {
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {}
 }
 
-class TunnelStub: TunnelProtocol {
+final class TunnelStub: TunnelProtocol, Equatable {
+    convenience init(tunnelProvider: TunnelProviderManagerType) {
+        self.init(status: .invalid, isOnDemandEnabled: false)
+    }
+
     static func == (lhs: TunnelStub, rhs: TunnelStub) -> Bool {
         ObjectIdentifier(lhs) == ObjectIdentifier(rhs)
     }

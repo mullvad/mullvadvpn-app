@@ -85,7 +85,7 @@ class StartTunnelOperation: ResultOperation<Void> {
         }
     }
 
-    private func startTunnel(tunnel: Tunnel, selectedRelay: SelectedRelay) throws {
+    private func startTunnel(tunnel: any TunnelProtocol, selectedRelay: SelectedRelay) throws {
         var tunnelOptions = PacketTunnelOptions()
 
         do {

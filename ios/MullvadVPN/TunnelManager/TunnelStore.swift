@@ -12,20 +12,22 @@ import NetworkExtension
 import UIKit
 
 protocol TunnelStoreProtocol {
-    func getPersistentTunnels() -> [any TunnelProtocol]
-    func createNewTunnel() -> any TunnelProtocol
+    associatedtype TunnelType: TunnelProtocol, Equatable
+    func getPersistentTunnels() -> [TunnelType]
+    func createNewTunnel() -> TunnelType
 }
 
 /// Wrapper around system VPN tunnels.
 final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
+    typealias TunnelType = Tunnel
     private let logger = Logger(label: "TunnelStore")
     private let lock = NSLock()
 
     /// Persistent tunnels registered with the system.
-    private var persistentTunnels: [any TunnelProtocol] = []
+    private var persistentTunnels: [TunnelType] = []
 
     /// Newly created tunnels, stored as collection of weak boxes.
-    private var newTunnels: [WeakBox<any TunnelProtocol>] = []
+    private var newTunnels: [WeakBox<TunnelType>] = []
 
     init(application: UIApplication) {
         NotificationCenter.default.addObserver(
@@ -36,7 +38,7 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         )
     }
 
-    func getPersistentTunnels() -> [any TunnelProtocol] {
+    func getPersistentTunnels() -> [TunnelType] {
         lock.lock()
         defer { lock.unlock() }
 
@@ -71,12 +73,12 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         }
     }
 
-    func createNewTunnel() -> any TunnelProtocol {
+    func createNewTunnel() -> TunnelType {
         lock.lock()
         defer { lock.unlock() }
 
         let tunnelProviderManager = TunnelProviderManagerType()
-        let tunnel = Tunnel(tunnelProvider: tunnelProviderManager)
+        let tunnel = TunnelType(tunnelProvider: tunnelProviderManager)
         tunnel.addObserver(self)
 
         newTunnels = newTunnels.filter { $0.value != nil }
@@ -91,20 +93,19 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
         lock.lock()
         defer { lock.unlock() }
 
-        handleTunnelStatus(tunnel: tunnel, status: status)
+        // swiftlint:disable:next force_cast
+        handleTunnelStatus(tunnel: tunnel as! TunnelType, status: status)
     }
 
-    private func handleTunnelStatus(tunnel: any TunnelProtocol, status: NEVPNStatus) {
-        guard let tunnel = tunnel as? Tunnel else { return }
-
+    private func handleTunnelStatus(tunnel: TunnelType, status: NEVPNStatus) {
         if status == .invalid,
-           let index = persistentTunnels.map({ $0 as? Tunnel }).firstIndex(of: tunnel) {
+           let index = persistentTunnels.firstIndex(of: tunnel) {
             persistentTunnels.remove(at: index)
             logger.debug("Persistent tunnel was removed: \(tunnel.logFormat()).")
         }
 
         if status != .invalid,
-           let index = newTunnels.map({ $0.value as? Tunnel }).firstIndex(where: { $0 == tunnel }) {
+           let index = newTunnels.compactMap({ $0.value }).firstIndex(where: { $0 == tunnel }) {
             newTunnels.remove(at: index)
             persistentTunnels.append(tunnel)
             logger.debug("New tunnel became persistent: \(tunnel.logFormat()).")

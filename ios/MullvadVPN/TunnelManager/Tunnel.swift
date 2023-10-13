@@ -25,8 +25,10 @@ protocol TunnelProtocol: AnyObject {
     var isOnDemandEnabled: Bool { get set }
     var startDate: Date? { get }
 
-    func addObserver(_ observer: TunnelStatusObserver)
-    func removeObserver(_ observer: TunnelStatusObserver)
+    init(tunnelProvider: TunnelProviderManagerType)
+
+    func addObserver(_ observer: any TunnelStatusObserver)
+    func removeObserver(_ observer: any TunnelStatusObserver)
     func addBlockObserver(
         queue: DispatchQueue?,
         handler: @escaping (any TunnelProtocol, NEVPNStatus) -> Void
@@ -105,7 +107,7 @@ final class Tunnel: TunnelProtocol, Equatable {
     }
 
     private let lock = NSLock()
-    private var observerList = ObserverList<TunnelStatusObserver>()
+    private var observerList = ObserverList<any TunnelStatusObserver>()
 
     private var _startDate: Date?
     internal let tunnelProvider: TunnelProviderManagerType
@@ -169,11 +171,11 @@ final class Tunnel: TunnelProtocol, Equatable {
         return observer
     }
 
-    func addObserver(_ observer: TunnelStatusObserver) {
+    func addObserver(_ observer: any TunnelStatusObserver) {
         observerList.append(observer)
     }
 
-    func removeObserver(_ observer: TunnelStatusObserver) {
+    func removeObserver(_ observer: any TunnelStatusObserver) {
         observerList.remove(observer)
     }
 
@@ -185,7 +187,7 @@ final class Tunnel: TunnelProtocol, Equatable {
         handleVPNStatus(newStatus)
 
         observerList.forEach { observer in
-            observer.tunnel(self, didReceiveStatus: newStatus)
+//            observer.tunnel(self, didReceiveStatus: newStatus)
         }
     }
 

@@ -45,7 +45,9 @@ final class AddressCacheTests: XCTestCase {
         addressCache.setEndpoints([apiEndpoint])
         let dateAfterUpdate = addressCache.getLastUpdateDate()
 
-        XCTAssertNotEqual(dateBeforeUpdate, dateAfterUpdate)
+        let timeDifference = dateAfterUpdate.timeIntervalSince(dateBeforeUpdate)
+
+        XCTAssertNotEqual(0.0, timeDifference)
     }
 
     func testSetEndpointsDoesNotDoAnythingIfSettingEmptyEndpoints() throws {
