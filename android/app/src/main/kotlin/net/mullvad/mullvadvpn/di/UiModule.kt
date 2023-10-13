@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
@@ -13,11 +14,16 @@ import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.MessageHandler
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
+import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
@@ -78,6 +84,13 @@ val uiModule = module {
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
 
+    single { AccountExpiryNotificationUseCase(get()) }
+    single { TunnelStateNotificationUseCase(get()) }
+    single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
+    single { NewDeviceNotificationUseCase(get()) }
+
+    single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
+
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
     // View models
@@ -85,12 +98,10 @@ val uiModule = module {
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
-    viewModel {
-        ConnectViewModel(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS, get(), get())
-    }
+    viewModel { ConnectViewModel(get(), get(), get(), get(), get()) }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
-    viewModel { LoginViewModel(get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
     viewModel { SelectLocationViewModel(get()) }
     viewModel { SettingsViewModel(get(), get()) }
