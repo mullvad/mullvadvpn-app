@@ -35,7 +35,7 @@ import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.LocationInfo
 import net.mullvad.mullvadvpn.compose.component.Notification
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -107,7 +107,7 @@ fun ConnectScreen(
         }
     }
 
-    ScaffoldWithTopBar(
+    ScaffoldWithTopBarAndDeviceName(
         topBarColor =
             if (uiState.tunnelUiState.isSecured()) {
                 MaterialTheme.colorScheme.inversePrimary
@@ -129,7 +129,9 @@ fun ConnectScreen(
                 }
                 .copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
-        onAccountClicked = onAccountClick
+        onAccountClicked = onAccountClick,
+        deviceName = uiState.deviceName,
+        timeLeft = uiState.daysLeftUntilExpiry
     ) {
         Column(
             verticalArrangement = Arrangement.Bottom,

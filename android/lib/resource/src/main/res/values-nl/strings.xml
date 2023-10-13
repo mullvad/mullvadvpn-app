@@ -175,6 +175,8 @@
     <string name="switch_location">Locatie wijzigen</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN in-/uitschakelen</string>
+    <string name="top_bar_device_name">Apparaatnaam: %1$s</string>
+    <string name="top_bar_time_left">Resterende tijd: %1$s</string>
     <string name="try_again">Probeer het opnieuw</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Met welke TCP-poort moet het UDP-over-TCP-obfuscatieprotocol verbinding maken op de VPN-server.</string>

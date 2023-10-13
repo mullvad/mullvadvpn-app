@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
+import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
@@ -31,7 +31,8 @@ import org.joda.time.DateTime
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val pollAccountExpiry: Boolean = true
+    private val deviceRepository: DeviceRepository,
+    private val pollAccountExpiry: Boolean = true,
 ) : ViewModel() {
 
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
@@ -47,10 +48,21 @@ class OutOfTimeViewModel(
                 }
             }
             .flatMapLatest { serviceConnection ->
-                serviceConnection.connectionProxy.tunnelStateFlow()
+                kotlinx.coroutines.flow.combine(
+                    serviceConnection.connectionProxy.tunnelStateFlow(),
+                    deviceRepository.deviceState
+                ) { tunnelState, deviceState ->
+                    OutOfTimeUiState(
+                        tunnelState = tunnelState,
+                        deviceName = deviceState.deviceName() ?: "",
+                    )
+                }
             }
-            .map { tunnelState -> OutOfTimeUiState(tunnelState = tunnelState) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), OutOfTimeUiState())
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(),
+                OutOfTimeUiState(deviceName = "")
+            )
 
     init {
         viewModelScope.launch {

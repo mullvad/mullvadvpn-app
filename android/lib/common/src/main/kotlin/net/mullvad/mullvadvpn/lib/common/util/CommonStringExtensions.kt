@@ -7,12 +7,6 @@ private const val EXPIRY_FORMAT = "YYYY-MM-dd HH:mm:ss z"
 private const val BIG_DOT_CHAR = "●"
 private const val SPACE_CHAR = ' '
 
-fun String.capitalizeFirstCharOfEachWord(): String {
-    return split(" ")
-        .joinToString(" ") { word -> word.replaceFirstChar { firstChar -> firstChar.uppercase() } }
-        .trimEnd()
-}
-
 fun String.parseAsDateTime(): DateTime? {
     return try {
         DateTime.parse(this, DateTimeFormat.forPattern(EXPIRY_FORMAT))

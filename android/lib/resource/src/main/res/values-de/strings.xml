@@ -175,6 +175,8 @@
     <string name="switch_location">Ort wechseln</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">VPN umschalten</string>
+    <string name="top_bar_device_name">Gerätename: %1$s</string>
+    <string name="top_bar_time_left">Verbleibende Zeit: %1$s</string>
     <string name="try_again">Erneut versuchen</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>

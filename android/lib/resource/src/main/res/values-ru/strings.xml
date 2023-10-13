@@ -175,6 +175,8 @@
     <string name="switch_location">Сменить местоположение</string>
     <string name="tcp">TCP</string>
     <string name="toggle_vpn">Включение VPN</string>
+    <string name="top_bar_device_name">Имя устройства: %1$s</string>
+    <string name="top_bar_time_left">Осталось времени: %1$s</string>
     <string name="try_again">Повторить попытку</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
