@@ -31,9 +31,6 @@ Line wrap the file at 100 chars.                                              Th
   `mullvad api-access`, and the initially supported network protocols are `Shadowsocks` and
   `SOCKS5`.
 
-#### Linux
-- Start signing the deb and rpm files (GPG)
-
 ### Changed
 - Update Electron from 25.2.0 to 26.3.0.
 
@@ -61,6 +58,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [2023.5] - 2023-10-10
+### Added
+#### Linux
+- Start signing the deb and rpm files (GPG)
+
 ### Fixed
 #### macOS
 - Fix connectivity issues when switching between networks or disconnecting.
