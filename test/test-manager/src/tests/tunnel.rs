@@ -145,7 +145,7 @@ pub async fn test_udp2tcp_tunnel(
             selected_obfuscation: i32::from(
                 types::obfuscation_settings::SelectedObfuscation::Udp2tcp,
             ),
-            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: 0 }),
+            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: None }),
         })
         .await
         .expect("failed to enable udp2tcp");
@@ -595,7 +595,7 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
             selected_obfuscation: i32::from(
                 types::obfuscation_settings::SelectedObfuscation::Udp2tcp,
             ),
-            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: 0 }),
+            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: None }),
         })
         .await
         .expect("Failed to enable obfuscation");

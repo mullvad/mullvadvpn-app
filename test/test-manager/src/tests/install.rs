@@ -175,10 +175,9 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
                     location:
                         Some(types::LocationConstraint {
                             r#type:
-                                Some(types::location_constraint::Type::Location(types::RelayLocation {
-                                    country,
-                                    ..
-                                })),
+                                Some(types::location_constraint::Type::Location(
+                                    types::GeographicLocationConstraint { country, .. },
+                                )),
                         }),
                     ..
                 })),

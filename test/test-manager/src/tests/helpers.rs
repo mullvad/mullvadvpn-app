@@ -305,7 +305,7 @@ pub async fn reset_relay_settings(
     mullvad_client
         .set_obfuscation_settings(types::ObfuscationSettings {
             selected_obfuscation: i32::from(types::obfuscation_settings::SelectedObfuscation::Off),
-            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: 0 }),
+            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: None }),
         })
         .await
         .map(|_| ())
