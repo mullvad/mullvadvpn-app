@@ -1,6 +1,8 @@
 ---
 name: Desktop - End-to-end testing on supported platforms
 on:
+  schedule:
+    - cron: '0 0 * * *'
   # TODO(markus,david): Remove before merging to main
   push:
     brances:
