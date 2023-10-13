@@ -1,5 +1,5 @@
 //
-//  State+.swift
+//  State+Extensions.swift
 //  PacketTunnelCore
 //
 //  Created by pronebird on 08/09/2023.
