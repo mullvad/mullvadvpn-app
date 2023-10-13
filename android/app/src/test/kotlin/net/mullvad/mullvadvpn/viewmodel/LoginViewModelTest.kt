@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -34,6 +35,7 @@ class LoginViewModelTest {
 
     @MockK private lateinit var mockedAccountRepository: AccountRepository
     @MockK private lateinit var mockedDeviceRepository: DeviceRepository
+    @MockK private lateinit var mockedNewDeviceNotificationUseCase: NewDeviceNotificationUseCase
 
     private lateinit var loginViewModel: LoginViewModel
     private val accountHistoryTestEvents = MutableStateFlow<AccountHistory>(AccountHistory.Missing)
@@ -44,11 +46,13 @@ class LoginViewModelTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
         every { mockedAccountRepository.accountHistory } returns accountHistoryTestEvents
+        every { mockedNewDeviceNotificationUseCase.newDeviceCreated() } returns Unit
 
         loginViewModel =
             LoginViewModel(
                 mockedAccountRepository,
                 mockedDeviceRepository,
+                mockedNewDeviceNotificationUseCase,
                 UnconfinedTestDispatcher()
             )
     }
