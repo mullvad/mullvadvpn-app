@@ -24,3 +24,20 @@ fun Spanned.toAnnotatedString(boldFontWeight: FontWeight = FontWeight.Bold): Ann
             }
         }
     }
+
+fun Spanned.toAnnotatedString(
+    boldSpanStyle: SpanStyle = SpanStyle(fontWeight = FontWeight.ExtraBold)
+): AnnotatedString = buildAnnotatedString {
+    val spanned = this@toAnnotatedString
+    append(spanned.toString())
+    getSpans(0, spanned.length, Any::class.java).forEach { span ->
+        val start = getSpanStart(span)
+        val end = getSpanEnd(span)
+        when (span) {
+            is StyleSpan ->
+                when (span.style) {
+                    Typeface.BOLD -> addStyle(boldSpanStyle, start, end)
+                }
+        }
+    }
+}
