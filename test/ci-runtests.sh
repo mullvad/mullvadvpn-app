@@ -15,9 +15,12 @@ BUILD_DEV_REPOSITORY="https://releases.mullvad.net/builds/desktop"
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
 OLD_APP_VERSION=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
-NEW_APP_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
-commit=$(git rev-parse HEAD^\{commit\})
-commit=${commit:0:6}
+# TODO(markus,david): REVERT
+# NEW_APP_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
+# commit=$(git rev-parse HEAD^\{commit\})
+# commit=${commit:0:6}
+NEW_APP_VERSION=2023.5-dev-17296f
+commit=17296f
 
 TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
 
@@ -203,7 +206,8 @@ echo "* Building test runners"
 echo "**********************************"
 
 # Clean up packages. Try to keep ones that match the versions we're testing
-find "${SCRIPT_DIR}/packages/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${NEW_APP_VERSION}*" \) -delete || true
+# TODO(markus,david): REVERT
+# find "${SCRIPT_DIR}/packages/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${NEW_APP_VERSION}*" \) -delete || true
 
 function build_test_runners {
     for os in "${TEST_OSES[@]}"; do
