@@ -119,6 +119,8 @@
     <string name="max_devices_warning_description">Выйдите из учетной записи хотя бы на одном из устройств, удалив его из списка ниже. Имя устройства указано в настройках учетной записи.</string>
     <string name="max_devices_warning_title">Слишком много устройств</string>
     <string name="mullvad_account_number">Номер учетной записи Mullvad</string>
+    <string name="new_device_notification_message">Добро пожаловать, теперь это устройство называется &lt;b&gt;%1$s&lt;/b&gt;. Для получения более подробной нажмите на кнопку «Информация» в учетной записи.</string>
+    <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="no_matching_relay">Нет серверов, соответствующих вашим настройкам. Попробуйте изменить сервер или задайте другие настройки.</string>
     <string name="no_wireguard_key">Не найден действительный ключ WireGuard. Управлять ключами можно в дополнительных настройках.</string>
     <string name="not_blocking_internet">ВОЗМОЖНА УТЕЧКА СЕТЕВОГО ТРАФИКА</string>
