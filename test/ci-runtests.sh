@@ -9,7 +9,7 @@ cd "$SCRIPT_DIR"
 MAX_CONCURRENT_JOBS=1
 
 BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/releases"
-BUILD_DEV_REPOSITORY="https://releases.mullvad.net/builds"
+BUILD_DEV_REPOSITORY="https://releases.mullvad.net/builds/desktop"
 
 # Infer stable version from GitHub repo
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')

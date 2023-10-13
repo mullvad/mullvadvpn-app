@@ -1,0 +1,36 @@
+---
+name: Desktop - End-to-end testing on supported platforms
+on:
+  # TODO(markus,david): Remove before merging to main
+  push:
+    brances:
+      - migrate-tests
+  workflow_dispatch:
+jobs:
+  instrumented-tests:
+    name: Run end-to-end desktop tests
+    runs-on: [self-hosted, desktop-test]
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [debian11, debian12, ubuntu2004, ubuntu2204, ubuntu2304, fedora38, fedora37, fedora36, windows10, windows11]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run instrumented test script
+        shell: bash -ieo pipefail {0}
+        env:
+          TEST_OSES: ${{ matrix.os }}
+        run: |
+          ./test/ci-runtests.sh ${{ matrix.os }}
+
+      - name: Upload end-to-end test report (${{ matrix.os }})
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: ${{ matrix.os }}-end-to-end-test-report
+          path: ./test/.ci-logs/os/${{ matrix.os }}.log
+          if-no-files-found: ignore
+          retention-days: 2
