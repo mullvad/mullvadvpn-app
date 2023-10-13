@@ -10,7 +10,7 @@ if [[ $# != 1 ]]; then
     exit 1
 fi
 
-URL_BASE="https://releases.mullvad.net"
+URL_BASE="https://releases.mullvad.net/desktop"
 
 # Pass Mullvad VPN app version as first and only argument
 version=$1
