@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
 
@@ -38,6 +39,7 @@ sealed interface LoginUiSideEffect {
 class LoginViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
+    private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
@@ -85,6 +87,7 @@ class LoginViewModel(
                             delay(1000)
                             _uiSideEffect.emit(LoginUiSideEffect.NavigateToConnect)
                         }
+                        newDeviceNotificationUseCase.newDeviceCreated()
                         Success
                     }
                     LoginResult.InvalidAccount -> Idle(LoginError.InvalidCredentials)
