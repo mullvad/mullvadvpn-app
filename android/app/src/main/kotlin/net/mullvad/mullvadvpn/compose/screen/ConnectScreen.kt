@@ -36,6 +36,7 @@ import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.LocationInfo
 import net.mullvad.mullvadvpn.compose.component.Notification
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -137,6 +138,7 @@ fun ConnectScreen(
                 Modifier.padding(it)
                     .background(color = MaterialTheme.colorScheme.primary)
                     .fillMaxHeight()
+                    .drawVerticalScrollbar(scrollState)
                     .verticalScroll(scrollState)
                     .padding(bottom = Dimens.screenVerticalMargin)
                     .testTag(SCROLLABLE_COLUMN_TEST_TAG)
