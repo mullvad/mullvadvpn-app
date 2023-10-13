@@ -140,7 +140,12 @@ async fn main() -> Result<()> {
     #[cfg(target_os = "linux")]
     container::relaunch_with_rootlesskit(args.get_vnc_port()).await;
 
-    let mut config = config::ConfigFile::load_or_default("config.json")
+    let config_path = dirs::config_dir()
+        .unwrap()
+        .join("mullvad-test")
+        .join("config.json");
+
+    let mut config = config::ConfigFile::load_or_default(config_path)
         .await
         .context("Failed to load config")?;
     match args.cmd {
