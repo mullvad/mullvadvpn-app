@@ -1,7 +1,7 @@
 use super::{
-    AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectingState, ErrorState,
-    EventConsequence, EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver,
-    TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    AfterDisconnect, ConnectedState, DisconnectingState, ErrorState, EventConsequence, EventResult,
+    SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
+    TunnelStateTransition,
 };
 use crate::{
     firewall::FirewallPolicy,
@@ -53,6 +53,84 @@ pub struct ConnectingState {
 }
 
 impl ConnectingState {
+    pub fn enter(
+        shared_values: &mut SharedTunnelStateValues,
+        retry_attempt: u32,
+    ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
+        if shared_values.is_offline {
+            // FIXME: Temporary: Nudge route manager to update the default interface
+            #[cfg(target_os = "macos")]
+            if let Ok(handle) = shared_values.route_manager.handle() {
+                log::debug!("Poking route manager to update default routes");
+                let _ = handle.refresh_routes();
+            }
+            return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
+        }
+        match shared_values.runtime.block_on(
+            shared_values
+                .tunnel_parameters_generator
+                .generate(retry_attempt),
+        ) {
+            Err(err) => {
+                ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
+            }
+            Ok(tunnel_parameters) => {
+                #[cfg(windows)]
+                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to reset addresses in split tunnel driver"
+                        )
+                    );
+
+                    return ErrorState::enter(shared_values, ErrorStateCause::SplitTunnelError);
+                }
+
+                if let Err(error) = Self::set_firewall_policy(
+                    shared_values,
+                    &tunnel_parameters,
+                    &None,
+                    AllowedTunnelTraffic::None,
+                ) {
+                    ErrorState::enter(
+                        shared_values,
+                        ErrorStateCause::SetFirewallPolicyError(error),
+                    )
+                } else {
+                    #[cfg(target_os = "android")]
+                    {
+                        if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
+                            if let Err(error) =
+                                { shared_values.tun_provider.lock().unwrap().create_tun() }
+                            {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to recreate tun device")
+                                );
+                            }
+                        }
+                    }
+
+                    let connecting_state = Self::start_tunnel(
+                        shared_values.runtime.clone(),
+                        tunnel_parameters,
+                        &shared_values.log_dir,
+                        &shared_values.resource_dir,
+                        shared_values.tun_provider.clone(),
+                        &shared_values.route_manager,
+                        retry_attempt,
+                    );
+                    let params = connecting_state.tunnel_parameters.clone();
+                    (
+                        Box::new(connecting_state),
+                        TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
+                    )
+                }
+            }
+        }
+    }
+
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
         params: &TunnelParameters,
@@ -249,16 +327,6 @@ impl ConnectingState {
         }
     }
 
-    fn into_connected_state_bootstrap(self, metadata: TunnelMetadata) -> ConnectedStateBootstrap {
-        ConnectedStateBootstrap {
-            metadata,
-            tunnel_events: self.tunnel_events,
-            tunnel_parameters: self.tunnel_parameters,
-            tunnel_close_event: self.tunnel_close_event,
-            tunnel_close_tx: self.tunnel_close_tx,
-        }
-    }
-
     fn reset_routes(
         #[cfg(target_os = "windows")] shared_values: &SharedTunnelStateValues,
         #[cfg(not(target_os = "windows"))] shared_values: &mut SharedTunnelStateValues,
@@ -286,16 +354,16 @@ impl ConnectingState {
         Self::reset_routes(shared_values);
 
         EventConsequence::NewState(DisconnectingState::enter(
-            shared_values,
-            (
-                self.tunnel_close_tx,
-                self.tunnel_close_event,
-                after_disconnect,
-            ),
+            self.tunnel_close_tx,
+            self.tunnel_close_event,
+            after_disconnect,
         ))
     }
 
-    fn reset_firewall(self, shared_values: &mut SharedTunnelStateValues) -> EventConsequence {
+    fn reset_firewall(
+        self: Box<Self>,
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> EventConsequence {
         match Self::set_firewall_policy(
             shared_values,
             &self.tunnel_parameters,
@@ -306,7 +374,7 @@ impl ConnectingState {
                 if cfg!(target_os = "android") {
                     self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                 } else {
-                    EventConsequence::SameState(self.into())
+                    EventConsequence::SameState(self)
                 }
             }
             Err(error) => self.disconnect(
@@ -317,7 +385,7 @@ impl ConnectingState {
     }
 
     fn handle_commands(
-        self,
+        self: Box<Self>,
         command: Option<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
@@ -348,17 +416,17 @@ impl ConnectingState {
                     }
                 }
                 let _ = tx.send(());
-                SameState(self.into())
+                SameState(self)
             }
             Some(TunnelCommand::Dns(servers)) => match shared_values.set_dns_servers(servers) {
                 #[cfg(target_os = "android")]
                 Ok(true) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
-                Ok(_) => SameState(self.into()),
+                Ok(_) => SameState(self),
                 Err(cause) => self.disconnect(shared_values, AfterDisconnect::Block(cause)),
             },
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
-                SameState(self.into())
+                SameState(self)
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
@@ -368,7 +436,7 @@ impl ConnectingState {
                         AfterDisconnect::Block(ErrorStateCause::IsOffline),
                     )
                 } else {
-                    SameState(self.into())
+                    SameState(self)
                 }
             }
             Some(TunnelCommand::Connect) => {
@@ -383,18 +451,18 @@ impl ConnectingState {
             #[cfg(target_os = "android")]
             Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                 shared_values.bypass_socket(fd, done_tx);
-                SameState(self.into())
+                SameState(self)
             }
             #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 shared_values.split_tunnel.set_paths(&paths, result_tx);
-                SameState(self.into())
+                SameState(self)
             }
         }
     }
 
     fn handle_tunnel_events(
-        mut self,
+        mut self: Box<Self>,
         event: Option<(tunnel::TunnelEvent, oneshot::Sender<()>)>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
@@ -432,7 +500,7 @@ impl ConnectingState {
                     &self.tunnel_metadata,
                     self.allowed_tunnel_traffic.clone(),
                 ) {
-                    Ok(()) => SameState(self.into()),
+                    Ok(()) => SameState(self),
                     Err(error) => self.disconnect(
                         shared_values,
                         AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
@@ -441,7 +509,11 @@ impl ConnectingState {
             }
             Some((TunnelEvent::Up(metadata), _)) => NewState(ConnectedState::enter(
                 shared_values,
-                self.into_connected_state_bootstrap(metadata),
+                metadata,
+                self.tunnel_events,
+                self.tunnel_parameters,
+                self.tunnel_close_event,
+                self.tunnel_close_tx,
             )),
             Some((TunnelEvent::Down, _)) => {
                 // It is important to reset this before the tunnel device is down,
@@ -450,7 +522,7 @@ impl ConnectingState {
                 self.allowed_tunnel_traffic = INITIAL_ALLOWED_TUNNEL_TRAFFIC;
                 self.tunnel_metadata = None;
 
-                SameState(self.into())
+                SameState(self)
             }
             None => {
                 // The channel was closed
@@ -532,88 +604,8 @@ fn is_recoverable_routing_error(error: &talpid_routing::Error) -> bool {
 }
 
 impl TunnelState for ConnectingState {
-    type Bootstrap = u32;
-
-    fn enter(
-        shared_values: &mut SharedTunnelStateValues,
-        retry_attempt: u32,
-    ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        if shared_values.is_offline {
-            // FIXME: Temporary: Nudge route manager to update the default interface
-            #[cfg(target_os = "macos")]
-            if let Ok(handle) = shared_values.route_manager.handle() {
-                log::debug!("Poking route manager to update default routes");
-                let _ = handle.refresh_routes();
-            }
-            return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
-        }
-        match shared_values.runtime.block_on(
-            shared_values
-                .tunnel_parameters_generator
-                .generate(retry_attempt),
-        ) {
-            Err(err) => {
-                ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
-            }
-            Ok(tunnel_parameters) => {
-                #[cfg(windows)]
-                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg(
-                            "Failed to reset addresses in split tunnel driver"
-                        )
-                    );
-
-                    return ErrorState::enter(shared_values, ErrorStateCause::SplitTunnelError);
-                }
-
-                if let Err(error) = Self::set_firewall_policy(
-                    shared_values,
-                    &tunnel_parameters,
-                    &None,
-                    AllowedTunnelTraffic::None,
-                ) {
-                    ErrorState::enter(
-                        shared_values,
-                        ErrorStateCause::SetFirewallPolicyError(error),
-                    )
-                } else {
-                    #[cfg(target_os = "android")]
-                    {
-                        if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
-                            if let Err(error) =
-                                { shared_values.tun_provider.lock().unwrap().create_tun() }
-                            {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to recreate tun device")
-                                );
-                            }
-                        }
-                    }
-
-                    let connecting_state = Self::start_tunnel(
-                        shared_values.runtime.clone(),
-                        tunnel_parameters,
-                        &shared_values.log_dir,
-                        &shared_values.resource_dir,
-                        shared_values.tun_provider.clone(),
-                        &shared_values.route_manager,
-                        retry_attempt,
-                    );
-                    let params = connecting_state.tunnel_parameters.clone();
-                    (
-                        TunnelStateWrapper::from(connecting_state),
-                        TunnelStateTransition::Connecting(params.get_tunnel_endpoint()),
-                    )
-                }
-            }
-        }
-    }
-
     fn handle_event(
-        mut self,
+        mut self: Box<Self>,
         runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
