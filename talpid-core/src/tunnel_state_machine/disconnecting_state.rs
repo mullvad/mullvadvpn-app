@@ -14,7 +14,7 @@ pub struct DisconnectingState {
 }
 
 impl DisconnectingState {
-    pub fn enter(
+    pub(super) fn enter(
         tunnel_close_tx: oneshot::Sender<()>,
         tunnel_close_event: TunnelCloseEvent,
         after_disconnect: AfterDisconnect,

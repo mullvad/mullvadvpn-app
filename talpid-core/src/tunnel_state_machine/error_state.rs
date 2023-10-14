@@ -17,7 +17,7 @@ pub struct ErrorState {
 }
 
 impl ErrorState {
-    pub fn enter(
+    pub(super) fn enter(
         shared_values: &mut SharedTunnelStateValues,
         block_reason: ErrorStateCause,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {

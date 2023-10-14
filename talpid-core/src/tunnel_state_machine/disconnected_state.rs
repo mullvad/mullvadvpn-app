@@ -16,7 +16,7 @@ use talpid_types::ErrorExt;
 pub struct DisconnectedState(());
 
 impl DisconnectedState {
-    pub fn enter(
+    pub(super) fn enter(
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {

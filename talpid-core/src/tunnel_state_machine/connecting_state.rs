@@ -53,7 +53,7 @@ pub struct ConnectingState {
 }
 
 impl ConnectingState {
-    pub fn enter(
+    pub(super) fn enter(
         shared_values: &mut SharedTunnelStateValues,
         retry_attempt: u32,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
