@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Run instrumented test script
+      - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         env:
           TEST_OSES: ${{ matrix.os }}
