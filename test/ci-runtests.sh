@@ -263,4 +263,6 @@ token=$(account_token_from_index 0)
 # Create a log file
 mkdir -p "$SCRIPT_DIR/.ci-logs/os/"
 touch "$SCRIPT_DIR/.ci-logs/os/${os}.log"
+# Script should fail if `run_tests_for_os` fails, and not `tee`.
+set -o pipefail
 ACCOUNT_TOKEN=$token nice_time run_tests_for_os "$os" | tee "$SCRIPT_DIR/.ci-logs/os/${os}.log"
