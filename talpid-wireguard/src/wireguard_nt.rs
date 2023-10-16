@@ -163,7 +163,7 @@ pub enum Error {
 }
 
 pub struct WgNtTunnel {
-    device: Arc<Mutex<Option<WgNtAdapter>>>,
+    device: Option<Arc<WgNtAdapter>>,
     interface_name: String,
     setup_handle: tokio::task::JoinHandle<()>,
     _logger_handle: LoggerHandle,
@@ -448,10 +448,11 @@ impl WgNtTunnel {
             );
         }
         device.set_config(config)?;
-        let device = Arc::new(Mutex::new(Some(device)));
+        let device2 = Arc::new(device);
+        let device = Some(device2.clone());
 
         let setup_future = setup_ip_listener(
-            device.clone(),
+            device2,
             u32::from(config.mtu),
             config.tunnel.addresses.iter().any(|addr| addr.is_ipv6()),
         );
@@ -471,16 +472,12 @@ impl WgNtTunnel {
 
     fn stop_tunnel(&mut self) {
         self.setup_handle.abort();
-        let _ = self.device.lock().unwrap().take();
+        let _ = self.device.take();
     }
 }
 
-async fn setup_ip_listener(
-    device: Arc<Mutex<Option<WgNtAdapter>>>,
-    mtu: u32,
-    has_ipv6: bool,
-) -> Result<()> {
-    let luid = { device.lock().unwrap().as_ref().unwrap().luid() };
+async fn setup_ip_listener(device: Arc<WgNtAdapter>, mtu: u32, has_ipv6: bool) -> Result<()> {
+    let luid = device.luid();
     let luid = NET_LUID_LH {
         Value: unsafe { luid.Value },
     };
@@ -494,13 +491,9 @@ async fn setup_ip_listener(
     talpid_tunnel::network_interface::initialize_interfaces(luid, Some(mtu))
         .map_err(Error::SetTunnelMtu)?;
 
-    if let Some(device) = &*device.lock().unwrap() {
-        device
-            .set_state(WgAdapterState::Up)
-            .map_err(Error::EnableTunnel)
-    } else {
-        Ok(())
-    }
+    device
+        .set_state(WgAdapterState::Up)
+        .map_err(Error::EnableTunnel)
 }
 
 impl Drop for WgNtTunnel {
@@ -942,7 +935,7 @@ impl Tunnel for WgNtTunnel {
     }
 
     fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, super::TunnelError> {
-        if let Some(ref device) = &*self.device.lock().unwrap() {
+        if let Some(ref device) = self.device {
             let mut map = StatsMap::new();
             let (_interface, peers) = device.get_config().map_err(|error| {
                 log::error!(
@@ -977,9 +970,12 @@ impl Tunnel for WgNtTunnel {
         config: Config,
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
         let device = self.device.clone();
+
         Box::pin(async move {
-            let guard = device.lock().unwrap();
-            let device = guard.as_ref().ok_or(super::TunnelError::SetConfigError)?;
+            let Some(device) = device else {
+                log::error!("Failed to set config: No tunnel device");
+                return Err(super::TunnelError::SetConfigError);
+            };
             device.set_config(&config).map_err(|error| {
                 log::error!(
                     "{}",
