@@ -177,6 +177,9 @@ public enum BlockedStateReason: String, Codable, Equatable {
     /// Invalid account.
     case invalidAccount
 
+    /// Account is expired.
+    case accountExpired
+
     /// Device revoked.
     case deviceRevoked
 
