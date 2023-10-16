@@ -16,7 +16,6 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.MessageHandler
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionAccountDataSource
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
@@ -80,8 +79,6 @@ val uiModule = module {
     single { MullvadProblemReport(get()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
-
-    single { ServiceConnectionAccountDataSource(get()) }
 
     // View models
     viewModel { AccountViewModel(get(), get(), get()) }

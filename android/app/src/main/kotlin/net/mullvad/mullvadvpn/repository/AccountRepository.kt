@@ -10,40 +10,51 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
+import net.mullvad.mullvadvpn.lib.ipc.Event
+import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.LoginResult
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionAccountDataSource
+import net.mullvad.mullvadvpn.ui.serviceconnection.MessageHandler
+import net.mullvad.mullvadvpn.ui.serviceconnection.events
 
 class AccountRepository(
-    private val dataSource: ServiceConnectionAccountDataSource,
+    private val messageHandler: MessageHandler,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     private val _cachedCreatedAccount = MutableStateFlow<String?>(null)
     val cachedCreatedAccount = _cachedCreatedAccount.asStateFlow()
 
     private val accountCreationEvents: SharedFlow<AccountCreationResult> =
-        dataSource.accountCreationResult
+        messageHandler
+            .events<Event.AccountCreationEvent>()
+            .map { it.result }
             .onEach {
                 _cachedCreatedAccount.value = (it as? AccountCreationResult.Success)?.accountToken
             }
             .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
 
     val accountExpiryState: StateFlow<AccountExpiry> =
-        dataSource.accountExpiry.stateIn(
-            CoroutineScope(dispatcher),
-            SharingStarted.WhileSubscribed(),
-            AccountExpiry.Missing
-        )
+        messageHandler
+            .events<Event.AccountExpiryEvent>()
+            .map { it.expiry }
+            .stateIn(
+                CoroutineScope(dispatcher),
+                SharingStarted.WhileSubscribed(),
+                AccountExpiry.Missing
+            )
 
     val accountHistory: StateFlow<AccountHistory> =
-        dataSource.accountHistory
+        messageHandler
+            .events<Event.AccountHistoryEvent>()
+            .map { it.history }
             .onStart { fetchAccountHistory() }
             .stateIn(
                 CoroutineScope(dispatcher),
@@ -52,37 +63,40 @@ class AccountRepository(
             )
 
     private val loginEvents: SharedFlow<LoginResult> =
-        dataSource.loginEvents.shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
+        messageHandler
+            .events<Event.LoginEvent>()
+            .map { it.result }
+            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
 
     suspend fun createAccount(): AccountCreationResult =
         withContext(dispatcher) {
             val deferred = async { accountCreationEvents.first() }
-            dataSource.createAccount()
+            messageHandler.trySendRequest(Request.CreateAccount)
             deferred.await()
         }
 
     suspend fun login(accountToken: String): LoginResult =
         withContext(Dispatchers.IO) {
             val deferred = async { loginEvents.first() }
-            dataSource.login(accountToken)
+            messageHandler.trySendRequest(Request.Login(accountToken))
             deferred.await()
         }
 
     fun logout() {
         clearCreatedAccountCache()
-        dataSource.logout()
+        messageHandler.trySendRequest(Request.Logout)
     }
 
     fun fetchAccountExpiry() {
-        dataSource.fetchAccountExpiry()
+        messageHandler.trySendRequest(Request.FetchAccountExpiry)
     }
 
     fun fetchAccountHistory() {
-        dataSource.fetchAccountHistory()
+        messageHandler.trySendRequest(Request.FetchAccountExpiry)
     }
 
     fun clearAccountHistory() {
-        dataSource.clearAccountHistory()
+        messageHandler.trySendRequest(Request.ClearAccountHistory)
     }
 
     private fun clearCreatedAccountCache() {
