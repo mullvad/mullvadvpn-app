@@ -43,7 +43,11 @@ export default function (
     case 'LOGGED_IN':
       return {
         ...state,
-        status: { type: 'ok', method: 'existing_account', newDeviceBanner: false },
+        status: {
+          type: 'ok',
+          method: 'existing_account',
+          newDeviceBanner: state.status.type === 'logging in',
+        },
         accountToken: action.accountToken,
         deviceName: action.deviceName,
       };
