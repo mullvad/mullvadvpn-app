@@ -19,7 +19,7 @@ jobs:
         os: [debian11, debian12, ubuntu2004, ubuntu2204, ubuntu2304, fedora38, fedora37, fedora36, windows10, windows11]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
