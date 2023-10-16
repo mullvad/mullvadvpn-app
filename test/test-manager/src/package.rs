@@ -64,8 +64,12 @@ async fn find_app(
     let mut app = app.to_owned();
     app.make_ascii_lowercase();
 
-    // Search for package in ./packages/
-    let mut dir = fs::read_dir("./packages/")
+    let packages_dir = dirs::cache_dir()
+        .context("Could not find cache directory")?
+        .join("mullvad-test")
+        .join("packages");
+    fs::create_dir_all(&packages_dir).await?;
+    let mut dir = fs::read_dir(packages_dir)
         .await
         .context("Failed to list packages")?;
 
