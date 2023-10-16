@@ -12,7 +12,7 @@ pub type AccessToken = String;
 /// The payment token returned by initiating a google play purchase.
 /// In the API this is called the `obfuscated_id`.
 #[cfg(target_os = "android")]
-pub type PlayPurchasePaymentToken = String;
+pub type PlayPurchasePaymentToken = PlayPurchasePaymentToken;
 
 /// Account expiration info returned by the API via `/v1/me`.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]

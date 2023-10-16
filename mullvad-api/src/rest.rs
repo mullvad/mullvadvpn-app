@@ -394,18 +394,15 @@ impl From<Request> for RestRequest {
 }
 
 #[derive(serde::Deserialize)]
-pub struct OldErrorResponse {
+struct OldErrorResponse {
     pub code: String,
 }
 
 /// If `NewErrorResponse::type` is not defined it should default to "about:blank"
 const DEFAULT_ERROR_TYPE: &str = "about:blank";
 #[derive(serde::Deserialize)]
-pub struct NewErrorResponse {
-    pub status: i32,
-    pub title: String,
+struct NewErrorResponse {
     pub r#type: Option<String>,
-    pub detail: Option<String>,
 }
 
 #[derive(Clone)]
@@ -612,6 +609,9 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
             body_length => {
                 return match response.headers().get("content-type") {
                     Some(content_type) if content_type == "application/problem+json" => {
+                        // TODO: We should make sure we unify the new error format and the old
+                        // error format so that they both produce the same Errors for the same
+                        // problems after being processed.
                         let err: NewErrorResponse =
                             deserialize_body_inner(response, body_length).await?;
                         // The new error type replaces the `code` field with the `type` field.
