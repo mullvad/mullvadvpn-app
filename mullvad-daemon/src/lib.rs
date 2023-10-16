@@ -38,9 +38,11 @@ use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
 };
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
-    account::{AccountData, AccountToken, PlayPurchase, PlayPurchasePaymentToken, VoucherSubmission},
+    account::{AccountData, AccountToken, VoucherSubmission},
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
@@ -1041,10 +1043,6 @@ where
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
             GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx).await,
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher),
-            InitPlayPurchase(tx) => self.on_init_play_purchase(tx),
-            VerifyPlayPurchase(tx, play_purchase) => {
-                self.on_verify_play_purchase(tx, play_purchase)
-            }
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
             LoginAccount(tx, account_token) => self.on_login_account(tx, account_token),
@@ -1127,6 +1125,12 @@ where
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
+            #[cfg(target_os = "android")]
+            InitPlayPurchase(tx) => self.on_init_play_purchase(tx),
+            #[cfg(target_os = "android")]
+            VerifyPlayPurchase(tx, play_purchase) => {
+                self.on_verify_play_purchase(tx, play_purchase)
+            }
         }
     }
 
@@ -1418,34 +1422,6 @@ where
                     .await
                     .map_err(Error::VoucherSubmission),
                 "submit_voucher response",
-            );
-        });
-    }
-
-    fn on_init_play_purchase(&mut self, tx: ResponseTx<PlayPurchasePaymentToken, Error>) {
-        let manager = self.account_manager.clone();
-        tokio::spawn(async move {
-            Self::oneshot_send(
-                tx,
-                manager
-                    .init_play_purchase()
-                    .await
-                    .map_err(Error::InitPlayPurchase),
-                "init_play_purchase response",
-            );
-        });
-    }
-
-    fn on_verify_play_purchase(&mut self, tx: ResponseTx<(), Error>, play_purchase: PlayPurchase) {
-        let manager = self.account_manager.clone();
-        tokio::spawn(async move {
-            Self::oneshot_send(
-                tx,
-                manager
-                    .verify_play_purchase(play_purchase)
-                    .await
-                    .map_err(Error::VerifyPlayPurchase),
-                "verify_play_purchase response",
             );
         });
     }
@@ -2414,6 +2390,36 @@ where
                 self.send_tunnel_command(TunnelCommand::BypassSocket(fd, tx));
             }
         }
+    }
+
+    #[cfg(target_os = "android")]
+    fn on_init_play_purchase(&mut self, tx: ResponseTx<PlayPurchasePaymentToken, Error>) {
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                manager
+                    .init_play_purchase()
+                    .await
+                    .map_err(Error::InitPlayPurchase),
+                "init_play_purchase response",
+            );
+        });
+    }
+
+    #[cfg(target_os = "android")]
+    fn on_verify_play_purchase(&mut self, tx: ResponseTx<(), Error>, play_purchase: PlayPurchase) {
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                manager
+                    .verify_play_purchase(play_purchase)
+                    .await
+                    .map_err(Error::VerifyPlayPurchase),
+                "verify_play_purchase response",
+            );
+        });
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
