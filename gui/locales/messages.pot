@@ -1445,10 +1445,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr ""
 
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr ""
-
 #. The label next to the multihop settings toggle.
 msgctxt "vpn-settings-view"
 msgid "Enable multihop"
@@ -1472,6 +1468,10 @@ msgstr ""
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "vpn-settings-view"
 msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
+msgstr ""
+
+msgctxt "vpn-settings-view"
+msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
 msgstr ""
 
 msgctxt "vpn-settings-view"
@@ -1563,6 +1563,10 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr ""
+
+msgctxt "vpn-settings-view"
+msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
 msgstr ""
 
 msgctxt "vpn-settings-view"
