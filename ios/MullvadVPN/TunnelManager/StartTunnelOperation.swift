@@ -50,14 +50,8 @@ class StartTunnelOperation: ResultOperation<Void> {
             finish(result: .success(()))
 
         case .disconnected, .pendingReconnect:
-            do {
-                let selectedRelay = try interactor.selectRelay()
-
-                makeTunnelProviderAndStartTunnel(selectedRelay: selectedRelay) { error in
-                    self.finish(result: error.map { .failure($0) } ?? .success(()))
-                }
-            } catch {
-                finish(result: .failure(error))
+            makeTunnelProviderAndStartTunnel { error in
+                self.finish(result: error.map { .failure($0) } ?? .success(()))
             }
 
         default:
@@ -65,18 +59,11 @@ class StartTunnelOperation: ResultOperation<Void> {
         }
     }
 
-    private func makeTunnelProviderAndStartTunnel(
-        selectedRelay: SelectedRelay,
-        completionHandler: @escaping (Error?) -> Void
-    ) {
+    private func makeTunnelProviderAndStartTunnel(completionHandler: @escaping (Error?) -> Void) {
         makeTunnelProvider { result in
             self.dispatchQueue.async {
                 do {
-                    try self.startTunnel(
-                        tunnel: try result.get(),
-                        selectedRelay: selectedRelay
-                    )
-
+                    try self.startTunnel(tunnel: result.get())
                     completionHandler(nil)
                 } catch {
                     completionHandler(error)
@@ -85,11 +72,14 @@ class StartTunnelOperation: ResultOperation<Void> {
         }
     }
 
-    private func startTunnel(tunnel: any TunnelProtocol, selectedRelay: SelectedRelay) throws {
+    private func startTunnel(tunnel: any TunnelProtocol) throws {
+        let selectedRelay = try? interactor.selectRelay()
         var tunnelOptions = PacketTunnelOptions()
 
         do {
-            try tunnelOptions.setSelectedRelay(selectedRelay)
+            if let selectedRelay {
+                try tunnelOptions.setSelectedRelay(selectedRelay)
+            }
         } catch {
             logger.error(
                 error: error,
@@ -101,8 +91,8 @@ class StartTunnelOperation: ResultOperation<Void> {
 
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
-            tunnelStatus.packetTunnelStatus.tunnelRelay = selectedRelay.packetTunnelRelay
-            tunnelStatus.state = .connecting(selectedRelay.packetTunnelRelay)
+            tunnelStatus.packetTunnelStatus.tunnelRelay = selectedRelay?.packetTunnelRelay
+            tunnelStatus.state = .connecting(selectedRelay?.packetTunnelRelay)
         }
 
         try tunnel.start(options: tunnelOptions.rawOptions())

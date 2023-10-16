@@ -283,18 +283,10 @@ final class TunnelManager: StorePaymentObserver {
                     throw UnsetTunnelError()
                 }
 
-                let nextRelay: NextRelay = selectNewRelay ? .preSelected(try self.selectRelay()) : .current
-
-                return tunnel.reconnectTunnel(to: nextRelay) { result in
+                return tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { result in
                     finish(result.error)
                 }
             } catch {
-                if error is NoRelaysSatisfyingConstraintsError {
-                    _ = self.setTunnelStatus { tunnelStatus in
-                        tunnelStatus.state = .error(.noRelaysSatisfyingConstraints)
-                    }
-                }
-
                 finish(error)
 
                 return AnyCancellable()
