@@ -17,7 +17,6 @@ final class AppMessageHandlerTests: XCTestCase {
     func testHandleAppMessageForSendURLRequest() async throws {
         let sendRequestExpectation = expectation(description: "Expect sending request")
 
-        let actor = PacketTunnelActorStub()
         let urlRequestProxy = URLRequestProxyStub(sendRequestExpectation: sendRequestExpectation)
         let appMessageHandler = createAppMessageHandler(urlRequestProxy: urlRequestProxy)
 
@@ -37,7 +36,6 @@ final class AppMessageHandlerTests: XCTestCase {
     func testHandleAppMessageForCancelURLRequest() async throws {
         let cancelRequestExpectation = expectation(description: "Expect cancelling request")
 
-        let actor = PacketTunnelActorStub()
         let urlRequestProxy = URLRequestProxyStub(cancelRequestExpectation: cancelRequestExpectation)
         let appMessageHandler = createAppMessageHandler(urlRequestProxy: urlRequestProxy)
 
