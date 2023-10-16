@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.lib.ipc.Request
 class ServiceConnectionAccountDataSource(private val messageHandler: MessageHandler) {
     val accountCreationResult =
         messageHandler.events.filterIsInstance(Event.AccountCreationEvent::class).map { it.result }
-    // TODO: We previously also sent a Request here. How should we handle it now?
     val accountExpiry =
         messageHandler.events.filterIsInstance(Event.AccountExpiryEvent::class).map { it.expiry }
     val accountHistory =

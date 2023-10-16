@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.BuildConfig
@@ -312,6 +313,7 @@ open class MainActivity : FragmentActivity() {
     private suspend fun isExpired(timeoutMillis: Long): Boolean {
         return withTimeoutOrNull(timeoutMillis) {
             accountRepository.accountExpiryState
+                .onSubscription { accountRepository.fetchAccountExpiry() }
                 .filter { it is AccountExpiry.Available }
                 .map { it.date()?.isBeforeNow }
                 .first()
