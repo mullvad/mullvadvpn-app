@@ -996,11 +996,15 @@ extension DeviceState {
 
 fileprivate extension AppPreferencesDataSource {
     var isSeenLatestChanges: Bool {
-        self.lastSeenChangeLogVersion == Bundle.main.shortVersion
+        guard !ChangeLogInteractor().items.isEmpty else {
+            return true
+        }
+
+        return lastSeenChangeLogVersion == Bundle.main.shortVersion
     }
 
     mutating func markChangeLogSeen() {
-        self.lastSeenChangeLogVersion = Bundle.main.shortVersion
+        lastSeenChangeLogVersion = Bundle.main.shortVersion
     }
 
     // swiftlint:disable:next file_length
