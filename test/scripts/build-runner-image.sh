@@ -39,8 +39,8 @@ case $TARGET in
             "${SCRIPT_DIR}/../packages/"app-e2e-* \
             "${TEST_RUNNER_IMAGE_PATH}:/"
         e2cp \
-            "${SCRIPT_DIR}/../packages/"*.deb \
-            "${SCRIPT_DIR}/../packages/"*.rpm \
+            "$PACKAGES_DIR/"*.deb \
+            "$PACKAGES_DIR/"*.rpm \
             "${SCRIPT_DIR}/../openvpn.ca.crt" \
             "${TEST_RUNNER_IMAGE_PATH}:/"
         ;;
@@ -51,7 +51,7 @@ case $TARGET in
         mcopy \
             -i "${TEST_RUNNER_IMAGE_PATH}" \
             "${SCRIPT_DIR}/../target/$TARGET/release/test-runner.exe" \
-            "${SCRIPT_DIR}/../packages/"*.exe \
+            "$PACKAGES_DIR/"*.exe \
             "${SCRIPT_DIR}/../openvpn.ca.crt" \
             "::"
         mdir -i "${TEST_RUNNER_IMAGE_PATH}"

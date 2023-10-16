@@ -10,9 +10,9 @@ BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
 BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
 
 if [[ ("$(uname -s)" == "Darwin") ]]; then
-    PACKAGES_DIR=$HOME/Library/Caches/mullvad-test/packages
+    export PACKAGES_DIR=$HOME/Library/Caches/mullvad-test/packages
 elif [[ ("$(uname -s)" == "Linux") ]]; then
-    PACKAGES_DIR=$HOME/.cache/mullvad-test/packages
+    export PACKAGES_DIR=$HOME/.cache/mullvad-test/packages
 else
     echo "Unsupported OS" 1>&2
     exit 1
@@ -234,6 +234,8 @@ function build_test_runners {
     if [[ "${TEST_OSES[*]}" =~ "macos" ]]; then
         targets+=("aarch64-apple-darwin")
     fi
+
+    mkdir -p $PACKAGES_DIR
 
     for target in "${targets[@]}"; do
         TARGET=$target ./build.sh
