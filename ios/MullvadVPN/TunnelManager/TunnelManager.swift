@@ -210,6 +210,7 @@ final class TunnelManager: StorePaymentObserver {
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
+            selectedRelay: try? selectRelay(),
             completionHandler: { [weak self] result in
                 guard let self else { return }
 
@@ -284,18 +285,10 @@ final class TunnelManager: StorePaymentObserver {
                     throw UnsetTunnelError()
                 }
 
-                let nextRelay: NextRelay = selectNewRelay ? .preSelected(try self.selectRelay()) : .current
-
-                return tunnel.reconnectTunnel(to: nextRelay) { result in
+                return tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { result in
                     finish(result.error)
                 }
             } catch {
-                if let error = error as? NoRelaysSatisfyingConstraintsError {
-                    _ = self.setTunnelStatus { tunnelStatus in
-                        tunnelStatus.state = .error(.noRelaysSatisfyingConstraints)
-                    }
-                }
-
                 finish(error)
 
                 return AnyCancellable()

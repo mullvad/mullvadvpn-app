@@ -40,7 +40,7 @@ public struct PacketTunnelOptions {
         return try Self.decode(SelectedRelay.self, data)
     }
 
-    public mutating func setSelectedRelay(_ value: SelectedRelay) throws {
+    public mutating func setSelectedRelay(_ value: SelectedRelay?) throws {
         _rawOptions[Keys.selectedRelay.rawValue] = try Self.encode(value) as NSData
     }
 
