@@ -4,9 +4,11 @@ import android.os.Looper
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
+import kotlinx.coroutines.flow.filterIsInstance
 import net.mullvad.mullvadvpn.lib.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
+import net.mullvad.mullvadvpn.lib.ipc.extensions.trySendRequest
 import org.koin.core.component.KoinComponent
 
 // Container of classes that communicate with the service through an active connection
@@ -21,7 +23,8 @@ class ServiceConnectionContainer(
     private val dispatcher =
         DispatchingHandler(Looper.getMainLooper()) { message -> Event.fromMessage(message) }
 
-    val accountDataSource = ServiceConnectionAccountDataSource(connection, dispatcher)
+    val events = dispatcher.parsedMessages.filterIsInstance<Event>()
+
     val authTokenCache = AuthTokenCache(connection, dispatcher)
     val connectionProxy = ConnectionProxy(connection, dispatcher)
     val deviceDataSource = ServiceConnectionDeviceDataSource(connection, dispatcher)
@@ -47,6 +50,10 @@ class ServiceConnectionContainer(
         }
 
         registerListener(connection)
+    }
+
+    fun trySendRequest(request: Request, logErrors: Boolean): Boolean {
+        return connection.trySendRequest(request, logErrors = logErrors)
     }
 
     fun onDestroy() {

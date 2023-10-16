@@ -41,6 +41,10 @@ class AccountViewModel(
     @Suppress("konsist.ensure public properties use permitted names")
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
+    init {
+        accountRepository.fetchAccountExpiry()
+    }
+
     fun onManageAccountClick() {
         viewModelScope.launch {
             _uiSideEffect.tryEmit(

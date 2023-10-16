@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.ui.serviceconnection.MessageHandler
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
@@ -40,6 +41,7 @@ import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 
@@ -59,7 +61,7 @@ val uiModule = module {
         SplitTunneling(messenger, dispatcher)
     }
 
-    single { ServiceConnectionManager(androidContext()) }
+    single { ServiceConnectionManager(androidContext()) } bind MessageHandler::class
     single { InetAddressValidator.getInstance() }
     single { androidContext().resources }
     single { androidContext().assets }
