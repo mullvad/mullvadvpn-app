@@ -19,21 +19,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup volta
-        uses: volta-cli/action@v4
-
-      - name: Get npm cache directory path
-        id: npm-cache-dir-path
-        shell: bash  # To ensure that Windows correctly ouputs the cache path
-        run: echo "dir=$(npm config get cache)" >> $GITHUB_OUTPUT
-
-      - name: Cache npm dependencies
-        uses: actions/cache@v3
+      - name: Read volta info
+        id: volta
+        uses: zoexx/github-action-json-file-properties@release
         with:
-          path: ${{ steps.npm-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
+          file_path: 'gui/package.json'
+          prop_path: 'volta'
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ steps.volta.outputs.node }}
+          cache: 'npm'
+          cache-dependency-path: gui/package-lock.json
+
+      - name: Update NPM
+        run: npm i -g npm@${{ steps.volta.outputs.npm }}
 
       - name: Install dependencies
         working-directory: gui
