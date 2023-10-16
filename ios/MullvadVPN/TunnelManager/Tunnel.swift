@@ -17,11 +17,36 @@ typealias TunnelProviderManagerType = NETunnelProviderManager
 #endif
 
 protocol TunnelStatusObserver {
-    func tunnel(_ tunnel: Tunnel, didReceiveStatus status: NEVPNStatus)
+    func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus)
+}
+
+protocol TunnelProtocol: AnyObject {
+    var status: NEVPNStatus { get }
+    var isOnDemandEnabled: Bool { get set }
+    var startDate: Date? { get }
+
+    init(tunnelProvider: TunnelProviderManagerType)
+
+    func addObserver(_ observer: any TunnelStatusObserver)
+    func removeObserver(_ observer: any TunnelStatusObserver)
+    func addBlockObserver(
+        queue: DispatchQueue?,
+        handler: @escaping (any TunnelProtocol, NEVPNStatus) -> Void
+    ) -> TunnelStatusBlockObserver
+
+    func logFormat() -> String
+
+    func saveToPreferences(_ completion: @escaping (Error?) -> Void)
+    func removeFromPreferences(completion: @escaping (Error?) -> Void)
+
+    func setConfiguration(_ configuration: TunnelConfiguration)
+    func start(options: [String: NSObject]?) throws
+    func stop()
+    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws
 }
 
 /// Tunnel wrapper class.
-final class Tunnel: Equatable {
+final class Tunnel: TunnelProtocol, Equatable {
     /// Unique identifier assigned to instance at the time of creation.
     let identifier = UUID()
 
@@ -82,10 +107,10 @@ final class Tunnel: Equatable {
     }
 
     private let lock = NSLock()
-    private var observerList = ObserverList<TunnelStatusObserver>()
+    private var observerList = ObserverList<any TunnelStatusObserver>()
 
     private var _startDate: Date?
-    private let tunnelProvider: TunnelProviderManagerType
+    internal let tunnelProvider: TunnelProviderManagerType
 
     init(tunnelProvider: TunnelProviderManagerType) {
         self.tunnelProvider = tunnelProvider
@@ -137,7 +162,7 @@ final class Tunnel: Equatable {
 
     func addBlockObserver(
         queue: DispatchQueue? = nil,
-        handler: @escaping (Tunnel, NEVPNStatus) -> Void
+        handler: @escaping (any TunnelProtocol, NEVPNStatus) -> Void
     ) -> TunnelStatusBlockObserver {
         let observer = TunnelStatusBlockObserver(tunnel: self, queue: queue, handler: handler)
 
@@ -146,11 +171,11 @@ final class Tunnel: Equatable {
         return observer
     }
 
-    func addObserver(_ observer: TunnelStatusObserver) {
+    func addObserver(_ observer: any TunnelStatusObserver) {
         observerList.append(observer)
     }
 
-    func removeObserver(_ observer: TunnelStatusObserver) {
+    func removeObserver(_ observer: any TunnelStatusObserver) {
         observerList.remove(observer)
     }
 
@@ -195,35 +220,5 @@ final class Tunnel: Equatable {
 
     static func == (lhs: Tunnel, rhs: Tunnel) -> Bool {
         lhs.tunnelProvider == rhs.tunnelProvider
-    }
-}
-
-final class TunnelStatusBlockObserver: TunnelStatusObserver {
-    typealias Handler = (Tunnel, NEVPNStatus) -> Void
-
-    private weak var tunnel: Tunnel?
-    private let queue: DispatchQueue?
-    private let handler: Handler
-
-    fileprivate init(tunnel: Tunnel, queue: DispatchQueue?, handler: @escaping Handler) {
-        self.tunnel = tunnel
-        self.queue = queue
-        self.handler = handler
-    }
-
-    func invalidate() {
-        tunnel?.removeObserver(self)
-    }
-
-    func tunnel(_ tunnel: Tunnel, didReceiveStatus status: NEVPNStatus) {
-        let block = {
-            self.handler(tunnel, status)
-        }
-
-        if let queue {
-            queue.async(execute: block)
-        } else {
-            block()
-        }
     }
 }

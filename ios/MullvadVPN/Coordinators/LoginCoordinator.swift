@@ -15,7 +15,7 @@ import UIKit
 
 final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewControllerDelegate {
     private let tunnelManager: TunnelManager
-    private let devicesProxy: REST.DevicesProxy
+    private let devicesProxy: DeviceHandling
 
     private var loginController: LoginViewController?
     private var lastLoginAction: LoginAction?
@@ -34,7 +34,7 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
     init(
         navigationController: RootContainerViewController,
         tunnelManager: TunnelManager,
-        devicesProxy: REST.DevicesProxy
+        devicesProxy: DeviceHandling
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager

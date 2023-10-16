@@ -27,22 +27,19 @@ enum SetAccountAction {
 
     var taskName: String {
         switch self {
-        case .new:
-            return "Set new account"
-        case .existing:
-            return "Set existing account"
-        case .unset:
-            return "Unset account"
+        case .new: "Set new account"
+        case .existing: "Set existing account"
+        case .unset: "Unset account"
         }
     }
 }
 
 class SetAccountOperation: ResultOperation<StoredAccountData?> {
     private let interactor: TunnelInteractor
-    private let accountsProxy: REST.AccountsProxy
-    private let devicesProxy: REST.DevicesProxy
+    private let accountsProxy: RESTAccountHandling
+    private let devicesProxy: DeviceHandling
     private let action: SetAccountAction
-    private let accessTokenManager: REST.AccessTokenManager
+    private let accessTokenManager: RESTAccessTokenManagement
 
     private let logger = Logger(label: "SetAccountOperation")
     private var tasks: [Cancellable] = []
@@ -50,9 +47,9 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
-        accountsProxy: REST.AccountsProxy,
-        devicesProxy: REST.DevicesProxy,
-        accessTokenManager: REST.AccessTokenManager,
+        accountsProxy: RESTAccountHandling,
+        devicesProxy: DeviceHandling,
+        accessTokenManager: RESTAccessTokenManagement,
         action: SetAccountAction
     ) {
         self.interactor = interactor

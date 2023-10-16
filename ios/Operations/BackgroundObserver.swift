@@ -8,17 +8,18 @@
 
 #if canImport(UIKit)
 
+import MullvadTypes
 import UIKit
 
 @available(iOSApplicationExtension, unavailable)
 public final class BackgroundObserver: OperationObserver {
     public let name: String
-    public let application: UIApplication
+    public let application: BackgroundTaskProvider
     public let cancelUponExpiration: Bool
 
     private var taskIdentifier: UIBackgroundTaskIdentifier?
 
-    public init(application: UIApplication, name: String, cancelUponExpiration: Bool) {
+    public init(application: BackgroundTaskProvider, name: String, cancelUponExpiration: Bool) {
         self.application = application
         self.name = name
         self.cancelUponExpiration = cancelUponExpiration

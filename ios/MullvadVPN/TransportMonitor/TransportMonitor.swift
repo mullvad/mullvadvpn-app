@@ -47,7 +47,7 @@ final class TransportMonitor: RESTTransportProvider {
         }
     }
 
-    private func shouldByPassVPN(tunnel: Tunnel) -> Bool {
+    private func shouldByPassVPN(tunnel: any TunnelProtocol) -> Bool {
         switch tunnel.status {
         case .connected:
             return tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
