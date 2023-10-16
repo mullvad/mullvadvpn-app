@@ -11,6 +11,15 @@ MAX_CONCURRENT_JOBS=1
 BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/releases"
 BUILD_DEV_REPOSITORY="https://releases.mullvad.net/builds/desktop"
 
+if [[ ("$(uname -s)" == "Darwin") ]]; then
+    PACKAGES_DIR=$HOME/Library/Caches/mullvad-test/packages
+elif [[ ("$(uname -s)" == "Linux") ]]; then
+    PACKAGES_DIR=$HOME/.cache/mullvad-test/packages
+else
+    echo "Unsupported OS" 1>&2
+    exit 1
+fi
+
 # Infer stable version from GitHub repo
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
 OLD_APP_VERSION=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
@@ -131,9 +140,9 @@ function download_app_package {
     # TODO: integrity check
 
     echo "Downloading build for $version ($os) from $url"
-    mkdir -p "$SCRIPT_DIR/packages/"
-    if [[ ! -f "$SCRIPT_DIR/packages/$filename" ]]; then
-        curl -sf -o "$SCRIPT_DIR/packages/$filename" $url
+    mkdir -p "$PACKAGES_DIR"
+    if [[ ! -f "$PACKAGES_DIR/$filename" ]]; then
+        curl -sf -o "$PACKAGES_DIR/$filename" $url
     fi
 }
 
@@ -177,9 +186,9 @@ function download_e2e_executable {
     local url="${package_repo}/$version/additional-files/$filename"
 
     echo "Downloading e2e executable for $version ($os) from $url"
-    mkdir -p "$SCRIPT_DIR/packages/"
-    if [[ ! -f "$SCRIPT_DIR/packages/$filename" ]]; then
-        curl -sf -o "$SCRIPT_DIR/packages/$filename" $url
+    mkdir $PACKAGES_DIR
+    if [[ ! -f "$PACKAGES_DIR/$filename" ]]; then
+        curl -sf -o "$PACKAGES_DIR/$filename" $url
     fi
 }
 
@@ -207,7 +216,7 @@ echo "**********************************"
 
 # Clean up packages. Try to keep ones that match the versions we're testing
 # TODO(markus,david): REVERT
-# find "${SCRIPT_DIR}/packages/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${NEW_APP_VERSION}*" \) -delete || true
+# find "$PACKAGES_DIR/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${NEW_APP_VERSION}*" \) -delete || true
 
 function build_test_runners {
     for os in "${TEST_OSES[@]}"; do
