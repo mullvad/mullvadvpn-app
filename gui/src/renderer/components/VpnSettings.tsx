@@ -496,20 +496,26 @@ function EnableIpv6() {
         <AriaLabel>
           <Cell.InputLabel>{messages.pgettext('vpn-settings-view', 'Enable IPv6')}</Cell.InputLabel>
         </AriaLabel>
+        <AriaDetails>
+          <InfoButton>
+            <ModalMessage>
+              {messages.pgettext(
+                'vpn-settings-view',
+                'When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services.',
+              )}
+            </ModalMessage>
+            <ModalMessage>
+              {messages.pgettext(
+                'vpn-settings-view',
+                'IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it.',
+              )}
+            </ModalMessage>
+          </InfoButton>
+        </AriaDetails>
         <AriaInput>
           <Cell.Switch isOn={enableIpv6} onChange={setEnableIpv6} />
         </AriaInput>
       </Cell.Container>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {messages.pgettext(
-              'vpn-settings-view',
-              'Enable IPv6 communication through the tunnel.',
-            )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
     </AriaInputGroup>
   );
 }
