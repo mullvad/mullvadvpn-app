@@ -6,8 +6,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APP_DIR="$SCRIPT_DIR/../"
 cd "$SCRIPT_DIR"
 
-MAX_CONCURRENT_JOBS=1
-
 BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
 BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
 
@@ -219,6 +217,7 @@ echo "**********************************"
 # find "$PACKAGES_DIR/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${NEW_APP_VERSION}*" \) -delete || true
 
 function build_test_runners {
+    # TODO: `TEST_OSES` does not need to be an array.
     for os in "${TEST_OSES[@]}"; do
         nice_time download_app_package $OLD_APP_VERSION $os || true
         nice_time download_app_package $NEW_APP_VERSION $os || true
@@ -257,89 +256,6 @@ echo "**********************************"
 echo "* Running tests"
 echo "**********************************"
 
-i=0
-testjobs=""
-
-for os in "${TEST_OSES[@]}"; do
-
-    if [[ $i -gt 0 ]]; then
-        # Certain things are racey during setup, like obtaining a pty.
-        sleep 5
-    fi
-
-    mkdir -p "$SCRIPT_DIR/.ci-logs/os/"
-
-    token=$(account_token_from_index $i)
-
-    ACCOUNT_TOKEN=$token nice_time run_tests_for_os "$os" &> "$SCRIPT_DIR/.ci-logs/os/${os}.log" &
-    testjobs[i]=$!
-
-    ((i=i+1))
-
-    # Limit number of concurrent jobs to $MAX_CONCURRENT_JOBS
-    while :; do
-        count=0
-        for ((j=0; j<$i; j++)); do
-            if ps -p "${testjobs[$j]}" &> /dev/null; then
-                ((count=count+1))
-            fi
-        done
-        if [[ $count -lt $MAX_CONCURRENT_JOBS ]]; then
-            break
-        fi
-        sleep 10
-    done
-
-done
-
-#
-# Wait for them to finish
-#
-
-i=0
-failed_builds=0
-
-for os in "${TEST_OSES[@]}"; do
-    if wait -fn ${testjobs[$i]}; then
-        echo "**********************************"
-        echo "* TESTS SUCCEEDED FOR OS: $os"
-        echo "**********************************"
-        tail -n 1 "$SCRIPT_DIR/.ci-logs/os/${os}.log"
-    else
-        let "failed_builds=failed_builds+1"
-
-        echo "**********************************"
-        echo "* TESTS FAILED FOR OS: $os"
-        echo "* BEGIN LOGS"
-        echo "**********************************"
-        echo ""
-
-        cat "$SCRIPT_DIR/.ci-logs/os/${os}.log"
-
-        echo ""
-        echo "**********************************"
-        echo "* END LOGS FOR OS: $os"
-        echo "**********************************"
-    fi
-
-    echo ""
-    echo ""
-
-    ((i=i+1))
-done
-
-#
-# Generate table of test results
-#
-touch "$SCRIPT_DIR/.ci-logs/results.html"
-
-report_paths=()
-for os in "${TEST_OSES[@]}"; do
-    report_paths=("${report_paths[@]}" "$SCRIPT_DIR/.ci-logs/${os}_report")
-done
-
-cargo run --bin test-manager \
-    format-test-reports "${report_paths[@]}" \
-    > "$SCRIPT_DIR/.ci-logs/results.html" || true
-
-exit $failed_builds
+# TODO: Re-think token use
+token=$(account_token_from_index 0)
+ACCOUNT_TOKEN=$token nice_time run_tests_for_os "$os" | tee "$SCRIPT_DIR/.ci-logs/os/${os}.log"
