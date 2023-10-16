@@ -51,6 +51,7 @@ import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 
@@ -140,7 +141,10 @@ fun SelectLocationScreen(
             modifier =
                 Modifier.focusRequester(listFocus)
                     .fillMaxSize()
-                    .drawVerticalScrollbar(lazyListState),
+                    .drawVerticalScrollbar(
+                        lazyListState,
+                        MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                    ),
             state = lazyListState,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

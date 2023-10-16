@@ -25,7 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import net.mullvad.mullvadvpn.lib.theme.AlphaTopBar
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Composable
 fun ScaffoldWithTopBar(
@@ -126,6 +127,7 @@ fun ScaffoldWithMediumTopBar(
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
+    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
     content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
 ) {
 
@@ -145,7 +147,9 @@ fun ScaffoldWithMediumTopBar(
         },
         content = {
             content(
-                Modifier.fillMaxSize().padding(it).drawVerticalScrollbar(lazyListState),
+                Modifier.fillMaxSize()
+                    .padding(it)
+                    .drawVerticalScrollbar(state = lazyListState, color = scrollbarColor),
                 lazyListState
             )
         }
@@ -159,6 +163,7 @@ fun ScaffoldWithMediumTopBar(
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
+    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
     content: @Composable (modifier: Modifier) -> Unit
 ) {
     val appBarState = rememberTopAppBarState()
@@ -185,7 +190,7 @@ fun ScaffoldWithMediumTopBar(
             content(
                 Modifier.fillMaxSize()
                     .padding(it)
-                    .drawVerticalScrollbar(scrollState)
+                    .drawVerticalScrollbar(state = scrollState, color = scrollbarColor)
                     .verticalScroll(scrollState)
             )
         }
