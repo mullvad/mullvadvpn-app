@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.lib.endpoint
 import java.net.InetSocketAddress
 import kotlinx.parcelize.Parcelize
 
+const val CUSTOM_ENDPOINT_HTTPS_PORT = 443
+
 @Parcelize
 data class CustomApiEndpointConfiguration(
     val hostname: String,
