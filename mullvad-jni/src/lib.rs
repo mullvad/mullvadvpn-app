@@ -214,7 +214,7 @@ impl From<Result<String, daemon_interface::Error>> for PlayPurchaseInitResult {
 }
 
 impl From<daemon_interface::Error> for PlayPurchaseInitError {
-    fn from(error: daemon_interface::Error) -> Self {
+    fn from(_error: daemon_interface::Error) -> Self {
         PlayPurchaseInitError::OtherError
     }
 }
@@ -242,7 +242,7 @@ impl From<Result<(), daemon_interface::Error>> for PlayPurchaseVerifyResult {
 }
 
 impl From<daemon_interface::Error> for PlayPurchaseVerifyError {
-    fn from(error: daemon_interface::Error) -> Self {
+    fn from(_error: daemon_interface::Error) -> Self {
         PlayPurchaseVerifyError::OtherError
     }
 }
