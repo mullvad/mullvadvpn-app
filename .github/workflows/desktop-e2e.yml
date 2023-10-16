@@ -1,4 +1,3 @@
----
 name: Desktop - End-to-end testing on supported platforms
 on:
   schedule:
