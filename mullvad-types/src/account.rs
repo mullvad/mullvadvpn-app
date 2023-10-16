@@ -9,9 +9,9 @@ pub type AccountToken = String;
 /// Identifier used to authenticate a Mullvad account.
 pub type AccessToken = String;
 
-// TODO: Should be only android
 /// The payment token returned by initiating a google play purchase.
 /// In the API this is called the `obfuscated_id`.
+#[cfg(target_os = "android")]
 pub type PlayPurchasePaymentToken = String;
 
 /// Account expiration info returned by the API via `/v1/me`.
@@ -44,11 +44,11 @@ pub struct VoucherSubmission {
     pub new_expiry: DateTime<Utc>,
 }
 
-/// TODO Should be only android
 /// `PlayPurchase` is provided to google in order to verify that a google play purchase was acknowledged.
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[cfg_attr(target_os = "android", derive(FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+#[cfg(target_os = "android")]
 pub struct PlayPurchase {
     pub product_id: String,
     pub purchase_token: String,

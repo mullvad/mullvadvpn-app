@@ -3,10 +3,12 @@ use std::{future::Future, time::Duration};
 use chrono::{DateTime, Utc};
 use futures::future::{abortable, AbortHandle};
 use mullvad_types::{
-    account::{AccountToken, PlayPurchase, PlayPurchasePaymentToken, VoucherSubmission},
+    account::{AccountToken, VoucherSubmission},
     device::{Device, DeviceId},
     wireguard::WireguardData,
 };
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use talpid_types::net::wireguard::PrivateKey;
 
 use super::{Error, PrivateAccountAndDevice, PrivateDevice};
@@ -321,6 +323,7 @@ impl AccountService {
         result.map_err(map_rest_error)
     }
 
+    #[cfg(target_os = "android")]
     pub async fn init_play_purchase(
         &self,
         account_token: AccountToken,
@@ -340,6 +343,7 @@ impl AccountService {
         result.map_err(map_rest_error)
     }
 
+    #[cfg(target_os = "android")]
     pub async fn verify_play_purchase(
         &self,
         account_token: AccountToken,
@@ -448,6 +452,7 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
 fn map_rest_error(error: rest::Error) -> Error {
     match error {
         RestError::ApiError(_status, ref code) => match code.as_str() {
+            // TODO: Implement invalid payment
             mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
             mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
             mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,

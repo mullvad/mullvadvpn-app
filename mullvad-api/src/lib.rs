@@ -6,9 +6,11 @@ use futures::channel::mpsc;
 use futures::Stream;
 use hyper::Method;
 use mullvad_types::{
-    account::{AccountToken, PlayPurchase, PlayPurchasePaymentToken, VoucherSubmission},
+    account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use proxy::ApiConnectionMode;
 use std::sync::OnceLock;
 use std::{
@@ -63,6 +65,7 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
 const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
+#[cfg(target_os = "android")]
 const GOOGLE_PAYMENTS_URL_PREFIX: &str = "payments/google-play/v1";
 
 pub static API: LazyManual<ApiEndpoint> = LazyManual::new(ApiEndpoint::from_env_vars);
@@ -458,6 +461,7 @@ impl AccountsProxy {
         }
     }
 
+    #[cfg(target_os = "android")]
     pub fn init_play_purchase(
         &mut self,
         account_token: AccountToken,
@@ -490,6 +494,7 @@ impl AccountsProxy {
         }
     }
 
+    #[cfg(target_os = "android")]
     pub fn verify_play_purchase(
         &mut self,
         account_token: AccountToken,
