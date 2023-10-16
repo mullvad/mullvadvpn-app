@@ -8,8 +8,8 @@ cd "$SCRIPT_DIR"
 
 MAX_CONCURRENT_JOBS=1
 
-BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/releases"
-BUILD_DEV_REPOSITORY="https://releases.mullvad.net/builds/desktop"
+BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
+BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
 
 if [[ ("$(uname -s)" == "Darwin") ]]; then
     PACKAGES_DIR=$HOME/Library/Caches/mullvad-test/packages
