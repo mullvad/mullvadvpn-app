@@ -92,7 +92,7 @@ class AccountRepository(
     }
 
     fun fetchAccountHistory() {
-        messageHandler.trySendRequest(Request.FetchAccountExpiry)
+        messageHandler.trySendRequest(Request.FetchAccountHistory)
     }
 
     fun clearAccountHistory() {
