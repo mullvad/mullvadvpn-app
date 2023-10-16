@@ -32,9 +32,17 @@ android {
         create(Flavors.PROD) {
             dimension = FlavorDimensions.INFRASTRUCTURE
             isDefault = true
+            // Not used for production builds.
+            buildConfigField("String", "API_ENDPOINT", "\"\"")
         }
-        create(Flavors.DEVMOLE) { dimension = FlavorDimensions.INFRASTRUCTURE }
-        create(Flavors.STAGEMOLE) { dimension = FlavorDimensions.INFRASTRUCTURE }
+        create(Flavors.DEVMOLE) {
+            dimension = FlavorDimensions.INFRASTRUCTURE
+            buildConfigField("String", "API_ENDPOINT", "\"api.devmole.eu\"")
+        }
+        create(Flavors.STAGEMOLE) {
+            dimension = FlavorDimensions.INFRASTRUCTURE
+            buildConfigField("String", "API_ENDPOINT", "\"api.stagemole.eu\"")
+        }
     }
 }
 
