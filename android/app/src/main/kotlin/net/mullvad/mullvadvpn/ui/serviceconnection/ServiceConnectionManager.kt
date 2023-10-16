@@ -6,12 +6,16 @@ import android.content.Intent
 import android.os.IBinder
 import android.os.Messenger
 import android.util.Log
+import kotlin.reflect.KClass
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.BuildConfig
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
+import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.util.flatMapReadyConnectionOrDefault
@@ -30,7 +34,7 @@ class ServiceConnectionManager(private val context: Context) : MessageHandler {
     var isBound = false
     private var vpnPermissionRequestHandler: (() -> Unit)? = null
 
-    override val events =
+    private val events =
         connectionState.flatMapReadyConnectionOrDefault(emptyFlow()) { it.container.events }
 
     private val serviceConnection =
@@ -86,6 +90,10 @@ class ServiceConnectionManager(private val context: Context) : MessageHandler {
                 isBound = false
             }
         }
+    }
+
+    override fun <E : Event> events(klass: KClass<E>): Flow<E> {
+        return events.filterIsInstance(klass)
     }
 
     override fun trySendRequest(request: Request): Boolean {
