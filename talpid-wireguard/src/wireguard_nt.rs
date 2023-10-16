@@ -7,7 +7,7 @@ use super::{
 use bitflags::bitflags;
 use futures::SinkExt;
 use ipnetwork::IpNetwork;
-use once_cell::sync::Lazy;
+use once_cell::sync::{Lazy, OnceCell};
 use std::{
     ffi::CStr,
     fmt,
@@ -38,7 +38,7 @@ use windows_sys::{
     },
 };
 
-static WG_NT_DLL: Lazy<Mutex<Option<Arc<WgNtDll>>>> = Lazy::new(|| Mutex::new(None));
+static WG_NT_DLL: OnceCell<Arc<WgNtDll>> = OnceCell::new();
 static ADAPTER_TYPE: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
 static ADAPTER_ALIAS: Lazy<U16CString> = Lazy::new(|| U16CString::from_str("Mullvad").unwrap());
 
@@ -431,8 +431,13 @@ impl WgNtTunnel {
     ) -> Result<Self> {
         let dll = load_wg_nt_dll(resource_dir)?;
         let logger_handle = LoggerHandle::new(dll.clone(), log_path)?;
-        let device = WgNtAdapter::create(dll, &ADAPTER_ALIAS, &ADAPTER_TYPE, Some(ADAPTER_GUID))
-            .map_err(Error::CreateTunnelDevice)?;
+        let device = WgNtAdapter::create(
+            dll.clone(),
+            &ADAPTER_ALIAS,
+            &ADAPTER_TYPE,
+            Some(ADAPTER_GUID),
+        )
+        .map_err(Error::CreateTunnelDevice)?;
 
         let interface_name = device.name().map_err(Error::ObtainAlias)?.to_string_lossy();
 
@@ -806,16 +811,12 @@ impl Drop for WgNtDll {
     }
 }
 
-fn load_wg_nt_dll(resource_dir: &Path) -> Result<Arc<WgNtDll>> {
-    let mut dll = (*WG_NT_DLL).lock().expect("WireGuardNT mutex poisoned");
-    match &*dll {
-        Some(dll) => Ok(dll.clone()),
-        None => {
-            let new_dll = Arc::new(WgNtDll::new(resource_dir).map_err(Error::LoadDll)?);
-            *dll = Some(new_dll.clone());
-            Ok(new_dll)
-        }
-    }
+fn load_wg_nt_dll(resource_dir: &Path) -> Result<&Arc<WgNtDll>> {
+    WG_NT_DLL.get_or_try_init(|| {
+        WgNtDll::new(resource_dir)
+            .map(Arc::new)
+            .map_err(Error::LoadDll)
+    })
 }
 
 fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
