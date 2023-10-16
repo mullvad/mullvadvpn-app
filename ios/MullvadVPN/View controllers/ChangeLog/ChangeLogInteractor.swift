@@ -11,7 +11,7 @@ import MullvadLogging
 
 final class ChangeLogInteractor {
     private let logger = Logger(label: "ChangeLogInteractor")
-    private var items: [String] = []
+    private(set) var items: [String] = []
     var viewModel: ChangeLogViewModel {
         return ChangeLogViewModel(
             body: items
