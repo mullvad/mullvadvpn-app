@@ -9,8 +9,6 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
 import java.net.InetAddress
-import java.net.InetSocketAddress
-import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.CustomApiEndpointConfiguration
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
@@ -57,14 +55,12 @@ abstract class MockApiTest {
     }
 
     private fun createEndpoint(port: Int): CustomApiEndpointConfiguration {
-        val mockApiSocket = InetSocketAddress(InetAddress.getLocalHost(), port)
-        val api =
-            ApiEndpoint(
-                address = mockApiSocket,
-                disableAddressCache = true,
-                disableTls = true,
-                forceDirectConnection = true
-            )
-        return CustomApiEndpointConfiguration(api)
+        return CustomApiEndpointConfiguration(
+            InetAddress.getLocalHost().hostName,
+            port,
+            disableAddressCache = true,
+            disableTls = true,
+            forceDirectConnection = true
+        )
     }
 }

@@ -17,14 +17,15 @@ import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_QUIT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
-import net.mullvad.mullvadvpn.lib.endpoint.DefaultApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.service.di.apiEndpointModule
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
 import net.mullvad.talpid.TalpidVpnService
+import org.koin.android.ext.android.get
 import org.koin.core.context.loadKoinModules
 
 class MullvadVpnService : TalpidVpnService() {
@@ -58,8 +59,7 @@ class MullvadVpnService : TalpidVpnService() {
             endpoint.settingsListener.settings?.let { settings -> handlePendingAction(settings) }
         }
 
-    private var apiEndpointConfiguration: ApiEndpointConfiguration =
-        DefaultApiEndpointConfiguration()
+    private lateinit var apiEndpointConfiguration: ApiEndpointConfiguration
 
     // Suppressing since the tunnel state pref should be writted immediately.
     @SuppressLint("ApplySharedPref")
@@ -67,7 +67,7 @@ class MullvadVpnService : TalpidVpnService() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
 
-        loadKoinModules(vpnServiceModule)
+        loadKoinModules(listOf(vpnServiceModule, apiEndpointModule))
 
         daemonInstance = DaemonInstance(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
@@ -103,9 +103,14 @@ class MullvadVpnService : TalpidVpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "Starting service")
 
-        if (BuildConfig.DEBUG) {
-            intent?.getApiEndpointConfigurationExtras()?.let { apiEndpointConfiguration = it }
-        }
+        val intentProvidedConfiguration =
+            if (BuildConfig.DEBUG) {
+                intent?.getApiEndpointConfigurationExtras()
+            } else {
+                null
+            }
+
+        apiEndpointConfiguration = intentProvidedConfiguration ?: get()
 
         daemonInstance.apply {
             intermittentDaemon.registerListener(this@MullvadVpnService) { daemon ->
