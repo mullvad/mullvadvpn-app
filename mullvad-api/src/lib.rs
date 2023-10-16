@@ -5,6 +5,8 @@ use chrono::{offset::Utc, DateTime};
 use futures::channel::mpsc;
 use futures::Stream;
 use hyper::Method;
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
@@ -63,6 +65,8 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
 const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
+#[cfg(target_os = "android")]
+const GOOGLE_PAYMENTS_URL_PREFIX: &str = "payments/google-play/v1";
 
 pub static API: LazyManual<ApiEndpoint> = LazyManual::new(ApiEndpoint::from_env_vars);
 
@@ -454,6 +458,64 @@ impl AccountsProxy {
             )
             .await;
             rest::deserialize_body(response?).await
+        }
+    }
+
+    #[cfg(target_os = "android")]
+    pub fn init_play_purchase(
+        &mut self,
+        account_token: AccountToken,
+    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> {
+        #[derive(serde::Deserialize)]
+        struct PlayPurchaseInitResponse {
+            obfuscated_id: String,
+        }
+
+        let service = self.handle.service.clone();
+        let factory = self.handle.factory.clone();
+        let access_proxy = self.handle.token_store.clone();
+
+        async move {
+            let response = rest::send_json_request(
+                &factory,
+                service,
+                &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"),
+                Method::POST,
+                &(),
+                Some((access_proxy, account_token)),
+                &[StatusCode::OK],
+            )
+            .await;
+
+            let PlayPurchaseInitResponse { obfuscated_id } =
+                rest::deserialize_body(response?).await?;
+
+            Ok(obfuscated_id)
+        }
+    }
+
+    #[cfg(target_os = "android")]
+    pub fn verify_play_purchase(
+        &mut self,
+        account_token: AccountToken,
+        play_purchase: PlayPurchase,
+    ) -> impl Future<Output = Result<(), rest::Error>> {
+        let service = self.handle.service.clone();
+        let factory = self.handle.factory.clone();
+        let access_proxy = self.handle.token_store.clone();
+
+        async move {
+            rest::send_json_request(
+                &factory,
+                service,
+                &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
+                Method::POST,
+                &play_purchase,
+                Some((access_proxy, account_token)),
+                &[StatusCode::ACCEPTED],
+            )
+            .await?;
+            Ok(())
         }
     }
 

@@ -38,6 +38,8 @@ use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
 };
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -178,6 +180,14 @@ pub enum Error {
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
     GroupIdError(#[error(source)] io::Error),
+
+    #[cfg(target_os = "android")]
+    #[error(display = "Failed to initialize play purchase")]
+    InitPlayPurchase(#[error(source)] device::Error),
+
+    #[cfg(target_os = "android")]
+    #[error(display = "Failed to verify play purchase")]
+    VerifyPlayPurchase(#[error(source)] device::Error),
 }
 
 /// Enum representing commands that can be sent to the daemon.
@@ -327,6 +337,12 @@ pub enum DaemonCommand {
     /// to bypass the tunnel in blocking states.
     #[cfg(target_os = "android")]
     BypassSocket(RawFd, oneshot::Sender<()>),
+    /// Initialize a google play purchase through the API.
+    #[cfg(target_os = "android")]
+    InitPlayPurchase(ResponseTx<PlayPurchasePaymentToken, Error>),
+    /// Verify that a google play payment was successful through the API.
+    #[cfg(target_os = "android")]
+    VerifyPlayPurchase(ResponseTx<(), Error>, PlayPurchase),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -1109,6 +1125,12 @@ where
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
+            #[cfg(target_os = "android")]
+            InitPlayPurchase(tx) => self.on_init_play_purchase(tx),
+            #[cfg(target_os = "android")]
+            VerifyPlayPurchase(tx, play_purchase) => {
+                self.on_verify_play_purchase(tx, play_purchase)
+            }
         }
     }
 
@@ -2368,6 +2390,36 @@ where
                 self.send_tunnel_command(TunnelCommand::BypassSocket(fd, tx));
             }
         }
+    }
+
+    #[cfg(target_os = "android")]
+    fn on_init_play_purchase(&mut self, tx: ResponseTx<PlayPurchasePaymentToken, Error>) {
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                manager
+                    .init_play_purchase()
+                    .await
+                    .map_err(Error::InitPlayPurchase),
+                "init_play_purchase response",
+            );
+        });
+    }
+
+    #[cfg(target_os = "android")]
+    fn on_verify_play_purchase(&mut self, tx: ResponseTx<(), Error>, play_purchase: PlayPurchase) {
+        let manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            Self::oneshot_send(
+                tx,
+                manager
+                    .verify_play_purchase(play_purchase)
+                    .await
+                    .map_err(Error::VerifyPlayPurchase),
+                "verify_play_purchase response",
+            );
+        });
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to

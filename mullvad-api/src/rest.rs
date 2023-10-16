@@ -394,8 +394,15 @@ impl From<Request> for RestRequest {
 }
 
 #[derive(serde::Deserialize)]
-pub struct ErrorResponse {
+struct OldErrorResponse {
     pub code: String,
+}
+
+/// If `NewErrorResponse::type` is not defined it should default to "about:blank"
+const DEFAULT_ERROR_TYPE: &str = "about:blank";
+#[derive(serde::Deserialize)]
+struct NewErrorResponse {
+    pub r#type: Option<String>,
 }
 
 #[derive(Clone)]
@@ -600,8 +607,27 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
         status => match get_body_length(&response) {
             0 => status.canonical_reason().unwrap_or("Unexpected error"),
             body_length => {
-                let err: ErrorResponse = deserialize_body_inner(response, body_length).await?;
-                return Err(Error::ApiError(status, err.code));
+                return match response.headers().get("content-type") {
+                    Some(content_type) if content_type == "application/problem+json" => {
+                        // TODO: We should make sure we unify the new error format and the old
+                        // error format so that they both produce the same Errors for the same
+                        // problems after being processed.
+                        let err: NewErrorResponse =
+                            deserialize_body_inner(response, body_length).await?;
+                        // The new error type replaces the `code` field with the `type` field.
+                        // This is what is used to programmatically check the error.
+                        Err(Error::ApiError(
+                            status,
+                            err.r#type
+                                .unwrap_or_else(|| String::from(DEFAULT_ERROR_TYPE)),
+                        ))
+                    }
+                    _ => {
+                        let err: OldErrorResponse =
+                            deserialize_body_inner(response, body_length).await?;
+                        Err(Error::ApiError(status, err.code))
+                    }
+                };
             }
         },
     };

@@ -2,6 +2,8 @@ use std::{future::Future, time::Duration};
 
 use chrono::{DateTime, Utc};
 use futures::future::{abortable, AbortHandle};
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     device::{Device, DeviceId},
@@ -320,6 +322,47 @@ impl AccountService {
         }
         result.map_err(map_rest_error)
     }
+
+    #[cfg(target_os = "android")]
+    pub async fn init_play_purchase(
+        &self,
+        account_token: AccountToken,
+    ) -> Result<PlayPurchasePaymentToken, Error> {
+        let mut proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
+        let result = retry_future(
+            move || proxy.init_play_purchase(account_token.clone()),
+            move |result| should_retry(result, &api_handle),
+            RETRY_ACTION_STRATEGY,
+        )
+        .await;
+        if result.is_ok() {
+            self.initial_check_abort_handle.abort();
+            self.api_availability.resume_background();
+        }
+        result.map_err(map_rest_error)
+    }
+
+    #[cfg(target_os = "android")]
+    pub async fn verify_play_purchase(
+        &self,
+        account_token: AccountToken,
+        play_purchase: PlayPurchase,
+    ) -> Result<(), Error> {
+        let mut proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
+        let result = retry_future(
+            move || proxy.verify_play_purchase(account_token.clone(), play_purchase.clone()),
+            move |result| should_retry(result, &api_handle),
+            RETRY_ACTION_STRATEGY,
+        )
+        .await;
+        if result.is_ok() {
+            self.initial_check_abort_handle.abort();
+            self.api_availability.resume_background();
+        }
+        result.map_err(map_rest_error)
+    }
 }
 
 pub fn spawn_account_service(
@@ -409,6 +452,7 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
 fn map_rest_error(error: rest::Error) -> Error {
     match error {
         RestError::ApiError(_status, ref code) => match code.as_str() {
+            // TODO: Implement invalid payment
             mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
             mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
             mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
