@@ -5,12 +5,12 @@ use chrono::{offset::Utc, DateTime};
 use futures::channel::mpsc;
 use futures::Stream;
 use hyper::Method;
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
-#[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use proxy::ApiConnectionMode;
 use std::sync::OnceLock;
 use std::{

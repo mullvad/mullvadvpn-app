@@ -402,7 +402,7 @@ pub struct OldErrorResponse {
 const DEFAULT_ERROR_TYPE: &str = "about:blank";
 #[derive(serde::Deserialize)]
 pub struct NewErrorResponse {
-    pub status: i32, 
+    pub status: i32,
     pub title: String,
     pub r#type: Option<String>,
     pub detail: Option<String>,
@@ -612,16 +612,22 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
             body_length => {
                 return match response.headers().get("content-type") {
                     Some(content_type) if content_type == "application/problem+json" => {
-                        let err: NewErrorResponse = deserialize_body_inner(response, body_length).await?;
+                        let err: NewErrorResponse =
+                            deserialize_body_inner(response, body_length).await?;
                         // The new error type replaces the `code` field with the `type` field.
                         // This is what is used to programmatically check the error.
-                        Err(Error::ApiError(status, err.r#type.unwrap_or_else(|| String::from(DEFAULT_ERROR_TYPE))))
-                    },
+                        Err(Error::ApiError(
+                            status,
+                            err.r#type
+                                .unwrap_or_else(|| String::from(DEFAULT_ERROR_TYPE)),
+                        ))
+                    }
                     _ => {
-                        let err: OldErrorResponse = deserialize_body_inner(response, body_length).await?;
+                        let err: OldErrorResponse =
+                            deserialize_body_inner(response, body_length).await?;
                         Err(Error::ApiError(status, err.code))
                     }
-                }
+                };
             }
         },
     };

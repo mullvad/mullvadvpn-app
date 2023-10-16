@@ -5,6 +5,8 @@ use futures::{
 };
 
 use mullvad_api::rest;
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     device::{
@@ -12,8 +14,6 @@ use mullvad_types::{
     },
     wireguard::{self, RotationInterval, WireguardData},
 };
-#[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 
 use std::{
     future::Future,

@@ -38,6 +38,8 @@ use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
 };
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
     access_method::{AccessMethod, AccessMethodSetting},
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -52,8 +54,6 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
-#[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;

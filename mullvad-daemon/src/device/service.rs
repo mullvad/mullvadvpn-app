@@ -2,13 +2,13 @@ use std::{future::Future, time::Duration};
 
 use chrono::{DateTime, Utc};
 use futures::future::{abortable, AbortHandle};
+#[cfg(target_os = "android")]
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     device::{Device, DeviceId},
     wireguard::WireguardData,
 };
-#[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use talpid_types::net::wireguard::PrivateKey;
 
 use super::{Error, PrivateAccountAndDevice, PrivateDevice};
