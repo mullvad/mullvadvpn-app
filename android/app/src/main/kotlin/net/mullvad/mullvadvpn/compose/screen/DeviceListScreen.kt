@@ -193,7 +193,7 @@ fun DeviceListScreen(
                         Column {
                             state.deviceUiItems.forEach { deviceUiState ->
                                 ListItem(
-                                    text = deviceUiState.device.name,
+                                    text = deviceUiState.device.displayName(),
                                     subText =
                                         deviceUiState.device.created.parseAsDateTime()?.let {
                                             creationDate ->
