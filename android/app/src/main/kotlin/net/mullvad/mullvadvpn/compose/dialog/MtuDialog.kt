@@ -1,25 +1,17 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
@@ -45,58 +37,36 @@ fun MtuDialog(
     onRestoreDefaultValue: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val dialogPadding = 20.dp
-    val midPadding = 10.dp
-    val smallPadding = 5.dp
-
     val mtu = remember { mutableStateOf(mtuInitial?.toString() ?: "") }
 
-    val textFieldFocusRequester = FocusRequester()
     val isValidMtu = mtu.value.toIntOrNull()?.isValidMtu() == true
 
-    Dialog(
-        // Fix for https://issuetracker.google.com/issues/221643630
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-        onDismissRequest = { onDismiss() },
-        content = {
-            Column(
-                Modifier
-                    // Related to the fix for https://issuetracker.google.com/issues/221643630
-                    .fillMaxWidth(0.8f)
-                    .background(
-                        color = MaterialTheme.colorScheme.background,
-                        shape = MaterialTheme.shapes.extraLarge
-                    )
-                    .padding(dialogPadding)
-            ) {
-                Text(
-                    text = stringResource(id = R.string.wireguard_mtu),
-                    color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.headlineSmall
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = stringResource(id = R.string.wireguard_mtu),
+                color = MaterialTheme.colorScheme.onBackground,
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        text = {
+            Column {
+                MtuTextField(
+                    value = mtu.value,
+                    onValueChanged = { newMtuValue -> mtu.value = newMtuValue },
+                    onSubmit = { newMtuValue ->
+                        val mtuInt = newMtuValue.toIntOrNull()
+                        if (mtuInt?.isValidMtu() == true) {
+                            onSave(mtuInt)
+                        }
+                    },
+                    isEnabled = true,
+                    placeholderText = stringResource(R.string.enter_value_placeholder),
+                    maxCharLength = 4,
+                    isValidValue = isValidMtu,
+                    modifier = Modifier.fillMaxWidth()
                 )
-
-                Box(
-                    Modifier.wrapContentSize().clickable { textFieldFocusRequester.requestFocus() }
-                ) {
-                    MtuTextField(
-                        value = mtu.value,
-                        onValueChanged = { newMtuValue -> mtu.value = newMtuValue },
-                        onFocusChange = {},
-                        onSubmit = { newMtuValue ->
-                            val mtuInt = newMtuValue.toIntOrNull()
-                            if (mtuInt?.isValidMtu() == true) {
-                                onSave(mtuInt)
-                            }
-                        },
-                        isEnabled = true,
-                        placeholderText = stringResource(R.string.enter_value_placeholder),
-                        maxCharLength = 4,
-                        isValidValue = isValidMtu,
-                        modifier =
-                            Modifier.padding(top = midPadding)
-                                .focusRequester(textFieldFocusRequester)
-                    )
-                }
 
                 Text(
                     text =
@@ -107,11 +77,14 @@ fun MtuDialog(
                         ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaDescription),
-                    modifier = Modifier.padding(top = smallPadding)
+                    modifier = Modifier.padding(top = Dimens.smallPadding)
                 )
-
+            }
+        },
+        confirmButton = {
+            Column {
                 PrimaryButton(
-                    modifier = Modifier.padding(top = Dimens.mediumPadding).fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     isEnabled = isValidMtu,
                     text = stringResource(R.string.submit_button),
                     onClick = {
@@ -134,6 +107,8 @@ fun MtuDialog(
                     onClick = onDismiss
                 )
             }
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+        titleContentColor = MaterialTheme.colorScheme.onBackground,
     )
 }

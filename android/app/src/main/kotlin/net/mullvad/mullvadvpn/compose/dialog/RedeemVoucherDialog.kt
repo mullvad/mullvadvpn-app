@@ -2,8 +2,6 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -19,9 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -34,12 +28,12 @@ import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.compose.textfield.GroupedTextField
+import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
 import org.joda.time.DateTimeConstants
 
 @Preview(device = Devices.TV_720p)
@@ -216,32 +210,24 @@ private fun EnterVoucherBody(
     onVoucherInputChange: (String) -> Unit = {},
     onRedeem: (voucherCode: String) -> Unit
 ) {
-    val textFieldFocusRequester = FocusRequester()
-    Box(Modifier.wrapContentSize().clickable { textFieldFocusRequester.requestFocus() }) {
-        GroupedTextField(
-            value = uiState.voucherInput,
-            onSubmit = { input ->
-                if (uiState.voucherInput.length == VOUCHER_LENGTH) {
-                    onRedeem(input)
-                }
-            },
-            onValueChanged = { input -> onVoucherInputChange(input.uppercase()) },
-            isValidValue = uiState.voucherInput.isNotEmpty(),
-            keyboardType = KeyboardType.Password,
-            placeholderText = stringResource(id = R.string.voucher_hint),
-            placeHolderColor =
-                MaterialTheme.colorScheme.onPrimary
-                    .copy(alpha = AlphaDisabled)
-                    .compositeOver(MaterialTheme.colorScheme.primary),
-            visualTransformation = vouchersVisualTransformation(),
-            maxCharLength = VOUCHER_LENGTH,
-            onFocusChange = {},
-            isDigitsOnlyAllowed = false,
-            isEnabled = true,
-            modifier = Modifier.focusRequester(textFieldFocusRequester),
-            validateRegex = "^[A-Za-z0-9]*$".toRegex()
-        )
-    }
+    GroupedTextField(
+        value = uiState.voucherInput,
+        onSubmit = { input ->
+            if (uiState.voucherInput.length == VOUCHER_LENGTH) {
+                onRedeem(input)
+            }
+        },
+        onValueChanged = { input -> onVoucherInputChange(input.uppercase()) },
+        isValidValue =
+            uiState.voucherInput.isEmpty() || uiState.voucherInput.length == MAX_VOUCHER_LENGTH,
+        keyboardType = KeyboardType.Password,
+        placeholderText = stringResource(id = R.string.voucher_hint),
+        visualTransformation = vouchersVisualTransformation(),
+        maxCharLength = VOUCHER_LENGTH,
+        isDigitsOnlyAllowed = false,
+        isEnabled = true,
+        validateRegex = "^[A-Za-z0-9]*$".toRegex()
+    )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(
         verticalAlignment = Alignment.CenterVertically,
