@@ -82,8 +82,10 @@ impl fmt::Display for CustomTunnelEndpoint {
             ),
             ConnectionConfig::Wireguard(connection) => write!(
                 f,
-                "WireGuard relay - {} with public key {}",
-                connection.peer.endpoint, connection.peer.public_key
+                "WireGuard relay - {}:{} with public key {}",
+                self.host,
+                connection.peer.endpoint.port(),
+                connection.peer.public_key
             ),
         }
     }
