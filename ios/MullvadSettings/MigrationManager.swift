@@ -29,14 +29,18 @@ public struct MigrationManager {
 
     /// Migrate settings store if needed.
     ///
-    /// The following types of error are expected to be returned by this method:
-    /// `SettingsMigrationError`, `UnsupportedSettingsVersionError`, `ReadSettingsVersionError`.
+    /// Reads the current settings, upgrades them to the latest version if needed
+    /// and writes back to `store` when settings are updated.
+    /// - Parameters:
+    ///   - store: The store to from which settings are read and written to.
+    ///   - proxyFactory: Factory used for migrations that involve API calls.
+    ///   - migrationCompleted: Completion handler called with a migration result.
     public func migrateSettings(
         store: SettingsStore,
         proxyFactory: REST.ProxyFactory,
         migrationCompleted: @escaping (SettingsMigrationResult) -> Void
     ) {
-        let handleCompletion = { (result: SettingsMigrationResult) in
+        let resetStoreHandler = { (result: SettingsMigrationResult) in
             // Reset store upon failure to migrate settings.
             if case .failure = result {
                 SettingsManager.resetStore()
@@ -45,56 +49,59 @@ public struct MigrationManager {
         }
 
         do {
-            try checkLatestSettingsVersion(in: store)
-            handleCompletion(.nothing)
-        } catch {
-            handleCompletion(.failure(error))
-        }
-    }
-
-    private func checkLatestSettingsVersion(in store: SettingsStore) throws {
-        let settingsVersion: Int
-        do {
-            let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
-            let settingsData = try store.read(key: SettingsKey.settings)
-            settingsVersion = try parser.parseVersion(data: settingsData)
+            try upgradeSettingsToLatestVersion(
+                store: store,
+                proxyFactory: proxyFactory,
+                migrationCompleted: migrationCompleted
+            )
         } catch .itemNotFound as KeychainError {
-            return
+            migrationCompleted(.nothing)
         } catch {
-            throw ReadSettingsVersionError(underlyingError: error)
+            resetStoreHandler(.failure(error))
         }
+    }
 
-        guard settingsVersion != SchemaVersion.current.rawValue else {
+    private func upgradeSettingsToLatestVersion(
+        store: SettingsStore,
+        proxyFactory: REST.ProxyFactory,
+        migrationCompleted: @escaping (SettingsMigrationResult) -> Void
+    ) throws {
+        let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+        let settingsData = try store.read(key: SettingsKey.settings)
+        let settingsVersion = try parser.parseVersion(data: settingsData)
+
+        // Special case downgrade attempts as nothing to do
+        guard settingsVersion < SchemaVersion.current.rawValue else {
+            migrationCompleted(.nothing)
             return
         }
 
-        let error = UnsupportedSettingsVersionError(
-            storedVersion: settingsVersion,
-            currentVersion: SchemaVersion.current
-        )
+        // Corrupted settings version (i.e. negative values) should fail
+        guard let savedSchema = SchemaVersion(rawValue: settingsVersion) else {
+            migrationCompleted(.failure(UnsupportedSettingsVersionError(
+                storedVersion: settingsVersion,
+                currentVersion: SchemaVersion.current
+            )))
+            return
+        }
 
-        logger.error(error: error, message: "Encountered an unknown version.")
+        var versionTypeCopy = savedSchema
+        let savedSettings = try parser.parsePayload(as: versionTypeCopy.settingsType, from: settingsData)
+        var latestSettings = savedSettings
 
-        throw error
-    }
-}
+        repeat {
+            let upgradedVersion = latestSettings.upgradeToNextVersion(
+                store: store,
+                proxyFactory: proxyFactory,
+                parser: parser
+            )
+            versionTypeCopy = versionTypeCopy.nextVersion
+            latestSettings = upgradedVersion
+        } while versionTypeCopy.rawValue < SchemaVersion.current.rawValue
 
-/// A wrapper type for errors returned by concrete migrations.
-public struct SettingsMigrationError: LocalizedError, WrappingError {
-    private let inner: Error
-    public let sourceVersion, targetVersion: SchemaVersion
-
-    public var underlyingError: Error? {
-        inner
-    }
-
-    public var errorDescription: String? {
-        "Failed to migrate settings from \(sourceVersion) to \(targetVersion)."
-    }
-
-    public init(sourceVersion: SchemaVersion, targetVersion: SchemaVersion, underlyingError: Error) {
-        self.sourceVersion = sourceVersion
-        self.targetVersion = targetVersion
-        inner = underlyingError
+        // Write the latest settings back to the store
+        let latestVersionPayload = try parser.producePayload(latestSettings, version: SchemaVersion.current.rawValue)
+        try store.write(latestVersionPayload, for: .settings)
+        migrationCompleted(.success)
     }
 }
