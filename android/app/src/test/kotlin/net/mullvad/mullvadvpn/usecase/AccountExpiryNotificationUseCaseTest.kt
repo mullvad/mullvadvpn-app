@@ -11,11 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionAccountDataSource
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import org.joda.time.DateTime
 import org.junit.After
 import org.junit.Before
@@ -25,10 +22,6 @@ import org.junit.Test
 class AccountExpiryNotificationUseCaseTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
 
-    private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
-    private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
-    private val serviceConnectionState =
-        MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
     private val accountExpiry = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
     private lateinit var accountExpiryNotificationUseCase: AccountExpiryNotificationUseCase
 
@@ -36,13 +29,10 @@ class AccountExpiryNotificationUseCaseTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        val accountDataSource = mockk<ServiceConnectionAccountDataSource>()
-        every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
-        every { mockServiceConnectionContainer.accountDataSource } returns accountDataSource
-        every { accountDataSource.accountExpiry } returns accountExpiry
+        val accountRepository = mockk<AccountRepository>()
+        every { accountRepository.accountExpiryState } returns accountExpiry
 
-        accountExpiryNotificationUseCase =
-            AccountExpiryNotificationUseCase(mockServiceConnectionManager)
+        accountExpiryNotificationUseCase = AccountExpiryNotificationUseCase(accountRepository)
     }
 
     @After
@@ -63,11 +53,13 @@ class AccountExpiryNotificationUseCaseTest {
         // Arrange, Act, Assert
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
-            val expiryDate = DateTime.now().plusDays(2)
-            accountExpiry.value = AccountExpiry.Available(expiryDate)
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-            assertEquals(listOf(InAppNotification.AccountExpiry(expiryDate)), awaitItem())
+            val closeToExpiry = AccountExpiry.Available(DateTime.now().plusDays(2))
+            accountExpiry.value = closeToExpiry
+
+            assertEquals(
+                listOf(InAppNotification.AccountExpiry(closeToExpiry.expiryDateTime)),
+                awaitItem()
+            )
         }
     }
 
@@ -77,8 +69,6 @@ class AccountExpiryNotificationUseCaseTest {
         accountExpiryNotificationUseCase.notifications().test {
             assertTrue { awaitItem().isEmpty() }
             accountExpiry.value = AccountExpiry.Available(DateTime.now().plusDays(4))
-            serviceConnectionState.value =
-                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             expectNoEvents()
         }
     }

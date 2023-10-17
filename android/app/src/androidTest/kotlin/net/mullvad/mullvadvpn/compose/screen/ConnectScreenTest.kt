@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
+import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
@@ -334,7 +334,7 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification =
                             InAppNotification.TunnelStateError(
-                                ErrorState(ErrorStateCause.StartTunnelError, true)
+                                ErrorState(ErrorStateCause.StartTunnelError, false)
                             )
                     ),
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -800,7 +800,7 @@ class ConnectScreenTest {
         }
 
         // Act
-        composeTestRule.onNodeWithTag(NOTIFICATION_BANNER).performClick()
+        composeTestRule.onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
 
         // Assert
         verify { mockedClickHandler.invoke() }
@@ -833,7 +833,7 @@ class ConnectScreenTest {
         }
 
         // Act
-        composeTestRule.onNodeWithTag(NOTIFICATION_BANNER).performClick()
+        composeTestRule.onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
 
         // Assert
         verify { mockedClickHandler.invoke() }

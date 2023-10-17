@@ -27,10 +27,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.compose.component.MullvadTopBar
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
+import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.compose.util.rememberPrevious
-import net.mullvad.mullvadvpn.lib.theme.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
@@ -86,8 +87,8 @@ fun NotificationBanner(
     onClickShowAccount: () -> Unit,
     onClickDismissNewDevice: () -> Unit
 ) {
+    // Fix for animating to invisible state
     val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
-    // Fix for animating t hide
     AnimatedVisibility(
         visible = notification != null,
         enter = slideInVertically(initialOffsetY = { -it }),
@@ -183,6 +184,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                             end.linkTo(parent.end)
                             bottom.linkTo(parent.bottom)
                         }
+                        .testTag(NOTIFICATION_BANNER_ACTION)
                         .padding(all = Dimens.notificationEndIconPadding),
                 onClick = it.onClick
             ) {

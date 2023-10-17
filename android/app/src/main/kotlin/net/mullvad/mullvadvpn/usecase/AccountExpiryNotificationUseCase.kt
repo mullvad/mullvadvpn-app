@@ -2,24 +2,20 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD_DAYS
 import net.mullvad.mullvadvpn.model.AccountExpiry
+import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.util.flatMapReadyConnectionOrDefault
 import org.joda.time.DateTime
 
 class AccountExpiryNotificationUseCase(
-    private val serviceConnectionManager: ServiceConnectionManager,
+    private val accountRepository: AccountRepository,
 ) {
     fun notifications(): Flow<List<InAppNotification>> =
-        serviceConnectionManager.connectionState
-            .flatMapReadyConnectionOrDefault(flowOf(emptyList())) {
-                it.container.accountDataSource.accountExpiry
-                    .map { accountExpiry -> accountExpiryNotification(accountExpiry) }
-                    .map(::listOfNotNull)
-            }
+        accountRepository.accountExpiryState
+            .map(::accountExpiryNotification)
+            .map(::listOfNotNull)
             .distinctUntilChanged()
 
     private fun accountExpiryNotification(accountExpiry: AccountExpiry) =
@@ -28,7 +24,8 @@ class AccountExpiryNotificationUseCase(
         } else null
 
     private fun AccountExpiry.isCloseToExpiring(): Boolean {
-        val threeDaysFromNow = DateTime.now().plusDays(3)
+        val threeDaysFromNow =
+            DateTime.now().plusDays(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD_DAYS)
         return this.date()?.isBefore(threeDaysFromNow) == true
     }
 }
