@@ -19,16 +19,10 @@ sealed class DeviceState : Parcelable {
     }
 
     fun deviceName(): String? {
-        return (this as? LoggedIn)?.accountAndDevice?.device?.name?.capitalizeFirstCharOfEachWord()
+        return (this as? LoggedIn)?.accountAndDevice?.device?.displayName()
     }
 
     fun token(): String? {
         return (this as? LoggedIn)?.accountAndDevice?.account_token
     }
-}
-
-private fun String.capitalizeFirstCharOfEachWord(): String {
-    return split(" ")
-        .joinToString(" ") { word -> word.replaceFirstChar { firstChar -> firstChar.uppercase() } }
-        .trimEnd()
 }

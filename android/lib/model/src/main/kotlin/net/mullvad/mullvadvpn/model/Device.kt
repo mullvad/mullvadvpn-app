@@ -25,4 +25,12 @@ data class Device(val id: String, val name: String, val pubkey: ByteArray, val c
         result = 31 * result + pubkey.contentHashCode()
         return result
     }
+
+    fun displayName(): String = name.capitalizeFirstCharOfEachWord()
+}
+
+private fun String.capitalizeFirstCharOfEachWord(): String {
+    return split(" ")
+        .joinToString(" ") { word -> word.replaceFirstChar { firstChar -> firstChar.uppercase() } }
+        .trimEnd()
 }
