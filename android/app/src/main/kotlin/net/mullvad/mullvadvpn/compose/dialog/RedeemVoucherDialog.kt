@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.compose.textfield.GroupedTextField
+import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -241,16 +242,12 @@ private fun EnterVoucherBody(
                 }
             },
             onValueChanged = { input -> onVoucherInputChange(input.uppercase()) },
-            isValidValue = uiState.voucherInput.isNotEmpty(),
+            isValidValue =
+                uiState.voucherInput.isEmpty() || uiState.voucherInput.length == MAX_VOUCHER_LENGTH,
             keyboardType = KeyboardType.Password,
             placeholderText = stringResource(id = R.string.voucher_hint),
-            placeHolderColor =
-                MaterialTheme.colorScheme.onPrimary
-                    .copy(alpha = AlphaDisabled)
-                    .compositeOver(MaterialTheme.colorScheme.primary),
             visualTransformation = vouchersVisualTransformation(),
             maxCharLength = VOUCHER_LENGTH,
-            onFocusChange = {},
             isDigitsOnlyAllowed = false,
             isEnabled = true,
             modifier = Modifier.focusRequester(textFieldFocusRequester),
