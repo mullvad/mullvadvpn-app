@@ -1,7 +1,7 @@
 use std::{io, ptr};
 use windows_sys::Win32::{
-    Foundation::{CloseHandle, DuplicateHandle, BOOL, DUPLICATE_SAME_ACCESS, HANDLE},
-    System::Threading::{CreateEventW, GetCurrentProcess, SetEvent},
+    Foundation::{CloseHandle, BOOL, HANDLE},
+    System::Threading::{CreateEventW, SetEvent},
 };
 
 /// Windows event object
@@ -38,26 +38,6 @@ impl Event {
     /// Return raw event object
     pub fn as_raw(&self) -> HANDLE {
         self.0
-    }
-
-    /// Duplicate the event object with `DuplicateHandle()`
-    pub fn duplicate(&self) -> io::Result<Event> {
-        let mut new_event = 0;
-        let status = unsafe {
-            DuplicateHandle(
-                GetCurrentProcess(),
-                self.0,
-                GetCurrentProcess(),
-                &mut new_event,
-                0,
-                0,
-                DUPLICATE_SAME_ACCESS,
-            )
-        };
-        if status == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(Event(new_event))
     }
 }
 

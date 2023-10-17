@@ -1,6 +1,6 @@
 use super::windows::{
     get_device_path, get_process_creation_time, get_process_device_path, open_process,
-    ProcessAccess, ProcessSnapshot,
+    ProcessAccess,
 };
 use bitflags::bitflags;
 use memoffset::offset_of;
@@ -22,7 +22,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
-use talpid_windows::{io::Overlapped, sync::Event};
+use talpid_windows::{io::Overlapped, process::ProcessSnapshot, sync::Event};
 use windows_sys::Win32::{
     Foundation::{
         ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
@@ -486,7 +486,7 @@ fn build_process_tree() -> io::Result<Vec<ProcessInfo>> {
     let mut process_info = HashMap::new();
 
     let snap = ProcessSnapshot::new(TH32CS_SNAPPROCESS, 0)?;
-    for entry in snap.entries() {
+    for entry in snap.processes() {
         let entry = entry?;
 
         let process = match open_process(ProcessAccess::QueryLimitedInformation, false, entry.pid) {

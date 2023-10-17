@@ -12,3 +12,6 @@ pub mod net;
 
 /// Synchronization
 pub mod sync;
+
+/// Processes
+pub mod process;

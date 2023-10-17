@@ -1,27 +1,25 @@
 use mullvad_paths::log_dir;
 use std::{
     borrow::Cow,
-    ffi::{c_char, c_void, CStr},
+    ffi::c_void,
     fmt::Write,
-    fs, io, mem,
+    fs, io,
     os::windows::io::AsRawHandle,
     path::{Path, PathBuf},
     ptr,
 };
 use talpid_types::ErrorExt;
+use talpid_windows::process::{ModuleEntry, ProcessSnapshot};
 use winapi::{
     um::winnt::{CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_SEGMENTS},
     vc::excpt::EXCEPTION_EXECUTE_HANDLER,
 };
 use windows_sys::Win32::{
-    Foundation::{CloseHandle, BOOL, ERROR_NO_MORE_FILES, HANDLE, INVALID_HANDLE_VALUE},
+    Foundation::{BOOL, HANDLE},
     System::{
         Diagnostics::{
             Debug::{SetUnhandledExceptionFilter, CONTEXT, EXCEPTION_POINTERS, EXCEPTION_RECORD},
-            ToolHelp::{
-                CreateToolhelp32Snapshot, Module32First, Module32Next, MODULEENTRY32,
-                TH32CS_SNAPMODULE,
-            },
+            ToolHelp::TH32CS_SNAPMODULE,
         },
         Threading::{GetCurrentProcess, GetCurrentProcessId, GetCurrentThreadId},
     },
@@ -291,7 +289,7 @@ fn get_context_info(context: &CONTEXT) -> String {
 }
 
 /// Return module info for the current process and given memory address.
-fn find_address_module(address: *mut c_void) -> io::Result<Option<ModuleInfo>> {
+fn find_address_module(address: *mut c_void) -> io::Result<Option<ModuleEntry>> {
     let snap = ProcessSnapshot::new(TH32CS_SNAPMODULE, 0)?;
 
     for module in snap.modules() {
@@ -305,86 +303,4 @@ fn find_address_module(address: *mut c_void) -> io::Result<Option<ModuleInfo>> {
     }
 
     Ok(None)
-}
-
-struct ModuleInfo {
-    name: String,
-    base_address: *const u8,
-    size: usize,
-}
-
-struct ProcessSnapshot {
-    handle: HANDLE,
-}
-
-impl ProcessSnapshot {
-    fn new(flags: u32, process_id: u32) -> io::Result<ProcessSnapshot> {
-        let snap = unsafe { CreateToolhelp32Snapshot(flags, process_id) };
-
-        if snap == INVALID_HANDLE_VALUE {
-            Err(io::Error::last_os_error())
-        } else {
-            Ok(ProcessSnapshot { handle: snap })
-        }
-    }
-
-    fn handle(&self) -> HANDLE {
-        self.handle
-    }
-
-    fn modules(&self) -> ProcessSnapshotModules<'_> {
-        let mut entry: MODULEENTRY32 = unsafe { mem::zeroed() };
-        entry.dwSize = mem::size_of::<MODULEENTRY32>() as u32;
-
-        ProcessSnapshotModules {
-            snapshot: self,
-            iter_started: false,
-            temp_entry: entry,
-        }
-    }
-}
-
-impl Drop for ProcessSnapshot {
-    fn drop(&mut self) {
-        unsafe {
-            CloseHandle(self.handle);
-        }
-    }
-}
-
-struct ProcessSnapshotModules<'a> {
-    snapshot: &'a ProcessSnapshot,
-    iter_started: bool,
-    temp_entry: MODULEENTRY32,
-}
-
-impl Iterator for ProcessSnapshotModules<'_> {
-    type Item = io::Result<ModuleInfo>;
-
-    fn next(&mut self) -> Option<io::Result<ModuleInfo>> {
-        if self.iter_started {
-            if unsafe { Module32Next(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
-                let last_error = io::Error::last_os_error();
-
-                return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
-                    None
-                } else {
-                    Some(Err(last_error))
-                };
-            }
-        } else {
-            if unsafe { Module32First(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
-                return Some(Err(io::Error::last_os_error()));
-            }
-            self.iter_started = true;
-        }
-
-        let cstr_ref = &self.temp_entry.szModule[0];
-        let cstr = unsafe { CStr::from_ptr(cstr_ref as *const u8 as *const c_char) };
-        Some(Ok(ModuleInfo {
-            name: cstr.to_string_lossy().into_owned(),
-            base_address: self.temp_entry.modBaseAddr,
-            size: self.temp_entry.modBaseSize as usize,
-        }))
-    }
 }
