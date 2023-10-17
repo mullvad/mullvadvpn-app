@@ -17,41 +17,46 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
 private fun PreviewNavigationCell() {
-    NavigationComposeCell(
-        title = "Navigation sample",
-        bodyView = {
-            NavigationCellBody(
-                contentBodyDescription = "",
-                content = "content body",
-                contentColor = MaterialTheme.colorScheme.error,
-            )
-        },
-        onClick = {},
-        showWarning = true
-    )
+    AppTheme {
+        NavigationComposeCell(
+            title = "Navigation sample",
+            bodyView = {
+                NavigationCellBody(
+                    contentBodyDescription = "",
+                    content = "content body",
+                    contentColor = MaterialTheme.colorScheme.error,
+                )
+            },
+            onClick = {},
+            showWarning = true
+        )
+    }
 }
 
 @Preview
 @Composable
 private fun PreviewExternalLinkComposeCell() {
-    NavigationComposeCell(
-        title = "External link sample",
-        bodyView = {
-            NavigationCellBody(
-                contentBodyDescription = "content body",
-                content = "content body",
-                contentColor = MaterialTheme.colorScheme.onSecondary,
-                isExternalLink = true
-            )
-        },
-        onClick = {},
-        showWarning = false
-    )
+    AppTheme {
+        NavigationComposeCell(
+            title = "External link sample",
+            bodyView = {
+                NavigationCellBody(
+                    contentBodyDescription = "content body",
+                    content = "content body",
+                    contentColor = MaterialTheme.colorScheme.onSecondary,
+                    isExternalLink = true
+                )
+            },
+            onClick = {},
+            showWarning = false
+        )
+    }
 }
 
 @Composable
@@ -66,7 +71,11 @@ fun NavigationComposeCell(
     BaseCell(
         onCellClicked = onClick,
         title = {
-            NavigationTitleView(title = title, modifier = modifier, showWarning = showWarning)
+            NavigationTitleView(
+                title = title,
+                modifier = modifier.weight(1f, true),
+                showWarning = showWarning
+            )
         },
         bodyView = { bodyView() },
         isRowEnabled = isRowEnabled
@@ -89,7 +98,8 @@ internal fun NavigationTitleView(
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        color = MaterialTheme.colorScheme.onPrimary
+        color = MaterialTheme.colorScheme.onPrimary,
+        modifier = modifier
     )
 }
 

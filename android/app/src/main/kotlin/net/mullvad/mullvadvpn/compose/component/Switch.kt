@@ -1,108 +1,96 @@
 package net.mullvad.mullvadvpn.compose.component
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchColors
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadRed
-import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
 @Composable
-private fun PreviewSwitch() {
-    Column {
-        CellSwitch(isChecked = true, onCheckedChange = null)
-        CellSwitch(isChecked = false, onCheckedChange = null, isEnabled = false)
+private fun PreviewMullvadSwitch() {
+    AppTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
+                modifier = Modifier.padding(Dimens.sideMargin)
+            ) {
+                MullvadSwitch(checked = true, onCheckedChange = null)
+                MullvadSwitch(checked = false, onCheckedChange = null)
+                MullvadSwitch(checked = true, enabled = false, onCheckedChange = null)
+                MullvadSwitch(checked = false, enabled = false, onCheckedChange = null)
+            }
+        }
     }
 }
 
 @Composable
-fun CellSwitch(
-    isChecked: Boolean,
+fun MullvadSwitch(
+    checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
-    scale: Float = 1f,
-    isEnabled: Boolean = true,
-    thumbCheckedTrackColor: Color = MullvadGreen,
-    thumbUncheckedTrackColor: Color = MullvadRed,
-    thumbColor: Color = MullvadWhite
+    thumbContent: (@Composable () -> Unit)? = {
+        // This is needed to ensure the thumb always is big in off mode
+        Spacer(modifier = Modifier.size(Dimens.switchIconSize))
+    },
+    enabled: Boolean = true,
+    colors: SwitchColors = mullvadSwitchColors(),
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) {
-    val gapBetweenThumbAndTrackEdge: Dp = 2.dp
-    val width: Dp = 46.dp
-    val height: Dp = 28.dp
-    val thumbRadius = 11.dp
-
-    // To move the thumb, we need to calculate the position (along x axis)
-    val animatePosition =
-        animateFloatAsState(
-            targetValue =
-                if (isChecked)
-                    with(LocalDensity.current) {
-                        (width - thumbRadius - gapBetweenThumbAndTrackEdge - 1.dp).toPx()
-                    }
-                else
-                    with(LocalDensity.current) {
-                        (thumbRadius + gapBetweenThumbAndTrackEdge + 1.dp).toPx()
-                    }
-        )
-
-    Canvas(
-        modifier =
-            modifier
-                .padding(1.dp)
-                .size(width = width, height = height)
-                .scale(scale = scale)
-                .pointerInput(Unit) {
-                    if (onCheckedChange != null && isEnabled) {
-                        detectTapGestures(onTap = { onCheckedChange(!isChecked) })
-                    }
-                }
-    ) {
-        // Track
-        drawRoundRect(
-            color = thumbColor,
-            alpha = if (isEnabled) AlphaVisible else AlphaInactive,
-            cornerRadius = CornerRadius(x = 15.dp.toPx(), y = 15.dp.toPx()),
-            style =
-                Stroke(
-                    width = 2.dp.toPx(),
-                    miter = 6.dp.toPx(),
-                    cap = StrokeCap.Square,
-                )
-        )
-
-        // Thumb
-        drawCircle(
-            color = if (isChecked) thumbCheckedTrackColor else thumbUncheckedTrackColor,
-            alpha = if (isEnabled) AlphaVisible else AlphaInactive,
-            radius = thumbRadius.toPx(),
-            center =
-                Offset(
-                    x = animatePosition.value,
-                    y = size.height / 2,
-                )
-        )
-    }
-
-    Spacer(modifier = Modifier.height(18.dp))
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        thumbContent = thumbContent,
+        enabled = enabled,
+        colors = colors,
+        interactionSource
+    )
 }
+
+@Composable
+fun mullvadSwitchColors(): SwitchColors =
+    SwitchDefaults.colors(
+        checkedThumbColor = MaterialTheme.colorScheme.selected,
+        checkedTrackColor = MaterialTheme.colorScheme.primary,
+        checkedBorderColor = MaterialTheme.colorScheme.onPrimary,
+        //    checkedIconColor= SwitchTokens.SelectedIconColor.toColor(),
+        uncheckedThumbColor = MaterialTheme.colorScheme.error,
+        uncheckedTrackColor = MaterialTheme.colorScheme.primary,
+        uncheckedBorderColor = MaterialTheme.colorScheme.onPrimary,
+        //    uncheckedIconColor= SwitchTokens.UnselectedIconColor.toColor(),
+        disabledCheckedThumbColor =
+            MaterialTheme.colorScheme.selected
+                .copy(alpha = AlphaDisabled)
+                .compositeOver(MaterialTheme.colorScheme.primary),
+        disabledCheckedTrackColor = MaterialTheme.colorScheme.primary,
+        disabledCheckedBorderColor =
+            MaterialTheme.colorScheme.onPrimary
+                .copy(alpha = AlphaDisabled)
+                .compositeOver(MaterialTheme.colorScheme.primary),
+        disabledUncheckedThumbColor =
+            MaterialTheme.colorScheme.error
+                .copy(alpha = AlphaDisabled)
+                .compositeOver(MaterialTheme.colorScheme.primary),
+        disabledUncheckedTrackColor = MaterialTheme.colorScheme.primary,
+        disabledUncheckedBorderColor =
+            MaterialTheme.colorScheme.onPrimary
+                .copy(alpha = AlphaDisabled)
+                .compositeOver(MaterialTheme.colorScheme.primary),
+    )
