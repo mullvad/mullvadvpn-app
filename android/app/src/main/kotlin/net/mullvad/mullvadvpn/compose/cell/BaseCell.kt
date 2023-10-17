@@ -4,8 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
@@ -54,9 +56,9 @@ private fun PreviewBaseCell() {
 @Composable
 internal fun BaseCell(
     modifier: Modifier = Modifier,
-    iconView: @Composable () -> Unit = {},
-    title: @Composable () -> Unit,
-    bodyView: @Composable () -> Unit = {},
+    iconView: @Composable RowScope.() -> Unit = {},
+    title: @Composable RowScope.() -> Unit,
+    bodyView: @Composable ColumnScope.() -> Unit = {},
     isRowEnabled: Boolean = true,
     onCellClicked: () -> Unit = {},
     background: Color = MaterialTheme.colorScheme.primary,
@@ -82,8 +84,6 @@ internal fun BaseCell(
 
         title()
 
-        Spacer(modifier = Modifier.weight(1.0f))
-
         Column(modifier = Modifier.wrapContentWidth().wrapContentHeight()) { bodyView() }
     }
 }
@@ -93,14 +93,16 @@ internal fun BaseCellTitle(
     title: String,
     style: TextStyle,
     modifier: Modifier = Modifier,
-    textAlign: TextAlign = TextAlign.Center
+    textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         text = title,
         textAlign = textAlign,
         style = style,
         color = MaterialTheme.colorScheme.onPrimary,
-        modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()
+        overflow = TextOverflow.Ellipsis,
+        maxLines = 1,
+        modifier = modifier
     )
 }
 

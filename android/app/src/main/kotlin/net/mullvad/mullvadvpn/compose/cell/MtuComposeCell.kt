@@ -6,10 +6,8 @@ import androidx.compose.foundation.layout.wrapContentWidth as wrapContentWidth1
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.constant.MTU_MAX_VALUE
@@ -30,7 +28,7 @@ fun MtuComposeCell(
     val titleModifier = Modifier
 
     BaseCell(
-        title = { MtuTitle(modifier = titleModifier) },
+        title = { MtuTitle(modifier = titleModifier.weight(1f, true)) },
         bodyView = { MtuBodyView(mtuValue = mtuValue, modifier = titleModifier) },
         onCellClicked = { onEditMtu.invoke() }
     )
@@ -40,10 +38,9 @@ fun MtuComposeCell(
 private fun MtuTitle(modifier: Modifier) {
     Text(
         text = stringResource(R.string.wireguard_mtu),
-        textAlign = TextAlign.Center,
         style = MaterialTheme.typography.titleMedium,
         color = MaterialTheme.colorScheme.onPrimary,
-        modifier = modifier.wrapContentWidth1(align = Alignment.End).wrapContentHeight()
+        modifier = modifier
     )
 }
 
