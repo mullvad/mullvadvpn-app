@@ -272,12 +272,11 @@ pub enum AddCustomCommands {
         name: String,
         /// The IP of the remote Shadowsocks-proxy
         remote_ip: IpAddr,
+        /// Password for authentication
+        password: String,
         /// Port on which the remote Shadowsocks-proxy listens for traffic
         #[arg(default_value = "443")]
         remote_port: u16,
-        /// Password for authentication
-        #[arg(default_value = "mullvad")]
-        password: String,
         /// Cipher to use
         #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
         cipher: String,
