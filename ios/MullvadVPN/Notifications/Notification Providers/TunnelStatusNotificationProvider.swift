@@ -226,7 +226,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
 
         switch error {
         case .outdatedSchema:
-            errorString = "Unable to start tunnel connection after update. Please send a problem report."
+            errorString = "Unable to start tunnel connection after update. Please disconnect and reconnect."
         case .noRelaysSatisfyingConstraints:
             errorString = "No servers match your settings, try changing server or other settings."
         case .invalidAccount:
