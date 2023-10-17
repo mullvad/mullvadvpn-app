@@ -12,6 +12,7 @@ import { RoutePath } from '../../lib/routes';
 import { useNormalBridgeSettings, useNormalRelaySettings } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
+import { useFilteredProviders } from '../Filter';
 import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../Layout';
@@ -69,6 +70,7 @@ export default function SelectLocation() {
   const relaySettings = useNormalRelaySettings();
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
+  const filteredProviders = useFilteredProviders(providers, ownership);
 
   const [searchValue, setSearchValue] = useState('');
 
@@ -201,7 +203,7 @@ export default function SelectLocation() {
                           'select-location-view',
                           'Providers: %(numberOfProviders)d',
                         ),
-                        { numberOfProviders: providers.length },
+                        { numberOfProviders: filteredProviders.length },
                       )}
                       <StyledClearFilterButton
                         aria-label={messages.gettext('Clear')}

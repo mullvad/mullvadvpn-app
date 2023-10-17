@@ -61,9 +61,10 @@ export default function Filter() {
   const [ownership, setOwnership] = useState<Ownership>(initialOwnership);
 
   // Available providers are used to only show compatible options after activating a filter.
-  const { availableProviders, availableOwnershipOptions } = useFilteredFilters(
+  const availableProviders = useFilteredProviders([], ownership);
+  const availableOwnershipOptions = useFilteredOwnershipOptions(
     formattedProviderList,
-    ownership,
+    Ownership.any,
   );
 
   // Applies the changes by sending them to the daemon.
@@ -113,23 +114,13 @@ export default function Filter() {
   );
 }
 
-// Returns only the options for each filter that are compatible with current filter selection.
-function useFilteredFilters(providers: string[], ownership: Ownership) {
+// Returns only the ownership options that are compatible with the other filters
+function useFilteredOwnershipOptions(providers: string[], ownership: Ownership): Ownership[] {
   const relaySettings = useNormalRelaySettings();
   const bridgeState = useSelector((state) => state.settings.bridgeState);
   const locations = useSelector((state) => state.settings.relayLocations);
 
   const endpointType = bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
-
-  const availableProviders = useMemo(() => {
-    const relayListForEndpointType = filterLocationsByEndPointType(
-      locations,
-      endpointType,
-      relaySettings,
-    );
-    const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, []);
-    return providersFromRelays(relaylistForFilters);
-  }, [locations, ownership]);
 
   const availableOwnershipOptions = useMemo(() => {
     const relayListForEndpointType = filterLocationsByEndPointType(
@@ -137,7 +128,7 @@ function useFilteredFilters(providers: string[], ownership: Ownership) {
       endpointType,
       relaySettings,
     );
-    const relaylistForFilters = filterLocations(relayListForEndpointType, Ownership.any, providers);
+    const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
 
     const filteredRelayOwnership = relaylistForFilters.flatMap((country) =>
       country.cities.flatMap((city) => city.relays.map((relay) => relay.owned)),
@@ -152,9 +143,30 @@ function useFilteredFilters(providers: string[], ownership: Ownership) {
     }
 
     return ownershipOptions;
-  }, [locations, providers]);
+  }, [locations, providers, ownership]);
 
-  return { availableProviders, availableOwnershipOptions };
+  return availableOwnershipOptions;
+}
+
+// Returns only the providers that are compatible with the other filters
+export function useFilteredProviders(providers: string[], ownership: Ownership): string[] {
+  const relaySettings = useNormalRelaySettings();
+  const bridgeState = useSelector((state) => state.settings.bridgeState);
+  const locations = useSelector((state) => state.settings.relayLocations);
+
+  const endpointType = bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
+
+  const availableProviders = useMemo(() => {
+    const relayListForEndpointType = filterLocationsByEndPointType(
+      locations,
+      endpointType,
+      relaySettings,
+    );
+    const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
+    return providersFromRelays(relaylistForFilters);
+  }, [locations, ownership]);
+
+  return availableProviders;
 }
 
 // Returns all available providers in the provided relay list.
@@ -252,15 +264,17 @@ function FilterByProvider(props: IFilterByProviderProps) {
 
   const onToggle = useCallback(
     (provider: string) =>
-      props.setProviders((providers) => ({ ...providers, [provider]: !providers[provider] })),
-    [props.setProviders],
+      props.setProviders((providers) => {
+        const newProviders = { ...providers, [provider]: !providers[provider] };
+        return props.availableOptions.every((provider) => newProviders[provider])
+          ? toggleAllProviders(providers, true)
+          : newProviders;
+      }),
+    [props.availableOptions, props.setProviders],
   );
 
   const toggleAll = useCallback(() => {
-    props.setProviders((providers) => {
-      const shouldSelect = !Object.values(providers).every((value) => value);
-      return Object.fromEntries(Object.keys(providers).map((provider) => [provider, shouldSelect]));
-    });
+    props.setProviders((providers) => toggleAllProviders(providers));
   }, []);
 
   return (
@@ -288,6 +302,11 @@ function FilterByProvider(props: IFilterByProviderProps) {
       </Accordion>
     </>
   );
+}
+
+function toggleAllProviders(providers: Record<string, boolean>, value?: boolean) {
+  const shouldSelect = value ?? !Object.values(providers).every((value) => value);
+  return Object.fromEntries(Object.keys(providers).map((provider) => [provider, shouldSelect]));
 }
 
 interface IStyledRowTitleProps {
