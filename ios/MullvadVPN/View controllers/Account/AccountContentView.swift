@@ -123,7 +123,7 @@ class AccountContentView: UIView {
             contentStackView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))
             buttonStackView.topAnchor.constraint(
                 greaterThanOrEqualTo: contentStackView.bottomAnchor,
-                constant: UIMetrics.sectionSpacing
+                constant: UIMetrics.TableView.sectionSpacing
             )
             buttonStackView.pinEdgesToSuperviewMargins(.all().excluding(.top))
         }
