@@ -21,7 +21,11 @@ use std::{
 };
 use talpid_routing::{get_best_default_route, CallbackHandle, EventType, RouteManagerHandle};
 use talpid_types::{split_tunnel::ExcludedProcess, tunnel::ErrorStateCause, ErrorExt};
-use talpid_windows_net::{get_ip_address_for_interface, AddressFamily};
+use talpid_windows::{
+    io::Overlapped,
+    net::{get_ip_address_for_interface, AddressFamily},
+    sync::Event,
+};
 use windows_sys::Win32::Foundation::ERROR_OPERATION_ABORTED;
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
@@ -69,7 +73,7 @@ pub enum Error {
 
     /// Failed to obtain an IP address given a network interface LUID
     #[error(display = "Failed to obtain IP address for interface LUID")]
-    LuidToIp(#[error(source)] talpid_windows_net::Error),
+    LuidToIp(#[error(source)] talpid_windows::net::Error),
 
     /// Failed to set up callback for monitoring default route changes
     #[error(display = "Failed to register default route change callback")]
@@ -105,7 +109,7 @@ pub struct SplitTunnel {
     runtime: tokio::runtime::Handle,
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
-    quit_event: Arc<talpid_windows::sync::Event>,
+    quit_event: Arc<Event>,
     excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     _route_change_callback: Option<CallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
@@ -191,21 +195,13 @@ impl SplitTunnel {
     fn spawn_event_listener(
         handle: Arc<driver::DeviceHandle>,
         excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
-    ) -> Result<
-        (
-            std::thread::JoinHandle<()>,
-            Arc<talpid_windows::sync::Event>,
-        ),
-        Error,
-    > {
-        let mut event_overlapped = talpid_windows::io::Overlapped::new(Some(
-            talpid_windows::sync::Event::new(true, false).map_err(Error::EventThreadError)?,
+    ) -> Result<(std::thread::JoinHandle<()>, Arc<Event>), Error> {
+        let mut event_overlapped = Overlapped::new(Some(
+            Event::new(true, false).map_err(Error::EventThreadError)?,
         ))
         .map_err(Error::EventThreadError)?;
 
-        let quit_event = Arc::new(
-            talpid_windows::sync::Event::new(true, false).map_err(Error::EventThreadError)?,
-        );
+        let quit_event = Arc::new(Event::new(true, false).map_err(Error::EventThreadError)?);
         let quit_event_copy = quit_event.clone();
 
         let event_thread = std::thread::spawn(move || {
@@ -244,8 +240,8 @@ impl SplitTunnel {
 
     fn fetch_next_event(
         device: &Arc<driver::DeviceHandle>,
-        quit_event: &talpid_windows::sync::Event,
-        overlapped: &mut talpid_windows::io::Overlapped,
+        quit_event: &Event,
+        overlapped: &mut Overlapped,
         data_buffer: &mut Vec<u8>,
     ) -> io::Result<EventResult> {
         if unsafe { driver::wait_for_single_object(quit_event.as_raw(), Some(Duration::ZERO)) }

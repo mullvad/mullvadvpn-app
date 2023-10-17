@@ -105,7 +105,7 @@ pub enum Error {
     /// Failed to set IP addresses on WireGuard interface
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to set IP addresses on WireGuard interface")]
-    SetIpAddressesError(#[error(source)] talpid_windows_net::Error),
+    SetIpAddressesError(#[error(source)] talpid_windows::net::Error),
 }
 
 /// Spawns and monitors a wireguard tunnel
@@ -643,12 +643,12 @@ impl WireguardMonitor {
             })?;
 
         // TODO: The LUID can be obtained directly.
-        let luid = talpid_windows_net::luid_from_alias(iface_name).map_err(|error| {
+        let luid = talpid_windows::net::luid_from_alias(iface_name).map_err(|error| {
             log::error!("Failed to obtain tunnel interface LUID: {}", error);
             CloseMsg::SetupError(Error::IpInterfacesError)
         })?;
         for address in addresses {
-            talpid_windows_net::add_ip_address_for_interface(luid, *address)
+            talpid_windows::net::add_ip_address_for_interface(luid, *address)
                 .map_err(|error| CloseMsg::SetupError(Error::SetIpAddressesError(error)))?;
         }
         Ok(())

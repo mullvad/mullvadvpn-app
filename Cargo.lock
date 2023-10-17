@@ -3457,7 +3457,6 @@ dependencies = [
  "talpid-tunnel-config-client",
  "talpid-types",
  "talpid-windows",
- "talpid-windows-net",
  "talpid-wireguard",
  "tokio",
  "tonic-build",
@@ -3499,7 +3498,7 @@ dependencies = [
  "talpid-routing",
  "talpid-tunnel",
  "talpid-types",
- "talpid-windows-net",
+ "talpid-windows",
  "tokio",
  "tonic",
  "tonic-build",
@@ -3556,7 +3555,7 @@ dependencies = [
  "rtnetlink",
  "system-configuration",
  "talpid-types",
- "talpid-windows-net",
+ "talpid-windows",
  "tokio",
  "widestring",
  "windows-sys 0.48.0",
@@ -3584,7 +3583,7 @@ dependencies = [
  "nix 0.23.2",
  "talpid-routing",
  "talpid-types",
- "talpid-windows-net",
+ "talpid-windows",
  "tokio",
  "tun",
  "windows-sys 0.48.0",
@@ -3626,13 +3625,6 @@ dependencies = [
 name = "talpid-windows"
 version = "0.0.0"
 dependencies = [
- "windows-sys 0.48.0",
-]
-
-[[package]]
-name = "talpid-windows-net"
-version = "0.0.0"
-dependencies = [
  "err-derive",
  "futures",
  "socket2 0.5.3",
@@ -3670,7 +3662,7 @@ dependencies = [
  "talpid-tunnel",
  "talpid-tunnel-config-client",
  "talpid-types",
- "talpid-windows-net",
+ "talpid-windows",
  "tokio",
  "tokio-stream",
  "tunnel-obfuscation",
