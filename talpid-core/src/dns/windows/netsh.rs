@@ -9,7 +9,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::{net::IpVersion, ErrorExt};
-use talpid_windows_net::{index_from_luid, luid_from_alias};
+use talpid_windows::net::{index_from_luid, luid_from_alias};
 use windows_sys::Win32::{
     Foundation::{MAX_PATH, WAIT_OBJECT_0, WAIT_TIMEOUT},
     System::{

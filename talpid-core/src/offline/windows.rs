@@ -9,7 +9,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
-use talpid_windows_net::AddressFamily;
+use talpid_windows::net::AddressFamily;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {

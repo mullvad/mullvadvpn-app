@@ -203,7 +203,7 @@ impl WintunContext for WintunContextImpl {
 
     async fn wait_for_interfaces(&self) -> io::Result<()> {
         let luid = self.adapter.luid();
-        talpid_windows_net::wait_for_interfaces(luid, true, self.wait_v6_interface).await
+        talpid_windows::net::wait_for_interfaces(luid, true, self.wait_v6_interface).await
     }
 
     fn prepare_interface(&self) {
@@ -867,11 +867,12 @@ mod event_server {
             #[cfg(windows)]
             {
                 let tunnel_device = metadata.interface.clone();
-                let luid = talpid_windows_net::luid_from_alias(tunnel_device).map_err(|error| {
-                    log::error!("{}", error.display_chain_with_msg("luid_from_alias failed"));
-                    tonic::Status::unavailable("failed to obtain interface luid")
-                })?;
-                talpid_windows_net::wait_for_addresses(luid)
+                let luid =
+                    talpid_windows::net::luid_from_alias(tunnel_device).map_err(|error| {
+                        log::error!("{}", error.display_chain_with_msg("luid_from_alias failed"));
+                        tonic::Status::unavailable("failed to obtain interface luid")
+                    })?;
+                talpid_windows::net::wait_for_addresses(luid)
                     .await
                     .map_err(|error| {
                         log::error!(

@@ -13,7 +13,7 @@ use std::{
     ptr,
 };
 use talpid_types::win32_err;
-use talpid_windows_net::{guid_from_luid, luid_from_alias};
+use talpid_windows::net::{guid_from_luid, luid_from_alias};
 use windows_sys::{
     core::GUID,
     s, w,

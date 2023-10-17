@@ -12,7 +12,7 @@ use net::AddressFamily;
 pub use route_manager::{Callback, CallbackHandle, Route, RouteManagerInternal};
 use std::{collections::HashSet, io, net::IpAddr};
 use talpid_types::ErrorExt;
-use talpid_windows_net as net;
+use talpid_windows::net;
 
 mod default_route_monitor;
 mod get_best_default_route;
@@ -284,7 +284,7 @@ fn get_mtu_for_route(addr_family: AddressFamily) -> Result<Option<u16>> {
     match get_best_default_route(addr_family) {
         Ok(Some(route)) => {
             let interface_row =
-                talpid_windows_net::get_ip_interface_entry(addr_family, &route.iface).map_err(
+                talpid_windows::net::get_ip_interface_entry(addr_family, &route.iface).map_err(
                     |e| {
                         log::error!("Could not get ip interface entry: {}", e);
                         Error::GetMtu
