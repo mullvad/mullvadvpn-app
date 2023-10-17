@@ -7,14 +7,33 @@ on:
     branches:
       - migrate-tests
 jobs:
-  e2e-test:
-    name: Run end-to-end desktop tests (app-test-linux)
-    runs-on: [self-hosted, desktop-test, Linux]
+  e2e-test-linux:
+    name: Linux end-to-end desktop tests
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     timeout-minutes: 240
     strategy:
       fail-fast: false
       matrix:
-        os: [debian11, debian12, ubuntu2004, ubuntu2204, ubuntu2304, fedora38, fedora37, fedora36, windows10, windows11]
+        os: [debian11, debian12, ubuntu2004, ubuntu2204, ubuntu2304, fedora38, fedora37, fedora36]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run end-to-end tests
+        shell: bash -ieo pipefail {0}
+        env:
+          TAG: ${{ github.event.inputs.tag }}
+        run: |
+          ./test/ci-runtests.sh ${{ matrix.os }}
+  e2e-test-windows:
+    name: Windows end-to-end desktop tests
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    needs: e2e-test-linux
+    if: ${{ always() }} # https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow#example-not-requiring-successful-dependent-jobs
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows10, windows11]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,8 +44,8 @@ jobs:
         run: |
           ./test/ci-runtests.sh ${{ matrix.os }}
   e2e-test-macos:
-    name: Run end-to-end desktop tests (app-test-macos-arm)
-    runs-on: [self-hosted, desktop-test, macOS]
+    name: macOS end-to-end desktop tests
+    runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
     timeout-minutes: 240
     strategy:
       fail-fast: false
