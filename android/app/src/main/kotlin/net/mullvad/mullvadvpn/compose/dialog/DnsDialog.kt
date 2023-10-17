@@ -1,28 +1,19 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ActionButton
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
@@ -61,57 +52,30 @@ fun DnsDialog(
     onRemove: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val buttonSize = Dimens.buttonHeight
-    val mediumPadding = Dimens.mediumPadding
-    val dialogPadding = 20.dp
-    val midPadding = 10.dp
-    val smallPadding = 5.dp
-
-    val textFieldFocusRequester = FocusRequester()
-
-    Dialog(
-        // Fix for https://issuetracker.google.com/issues/221643630
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-        onDismissRequest = { onDismiss() },
-        content = {
-            Column(
-                Modifier
-                    // Related to the fix for https://issuetracker.google.com/issues/221643630
-                    .fillMaxWidth(0.8f)
-                    .background(
-                        color = MaterialTheme.colorScheme.background,
-                        shape = MaterialTheme.shapes.extraLarge
-                    )
-                    .padding(dialogPadding)
-            ) {
-                Text(
-                    text =
-                        if (stagedDns is StagedDns.NewDns) {
-                            stringResource(R.string.add_dns_server_dialog_title)
-                        } else {
-                            stringResource(R.string.update_dns_server_dialog_title)
-                        },
-                    color = Color.White,
-                    style =
-                        MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Normal)
+    AlertDialog(
+        title = {
+            Text(
+                text =
+                    if (stagedDns is StagedDns.NewDns) {
+                        stringResource(R.string.add_dns_server_dialog_title)
+                    } else {
+                        stringResource(R.string.update_dns_server_dialog_title)
+                    },
+                color = Color.White,
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Normal)
+            )
+        },
+        text = {
+            Column {
+                DnsTextField(
+                    value = stagedDns.item.address,
+                    isValidValue = stagedDns.isValid(),
+                    onValueChanged = { newMtuValue -> onIpAddressChanged(newMtuValue) },
+                    onSubmit = { onAttemptToSave() },
+                    isEnabled = true,
+                    placeholderText = stringResource(R.string.custom_dns_hint),
+                    modifier = Modifier.fillMaxWidth()
                 )
-
-                Box(
-                    Modifier.wrapContentSize().clickable { textFieldFocusRequester.requestFocus() }
-                ) {
-                    DnsTextField(
-                        value = stagedDns.item.address,
-                        isValidValue = stagedDns.isValid(),
-                        onValueChanged = { newMtuValue -> onIpAddressChanged(newMtuValue) },
-                        onFocusChanges = {},
-                        onSubmit = { onAttemptToSave() },
-                        isEnabled = true,
-                        placeholderText = stringResource(R.string.custom_dns_hint),
-                        modifier =
-                            Modifier.padding(top = midPadding)
-                                .focusRequester(textFieldFocusRequester)
-                    )
-                }
 
                 val errorMessage =
                     when {
@@ -132,16 +96,15 @@ fun DnsDialog(
                         text = errorMessage,
                         style = MaterialTheme.typography.bodySmall,
                         color = MullvadRed,
-                        modifier = Modifier.padding(top = smallPadding)
+                        modifier = Modifier.padding(top = Dimens.smallPadding)
                     )
                 }
-
+            }
+        },
+        confirmButton = {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)) {
                 ActionButton(
-                    modifier =
-                        Modifier.padding(top = mediumPadding)
-                            .height(buttonSize)
-                            .defaultMinSize(minHeight = buttonSize)
-                            .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
                             containerColor = MullvadBlue,
@@ -156,11 +119,7 @@ fun DnsDialog(
 
                 if (stagedDns is StagedDns.EditDns) {
                     ActionButton(
-                        modifier =
-                            Modifier.padding(top = mediumPadding)
-                                .height(buttonSize)
-                                .defaultMinSize(minHeight = buttonSize)
-                                .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         colors =
                             ButtonDefaults.buttonColors(
                                 containerColor = MullvadBlue,
@@ -172,11 +131,7 @@ fun DnsDialog(
                 }
 
                 ActionButton(
-                    modifier =
-                        Modifier.padding(top = mediumPadding)
-                            .height(buttonSize)
-                            .defaultMinSize(minHeight = buttonSize)
-                            .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     colors =
                         ButtonDefaults.buttonColors(
                             containerColor = MullvadBlue,
@@ -186,6 +141,9 @@ fun DnsDialog(
                     text = stringResource(id = R.string.cancel)
                 )
             }
-        }
+        },
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.background,
+        titleContentColor = MaterialTheme.colorScheme.onBackground,
     )
 }
