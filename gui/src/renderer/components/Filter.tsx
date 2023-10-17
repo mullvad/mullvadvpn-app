@@ -264,15 +264,17 @@ function FilterByProvider(props: IFilterByProviderProps) {
 
   const onToggle = useCallback(
     (provider: string) =>
-      props.setProviders((providers) => ({ ...providers, [provider]: !providers[provider] })),
-    [props.setProviders],
+      props.setProviders((providers) => {
+        const newProviders = { ...providers, [provider]: !providers[provider] };
+        return props.availableOptions.every((provider) => newProviders[provider])
+          ? toggleAllProviders(providers, true)
+          : newProviders;
+      }),
+    [props.availableOptions, props.setProviders],
   );
 
   const toggleAll = useCallback(() => {
-    props.setProviders((providers) => {
-      const shouldSelect = !Object.values(providers).every((value) => value);
-      return Object.fromEntries(Object.keys(providers).map((provider) => [provider, shouldSelect]));
-    });
+    props.setProviders((providers) => toggleAllProviders(providers));
   }, []);
 
   return (
@@ -300,6 +302,11 @@ function FilterByProvider(props: IFilterByProviderProps) {
       </Accordion>
     </>
   );
+}
+
+function toggleAllProviders(providers: Record<string, boolean>, value?: boolean) {
+  const shouldSelect = value ?? !Object.values(providers).every((value) => value);
+  return Object.fromEntries(Object.keys(providers).map((provider) => [provider, shouldSelect]));
 }
 
 interface IStyledRowTitleProps {
