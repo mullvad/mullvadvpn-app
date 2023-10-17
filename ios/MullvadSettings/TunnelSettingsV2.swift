@@ -7,13 +7,10 @@
 //
 
 import Foundation
+import MullvadREST
 import MullvadTypes
-import struct Network.IPv4Address
-import struct WireGuardKitTypes.IPAddressRange
-import class WireGuardKitTypes.PrivateKey
-import class WireGuardKitTypes.PublicKey
 
-public struct TunnelSettingsV2: Codable, Equatable {
+public struct TunnelSettingsV2: Codable, Equatable, TunnelSettings {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 
@@ -27,31 +24,12 @@ public struct TunnelSettingsV2: Codable, Equatable {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
     }
-}
 
-public struct StoredWgKeyData: Codable, Equatable {
-    /// Private key creation date.
-    public var creationDate: Date
-
-    /// Last date a rotation was attempted. Nil if last attempt was successful.
-    public var lastRotationAttemptDate: Date?
-
-    /// Private key.
-    public var privateKey: PrivateKey
-
-    /// Next private key we're trying to rotate to.
-    /// Added in 2023.3
-    public var nextPrivateKey: PrivateKey?
-
-    public init(
-        creationDate: Date,
-        lastRotationAttemptDate: Date? = nil,
-        privateKey: PrivateKey,
-        nextPrivateKey: PrivateKey? = nil
-    ) {
-        self.creationDate = creationDate
-        self.lastRotationAttemptDate = lastRotationAttemptDate
-        self.privateKey = privateKey
-        self.nextPrivateKey = nextPrivateKey
+    public func upgradeToNextVersion() -> any TunnelSettings {
+        TunnelSettingsV3(
+            relayConstraints: relayConstraints,
+            dnsSettings: dnsSettings,
+            wireGuardObfuscation: WireGuardObfuscationSettings()
+        )
     }
 }

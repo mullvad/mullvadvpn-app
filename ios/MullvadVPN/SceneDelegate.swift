@@ -223,18 +223,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
                 "NEWER_STORED_SETTINGS_ERROR",
                 tableName: "SettingsMigrationUI",
                 value: """
-                The version of settings stored on device is from a newer app than is currently \
-                running. Settings will be reset to defaults and device logged out.
-                """,
-                comment: ""
-            )
-        } else if let error = error as? SettingsMigrationError,
-                  error.underlyingError is REST.Error {
-            return NSLocalizedString(
-                "NETWORK_ERROR",
-                tableName: "SettingsMigrationUI",
-                value: """
-                Network error occurred. Settings will be reset to defaults and device logged out.
+                The version of settings stored on device is unrecognized.\
+                Settings will be reset to defaults and the device will be logged out.
                 """,
                 comment: ""
             )

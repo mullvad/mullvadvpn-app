@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 import MullvadTypes
 import struct Network.IPv4Address
 import struct WireGuardKitTypes.IPAddressRange
@@ -14,9 +15,13 @@ import class WireGuardKitTypes.PrivateKey
 import class WireGuardKitTypes.PublicKey
 
 /// A struct that holds the configuration passed via `NETunnelProviderProtocol`.
-public struct TunnelSettingsV1: Codable, Equatable {
+public struct TunnelSettingsV1: Codable, Equatable, TunnelSettings {
     public var relayConstraints = RelayConstraints()
     public var interface = InterfaceSettings()
+
+    public func upgradeToNextVersion() -> any TunnelSettings {
+        TunnelSettingsV2(relayConstraints: relayConstraints, dnsSettings: interface.dnsSettings)
+    }
 }
 
 /// A struct that holds a tun interface configuration.

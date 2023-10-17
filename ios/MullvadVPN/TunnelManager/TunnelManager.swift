@@ -1117,7 +1117,7 @@ final class TunnelManager: StorePaymentObserver {
     }
 
     private func unsetTunnelConfiguration(completion: @escaping () -> Void) {
-        setSettings(TunnelSettingsV2(), persist: true)
+        setSettings(LatestTunnelSettings(), persist: true)
 
         // Tell the caller to unsubscribe from VPN status notifications.
         prepareForVPNConfigurationDeletion()
