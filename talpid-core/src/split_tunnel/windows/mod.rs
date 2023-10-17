@@ -105,7 +105,7 @@ pub struct SplitTunnel {
     runtime: tokio::runtime::Handle,
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
-    quit_event: Arc<windows::Event>,
+    quit_event: Arc<talpid_windows::sync::Event>,
     excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
     _route_change_callback: Option<CallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
@@ -191,14 +191,21 @@ impl SplitTunnel {
     fn spawn_event_listener(
         handle: Arc<driver::DeviceHandle>,
         excluded_processes: Arc<RwLock<HashMap<usize, ExcludedProcess>>>,
-    ) -> Result<(std::thread::JoinHandle<()>, Arc<windows::Event>), Error> {
-        let mut event_overlapped = windows::Overlapped::new(Some(
-            windows::Event::new(true, false).map_err(Error::EventThreadError)?,
+    ) -> Result<
+        (
+            std::thread::JoinHandle<()>,
+            Arc<talpid_windows::sync::Event>,
+        ),
+        Error,
+    > {
+        let mut event_overlapped = talpid_windows::io::Overlapped::new(Some(
+            talpid_windows::sync::Event::new(true, false).map_err(Error::EventThreadError)?,
         ))
         .map_err(Error::EventThreadError)?;
 
-        let quit_event =
-            Arc::new(windows::Event::new(true, false).map_err(Error::EventThreadError)?);
+        let quit_event = Arc::new(
+            talpid_windows::sync::Event::new(true, false).map_err(Error::EventThreadError)?,
+        );
         let quit_event_copy = quit_event.clone();
 
         let event_thread = std::thread::spawn(move || {
@@ -237,11 +244,11 @@ impl SplitTunnel {
 
     fn fetch_next_event(
         device: &Arc<driver::DeviceHandle>,
-        quit_event: &windows::Event,
-        overlapped: &mut windows::Overlapped,
+        quit_event: &talpid_windows::sync::Event,
+        overlapped: &mut talpid_windows::io::Overlapped,
         data_buffer: &mut Vec<u8>,
     ) -> io::Result<EventResult> {
-        if unsafe { driver::wait_for_single_object(quit_event.as_handle(), Some(Duration::ZERO)) }
+        if unsafe { driver::wait_for_single_object(quit_event.as_raw(), Some(Duration::ZERO)) }
             .is_ok()
         {
             return Ok(EventResult::Quit);
@@ -268,8 +275,8 @@ impl SplitTunnel {
         })?;
 
         let event_objects = [
-            overlapped.get_event().unwrap().as_handle(),
-            quit_event.as_handle(),
+            overlapped.get_event().unwrap().as_raw(),
+            quit_event.as_raw(),
         ];
 
         let signaled_object =
@@ -283,7 +290,7 @@ impl SplitTunnel {
                 },
             )?;
 
-        if signaled_object == quit_event.as_handle() {
+        if signaled_object == quit_event.as_raw() {
             // Quit event was signaled
             return Ok(EventResult::Quit);
         }

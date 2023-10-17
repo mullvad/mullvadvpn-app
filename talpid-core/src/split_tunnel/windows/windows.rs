@@ -13,7 +13,7 @@ use std::{
 };
 use windows_sys::Win32::{
     Foundation::{
-        CloseHandle, BOOL, ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_FILES, FILETIME, HANDLE,
+        CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_FILES, FILETIME, HANDLE,
         INVALID_HANDLE_VALUE,
     },
     Storage::FileSystem::{GetFinalPathNameByHandleW, QueryDosDeviceW},
@@ -22,11 +22,8 @@ use windows_sys::Win32::{
             CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W,
         },
         ProcessStatus::GetProcessImageFileNameW,
-        Threading::{
-            CreateEventW, GetProcessTimes, OpenProcess, SetEvent, PROCESS_QUERY_LIMITED_INFORMATION,
-        },
+        Threading::{GetProcessTimes, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION},
         WindowsProgramming::VOLUME_NAME_NT,
-        IO::OVERLAPPED,
     },
 };
 
@@ -298,96 +295,4 @@ fn get_process_device_path_inner(
     unsafe { buffer.set_len(written as usize) };
 
     Ok(OsStringExt::from_wide(&buffer))
-}
-
-/// Abstraction over `OVERLAPPED`, which is used for async I/O.
-pub struct Overlapped {
-    overlapped: OVERLAPPED,
-    event: Option<Event>,
-}
-
-unsafe impl Send for Overlapped {}
-unsafe impl Sync for Overlapped {}
-
-impl Overlapped {
-    /// Creates an `OVERLAPPED` object with `hEvent` set.
-    pub fn new(event: Option<Event>) -> io::Result<Self> {
-        let mut overlapped = Overlapped {
-            overlapped: unsafe { mem::zeroed() },
-            event: None,
-        };
-        overlapped.set_event(event);
-        Ok(overlapped)
-    }
-
-    /// Borrows the underlying `OVERLAPPED` object.
-    pub fn as_mut_ptr(&mut self) -> *mut OVERLAPPED {
-        &mut self.overlapped
-    }
-
-    /// Returns a reference to the associated event.
-    pub fn get_event(&self) -> Option<&Event> {
-        self.event.as_ref()
-    }
-
-    /// Sets the event object for the underlying `OVERLAPPED` object (i.e., `hEvent`)
-    fn set_event(&mut self, event: Option<Event>) {
-        match event {
-            Some(event) => {
-                self.overlapped.hEvent = event.0;
-                self.event = Some(event);
-            }
-            None => {
-                self.overlapped.hEvent = 0;
-                self.event = None;
-            }
-        }
-    }
-}
-
-/// Abstraction over a Windows event object.
-pub struct Event(HANDLE);
-
-unsafe impl Send for Event {}
-unsafe impl Sync for Event {}
-
-impl Event {
-    pub fn new(manual_reset: bool, initial_state: bool) -> io::Result<Self> {
-        let event = unsafe {
-            CreateEventW(
-                ptr::null_mut(),
-                bool_to_winbool(manual_reset),
-                bool_to_winbool(initial_state),
-                ptr::null(),
-            )
-        };
-        if event == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(Self(event))
-    }
-
-    pub fn set(&self) -> io::Result<()> {
-        if unsafe { SetEvent(self.0) } == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(())
-    }
-
-    pub fn as_handle(&self) -> HANDLE {
-        self.0
-    }
-}
-
-impl Drop for Event {
-    fn drop(&mut self) {
-        unsafe { CloseHandle(self.0) };
-    }
-}
-
-const fn bool_to_winbool(val: bool) -> BOOL {
-    match val {
-        true => 1,
-        false => 0,
-    }
 }

@@ -1,6 +1,6 @@
 use super::windows::{
-    get_device_path, get_process_creation_time, get_process_device_path, open_process, Event,
-    Overlapped, ProcessAccess, ProcessSnapshot,
+    get_device_path, get_process_creation_time, get_process_device_path, open_process,
+    ProcessAccess, ProcessSnapshot,
 };
 use bitflags::bitflags;
 use memoffset::offset_of;
@@ -22,6 +22,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
+use talpid_windows::{io::Overlapped, sync::Event};
 use windows_sys::Win32::{
     Foundation::{
         ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
@@ -877,7 +878,7 @@ pub fn get_overlapped_result(
     let event = overlapped.get_event().unwrap();
 
     // SAFETY: This is a valid event object.
-    unsafe { wait_for_single_object(event.as_handle(), None) }?;
+    unsafe { wait_for_single_object(event.as_raw(), None) }?;
 
     // SAFETY: The handle and overlapped object are valid.
     let mut returned_bytes = 0u32;
