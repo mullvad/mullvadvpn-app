@@ -3456,6 +3456,7 @@ dependencies = [
  "talpid-tunnel",
  "talpid-tunnel-config-client",
  "talpid-types",
+ "talpid-windows",
  "talpid-windows-net",
  "talpid-wireguard",
  "tokio",
@@ -3619,6 +3620,13 @@ dependencies = [
  "serde",
  "x25519-dalek",
  "zeroize",
+]
+
+[[package]]
+name = "talpid-windows"
+version = "0.0.0"
+dependencies = [
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
