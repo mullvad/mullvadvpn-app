@@ -3,10 +3,6 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Signed tag'
-        required: true
 jobs:
   e2e-test:
     name: Run end-to-end desktop tests
