@@ -6,8 +6,8 @@ import androidx.compose.ui.test.performClick
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -26,7 +26,7 @@ class DeviceRevokedScreenTest {
         val state = DeviceRevokedUiState.SECURED
 
         // Act
-        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(state) } }
+        composeTestRule.setContentWithTheme { DeviceRevokedScreen(state) }
 
         // Assert
         composeTestRule.onNodeWithText(UNBLOCK_WARNING).assertExists()
@@ -38,7 +38,7 @@ class DeviceRevokedScreenTest {
         val state = DeviceRevokedUiState.UNSECURED
 
         // Act
-        composeTestRule.setContent { AppTheme { DeviceRevokedScreen(state) } }
+        composeTestRule.setContentWithTheme { DeviceRevokedScreen(state) }
 
         // Assert
         composeTestRule.onNodeWithText(UNBLOCK_WARNING).assertDoesNotExist()
@@ -49,10 +49,8 @@ class DeviceRevokedScreenTest {
         // Arrange
         val state = DeviceRevokedUiState.UNSECURED
         val mockOnGoToLoginClicked: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
-            AppTheme {
-                DeviceRevokedScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
-            }
+        composeTestRule.setContentWithTheme {
+            DeviceRevokedScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
         }
 
         // Act

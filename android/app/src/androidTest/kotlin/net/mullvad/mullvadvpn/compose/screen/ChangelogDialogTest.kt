@@ -11,7 +11,7 @@ import io.mockk.just
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.ChangelogDialogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.junit.Before
@@ -35,14 +35,12 @@ class ChangelogDialogTest {
             MutableStateFlow(ChangelogDialogUiState.Show(listOf(CHANGELOG_ITEM)))
         every { mockedViewModel.dismissChangelogDialog() } just Runs
 
-        composeTestRule.setContent {
-            AppTheme {
-                ChangelogDialog(
-                    changesList = listOf(CHANGELOG_ITEM),
-                    version = CHANGELOG_VERSION,
-                    onDismiss = { mockedViewModel.dismissChangelogDialog() }
-                )
-            }
+        composeTestRule.setContentWithTheme {
+            ChangelogDialog(
+                changesList = listOf(CHANGELOG_ITEM),
+                version = CHANGELOG_VERSION,
+                onDismiss = { mockedViewModel.dismissChangelogDialog() }
+            )
         }
 
         // Check changelog content showed within dialog

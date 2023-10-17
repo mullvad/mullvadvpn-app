@@ -12,6 +12,7 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ConnectNotificationState
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -53,7 +54,7 @@ class ConnectScreenTest {
     @Test
     fun testDefaultState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState = ConnectUiState.INITIAL,
                 uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
@@ -71,7 +72,7 @@ class ConnectScreenTest {
     @Test
     fun testConnectingState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -107,7 +108,7 @@ class ConnectScreenTest {
         // Arrange
         val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
         every { mockTunnelEndpoint.quantumResistant } returns true
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -143,7 +144,7 @@ class ConnectScreenTest {
     fun testConnectedState() {
         // Arrange
         val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -176,7 +177,7 @@ class ConnectScreenTest {
         // Arrange
         val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
         every { mockTunnelEndpoint.quantumResistant } returns true
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -210,7 +211,7 @@ class ConnectScreenTest {
         val mockRelayLocation: RelayItem = mockk(relaxed = true)
         val mockLocationName = "Home"
         every { mockRelayLocation.locationName } returns mockLocationName
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -244,7 +245,7 @@ class ConnectScreenTest {
         val mockRelayLocation: RelayItem = mockk(relaxed = true)
         val mockLocationName = "Home"
         every { mockRelayLocation.locationName } returns mockLocationName
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -278,7 +279,7 @@ class ConnectScreenTest {
         val mockRelayLocation: RelayItem = mockk(relaxed = true)
         val mockLocationName = "Home"
         every { mockRelayLocation.locationName } returns mockLocationName
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -318,7 +319,7 @@ class ConnectScreenTest {
         val mockRelayLocation: RelayItem = mockk(relaxed = true)
         val mockLocationName = "Home"
         every { mockRelayLocation.locationName } returns mockLocationName
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -356,7 +357,7 @@ class ConnectScreenTest {
     @Test
     fun testReconnectingState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -394,7 +395,7 @@ class ConnectScreenTest {
         val mockRelayLocation: RelayItem = mockk(relaxed = true)
         val mockLocationName = "Home"
         every { mockRelayLocation.locationName } returns mockLocationName
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -431,7 +432,7 @@ class ConnectScreenTest {
         val mockLocationName = "Home"
         every { mockRelayLocation.locationName } returns mockLocationName
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -464,7 +465,7 @@ class ConnectScreenTest {
         // Arrange
         val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -497,7 +498,7 @@ class ConnectScreenTest {
         // Arrange
         val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -529,7 +530,7 @@ class ConnectScreenTest {
     fun testOnConnectClick() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -561,7 +562,7 @@ class ConnectScreenTest {
     fun testOnCancelClick() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -594,7 +595,7 @@ class ConnectScreenTest {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         val dummyLocation = GeoIpLocation(null, null, "dummy country", null, "dummy hostname")
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -634,7 +635,7 @@ class ConnectScreenTest {
         val mockInAddress = Triple(mockHost, mockPort, mockProtocol)
         val mockOutAddress = "HostAddressV4 / HostAddressV4"
         every { mockLocation.hostname } returns mockHostName
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -673,7 +674,7 @@ class ConnectScreenTest {
                 isOutdated = true,
                 isSupported = true
             )
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -711,7 +712,7 @@ class ConnectScreenTest {
                 isOutdated = true,
                 isSupported = false
             )
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -746,7 +747,7 @@ class ConnectScreenTest {
     fun testAccountExpiredNotification() {
         // Arrange
         val expiryDate = DateTime(2020, 11, 11, 10, 10)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState =
                     ConnectUiState(
@@ -785,7 +786,7 @@ class ConnectScreenTest {
                 isOutdated = true,
                 isSupported = false
             )
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 onUpdateVersionClick = mockedClickHandler,
                 uiState =
@@ -819,7 +820,7 @@ class ConnectScreenTest {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         val expiryDate = DateTime(2020, 11, 11, 10, 10)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 onManageAccountClick = mockedClickHandler,
                 uiState =
@@ -851,7 +852,7 @@ class ConnectScreenTest {
     @Test
     fun testOpenAccountView() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState = ConnectUiState.INITIAL,
                 uiSideEffect =
@@ -869,7 +870,7 @@ class ConnectScreenTest {
     fun testOpenOutOfTimeScreen() {
         // Arrange
         val mockedOpenScreenHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState = ConnectUiState.INITIAL,
                 uiSideEffect = MutableStateFlow(ConnectViewModel.UiSideEffect.OpenOutOfTimeView),

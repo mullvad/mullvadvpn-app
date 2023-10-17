@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
@@ -26,7 +27,7 @@ class OutOfTimeScreenTest {
     @Test
     fun testDisableSitePayment() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
                 showSitePayment = false,
                 uiState = OutOfTimeUiState(deviceName = ""),
@@ -54,7 +55,7 @@ class OutOfTimeScreenTest {
     @Test
     fun testOpenAccountView() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(deviceName = ""),
@@ -77,7 +78,7 @@ class OutOfTimeScreenTest {
     fun testOpenConnectScreen() {
         // Arrange
         val mockClickListener: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(deviceName = ""),
@@ -99,7 +100,7 @@ class OutOfTimeScreenTest {
     fun testClickSitePaymentButton() {
         // Arrange
         val mockClickListener: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(deviceName = ""),
@@ -124,7 +125,7 @@ class OutOfTimeScreenTest {
     fun testClickRedeemVoucher() {
         // Arrange
         val mockClickListener: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState = OutOfTimeUiState(deviceName = ""),
@@ -149,7 +150,7 @@ class OutOfTimeScreenTest {
     fun testClickDisconnect() {
         // Arrange
         val mockClickListener: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState =
