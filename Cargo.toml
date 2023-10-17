@@ -34,7 +34,7 @@ members = [
     "talpid-time",
     "talpid-tunnel",
     "talpid-tunnel-config-client",
-    "talpid-windows-net",
+    "talpid-windows",
     "talpid-wireguard",
     "mullvad-management-interface",
     "tunnel-obfuscation",

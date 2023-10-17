@@ -32,7 +32,7 @@ tun = "0.5.1"
 tun = "0.5.1"
 
 [target.'cfg(windows)'.dependencies]
-talpid-windows-net = { path = "../talpid-windows-net" }
+talpid-windows = { path = "../talpid-windows" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true

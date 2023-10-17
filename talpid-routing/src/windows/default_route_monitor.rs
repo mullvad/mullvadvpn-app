@@ -22,7 +22,7 @@ use windows_sys::Win32::{
     },
 };
 
-use talpid_windows_net::AddressFamily;
+use talpid_windows::net::AddressFamily;
 
 const WIN_FALSE: BOOLEAN = 0;
 

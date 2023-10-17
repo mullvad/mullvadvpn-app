@@ -1,5 +1,5 @@
 use std::io;
-use talpid_windows_net::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
+use talpid_windows::net::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
 use windows_sys::Win32::{
     Foundation::ERROR_NOT_FOUND, NetworkManagement::Ndis::NET_LUID_LH,
     Networking::WinSock::RouterDiscoveryDisabled,

@@ -1,12 +1,14 @@
-//! Interface with low-level windows specific bits.
+//! Interface with low-level Windows-specific bits.
 
 #![deny(missing_docs)]
 #![deny(rust_2018_idioms)]
+#![cfg(windows)]
 
-/// Windows I/O
-#[cfg(windows)]
+/// I/O
 pub mod io;
 
-/// Synchronization (event objects, etc.)
-#[cfg(windows)]
+/// Networking
+pub mod net;
+
+/// Synchronization
 pub mod sync;
