@@ -19,10 +19,10 @@ extension REST {
     typealias Authorization = String
 
     struct AccessTokenProvider: RESTAuthorizationProvider {
-        private let accessTokenManager: AccessTokenManager
+        private let accessTokenManager: RESTAccessTokenManagement
         private let accountNumber: String
 
-        init(accessTokenManager: AccessTokenManager, accountNumber: String) {
+        init(accessTokenManager: RESTAccessTokenManagement, accountNumber: String) {
             self.accessTokenManager = accessTokenManager
             self.accountNumber = accountNumber
         }
