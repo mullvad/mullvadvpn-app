@@ -18,6 +18,7 @@ export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   borderRadius: '4px',
   padding: '9px 38px',
   margin: 0,
+  lineHeight: '24px',
   color: colors.white60,
   backgroundColor: colors.white10,
   '::placeholder': {
