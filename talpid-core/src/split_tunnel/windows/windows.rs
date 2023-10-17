@@ -12,98 +12,14 @@ use std::{
     ptr,
 };
 use windows_sys::Win32::{
-    Foundation::{
-        CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_FILES, FILETIME, HANDLE,
-        INVALID_HANDLE_VALUE,
-    },
+    Foundation::{CloseHandle, ERROR_INSUFFICIENT_BUFFER, FILETIME, HANDLE},
     Storage::FileSystem::{GetFinalPathNameByHandleW, QueryDosDeviceW},
     System::{
-        Diagnostics::ToolHelp::{
-            CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W,
-        },
         ProcessStatus::GetProcessImageFileNameW,
         Threading::{GetProcessTimes, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION},
         WindowsProgramming::VOLUME_NAME_NT,
     },
 };
-
-pub struct ProcessSnapshot {
-    handle: HANDLE,
-}
-
-impl ProcessSnapshot {
-    pub fn new(flags: u32, process_id: u32) -> io::Result<ProcessSnapshot> {
-        let snap = unsafe { CreateToolhelp32Snapshot(flags, process_id) };
-
-        if snap == INVALID_HANDLE_VALUE {
-            Err(io::Error::last_os_error())
-        } else {
-            Ok(ProcessSnapshot { handle: snap })
-        }
-    }
-
-    pub fn handle(&self) -> HANDLE {
-        self.handle
-    }
-
-    pub fn entries(&self) -> ProcessSnapshotEntries<'_> {
-        let mut entry: PROCESSENTRY32W = unsafe { mem::zeroed() };
-        entry.dwSize = mem::size_of::<PROCESSENTRY32W>() as u32;
-
-        ProcessSnapshotEntries {
-            snapshot: self,
-            iter_started: false,
-            temp_entry: entry,
-        }
-    }
-}
-
-impl Drop for ProcessSnapshot {
-    fn drop(&mut self) {
-        unsafe {
-            CloseHandle(self.handle);
-        }
-    }
-}
-
-pub struct ProcessEntry {
-    pub pid: u32,
-    pub parent_pid: u32,
-}
-
-pub struct ProcessSnapshotEntries<'a> {
-    snapshot: &'a ProcessSnapshot,
-    iter_started: bool,
-    temp_entry: PROCESSENTRY32W,
-}
-
-impl Iterator for ProcessSnapshotEntries<'_> {
-    type Item = io::Result<ProcessEntry>;
-
-    fn next(&mut self) -> Option<io::Result<ProcessEntry>> {
-        if self.iter_started {
-            if unsafe { Process32NextW(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
-                let last_error = io::Error::last_os_error();
-
-                return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
-                    None
-                } else {
-                    Some(Err(last_error))
-                };
-            }
-        } else {
-            if unsafe { Process32FirstW(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
-                return Some(Err(io::Error::last_os_error()));
-            }
-            self.iter_started = true;
-        }
-
-        Some(Ok(ProcessEntry {
-            pid: self.temp_entry.th32ProcessID,
-            parent_pid: self.temp_entry.th32ParentProcessID,
-        }))
-    }
-}
 
 /// Obtains a device path without resolving links or mount points.
 pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
