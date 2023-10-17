@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
+import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectScreen
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -20,6 +21,7 @@ class ConnectFragment : BaseFragment() {
 
     // Injected dependencies
     private val connectViewModel: ConnectViewModel by viewModel()
+    private val _setNavigationBar = MutableStateFlow(false)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,9 +33,11 @@ class ConnectFragment : BaseFragment() {
         view.findViewById<ComposeView>(R.id.compose_view).setContent {
             AppTheme {
                 val state = connectViewModel.uiState.collectAsState().value
+                val drawNavbar = _setNavigationBar.collectAsState()
                 ConnectScreen(
                     uiState = state,
                     uiSideEffect = connectViewModel.uiSideEffect,
+                    drawNavigationBar = drawNavbar.value,
                     onDisconnectClick = connectViewModel::onDisconnectClick,
                     onReconnectClick = connectViewModel::onReconnectClick,
                     onConnectClick = connectViewModel::onConnectClick,
@@ -91,5 +95,16 @@ class ConnectFragment : BaseFragment() {
 
     private fun openAccountView() {
         (context as? MainActivity)?.openAccount()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        _setNavigationBar.value = false
+    }
+
+    // TODO Temporary fix for handling in & out animations until we have Compose Navigation
+    override fun onEnterTransitionAnimationEnd() {
+        super.onEnterTransitionAnimationEnd()
+        _setNavigationBar.value = true
     }
 }

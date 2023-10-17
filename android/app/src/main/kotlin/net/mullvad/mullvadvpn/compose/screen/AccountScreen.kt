@@ -81,6 +81,7 @@ fun AccountScreen(
     var showDeviceNameInfoDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        systemUiController.setNavigationBarColor(backgroundColor)
         enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
     }
     if (showDeviceNameInfoDialog) {

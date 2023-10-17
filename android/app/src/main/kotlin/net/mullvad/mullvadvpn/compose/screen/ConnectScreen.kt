@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -71,6 +72,7 @@ private fun PreviewConnectScreen() {
 fun ConnectScreen(
     uiState: ConnectUiState,
     uiSideEffect: SharedFlow<ConnectViewModel.UiSideEffect>,
+    drawNavigationBar: Boolean = false,
     onDisconnectClick: () -> Unit = {},
     onReconnectClick: () -> Unit = {},
     onConnectClick: () -> Unit = {},
@@ -84,6 +86,15 @@ fun ConnectScreen(
     onAccountClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
+
+    val systemUiController = rememberSystemUiController()
+    val navigationBarColor = MaterialTheme.colorScheme.primary
+    val setSystemBarColor = { systemUiController.setNavigationBarColor(navigationBarColor) }
+    LaunchedEffect(drawNavigationBar) {
+        if (drawNavigationBar) {
+            setSystemBarColor()
+        }
+    }
     LaunchedEffect(key1 = Unit) {
         uiSideEffect.collect { uiSideEffect ->
             when (uiSideEffect) {
@@ -121,7 +132,7 @@ fun ConnectScreen(
             } else {
                 MaterialTheme.colorScheme.error
             },
-        navigationBarColor = MaterialTheme.colorScheme.primary,
+        navigationBarColor = null,
         iconTintColor =
             if (uiState.tunnelUiState.isSecured()) {
                     MaterialTheme.colorScheme.onPrimary
