@@ -874,7 +874,7 @@
 	${ExtractMullvadSetup}
 	${ClearFirewallRules}
 
-	MessageBox MB_OK "Failed to uninstall a previous version. Contact support or review the logs for more information."
+	MessageBox MB_OK "Failed to uninstall a previous version. Please try restarting your computer and try again. If you still have this issue, please contact support or review the logs."
 	SetErrorLevel 5
 	Abort
 
