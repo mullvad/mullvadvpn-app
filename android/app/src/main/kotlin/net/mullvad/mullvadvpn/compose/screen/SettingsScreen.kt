@@ -67,6 +67,7 @@ fun SettingsScreen(
     val systemUiController = rememberSystemUiController()
 
     LaunchedEffect(Unit) {
+        systemUiController.setNavigationBarColor(backgroundColor)
         enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
     }
 

@@ -221,10 +221,16 @@ class ConnectViewModel(
         }
     }
 
+    fun onTransitionAnimationEnd() {
+        _uiSideEffect.tryEmit(UiSideEffect.EnterAnimationEnd)
+    }
+
     sealed interface UiSideEffect {
         data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect
 
         data object OpenOutOfTimeView : UiSideEffect
+
+        data object EnterAnimationEnd : UiSideEffect
     }
 
     companion object {

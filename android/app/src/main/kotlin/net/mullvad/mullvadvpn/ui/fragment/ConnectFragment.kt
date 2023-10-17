@@ -92,4 +92,9 @@ class ConnectFragment : BaseFragment() {
     private fun openAccountView() {
         (context as? MainActivity)?.openAccount()
     }
+
+    override fun onEnterTransitionAnimationEnd() {
+        super.onEnterTransitionAnimationEnd()
+        connectViewModel.onTransitionAnimationEnd()
+    }
 }
