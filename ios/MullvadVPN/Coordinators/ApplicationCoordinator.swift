@@ -326,7 +326,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         }
 
         // Change log can be presented simultaneously with other routes.
-        if !appPreferences.isSeenLatestChanges {
+        if !appPreferences.hasSeenLastChanges {
             routes.append(.changelog)
         }
 
@@ -995,12 +995,13 @@ extension DeviceState {
 }
 
 fileprivate extension AppPreferencesDataSource {
-    var isSeenLatestChanges: Bool {
-        self.lastSeenChangeLogVersion == Bundle.main.shortVersion
+    var hasSeenLastChanges: Bool {
+        !ChangeLogInteractor().hasNewChanges ||
+            (lastSeenChangeLogVersion == Bundle.main.shortVersion)
     }
 
     mutating func markChangeLogSeen() {
-        self.lastSeenChangeLogVersion = Bundle.main.shortVersion
+        lastSeenChangeLogVersion = Bundle.main.shortVersion
     }
 
     // swiftlint:disable:next file_length
