@@ -160,11 +160,11 @@ extension REST {
     }
 
     public class AuthProxyConfiguration: ProxyConfiguration {
-        public let accessTokenManager: AccessTokenManager
+        public let accessTokenManager: RESTAccessTokenManagement
 
         public init(
             proxyConfiguration: ProxyConfiguration,
-            accessTokenManager: AccessTokenManager
+            accessTokenManager: RESTAccessTokenManagement
         ) {
             self.accessTokenManager = accessTokenManager
 

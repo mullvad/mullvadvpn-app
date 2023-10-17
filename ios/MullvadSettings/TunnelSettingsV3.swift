@@ -1,28 +1,33 @@
 //
-//  TunnelSettingsV2.swift
+//  TunnelSettingsV3.swift
 //  MullvadVPN
 //
-//  Created by pronebird on 27/04/2022.
-//  Copyright © 2022 Mullvad VPN AB. All rights reserved.
+//  Created by Marco Nikic on 2023-10-17.
+//  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import MullvadREST
 import MullvadTypes
 
-public struct TunnelSettingsV2: Codable, Equatable, TunnelSettings {
+public struct TunnelSettingsV3: Codable, Equatable, TunnelSettings {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 
     /// DNS settings.
     public var dnsSettings: DNSSettings
 
+    /// WireGuard obfuscation settings
+    public var wireGuardObfuscation: WireGuardObfuscationSettings
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
-        dnsSettings: DNSSettings = DNSSettings()
+        dnsSettings: DNSSettings = DNSSettings(),
+        wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings()
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
+        self.wireGuardObfuscation = wireGuardObfuscation
     }
 
     public func upgradeToNextVersion(
@@ -30,10 +35,6 @@ public struct TunnelSettingsV2: Codable, Equatable, TunnelSettings {
         proxyFactory: REST.ProxyFactory,
         parser: SettingsParser
     ) -> any TunnelSettings {
-        TunnelSettingsV3(
-            relayConstraints: relayConstraints,
-            dnsSettings: dnsSettings,
-            wireGuardObfuscation: WireGuardObfuscationSettings()
-        )
+        self
     }
 }

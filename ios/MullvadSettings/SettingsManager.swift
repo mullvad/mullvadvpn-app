@@ -18,10 +18,27 @@ private let accountExpiryKey = "accountExpiry"
 public enum SettingsManager {
     private static let logger = Logger(label: "SettingsManager")
 
+    #if DEBUG
+    private static var _store = KeychainSettingsStore(
+        serviceName: keychainServiceName,
+        accessGroup: ApplicationConfiguration.securityGroupIdentifier
+    )
+
+    /// Alternative store used for tests.
+    internal static var unitTestStore: SettingsStore?
+
+    public static var store: SettingsStore {
+        if let unitTestStore { return unitTestStore }
+        return _store
+    }
+
+    #else
     public static let store: SettingsStore = KeychainSettingsStore(
         serviceName: keychainServiceName,
         accessGroup: ApplicationConfiguration.securityGroupIdentifier
     )
+
+    #endif
 
     private static func makeParser() -> SettingsParser {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())

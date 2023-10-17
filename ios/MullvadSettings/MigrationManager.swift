@@ -47,9 +47,63 @@ public struct MigrationManager {
         do {
             try checkLatestSettingsVersion(in: store)
             handleCompletion(.nothing)
+        } catch is UnsupportedSettingsVersionError {
+            do {
+                try upgradeSettingsToLatestVersion(
+                    store: store,
+                    proxyFactory: proxyFactory,
+                    migrationCompleted: migrationCompleted
+                )
+            } catch {
+                handleCompletion(.failure(error))
+            }
         } catch {
             handleCompletion(.failure(error))
         }
+    }
+
+    private func upgradeSettingsToLatestVersion(
+        store: SettingsStore,
+        proxyFactory: REST.ProxyFactory,
+        migrationCompleted: @escaping (SettingsMigrationResult) -> Void
+    ) throws {
+        let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+        let settingsData = try store.read(key: SettingsKey.settings)
+        let settingsVersion = try parser.parseVersion(data: settingsData)
+
+        // Special case downgrade attempts as nothing to do
+        guard settingsVersion <= SchemaVersion.current.rawValue else {
+            migrationCompleted(.nothing)
+            return
+        }
+
+        // Handle cases where the saved version is strictly inferior to the current version
+        guard let savedSchema = SchemaVersion(rawValue: settingsVersion) else {
+            migrationCompleted(.failure(UnsupportedSettingsVersionError(
+                storedVersion: settingsVersion,
+                currentVersion: SchemaVersion.current
+            )))
+            return
+        }
+
+        var versionTypeCopy = savedSchema
+        let savedSettings = try parser.parsePayload(as: versionTypeCopy.settingsType, from: settingsData)
+        var latestSettings = savedSettings
+
+        repeat {
+            let upgradedVersion = latestSettings.upgradeToNextVersion(
+                store: store,
+                proxyFactory: proxyFactory,
+                parser: parser
+            )
+            versionTypeCopy = versionTypeCopy.nextVersion
+            latestSettings = upgradedVersion
+        } while versionTypeCopy.rawValue < SchemaVersion.current.rawValue
+
+        // Write the latest settings back to the store
+        let latestVersionPayload = try parser.producePayload(latestSettings, version: SchemaVersion.current.rawValue)
+        try store.write(latestVersionPayload, for: .settings)
+        migrationCompleted(.success)
     }
 
     private func checkLatestSettingsVersion(in store: SettingsStore) throws {
