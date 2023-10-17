@@ -1863,6 +1863,7 @@ dependencies = [
  "talpid-platform-metadata",
  "talpid-time",
  "talpid-types",
+ "talpid-windows",
  "tokio",
  "tokio-stream",
  "winapi",

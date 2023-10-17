@@ -60,6 +60,7 @@ ctrlc = "3.0"
 windows-service = "0.6.0"
 winapi = { version = "0.3", features = ["winnt", "excpt"] }
 dirs = "5.0.1"
+talpid-windows = { path = "../talpid-windows" }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
