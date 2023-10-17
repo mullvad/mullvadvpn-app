@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,7 +36,7 @@ fun SelectableCell(
     title: String,
     isSelected: Boolean,
     iconContentDescription: String? = null,
-    selectedIcon: @Composable () -> Unit = {
+    selectedIcon: @Composable RowScope.() -> Unit = {
         Icon(
             painter = painterResource(id = R.drawable.icon_tick),
             contentDescription = iconContentDescription,

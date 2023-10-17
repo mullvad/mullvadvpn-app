@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.cell
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -20,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.CellSwitch
+import net.mullvad.mullvadvpn.compose.component.MullvadSwitch
 import net.mullvad.mullvadvpn.compose.component.SpacedColumn
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
@@ -61,7 +62,13 @@ fun NormalSwitchComposeCell(
     onInfoClicked: (() -> Unit)? = null
 ) {
     SwitchComposeCell(
-        titleView = { BaseCellTitle(title = title, style = MaterialTheme.typography.labelLarge) },
+        titleView = {
+            BaseCellTitle(
+                title = title,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.weight(1f, true)
+            )
+        },
         isToggled = isToggled,
         startPadding = startPadding,
         isEnabled = isEnabled,
@@ -83,7 +90,13 @@ fun HeaderSwitchComposeCell(
     onInfoClicked: (() -> Unit)? = null,
 ) {
     SwitchComposeCell(
-        titleView = { BaseCellTitle(title = title, style = MaterialTheme.typography.titleMedium) },
+        titleView = {
+            BaseCellTitle(
+                title = title,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.weight(1f, fill = true)
+            )
+        },
         isToggled = isToggled,
         startPadding = startPadding,
         isEnabled = isEnabled,
@@ -96,7 +109,7 @@ fun HeaderSwitchComposeCell(
 
 @Composable
 private fun SwitchComposeCell(
-    titleView: @Composable () -> Unit,
+    titleView: @Composable RowScope.() -> Unit,
     isToggled: Boolean,
     startPadding: Dp,
     isEnabled: Boolean,
@@ -154,7 +167,7 @@ fun SwitchCellView(
             )
         }
 
-        CellSwitch(isChecked = isToggled, isEnabled = isEnabled, onCheckedChange = onSwitchClicked)
+        MullvadSwitch(checked = isToggled, enabled = isEnabled, onCheckedChange = onSwitchClicked)
     }
 }
 
