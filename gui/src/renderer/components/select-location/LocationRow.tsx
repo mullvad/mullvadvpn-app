@@ -87,6 +87,7 @@ export const StyledLocationRowLabel = styled(Cell.Label)(normalText, {
   flex: 1,
   minWidth: 0,
   fontWeight: 400,
+  lineHeight: '24px',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
