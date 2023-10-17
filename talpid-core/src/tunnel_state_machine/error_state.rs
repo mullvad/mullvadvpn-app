@@ -1,6 +1,6 @@
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
-    TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    TunnelCommandReceiver, TunnelState, TunnelStateTransition,
 };
 use crate::firewall::FirewallPolicy;
 use futures::StreamExt;
@@ -17,6 +17,56 @@ pub struct ErrorState {
 }
 
 impl ErrorState {
+    pub(super) fn enter(
+        shared_values: &mut SharedTunnelStateValues,
+        block_reason: ErrorStateCause,
+    ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
+        #[cfg(windows)]
+        if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(
+                    "Failed to register addresses with split tunnel driver"
+                )
+            );
+        }
+
+        #[cfg(target_os = "macos")]
+        if !block_reason.prevents_filtering_resolver() {
+            if let Err(err) = shared_values
+                .dns_monitor
+                .set("lo", &[Ipv4Addr::LOCALHOST.into()])
+            {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg(
+                        "Failed to configure system to use filtering resolver"
+                    )
+                );
+                return Self::enter(shared_values, ErrorStateCause::SetDnsError);
+            }
+        };
+
+        #[cfg(not(target_os = "android"))]
+        let block_failure = Self::set_firewall_policy(shared_values).err();
+
+        #[cfg(target_os = "android")]
+        let block_failure = if !Self::create_blocking_tun(shared_values) {
+            Some(FirewallPolicyError::Generic)
+        } else {
+            None
+        };
+        (
+            Box::new(ErrorState {
+                block_reason: block_reason.clone(),
+            }),
+            TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(
+                block_reason,
+                block_failure,
+            )),
+        )
+    }
+
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
     ) -> Result<(), FirewallPolicyError> {
@@ -78,61 +128,9 @@ impl ErrorState {
 }
 
 impl TunnelState for ErrorState {
-    type Bootstrap = ErrorStateCause;
-
-    fn enter(
-        shared_values: &mut SharedTunnelStateValues,
-        block_reason: Self::Bootstrap,
-    ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        #[cfg(windows)]
-        if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg(
-                    "Failed to register addresses with split tunnel driver"
-                )
-            );
-        }
-
-        #[cfg(target_os = "macos")]
-        if !block_reason.prevents_filtering_resolver() {
-            if let Err(err) = shared_values
-                .dns_monitor
-                .set("lo", &[Ipv4Addr::LOCALHOST.into()])
-            {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg(
-                        "Failed to configure system to use filtering resolver"
-                    )
-                );
-                return Self::enter(shared_values, ErrorStateCause::SetDnsError);
-            }
-        };
-
-        #[cfg(not(target_os = "android"))]
-        let block_failure = Self::set_firewall_policy(shared_values).err();
-
-        #[cfg(target_os = "android")]
-        let block_failure = if !Self::create_blocking_tun(shared_values) {
-            Some(FirewallPolicyError::Generic)
-        } else {
-            None
-        };
-        (
-            TunnelStateWrapper::from(ErrorState {
-                block_reason: block_reason.clone(),
-            }),
-            TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(
-                block_reason,
-                block_failure,
-            )),
-        )
-    }
-
     #[cfg_attr(not(target_os = "macos"), allow(unused_mut))]
     fn handle_event(
-        self,
+        self: Box<Self>,
         runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
@@ -145,7 +143,7 @@ impl TunnelState for ErrorState {
                     NewState(Self::enter(shared_values, error_state_cause))
                 } else {
                     let _ = Self::set_firewall_policy(shared_values);
-                    SameState(self.into())
+                    SameState(self)
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
@@ -163,18 +161,18 @@ impl TunnelState for ErrorState {
                     }
                 }
                 let _ = tx.send(());
-                SameState(self.into())
+                SameState(self)
             }
             Some(TunnelCommand::Dns(servers)) => {
                 if let Err(error_state_cause) = shared_values.set_dns_servers(servers) {
                     NewState(Self::enter(shared_values, error_state_cause))
                 } else {
-                    SameState(self.into())
+                    SameState(self)
                 }
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
-                SameState(self.into())
+                SameState(self)
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
@@ -182,7 +180,7 @@ impl TunnelState for ErrorState {
                     Self::reset_dns(shared_values);
                     NewState(ConnectingState::enter(shared_values, 0))
                 } else {
-                    SameState(self.into())
+                    SameState(self)
                 }
             }
             Some(TunnelCommand::Connect) => {
@@ -202,12 +200,12 @@ impl TunnelState for ErrorState {
             #[cfg(target_os = "android")]
             Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                 shared_values.bypass_socket(fd, done_tx);
-                SameState(self.into())
+                SameState(self)
             }
             #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 shared_values.split_tunnel.set_paths(&paths, result_tx);
-                SameState(self.into())
+                SameState(self)
             }
         }
     }

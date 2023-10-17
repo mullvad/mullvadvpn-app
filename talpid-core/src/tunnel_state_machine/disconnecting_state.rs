@@ -1,7 +1,7 @@
 use super::{
     connecting_state::TunnelCloseEvent, ConnectingState, DisconnectedState, ErrorState,
     EventConsequence, EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver,
-    TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    TunnelState, TunnelStateTransition,
 };
 use futures::{channel::oneshot, future::FusedFuture, StreamExt};
 use talpid_types::tunnel::{ActionAfterDisconnect, ErrorStateCause};
@@ -14,8 +14,25 @@ pub struct DisconnectingState {
 }
 
 impl DisconnectingState {
+    pub(super) fn enter(
+        tunnel_close_tx: oneshot::Sender<()>,
+        tunnel_close_event: TunnelCloseEvent,
+        after_disconnect: AfterDisconnect,
+    ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
+        let _ = tunnel_close_tx.send(());
+        let action_after_disconnect = after_disconnect.action();
+
+        (
+            Box::new(DisconnectingState {
+                tunnel_close_event,
+                after_disconnect,
+            }),
+            TunnelStateTransition::Disconnecting(action_after_disconnect),
+        )
+    }
+
     fn handle_commands(
-        mut self,
+        mut self: Box<Self>,
         command: Option<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
@@ -141,14 +158,14 @@ impl DisconnectingState {
             },
         };
 
-        EventConsequence::SameState(self.into())
+        EventConsequence::SameState(self)
     }
 
     fn after_disconnect(
         self,
         block_reason: Option<ErrorStateCause>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> (TunnelStateWrapper, TunnelStateTransition) {
+    ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
         if let Some(reason) = block_reason {
             return ErrorState::enter(shared_values, reason);
         }
@@ -164,26 +181,8 @@ impl DisconnectingState {
 }
 
 impl TunnelState for DisconnectingState {
-    type Bootstrap = (oneshot::Sender<()>, TunnelCloseEvent, AfterDisconnect);
-
-    fn enter(
-        _: &mut SharedTunnelStateValues,
-        (tunnel_close_tx, tunnel_close_event, after_disconnect): Self::Bootstrap,
-    ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        let _ = tunnel_close_tx.send(());
-        let action_after_disconnect = after_disconnect.action();
-
-        (
-            TunnelStateWrapper::from(DisconnectingState {
-                tunnel_close_event,
-                after_disconnect,
-            }),
-            TunnelStateTransition::Disconnecting(action_after_disconnect),
-        )
-    }
-
     fn handle_event(
-        mut self,
+        mut self: Box<Self>,
         runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,

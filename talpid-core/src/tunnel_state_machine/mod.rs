@@ -5,7 +5,7 @@ mod disconnecting_state;
 mod error_state;
 
 use self::{
-    connected_state::{ConnectedState, ConnectedStateBootstrap},
+    connected_state::ConnectedState,
     connecting_state::ConnectingState,
     disconnected_state::DisconnectedState,
     disconnecting_state::{AfterDisconnect, DisconnectingState},
@@ -232,7 +232,7 @@ enum EventResult {
 /// to. Every time it successfully advances the state machine a `TunnelStateTransition` is emitted
 /// by the stream.
 struct TunnelStateMachine {
-    current_state: Option<TunnelStateWrapper>,
+    current_state: Option<Box<dyn TunnelState>>,
     commands: TunnelCommandReceiver,
     shared_values: SharedTunnelStateValues,
 }
@@ -389,9 +389,8 @@ impl TunnelStateMachine {
 
         let runtime = self.shared_values.runtime.clone();
 
-        while let Some(state_wrapper) = self.current_state.take() {
-            match state_wrapper.handle_event(&runtime, &mut self.commands, &mut self.shared_values)
-            {
+        while let Some(state) = self.current_state.take() {
+            match state.handle_event(&runtime, &mut self.commands, &mut self.shared_values) {
                 NewState((state, transition)) => {
                     self.current_state = Some(state);
 
@@ -557,28 +556,16 @@ impl SharedTunnelStateValues {
 /// Asynchronous result of an attempt to progress a state.
 enum EventConsequence {
     /// Transition to a new state.
-    NewState((TunnelStateWrapper, TunnelStateTransition)),
+    NewState((Box<dyn TunnelState>, TunnelStateTransition)),
     /// An event was received, but it was ignored by the state so no transition is performed.
-    SameState(TunnelStateWrapper),
+    SameState(Box<dyn TunnelState>),
     /// The state machine has finished its execution.
     Finished,
 }
 
 /// Trait that contains the method all states should implement to handle an event and advance the
 /// state machine.
-trait TunnelState: Into<TunnelStateWrapper> + Sized {
-    /// Type representing extra information required for entering the state.
-    type Bootstrap;
-
-    /// Constructor function.
-    ///
-    /// This is the state entry point. It attempts to enter the state, and may fail by entering an
-    /// error or fallback state instead.
-    fn enter(
-        shared_values: &mut SharedTunnelStateValues,
-        bootstrap: Self::Bootstrap,
-    ) -> (TunnelStateWrapper, TunnelStateTransition);
-
+trait TunnelState: Send {
     /// Main state function.
     ///
     /// This is state exit point. It consumes itself and returns the next state to advance to when
@@ -590,54 +577,11 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
     ///
     /// [`EventConsequence`]: enum.EventConsequence.html
     fn handle_event(
-        self,
+        self: Box<Self>,
         runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence;
-}
-
-macro_rules! state_wrapper {
-    (enum $wrapper_name:ident { $($state_variant:ident($state_type:ident)),* $(,)* }) => {
-        /// Valid states of the tunnel.
-        ///
-        /// All implementations must implement `TunnelState` so that they can handle events and
-        /// commands in order to advance the state machine.
-        enum $wrapper_name {
-            $($state_variant($state_type),)*
-        }
-
-        $(impl From<$state_type> for $wrapper_name {
-            fn from(state: $state_type) -> Self {
-                $wrapper_name::$state_variant(state)
-            }
-        })*
-
-        impl $wrapper_name {
-            fn handle_event(
-                self,
-                runtime: &tokio::runtime::Handle,
-                commands: &mut TunnelCommandReceiver,
-                shared_values: &mut SharedTunnelStateValues,
-            ) -> EventConsequence {
-                match self {
-                    $($wrapper_name::$state_variant(state) => {
-                        state.handle_event(runtime, commands, shared_values)
-                    })*
-                }
-            }
-        }
-    }
-}
-
-state_wrapper! {
-    enum TunnelStateWrapper {
-        Disconnected(DisconnectedState),
-        Connecting(ConnectingState),
-        Connected(ConnectedState),
-        Disconnecting(DisconnectingState),
-        Error(ErrorState),
-    }
 }
 
 /// Handle used to control the tunnel state machine.
