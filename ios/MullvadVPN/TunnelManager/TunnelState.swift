@@ -13,7 +13,7 @@ import PacketTunnelCore
 /// A struct describing the tunnel status.
 struct TunnelStatus: Equatable, CustomStringConvertible {
     /// Tunnel status returned by tunnel process.
-    var packetTunnelStatus = PacketTunnelStatus()
+    var observedState: ObservedState = .disconnected
 
     /// Tunnel state.
     var state: TunnelState = .disconnected
@@ -21,7 +21,7 @@ struct TunnelStatus: Equatable, CustomStringConvertible {
     var description: String {
         var s = "\(state), network "
 
-        if packetTunnelStatus.isNetworkReachable {
+        if observedState.connectionState?.isNetworkReachable == true {
             s += "reachable"
         } else {
             s += "unreachable"
@@ -44,10 +44,10 @@ enum TunnelState: Equatable, CustomStringConvertible {
     case pendingReconnect
 
     /// Connecting the tunnel.
-    case connecting(PacketTunnelRelay?)
+    case connecting(SelectedRelay?)
 
     /// Connected the tunnel
-    case connected(PacketTunnelRelay)
+    case connected(SelectedRelay)
 
     /// Disconnecting the tunnel
     case disconnecting(ActionAfterDisconnect)
@@ -60,7 +60,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
     /// 1. Asking the running tunnel to reconnect to new relay via IPC.
     /// 2. Tunnel attempts to reconnect to new relay as the current relay appears to be
     ///    dysfunctional.
-    case reconnecting(PacketTunnelRelay)
+    case reconnecting(SelectedRelay)
 
     /// Waiting for connectivity to come back up.
     case waitingForConnectivity(WaitingForConnectionReason)
@@ -102,7 +102,7 @@ enum TunnelState: Equatable, CustomStringConvertible {
         }
     }
 
-    var relay: PacketTunnelRelay? {
+    var relay: SelectedRelay? {
         switch self {
         case let .connected(relay), let .reconnecting(relay):
             return relay
