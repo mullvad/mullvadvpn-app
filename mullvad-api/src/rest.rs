@@ -1,7 +1,7 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
-    access::AccessTokenProxy,
+    access::AccessTokenStore,
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
@@ -44,25 +44,25 @@ pub type Result<T> = std::result::Result<T, Error>;
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 
 /// Describes all the ways a REST request can fail
-#[derive(err_derive::Error, Debug)]
+#[derive(err_derive::Error, Debug, Clone)]
 pub enum Error {
     #[error(display = "Request cancelled")]
     Aborted,
 
     #[error(display = "Hyper error")]
-    HyperError(#[error(source)] hyper::Error),
+    HyperError(#[error(source)] Arc<hyper::Error>),
 
     #[error(display = "Invalid header value")]
-    InvalidHeaderError(#[error(source)] http::header::InvalidHeaderValue),
+    InvalidHeaderError,
 
     #[error(display = "HTTP error")]
-    HttpError(#[error(source)] http::Error),
+    HttpError(#[error(source)] Arc<http::Error>),
 
     #[error(display = "Request timed out")]
-    TimeoutError(#[error(source)] tokio::time::error::Elapsed),
+    TimeoutError,
 
     #[error(display = "Failed to deserialize data")]
-    DeserializeError(#[error(source)] serde_json::Error),
+    DeserializeError(#[error(source)] Arc<serde_json::Error>),
 
     #[error(display = "Failed to send request to rest client")]
     SendError,
@@ -76,7 +76,7 @@ pub enum Error {
 
     /// The string given was not a valid URI.
     #[error(display = "Not a valid URI")]
-    UriError(#[error(source)] http::uri::InvalidUri),
+    InvalidUri,
 
     /// A new API config was requested, but the request could not be completed.
     #[error(display = "Failed to rotate API config")]
@@ -85,7 +85,7 @@ pub enum Error {
 
 impl Error {
     pub fn is_network_error(&self) -> bool {
-        matches!(self, Error::HyperError(_) | Error::TimeoutError(_))
+        matches!(self, Error::HyperError(_) | Error::TimeoutError)
     }
 
     pub fn is_aborted(&self) -> bool {
@@ -203,7 +203,7 @@ impl<
                 let future = async move {
                     let response = tokio::time::timeout(timeout, request_future)
                         .await
-                        .map_err(Error::TimeoutError);
+                        .map_err(|_| Error::TimeoutError);
 
                     let response = flatten_result(response).map_err(|error| error.map_aborted());
 
@@ -314,20 +314,20 @@ pub struct RestRequest {
 impl RestRequest {
     /// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
     pub fn get(uri: &str) -> Result<Self> {
-        let uri = hyper::Uri::from_str(uri).map_err(Error::UriError)?;
+        let uri = hyper::Uri::from_str(uri).map_err(|_| Error::InvalidUri)?;
 
         let mut builder = http::request::Builder::new()
             .method(Method::GET)
             .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"));
         if let Some(host) = uri.host() {
-            builder = builder.header(header::HOST, HeaderValue::from_str(host)?);
+            builder = builder.header(
+                header::HOST,
+                HeaderValue::from_str(host).map_err(|_| Error::InvalidHeaderError)?,
+            );
         };
 
-        let request = builder
-            .uri(uri)
-            .body(hyper::Body::empty())
-            .map_err(Error::HttpError)?;
+        let request = builder.uri(uri).body(hyper::Body::empty())?;
 
         Ok(RestRequest {
             timeout: DEFAULT_TIMEOUT,
@@ -341,7 +341,7 @@ impl RestRequest {
         let header = match auth {
             Some(auth) => Some(
                 HeaderValue::from_str(&format!("Bearer {auth}"))
-                    .map_err(Error::InvalidHeaderError)?,
+                    .map_err(|_| Error::InvalidHeaderError)?,
             ),
             None => None,
         };
@@ -361,7 +361,8 @@ impl RestRequest {
     }
 
     pub fn add_header<T: header::IntoHeaderName>(&mut self, key: T, value: &str) -> Result<()> {
-        let header_value = http::HeaderValue::from_str(value).map_err(Error::InvalidHeaderError)?;
+        let header_value =
+            http::HeaderValue::from_str(value).map_err(|_| Error::InvalidHeaderError)?;
         self.request.headers_mut().insert(key, header_value);
         Ok(())
     }
@@ -458,7 +459,8 @@ impl RequestFactory {
         let headers = request.headers_mut();
         headers.insert(
             header::CONTENT_LENGTH,
-            HeaderValue::from_str(&body_length.to_string()).map_err(Error::InvalidHeaderError)?,
+            HeaderValue::from_str(&body_length.to_string())
+                .map_err(|_| Error::InvalidHeaderError)?,
         );
         headers.insert(
             header::CONTENT_TYPE,
@@ -483,13 +485,14 @@ impl RequestFactory {
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
             .header(header::HOST, self.hostname.clone());
 
-        request.body(hyper::Body::empty()).map_err(Error::HttpError)
+        let result = request.body(hyper::Body::empty())?;
+        Ok(result)
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
         let prefix = self.path_prefix.as_ref().map(AsRef::as_ref).unwrap_or("");
         let uri = format!("https://{}/{}{}", self.hostname, prefix, path);
-        hyper::Uri::from_str(&uri).map_err(Error::UriError)
+        hyper::Uri::from_str(&uri).map_err(|_| Error::InvalidUri)
     }
 
     fn set_request_timeout(&self, mut request: RestRequest) -> RestRequest {
@@ -503,25 +506,16 @@ pub fn send_request(
     service: RequestServiceHandle,
     uri: &str,
     method: Method,
-    auth: Option<(AccessTokenProxy, AccountToken)>,
+    access_token: Option<AccountToken>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.request(uri, method);
 
     async move {
         let mut request = request?;
-        if let Some((store, account)) = &auth {
-            let access_token = store.get_token(account).await?;
-            request.set_auth(Some(access_token))?;
-        }
+        request.set_auth(access_token)?;
         let response = service.request(request).await?;
-        let result = parse_rest_response(response, expected_statuses).await;
-
-        if let Some((store, account)) = &auth {
-            store.check_response(account, &result);
-        }
-
-        result
+        parse_rest_response(response, expected_statuses).await
     }
 }
 
@@ -531,24 +525,15 @@ pub fn send_json_request<B: serde::Serialize>(
     uri: &str,
     method: Method,
     body: &B,
-    auth: Option<(AccessTokenProxy, AccountToken)>,
+    access_token: Option<AccountToken>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.json_request(method, uri, body);
     async move {
         let mut request = request?;
-        if let Some((store, account)) = &auth {
-            let access_token = store.get_token(account).await?;
-            request.set_auth(Some(access_token))?;
-        }
+        request.set_auth(access_token)?;
         let response = service.request(request).await?;
-        let result = parse_rest_response(response, expected_statuses).await;
-
-        if let Some((store, account)) = &auth {
-            store.check_response(account, &result);
-        }
-
-        result
+        parse_rest_response(response, expected_statuses).await
     }
 }
 
@@ -566,7 +551,7 @@ async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
         body.extend(&chunk?);
     }
 
-    serde_json::from_slice(&body).map_err(Error::DeserializeError)
+    serde_json::from_slice(&body).map_err(Error::from)
 }
 
 fn get_body_length(response: &Response) -> usize {
@@ -639,7 +624,7 @@ pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
     pub availability: ApiAvailabilityHandle,
-    pub token_store: AccessTokenProxy,
+    pub token_store: AccessTokenStore,
 }
 
 impl MullvadRestHandle {
@@ -649,7 +634,7 @@ impl MullvadRestHandle {
         address_cache: AddressCache,
         availability: ApiAvailabilityHandle,
     ) -> Self {
-        let token_store = AccessTokenProxy::new(service.clone(), factory.clone());
+        let token_store = AccessTokenStore::new(service.clone(), factory.clone());
 
         let handle = Self {
             service,
@@ -726,5 +711,23 @@ fn flatten_result<T, E>(
     match result {
         Ok(value) => value,
         Err(err) => Err(err),
+    }
+}
+
+impl From<hyper::Error> for Error {
+    fn from(value: hyper::Error) -> Self {
+        Error::HyperError(Arc::new(value))
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(value: serde_json::Error) -> Self {
+        Error::DeserializeError(Arc::new(value))
+    }
+}
+
+impl From<http::Error> for Error {
+    fn from(value: http::Error) -> Self {
+        Error::HttpError(Arc::new(value))
     }
 }
