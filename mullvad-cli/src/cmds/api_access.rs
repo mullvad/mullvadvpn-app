@@ -277,7 +277,7 @@ pub enum AddCustomCommands {
         /// Password for authentication
         password: String,
         /// Cipher to use
-        #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
+        #[arg(long, value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
         cipher: String,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
