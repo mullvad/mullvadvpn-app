@@ -259,35 +259,24 @@ impl Shadowsocks {
 }
 
 impl Socks5Local {
-    pub fn new(peer: SocketAddr, port: u16) -> Self {
-        Self::new_with_transport_protocol(peer, port, TransportProtocol::Tcp)
-    }
-
-    pub fn new_with_transport_protocol(
-        peer: SocketAddr,
-        local_port: u16,
-        transport_protocol: TransportProtocol,
-    ) -> Self {
-        let peer = Endpoint::from_socket_address(peer, transport_protocol);
-        Self {
-            peer,
-            port: local_port,
-        }
+    pub fn new(peer: Endpoint, port: u16) -> Self {
+        Self { peer, port }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
-    /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
+    /// If `ip` and `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
     pub fn from_args(
         remote_ip: String,
         remote_port: u16,
         transport_protocol: TransportProtocol,
         local_port: u16,
     ) -> Option<Self> {
-        Some(Self::new_with_transport_protocol(
-            SocketAddr::new(remote_ip.parse().ok()?, remote_port),
-            local_port,
+        let peer = Endpoint::new(
+            remote_ip.parse::<IpAddr>().ok()?,
+            remote_port,
             transport_protocol,
-        ))
+        );
+        Some(Self::new(peer, local_port))
     }
 }
 
