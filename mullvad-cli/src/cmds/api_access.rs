@@ -121,7 +121,15 @@ impl ApiAccess {
                         let remote_ip = cmd.params.ip.unwrap_or(local.remote_peer.ip());
                         let remote_port = cmd.params.port.unwrap_or(local.remote_peer.port());
                         let local_port = cmd.params.local_port.unwrap_or(local.local_port);
-                        AccessMethod::from(Socks5Local::new((remote_ip, remote_port), local_port))
+                        let remote_peer_transport_protocol = cmd
+                            .params
+                            .transport_protocol
+                            .unwrap_or(local.remote_peer_transport_protocol);
+                        AccessMethod::from(Socks5Local::new_with_transport_protocol(
+                            (remote_ip, remote_port),
+                            local_port,
+                            remote_peer_transport_protocol,
+                        ))
                     }
                     Socks5::Remote(remote) => {
                         let ip = cmd.params.ip.unwrap_or(remote.peer.ip());
@@ -406,6 +414,9 @@ pub struct EditParams {
     /// The port that the server on localhost is listening on [Socks5 (Local proxy)]
     #[arg(long)]
     local_port: Option<u16>,
+    /// The transport protocol used by the remote proxy [Socks5 (Local proxy)]
+    #[arg(long)]
+    transport_protocol: Option<TransportProtocol>,
 }
 
 /// Implement conversions from CLI types to Daemon types.
@@ -429,7 +440,12 @@ mod conversions {
                         remote_transport_protocol,
                     } => {
                         println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
-                        daemon_types::Socks5Local::new((remote_ip, remote_port), local_port).into()
+                        daemon_types::Socks5Local::new_with_transport_protocol(
+                            (remote_ip, remote_port),
+                            local_port,
+                            remote_transport_protocol,
+                        )
+                        .into()
                     }
                     AddSocks5Commands::Remote {
                         remote_ip,
@@ -568,7 +584,13 @@ mod pp {
                             }
                             writeln!(f)?;
                             print_option!("Protocol", "Socks5 (local)");
-                            print_option!("Peer", local.remote_peer);
+                            print_option!(
+                                "Peer",
+                                format!(
+                                    "{}/{}",
+                                    local.remote_peer, local.remote_peer_transport_protocol
+                                )
+                            );
                             print_option!("Local port", local.local_port);
                             Ok(())
                         }

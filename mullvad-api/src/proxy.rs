@@ -52,7 +52,7 @@ impl ProxyConfig {
             ProxyConfig::Socks(socks) => match socks {
                 access_method::Socks5::Local(local) => Endpoint::from_socket_address(
                     local.remote_peer,
-                    local.remote_peer_transport_protol,
+                    local.remote_peer_transport_protocol,
                 ),
                 access_method::Socks5::Remote(remote) => {
                     Endpoint::from_socket_address(remote.peer, TransportProtocol::Tcp)

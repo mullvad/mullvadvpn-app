@@ -208,7 +208,7 @@ pub struct Shadowsocks {
 pub struct Socks5Local {
     pub remote_peer: SocketAddr,
     /// The transport protocol which should be allowed in the firewall.
-    pub remote_peer_transport_protol: TransportProtocol,
+    pub remote_peer_transport_protocol: TransportProtocol,
     /// Port on localhost where the SOCKS5-proxy listens to.
     pub local_port: u16,
 }
@@ -267,7 +267,7 @@ impl Socks5Local {
         Self {
             remote_peer: remote_peer.into(),
             local_port,
-            remote_peer_transport_protol: transport_protocol,
+            remote_peer_transport_protocol: transport_protocol,
         }
     }
 }

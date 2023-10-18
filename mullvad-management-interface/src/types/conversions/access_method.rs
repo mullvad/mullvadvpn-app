@@ -231,7 +231,7 @@ mod data {
                 CustomAccessMethod::Socks5(Socks5::Local(Socks5Local {
                     remote_peer,
                     local_port,
-                    remote_peer_transport_protol,
+                    remote_peer_transport_protocol: remote_peer_transport_protol,
                 })) => proto::access_method::AccessMethod::Socks5local(
                     proto::access_method::Socks5Local {
                         remote_ip: remote_peer.ip().to_string(),
