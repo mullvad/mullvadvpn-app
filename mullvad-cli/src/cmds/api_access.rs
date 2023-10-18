@@ -118,13 +118,16 @@ impl ApiAccess {
                 }
                 CustomAccessMethod::Socks5(socks) => match socks {
                     Socks5::Local(local) => {
-                        let remote_ip = cmd.params.ip.unwrap_or(local.remote_peer.ip());
-                        let remote_port = cmd.params.port.unwrap_or(local.remote_peer.port());
+                        let remote_ip = cmd.params.ip.unwrap_or(local.remote_endpoint.address.ip());
+                        let remote_port = cmd
+                            .params
+                            .port
+                            .unwrap_or(local.remote_endpoint.address.port());
                         let local_port = cmd.params.local_port.unwrap_or(local.local_port);
                         let remote_peer_transport_protocol = cmd
                             .params
                             .transport_protocol
-                            .unwrap_or(local.remote_peer_transport_protocol);
+                            .unwrap_or(local.remote_endpoint.protocol);
                         AccessMethod::from(Socks5Local::new_with_transport_protocol(
                             (remote_ip, remote_port),
                             local_port,
@@ -320,8 +323,8 @@ pub enum AddSocks5Commands {
         ///
         /// By default, the transport protocol is assumed to be `TCP`, but it
         /// can optionally be set to `UDP` as well.
-        #[arg(default_value_t = TransportProtocol::Tcp)]
-        remote_transport_protocol: TransportProtocol,
+        #[arg(long, default_value_t = TransportProtocol::Tcp)]
+        transport_protocol: TransportProtocol,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
         #[arg(default_value_t = false, short, long)]
@@ -411,6 +414,9 @@ pub struct EditParams {
     /// The port of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
     #[arg(long)]
     port: Option<u16>,
+    /// The transport protocol used when communicating with the remote proxy server [Socks5 (Local)]
+    #[arg(long)]
+    transport: Option<TransportProtocol>,
     /// The port that the server on localhost is listening on [Socks5 (Local proxy)]
     #[arg(long)]
     local_port: Option<u16>,
@@ -437,13 +443,13 @@ mod conversions {
                         remote_port,
                         name: _,
                         disabled: _,
-                        remote_transport_protocol,
+                        transport_protocol,
                     } => {
                         println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
                         daemon_types::Socks5Local::new_with_transport_protocol(
                             (remote_ip, remote_port),
                             local_port,
-                            remote_transport_protocol,
+                            transport_protocol,
                         )
                         .into()
                     }
@@ -588,7 +594,7 @@ mod pp {
                                 "Peer",
                                 format!(
                                     "{}/{}",
-                                    local.remote_peer, local.remote_peer_transport_protocol
+                                    local.remote_endpoint.address, local.remote_endpoint.protocol
                                 )
                             );
                             print_option!("Local port", local.local_port);

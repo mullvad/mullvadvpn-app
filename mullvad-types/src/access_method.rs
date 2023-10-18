@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
-use talpid_types::net::TransportProtocol;
+use talpid_types::net::{Endpoint, TransportProtocol};
 
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -206,9 +206,7 @@ pub struct Shadowsocks {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Local {
-    pub remote_peer: SocketAddr,
-    /// The transport protocol which should be allowed in the firewall.
-    pub remote_peer_transport_protocol: TransportProtocol,
+    pub remote_endpoint: Endpoint,
     /// Port on localhost where the SOCKS5-proxy listens to.
     pub local_port: u16,
 }
@@ -264,10 +262,10 @@ impl Socks5Local {
         local_port: u16,
         transport_protocol: TransportProtocol,
     ) -> Self {
+        let remote_endpoint = Endpoint::from_socket_address(remote_peer.into(), transport_protocol);
         Self {
-            remote_peer: remote_peer.into(),
+            remote_endpoint,
             local_port,
-            remote_peer_transport_protocol: transport_protocol,
         }
     }
 }
