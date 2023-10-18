@@ -4,12 +4,14 @@ use mullvad_types::access_method;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
-    net::SocketAddr,
     path::Path,
     pin::Pin,
     task::{self, Poll},
 };
-use talpid_types::ErrorExt;
+use talpid_types::{
+    net::{Endpoint, TransportProtocol},
+    ErrorExt,
+};
 use tokio::{
     fs,
     io::{AsyncRead, AsyncWrite, AsyncWriteExt, ReadBuf},
@@ -41,13 +43,20 @@ pub enum ProxyConfig {
 }
 
 impl ProxyConfig {
-    /// Returns the remote address to reach the proxy.
-    fn get_endpoint(&self) -> SocketAddr {
+    /// Returns the remote endpoint describing how to reach the proxy.
+    fn get_endpoint(&self) -> Endpoint {
         match self {
-            ProxyConfig::Shadowsocks(ss) => ss.peer,
+            ProxyConfig::Shadowsocks(shadowsocks) => {
+                Endpoint::from_socket_address(shadowsocks.peer, TransportProtocol::Tcp)
+            }
             ProxyConfig::Socks(socks) => match socks {
-                access_method::Socks5::Local(s) => s.remote_peer,
-                access_method::Socks5::Remote(s) => s.peer,
+                access_method::Socks5::Local(local) => Endpoint::from_socket_address(
+                    local.remote_peer,
+                    local.remote_peer_transport_protol,
+                ),
+                access_method::Socks5::Remote(remote) => {
+                    Endpoint::from_socket_address(remote.peer, TransportProtocol::Tcp)
+                }
             },
         }
     }
@@ -55,18 +64,22 @@ impl ProxyConfig {
 
 impl fmt::Display for ProxyConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        let endpoint = self.get_endpoint();
         match self {
-            // TODO: Do not hardcode TCP
-            ProxyConfig::Shadowsocks(ss) => write!(f, "Shadowsocks {}/TCP", ss.peer),
+            ProxyConfig::Shadowsocks(_) => {
+                write!(f, "Shadowsocks {}/{}", endpoint.address, endpoint.protocol)
+            }
             ProxyConfig::Socks(socks) => match socks {
-                access_method::Socks5::Local(s) => {
+                access_method::Socks5::Local(local) => {
                     write!(
                         f,
-                        "Socks5 {}/TCP via localhost:{}",
-                        s.remote_peer, s.local_port
+                        "Socks5 {}/{} via localhost:{}",
+                        endpoint.address, endpoint.protocol, local.local_port
                     )
                 }
-                access_method::Socks5::Remote(s) => write!(f, "Socks5 {}/TCP", s.peer),
+                access_method::Socks5::Remote(_) => {
+                    write!(f, "Socks5 {}/{}", endpoint.address, endpoint.protocol)
+                }
             },
         }
     }
@@ -132,8 +145,9 @@ impl ApiConnectionMode {
         }
     }
 
-    /// Returns the remote address required to reach the API, or `None` for `ApiConnectionMode::Direct`.
-    pub fn get_endpoint(&self) -> Option<SocketAddr> {
+    /// Returns the remote endpoint required to reach the API, or `None` for
+    /// `ApiConnectionMode::Direct`.
+    pub fn get_endpoint(&self) -> Option<Endpoint> {
         match self {
             ApiConnectionMode::Direct => None,
             ApiConnectionMode::Proxied(proxy_config) => Some(proxy_config.get_endpoint()),
