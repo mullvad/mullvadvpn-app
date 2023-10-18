@@ -124,8 +124,8 @@ impl ApiAccess {
                         mullvad_types::access_method::Socks5Local::from_args(
                             ip,
                             port,
-                            local_port,
                             transport_protocol,
+                            local_port,
                         )
                         .map(AccessMethod::from)
                     }
@@ -452,8 +452,8 @@ mod conversions {
                         daemon_types::Socks5Local::from_args(
                             remote_ip.to_string(),
                             remote_port,
-                            local_port,
                             remote_transport_protocol,
+                            local_port,
                         )
                         .map(daemon_types::Socks5::Local)
                         .map(daemon_types::AccessMethod::from)
