@@ -12,8 +12,8 @@ extension PacketTunnelActor {
     /// Returns a stream yielding `ObservedState`.
     /// Note that the stream yields current value when created.
     public var observedStates: AsyncStream<ObservedState> {
-        return AsyncStream { continuation in
-            let cancellable = self.$observedState.sink { newState in
+        AsyncStream { continuation in
+            let cancellable = $observedState.sink { newState in
                 continuation.yield(newState)
 
                 // Finish stream once entered `.disconnected` state.
