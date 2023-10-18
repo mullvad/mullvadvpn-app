@@ -146,8 +146,8 @@ mod data {
             Socks5Local::from_args(
                 value.remote_ip,
                 value.remote_port as u16,
-                value.local_port as u16,
                 try_transport_protocol_from_i32(value.remote_transport)?,
+                value.local_port as u16,
             )
             .ok_or(FromProtobufTypeError::InvalidArgument(
                 "Could not parse Socks5 (local) message from protobuf",

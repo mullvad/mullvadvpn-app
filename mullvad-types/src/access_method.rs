@@ -261,26 +261,27 @@ impl Socks5Local {
 
     pub fn new_with_transport_protocol(
         peer: SocketAddr,
-        port: u16,
+        local_port: u16,
         transport_protocol: TransportProtocol,
     ) -> Self {
         let peer = Endpoint::from_socket_address(peer, transport_protocol);
-        Self { peer, port }
+        Self {
+            peer,
+            port: local_port,
+        }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
     pub fn from_args(
-        ip: String,
-        port: u16,
-        localport: u16,
+        remote_ip: String,
+        remote_port: u16,
         transport_protocol: TransportProtocol,
+        local_port: u16,
     ) -> Option<Self> {
-        let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
-        let peer = SocketAddr::new(peer_ip, port);
         Some(Self::new_with_transport_protocol(
-            peer,
-            localport,
+            SocketAddr::new(remote_ip.parse().ok()?, remote_port),
+            local_port,
             transport_protocol,
         ))
     }
