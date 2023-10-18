@@ -9,9 +9,8 @@ import io.mockk.just
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
-import junit.framework.Assert
 import kotlin.test.assertEquals
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import org.junit.After
 import org.junit.Before
@@ -38,13 +37,13 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testInitialState() = runBlockingTest {
+    fun testInitialState() = runTest {
         // Arrange, Act, Assert
-        viewModel.uiState.test { Assert.assertEquals(ChangelogDialogUiState.Hide, awaitItem()) }
+        viewModel.uiState.test { assertEquals(ChangelogDialogUiState.Hide, awaitItem()) }
     }
 
     @Test
-    fun testShowAndDismissChangelogDialog() = runBlockingTest {
+    fun testShowAndDismissChangelogDialog() = runTest {
         viewModel.uiState.test {
             // Arrange
             val fakeList = listOf("test")
@@ -67,7 +66,7 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testShowCaseChangelogWithEmptyListDialog() = runBlockingTest {
+    fun testShowCaseChangelogWithEmptyListDialog() = runTest {
         viewModel.uiState.test {
             // Arrange
             val fakeEmptyList = emptyList<String>()

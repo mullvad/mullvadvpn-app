@@ -14,7 +14,7 @@ import io.mockk.verifyOrder
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -58,7 +58,7 @@ class DeviceRevokedViewModelTest {
     }
 
     @Test
-    fun testUiStateWhenServiceNotConnected() = runBlockingTest {
+    fun testUiStateWhenServiceNotConnected() = runTest {
         // Arrange, Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value = ServiceConnectionState.Disconnected
@@ -67,7 +67,7 @@ class DeviceRevokedViewModelTest {
     }
 
     @Test
-    fun testUiStateWhenServiceConnectedButNotReady() = runBlockingTest {
+    fun testUiStateWhenServiceConnectedButNotReady() = runTest {
         // Arrange, Act, Assert
         viewModel.uiState.test {
             serviceConnectionState.value = ServiceConnectionState.ConnectedNotReady(mockk())
@@ -76,7 +76,7 @@ class DeviceRevokedViewModelTest {
     }
 
     @Test
-    fun testUiStateWhenServiceConnectedAndReady() = runBlockingTest {
+    fun testUiStateWhenServiceConnectedAndReady() = runTest {
         // Arrange
         val mockedContainer =
             mockk<ServiceConnectionContainer>().apply {
