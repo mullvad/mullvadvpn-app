@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.ReportProblemNoEmailDialog
@@ -163,22 +163,12 @@ fun ReportProblemScreen(
                 colors = mullvadWhiteTextFieldColors()
             )
 
-            ActionButton(
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
+            PrimaryButton(
                 onClick = onNavigateToViewLogs,
                 text = stringResource(id = R.string.view_logs)
             )
 
-            ActionButton(
-                colors =
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    ),
+            VariantButton(
                 onClick = { onSendReport(email, description) },
                 isEnabled = description.isNotEmpty(),
                 text = stringResource(id = R.string.send)
@@ -277,23 +267,13 @@ private fun ColumnScope.ErrorContent(retry: () -> Unit, onDismiss: () -> Unit) {
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.weight(1f))
-    ActionButton(
+    PrimaryButton(
         modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.mediumPadding),
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
         onClick = onDismiss,
         text = stringResource(id = R.string.edit_message)
     )
-    ActionButton(
+    VariantButton(
         modifier = Modifier.fillMaxWidth(),
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
         onClick = retry,
         text = stringResource(id = R.string.try_again)
     )

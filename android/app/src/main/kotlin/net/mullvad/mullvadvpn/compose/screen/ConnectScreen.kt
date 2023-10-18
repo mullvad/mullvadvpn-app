@@ -212,7 +212,6 @@ fun ConnectScreen(
             SwitchLocationButton(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .height(Dimens.selectLocationButtonHeight)
                         .padding(horizontal = Dimens.sideMargin)
                         .testTag(SELECT_LOCATION_BUTTON_TEST_TAG),
                 onClick = onSwitchLocationClick,
@@ -228,9 +227,7 @@ fun ConnectScreen(
             ConnectionButton(
                 state = uiState.tunnelUiState,
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .height(Dimens.connectButtonHeight)
-                        .padding(horizontal = Dimens.sideMargin)
+                    Modifier.padding(horizontal = Dimens.sideMargin)
                         .testTag(CONNECT_BUTTON_TEST_TAG),
                 disconnectClick = onDisconnectClick,
                 reconnectClick = { handleThrottledAction(onReconnectClick) },

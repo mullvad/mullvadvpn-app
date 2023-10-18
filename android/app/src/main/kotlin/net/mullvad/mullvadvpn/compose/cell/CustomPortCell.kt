@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.selected
 
 @Preview
 @Composable
@@ -66,7 +67,7 @@ fun CustomPortCell(
                     .weight(1f)
                     .background(
                         if (isSelected) {
-                            MaterialTheme.colorScheme.surface
+                            MaterialTheme.colorScheme.selected
                         } else {
                             MaterialTheme.colorScheme.secondaryContainer
                         }

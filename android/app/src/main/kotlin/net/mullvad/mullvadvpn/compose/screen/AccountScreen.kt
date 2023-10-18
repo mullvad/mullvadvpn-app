@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,7 +28,9 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.ExternalButton
+import net.mullvad.mullvadvpn.compose.button.NegativeButton
+import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
@@ -150,7 +151,7 @@ fun AccountScreen(
 
             Spacer(modifier = Modifier.weight(1f))
             if (IS_PLAY_BUILD.not()) {
-                ActionButton(
+                ExternalButton(
                     text = stringResource(id = R.string.manage_account),
                     onClick = onManageAccountClick,
                     modifier =
@@ -158,17 +159,11 @@ fun AccountScreen(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
                             bottom = Dimens.screenVerticalMargin
-                        ),
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                            containerColor = MaterialTheme.colorScheme.surface
                         )
                 )
             }
 
-            ActionButton(
-                text = stringResource(id = R.string.redeem_voucher),
+            RedeemVoucherButton(
                 onClick = onRedeemVoucherClick,
                 modifier =
                     Modifier.padding(
@@ -176,14 +171,10 @@ fun AccountScreen(
                         end = Dimens.sideMargin,
                         bottom = Dimens.screenVerticalMargin
                     ),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        containerColor = MaterialTheme.colorScheme.surface
-                    )
+                isEnabled = true
             )
 
-            ActionButton(
+            NegativeButton(
                 text = stringResource(id = R.string.log_out),
                 onClick = onLogoutClick,
                 modifier =
@@ -191,11 +182,6 @@ fun AccountScreen(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
                         bottom = Dimens.screenVerticalMargin
-                    ),
-                colors =
-                    ButtonDefaults.buttonColors(
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        containerColor = MaterialTheme.colorScheme.error
                     )
             )
         }

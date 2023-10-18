@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,7 +29,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.ActionButton
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.compose.textfield.GroupedTextField
@@ -40,7 +40,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
 import org.joda.time.DateTimeConstants
 
 @Preview(device = Devices.TV_720p)
@@ -113,32 +112,14 @@ fun RedeemVoucherDialog(
         confirmButton = {
             Column {
                 if (uiState.voucherViewModelState !is VoucherDialogState.Success) {
-                    ActionButton(
+                    VariantButton(
                         text = stringResource(id = R.string.redeem),
                         onClick = { onRedeem(uiState.voucherInput) },
                         modifier = Modifier.padding(bottom = Dimens.mediumPadding),
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                                disabledContentColor =
-                                    MaterialTheme.colorScheme.onSurface
-                                        .copy(alpha = AlphaInactive)
-                                        .compositeOver(MaterialTheme.colorScheme.surface),
-                                disabledContainerColor =
-                                    MaterialTheme.colorScheme.surface
-                                        .copy(alpha = AlphaDisabled)
-                                        .compositeOver(MaterialTheme.colorScheme.surface)
-                            ),
                         isEnabled = uiState.voucherInput.length == VOUCHER_LENGTH
                     )
                 }
-                ActionButton(
-                    colors =
-                        ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            contentColor = MaterialTheme.colorScheme.onPrimary,
-                        ),
+                PrimaryButton(
                     text =
                         stringResource(
                             id =
