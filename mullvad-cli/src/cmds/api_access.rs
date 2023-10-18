@@ -414,9 +414,6 @@ pub struct EditParams {
     /// The port of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
     #[arg(long)]
     port: Option<u16>,
-    /// The transport protocol used when communicating with the remote proxy server [Socks5 (Local)]
-    #[arg(long)]
-    transport: Option<TransportProtocol>,
     /// The port that the server on localhost is listening on [Socks5 (Local proxy)]
     #[arg(long)]
     local_port: Option<u16>,
