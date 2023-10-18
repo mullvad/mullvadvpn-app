@@ -72,7 +72,7 @@ fun ScaffoldWithTopBar(
 fun ScaffoldWithTopBarAndDeviceName(
     topBarColor: Color,
     statusBarColor: Color,
-    navigationBarColor: Color,
+    navigationBarColor: Color?,
     modifier: Modifier = Modifier,
     iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
     onSettingsClicked: (() -> Unit)?,
@@ -86,7 +86,9 @@ fun ScaffoldWithTopBarAndDeviceName(
     val systemUiController = rememberSystemUiController()
     LaunchedEffect(key1 = statusBarColor, key2 = navigationBarColor) {
         systemUiController.setStatusBarColor(statusBarColor)
-        systemUiController.setNavigationBarColor(navigationBarColor)
+        if (navigationBarColor != null) {
+            systemUiController.setNavigationBarColor(navigationBarColor)
+        }
     }
 
     Scaffold(

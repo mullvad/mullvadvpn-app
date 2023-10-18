@@ -49,6 +49,11 @@ abstract class BaseFragment : Fragment {
                 },
             )
         }
+            ?: run {
+                if (enter) {
+                    onEnterTransitionAnimationEnd()
+                }
+            }
         return anim
     }
 
