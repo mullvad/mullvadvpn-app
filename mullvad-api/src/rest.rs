@@ -1,7 +1,7 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
-    access::AccessTokenProxy,
+    access::AccessTokenStore,
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
@@ -503,25 +503,16 @@ pub fn send_request(
     service: RequestServiceHandle,
     uri: &str,
     method: Method,
-    auth: Option<(AccessTokenProxy, AccountToken)>,
+    access_token: Option<AccountToken>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.request(uri, method);
 
     async move {
         let mut request = request?;
-        if let Some((store, account)) = &auth {
-            let access_token = store.get_token(account).await?;
-            request.set_auth(Some(access_token))?;
-        }
+        request.set_auth(access_token)?;
         let response = service.request(request).await?;
-        let result = parse_rest_response(response, expected_statuses).await;
-
-        if let Some((store, account)) = &auth {
-            store.check_response(account, &result);
-        }
-
-        result
+        parse_rest_response(response, expected_statuses).await
     }
 }
 
@@ -531,24 +522,15 @@ pub fn send_json_request<B: serde::Serialize>(
     uri: &str,
     method: Method,
     body: &B,
-    auth: Option<(AccessTokenProxy, AccountToken)>,
+    access_token: Option<AccountToken>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.json_request(method, uri, body);
     async move {
         let mut request = request?;
-        if let Some((store, account)) = &auth {
-            let access_token = store.get_token(account).await?;
-            request.set_auth(Some(access_token))?;
-        }
+        request.set_auth(access_token)?;
         let response = service.request(request).await?;
-        let result = parse_rest_response(response, expected_statuses).await;
-
-        if let Some((store, account)) = &auth {
-            store.check_response(account, &result);
-        }
-
-        result
+        parse_rest_response(response, expected_statuses).await
     }
 }
 
@@ -639,7 +621,7 @@ pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
     pub availability: ApiAvailabilityHandle,
-    pub token_store: AccessTokenProxy,
+    pub token_store: AccessTokenStore,
 }
 
 impl MullvadRestHandle {
@@ -649,7 +631,7 @@ impl MullvadRestHandle {
         address_cache: AddressCache,
         availability: ApiAvailabilityHandle,
     ) -> Self {
-        let token_store = AccessTokenProxy::new(service.clone(), factory.clone());
+        let token_store = AccessTokenStore::new(service.clone(), factory.clone());
 
         let handle = Self {
             service,

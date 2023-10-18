@@ -13,6 +13,7 @@ use std::{
     io,
     path::{Path, PathBuf},
     str::FromStr,
+    sync::Arc,
     time::Duration,
 };
 use talpid_core::{future_retry::ConstantInterval, mpsc::Sender};
@@ -75,7 +76,7 @@ pub enum Error {
     Deserialize(#[error(source)] serde_json::Error),
 
     #[error(display = "Failed to check the latest app version")]
-    Download(#[error(source)] mullvad_api::rest::Error),
+    Download(#[error(source)] Arc<mullvad_api::rest::Error>),
 
     #[error(display = "API availability check failed")]
     ApiCheck(#[error(source)] mullvad_api::availability::Error),

@@ -1,4 +1,4 @@
-use std::{future::Future, time::Duration};
+use std::{future::Future, sync::Arc, time::Duration};
 
 use chrono::{DateTime, Utc};
 use futures::future::{abortable, AbortHandle};
@@ -261,7 +261,7 @@ pub struct AccountService {
 }
 
 impl AccountService {
-    pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
+    pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, Arc<rest::Error>>> {
         let mut proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         retry_future(
@@ -274,7 +274,7 @@ impl AccountService {
     pub fn get_www_auth_token(
         &self,
         account: AccountToken,
-    ) -> impl Future<Output = Result<String, rest::Error>> {
+    ) -> impl Future<Output = Result<String, Arc<rest::Error>>> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         retry_future(
@@ -284,7 +284,10 @@ impl AccountService {
         )
     }
 
-    pub async fn check_expiry(&self, token: AccountToken) -> Result<DateTime<Utc>, rest::Error> {
+    pub async fn check_expiry(
+        &self,
+        token: AccountToken,
+    ) -> Result<DateTime<Utc>, Arc<rest::Error>> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let result = retry_future(
@@ -402,7 +405,7 @@ pub fn spawn_account_service(
 }
 
 fn handle_expiry_result_inner(
-    result: &Result<chrono::DateTime<chrono::Utc>, mullvad_api::rest::Error>,
+    result: &Result<chrono::DateTime<chrono::Utc>, Arc<mullvad_api::rest::Error>>,
     api_availability: &ApiAvailabilityHandle,
 ) -> bool {
     match result {
@@ -414,29 +417,31 @@ fn handle_expiry_result_inner(
             api_availability.pause_background();
             true
         }
-        Err(mullvad_api::rest::Error::ApiError(_status, code)) => {
-            if code == mullvad_api::INVALID_ACCOUNT {
-                api_availability.pause_background();
-                return true;
+        Err(error) => match error.as_ref() {
+            mullvad_api::rest::Error::ApiError(_status, code) => {
+                if code == mullvad_api::INVALID_ACCOUNT {
+                    api_availability.pause_background();
+                    return true;
+                }
+                false
             }
-            false
-        }
-        Err(_) => false,
+            _ => false,
+        },
     }
 }
 
-fn should_retry<T>(result: &Result<T, RestError>, api_handle: &ApiAvailabilityHandle) -> bool {
+fn should_retry<T>(result: &Result<T, Arc<RestError>>, api_handle: &ApiAvailabilityHandle) -> bool {
     match result {
         Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
         _ => false,
     }
 }
 
-fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
+fn should_retry_backoff<T>(result: &Result<T, Arc<RestError>>) -> bool {
     match result {
         Ok(_) => false,
         Err(error) => {
-            if let RestError::ApiError(status, code) = error {
+            if let RestError::ApiError(status, code) = error.as_ref() {
                 *status != rest::StatusCode::NOT_FOUND
                     && code != mullvad_api::DEVICE_NOT_FOUND
                     && code != mullvad_api::INVALID_ACCOUNT
@@ -449,8 +454,8 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
     }
 }
 
-fn map_rest_error(error: rest::Error) -> Error {
-    match error {
+fn map_rest_error(error: Arc<RestError>) -> Error {
+    match error.as_ref() {
         RestError::ApiError(_status, ref code) => match code.as_str() {
             // TODO: Implement invalid payment
             mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
@@ -460,6 +465,6 @@ fn map_rest_error(error: rest::Error) -> Error {
             mullvad_api::VOUCHER_USED => Error::UsedVoucher,
             _ => Error::OtherRestError(error),
         },
-        error => Error::OtherRestError(error),
+        _error => Error::OtherRestError(error),
     }
 }

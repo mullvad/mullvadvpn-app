@@ -67,7 +67,7 @@ pub enum Error {
     #[error(display = "Failed parse device cache")]
     ParseDeviceCache(#[error(source)] serde_json::Error),
     #[error(display = "Unexpected HTTP request error")]
-    OtherRestError(#[error(source)] rest::Error),
+    OtherRestError(#[error(source)] Arc<rest::Error>),
     #[error(display = "The device update task is not running")]
     Cancelled,
     /// Intended to be broadcast to requesters
