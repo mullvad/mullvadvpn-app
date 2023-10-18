@@ -97,8 +97,8 @@ function build_ref {
     # If there is a tag for this commit then we append that to the produced artifacts
     # A version suffix should only be created if there is a tag for this commit and it is not a release build
     if [[ -n "$tag" ]]; then
-        # Remove disallowed version characters from the tag
-        version_suffix="+${tag//[^0-9a-z_-]/}"
+        # Replace disallowed version characters in the tag with hyphens
+        version_suffix="+${tag//[^0-9a-z_-]/-}"
         # Will only match paths that include *-dev-* which means release builds will not be included
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
