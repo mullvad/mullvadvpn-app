@@ -126,7 +126,7 @@ class WelcomeViewModelTest {
             // Arrange
             val expectedAccountNumber = "4444555566667777"
             val device: Device = mockk()
-            every { device.name } returns ""
+            every { device.displayName() } returns ""
 
             // Act, Assert
             viewModel.uiState.test {
