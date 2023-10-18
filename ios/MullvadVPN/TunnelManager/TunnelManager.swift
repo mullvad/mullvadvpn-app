@@ -696,7 +696,7 @@ final class TunnelManager: StorePaymentObserver {
 
         // Packet tunnel may have attempted or rotated the key.
         // In that case we have to reload device state from Keychain as it's likely was modified by packet tunnel.
-        let newPacketTunnelKeyRotation = newTunnelStatus.packetTunnelStatus.lastKeyRotation
+        let newPacketTunnelKeyRotation = newTunnelStatus.observedState.connectionState?.lastKeyRotation
         if lastPacketTunnelKeyRotation != newPacketTunnelKeyRotation {
             lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
             refreshDeviceState()
@@ -816,7 +816,7 @@ final class TunnelManager: StorePaymentObserver {
         let selectorResult = try RelaySelector.evaluate(
             relays: cachedRelays.relays,
             constraints: settings.relayConstraints,
-            numberOfFailedAttempts: tunnelStatus.packetTunnelStatus.numberOfFailedAttempts
+            numberOfFailedAttempts: tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
         )
 
         return SelectedRelay(
