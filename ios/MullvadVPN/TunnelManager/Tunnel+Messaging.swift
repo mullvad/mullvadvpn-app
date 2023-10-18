@@ -43,7 +43,7 @@ extension TunnelProtocol {
 
     /// Request status from packet tunnel process.
     func getTunnelStatus(
-        completionHandler: @escaping (Result<PacketTunnelStatus, Error>) -> Void
+        completionHandler: @escaping (Result<ObservedState, Error>) -> Void
     ) -> Cancellable {
         let operation = SendTunnelProviderMessageOperation(
             dispatchQueue: dispatchQueue,

@@ -46,39 +46,33 @@ class MapConnectionStatusOperation: AsyncOperation {
         let tunnelState = interactor.tunnelStatus.state
 
         switch connectionStatus {
-        case .connecting:
-            handleConnectingState(tunnelState, tunnel)
-            return
-
-        case .reasserting:
-            fetchTunnelStatus(tunnel: tunnel) { packetTunnelStatus in
-                if let blockedStateReason = packetTunnelStatus.blockedStateReason {
-                    return .error(blockedStateReason)
-                } else if packetTunnelStatus.isNetworkReachable {
-                    return packetTunnelStatus.tunnelRelay.map { .reconnecting($0) }
-                } else {
-                    return .waitingForConnectivity(.noConnection)
+        case .connecting, .reasserting, .connected:
+            fetchTunnelStatus(tunnel: tunnel) { observedState in
+                switch observedState {
+                case let .connected(connectionState):
+                    return connectionState.isNetworkReachable
+                        ? .connected(connectionState.selectedRelay)
+                        : .waitingForConnectivity(.noConnection)
+                case let .connecting(connectionState):
+                    return connectionState.isNetworkReachable
+                        ? .connecting(connectionState.selectedRelay)
+                        : .waitingForConnectivity(.noConnection)
+                case let .reconnecting(connectionState):
+                    return connectionState.isNetworkReachable
+                        ? .reconnecting(connectionState.selectedRelay)
+                        : .waitingForConnectivity(.noConnection)
+                case let .error(blockedState):
+                    return .error(blockedState.reason)
+                case .initial, .disconnecting, .disconnected:
+                    return .none
                 }
             }
-            return
-
-        case .connected:
-            fetchTunnelStatus(tunnel: tunnel) { packetTunnelStatus in
-                if let blockedStateReason = packetTunnelStatus.blockedStateReason {
-                    return .error(blockedStateReason)
-                } else if packetTunnelStatus.isNetworkReachable {
-                    return packetTunnelStatus.tunnelRelay.map { .connected($0) }
-                } else {
-                    return .waitingForConnectivity(.noConnection)
-                }
-            }
-            return
 
         case .disconnected:
             handleDisconnectedState(tunnelState)
 
         case .disconnecting:
-            handleDisconnectionState(tunnelState)
+            handleDisconnectingState(tunnelState)
 
         case .invalid:
             setTunnelDisconnectedStatus()
@@ -94,38 +88,16 @@ class MapConnectionStatusOperation: AsyncOperation {
         request?.cancel()
     }
 
-    private func handleConnectingState(_ tunnelState: TunnelState, _ tunnel: any TunnelProtocol) {
-        switch tunnelState {
-        case .connecting:
-            break
-
-        default:
-            interactor.updateTunnelStatus { tunnelStatus in
-                tunnelStatus.state = .connecting(nil)
-            }
-        }
-
-        fetchTunnelStatus(tunnel: tunnel) { packetTunnelStatus in
-            if let blockedStateReason = packetTunnelStatus.blockedStateReason {
-                return .error(blockedStateReason)
-            } else if packetTunnelStatus.isNetworkReachable {
-                return packetTunnelStatus.tunnelRelay.map { .connecting($0) }
-            } else {
-                return .waitingForConnectivity(.noConnection)
-            }
-        }
-    }
-
-    private func handleDisconnectionState(_ tunnelState: TunnelState) {
+    private func handleDisconnectingState(_ tunnelState: TunnelState) {
         switch tunnelState {
         case .disconnecting:
             break
         default:
             interactor.updateTunnelStatus { tunnelStatus in
-                let packetTunnelStatus = tunnelStatus.packetTunnelStatus
+                let isNetworkReachable = tunnelStatus.observedState.connectionState?.isNetworkReachable ?? false
 
                 tunnelStatus = TunnelStatus()
-                tunnelStatus.state = packetTunnelStatus.isNetworkReachable
+                tunnelStatus.state = isNetworkReachable
                     ? .disconnecting(.nothing)
                     : .waitingForConnectivity(.noNetwork)
             }
@@ -161,17 +133,17 @@ class MapConnectionStatusOperation: AsyncOperation {
 
     private func fetchTunnelStatus(
         tunnel: any TunnelProtocol,
-        mapToState: @escaping (PacketTunnelStatus) -> TunnelState?
+        mapToState: @escaping (ObservedState) -> TunnelState?
     ) {
-        request = tunnel.getTunnelStatus { [weak self] completion in
+        request = tunnel.getTunnelStatus { [weak self] result in
             guard let self else { return }
 
             dispatchQueue.async {
-                if case let .success(packetTunnelStatus) = completion, !self.isCancelled {
+                if case let .success(observedState) = result, !self.isCancelled {
                     self.interactor.updateTunnelStatus { tunnelStatus in
-                        tunnelStatus.packetTunnelStatus = packetTunnelStatus
+                        tunnelStatus.observedState = observedState
 
-                        if let newState = mapToState(packetTunnelStatus) {
+                        if let newState = mapToState(observedState) {
                             tunnelStatus.state = newState
                         }
                     }

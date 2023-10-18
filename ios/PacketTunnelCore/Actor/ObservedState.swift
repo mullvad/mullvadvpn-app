@@ -28,6 +28,25 @@ public struct ObservedConnectionState: Equatable, Codable {
     public var relayConstraints: RelayConstraints
     public var networkReachability: NetworkReachability
     public var connectionAttemptCount: UInt
+    public var lastKeyRotation: Date?
+
+    public var isNetworkReachable: Bool {
+        networkReachability != .unreachable
+    }
+
+    public init(
+        selectedRelay: SelectedRelay,
+        relayConstraints: RelayConstraints,
+        networkReachability: NetworkReachability,
+        connectionAttemptCount: UInt,
+        lastKeyRotation: Date? = nil
+    ) {
+        self.selectedRelay = selectedRelay
+        self.relayConstraints = relayConstraints
+        self.networkReachability = networkReachability
+        self.connectionAttemptCount = connectionAttemptCount
+        self.lastKeyRotation = lastKeyRotation
+    }
 }
 
 /// A serializable representation of internal blocked state.
@@ -65,7 +84,8 @@ extension ConnectionState {
             selectedRelay: selectedRelay,
             relayConstraints: relayConstraints,
             networkReachability: networkReachability,
-            connectionAttemptCount: connectionAttemptCount
+            connectionAttemptCount: connectionAttemptCount,
+            lastKeyRotation: lastKeyRotation
         )
     }
 }
