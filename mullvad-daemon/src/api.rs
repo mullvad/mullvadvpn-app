@@ -257,7 +257,7 @@ impl ApiEndpointUpdaterHandle {
                 ));
                 // Wait for the firewall policy to be updated.
                 let _ = result_rx.await;
-                log::debug!("API endpoint: {}", endpoint);
+                log::debug!("API endpoint: {endpoint}");
                 true
             }
         }
