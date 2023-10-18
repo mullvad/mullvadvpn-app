@@ -96,21 +96,19 @@ function build_ref {
 
     # If there is a tag for this commit then we append that to the produced artifacts
     # A version suffix should only be created if there is a tag for this commit and it is not a release build
-    if [[ -n "$tag" ]]; then
+    if [[ -n "$tag" && $version == *"-dev-"* ]]; then
         # Replace disallowed version characters in the tag with hyphens
         version_suffix="+${tag//[^0-9a-z_-]/-}"
         # Will only match paths that include *-dev-* which means release builds will not be included
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
-        for original_file in MullvadVPN-*-dev-*{.apk,.aab}; do
+        for original_file in MullvadVPN-*{.apk,.aab}; do
             new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-$version)(.*\.apk|.*\.aab)$/\1$version_suffix\2/p")
             mv "$original_file" "$new_file"
         done
         popd
 
-        if [[ $version == *"-dev-"* ]]; then
-            version="$version$version_suffix"
-        fi
+        version="$version$version_suffix"
     fi
 
     (cd "$artifact_dir" && upload "$version") || return 1
