@@ -32,15 +32,3 @@ public struct SelectedRelay: Equatable, Codable {
         self.location = location
     }
 }
-
-extension SelectedRelay {
-    /// Converts `SelectedRelay` to `PacketTunnelRelay` for sharing with UI.
-    public var packetTunnelRelay: PacketTunnelRelay {
-        PacketTunnelRelay(
-            ipv4Relay: endpoint.ipv4Relay,
-            ipv6Relay: endpoint.ipv6Relay,
-            hostname: hostname,
-            location: location
-        )
-    }
-}

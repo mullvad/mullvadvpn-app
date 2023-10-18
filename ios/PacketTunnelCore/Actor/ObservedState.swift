@@ -20,6 +20,28 @@ public enum ObservedState: Equatable, Codable {
     case disconnecting(ObservedConnectionState)
     case disconnected
     case error(ObservedBlockedState)
+
+    public var connectionState: ObservedConnectionState? {
+        switch self {
+        case
+            let .connecting(connectionState),
+            let .reconnecting(connectionState),
+            let .connected(connectionState),
+            let .disconnecting(connectionState):
+            connectionState
+        default:
+            nil
+        }
+    }
+
+    public var blockedState: ObservedBlockedState? {
+        switch self {
+        case let .error(blockedState):
+            blockedState
+        default:
+            nil
+        }
+    }
 }
 
 /// A serializable representation of internal connection state.
@@ -28,6 +50,11 @@ public struct ObservedConnectionState: Equatable, Codable {
     public var relayConstraints: RelayConstraints
     public var networkReachability: NetworkReachability
     public var connectionAttemptCount: UInt
+    public var lastKeyRotation: Date?
+
+    public var isNetworkReachable: Bool {
+        networkReachability != .unreachable
+    }
 }
 
 /// A serializable representation of internal blocked state.
@@ -65,7 +92,8 @@ extension ConnectionState {
             selectedRelay: selectedRelay,
             relayConstraints: relayConstraints,
             networkReachability: networkReachability,
-            connectionAttemptCount: connectionAttemptCount
+            connectionAttemptCount: connectionAttemptCount,
+            lastKeyRotation: lastKeyRotation
         )
     }
 }
