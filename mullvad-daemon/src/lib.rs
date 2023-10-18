@@ -725,8 +725,12 @@ where
             vec![]
         };
 
+        // TODO(markus): Solve this more succintly
         let initial_api_endpoint =
-            api::get_allowed_endpoint(api_runtime.address_cache.get_address().await);
+            api::get_allowed_endpoint(talpid_types::net::Endpoint::from_socket_address(
+                api_runtime.address_cache.get_address().await,
+                talpid_types::net::TransportProtocol::Tcp,
+            ));
         let parameters_generator = tunnel::ParametersGenerator::new(
             account_manager.clone(),
             relay_selector.clone(),

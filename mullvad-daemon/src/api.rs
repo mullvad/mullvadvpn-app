@@ -12,7 +12,6 @@ use mullvad_api::{
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
 use std::{
-    net::SocketAddr,
     path::PathBuf,
     pin::Pin,
     sync::{Arc, Mutex, Weak},
@@ -22,7 +21,7 @@ use std::{
 use talpid_core::mpsc::Sender;
 use talpid_core::tunnel_state_machine::TunnelCommand;
 use talpid_types::{
-    net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint, TransportProtocol},
+    net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint},
     ErrorExt,
 };
 
@@ -240,7 +239,7 @@ impl ApiEndpointUpdaterHandle {
 
     pub fn callback(&self) -> impl ApiEndpointUpdateCallback {
         let tunnel_tx = self.tunnel_cmd_tx.clone();
-        move |address: SocketAddr| {
+        move |endpoint: Endpoint| {
             let inner_tx = tunnel_tx.clone();
             async move {
                 let tunnel_tx = if let Some(tunnel_tx) = { inner_tx.lock().unwrap().as_ref() }
@@ -253,21 +252,19 @@ impl ApiEndpointUpdaterHandle {
                 };
                 let (result_tx, result_rx) = oneshot::channel();
                 let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                    get_allowed_endpoint(address),
+                    get_allowed_endpoint(endpoint),
                     result_tx,
                 ));
                 // Wait for the firewall policy to be updated.
                 let _ = result_rx.await;
-                log::debug!("API endpoint: {}", address);
+                log::debug!("API endpoint: {}", endpoint);
                 true
             }
         }
     }
 }
 
-pub(super) fn get_allowed_endpoint(api_address: SocketAddr) -> AllowedEndpoint {
-    let endpoint = Endpoint::from_socket_address(api_address, TransportProtocol::Tcp);
-
+pub(super) fn get_allowed_endpoint(endpoint: Endpoint) -> AllowedEndpoint {
     #[cfg(windows)]
     let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
     #[cfg(windows)]
