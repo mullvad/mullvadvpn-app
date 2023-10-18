@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
   proxy API traffic through a peer before connecting to a tunnel. They are managed through
   `mullvad api-access`, and the initially supported network protocols are `Shadowsocks` and
   `SOCKS5`.
+- Add social media content blocker.
 
 ### Changed
 - Update Electron from 25.2.0 to 26.3.0.
