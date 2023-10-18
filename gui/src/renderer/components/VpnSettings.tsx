@@ -283,8 +283,8 @@ function DnsBlockers() {
       <BlockAds />
       <BlockTrackers />
       <BlockMalware />
-      <BlockGambling />
       <BlockAdultContent />
+      <BlockGambling />
       <BlockSocialMedia />
     </Cell.ExpandableSection>
   );
