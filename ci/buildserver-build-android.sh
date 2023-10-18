@@ -12,7 +12,7 @@ shopt -s nullglob
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
-UPLOAD_DIR="$SCRIPT_DIR/upload"
+UPLOAD_DIR="/home/upload/upload"
 ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
 
 BRANCHES_TO_BUILD=("origin/main")
