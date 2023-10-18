@@ -123,7 +123,7 @@ impl ApiAccess {
                             ip,
                             port,
                             local_port,
-                            local.peer_transport_protol,
+                            local.peer_transport_protocol,
                         )
                         .map(AccessMethod::from)
                     }
@@ -602,7 +602,7 @@ mod pp {
                             print_option!("Protocol", "Socks5 (local)");
                             print_option!(
                                 "Peer",
-                                format!("{}/{}", local.peer, local.peer_transport_protol)
+                                format!("{}/{}", local.peer, local.peer_transport_protocol)
                             );
                             print_option!("Local port", local.port);
                             Ok(())
