@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol PacketTunnelActorProtocol {
-    var state: State { get async }
+    var observedState: ObservedState { get async }
 
     func reconnect(to nextRelay: NextRelay)
     func notifyKeyRotation(date: Date?)

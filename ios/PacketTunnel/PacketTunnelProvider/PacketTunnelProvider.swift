@@ -164,7 +164,7 @@ extension PacketTunnelProvider {
         stopObservingActorState()
 
         stateObserverTask = Task {
-            let stateStream = await self.actor.states
+            let stateStream = await self.actor.observedStates
             var lastConnectionAttempt: UInt = 0
 
             for await newState in stateStream {

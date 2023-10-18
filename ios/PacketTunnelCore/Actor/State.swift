@@ -54,7 +54,7 @@ import class WireGuardKitTypes.PrivateKey
  `.connecting`, `.reconnecting`, `.error` can be interrupted if the tunnel is requested to stop, which should segue actor towards `.disconnected` state.
 
  */
-public enum State {
+enum State {
     /// Initial state at the time when actor is initialized but before the first connection attempt.
     case initial
 
@@ -83,7 +83,7 @@ public enum State {
 }
 
 /// Policy describing what WG key to use for tunnel communication.
-public enum KeyPolicy {
+enum KeyPolicy {
     /// Use current key stored in device data.
     case useCurrent
 
@@ -92,12 +92,12 @@ public enum KeyPolicy {
 }
 
 /// Enum describing network availability.
-public enum NetworkReachability: Equatable {
+public enum NetworkReachability: Equatable, Codable {
     case undetermined, reachable, unreachable
 }
 
 /// Data associated with states that hold connection data.
-public struct ConnectionState {
+struct ConnectionState {
     /// Current selected relay.
     public var selectedRelay: SelectedRelay
 
@@ -130,7 +130,7 @@ public struct ConnectionState {
 }
 
 /// Data associated with error state.
-public struct BlockedState {
+struct BlockedState {
     /// Reason why block state was entered.
     public var reason: BlockedStateReason
 
@@ -195,12 +195,12 @@ public enum BlockedStateReason: String, Codable, Equatable {
 }
 
 /// Legal states that can precede error state.
-public enum StatePriorToBlockedState {
+enum StatePriorToBlockedState {
     case initial, connecting, connected, reconnecting
 }
 
 /// Target state the actor should transition into upon request to either start (connect) or reconnect.
-public enum TargetStateForReconnect {
+enum TargetStateForReconnect {
     case reconnecting, connecting
 }
 
@@ -217,7 +217,7 @@ public enum NextRelay: Equatable, Codable {
 }
 
 /// Describes the reason for reconnection request.
-public enum ReconnectReason {
+enum ReconnectReason {
     /// Initiated by user.
     case userInitiated
 
