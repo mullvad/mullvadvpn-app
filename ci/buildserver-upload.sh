@@ -38,7 +38,9 @@ while true; do
         files=$(awk '{print $2}' < "$checksums_path")
         for file in $files; do
             file_upload_dir="$upload_path/$version"
-            if [[ ! $file == MullvadVPN-* ]]; then
+            if [[ $platform == "desktop" && ! $file == MullvadVPN-* ]]; then
+                file_upload_dir="$file_upload_dir/additional-files"
+            elif [[ $platform == "android" && ! $file =~ MullvadVPN-$version(.apk|.play.aab) ]]; then
                 file_upload_dir="$file_upload_dir/additional-files"
             fi
 
