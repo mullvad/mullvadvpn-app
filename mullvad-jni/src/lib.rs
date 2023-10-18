@@ -83,8 +83,8 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
             Err(error) => match error {
                 daemon_interface::Error::Api(error) => match error.as_ref() {
                     RestError::ApiError(status, _code)
-                        if status == StatusCode::UNAUTHORIZED
-                            || status == StatusCode::FORBIDDEN =>
+                        if *status == StatusCode::UNAUTHORIZED
+                            || *status == StatusCode::FORBIDDEN =>
                     {
                         GetAccountDataResult::InvalidAccount
                     }

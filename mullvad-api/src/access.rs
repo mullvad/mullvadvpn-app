@@ -63,7 +63,7 @@ impl AccessTokenStore {
                         StoreAction::GetAccessToken(account, response_tx) => {
                             let account_state = account_states
                                 .entry(account.clone())
-                                .or_insert_with(|| AccountState::default());
+                                .or_default();
 
                             // If there is an unexpired access token, just return it.
                             // Otherwise, generate a new token
@@ -102,7 +102,7 @@ impl AccessTokenStore {
                         StoreAction::InvalidateToken(account) => {
                             let account_state = account_states
                                 .entry(account)
-                                .or_insert_with(|| AccountState::default());
+                                .or_default();
 
                             // Drop in-flight requests for the account
                             // & forget any existing access token
@@ -123,7 +123,7 @@ impl AccessTokenStore {
                 Some((account, result)) = completed_rx.next() => {
                     let account_state = account_states
                         .entry(account)
-                        .or_insert_with(|| AccountState::default());
+                        .or_default();
 
                     account_state.inflight_request = None;
 
