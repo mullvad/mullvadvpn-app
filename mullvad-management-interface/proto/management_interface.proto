@@ -343,6 +343,7 @@ message AccessMethod {
     string ip = 1;
     uint32 port = 2;
     uint32 local_port = 3;
+    TransportProtocol peer_transport_protocol = 4;
   }
   message SocksAuth {
     string username = 1;
