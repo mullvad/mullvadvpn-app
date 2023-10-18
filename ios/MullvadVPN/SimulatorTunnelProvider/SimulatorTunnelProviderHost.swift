@@ -20,6 +20,7 @@ import RelayCache
 import RelaySelector
 
 final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
+    private var observedState: ObservedState = .disconnected
     private var selectedRelay: SelectedRelay?
     private let urlRequestProxy: URLRequestProxy
     private let relayCacheTracker: RelayCacheTracker
@@ -39,7 +40,12 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         options: [String: NSObject]?,
         completionHandler: @escaping (Error?) -> Void
     ) {
-        dispatchQueue.async {
+        dispatchQueue.async { [weak self] in
+            guard let self else {
+                completionHandler(nil)
+                return
+            }
+
             var selectedRelay: SelectedRelay?
 
             do {
@@ -47,7 +53,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
                 selectedRelay = try tunnelOptions.getSelectedRelay()
             } catch {
-                self.providerLogger.error(
+                providerLogger.error(
                     error: error,
                     message: """
                     Failed to decode selected relay passed from the app. \
@@ -57,11 +63,10 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             }
 
             do {
-                self.selectedRelay = try selectedRelay ?? self.pickRelay()
-
+                setInternalStateConnected(with: try selectedRelay ?? pickRelay())
                 completionHandler(nil)
             } catch {
-                self.providerLogger.error(
+                providerLogger.error(
                     error: error,
                     message: "Failed to pick relay."
                 )
@@ -71,8 +76,9 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
-        dispatchQueue.async {
-            self.selectedRelay = nil
+        dispatchQueue.async { [weak self] in
+            self?.selectedRelay = nil
+            self?.observedState = .disconnected
 
             completionHandler()
         }
@@ -98,12 +104,9 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private func handleProviderMessage(_ message: TunnelProviderMessage, completionHandler: ((Data?) -> Void)?) {
         switch message {
         case .getTunnelStatus:
-            var tunnelStatus = PacketTunnelStatus()
-            tunnelStatus.tunnelRelay = self.selectedRelay?.packetTunnelRelay
-
             var reply: Data?
             do {
-                reply = try TunnelProviderReply(tunnelStatus).encode()
+                reply = try TunnelProviderReply(observedState).encode()
             } catch {
                 self.providerLogger.error(
                     error: error,
@@ -115,6 +118,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
         case let .reconnectTunnel(nextRelay):
             reasserting = true
+
             switch nextRelay {
             case let .preSelected(selectedRelay):
                 self.selectedRelay = selectedRelay
@@ -125,7 +129,10 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             case .current:
                 break
             }
+
+            setInternalStateConnected(with: selectedRelay)
             reasserting = false
+
             completionHandler?(nil)
 
         case let .sendURLRequest(proxyRequest):
@@ -165,6 +172,26 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             hostname: selectorResult.relay.hostname,
             location: selectorResult.location
         )
+    }
+
+    private func setInternalStateConnected(with selectedRelay: SelectedRelay?) {
+        guard let selectedRelay = selectedRelay else { return }
+
+        do {
+            observedState = .connected(
+                ObservedConnectionState(
+                    selectedRelay: selectedRelay,
+                    relayConstraints: try SettingsManager.readSettings().relayConstraints,
+                    networkReachability: .reachable,
+                    connectionAttemptCount: 0
+                )
+            )
+        } catch {
+            providerLogger.error(
+                error: error,
+                message: "Failed to read device settings."
+            )
+        }
     }
 }
 

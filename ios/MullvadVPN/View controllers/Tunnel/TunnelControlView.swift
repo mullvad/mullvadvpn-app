@@ -223,7 +223,7 @@ final class TunnelControlView: UIView {
             )
 
             connectionPanel.dataSource = ConnectionPanelData(
-                inAddress: "\(tunnelRelay.ipv4Relay) UDP",
+                inAddress: "\(tunnelRelay.endpoint.ipv4Relay) UDP",
                 outAddress: nil
             )
             connectionPanel.isHidden = false
