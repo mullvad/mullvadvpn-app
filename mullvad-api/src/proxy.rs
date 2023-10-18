@@ -65,19 +65,11 @@ impl fmt::Display for ProxyConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         let endpoint = self.get_endpoint();
         match self {
-            ProxyConfig::Shadowsocks(_) => {
-                write!(f, "Shadowsocks {}/{}", endpoint.address, endpoint.protocol)
-            }
+            ProxyConfig::Shadowsocks(_) => write!(f, "Shadowsocks {}", endpoint),
             ProxyConfig::Socks(socks) => match socks {
+                access_method::Socks5::Remote(_) => write!(f, "Socks5 {}", endpoint),
                 access_method::Socks5::Local(local) => {
-                    write!(
-                        f,
-                        "Socks5 {}/{} via localhost:{}",
-                        endpoint.address, endpoint.protocol, local.port
-                    )
-                }
-                access_method::Socks5::Remote(_) => {
-                    write!(f, "Socks5 {}/{}", endpoint.address, endpoint.protocol)
+                    write!(f, "Socks5 {} via localhost:{}", endpoint, local.port)
                 }
             },
         }
