@@ -119,7 +119,7 @@ impl ApiAccess {
                         let ip = cmd.params.ip.unwrap_or(local.peer.address.ip()).to_string();
                         let port = cmd.params.port.unwrap_or(local.peer.address.port());
                         let transport_protocol =
-                            cmd.params.transport.unwrap_or(local.peer.protocol);
+                            cmd.params.remote_transport.unwrap_or(local.peer.protocol);
                         let local_port = cmd.params.local_port.unwrap_or(local.port);
                         mullvad_types::access_method::Socks5Local::from_args(
                             ip,
@@ -327,7 +327,7 @@ pub enum AddSocks5Commands {
         /// By default, the transport protocol is assumed to be `TCP`, but it
         /// can optionally be set to `UDP` as well.
         #[arg(long, default_value_t = TransportProtocol::Tcp)]
-        transport: TransportProtocol,
+        remote_transport: TransportProtocol,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
         #[arg(default_value_t = false, short, long)]
@@ -418,7 +418,7 @@ pub struct EditParams {
     port: Option<u16>,
     /// The transport protocol used when communicating with the remote proxy server [Socks5 (Local)]
     #[arg(long)]
-    transport: Option<TransportProtocol>,
+    remote_transport: Option<TransportProtocol>,
     /// The port that the server on localhost is listening on [Socks5 (Local proxy)]
     #[arg(long)]
     local_port: Option<u16>,
@@ -446,7 +446,7 @@ mod conversions {
                         remote_port,
                         name: _,
                         disabled: _,
-                        transport: remote_transport_protocol,
+                        remote_transport: remote_transport_protocol,
                     } => {
                         println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}/{remote_transport_protocol}");
                         daemon_types::Socks5Local::from_args(
