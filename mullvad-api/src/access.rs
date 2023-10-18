@@ -28,6 +28,13 @@ enum StoreAction {
     InvalidateToken(AccountToken),
 }
 
+#[derive(Default)]
+struct AccountState {
+    current_access_token: Option<AccessTokenData>,
+    inflight_request: Option<tokio::task::JoinHandle<()>>,
+    response_channels: Vec<oneshot::Sender<Result<AccessToken, Arc<rest::Error>>>>,
+}
+
 impl AccessTokenStore {
     pub(crate) fn new(service: RequestServiceHandle, factory: RequestFactory) -> Self {
         let (tx, rx) = mpsc::unbounded();
@@ -40,9 +47,7 @@ impl AccessTokenStore {
         service: RequestServiceHandle,
         factory: RequestFactory,
     ) {
-        let mut access_from_account: HashMap<String, AccessTokenData> = HashMap::new();
-        let mut inflight_requests = HashMap::new();
-        let mut response_channels = HashMap::new();
+        let mut account_states: HashMap<AccountToken, AccountState> = HashMap::new();
 
         let (completed_tx, mut completed_rx) = mpsc::unbounded();
 
@@ -56,9 +61,13 @@ impl AccessTokenStore {
 
                     match action {
                         StoreAction::GetAccessToken(account, response_tx) => {
+                            let account_state = account_states
+                                .entry(account.clone())
+                                .or_insert_with(|| AccountState::default());
+
                             // If there is an unexpired access token, just return it.
                             // Otherwise, generate a new token
-                            if let Some(access_token) = access_from_account.get_mut(&account) {
+                            if let Some(ref access_token) = account_state.current_access_token {
                                 if !access_token.is_expired() {
                                     log::trace!("Using stored access token");
                                     let _ = response_tx.send(Ok(access_token.access_token.clone()));
@@ -66,14 +75,14 @@ impl AccessTokenStore {
                                 }
 
                                 log::debug!("Replacing expired access token");
-                                access_from_account.remove(&account);
+                                account_state.current_access_token = None;
                             }
 
                             // Begin requesting an access token if it's not already underway.
                             // If there's already an inflight request, just save `response_tx`
-                            inflight_requests
-                                .entry(account.clone())
-                                .or_insert_with(|| {
+                            account_state
+                                .inflight_request
+                                .get_or_insert_with(|| {
                                     let completed_tx = completed_tx.clone();
                                     let account = account.clone();
                                     let service = service.clone();
@@ -88,43 +97,46 @@ impl AccessTokenStore {
                                 });
 
                             // Save the channel to respond to later
-                            response_channels
-                                .entry(account)
-                                .or_insert_with(Vec::new)
-                                .push(response_tx);
+                            account_state.response_channels.push(response_tx);
                         }
                         StoreAction::InvalidateToken(account) => {
+                            let account_state = account_states
+                                .entry(account)
+                                .or_insert_with(|| AccountState::default());
+
                             // Drop in-flight requests for the account
                             // & forget any existing access token
 
                             log::debug!("Invalidating access token for an account");
 
-                            if let Some(task) = inflight_requests.remove(&account) {
+                            if let Some(task) = account_state.inflight_request.take() {
                                 task.abort();
                                 let _ = task.await;
                             }
 
-                            response_channels.remove(&account);
-                            access_from_account.remove(&account);
+                            account_state.response_channels.clear();
+                            account_state.current_access_token = None;
                         }
                     }
                 }
 
                 Some((account, result)) = completed_rx.next() => {
-                    inflight_requests.remove(&account);
+                    let account_state = account_states
+                        .entry(account)
+                        .or_insert_with(|| AccountState::default());
+
+                    account_state.inflight_request = None;
 
                     // Sadly, rest::Error is not cloneable
                     let result = result.map_err(Arc::new);
 
                     // Send response to all channels
-                    if let Some(channels) = response_channels.remove(&account) {
-                        for tx in channels {
-                            let _ = tx.send(result.clone().map(|data| data.access_token));
-                        }
+                    for tx in account_state.response_channels.drain(..) {
+                        let _ = tx.send(result.clone().map(|data| data.access_token));
                     }
 
                     if let Ok(access_token) = result {
-                        access_from_account.insert(account, access_token);
+                        account_state.current_access_token = Some(access_token);
                     }
                 }
             }
