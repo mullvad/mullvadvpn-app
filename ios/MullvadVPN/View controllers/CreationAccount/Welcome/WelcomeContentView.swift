@@ -225,7 +225,9 @@ final class WelcomeContentView: UIView {
         textsStackView.addArrangedSubview(descriptionLabel)
 
         buttonsStackView.addArrangedSubview(purchaseButton)
+        #if DEBUG
         buttonsStackView.addArrangedSubview(redeemVoucherButton)
+        #endif
 
         addSubview(textsStackView)
         addSubview(buttonsStackView)

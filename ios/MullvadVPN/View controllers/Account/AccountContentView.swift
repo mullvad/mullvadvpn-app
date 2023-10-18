@@ -99,14 +99,17 @@ class AccountContentView: UIView {
     }()
 
     lazy var buttonStackView: UIStackView = {
-        let stackView =
-            UIStackView(arrangedSubviews: [
-                redeemVoucherButton,
-                purchaseButton,
-                restorePurchasesButton,
-                logoutButton,
-                deleteButton,
-            ])
+        var arrangedSubviews = [UIView]()
+        #if DEBUG
+        arrangedSubviews.append(redeemVoucherButton)
+        #endif
+        arrangedSubviews.append(contentsOf: [
+            purchaseButton,
+            restorePurchasesButton,
+            logoutButton,
+            deleteButton,
+        ])
+        let stackView = UIStackView(arrangedSubviews: arrangedSubviews)
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.padding16
