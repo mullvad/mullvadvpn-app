@@ -375,31 +375,6 @@ function BlockMalware() {
   );
 }
 
-function BlockGambling() {
-  const [dns, setBlockGambling] = useDns('blockGambling');
-
-  return (
-    <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
-        <AriaLabel>
-          <Cell.InputLabel>
-            {
-              // TRANSLATORS: Label for settings that enables block of gamling related websites.
-              messages.pgettext('vpn-settings-view', 'Gambling')
-            }
-          </Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch
-            isOn={dns.state === 'default' && dns.defaultOptions.blockGambling}
-            onChange={setBlockGambling}
-          />
-        </AriaInput>
-      </StyledSectionItem>
-    </AriaInputGroup>
-  );
-}
-
 function BlockAdultContent() {
   const [dns, setBlockAdultContent] = useDns('blockAdultContent');
 
@@ -418,6 +393,31 @@ function BlockAdultContent() {
           <Cell.Switch
             isOn={dns.state === 'default' && dns.defaultOptions.blockAdultContent}
             onChange={setBlockAdultContent}
+          />
+        </AriaInput>
+      </StyledSectionItem>
+    </AriaInputGroup>
+  );
+}
+
+function BlockGambling() {
+  const [dns, setBlockGambling] = useDns('blockGambling');
+
+  return (
+    <AriaInputGroup>
+      <StyledSectionItem disabled={dns.state === 'custom'}>
+        <AriaLabel>
+          <Cell.InputLabel>
+            {
+              // TRANSLATORS: Label for settings that enables block of gamling related websites.
+              messages.pgettext('vpn-settings-view', 'Gambling')
+            }
+          </Cell.InputLabel>
+        </AriaLabel>
+        <AriaInput>
+          <Cell.Switch
+            isOn={dns.state === 'default' && dns.defaultOptions.blockGambling}
+            onChange={setBlockGambling}
           />
         </AriaInput>
       </StyledSectionItem>
