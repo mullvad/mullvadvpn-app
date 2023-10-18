@@ -340,10 +340,10 @@ message AccessMethod {
   message Direct {}
   message Bridges {}
   message Socks5Local {
-    string ip = 1;
-    uint32 port = 2;
-    uint32 local_port = 3;
-    TransportProtocol peer_transport_protocol = 4;
+    string remote_ip = 1;
+    uint32 remote_port = 2;
+    TransportProtocol remote_transport = 3;
+    uint32 local_port = 4;
   }
   message SocksAuth {
     string username = 1;
