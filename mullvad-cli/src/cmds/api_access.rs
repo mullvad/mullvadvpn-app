@@ -445,7 +445,7 @@ mod conversions {
                         disabled: _,
                         transport_protocol,
                     } => {
-                        println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
+                        println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}/{transport_protocol}");
                         daemon_types::Socks5Local::new_with_transport_protocol(
                             (remote_ip, remote_port),
                             local_port,
