@@ -143,13 +143,11 @@ mod data {
 
         fn try_from(value: proto::access_method::Socks5Local) -> Result<Self, Self::Error> {
             use crate::types::conversions::net::try_transport_protocol_from_i32;
-            let peer_transport_protocol =
-                try_transport_protocol_from_i32(value.peer_transport_protocol)?;
             Socks5Local::from_args(
-                value.ip,
-                value.port as u16,
+                value.remote_ip,
+                value.remote_port as u16,
                 value.local_port as u16,
-                peer_transport_protocol,
+                try_transport_protocol_from_i32(value.remote_transport)?,
             )
             .ok_or(FromProtobufTypeError::InvalidArgument(
                 "Could not parse Socks5 (local) message from protobuf",
@@ -227,12 +225,12 @@ mod data {
                 CustomAccessMethod::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
                     proto::access_method::AccessMethod::Socks5local(
                         proto::access_method::Socks5Local {
-                            ip: peer.address.ip().to_string(),
-                            port: peer.address.port() as u32,
-                            local_port: port as u32,
-                            peer_transport_protocol: i32::from(proto::TransportProtocol::from(
+                            remote_ip: peer.address.ip().to_string(),
+                            remote_port: peer.address.port() as u32,
+                            remote_transport: i32::from(proto::TransportProtocol::from(
                                 peer.protocol,
                             )),
+                            local_port: port as u32,
                         },
                     )
                 }
