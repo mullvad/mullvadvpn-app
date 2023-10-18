@@ -12,6 +12,7 @@ use mullvad_types::{
     wireguard,
     wireguard::QuantumResistantState,
 };
+use std::sync::Arc;
 
 #[derive(Debug, err_derive::Error)]
 #[error(no_from)]
