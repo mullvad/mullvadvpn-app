@@ -4,7 +4,7 @@ use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, CustomAcce
 use std::net::IpAddr;
 
 use clap::{Args, Subcommand};
-use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
+use talpid_types::net::{openvpn::SHADOWSOCKS_CIPHERS, TransportProtocol};
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum ApiAccess {
@@ -119,8 +119,13 @@ impl ApiAccess {
                         let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
                         let port = cmd.params.port.unwrap_or(local.peer.port());
                         let local_port = cmd.params.local_port.unwrap_or(local.port);
-                        mullvad_types::access_method::Socks5Local::from_args(ip, port, local_port)
-                            .map(AccessMethod::from)
+                        mullvad_types::access_method::Socks5Local::from_args(
+                            ip,
+                            port,
+                            local_port,
+                            local.peer_transport_protol,
+                        )
+                        .map(AccessMethod::from)
                     }
                     mullvad_types::access_method::Socks5::Remote(remote) => {
                         let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
@@ -315,6 +320,18 @@ pub enum AddSocks5Commands {
         remote_ip: IpAddr,
         /// The port of the remote peer
         remote_port: u16,
+        /// The Mullvad App can not know which transport protocol that the
+        /// remote peer accepts, but it needs to know this in order to correctly
+        /// exempt the connection traffic in the firewall.
+        ///
+        /// By default, the transport protocol is assumed to be `TCP`, but it
+        /// can optionally be set to `UDP` as well.
+        ///
+        /// There exists obfuscation protocols which use other transport
+        /// protocols, such as ICMP. However, by supporting both TCP and UDP we
+        /// should cover ~99% of all use cases.
+        #[arg(default_value_t = TransportProtocol::Tcp)]
+        remote_transport_protocol: TransportProtocol,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
         #[arg(default_value_t = false, short, long)]
@@ -430,12 +447,14 @@ mod conversions {
                         remote_port,
                         name: _,
                         disabled: _,
+                        remote_transport_protocol,
                     } => {
                         println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
                         daemon_types::Socks5Local::from_args(
                             remote_ip.to_string(),
                             remote_port,
                             local_port,
+                            remote_transport_protocol,
                         )
                         .map(daemon_types::Socks5::Local)
                         .map(daemon_types::AccessMethod::from)

@@ -142,11 +142,19 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::access_method::Socks5Local) -> Result<Self, Self::Error> {
-            Socks5Local::from_args(value.ip, value.port as u16, value.local_port as u16)
-                .ok_or(FromProtobufTypeError::InvalidArgument(
-                    "Could not parse Socks5 (local) message from protobuf",
-                ))
-                .map(AccessMethod::from)
+            use crate::types::conversions::net::try_transport_protocol_from_i32;
+            let peer_transport_protocol =
+                try_transport_protocol_from_i32(value.peer_transport_protocol)?;
+            Socks5Local::from_args(
+                value.ip,
+                value.port as u16,
+                value.local_port as u16,
+                peer_transport_protocol,
+            )
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "Could not parse Socks5 (local) message from protobuf",
+            ))
+            .map(AccessMethod::from)
         }
     }
 
@@ -216,15 +224,20 @@ mod data {
                         },
                     )
                 }
-                CustomAccessMethod::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
-                    proto::access_method::AccessMethod::Socks5local(
-                        proto::access_method::Socks5Local {
-                            ip: peer.ip().to_string(),
-                            port: peer.port() as u32,
-                            local_port: port as u32,
-                        },
-                    )
-                }
+                CustomAccessMethod::Socks5(Socks5::Local(Socks5Local {
+                    peer,
+                    port,
+                    peer_transport_protol,
+                })) => proto::access_method::AccessMethod::Socks5local(
+                    proto::access_method::Socks5Local {
+                        ip: peer.ip().to_string(),
+                        port: peer.port() as u32,
+                        local_port: port as u32,
+                        peer_transport_protocol: i32::from(proto::TransportProtocol::from(
+                            peer_transport_protol,
+                        )),
+                    },
+                ),
                 CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote {
                     peer,
                     authentication,
