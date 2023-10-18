@@ -9,9 +9,9 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
-import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayEndpointData
 import net.mullvad.mullvadvpn.model.RelayList
@@ -35,7 +35,7 @@ class SelectLocationScreenTest {
     @Test
     fun testDefaultState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             SelectLocationScreen(
                 uiState = SelectLocationUiState.Loading,
                 uiCloseAction = MutableSharedFlow(),
@@ -50,7 +50,7 @@ class SelectLocationScreenTest {
     @Test
     fun testShowRelayListState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             SelectLocationScreen(
                 uiState =
                     SelectLocationUiState.ShowData(
@@ -87,18 +87,16 @@ class SelectLocationScreenTest {
             }
 
         // Arrange
-        composeTestRule.setContent {
-            AppTheme {
-                SelectLocationScreen(
-                    uiState =
-                        SelectLocationUiState.ShowData(
-                            countries = updatedDummyList,
-                            selectedRelay = updatedDummyList[0].cities[0].relays[0]
-                        ),
-                    uiCloseAction = MutableSharedFlow(),
-                    enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
-                )
-            }
+        composeTestRule.setContentWithTheme {
+            SelectLocationScreen(
+                uiState =
+                    SelectLocationUiState.ShowData(
+                        countries = updatedDummyList,
+                        selectedRelay = updatedDummyList[0].cities[0].relays[0]
+                    ),
+                uiCloseAction = MutableSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
+            )
         }
 
         // Assert
@@ -116,19 +114,14 @@ class SelectLocationScreenTest {
     fun testSearchInput() {
         // Arrange
         val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
-            AppTheme {
-                SelectLocationScreen(
-                    uiState =
-                        SelectLocationUiState.ShowData(
-                            countries = emptyList(),
-                            selectedRelay = null
-                        ),
-                    uiCloseAction = MutableSharedFlow(),
-                    enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
-                    onSearchTermInput = mockedSearchTermInput
-                )
-            }
+        composeTestRule.setContentWithTheme {
+            SelectLocationScreen(
+                uiState =
+                    SelectLocationUiState.ShowData(countries = emptyList(), selectedRelay = null),
+                uiCloseAction = MutableSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
+                onSearchTermInput = mockedSearchTermInput
+            )
         }
         val mockSearchString = "SEARCH"
 
@@ -144,16 +137,13 @@ class SelectLocationScreenTest {
         // Arrange
         val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
         val mockSearchString = "SEARCH"
-        composeTestRule.setContent {
-            AppTheme {
-                SelectLocationScreen(
-                    uiState =
-                        SelectLocationUiState.NoSearchResultFound(searchTerm = mockSearchString),
-                    uiCloseAction = MutableSharedFlow(),
-                    enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
-                    onSearchTermInput = mockedSearchTermInput
-                )
-            }
+        composeTestRule.setContentWithTheme {
+            SelectLocationScreen(
+                uiState = SelectLocationUiState.NoSearchResultFound(searchTerm = mockSearchString),
+                uiCloseAction = MutableSharedFlow(),
+                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
+                onSearchTermInput = mockedSearchTermInput
+            )
         }
 
         // Assert

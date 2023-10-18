@@ -9,6 +9,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.junit.Before
@@ -27,7 +28,7 @@ class AccountScreenTest {
     @Test
     fun testDefaultState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             AccountScreen(
                 uiState =
                     AccountUiState(
@@ -52,7 +53,7 @@ class AccountScreenTest {
     fun testManageAccountClick() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             AccountScreen(
                 uiState =
                     AccountUiState(
@@ -78,7 +79,7 @@ class AccountScreenTest {
     fun testRedeemVoucherClick() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             AccountScreen(
                 uiState =
                     AccountUiState(
@@ -104,7 +105,7 @@ class AccountScreenTest {
     fun testLogoutClick() {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             AccountScreen(
                 uiState =
                     AccountUiState(

@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithText
 import io.mockk.MockKAnnotations
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import org.junit.Before
 import org.junit.Rule
@@ -23,7 +24,7 @@ class SettingsScreenTest {
     @OptIn(ExperimentalMaterial3Api::class)
     fun testLoggedInState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             SettingsScreen(
                 uiState =
                     SettingsUiState(appVersion = "", isLoggedIn = true, isUpdateAvailable = true),
@@ -42,7 +43,7 @@ class SettingsScreenTest {
     @OptIn(ExperimentalMaterial3Api::class)
     fun testLoggedOutState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             SettingsScreen(
                 uiState =
                     SettingsUiState(appVersion = "", isLoggedIn = false, isUpdateAvailable = true),

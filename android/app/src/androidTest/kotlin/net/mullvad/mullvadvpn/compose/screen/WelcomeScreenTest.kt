@@ -8,6 +8,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import org.junit.Before
@@ -25,7 +26,7 @@ class WelcomeScreenTest {
     @Test
     fun testDefaultState() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
@@ -48,7 +49,7 @@ class WelcomeScreenTest {
     @Test
     fun testDisableSitePayment() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = false,
                 uiState = WelcomeUiState(),
@@ -77,7 +78,7 @@ class WelcomeScreenTest {
         // Arrange
         val rawAccountNumber = "1111222233334444"
         val expectedAccountNumber = "1111 2222 3333 4444"
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(accountNumber = rawAccountNumber),
@@ -97,7 +98,7 @@ class WelcomeScreenTest {
     @Test
     fun testOpenAccountView() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
@@ -119,7 +120,7 @@ class WelcomeScreenTest {
     fun testOpenConnectScreen() {
         // Arrange
         val mockClickListener: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
@@ -140,7 +141,7 @@ class WelcomeScreenTest {
     fun testClickSitePaymentButton() {
         // Arrange
         val mockClickListener: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
@@ -164,7 +165,7 @@ class WelcomeScreenTest {
     fun testClickRedeemVoucher() {
         // Arrange
         val mockClickListener: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState = WelcomeUiState(),
