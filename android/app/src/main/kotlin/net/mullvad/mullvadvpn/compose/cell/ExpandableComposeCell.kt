@@ -57,7 +57,7 @@ fun ExpandableComposeCell(
             BaseCellTitle(
                 title = title,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = titleModifier
+                modifier = titleModifier.weight(1f, fill = true)
             )
         },
         bodyView = {
