@@ -224,20 +224,18 @@ mod data {
                         },
                     )
                 }
-                CustomAccessMethod::Socks5(Socks5::Local(Socks5Local {
-                    peer,
-                    port,
-                    peer_transport_protocol,
-                })) => proto::access_method::AccessMethod::Socks5local(
-                    proto::access_method::Socks5Local {
-                        ip: peer.ip().to_string(),
-                        port: peer.port() as u32,
-                        local_port: port as u32,
-                        peer_transport_protocol: i32::from(proto::TransportProtocol::from(
-                            peer_transport_protocol,
-                        )),
-                    },
-                ),
+                CustomAccessMethod::Socks5(Socks5::Local(Socks5Local { peer, port })) => {
+                    proto::access_method::AccessMethod::Socks5local(
+                        proto::access_method::Socks5Local {
+                            ip: peer.address.ip().to_string(),
+                            port: peer.address.port() as u32,
+                            local_port: port as u32,
+                            peer_transport_protocol: i32::from(proto::TransportProtocol::from(
+                                peer.protocol,
+                            )),
+                        },
+                    )
+                }
                 CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote {
                     peer,
                     authentication,
