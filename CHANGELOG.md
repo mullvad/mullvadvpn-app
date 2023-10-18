@@ -54,6 +54,8 @@ Line wrap the file at 100 chars.                                              Th
 - Remove wireguard-go (userspace WireGuard) support.
 
 ### Fixed
+- Show correct endpoint in CLI for custom relays.
+
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
 
