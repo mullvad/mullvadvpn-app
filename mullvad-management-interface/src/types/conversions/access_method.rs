@@ -144,15 +144,19 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::access_method::Socks5Local) -> Result<Self, Self::Error> {
+            use crate::types::conversions::net::try_transport_protocol_from_i32;
             let remote_ip = value.remote_ip.parse::<Ipv4Addr>().map_err(|_| {
                 FromProtobufTypeError::InvalidArgument(
                     "Could not parse Socks5 (local) message from protobuf",
                 )
             })?;
-            Ok(AccessMethod::from(Socks5Local::new(
-                (remote_ip, value.remote_port as u16),
-                value.local_port as u16,
-            )))
+            Ok(AccessMethod::from(
+                Socks5Local::new_with_transport_protocol(
+                    (remote_ip, value.remote_port as u16),
+                    value.local_port as u16,
+                    try_transport_protocol_from_i32(value.remote_transport_protocol)?,
+                ),
+            ))
         }
     }
 
@@ -229,13 +233,16 @@ mod data {
                     )
                 }
                 CustomAccessMethod::Socks5(Socks5::Local(Socks5Local {
-                    remote_peer: peer,
-                    local_port: port,
+                    remote_endpoint,
+                    local_port,
                 })) => proto::access_method::AccessMethod::Socks5local(
                     proto::access_method::Socks5Local {
-                        remote_ip: peer.ip().to_string(),
-                        remote_port: peer.port() as u32,
-                        local_port: port as u32,
+                        remote_ip: remote_endpoint.address.ip().to_string(),
+                        remote_port: remote_endpoint.address.port() as u32,
+                        remote_transport_protocol: i32::from(proto::TransportProtocol::from(
+                            remote_endpoint.protocol,
+                        )),
+                        local_port: local_port as u32,
                     },
                 ),
                 CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote {

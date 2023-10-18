@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
+use talpid_types::net::{Endpoint, TransportProtocol};
 
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -205,7 +206,7 @@ pub struct Shadowsocks {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Local {
-    pub remote_peer: SocketAddr,
+    pub remote_endpoint: Endpoint,
     /// Port on localhost where the SOCKS5-proxy listens to.
     pub local_port: u16,
 }
@@ -252,8 +253,18 @@ impl Shadowsocks {
 
 impl Socks5Local {
     pub fn new<I: Into<SocketAddr>>(remote_peer: I, local_port: u16) -> Self {
+        let transport_protocol = TransportProtocol::Tcp;
+        Self::new_with_transport_protocol(remote_peer, local_port, transport_protocol)
+    }
+
+    pub fn new_with_transport_protocol<I: Into<SocketAddr>>(
+        remote_peer: I,
+        local_port: u16,
+        transport_protocol: TransportProtocol,
+    ) -> Self {
+        let remote_endpoint = Endpoint::from_socket_address(remote_peer.into(), transport_protocol);
         Self {
-            remote_peer: remote_peer.into(),
+            remote_endpoint,
             local_port,
         }
     }
