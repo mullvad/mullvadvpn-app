@@ -2,6 +2,7 @@ use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
+use talpid_types::net::TransportProtocol;
 
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -206,6 +207,8 @@ pub struct Shadowsocks {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Local {
     pub peer: SocketAddr,
+    /// The transport protocol which should be allowed in the firewall.
+    pub peer_transport_protol: TransportProtocol,
     /// Port on localhost where the SOCKS5-proxy listens to.
     pub port: u16,
 }
@@ -259,15 +262,40 @@ impl Shadowsocks {
 
 impl Socks5Local {
     pub fn new(peer: SocketAddr, port: u16) -> Self {
-        Self { peer, port }
+        Self {
+            peer,
+            port,
+            peer_transport_protol: TransportProtocol::Tcp,
+        }
+    }
+
+    pub fn new_with_transport_protocol(
+        peer: SocketAddr,
+        port: u16,
+        transport_protocol: TransportProtocol,
+    ) -> Self {
+        Self {
+            peer,
+            port,
+            peer_transport_protol: transport_protocol,
+        }
     }
 
     /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
     /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16, localport: u16) -> Option<Self> {
+    pub fn from_args(
+        ip: String,
+        port: u16,
+        localport: u16,
+        transport_protocol: TransportProtocol,
+    ) -> Option<Self> {
         let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
         let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer, localport))
+        Some(Self::new_with_transport_protocol(
+            peer,
+            localport,
+            transport_protocol,
+        ))
     }
 }
 
