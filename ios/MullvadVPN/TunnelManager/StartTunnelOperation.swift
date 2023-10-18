@@ -91,8 +91,7 @@ class StartTunnelOperation: ResultOperation<Void> {
 
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
-            tunnelStatus.packetTunnelStatus.tunnelRelay = selectedRelay?.packetTunnelRelay
-            tunnelStatus.state = .connecting(selectedRelay?.packetTunnelRelay)
+            tunnelStatus.state = .connecting(selectedRelay)
         }
 
         try tunnel.start(options: tunnelOptions.rawOptions())
