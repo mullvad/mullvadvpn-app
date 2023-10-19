@@ -71,14 +71,6 @@ pub fn find_vm_bridge() -> Result<String> {
 }
 
 async fn enable_forwarding() -> Result<()> {
-    // Check if forwarding is enabled
-    let mut cmd = Command::new("/usr/sbin/sysctl");
-    cmd.arg("net.inet.ip.forwarding");
-    let output = cmd.output().await.context("Run sysctl")?;
-    if !output.status.success() {
-        return Err(anyhow!("sysctl failed: {}", output.status.code().unwrap()));
-    }
-
     // Enable forwarding
     let mut cmd = Command::new("/usr/bin/sudo");
     cmd.args(["/usr/sbin/sysctl", "net.inet.ip.forwarding=1"]);
