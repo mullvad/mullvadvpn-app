@@ -9,162 +9,73 @@ import net.mullvad.mullvadvpn.model.SelectedObfuscation
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
 import net.mullvad.mullvadvpn.viewmodel.StagedDns
 
-sealed interface VpnSettingsUiState {
-    val mtu: String
-    val isAutoConnectEnabled: Boolean
-    val isLocalNetworkSharingEnabled: Boolean
-    val isCustomDnsEnabled: Boolean
-    val customDnsItems: List<CustomDnsItem>
-    val contentBlockersOptions: DefaultDnsOptions
-    val isAllowLanEnabled: Boolean
-    val selectedObfuscation: SelectedObfuscation
-    val quantumResistant: QuantumResistantState
-    val selectedWireguardPort: Constraint<Port>
+data class VpnSettingsUiState(
+    val mtu: String,
+    val isAutoConnectEnabled: Boolean,
+    val isLocalNetworkSharingEnabled: Boolean,
+    val isCustomDnsEnabled: Boolean,
+    val customDnsItems: List<CustomDnsItem>,
+    val contentBlockersOptions: DefaultDnsOptions,
+    val isAllowLanEnabled: Boolean,
+    val selectedObfuscation: SelectedObfuscation,
+    val quantumResistant: QuantumResistantState,
+    val selectedWireguardPort: Constraint<Port>,
+    val availablePortRanges: List<PortRange>,
+    val dialog: VpnSettingsDialog?
+) {
 
-    data class DefaultUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+    companion object {
+        fun createDefault(
+            mtu: String = "",
+            isAutoConnectEnabled: Boolean = false,
+            isLocalNetworkSharingEnabled: Boolean = false,
+            isCustomDnsEnabled: Boolean = false,
+            customDnsItems: List<CustomDnsItem> = emptyList(),
+            contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
+            isAllowLanEnabled: Boolean = false,
+            selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
+            quantumResistant: QuantumResistantState = QuantumResistantState.Off,
+            selectedWireguardPort: Constraint<Port> = Constraint.Any(),
+            availablePortRanges: List<PortRange> = emptyList(),
+            dialog: VpnSettingsDialog? = null
+        ) =
+            VpnSettingsUiState(
+                mtu,
+                isAutoConnectEnabled,
+                isLocalNetworkSharingEnabled,
+                isCustomDnsEnabled,
+                customDnsItems,
+                contentBlockersOptions,
+                isAllowLanEnabled,
+                selectedObfuscation,
+                quantumResistant,
+                selectedWireguardPort,
+                availablePortRanges,
+                dialog
+            )
+    }
+}
 
-    data class MtuDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        val mtuEditValue: String,
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+interface VpnSettingsDialog {
+    data class Mtu(val mtuEditValue: String) : VpnSettingsDialog
 
-    data class DnsDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        val stagedDns: StagedDns,
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+    data class Dns(val stagedDns: StagedDns) : VpnSettingsDialog
 
-    data class LocalNetworkSharingInfoDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+    data object LocalNetworkSharingInfo : VpnSettingsDialog
 
-    data class ContentBlockersInfoDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+    data object ContentBlockersInfo : VpnSettingsDialog
 
-    data class CustomDnsInfoDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+    data object CustomDnsInfo : VpnSettingsDialog
 
-    data class MalwareInfoDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+    data object MalwareInfo : VpnSettingsDialog
 
-    data class ObfuscationInfoDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+    data object ObfuscationInfo : VpnSettingsDialog
 
-    data class QuantumResistanceInfoDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any()
-    ) : VpnSettingsUiState
+    data object QuantumResistanceInfo : VpnSettingsDialog
 
-    data class WireguardPortInfoDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any(),
-        val availablePortRanges: List<PortRange> = emptyList()
-    ) : VpnSettingsUiState
+    data class WireguardPortInfo(val availablePortRanges: List<PortRange> = emptyList()) :
+        VpnSettingsDialog
 
-    data class CustomPortDialogUiState(
-        override val mtu: String = "",
-        override val isAutoConnectEnabled: Boolean = false,
-        override val isLocalNetworkSharingEnabled: Boolean = false,
-        override val isCustomDnsEnabled: Boolean = false,
-        override val isAllowLanEnabled: Boolean = false,
-        override val customDnsItems: List<CustomDnsItem> = listOf(),
-        override val contentBlockersOptions: DefaultDnsOptions = DefaultDnsOptions(),
-        override val selectedObfuscation: SelectedObfuscation = SelectedObfuscation.Off,
-        override val quantumResistant: QuantumResistantState = QuantumResistantState.Off,
-        override val selectedWireguardPort: Constraint<Port> = Constraint.Any(),
-        val availablePortRanges: List<PortRange> = emptyList()
-    ) : VpnSettingsUiState
+    data class CustomPort(val availablePortRanges: List<PortRange> = emptyList()) :
+        VpnSettingsDialog
 }

@@ -61,6 +61,7 @@ import net.mullvad.mullvadvpn.compose.dialog.ObfuscationInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.QuantumResistanceInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.WireguardPortInfoDialog
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsDialog
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
@@ -87,7 +88,7 @@ private fun PreviewVpnSettings() {
     AppTheme {
         VpnSettingsScreen(
             uiState =
-                VpnSettingsUiState.DefaultUiState(
+                VpnSettingsUiState.createDefault(
                     isAutoConnectEnabled = true,
                     mtu = "1337",
                     isCustomDnsEnabled = true,
@@ -175,18 +176,18 @@ fun VpnSettingsScreen(
 ) {
     val savedCustomPort = rememberSaveable { mutableStateOf<Constraint<Port>>(Constraint.Any()) }
 
-    when (uiState) {
-        is VpnSettingsUiState.MtuDialogUiState -> {
+    when (val dialog = uiState.dialog) {
+        is VpnSettingsDialog.Mtu -> {
             MtuDialog(
-                mtuInitial = uiState.mtuEditValue.toIntOrNull(),
+                mtuInitial = dialog.mtuEditValue.toIntOrNull(),
                 onSave = { onSaveMtuClick(it) },
                 onRestoreDefaultValue = { onRestoreMtuClick() },
                 onDismiss = { onCancelMtuDialogClick() }
             )
         }
-        is VpnSettingsUiState.DnsDialogUiState -> {
+        is VpnSettingsDialog.Dns -> {
             DnsDialog(
-                stagedDns = uiState.stagedDns,
+                stagedDns = dialog.stagedDns,
                 isAllowLanEnabled = uiState.isAllowLanEnabled,
                 onIpAddressChanged = { onDnsInputChange(it) },
                 onAttemptToSave = { onSaveDnsClick() },
@@ -194,31 +195,31 @@ fun VpnSettingsScreen(
                 onDismiss = { onCancelDnsDialogClick() }
             )
         }
-        is VpnSettingsUiState.LocalNetworkSharingInfoDialogUiState -> {
+        is VpnSettingsDialog.LocalNetworkSharingInfo -> {
             LocalNetworkSharingInfoDialog(onDismissInfoClick)
         }
-        is VpnSettingsUiState.ContentBlockersInfoDialogUiState -> {
+        is VpnSettingsDialog.ContentBlockersInfo -> {
             ContentBlockersInfoDialog(onDismissInfoClick)
         }
-        is VpnSettingsUiState.CustomDnsInfoDialogUiState -> {
+        is VpnSettingsDialog.CustomDnsInfo -> {
             CustomDnsInfoDialog(onDismissInfoClick)
         }
-        is VpnSettingsUiState.MalwareInfoDialogUiState -> {
+        is VpnSettingsDialog.MalwareInfo -> {
             MalwareInfoDialog(onDismissInfoClick)
         }
-        is VpnSettingsUiState.ObfuscationInfoDialogUiState -> {
+        is VpnSettingsDialog.ObfuscationInfo -> {
             ObfuscationInfoDialog(onDismissInfoClick)
         }
-        is VpnSettingsUiState.QuantumResistanceInfoDialogUiState -> {
+        is VpnSettingsDialog.QuantumResistanceInfo -> {
             QuantumResistanceInfoDialog(onDismissInfoClick)
         }
-        is VpnSettingsUiState.WireguardPortInfoDialogUiState -> {
-            WireguardPortInfoDialog(uiState.availablePortRanges, onDismissInfoClick)
+        is VpnSettingsDialog.WireguardPortInfo -> {
+            WireguardPortInfoDialog(dialog.availablePortRanges, onDismissInfoClick)
         }
-        is VpnSettingsUiState.CustomPortDialogUiState -> {
+        is VpnSettingsDialog.CustomPort -> {
             CustomPortDialog(
                 customPort = savedCustomPort.value.toDisplayCustomPort(),
-                allowedPortRanges = uiState.availablePortRanges,
+                allowedPortRanges = dialog.availablePortRanges,
                 onSave = { customPortString ->
                     onWireguardPortSelected(Constraint.Only(Port(customPortString.toInt())))
                 },
@@ -232,9 +233,6 @@ fun VpnSettingsScreen(
                 showReset = savedCustomPort.value is Constraint.Only,
                 onDismissRequest = { onCancelCustomPortDialogClick() }
             )
-        }
-        else -> {
-            // NOOP
         }
     }
 
