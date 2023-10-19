@@ -12,7 +12,7 @@ shopt -s nullglob
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
-UPLOAD_DIR="$SCRIPT_DIR/upload"
+UPLOAD_DIR="/home/upload/upload"
 ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
 
 BRANCHES_TO_BUILD=("origin/main")
@@ -86,7 +86,7 @@ function build_ref {
 
     # podman appends a trailing carriage return to the output. So we use `tr` to strip it
     local version=""
-    version="$(run_in_linux_container cargo run -q --bin mullvad-version versionName | tr -d "\r" || return 1)"
+    version="$(run_in_linux_container 'stty -echo && cargo run -q --bin mullvad-version versionName' | tr -d "\r" || return 1)"
 
     local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
@@ -96,27 +96,19 @@ function build_ref {
 
     # If there is a tag for this commit then we append that to the produced artifacts
     # A version suffix should only be created if there is a tag for this commit and it is not a release build
-    if [[ -n "$tag" ]]; then
-        # Remove disallowed version characters from the tag
-        version_suffix="+${tag//[^0-9a-z_-]/}"
+    if [[ -n "$tag" && $version == *"-dev-"* ]]; then
+        # Replace disallowed version characters in the tag with hyphens
+        version_suffix="+${tag//[^0-9a-z_-]/-}"
         # Will only match paths that include *-dev-* which means release builds will not be included
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
-        for original_file in MullvadVPN-*-dev-*{.apk,.aab}; do
-            # Fix to make sure the sed command below result in the expected file name.
-            if [[ $original_file == *.play.aab ]]; then
-                bundle_extension="\.play\.aab"
-            else
-                bundle_extension="\.aab"
-            fi
-            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-.*-dev-.*)(\.apk|$bundle_extension)$/\1$version_suffix\2/p")
+        for original_file in MullvadVPN-*{.apk,.aab}; do
+            new_file=$(echo "$original_file" | sed -nE "s/^(MullvadVPN-$version)(.*\.apk|.*\.aab)$/\1$version_suffix\2/p")
             mv "$original_file" "$new_file"
         done
         popd
 
-        if [[ $version == *"-dev-"* ]]; then
-            version="$version$version_suffix"
-        fi
+        version="$version$version_suffix"
     fi
 
     (cd "$artifact_dir" && upload "$version") || return 1
