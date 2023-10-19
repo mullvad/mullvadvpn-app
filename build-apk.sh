@@ -13,8 +13,8 @@ echo ""
 
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
-GRADLE_TASK="createOssProdReleaseDistApk"
-BUNDLE_TASK="createPlayProdReleaseDistBundle"
+GRADLE_TASKS=(createOssProdReleaseDistApk createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
+BUNDLE_TASKS=(createPlayProdReleaseDistBundle createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
 CARGO_ARGS="--release"
 EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
@@ -25,13 +25,13 @@ while [ ! -z "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
         BUILD_TYPE="debug"
         GRADLE_BUILD_TYPE="debug"
-        GRADLE_TASK="createOssProdDebugDistApk"
-        BUNDLE_TASK="createOssProdDebugDistBundle"
+        GRADLE_TASKS=(createOssProdDebugDistApk)
+        BUNDLE_TASKS=(createOssProdDebugDistBundle)
         CARGO_ARGS="--features api-override"
     elif [[ "${1:-""}" == "--fdroid" ]]; then
         GRADLE_BUILD_TYPE="fdroid"
-        GRADLE_TASK="createOssProdFdroidDistApk"
-        BUNDLE_TASK="createOssProdFdroidDistBundle"
+        GRADLE_TASKS=(createOssProdFdroidDistApk)
+        BUNDLE_TASKS=(createOssProdFdroidDistBundle)
         EXTRA_WGGO_ARGS="--no-docker"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
@@ -116,10 +116,10 @@ echo "Updating relays.json..."
 cargo run --bin relay_list $CARGO_ARGS > build/relays.json
 
 cd "$SCRIPT_DIR/android"
-$GRADLE_CMD --console plain "$GRADLE_TASK"
+$GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
 
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
-    $GRADLE_CMD --console plain "$BUNDLE_TASK"
+    $GRADLE_CMD --console plain "${BUNDLE_TASKS[@]}"
 fi
 
 echo "**********************************"
