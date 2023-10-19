@@ -18,12 +18,8 @@ else
     exit 1
 fi
 
-function print_usage {
-    echo "usage: $0 TEST_OS"
-}
-
 if [[ "$#" -lt 1 ]]; then
-    print_usage
+    echo "usage: $0 TEST_OS"
     exit 1
 fi
 
