@@ -177,9 +177,8 @@ pub async fn test_revoked_device(
 
     // Ensure that the tunnel state transitions to "error". Fail if it transitions to some other
     // state.
-    let new_state = next_state.await?;
     assert!(
-        matches!(&new_state, TunnelState::Error(error_state) if error_state.is_blocking()),
+        matches!(&next_state.await?, TunnelState::Error(error_state) if error_state.is_blocking()),
         "expected blocking error state, got {new_state:?}"
     );
 
