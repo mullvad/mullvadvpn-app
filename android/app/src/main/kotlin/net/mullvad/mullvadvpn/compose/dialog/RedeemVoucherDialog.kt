@@ -99,7 +99,7 @@ fun RedeemVoucherDialog(
     uiState: VoucherDialogUiState,
     onVoucherInputChange: (String) -> Unit = {},
     onRedeem: (voucherCode: String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: (isTimeAdded: Boolean) -> Unit
 ) {
     AlertDialog(
         title = {
@@ -127,7 +127,9 @@ fun RedeemVoucherDialog(
                                     R.string.changes_dialog_dismiss_button
                                 else R.string.cancel
                         ),
-                    onClick = onDismiss
+                    onClick = {
+                        onDismiss(uiState.voucherViewModelState is VoucherDialogState.Success)
+                    }
                 )
             }
         },
@@ -173,7 +175,9 @@ fun RedeemVoucherDialog(
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
-        onDismissRequest = onDismiss
+        onDismissRequest = {
+            onDismiss(uiState.voucherViewModelState is VoucherDialogState.Success)
+        }
     )
 }
 
