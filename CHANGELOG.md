@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Show correct endpoint in CLI for custom relays.
+- Fix error dialog displayed when the daemon was killed.
 
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
