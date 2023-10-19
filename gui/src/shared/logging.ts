@@ -55,43 +55,55 @@ export class Logger {
     this.outputs
       .filter((output) => level <= output.level)
       .forEach(async (output) => {
-        const maybePromise = output.write(level, message);
-        if (maybePromise instanceof Promise) {
-          try {
-            await maybePromise;
-          } catch (e) {
-            const error = e as Error;
-            console.error(
-              `${output.constructor.name}.write: ${error.message}. Original message: ${message}`,
-            );
-          }
+        try {
+          await output.write(level, message);
+        } catch (e) {
+          const error = e as Error;
+          console.error(
+            `${output.constructor.name}.write: ${error.message}. Original message: ${message}`,
+          );
         }
       });
   }
 }
 
 export class ConsoleOutput implements ILogOutput {
+  private disabled = false;
+
   constructor(public level: LogLevel) {}
 
   public write(level: LogLevel, message: string) {
-    switch (level) {
-      case LogLevel.error:
-        console.error(message);
-        break;
-      case LogLevel.warning:
-        console.warn(message);
-        break;
-      case LogLevel.info:
-        console.info(message);
-        break;
-      case LogLevel.verbose:
-        console.log(message);
-        break;
-      case LogLevel.debug:
-        console.log(message);
-        break;
+    if (this.disabled) {
+      return;
+    }
+
+    try {
+      switch (level) {
+        case LogLevel.error:
+          console.error(message);
+          break;
+        case LogLevel.warning:
+          console.warn(message);
+          break;
+        case LogLevel.info:
+          console.info(message);
+          throw new Error('Log failed');
+          break;
+        case LogLevel.verbose:
+          console.log(message);
+          break;
+        case LogLevel.debug:
+          console.log(message);
+          break;
+      }
+    } catch (error) {
+      this.disabled = true;
+
+      const message = error instanceof Object && 'message' in error ? error.message : '';
+      logger.error('Disabling console output due to:', message, error);
     }
   }
 }
 
-export default new Logger();
+const logger = new Logger();
+export default logger;
