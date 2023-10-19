@@ -85,8 +85,8 @@ pub async fn test_ui_tunnel_settings(
     rpc: ServiceClient,
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
-    // Set relays to use
-    log::info!("Select relay");
+    // tunnel-state.spec precondition: a single WireGuard relay should be selected
+    log::info!("Select WireGuard relay");
     let relay_filter = |relay: &types::Relay| {
         relay.active && relay.endpoint_type == i32::from(types::relay::RelayType::Wireguard)
     };
