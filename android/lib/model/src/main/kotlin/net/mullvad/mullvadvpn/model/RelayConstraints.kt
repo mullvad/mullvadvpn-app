@@ -6,5 +6,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class RelayConstraints(
     val location: Constraint<LocationConstraint>,
-    val wireguardConstraints: WireguardConstraints
+    val ownership: Constraint<Ownership>,
+    val wireguardConstraints: WireguardConstraints,
 ) : Parcelable

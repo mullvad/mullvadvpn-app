@@ -371,7 +371,6 @@ pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub providers: Constraint<Providers>,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub ownership: Constraint<Ownership>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelType>,
@@ -560,6 +559,8 @@ impl Set<Constraint<Vec<GeographicLocationConstraint>>>
 
 /// Limits the set of servers to choose based on ownership.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum Ownership {
     MullvadOwned,
@@ -987,7 +988,6 @@ pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub providers: Option<Constraint<Providers>>,
-    #[cfg_attr(target_os = "android", jnix(default))]
     pub ownership: Option<Constraint<Ownership>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub tunnel_protocol: Option<Constraint<TunnelType>>,
