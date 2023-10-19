@@ -12,7 +12,7 @@
   "repository": "https://github.com/mullvad/mullvadvpn-app",
   "license": "GPL-3.0",
   "dependencies": {
-    "@grpc/grpc-js": "^1.7.1",
+    "@grpc/grpc-js": "^1.9.6",
     "argv-split": "^2.0.1",
     "d3-geo": "^1.12.1",
     "gettext-parser": "^6.0.0",
@@ -29,7 +29,7 @@
     "styled-components": "^5.1.1"
   },
   "optionalDependencies": {
-    "grpc-tools": "^1.11.3",
+    "grpc-tools": "^1.12.4",
     "nseventmonitor": "^1.0.3"
   },
   "devDependencies": {
