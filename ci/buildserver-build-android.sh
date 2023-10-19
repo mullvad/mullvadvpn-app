@@ -86,7 +86,7 @@ function build_ref {
 
     # podman appends a trailing carriage return to the output. So we use `tr` to strip it
     local version=""
-    version="$(run_in_linux_container cargo run -q --bin mullvad-version versionName | tr -d "\r" || return 1)"
+    version="$(run_in_linux_container 'stty -echo && cargo run -q --bin mullvad-version versionName' | tr -d "\r" || return 1)"
 
     local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
