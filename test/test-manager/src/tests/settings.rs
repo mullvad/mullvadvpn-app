@@ -1,11 +1,8 @@
-use super::helpers::{
-    connect_and_wait, disconnect_and_wait, get_tunnel_state,
-    send_guest_probes,
-};
+use super::helpers;
+use super::helpers::{connect_and_wait, disconnect_and_wait, get_tunnel_state, send_guest_probes};
 use super::{Error, TestContext};
 use crate::assert_tunnel_state;
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
-use super::helpers;
 
 use mullvad_management_interface::ManagementServiceClient;
 use mullvad_types::states::TunnelState;
@@ -186,7 +183,10 @@ pub async fn test_lockdown(
     // Leak test
     //
 
-    assert!(helpers::using_mullvad_exit(&rpc).await, "expected Mullvad exit IP");
+    assert!(
+        helpers::using_mullvad_exit(&rpc).await,
+        "expected Mullvad exit IP"
+    );
 
     // Send traffic outside the tunnel to sanity check that the internet is *not* reachable via non-
     // tunnel interfaces.

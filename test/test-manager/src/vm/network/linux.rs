@@ -223,7 +223,8 @@ async fn start_dnsmasq() -> Result<DhcpProcHandle> {
 
     cmd.args([
         "--bind-interfaces",
-        "-C", "/dev/null",
+        "-C",
+        "/dev/null",
         "-i",
         BRIDGE_NAME,
         "-F",

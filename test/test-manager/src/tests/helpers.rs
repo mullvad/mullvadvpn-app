@@ -57,7 +57,10 @@ impl ProbeResult {
 /// Return whether the guest exit IP is a Mullvad relay
 pub async fn using_mullvad_exit(rpc: &ServiceClient) -> bool {
     log::info!("Test whether exit IP is a mullvad relay");
-    geoip_lookup_with_retries(rpc).await.unwrap().mullvad_exit_ip
+    geoip_lookup_with_retries(rpc)
+        .await
+        .unwrap()
+        .mullvad_exit_ip
 }
 
 /// Sends a number of probes and returns the number of observed packets (UDP, TCP, or ICMP)
