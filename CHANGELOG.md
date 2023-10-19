@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Show correct endpoint in CLI for custom relays.
+- Lower risk of being rate limited.
 
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
