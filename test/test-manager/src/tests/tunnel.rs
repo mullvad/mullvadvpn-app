@@ -1,5 +1,5 @@
 use super::helpers::{
-    self, connect_and_wait, disconnect_and_wait, geoip_lookup_with_retries, update_relay_settings,
+    self, connect_and_wait, disconnect_and_wait, update_relay_settings,
 };
 use super::{Error, TestContext};
 use std::net::IpAddr;
@@ -64,10 +64,7 @@ pub async fn test_openvpn_tunnel(
 
         connect_and_wait(&mut mullvad_client).await?;
 
-        // Send traffic through the tunnel to sanity check that the internet is reachable.
-        log::info!("Test whether tunnel traffic works");
-        let geoip_lookup = geoip_lookup_with_retries(&rpc).await.unwrap();
-        assert!(geoip_lookup.mullvad_exit_ip, "Exit ip is not from Mullvad");
+        assert!(helpers::using_mullvad_exit(&rpc).await, "expected Mullvad exit IP");
 
         disconnect_and_wait(&mut mullvad_client).await?;
     }
@@ -116,10 +113,7 @@ pub async fn test_wireguard_tunnel(
         );
 
         if should_succeed {
-            // Send traffic through the tunnel to sanity check that the internet is reachable.
-            log::info!("Test whether tunnel traffic works");
-            let geoip_lookup = geoip_lookup_with_retries(&rpc).await.unwrap();
-            assert!(geoip_lookup.mullvad_exit_ip, "Exit ip is not from Mullvad");
+            assert!(helpers::using_mullvad_exit(&rpc).await, "expected Mullvad exit IP");
         }
 
         disconnect_and_wait(&mut mullvad_client).await?;
@@ -188,10 +182,7 @@ pub async fn test_udp2tcp_tunnel(
     // Verify that we can reach stuff
     //
 
-    // Send traffic through the tunnel to sanity check that the internet is reachable.
-    log::info!("Test whether tunnel traffic works");
-    let geoip_lookup = geoip_lookup_with_retries(&rpc).await.unwrap();
-    assert!(geoip_lookup.mullvad_exit_ip, "Exit ip is not from Mullvad");
+    assert!(helpers::using_mullvad_exit(&rpc).await, "expected Mullvad exit IP");
 
     let monitor_result = monitor.into_result().await.unwrap();
     assert_eq!(monitor_result.discarded_packets, 0);
@@ -296,10 +287,7 @@ pub async fn test_bridge(
     // Verify exit IP
     //
 
-    log::info!("Verifying exit server");
-
-    let geoip = geoip_lookup_with_retries(&rpc).await?;
-    assert_eq!(geoip.mullvad_exit_ip_hostname, exit.hostname);
+    assert!(helpers::using_mullvad_exit(&rpc).await, "expected Mullvad exit IP");
 
     disconnect_and_wait(&mut mullvad_client).await?;
 
@@ -371,10 +359,7 @@ pub async fn test_multihop(
     // Verify exit IP
     //
 
-    log::info!("Verifying exit server");
-
-    let geoip = geoip_lookup_with_retries(&rpc).await?;
-    assert_eq!(geoip.mullvad_exit_ip_hostname, exit.hostname);
+    assert!(helpers::using_mullvad_exit(&rpc).await, "expected Mullvad exit IP");
 
     disconnect_and_wait(&mut mullvad_client).await?;
 
@@ -540,10 +525,7 @@ pub async fn test_quantum_resistant_tunnel(
     connect_and_wait(&mut mullvad_client).await?;
     check_tunnel_psk(&rpc, true).await;
 
-    // Send traffic through the tunnel to sanity check that the internet is reachable.
-    log::info!("Test whether tunnel traffic works");
-    let geoip_lookup = geoip_lookup_with_retries(&rpc).await.unwrap();
-    assert!(geoip_lookup.mullvad_exit_ip, "Exit ip is not from Mullvad");
+    assert!(helpers::using_mullvad_exit(&rpc).await, "expected Mullvad exit IP");
 
     Ok(())
 }
@@ -620,10 +602,7 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
 
     connect_and_wait(&mut mullvad_client).await?;
 
-    // Send traffic through the tunnel to sanity check that the internet is reachable.
-    log::info!("Test whether tunnel traffic works");
-    let geoip_lookup = geoip_lookup_with_retries(&rpc).await.unwrap();
-    assert!(geoip_lookup.mullvad_exit_ip, "Exit ip is not from Mullvad");
+    assert!(helpers::using_mullvad_exit(&rpc).await, "expected Mullvad exit IP");
 
     Ok(())
 }
