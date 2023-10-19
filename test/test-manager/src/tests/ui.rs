@@ -87,13 +87,12 @@ pub async fn test_ui_tunnel_settings(
 ) -> Result<(), Error> {
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
-    let relay_filter = |relay: &types::Relay| {
+    let entry = helpers::filter_relays(&mut mullvad_client, |relay: &types::Relay| {
         relay.active && relay.endpoint_type == i32::from(types::relay::RelayType::Wireguard)
-    };
-    let entry = helpers::filter_relays(&mut mullvad_client, relay_filter)
-        .await?
-        .pop()
-        .unwrap();
+    })
+    .await?
+    .pop()
+    .unwrap();
 
     // The test expects us to be disconnected and logged in but to have a specific relay selected
     let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
