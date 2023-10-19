@@ -8,7 +8,7 @@ use futures::{
 };
 use hyper::StatusCode;
 use mullvad_types::account::{AccessToken, AccessTokenData, AccountToken};
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 use tokio::select;
 
 pub const AUTH_URL_PREFIX: &str = "auth/v1";
@@ -22,7 +22,7 @@ enum StoreAction {
     /// Request an access token for `AccountToken`, or return a saved one if it's not expired.
     GetAccessToken(
         AccountToken,
-        oneshot::Sender<Result<AccessToken, Arc<rest::Error>>>,
+        oneshot::Sender<Result<AccessToken, rest::Error>>,
     ),
     /// Forget cached access token for `AccountToken`, and drop any in-flight requests
     InvalidateToken(AccountToken),
@@ -32,7 +32,7 @@ enum StoreAction {
 struct AccountState {
     current_access_token: Option<AccessTokenData>,
     inflight_request: Option<tokio::task::JoinHandle<()>>,
-    response_channels: Vec<oneshot::Sender<Result<AccessToken, Arc<rest::Error>>>>,
+    response_channels: Vec<oneshot::Sender<Result<AccessToken, rest::Error>>>,
 }
 
 impl AccessTokenStore {
@@ -127,9 +127,6 @@ impl AccessTokenStore {
 
                     account_state.inflight_request = None;
 
-                    // Sadly, rest::Error is not cloneable
-                    let result = result.map_err(Arc::new);
-
                     // Send response to all channels
                     for tx in account_state.response_channels.drain(..) {
                         let _ = tx.send(result.clone().map(|data| data.access_token));
@@ -144,7 +141,7 @@ impl AccessTokenStore {
     }
 
     /// Obtain access token for an account, requesting a new one from the API if necessary.
-    pub async fn get_token(&self, account: &AccountToken) -> Result<AccessToken, Arc<rest::Error>> {
+    pub async fn get_token(&self, account: &AccountToken) -> Result<AccessToken, rest::Error> {
         let (tx, rx) = oneshot::channel();
         let _ = self
             .tx

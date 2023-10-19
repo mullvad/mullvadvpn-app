@@ -11,7 +11,6 @@ use std::{
     fs::{self, File},
     io::{self, BufWriter, Read, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
-    sync::Arc,
 };
 use talpid_types::ErrorExt;
 
@@ -68,7 +67,7 @@ pub enum Error {
     CreateRpcClientError(#[error(source)] mullvad_api::Error),
 
     #[error(display = "Failed to send problem report")]
-    SendProblemReportError(#[error(source)] Arc<mullvad_api::rest::Error>),
+    SendProblemReportError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "Failed to send problem report {} times", MAX_SEND_ATTEMPTS)]
     SendFailedTooManyTimes,

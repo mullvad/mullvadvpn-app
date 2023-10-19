@@ -12,7 +12,6 @@ use mullvad_types::{
     wireguard,
     wireguard::QuantumResistantState,
 };
-use std::sync::Arc;
 
 #[derive(Debug, err_derive::Error)]
 #[error(no_from)]
@@ -27,7 +26,7 @@ pub enum Error {
     NoSender,
 
     #[error(display = "Error performing RPC with the remote API")]
-    Api(#[error(source)] Arc<mullvad_api::rest::Error>),
+    Api(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "Failed to update settings")]
     UpdateSettings,

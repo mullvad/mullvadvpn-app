@@ -4,7 +4,7 @@ use mullvad_types::{
     account::AccountToken,
     device::{Device, DeviceId, DeviceName},
 };
-use std::{future::Future, sync::Arc};
+use std::future::Future;
 use talpid_types::net::wireguard;
 
 use crate::rest;
@@ -36,9 +36,8 @@ impl DevicesProxy {
         &self,
         account: AccountToken,
         pubkey: wireguard::PublicKey,
-    ) -> impl Future<
-        Output = Result<(Device, mullvad_types::wireguard::AssociatedAddresses), Arc<rest::Error>>,
-    > {
+    ) -> impl Future<Output = Result<(Device, mullvad_types::wireguard::AssociatedAddresses), rest::Error>>
+    {
         #[derive(serde::Serialize)]
         struct DeviceSubmission {
             pubkey: wireguard::PublicKey,
@@ -102,7 +101,7 @@ impl DevicesProxy {
         &self,
         account: AccountToken,
         id: DeviceId,
-    ) -> impl Future<Output = Result<Device, Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<Device, rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
@@ -126,7 +125,7 @@ impl DevicesProxy {
     pub fn list(
         &self,
         account: AccountToken,
-    ) -> impl Future<Output = Result<Vec<Device>, Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<Vec<Device>, rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
@@ -151,7 +150,7 @@ impl DevicesProxy {
         &self,
         account: AccountToken,
         id: DeviceId,
-    ) -> impl Future<Output = Result<(), Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
@@ -178,7 +177,7 @@ impl DevicesProxy {
         account: AccountToken,
         id: DeviceId,
         pubkey: wireguard::PublicKey,
-    ) -> impl Future<Output = Result<mullvad_types::wireguard::AssociatedAddresses, Arc<rest::Error>>>
+    ) -> impl Future<Output = Result<mullvad_types::wireguard::AssociatedAddresses, rest::Error>>
     {
         #[derive(serde::Serialize)]
         struct RotateDevicePubkey {

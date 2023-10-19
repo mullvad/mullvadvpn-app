@@ -12,7 +12,7 @@ use mullvad_types::{
     version::AppVersion,
 };
 use proxy::ApiConnectionMode;
-use std::sync::{Arc, OnceLock};
+use std::sync::OnceLock;
 use std::{
     cell::Cell,
     collections::BTreeMap,
@@ -384,7 +384,7 @@ impl AccountsProxy {
     pub fn get_expiry(
         &self,
         account: AccountToken,
-    ) -> impl Future<Output = Result<DateTime<Utc>, Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<DateTime<Utc>, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct AccountExpiryResponse {
             expiry: DateTime<Utc>,
@@ -411,9 +411,7 @@ impl AccountsProxy {
         }
     }
 
-    pub fn create_account(
-        &mut self,
-    ) -> impl Future<Output = Result<AccountToken, Arc<rest::Error>>> {
+    pub fn create_account(&mut self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct AccountCreationResponse {
             number: AccountToken,
@@ -439,7 +437,7 @@ impl AccountsProxy {
         &mut self,
         account_token: AccountToken,
         voucher_code: String,
-    ) -> impl Future<Output = Result<VoucherSubmission, Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> {
         #[derive(serde::Serialize)]
         struct VoucherSubmission {
             voucher_code: String,
@@ -466,8 +464,7 @@ impl AccountsProxy {
 
             access_proxy.check_response(&account_token, &response);
 
-            let submission = rest::deserialize_body(response?).await?;
-            Ok(submission)
+            rest::deserialize_body(response?).await
         }
     }
 
@@ -475,7 +472,7 @@ impl AccountsProxy {
     pub fn init_play_purchase(
         &mut self,
         account: AccountToken,
-    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct PlayPurchaseInitResponse {
             obfuscated_id: String,
@@ -513,7 +510,7 @@ impl AccountsProxy {
         &mut self,
         account: AccountToken,
         play_purchase: PlayPurchase,
-    ) -> impl Future<Output = Result<(), Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
@@ -541,7 +538,7 @@ impl AccountsProxy {
     pub fn get_www_auth_token(
         &self,
         account: AccountToken,
-    ) -> impl Future<Output = Result<String, Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<String, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct AuthTokenResponse {
             auth_token: String,
@@ -584,7 +581,7 @@ impl ProblemReportProxy {
         message: &str,
         log: &str,
         metadata: &BTreeMap<String, String>,
-    ) -> impl Future<Output = Result<(), Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<(), rest::Error>> {
         #[derive(serde::Serialize)]
         struct ProblemReport {
             address: String,
@@ -642,7 +639,7 @@ impl AppVersionProxy {
         app_version: AppVersion,
         platform: &str,
         platform_version: String,
-    ) -> impl Future<Output = Result<AppVersionResponse, Arc<rest::Error>>> {
+    ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> {
         let service = self.handle.service.clone();
 
         let path = format!("{APP_URL_PREFIX}/releases/{platform}/{app_version}");
@@ -654,8 +651,7 @@ impl AppVersionProxy {
 
             let response = service.request(request).await?;
             let parsed_response = rest::parse_rest_response(response, &[StatusCode::OK]).await?;
-            let response = rest::deserialize_body(parsed_response).await?;
-            Ok(response)
+            rest::deserialize_body(parsed_response).await
         }
     }
 }
@@ -670,7 +666,7 @@ impl ApiProxy {
         Self { handle }
     }
 
-    pub async fn get_api_addrs(&self) -> Result<Vec<SocketAddr>, Arc<rest::Error>> {
+    pub async fn get_api_addrs(&self) -> Result<Vec<SocketAddr>, rest::Error> {
         let service = self.handle.service.clone();
 
         let response = rest::send_request(
@@ -683,7 +679,6 @@ impl ApiProxy {
         )
         .await?;
 
-        let addrs = rest::deserialize_body(response).await?;
-        Ok(addrs)
+        rest::deserialize_body(response).await
     }
 }

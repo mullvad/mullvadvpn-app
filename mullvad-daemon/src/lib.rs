@@ -104,7 +104,7 @@ pub enum Error {
     InitRpcFactory(#[error(source)] mullvad_api::Error),
 
     #[error(display = "REST request failed")]
-    RestError(#[error(source)] Arc<mullvad_api::rest::Error>),
+    RestError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "API availability check failed")]
     ApiCheckError(#[error(source)] mullvad_api::availability::Error),
@@ -203,7 +203,7 @@ pub enum DaemonCommand {
     CreateNewAccount(ResponseTx<String, Error>),
     /// Request the metadata for an account.
     GetAccountData(
-        ResponseTx<AccountData, Arc<mullvad_api::rest::Error>>,
+        ResponseTx<AccountData, mullvad_api::rest::Error>,
         AccountToken,
     ),
     /// Request www auth token for an account
@@ -1376,7 +1376,7 @@ where
 
     fn on_get_account_data(
         &mut self,
-        tx: ResponseTx<AccountData, Arc<mullvad_api::rest::Error>>,
+        tx: ResponseTx<AccountData, mullvad_api::rest::Error>,
         account_token: AccountToken,
     ) {
         let account = self.account_manager.account_service.clone();

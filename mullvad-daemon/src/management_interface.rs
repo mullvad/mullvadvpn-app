@@ -424,7 +424,7 @@ impl ManagementService for ManagementServiceImpl {
         let result = self.wait_for_result(rx).await?;
         result
             .map(|account_data| Response::new(types::AccountData::from(account_data)))
-            .map_err(|error: Arc<RestError>| {
+            .map_err(|error: RestError| {
                 log::error!(
                     "Unable to get account data from API: {}",
                     error.display_chain()
@@ -1081,14 +1081,14 @@ fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
 }
 
 /// Converts a REST API error into a tonic status.
-fn map_rest_error(error: &Arc<RestError>) -> Status {
-    match error.as_ref() {
+fn map_rest_error(error: &RestError) -> Status {
+    match error {
         RestError::ApiError(status, message)
             if *status == StatusCode::UNAUTHORIZED || *status == StatusCode::FORBIDDEN =>
         {
             Status::new(Code::Unauthenticated, message)
         }
-        RestError::TimeoutError(_elapsed) => Status::deadline_exceeded("API request timed out"),
+        RestError::TimeoutError => Status::deadline_exceeded("API request timed out"),
         RestError::HyperError(_) => Status::unavailable("Cannot reach the API"),
         error => Status::unknown(format!("REST error: {error}")),
     }

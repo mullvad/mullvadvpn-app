@@ -81,15 +81,12 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
         match result {
             Ok(account_data) => GetAccountDataResult::Ok(account_data),
             Err(error) => match error {
-                daemon_interface::Error::Api(error) => match error.as_ref() {
-                    RestError::ApiError(status, _code)
-                        if *status == StatusCode::UNAUTHORIZED
-                            || *status == StatusCode::FORBIDDEN =>
-                    {
-                        GetAccountDataResult::InvalidAccount
-                    }
-                    _ => GetAccountDataResult::RpcError,
-                },
+                daemon_interface::Error::Api(RestError::ApiError(status, _code))
+                    if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
+                {
+                    GetAccountDataResult::InvalidAccount
+                }
+                daemon_interface::Error::Api(_) => GetAccountDataResult::RpcError,
                 _ => GetAccountDataResult::OtherError,
             },
         }
@@ -1378,7 +1375,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setQuan
 
 fn log_request_error(request: &str, error: &daemon_interface::Error) {
     match error {
-        daemon_interface::Error::Api(error) if error.is_aborted() => {
+        daemon_interface::Error::Api(RestError::Aborted) => {
             log::debug!("Request to {} cancelled", request);
         }
         error => {

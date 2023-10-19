@@ -3,7 +3,7 @@ use mullvad_api::{self, proxy::ApiConnectionMode, DEVICE_NOT_FOUND};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::version::ParsedAppVersion;
 use once_cell::sync::Lazy;
-use std::{path::PathBuf, process, str::FromStr, sync::Arc, time::Duration};
+use std::{path::PathBuf, process, str::FromStr, time::Duration};
 use talpid_core::{
     firewall::{self, Firewall},
     future_retry::{retry_future, ConstantInterval},
@@ -51,7 +51,7 @@ pub enum Error {
     RpcInitializationError(#[error(source)] mullvad_api::Error),
 
     #[error(display = "Failed to remove device from account")]
-    RemoveDeviceError(#[error(source)] Arc<mullvad_api::rest::Error>),
+    RemoveDeviceError(#[error(source)] mullvad_api::rest::Error),
 
     #[error(display = "Failed to obtain settings directory path")]
     SettingsPathError(#[error(source)] mullvad_paths::Error),
@@ -183,12 +183,10 @@ async fn remove_device() -> Result<(), Error> {
         // `DEVICE_NOT_FOUND` is not considered to be an error in this context.
         match device_removal {
             Ok(_) => Ok(()),
-            Err(error) => match error.as_ref() {
-                mullvad_api::rest::Error::ApiError(_status, code) if code == DEVICE_NOT_FOUND => {
-                    Ok(())
-                }
-                _ => Err(Error::RemoveDeviceError(error)),
-            },
+            Err(mullvad_api::rest::Error::ApiError(_status, code)) if code == DEVICE_NOT_FOUND => {
+                Ok(())
+            }
+            Err(e) => Err(Error::RemoveDeviceError(e)),
         }?;
 
         cacher

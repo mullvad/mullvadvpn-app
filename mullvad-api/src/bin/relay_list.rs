@@ -21,7 +21,7 @@ async fn main() {
 
     let relay_list = match relay_list_request {
         Ok(relay_list) => relay_list,
-        Err(RestError::TimeoutError(_)) => {
+        Err(RestError::TimeoutError) => {
             eprintln!("Request timed out");
             process::exit(2);
         }
