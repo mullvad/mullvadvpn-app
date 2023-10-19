@@ -89,10 +89,11 @@ async fn send_location_request_internal(
 }
 
 fn log_network_error(err: Error, version: &'static str) {
+    use std::sync::Arc;
     let err_message = &format!("Unable to fetch {version} GeoIP location");
     match err {
         Error::HyperError(hyper_err) if hyper_err.is_connect() => {
-            if let Some(cause) = hyper_err.into_cause() {
+            if let Some(cause) = Arc::into_inner(hyper_err).and_then(|x| x.into_cause()) {
                 if let Some(err) = cause.downcast_ref::<std::io::Error>() {
                     // Don't log ENETUNREACH errors, they are not informative.
                     if err.raw_os_error() == Some(libc::ENETUNREACH) {

@@ -14,7 +14,7 @@ use talpid_types::net::wireguard::PrivateKey;
 use super::{Error, PrivateAccountAndDevice, PrivateDevice};
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
-    rest::{self, Error as RestError, MullvadRestHandle},
+    rest::{self, MullvadRestHandle},
     AccountsProxy, DevicesProxy,
 };
 use talpid_core::future_retry::{retry_future, ConstantInterval, ExponentialBackoff, Jittered};
@@ -402,7 +402,7 @@ pub fn spawn_account_service(
 }
 
 fn handle_expiry_result_inner(
-    result: &Result<chrono::DateTime<chrono::Utc>, mullvad_api::rest::Error>,
+    result: &Result<chrono::DateTime<chrono::Utc>, rest::Error>,
     api_availability: &ApiAvailabilityHandle,
 ) -> bool {
     match result {
@@ -425,18 +425,18 @@ fn handle_expiry_result_inner(
     }
 }
 
-fn should_retry<T>(result: &Result<T, RestError>, api_handle: &ApiAvailabilityHandle) -> bool {
+fn should_retry<T>(result: &Result<T, rest::Error>, api_handle: &ApiAvailabilityHandle) -> bool {
     match result {
         Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
         _ => false,
     }
 }
 
-fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
+fn should_retry_backoff<T>(result: &Result<T, rest::Error>) -> bool {
     match result {
         Ok(_) => false,
         Err(error) => {
-            if let RestError::ApiError(status, code) = error {
+            if let rest::Error::ApiError(status, code) = error {
                 *status != rest::StatusCode::NOT_FOUND
                     && code != mullvad_api::DEVICE_NOT_FOUND
                     && code != mullvad_api::INVALID_ACCOUNT
@@ -451,7 +451,7 @@ fn should_retry_backoff<T>(result: &Result<T, RestError>) -> bool {
 
 fn map_rest_error(error: rest::Error) -> Error {
     match error {
-        RestError::ApiError(_status, ref code) => match code.as_str() {
+        rest::Error::ApiError(_status, ref code) => match code.as_str() {
             // TODO: Implement invalid payment
             mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
             mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,

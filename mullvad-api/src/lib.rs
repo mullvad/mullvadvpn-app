@@ -394,15 +394,17 @@ impl AccountsProxy {
         let factory = self.handle.factory.clone();
         let access_proxy = self.handle.token_store.clone();
         async move {
+            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_request(
                 &factory,
                 service,
                 &format!("{ACCOUNTS_URL_PREFIX}/accounts/me"),
                 Method::GET,
-                Some((access_proxy, account)),
+                Some(access_token),
                 &[StatusCode::OK],
             )
             .await;
+            access_proxy.check_response(&account, &response);
 
             let account: AccountExpiryResponse = rest::deserialize_body(response?).await?;
             Ok(account.expiry)
@@ -447,16 +449,21 @@ impl AccountsProxy {
         let submission = VoucherSubmission { voucher_code };
 
         async move {
+            let access_token = access_proxy.get_token(&account_token).await?;
+
             let response = rest::send_json_request(
                 &factory,
                 service,
                 &format!("{APP_URL_PREFIX}/submit-voucher"),
                 Method::POST,
                 &submission,
-                Some((access_proxy, account_token)),
+                Some(access_token),
                 &[StatusCode::OK],
             )
             .await;
+
+            access_proxy.check_response(&account_token, &response);
+
             rest::deserialize_body(response?).await
         }
     }
@@ -464,7 +471,7 @@ impl AccountsProxy {
     #[cfg(target_os = "android")]
     pub fn init_play_purchase(
         &mut self,
-        account_token: AccountToken,
+        account: AccountToken,
     ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct PlayPurchaseInitResponse {
@@ -476,16 +483,20 @@ impl AccountsProxy {
         let access_proxy = self.handle.token_store.clone();
 
         async move {
+            let access_token = access_proxy.get_token(&account).await?;
+
             let response = rest::send_json_request(
                 &factory,
                 service,
                 &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"),
                 Method::POST,
                 &(),
-                Some((access_proxy, account_token)),
+                Some(access_token),
                 &[StatusCode::OK],
             )
             .await;
+
+            access_proxy.check_response(&account, &response);
 
             let PlayPurchaseInitResponse { obfuscated_id } =
                 rest::deserialize_body(response?).await?;
@@ -497,7 +508,7 @@ impl AccountsProxy {
     #[cfg(target_os = "android")]
     pub fn verify_play_purchase(
         &mut self,
-        account_token: AccountToken,
+        account: AccountToken,
         play_purchase: PlayPurchase,
     ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
@@ -505,16 +516,21 @@ impl AccountsProxy {
         let access_proxy = self.handle.token_store.clone();
 
         async move {
-            rest::send_json_request(
+            let access_token = access_proxy.get_token(&account).await?;
+
+            let response = rest::send_json_request(
                 &factory,
                 service,
                 &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
                 Method::POST,
                 &play_purchase,
-                Some((access_proxy, account_token)),
+                Some(access_token),
                 &[StatusCode::ACCEPTED],
             )
-            .await?;
+            .await;
+
+            access_proxy.check_response(&account, &response);
+            response?;
             Ok(())
         }
     }
@@ -533,15 +549,17 @@ impl AccountsProxy {
         let access_proxy = self.handle.token_store.clone();
 
         async move {
+            let access_token = access_proxy.get_token(&account).await?;
             let response = rest::send_request(
                 &factory,
                 service,
                 &format!("{APP_URL_PREFIX}/www-auth-token"),
                 Method::POST,
-                Some((access_proxy, account)),
+                Some(access_token),
                 &[StatusCode::OK],
             )
             .await;
+            access_proxy.check_response(&account, &response);
             let response: AuthTokenResponse = rest::deserialize_body(response?).await?;
             Ok(response.auth_token)
         }
