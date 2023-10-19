@@ -122,6 +122,8 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
     }
 
     func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
+        navigationController.enableHeaderBarButtons(false)
+
         let coordinator = InAppPurchaseCoordinator(
             navigationController: navigationController,
             interactor: inAppPurchaseInteractor
@@ -131,11 +133,13 @@ extension WelcomeCoordinator: WelcomeViewControllerDelegate {
 
         coordinator.didFinish = { [weak self] coordinator in
             guard let self else { return }
+            navigationController.enableHeaderBarButtons(true)
             coordinator.removeFromParent()
             didFinish?()
         }
 
-        coordinator.didCancel = { coordinator in
+        coordinator.didCancel = { [weak self] coordinator in
+            self?.navigationController.enableHeaderBarButtons(true)
             coordinator.removeFromParent()
         }
 

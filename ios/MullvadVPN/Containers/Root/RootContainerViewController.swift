@@ -352,6 +352,11 @@ class RootContainerViewController: UIViewController {
         }
     }
 
+    func enableHeaderBarButtons(_ enabled: Bool) {
+        headerBarView.accountButton.isEnabled = enabled
+        headerBarView.settingsButton.isEnabled = enabled
+    }
+
     // MARK: - Accessibility
 
     override func accessibilityPerformMagicTap() -> Bool {

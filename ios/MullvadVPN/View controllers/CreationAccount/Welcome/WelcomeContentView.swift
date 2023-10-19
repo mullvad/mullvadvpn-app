@@ -178,6 +178,7 @@ final class WelcomeContentView: UIView {
         didSet {
             let alpha = isPurchasing ? 0.7 : 1.0
             purchaseButton.isLoading = isPurchasing
+            purchaseButton.isEnabled = !isPurchasing
             purchaseButton.alpha = alpha
             redeemVoucherButton.isEnabled = !isPurchasing
             redeemVoucherButton.alpha = alpha
