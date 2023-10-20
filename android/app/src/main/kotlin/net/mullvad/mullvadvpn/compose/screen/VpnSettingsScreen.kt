@@ -303,95 +303,6 @@ fun VpnSettingsScreen(
             item { MtuSubtitle() }
 
             itemWithDivider {
-                ExpandableComposeCell(
-                    title = stringResource(R.string.dns_content_blockers_title),
-                    isExpanded = expandContentBlockersState,
-                    isEnabled = !uiState.isCustomDnsEnabled,
-                    onInfoClicked = { onContentsBlockersInfoClick() },
-                    onCellClicked = { expandContentBlockersState = !expandContentBlockersState }
-                )
-            }
-
-            if (expandContentBlockersState) {
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_ads_title),
-                        isToggled = uiState.contentBlockersOptions.blockAds,
-                        isEnabled = !uiState.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockAds(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
-                        startPadding = Dimens.indentedCellStartPadding
-                    )
-                }
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_trackers_title),
-                        isToggled = uiState.contentBlockersOptions.blockTrackers,
-                        isEnabled = !uiState.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockTrackers(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
-                        startPadding = Dimens.indentedCellStartPadding
-                    )
-                }
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_malware_title),
-                        isToggled = uiState.contentBlockersOptions.blockMalware,
-                        isEnabled = !uiState.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockMalware(it) },
-                        onInfoClicked = { onMalwareInfoClick() },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
-                        startPadding = Dimens.indentedCellStartPadding
-                    )
-                }
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_gambling_title),
-                        isToggled = uiState.contentBlockersOptions.blockGambling,
-                        isEnabled = !uiState.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockGambling(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
-                        startPadding = Dimens.indentedCellStartPadding
-                    )
-                }
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_adult_content_title),
-                        isToggled = uiState.contentBlockersOptions.blockAdultContent,
-                        isEnabled = !uiState.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockAdultContent(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
-                        startPadding = Dimens.indentedCellStartPadding
-                    )
-                }
-
-                itemWithDivider {
-                    NormalSwitchComposeCell(
-                        title = stringResource(R.string.block_social_media_title),
-                        isToggled = uiState.contentBlockersOptions.blockSocialMedia,
-                        isEnabled = !uiState.isCustomDnsEnabled,
-                        onCellClicked = { onToggleBlockSocialMedia(it) },
-                        background = MaterialTheme.colorScheme.secondaryContainer,
-                        startPadding = Dimens.indentedCellStartPadding
-                    )
-                }
-
-                if (uiState.isCustomDnsEnabled) {
-                    item {
-                        ContentBlockersDisableModeCellSubtitle(
-                            Modifier.background(MaterialTheme.colorScheme.secondary)
-                                .padding(
-                                    start = Dimens.cellStartPadding,
-                                    top = topPadding,
-                                    end = Dimens.cellEndPadding,
-                                    bottom = Dimens.cellLabelVerticalPadding
-                                )
-                        )
-                    }
-                }
-            }
-
-            itemWithDivider {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 InformationComposeCell(
                     title = stringResource(R.string.obfuscation_title),
@@ -499,6 +410,96 @@ fun VpnSettingsScreen(
                     mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
                     numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
                 )
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+            }
+
+            itemWithDivider {
+                ExpandableComposeCell(
+                    title = stringResource(R.string.dns_content_blockers_title),
+                    isExpanded = expandContentBlockersState,
+                    isEnabled = !uiState.isCustomDnsEnabled,
+                    onInfoClicked = { onContentsBlockersInfoClick() },
+                    onCellClicked = { expandContentBlockersState = !expandContentBlockersState }
+                )
+            }
+
+            if (expandContentBlockersState) {
+                itemWithDivider {
+                    NormalSwitchComposeCell(
+                        title = stringResource(R.string.block_ads_title),
+                        isToggled = uiState.contentBlockersOptions.blockAds,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockAds(it) },
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.indentedCellStartPadding
+                    )
+                }
+                itemWithDivider {
+                    NormalSwitchComposeCell(
+                        title = stringResource(R.string.block_trackers_title),
+                        isToggled = uiState.contentBlockersOptions.blockTrackers,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockTrackers(it) },
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.indentedCellStartPadding
+                    )
+                }
+                itemWithDivider {
+                    NormalSwitchComposeCell(
+                        title = stringResource(R.string.block_malware_title),
+                        isToggled = uiState.contentBlockersOptions.blockMalware,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockMalware(it) },
+                        onInfoClicked = { onMalwareInfoClick() },
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.indentedCellStartPadding
+                    )
+                }
+                itemWithDivider {
+                    NormalSwitchComposeCell(
+                        title = stringResource(R.string.block_gambling_title),
+                        isToggled = uiState.contentBlockersOptions.blockGambling,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockGambling(it) },
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.indentedCellStartPadding
+                    )
+                }
+                itemWithDivider {
+                    NormalSwitchComposeCell(
+                        title = stringResource(R.string.block_adult_content_title),
+                        isToggled = uiState.contentBlockersOptions.blockAdultContent,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockAdultContent(it) },
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.indentedCellStartPadding
+                    )
+                }
+
+                itemWithDivider {
+                    NormalSwitchComposeCell(
+                        title = stringResource(R.string.block_social_media_title),
+                        isToggled = uiState.contentBlockersOptions.blockSocialMedia,
+                        isEnabled = !uiState.isCustomDnsEnabled,
+                        onCellClicked = { onToggleBlockSocialMedia(it) },
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = Dimens.indentedCellStartPadding
+                    )
+                }
+
+                if (uiState.isCustomDnsEnabled) {
+                    item {
+                        ContentBlockersDisableModeCellSubtitle(
+                            Modifier.background(MaterialTheme.colorScheme.secondary)
+                                .padding(
+                                    start = Dimens.cellStartPadding,
+                                    top = topPadding,
+                                    end = Dimens.cellEndPadding,
+                                    bottom = Dimens.cellLabelVerticalPadding
+                                )
+                        )
+                    }
+                }
             }
 
             item {
