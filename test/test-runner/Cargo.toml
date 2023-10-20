@@ -1,0 +1,58 @@
+[package]
+name = "test-runner"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+futures = { workspace = true }
+tarpc = { workspace = true }
+tokio = { workspace = true }
+tokio-serial = { workspace = true }
+err-derive = { workspace = true }
+log = { workspace = true }
+once_cell = { workspace = true }
+parity-tokio-ipc = "0.9"
+bytes = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio-serde = { workspace = true }
+
+libc = "0.2"
+chrono = { workspace = true }
+
+test-rpc = { path = "../test-rpc" }
+mullvad-paths = { path = "../../mullvad-paths" }
+talpid-platform-metadata = { path = "../../talpid-platform-metadata" }
+
+socket2 = { version = "0.5", features = ["all"] }
+
+[target."cfg(target_os=\"windows\")".dependencies]
+talpid-windows-net = { path = "../../talpid-windows-net" }
+
+windows-service = "0.6"
+winreg = "0.50"
+
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.45.0"
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System_Shutdown",
+    "Win32_System_SystemServices",
+    "Win32_System_Threading",
+    "Win32_UI_WindowsAndMessaging",
+]
+
+[dependencies.tokio-util]
+version = "0.7"
+features = ["codec"]
+default-features = false
+
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.25", features = ["socket", "net"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+rs-release = "0.1.7"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+plist = "1"
