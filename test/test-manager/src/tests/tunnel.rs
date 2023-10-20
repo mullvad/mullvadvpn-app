@@ -581,38 +581,38 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
+    use mullvad_types::{
+        relay_constraints::{ObfuscationSettings, SelectedObfuscation, Udp2TcpObfuscationSettings},
+        wireguard::QuantumResistantState,
+    };
     mullvad_client
-        .set_quantum_resistant_tunnel(types::QuantumResistantState {
-            state: i32::from(types::quantum_resistant_state::State::On),
-        })
+        .set_quantum_resistant_tunnel(types::QuantumResistantState::from(
+            QuantumResistantState::On,
+        ))
         .await
         .expect("Failed to enable PQ tunnels");
 
     mullvad_client
-        .set_obfuscation_settings(types::ObfuscationSettings {
-            selected_obfuscation: i32::from(
-                types::obfuscation_settings::SelectedObfuscation::Udp2tcp,
-            ),
-            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: None }),
-        })
+        .set_obfuscation_settings(types::ObfuscationSettings::from(ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+            udp2tcp: Udp2TcpObfuscationSettings {
+                port: Constraint::Any,
+            },
+        }))
         .await
         .expect("Failed to enable obfuscation");
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Only(LocationConstraint::Location(
-            GeographicLocationConstraint::Country("se".to_string()),
-        ))),
-        wireguard_constraints: Some(WireguardConstraints {
-            use_multihop: true,
-            entry_location: Constraint::Only(LocationConstraint::Location(
-                GeographicLocationConstraint::Country("se".to_string()),
-            )),
-            ..Default::default()
-        }),
-        ..Default::default()
-    });
-
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    mullvad_client
+        .update_relay_settings(types::RelaySettingsUpdate::from(
+            RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                wireguard_constraints: WireguardConstraints {
+                    use_multihop: true,
+                    ..Default::default()
+                }
+                .into(),
+                ..Default::default()
+            }),
+        ))
         .await
         .expect("Failed to update relay settings");
 
