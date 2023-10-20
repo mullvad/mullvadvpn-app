@@ -273,13 +273,11 @@ pub enum AddCustomCommands {
         /// The IP of the remote Shadowsocks-proxy
         remote_ip: IpAddr,
         /// Port on which the remote Shadowsocks-proxy listens for traffic
-        #[arg(default_value = "443")]
         remote_port: u16,
         /// Password for authentication
-        #[arg(default_value = "mullvad")]
         password: String,
         /// Cipher to use
-        #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
+        #[arg(long, value_parser = SHADOWSOCKS_CIPHERS)]
         cipher: String,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
