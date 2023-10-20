@@ -293,12 +293,8 @@ fun VpnSettingsScreen(
                     onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
                     onInfoClicked = { onLocalNetworkSharingInfoClick() }
                 )
-            }
-            item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() })
             }
-            item { MtuSubtitle() }
 
             itemWithDivider {
                 ExpandableComposeCell(
@@ -363,7 +359,7 @@ fun VpnSettingsScreen(
                     )
                 }
 
-                itemWithDivider {
+                item {
                     NormalSwitchComposeCell(
                         title = stringResource(R.string.block_social_media_title),
                         isToggled = uiState.contentBlockersOptions.blockSocialMedia,
@@ -387,6 +383,58 @@ fun VpnSettingsScreen(
                         )
                     }
                 }
+            }
+
+            item {
+                HeaderSwitchComposeCell(
+                    title = stringResource(R.string.enable_custom_dns),
+                    isToggled = uiState.isCustomDnsEnabled,
+                    isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                    onCellClicked = { newValue -> onToggleDnsClick(newValue) },
+                    onInfoClicked = { onCustomDnsInfoClick() }
+                )
+            }
+
+            if (uiState.isCustomDnsEnabled) {
+                itemsIndexed(uiState.customDnsItems) { index, item ->
+                    DnsCell(
+                        address = item.address,
+                        isUnreachableLocalDnsWarningVisible =
+                            item.isLocal && uiState.isAllowLanEnabled.not(),
+                        onClick = { onDnsClick(index) },
+                        modifier = Modifier.animateItemPlacement()
+                    )
+                    Divider()
+                }
+
+                itemWithDivider {
+                    BaseCell(
+                        onCellClicked = { onDnsClick(null) },
+                        title = {
+                            Text(
+                                text = stringResource(id = R.string.add_a_server),
+                                color = Color.White,
+                            )
+                        },
+                        bodyView = {},
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = biggerPadding,
+                    )
+                }
+            }
+
+            item {
+                CustomDnsCellSubtitle(
+                    isCellClickable = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                    modifier =
+                        Modifier.background(MaterialTheme.colorScheme.secondary)
+                            .padding(
+                                start = Dimens.cellStartPadding,
+                                top = topPadding,
+                                end = Dimens.cellEndPadding,
+                                bottom = Dimens.cellLabelVerticalPadding,
+                            )
+                )
             }
 
             itemWithDivider {
@@ -497,61 +545,11 @@ fun VpnSettingsScreen(
                     mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
                     numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
                 )
-            }
-
-            item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.enable_custom_dns),
-                    isToggled = uiState.isCustomDnsEnabled,
-                    isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                    onCellClicked = { newValue -> onToggleDnsClick(newValue) },
-                    onInfoClicked = { onCustomDnsInfoClick() }
-                )
             }
 
-            if (uiState.isCustomDnsEnabled) {
-                itemsIndexed(uiState.customDnsItems) { index, item ->
-                    DnsCell(
-                        address = item.address,
-                        isUnreachableLocalDnsWarningVisible =
-                            item.isLocal && uiState.isAllowLanEnabled.not(),
-                        onClick = { onDnsClick(index) },
-                        modifier = Modifier.animateItemPlacement()
-                    )
-                    Divider()
-                }
-
-                itemWithDivider {
-                    BaseCell(
-                        onCellClicked = { onDnsClick(null) },
-                        title = {
-                            Text(
-                                text = stringResource(id = R.string.add_a_server),
-                                color = Color.White,
-                            )
-                        },
-                        bodyView = {},
-                        background = MaterialTheme.colorScheme.secondaryContainer,
-                        startPadding = biggerPadding,
-                    )
-                }
-            }
-
-            item {
-                CustomDnsCellSubtitle(
-                    isCellClickable = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                    modifier =
-                        Modifier.background(MaterialTheme.colorScheme.secondary)
-                            .testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)
-                            .padding(
-                                start = Dimens.cellStartPadding,
-                                top = topPadding,
-                                end = Dimens.cellEndPadding,
-                                bottom = Dimens.cellLabelVerticalPadding,
-                            )
-                )
-            }
+            item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
+            item { MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)) }
         }
     }
 }
