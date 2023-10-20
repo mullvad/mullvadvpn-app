@@ -331,6 +331,12 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
     }
 }
 
+impl From<mullvad_types::relay_constraints::ObfuscationSettings> for proto::ObfuscationSettings {
+    fn from(settings: mullvad_types::relay_constraints::ObfuscationSettings) -> Self {
+        proto::ObfuscationSettings::from(&settings)
+    }
+}
+
 impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
     for proto::Udp2TcpObfuscationSettings
 {
