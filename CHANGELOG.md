@@ -56,6 +56,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Show correct endpoint in CLI for custom relays.
 - Lower risk of being rate limited.
+- Fix error dialog when failing to write to console by handling the thrown error.
 
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
