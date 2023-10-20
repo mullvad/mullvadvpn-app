@@ -55,10 +55,7 @@ class VpnSettingsScreenTest {
             )
         }
 
-        composeTestRule.apply {
-            onNodeWithText("WireGuard MTU").assertExists()
-            onNodeWithText("Default").assertExists()
-        }
+        composeTestRule.apply { onNodeWithText("Auto-connect").assertExists() }
 
         composeTestRule
             .onNodeWithTag(LAZY_LIST_TEST_TAG)
@@ -66,8 +63,8 @@ class VpnSettingsScreenTest {
 
         // Assert
         composeTestRule.apply {
-            onNodeWithText("Use custom DNS server").assertExists()
-            onNodeWithText("Add a server").assertDoesNotExist()
+            onNodeWithText("WireGuard MTU").assertExists()
+            onNodeWithText("Default").assertExists()
         }
     }
 
@@ -80,6 +77,10 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
+
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
         // Assert
         composeTestRule.onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
@@ -96,6 +97,10 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
+
+        composeTestRule
+            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
         // Act
         composeTestRule.onNodeWithText("WireGuard MTU").performClick()
@@ -257,9 +262,9 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
-        composeTestRule
-            .onNodeWithTag(LAZY_LIST_TEST_TAG)
-            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+        //        composeTestRule
+        //            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+        //            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
         // Assert
         composeTestRule.apply {
             onNodeWithText(DUMMY_DNS_ADDRESS).assertExists()
@@ -386,9 +391,9 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
-        composeTestRule
-            .onNodeWithTag(LAZY_LIST_TEST_TAG)
-            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+        //        composeTestRule
+        //            .onNodeWithTag(LAZY_LIST_TEST_TAG)
+        //            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
         // Act
         composeTestRule.onNodeWithText("Add a server").performClick()
