@@ -20,6 +20,10 @@ extension DeviceCheck {
             return .deviceRevoked
         }
 
+        if case .expired = accountVerdict {
+            return .accountExpired
+        }
+
         return nil
     }
 }

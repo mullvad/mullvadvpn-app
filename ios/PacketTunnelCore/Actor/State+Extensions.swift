@@ -105,8 +105,8 @@ extension BlockedStateReason {
         case .deviceLocked:
             return true
 
-        case .noRelaysSatisfyingConstraints, .readSettings, .invalidAccount, .deviceRevoked, .tunnelAdapter, .unknown,
-             .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey:
+        case .noRelaysSatisfyingConstraints, .readSettings, .invalidAccount, .accountExpired, .deviceRevoked,
+             .tunnelAdapter, .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey:
             return false
         }
     }
