@@ -314,7 +314,6 @@ final class PacketTunnelActorTests: XCTestCase {
             .sink { newState in
                 switch newState {
                 case .connecting:
-                    actor.setErrorState(reason: .readSettings)
                     connectingStateExpectation.fulfill()
                 case .error:
                     errorStateExpectation.fulfill()
@@ -326,6 +325,7 @@ final class PacketTunnelActorTests: XCTestCase {
             }
 
         actor.start(options: launchOptions)
+        actor.setErrorState(reason: .readSettings)
         actor.stop()
 
         await fulfillment(of: [connectingStateExpectation, disconnectedStateExpectation], timeout: 1)
