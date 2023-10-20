@@ -1,12 +1,5 @@
-use once_cell::sync::Lazy;
-use std::{
-    ffi::CStr,
-    fmt, io, mem,
-    os::windows::io::RawHandle,
-    path::Path,
-    ptr,
-    sync::{Arc, Mutex},
-};
+use once_cell::sync::OnceCell;
+use std::{ffi::CStr, fmt, io, mem, os::windows::io::RawHandle, path::Path, ptr};
 use talpid_types::{win32_err, ErrorExt};
 use widestring::{U16CStr, U16CString};
 use windows_sys::{
@@ -29,7 +22,7 @@ use winreg::{
 };
 
 /// Shared `WintunDll` instance
-static WINTUN_DLL: Lazy<Mutex<Option<Arc<WintunDll>>>> = Lazy::new(|| Mutex::new(None));
+static WINTUN_DLL: OnceCell<WintunDll> = OnceCell::new();
 
 type WintunCreateAdapterFn = unsafe extern "stdcall" fn(
     name: *const u16,
@@ -67,7 +60,7 @@ unsafe impl Sync for WintunDll {}
 
 /// Represents a Wintun adapter.
 pub struct WintunAdapter {
-    dll_handle: Arc<WintunDll>,
+    dll_handle: &'static WintunDll,
     handle: RawHandle,
     name: U16CString,
 }
@@ -85,7 +78,7 @@ unsafe impl Sync for WintunAdapter {}
 
 impl WintunAdapter {
     pub fn create(
-        dll_handle: Arc<WintunDll>,
+        dll_handle: &'static WintunDll,
         name: &U16CStr,
         tunnel_type: &U16CStr,
         requested_guid: Option<GUID>,
@@ -177,16 +170,8 @@ impl Drop for WintunAdapter {
 }
 
 impl WintunDll {
-    pub fn instance(resource_dir: &Path) -> io::Result<Arc<Self>> {
-        let mut dll = (*WINTUN_DLL).lock().expect("Wintun mutex poisoned");
-        match &*dll {
-            Some(dll) => Ok(dll.clone()),
-            None => {
-                let new_dll = Arc::new(Self::new(resource_dir)?);
-                *dll = Some(new_dll.clone());
-                Ok(new_dll)
-            }
-        }
+    pub fn instance(resource_dir: &Path) -> io::Result<&'static Self> {
+        WINTUN_DLL.get_or_try_init(|| Self::new(resource_dir))
     }
 
     fn new(resource_dir: &Path) -> io::Result<Self> {
@@ -268,8 +253,8 @@ impl WintunDll {
         luid.assume_init()
     }
 
-    pub fn activate_logging(self: &Arc<Self>) -> WintunLoggerHandle {
-        WintunLoggerHandle::from_handle(self.clone())
+    pub fn activate_logging(&'static self) -> WintunLoggerHandle {
+        WintunLoggerHandle::from_handle(self)
     }
 
     fn set_logger(&self, logger: Option<WintunLoggerCbFn>) {
@@ -284,11 +269,11 @@ impl Drop for WintunDll {
 }
 
 pub struct WintunLoggerHandle {
-    dll_handle: Arc<WintunDll>,
+    dll_handle: &'static WintunDll,
 }
 
 impl WintunLoggerHandle {
-    fn from_handle(dll_handle: Arc<WintunDll>) -> Self {
+    fn from_handle(dll_handle: &'static WintunDll) -> Self {
         dll_handle.set_logger(Some(Self::callback));
         Self { dll_handle }
     }
