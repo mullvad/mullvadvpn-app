@@ -43,12 +43,34 @@ class AlertViewController: UIViewController {
     typealias Handler = () -> Void
     var onDismiss: Handler?
 
-    private let containerView: UIStackView = {
+    private let scrollView = UIScrollView()
+    private var scrollViewHeightConstraint: NSLayoutConstraint!
+    private let presentation: AlertPresentation
+
+    private let viewContainer: UIView = {
+        let view = UIView()
+
+        view.backgroundColor = .secondaryColor
+        view.layer.cornerRadius = 11
+
+        return view
+    }()
+
+    private let buttonView: UIStackView = {
         let view = UIStackView()
 
         view.axis = .vertical
-        view.backgroundColor = .secondaryColor
-        view.layer.cornerRadius = 11
+        view.spacing = UIMetrics.CustomAlert.containerSpacing
+        view.isLayoutMarginsRelativeArrangement = true
+        view.directionalLayoutMargins = UIMetrics.CustomAlert.containerMargins
+
+        return view
+    }()
+
+    private let contentView: UIStackView = {
+        let view = UIStackView()
+
+        view.axis = .vertical
         view.spacing = UIMetrics.CustomAlert.containerSpacing
         view.isLayoutMarginsRelativeArrangement = true
         view.directionalLayoutMargins = UIMetrics.CustomAlert.containerMargins
@@ -59,18 +81,45 @@ class AlertViewController: UIViewController {
     private var handlers = [UIButton: Handler]()
 
     init(presentation: AlertPresentation) {
+        self.presentation = presentation
+
         super.init(nibName: nil, bundle: nil)
 
-        setUp(
-            header: presentation.header,
-            title: presentation.title,
-            icon: presentation.icon
-        ) {
-            if let message = presentation.attributedMessage {
-                addMessage(message)
-            } else if let message = presentation.message {
-                addMessage(message)
-            }
+        modalPresentationStyle = .overFullScreen
+        modalTransitionStyle = .crossDissolve
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        view.layoutIfNeeded()
+        scrollViewHeightConstraint.constant = scrollView.contentSize.height
+
+        adjustButtonMargins()
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        view.backgroundColor = .black.withAlphaComponent(0.5)
+
+        setContent()
+        setConstraints()
+    }
+
+    private func setContent() {
+        presentation.icon.flatMap { addIcon($0) }
+        presentation.header.flatMap { addHeader($0) }
+        presentation.title.flatMap { addTitle($0) }
+
+        if let message = presentation.attributedMessage {
+            addMessage(message)
+        } else if let message = presentation.message {
+            addMessage(message)
         }
 
         presentation.buttons.forEach { action in
@@ -80,65 +129,63 @@ class AlertViewController: UIViewController {
                 handler: action.handler
             )
         }
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // This code runs before viewDidLoad(). As such, no implicit calls to self.view should be made before this point.
-    private func setUp(header: String?, title: String?, icon: AlertIcon?, addMessageCallback: () -> Void) {
-        modalPresentationStyle = .overFullScreen
-        modalTransitionStyle = .crossDissolve
-
-        icon.flatMap { addIcon($0) }
-        header.flatMap { addHeader($0) }
-        title.flatMap { addTitle($0) }
-        addMessageCallback()
-
-        containerView.arrangedSubviews.last.flatMap {
-            containerView.setCustomSpacing(UIMetrics.CustomAlert.containerMargins.top, after: $0)
-        }
 
         // Icon only alerts should have equal top and bottom margin.
-        if icon != nil, containerView.arrangedSubviews.count == 1 {
-            containerView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.top
+        if presentation.icon != nil, contentView.arrangedSubviews.count == 1 {
+            contentView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.top
         }
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    private func setConstraints() {
+        viewContainer.addConstrainedSubviews([scrollView, buttonView]) {
+            scrollView.pinEdgesToSuperview(.all().excluding(.bottom))
+            buttonView.pinEdgesToSuperview(.all().excluding(.top))
+            buttonView.topAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        }
 
-        view.backgroundColor = .black.withAlphaComponent(0.5)
+        scrollView.addConstrainedSubviews([contentView]) {
+            contentView.pinEdgesToSuperview(.all())
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+        }
 
-        view.addConstrainedSubviews([containerView]) {
-            containerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-            containerView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        scrollViewHeightConstraint = scrollView.heightAnchor.constraint(equalToConstant: 0).withPriority(.defaultLow)
+        scrollViewHeightConstraint.isActive = true
 
-            containerView.widthAnchor
+        view.addConstrainedSubviews([viewContainer]) {
+            viewContainer.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            viewContainer.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+
+            viewContainer.widthAnchor
                 .constraint(lessThanOrEqualToConstant: UIMetrics.preferredFormSheetContentSize.width)
 
-            containerView.leadingAnchor
+            viewContainer.topAnchor
+                .constraint(greaterThanOrEqualTo: view.layoutMarginsGuide.topAnchor)
+                .withPriority(.defaultHigh)
+
+            view.layoutMarginsGuide.bottomAnchor
+                .constraint(greaterThanOrEqualTo: viewContainer.bottomAnchor)
+                .withPriority(.defaultHigh)
+
+            viewContainer.leadingAnchor
                 .constraint(equalTo: view.layoutMarginsGuide.leadingAnchor)
                 .withPriority(.defaultHigh)
 
             view.layoutMarginsGuide.trailingAnchor
-                .constraint(equalTo: containerView.trailingAnchor)
+                .constraint(equalTo: viewContainer.trailingAnchor)
                 .withPriority(.defaultHigh)
         }
     }
 
-    func addAction(title: String, style: AlertActionStyle, handler: (() -> Void)? = nil) {
-        // The presence of a button should reset any custom button margin to default.
-        containerView.directionalLayoutMargins.bottom = UIMetrics.CustomAlert.containerMargins.bottom
+    private func adjustButtonMargins() {
+        if !buttonView.arrangedSubviews.isEmpty {
+            // The presence of a button should yield a custom top margin.
+            buttonView.directionalLayoutMargins.top = UIMetrics.CustomAlert.interContainerSpacing
 
-        let button = AppButton(style: style.buttonStyle)
-
-        button.setTitle(title, for: .normal)
-        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
-
-        containerView.addArrangedSubview(button)
-        handler.flatMap { handlers[button] = $0 }
+            // Buttons below scrollable content should have more margin.
+            if scrollView.contentSize.height > scrollView.bounds.size.height {
+                buttonView.directionalLayoutMargins.top = UIMetrics.CustomAlert.containerSpacing
+            }
+        }
     }
 
     private func addHeader(_ title: String) {
@@ -151,8 +198,8 @@ class AlertViewController: UIViewController {
         header.textAlignment = .center
         header.numberOfLines = 0
 
-        containerView.addArrangedSubview(header)
-        containerView.setCustomSpacing(16, after: header)
+        contentView.addArrangedSubview(header)
+        contentView.setCustomSpacing(16, after: header)
     }
 
     private func addTitle(_ title: String) {
@@ -164,8 +211,8 @@ class AlertViewController: UIViewController {
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
 
-        containerView.addArrangedSubview(label)
-        containerView.setCustomSpacing(8, after: label)
+        contentView.addArrangedSubview(label)
+        contentView.setCustomSpacing(8, after: label)
     }
 
     private func addMessage(_ message: String) {
@@ -185,7 +232,7 @@ class AlertViewController: UIViewController {
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
 
-        containerView.addArrangedSubview(label)
+        contentView.addArrangedSubview(label)
     }
 
     private func addMessage(_ message: NSAttributedString) {
@@ -196,12 +243,22 @@ class AlertViewController: UIViewController {
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
 
-        containerView.addArrangedSubview(label)
+        contentView.addArrangedSubview(label)
     }
 
     private func addIcon(_ icon: AlertIcon) {
         let iconView = icon == .spinner ? getSpinnerView() : getImageView(for: icon)
-        containerView.addArrangedSubview(iconView)
+        contentView.addArrangedSubview(iconView)
+    }
+
+    private func addAction(title: String, style: AlertActionStyle, handler: (() -> Void)? = nil) {
+        let button = AppButton(style: style.buttonStyle)
+
+        button.setTitle(title, for: .normal)
+        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
+
+        buttonView.addArrangedSubview(button)
+        handler.flatMap { handlers[button] = $0 }
     }
 
     private func getImageView(for icon: AlertIcon) -> UIView {
