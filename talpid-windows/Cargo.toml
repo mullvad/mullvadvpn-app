@@ -1,6 +1,6 @@
 [package]
-name = "talpid-windows-net"
-description = "Work with Windows network interfaces and their configuration"
+name = "talpid-windows"
+description = "Nice abstractions for Windows"
 version.workspace = true
 authors.workspace = true
 repository.workspace = true

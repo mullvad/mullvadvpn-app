@@ -50,7 +50,7 @@ tokio-stream = { version = "0.1", features = ["io-util"] }
 
 [target.'cfg(windows)'.dependencies]
 bitflags = "1.2"
-talpid-windows-net = { path = "../talpid-windows-net" }
+talpid-windows = { path = "../talpid-windows" }
 widestring = "1.0"
 
 # TODO: Figure out which features are needed and which are not

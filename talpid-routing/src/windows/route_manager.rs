@@ -11,7 +11,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 use talpid_types::win32_err;
-use talpid_windows_net::{
+use talpid_windows::net::{
     inet_sockaddr_from_socketaddr, try_socketaddr_from_inet_sockaddr, AddressFamily,
 };
 use widestring::{WideCStr, WideCString};
@@ -824,7 +824,7 @@ impl<'a> Iterator for AdaptersIterator<'a> {
 pub fn win_ip_address_prefix_from_ipnetwork_port_zero(from: IpNetwork) -> IP_ADDRESS_PREFIX {
     // Port should not matter so we set it to 0
     let prefix =
-        talpid_windows_net::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from.ip(), 0));
+        talpid_windows::net::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from.ip(), 0));
     IP_ADDRESS_PREFIX {
         Prefix: prefix,
         PrefixLength: from.prefix(),
@@ -834,7 +834,7 @@ pub fn win_ip_address_prefix_from_ipnetwork_port_zero(from: IpNetwork) -> IP_ADD
 /// Convert to a windows defined `SOCKADDR_INET` from a `IpAddr` but set the port to 0
 pub fn inet_sockaddr_from_ipaddr(from: IpAddr) -> SOCKADDR_INET {
     // Port should not matter so we set it to 0
-    talpid_windows_net::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from, 0))
+    talpid_windows::net::inet_sockaddr_from_socketaddr(std::net::SocketAddr::new(from, 0))
 }
 
 /// Convert to a `AddressFamily` from a `ipnetwork::IpNetwork`

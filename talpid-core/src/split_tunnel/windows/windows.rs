@@ -1,6 +1,3 @@
-// TODO: The snapshot code could be combined with the mostly-identical code in
-//       the windows_exception_logging module.
-
 use std::{
     ffi::{OsStr, OsString},
     fs, io, iter, mem,
@@ -12,101 +9,14 @@ use std::{
     ptr,
 };
 use windows_sys::Win32::{
-    Foundation::{
-        CloseHandle, BOOL, ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_FILES, FILETIME, HANDLE,
-        INVALID_HANDLE_VALUE,
-    },
+    Foundation::{CloseHandle, ERROR_INSUFFICIENT_BUFFER, FILETIME, HANDLE},
     Storage::FileSystem::{GetFinalPathNameByHandleW, QueryDosDeviceW},
     System::{
-        Diagnostics::ToolHelp::{
-            CreateToolhelp32Snapshot, Process32FirstW, Process32NextW, PROCESSENTRY32W,
-        },
         ProcessStatus::GetProcessImageFileNameW,
-        Threading::{
-            CreateEventW, GetProcessTimes, OpenProcess, SetEvent, PROCESS_QUERY_LIMITED_INFORMATION,
-        },
+        Threading::{GetProcessTimes, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION},
         WindowsProgramming::VOLUME_NAME_NT,
-        IO::OVERLAPPED,
     },
 };
-
-pub struct ProcessSnapshot {
-    handle: HANDLE,
-}
-
-impl ProcessSnapshot {
-    pub fn new(flags: u32, process_id: u32) -> io::Result<ProcessSnapshot> {
-        let snap = unsafe { CreateToolhelp32Snapshot(flags, process_id) };
-
-        if snap == INVALID_HANDLE_VALUE {
-            Err(io::Error::last_os_error())
-        } else {
-            Ok(ProcessSnapshot { handle: snap })
-        }
-    }
-
-    pub fn handle(&self) -> HANDLE {
-        self.handle
-    }
-
-    pub fn entries(&self) -> ProcessSnapshotEntries<'_> {
-        let mut entry: PROCESSENTRY32W = unsafe { mem::zeroed() };
-        entry.dwSize = mem::size_of::<PROCESSENTRY32W>() as u32;
-
-        ProcessSnapshotEntries {
-            snapshot: self,
-            iter_started: false,
-            temp_entry: entry,
-        }
-    }
-}
-
-impl Drop for ProcessSnapshot {
-    fn drop(&mut self) {
-        unsafe {
-            CloseHandle(self.handle);
-        }
-    }
-}
-
-pub struct ProcessEntry {
-    pub pid: u32,
-    pub parent_pid: u32,
-}
-
-pub struct ProcessSnapshotEntries<'a> {
-    snapshot: &'a ProcessSnapshot,
-    iter_started: bool,
-    temp_entry: PROCESSENTRY32W,
-}
-
-impl Iterator for ProcessSnapshotEntries<'_> {
-    type Item = io::Result<ProcessEntry>;
-
-    fn next(&mut self) -> Option<io::Result<ProcessEntry>> {
-        if self.iter_started {
-            if unsafe { Process32NextW(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
-                let last_error = io::Error::last_os_error();
-
-                return if last_error.raw_os_error().unwrap() as u32 == ERROR_NO_MORE_FILES {
-                    None
-                } else {
-                    Some(Err(last_error))
-                };
-            }
-        } else {
-            if unsafe { Process32FirstW(self.snapshot.handle(), &mut self.temp_entry) } == 0 {
-                return Some(Err(io::Error::last_os_error()));
-            }
-            self.iter_started = true;
-        }
-
-        Some(Ok(ProcessEntry {
-            pid: self.temp_entry.th32ProcessID,
-            parent_pid: self.temp_entry.th32ParentProcessID,
-        }))
-    }
-}
 
 /// Obtains a device path without resolving links or mount points.
 pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
@@ -298,96 +208,4 @@ fn get_process_device_path_inner(
     unsafe { buffer.set_len(written as usize) };
 
     Ok(OsStringExt::from_wide(&buffer))
-}
-
-/// Abstraction over `OVERLAPPED`, which is used for async I/O.
-pub struct Overlapped {
-    overlapped: OVERLAPPED,
-    event: Option<Event>,
-}
-
-unsafe impl Send for Overlapped {}
-unsafe impl Sync for Overlapped {}
-
-impl Overlapped {
-    /// Creates an `OVERLAPPED` object with `hEvent` set.
-    pub fn new(event: Option<Event>) -> io::Result<Self> {
-        let mut overlapped = Overlapped {
-            overlapped: unsafe { mem::zeroed() },
-            event: None,
-        };
-        overlapped.set_event(event);
-        Ok(overlapped)
-    }
-
-    /// Borrows the underlying `OVERLAPPED` object.
-    pub fn as_mut_ptr(&mut self) -> *mut OVERLAPPED {
-        &mut self.overlapped
-    }
-
-    /// Returns a reference to the associated event.
-    pub fn get_event(&self) -> Option<&Event> {
-        self.event.as_ref()
-    }
-
-    /// Sets the event object for the underlying `OVERLAPPED` object (i.e., `hEvent`)
-    fn set_event(&mut self, event: Option<Event>) {
-        match event {
-            Some(event) => {
-                self.overlapped.hEvent = event.0;
-                self.event = Some(event);
-            }
-            None => {
-                self.overlapped.hEvent = 0;
-                self.event = None;
-            }
-        }
-    }
-}
-
-/// Abstraction over a Windows event object.
-pub struct Event(HANDLE);
-
-unsafe impl Send for Event {}
-unsafe impl Sync for Event {}
-
-impl Event {
-    pub fn new(manual_reset: bool, initial_state: bool) -> io::Result<Self> {
-        let event = unsafe {
-            CreateEventW(
-                ptr::null_mut(),
-                bool_to_winbool(manual_reset),
-                bool_to_winbool(initial_state),
-                ptr::null(),
-            )
-        };
-        if event == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(Self(event))
-    }
-
-    pub fn set(&self) -> io::Result<()> {
-        if unsafe { SetEvent(self.0) } == 0 {
-            return Err(io::Error::last_os_error());
-        }
-        Ok(())
-    }
-
-    pub fn as_handle(&self) -> HANDLE {
-        self.0
-    }
-}
-
-impl Drop for Event {
-    fn drop(&mut self) {
-        unsafe { CloseHandle(self.0) };
-    }
-}
-
-const fn bool_to_winbool(val: bool) -> BOOL {
-    match val {
-        true => 1,
-        false => 0,
-    }
 }
