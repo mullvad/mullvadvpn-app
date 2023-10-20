@@ -89,24 +89,8 @@ async fn send_location_request_internal(
 }
 
 fn log_network_error(err: Error, version: &'static str) {
-    use std::sync::Arc;
-    let err_message = &format!("Unable to fetch {version} GeoIP location");
-    match err {
-        Error::HyperError(hyper_err) if hyper_err.is_connect() => {
-            if let Some(cause) = Arc::into_inner(hyper_err).and_then(|x| x.into_cause()) {
-                if let Some(err) = cause.downcast_ref::<std::io::Error>() {
-                    // Don't log ENETUNREACH errors, they are not informative.
-                    if err.raw_os_error() == Some(libc::ENETUNREACH) {
-                        return;
-                    }
-                    log::debug!("{}: Hyper connect error: {}", err_message, cause);
-                }
-            } else {
-                log::error!("Hyper Connection error did not contain a cause!");
-            }
-        }
-        any_other_error => {
-            log::debug!("{}", any_other_error.display_chain_with_msg(err_message));
-        }
-    };
+    if !err.is_offline() {
+        let err_message = &format!("Unable to fetch {version} GeoIP location");
+        log::debug!("{}", err.display_chain_with_msg(err_message));
+    }
 }
