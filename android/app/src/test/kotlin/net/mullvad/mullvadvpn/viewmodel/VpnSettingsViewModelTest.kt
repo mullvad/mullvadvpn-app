@@ -10,6 +10,7 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -38,7 +39,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertTrue
 
 class VpnSettingsViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
@@ -189,7 +189,7 @@ class VpnSettingsViewModelTest {
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             portRangeSlot.captured.invoke(expectedPortRange)
             val state = awaitItem()
-            assertTrue{ state.dialog is VpnSettingsDialog.WireguardPortInfo }
+            assertTrue { state.dialog is VpnSettingsDialog.WireguardPortInfo }
             assertLists(expectedPortRange, state.availablePortRanges)
         }
     }

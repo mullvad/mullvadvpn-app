@@ -77,14 +77,14 @@ class VpnSettingsViewModel(
                         isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
                         isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                         customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                        contentBlockersOptions =
-                            settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
+                        contentBlockersOptions = settings?.contentBlockersSettings()
+                                ?: DefaultDnsOptions(),
                         isAllowLanEnabled = settings?.allowLan ?: false,
-                        selectedObfuscation =
-                            settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
+                        selectedObfuscation = settings?.selectedObfuscationSettings()
+                                ?: SelectedObfuscation.Off,
                         dialogState = dialogState,
-                        quantumResistant =
-                            settings?.quantumResistant() ?: QuantumResistantState.Off,
+                        quantumResistant = settings?.quantumResistant()
+                                ?: QuantumResistantState.Off,
                         selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any(),
                         availablePortRanges = portRanges
                     )
@@ -238,7 +238,7 @@ class VpnSettingsViewModel(
                 contentBlockersOptions = vmState.value.contentBlockersOptions
             )
 
-            dialogState.update { null }
+            hideDialog()
         }
 
     fun onToggleAutoConnect(isEnabled: Boolean) {
@@ -376,13 +376,17 @@ class VpnSettingsViewModel(
         }
 
     private fun hideDialog() {
+        dialogState.update { null }
+    }
+
+    fun onCancelDns() {
         if (
             vmState.value.dialogState is VpnSettingsDialogState.DnsDialog &&
                 vmState.value.customDnsList.isEmpty()
         ) {
             onToggleDnsClick(false)
         }
-        dialogState.update { null }
+        hideDialog()
     }
 
     private fun String.isDuplicateDns(stagedIndex: Int? = null): Boolean {
