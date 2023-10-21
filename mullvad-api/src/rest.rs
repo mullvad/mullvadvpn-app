@@ -482,20 +482,14 @@ struct NewErrorResponse {
 #[derive(Clone)]
 pub struct RequestFactory {
     hostname: String,
-    path_prefix: Option<String>,
     token_store: Option<AccessTokenStore>,
     pub timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn new(
-        hostname: String,
-        path_prefix: Option<String>,
-        token_store: Option<AccessTokenStore>,
-    ) -> Self {
+    pub fn new(hostname: String, token_store: Option<AccessTokenStore>) -> Self {
         Self {
             hostname,
-            path_prefix,
             token_store,
             timeout: DEFAULT_TIMEOUT,
         }
@@ -572,8 +566,7 @@ impl RequestFactory {
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
-        let prefix = self.path_prefix.as_ref().map(AsRef::as_ref).unwrap_or("");
-        let uri = format!("https://{}/{}{}", self.hostname, prefix, path);
+        let uri = format!("https://{}/{}", self.hostname, path);
         hyper::Uri::from_str(&uri).map_err(|_| Error::InvalidUri)
     }
 }
