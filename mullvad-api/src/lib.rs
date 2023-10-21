@@ -341,7 +341,7 @@ impl Runtime {
             )
             .await;
         let token_store = access::AccessTokenStore::new(service.clone());
-        let factory = rest::RequestFactory::new(API.host.clone(), None, Some(token_store));
+        let factory = rest::RequestFactory::new(API.host.clone(), Some(token_store));
 
         rest::MullvadRestHandle::new(
             service,
