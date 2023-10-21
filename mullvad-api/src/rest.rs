@@ -215,7 +215,7 @@ impl<
         let tx = self.command_tx.upgrade();
 
         let api_availability = self.api_availability.clone();
-        let request_future = request.into_future(self.client.clone());
+        let request_future = request.into_future(self.client.clone(), api_availability.clone());
 
         tokio::spawn(async move {
             let response = request_future.await.map_err(|error| error.map_aborted());
@@ -358,9 +358,24 @@ impl Request {
     }
 
     async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
+        self,
+        hyper_client: hyper::Client<C>,
+        api_availability: ApiAvailabilityHandle,
+    ) -> Result<Response> {
+        let timeout = self.timeout;
+        let inner_fut = self.into_future_without_timeout(hyper_client, api_availability);
+        tokio::time::timeout(timeout, inner_fut)
+            .await
+            .map_err(|_| Error::TimeoutError)?
+    }
+
+    async fn into_future_without_timeout<C: Connect + Clone + Send + Sync + 'static>(
         mut self,
         hyper_client: hyper::Client<C>,
+        api_availability: ApiAvailabilityHandle,
     ) -> Result<Response> {
+        let _ = api_availability.wait_for_unsuspend().await;
+
         // Obtain access token first
         if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
             let access_token = store.get_token(account).await?;
@@ -373,10 +388,9 @@ impl Request {
         }
 
         // Make request to hyper client
-        let request_fut = hyper_client.request(self.request);
-        let response = tokio::time::timeout(self.timeout, request_fut)
+        let response = hyper_client
+            .request(self.request)
             .await
-            .map_err(|_| Error::TimeoutError)?
             .map_err(Error::from);
 
         // Notify access token store of expired tokens
