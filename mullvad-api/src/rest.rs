@@ -483,7 +483,7 @@ struct NewErrorResponse {
 pub struct RequestFactory {
     hostname: String,
     token_store: Option<AccessTokenStore>,
-    pub timeout: Duration,
+    default_timeout: Duration,
 }
 
 impl RequestFactory {
@@ -491,14 +491,14 @@ impl RequestFactory {
         Self {
             hostname,
             token_store,
-            timeout: DEFAULT_TIMEOUT,
+            default_timeout: DEFAULT_TIMEOUT,
         }
     }
 
     pub fn request(&self, path: &str, method: Method) -> Result<Request> {
         Ok(
             Request::new(self.hyper_request(path, method)?, self.token_store.clone())
-                .timeout(self.timeout),
+                .timeout(self.default_timeout),
         )
     }
 
@@ -526,6 +526,11 @@ impl RequestFactory {
         self.json_request(Method::PUT, path, body)
     }
 
+    pub fn default_timeout(mut self, timeout: Duration) -> Self {
+        self.default_timeout = timeout;
+        self
+    }
+
     fn json_request<S: serde::Serialize>(
         &self,
         method: Method,
@@ -549,7 +554,7 @@ impl RequestFactory {
             HeaderValue::from_static("application/json"),
         );
 
-        Ok(Request::new(request, self.token_store.clone()).timeout(self.timeout))
+        Ok(Request::new(request, self.token_store.clone()).timeout(self.default_timeout))
     }
 
     fn hyper_request(&self, path: &str, method: Method) -> Result<hyper::Request<hyper::Body>> {
