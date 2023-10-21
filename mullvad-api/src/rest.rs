@@ -31,9 +31,6 @@ use crate::API;
 
 pub use hyper::StatusCode;
 
-pub type Request = hyper::Request<hyper::Body>;
-pub type Response = hyper::Response<hyper::Body>;
-
 const USER_AGENT: &str = "mullvad-app";
 
 const API_IP_CHECK_INITIAL: Duration = Duration::from_secs(15 * 60);
@@ -227,8 +224,8 @@ impl<
 
     fn handle_new_request(
         &mut self,
-        request: RestRequest,
-        completion_tx: oneshot::Sender<Result<Response>>,
+        request: Request,
+        completion_tx: oneshot::Sender<Result<hyper::Response<hyper::Body>>>,
     ) {
         let tx = self.command_tx.upgrade();
 
@@ -276,7 +273,7 @@ impl RequestServiceHandle {
     }
 
     /// Submits a `RestRequest` for execution to the request service.
-    pub async fn request(&self, request: RestRequest) -> Result<Response> {
+    pub async fn request(&self, request: Request) -> Result<hyper::Response<hyper::Body>> {
         let (completion_tx, completion_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RequestCommand::NewRequest(request, completion_tx))
@@ -297,8 +294,8 @@ impl RequestServiceHandle {
 #[derive(Debug)]
 pub(crate) enum RequestCommand {
     NewRequest(
-        RestRequest,
-        oneshot::Sender<std::result::Result<Response, Error>>,
+        Request,
+        oneshot::Sender<std::result::Result<hyper::Response<hyper::Body>, Error>>,
     ),
     Reset,
     NextApiConfig(oneshot::Sender<std::result::Result<(), Error>>),
@@ -306,7 +303,7 @@ pub(crate) enum RequestCommand {
 
 /// A REST request that is sent to the RequestService to be executed.
 #[derive(Debug)]
-pub struct RestRequest {
+pub struct Request {
     request: hyper::Request<hyper::Body>,
     timeout: Duration,
     access_token_store: Option<AccessTokenStore>,
@@ -314,7 +311,7 @@ pub struct RestRequest {
     expected_status: &'static [hyper::StatusCode],
 }
 
-impl RestRequest {
+impl Request {
     /// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
     pub fn get(uri: &str) -> Result<Self> {
         let uri = hyper::Uri::from_str(uri).map_err(|_| Error::InvalidUri)?;
@@ -378,7 +375,7 @@ impl RestRequest {
     async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
         mut self,
         hyper_client: hyper::Client<C>,
-    ) -> Result<Response> {
+    ) -> Result<hyper::Response<hyper::Body>> {
         // Obtain access token first
         if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
             let access_token = store.get_token(account).await?;
@@ -465,34 +462,34 @@ impl RequestFactory {
         }
     }
 
-    pub fn request(&self, path: &str, method: Method) -> Result<RestRequest> {
+    pub fn request(&self, path: &str, method: Method) -> Result<Request> {
         Ok(
-            RestRequest::new(self.hyper_request(path, method)?, self.token_store.clone())
+            Request::new(self.hyper_request(path, method)?, self.token_store.clone())
                 .timeout(self.timeout),
         )
     }
 
-    pub fn get(&self, path: &str) -> Result<RestRequest> {
+    pub fn get(&self, path: &str) -> Result<Request> {
         self.request(path, Method::GET)
     }
 
-    pub fn post(&self, path: &str) -> Result<RestRequest> {
+    pub fn post(&self, path: &str) -> Result<Request> {
         self.request(path, Method::POST)
     }
 
-    pub fn put(&self, path: &str) -> Result<RestRequest> {
+    pub fn put(&self, path: &str) -> Result<Request> {
         self.request(path, Method::PUT)
     }
 
-    pub fn delete(&self, path: &str) -> Result<RestRequest> {
+    pub fn delete(&self, path: &str) -> Result<Request> {
         self.request(path, Method::DELETE)
     }
 
-    pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<RestRequest> {
+    pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<Request> {
         self.json_request(Method::POST, path, body)
     }
 
-    pub fn put_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<RestRequest> {
+    pub fn put_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<Request> {
         self.json_request(Method::PUT, path, body)
     }
 
@@ -501,7 +498,7 @@ impl RequestFactory {
         method: Method,
         path: &str,
         body: &S,
-    ) -> Result<RestRequest> {
+    ) -> Result<Request> {
         let mut request = self.hyper_request(path, method)?;
 
         let json_body = serde_json::to_string(&body)?;
@@ -519,7 +516,7 @@ impl RequestFactory {
             HeaderValue::from_static("application/json"),
         );
 
-        Ok(RestRequest::new(request, self.token_store.clone()).timeout(self.timeout))
+        Ok(Request::new(request, self.token_store.clone()).timeout(self.timeout))
     }
 
     fn hyper_request(&self, path: &str, method: Method) -> Result<hyper::Request<hyper::Body>> {
@@ -542,13 +539,15 @@ impl RequestFactory {
     }
 }
 
-pub async fn deserialize_body<T: serde::de::DeserializeOwned>(response: Response) -> Result<T> {
+pub async fn deserialize_body<T: serde::de::DeserializeOwned>(
+    response: hyper::Response<hyper::Body>,
+) -> Result<T> {
     let body_length = get_body_length(&response);
     deserialize_body_inner(response, body_length).await
 }
 
 async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
-    mut response: Response,
+    mut response: hyper::Response<hyper::Body>,
     body_length: usize,
 ) -> Result<T> {
     let mut body: Vec<u8> = Vec::with_capacity(body_length);
@@ -559,7 +558,7 @@ async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
     serde_json::from_slice(&body).map_err(Error::from)
 }
 
-fn get_body_length(response: &Response) -> usize {
+fn get_body_length(response: &hyper::Response<hyper::Body>) -> usize {
     response
         .headers()
         .get(header::CONTENT_LENGTH)
@@ -568,7 +567,7 @@ fn get_body_length(response: &Response) -> usize {
         .unwrap_or(0)
 }
 
-async fn handle_error_response<T>(response: Response) -> Result<T> {
+async fn handle_error_response<T>(response: hyper::Response<hyper::Body>) -> Result<T> {
     let status = response.status();
     let error_message = match status {
         hyper::StatusCode::METHOD_NOT_ALLOWED => "Method not allowed",
