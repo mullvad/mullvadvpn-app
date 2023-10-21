@@ -179,6 +179,5 @@ async fn fetch_access_token(
     let rest_request = factory
         .post_json(&format!("{AUTH_URL_PREFIX}/token"), &request)?
         .expected_status(&[StatusCode::OK]);
-    let response = service.request(rest_request).await?;
-    rest::deserialize_body(response).await
+    service.request(rest_request).await?.deserialize().await
 }

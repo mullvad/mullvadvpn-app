@@ -60,11 +60,8 @@ impl RelayListProxy {
                     }
                 });
 
-            Ok(Some(
-                rest::deserialize_body::<ServerRelayList>(response)
-                    .await?
-                    .into_relay_list(etag),
-            ))
+            let relay_list: ServerRelayList = response.deserialize().await?;
+            Ok(Some(relay_list.into_relay_list(etag)))
         }
     }
 }
