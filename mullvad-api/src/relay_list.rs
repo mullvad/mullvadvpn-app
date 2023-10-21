@@ -36,19 +36,17 @@ impl RelayListProxy {
         let request = self.handle.factory.request("app/v1/relays", Method::GET);
 
         async move {
-            let mut request = request?;
-            request.set_timeout(RELAY_LIST_TIMEOUT);
+            let mut request = request?
+                .timeout(RELAY_LIST_TIMEOUT)
+                .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
 
             if let Some(ref tag) = etag {
-                request.add_header(header::IF_NONE_MATCH, tag)?;
+                request = request.header(header::IF_NONE_MATCH, tag)?;
             }
 
             let response = service.request(request).await?;
             if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
                 return Ok(None);
-            }
-            if response.status() != StatusCode::OK {
-                return rest::handle_error_response(response).await;
             }
 
             let etag = response
