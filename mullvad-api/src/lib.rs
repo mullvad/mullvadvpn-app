@@ -458,11 +458,10 @@ impl AccountsProxy {
 
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
-        let access_proxy = self.handle.token_store.clone();
 
         async move {
             let request = factory
-                .post(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"))?
+                .post_json(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"), &())?
                 .account(Some(account))?
                 .expected_status(&[StatusCode::OK]);
             let response = service.request(request).await?;
@@ -481,11 +480,13 @@ impl AccountsProxy {
     ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
-        let access_proxy = self.handle.token_store.clone();
 
         async move {
             let request = factory
-                .post(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"))?
+                .post_json(
+                    &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
+                    &play_purchase,
+                )?
                 .account(Some(account))?
                 .expected_status(&[StatusCode::ACCEPTED]);
             service.request(request).await?;
