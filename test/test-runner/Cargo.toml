@@ -27,7 +27,7 @@ talpid-platform-metadata = { path = "../../talpid-platform-metadata" }
 socket2 = { version = "0.5", features = ["all"] }
 
 [target."cfg(target_os=\"windows\")".dependencies]
-talpid-windows-net = { path = "../../talpid-windows-net" }
+talpid-windows = { path = "../../talpid-windows" }
 
 windows-service = "0.6"
 winreg = "0.50"

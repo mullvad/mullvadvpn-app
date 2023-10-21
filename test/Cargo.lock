@@ -3040,7 +3040,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "talpid-windows-net"
+name = "talpid-windows"
 version = "0.0.0"
 dependencies = [
  "err-derive",
@@ -3196,7 +3196,7 @@ dependencies = [
  "serde_json",
  "socket2 0.5.4",
  "talpid-platform-metadata",
- "talpid-windows-net",
+ "talpid-windows",
  "tarpc",
  "test-rpc",
  "tokio",

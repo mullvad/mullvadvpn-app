@@ -181,8 +181,8 @@ pub async fn send_ping(
     #[cfg(target_os = "windows")]
     if let Some(interface) = interface {
         let family = match destination {
-            IpAddr::V4(_) => talpid_windows_net::AddressFamily::Ipv4,
-            IpAddr::V6(_) => talpid_windows_net::AddressFamily::Ipv6,
+            IpAddr::V4(_) => talpid_windows::net::AddressFamily::Ipv4,
+            IpAddr::V6(_) => talpid_windows::net::AddressFamily::Ipv6,
         };
         source_ip = get_interface_ip_for_family(interface, family)
             .map_err(|_error| test_rpc::Error::Syscall)?;
@@ -285,7 +285,7 @@ pub fn get_interface_name(interface: Interface) -> &'static str {
 pub fn get_interface_ip(interface: Interface) -> Result<IpAddr, test_rpc::Error> {
     // TODO: IPv6
 
-    get_interface_ip_for_family(interface, talpid_windows_net::AddressFamily::Ipv4)
+    get_interface_ip_for_family(interface, talpid_windows::net::AddressFamily::Ipv4)
         .map_err(|_error| test_rpc::Error::Syscall)?
         .ok_or(test_rpc::Error::InterfaceNotFound)
 }
@@ -293,17 +293,17 @@ pub fn get_interface_ip(interface: Interface) -> Result<IpAddr, test_rpc::Error>
 #[cfg(target_os = "windows")]
 fn get_interface_ip_for_family(
     interface: Interface,
-    family: talpid_windows_net::AddressFamily,
+    family: talpid_windows::net::AddressFamily,
 ) -> Result<Option<IpAddr>, ()> {
     let interface = match interface {
         Interface::NonTunnel => non_tunnel_interface(),
         Interface::Tunnel => TUNNEL_INTERFACE,
     };
-    let interface_alias = talpid_windows_net::luid_from_alias(interface).map_err(|error| {
+    let interface_alias = talpid_windows::net::luid_from_alias(interface).map_err(|error| {
         log::error!("Failed to obtain interface LUID: {error}");
     })?;
 
-    talpid_windows_net::get_ip_address_for_interface(family, interface_alias).map_err(|error| {
+    talpid_windows::net::get_ip_address_for_interface(family, interface_alias).map_err(|error| {
         log::error!("Failed to obtain interface IP: {error}");
     })
 }
