@@ -225,7 +225,7 @@ impl<
     fn handle_new_request(
         &mut self,
         request: Request,
-        completion_tx: oneshot::Sender<Result<hyper::Response<hyper::Body>>>,
+        completion_tx: oneshot::Sender<Result<Response>>,
     ) {
         let tx = self.command_tx.upgrade();
 
@@ -273,7 +273,7 @@ impl RequestServiceHandle {
     }
 
     /// Submits a `RestRequest` for execution to the request service.
-    pub async fn request(&self, request: Request) -> Result<hyper::Response<hyper::Body>> {
+    pub async fn request(&self, request: Request) -> Result<Response> {
         let (completion_tx, completion_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RequestCommand::NewRequest(request, completion_tx))
@@ -295,7 +295,7 @@ impl RequestServiceHandle {
 pub(crate) enum RequestCommand {
     NewRequest(
         Request,
-        oneshot::Sender<std::result::Result<hyper::Response<hyper::Body>, Error>>,
+        oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     Reset,
     NextApiConfig(oneshot::Sender<std::result::Result<(), Error>>),
@@ -375,7 +375,7 @@ impl Request {
     async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
         mut self,
         hyper_client: hyper::Client<C>,
-    ) -> Result<hyper::Response<hyper::Body>> {
+    ) -> Result<Response> {
         // Obtain access token first
         if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
             let access_token = store.get_token(account).await?;
@@ -419,12 +419,37 @@ impl Request {
             }
         }
 
-        Ok(response)
+        Ok(Response::new(response))
     }
 
     /// Returns the URI of the request
     pub fn uri(&self) -> &Uri {
         self.request.uri()
+    }
+}
+
+/// Successful result of a REST request
+#[derive(Debug)]
+pub struct Response {
+    response: hyper::Response<hyper::Body>,
+}
+
+impl Response {
+    fn new(response: hyper::Response<hyper::Body>) -> Self {
+        Self { response }
+    }
+
+    pub fn status(&self) -> StatusCode {
+        self.response.status()
+    }
+
+    pub fn headers(&self) -> &hyper::HeaderMap<HeaderValue> {
+        self.response.headers()
+    }
+
+    pub async fn deserialize<T: serde::de::DeserializeOwned>(self) -> Result<T> {
+        let body_length = get_body_length(&self.response);
+        deserialize_body_inner(self.response, body_length).await
     }
 }
 
@@ -539,25 +564,6 @@ impl RequestFactory {
     }
 }
 
-pub async fn deserialize_body<T: serde::de::DeserializeOwned>(
-    response: hyper::Response<hyper::Body>,
-) -> Result<T> {
-    let body_length = get_body_length(&response);
-    deserialize_body_inner(response, body_length).await
-}
-
-async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
-    mut response: hyper::Response<hyper::Body>,
-    body_length: usize,
-) -> Result<T> {
-    let mut body: Vec<u8> = Vec::with_capacity(body_length);
-    while let Some(chunk) = response.body_mut().next().await {
-        body.extend(&chunk?);
-    }
-
-    serde_json::from_slice(&body).map_err(Error::from)
-}
-
 fn get_body_length(response: &hyper::Response<hyper::Body>) -> usize {
     response
         .headers()
@@ -599,6 +605,18 @@ async fn handle_error_response<T>(response: hyper::Response<hyper::Body>) -> Res
         },
     };
     Err(Error::ApiError(status, error_message.to_owned()))
+}
+
+async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
+    mut response: hyper::Response<hyper::Body>,
+    body_length: usize,
+) -> Result<T> {
+    let mut body: Vec<u8> = Vec::with_capacity(body_length);
+    while let Some(chunk) = response.body_mut().next().await {
+        body.extend(&chunk?);
+    }
+
+    serde_json::from_slice(&body).map_err(Error::from)
 }
 
 #[derive(Clone)]

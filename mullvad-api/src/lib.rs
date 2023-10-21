@@ -398,9 +398,8 @@ impl AccountsProxy {
                 .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?;
-            let response = service.request(request).await;
-
-            let account: AccountExpiryResponse = rest::deserialize_body(response?).await?;
+            let response = service.request(request).await?;
+            let account: AccountExpiryResponse = response.deserialize().await?;
             Ok(account.expiry)
         }
     }
@@ -419,7 +418,7 @@ impl AccountsProxy {
                 .post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"))?
                 .expected_status(&[StatusCode::CREATED]);
             let response = service.request(request).await?;
-            let account: AccountCreationResponse = rest::deserialize_body(response).await?;
+            let account: AccountCreationResponse = response.deserialize().await?;
             Ok(account.number)
         }
     }
@@ -443,8 +442,7 @@ impl AccountsProxy {
                 .post_json(&format!("{APP_URL_PREFIX}/submit-voucher"), &submission)?
                 .account(account)?
                 .expected_status(&[StatusCode::OK]);
-            let response = service.request(request).await?;
-            rest::deserialize_body(response).await
+            service.request(request).await?.deserialize().await
         }
     }
 
@@ -468,8 +466,7 @@ impl AccountsProxy {
                 .expected_status(&[StatusCode::OK]);
             let response = service.request(request).await?;
 
-            let PlayPurchaseInitResponse { obfuscated_id } =
-                rest::deserialize_body(response).await?;
+            let PlayPurchaseInitResponse { obfuscated_id } = response.deserialize().await?;
 
             Ok(obfuscated_id)
         }
@@ -515,7 +512,7 @@ impl AccountsProxy {
                 .account(account)?
                 .expected_status(&[StatusCode::OK]);
             let response = service.request(request).await?;
-            let response: AuthTokenResponse = rest::deserialize_body(response).await?;
+            let response: AuthTokenResponse = response.deserialize().await?;
             Ok(response.auth_token)
         }
     }
@@ -599,7 +596,7 @@ impl AppVersionProxy {
                 .expected_status(&[StatusCode::OK])
                 .header("M-Platform-Version", &platform_version)?;
             let response = service.request(request).await?;
-            rest::deserialize_body(response).await
+            response.deserialize().await
         }
     }
 }
@@ -621,6 +618,6 @@ impl ApiProxy {
             .get(&format!("{APP_URL_PREFIX}/api-addrs"))?
             .expected_status(&[StatusCode::OK]);
         let response = self.handle.service.request(request).await?;
-        rest::deserialize_body(response).await
+        response.deserialize().await
     }
 }

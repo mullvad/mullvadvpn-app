@@ -57,9 +57,7 @@ impl DevicesProxy {
                 .post_json(&format!("{ACCOUNTS_URL_PREFIX}/devices"), &submission)?
                 .account(account)?
                 .expected_status(&[StatusCode::CREATED]);
-            let response = service.request(request).await;
-
-            let response: DeviceResponse = rest::deserialize_body(response?).await?;
+            let response = service.request(request).await?;
             let DeviceResponse {
                 id,
                 name,
@@ -69,7 +67,7 @@ impl DevicesProxy {
                 hijack_dns,
                 created,
                 ..
-            } = response;
+            } = response.deserialize().await?;
 
             Ok((
                 Device {
@@ -99,9 +97,7 @@ impl DevicesProxy {
                 .get(&format!("{ACCOUNTS_URL_PREFIX}/devices/{id}"))?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?;
-            let response = service.request(request).await?;
-            let device = rest::deserialize_body(response).await?;
-            Ok(device)
+            service.request(request).await?.deserialize().await
         }
     }
 
@@ -116,9 +112,7 @@ impl DevicesProxy {
                 .get(&format!("{ACCOUNTS_URL_PREFIX}/device"))?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?;
-            let response = service.request(request).await?;
-            let devices = rest::deserialize_body(response).await?;
-            Ok(devices)
+            service.request(request).await?.deserialize().await
         }
     }
 
@@ -164,13 +158,11 @@ impl DevicesProxy {
                 .expected_status(&[StatusCode::OK])
                 .account(account)?;
             let response = service.request(request).await?;
-
-            let updated_device: DeviceResponse = rest::deserialize_body(response).await?;
             let DeviceResponse {
                 ipv4_address,
                 ipv6_address,
                 ..
-            } = updated_device;
+            } = response.deserialize().await?;
             Ok(mullvad_types::wireguard::AssociatedAddresses {
                 ipv4_address,
                 ipv6_address,

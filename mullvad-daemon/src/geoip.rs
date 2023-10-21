@@ -84,8 +84,7 @@ async fn send_location_request_internal(
 ) -> Result<AmIMullvad, Error> {
     let future_service = service.clone();
     let request = mullvad_api::rest::Request::get(uri)?;
-    let response = future_service.request(request).await?;
-    mullvad_api::rest::deserialize_body(response).await
+    future_service.request(request).await?.deserialize().await
 }
 
 fn log_network_error(err: Error, version: &'static str) {
