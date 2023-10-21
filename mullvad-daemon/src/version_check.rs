@@ -150,7 +150,7 @@ impl VersionUpdater {
         last_app_version_info: Option<AppVersionInfo>,
         show_beta_releases: bool,
     ) -> (Self, VersionUpdaterHandle) {
-        api_handle.factory.timeout = DOWNLOAD_TIMEOUT;
+        api_handle.factory = api_handle.factory.default_timeout(DOWNLOAD_TIMEOUT);
         let version_proxy = AppVersionProxy::new(api_handle);
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         let (tx, rx) = mpsc::channel(1);
