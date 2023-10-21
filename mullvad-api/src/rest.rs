@@ -178,7 +178,7 @@ impl<
     async fn process_command(&mut self, command: RequestCommand) {
         match command {
             RequestCommand::NewRequest(request, completion_tx) => {
-                self.handle_new_request(request, completion_tx).await;
+                self.handle_new_request(request, completion_tx);
             }
             RequestCommand::Reset => {
                 self.connector_handle.reset();
@@ -207,7 +207,7 @@ impl<
         }
     }
 
-    async fn handle_new_request(
+    fn handle_new_request(
         &mut self,
         request: Request,
         completion_tx: oneshot::Sender<Result<Response>>,
