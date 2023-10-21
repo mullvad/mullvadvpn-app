@@ -246,9 +246,7 @@ impl<
                 }
             }
 
-            if completion_tx.send(response).is_err() {
-                log::trace!("Failed to send response to caller, caller channel is shut down");
-            }
+            let _ = completion_tx.send(response);
         });
     }
 
