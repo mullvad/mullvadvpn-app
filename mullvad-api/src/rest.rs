@@ -481,13 +481,13 @@ struct NewErrorResponse {
 
 #[derive(Clone)]
 pub struct RequestFactory {
-    hostname: String,
+    hostname: &'static str,
     token_store: Option<AccessTokenStore>,
     default_timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn new(hostname: String, token_store: Option<AccessTokenStore>) -> Self {
+    pub fn new(hostname: &'static str, token_store: Option<AccessTokenStore>) -> Self {
         Self {
             hostname,
             token_store,
@@ -564,7 +564,7 @@ impl RequestFactory {
             .uri(uri)
             .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
-            .header(header::HOST, self.hostname.clone());
+            .header(header::HOST, HeaderValue::from_static(self.hostname));
 
         let result = request.body(hyper::Body::empty())?;
         Ok(result)
