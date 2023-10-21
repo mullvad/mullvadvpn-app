@@ -403,7 +403,7 @@ impl Request {
         let response = response?;
 
         if !self.expected_status.contains(&response.status()) {
-            if self.expected_status.is_empty() {
+            if !self.expected_status.is_empty() {
                 log::error!(
                     "Unexpected HTTP status code {}, expected codes [{}]",
                     response.status(),
