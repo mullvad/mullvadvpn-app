@@ -3,6 +3,7 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+  push:
 jobs:
   e2e-test-linux:
     name: Linux end-to-end tests
