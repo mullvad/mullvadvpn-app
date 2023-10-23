@@ -48,7 +48,7 @@ const LOGOUT_TIMEOUT: Duration = Duration::from_secs(2);
 /// to set up a WireGuard tunnel.
 const WG_DEVICE_CHECK_THRESHOLD: usize = 2;
 
-#[derive(err_derive::Error, Debug)]
+#[derive(err_derive::Error, Debug, Clone)]
 pub enum Error {
     #[error(display = "The account already has a maximum number of devices")]
     MaxDevicesReached,
@@ -63,21 +63,31 @@ pub enum Error {
     #[error(display = "The voucher has already been used")]
     UsedVoucher,
     #[error(display = "Failed to read or write device cache")]
-    DeviceIoError(#[error(source)] io::Error),
+    DeviceIoError(#[error(source)] Arc<io::Error>),
     #[error(display = "Failed parse device cache")]
-    ParseDeviceCache(#[error(source)] serde_json::Error),
+    ParseDeviceCache(#[error(source)] Arc<serde_json::Error>),
     #[error(display = "Unexpected HTTP request error")]
     OtherRestError(#[error(source)] rest::Error),
     #[error(display = "The device update task is not running")]
     Cancelled,
-    /// Intended to be broadcast to requesters
-    #[error(display = "Broadcast error")]
-    ResponseFailure(#[error(source)] Arc<Error>),
     #[error(display = "Account changed during operation")]
     AccountChange,
     #[error(display = "The account manager is down")]
     AccountManagerDown,
 }
+
+macro_rules! impl_into_arc_err {
+    ($ty:ty) => {
+        impl From<$ty> for Error {
+            fn from(error: $ty) -> Self {
+                Error::from(Arc::from(error))
+            }
+        }
+    };
+}
+
+impl_into_arc_err!(io::Error);
+impl_into_arc_err!(serde_json::Error);
 
 /// Contains the current device state.
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize, PartialEq, Eq)]
@@ -272,27 +282,11 @@ impl PrivateDeviceEvent {
 
 impl Error {
     pub fn is_network_error(&self) -> bool {
-        if let Error::OtherRestError(error) = self.unpack() {
-            error.is_network_error()
-        } else {
-            false
-        }
+        matches!(self, Error::OtherRestError(error) if error.is_network_error())
     }
 
     pub fn is_aborted(&self) -> bool {
-        if let Error::OtherRestError(error) = self.unpack() {
-            error.is_aborted()
-        } else {
-            false
-        }
-    }
-
-    pub fn unpack(&self) -> &Error {
-        if let Error::ResponseFailure(ref inner) = self {
-            inner
-        } else {
-            self
-        }
+        matches!(self, Error::OtherRestError(error) if error.is_aborted())
     }
 }
 
@@ -787,10 +781,7 @@ impl AccountManager {
             }
             Err(err) => {
                 log::error!("Failed to check account expiry: {}", err);
-                let cloneable_err = Arc::new(err);
-                Self::drain_requests(&mut self.expiry_requests, || {
-                    Err(Error::ResponseFailure(cloneable_err.clone()))
-                });
+                Self::drain_requests(&mut self.expiry_requests, || Err(err.clone()));
             }
         }
     }
@@ -827,10 +818,10 @@ impl AccountManager {
                         }
                         Err(err) => {
                             log::error!("Failed to save device data to disk");
-                            let cloneable_err = Arc::new(err);
-                            Self::drain_requests(&mut self.validation_requests, || {
-                                Err(Error::ResponseFailure(cloneable_err.clone()))
-                            });
+                            Self::drain_requests(
+                                &mut self.validation_requests,
+                                || Err(err.clone()),
+                            );
                         }
                     }
                 } else {
@@ -845,10 +836,7 @@ impl AccountManager {
             }
             Err(err) => {
                 log::error!("Failed to validate device: {}", err);
-                let cloneable_err = Arc::new(err);
-                Self::drain_requests(&mut self.validation_requests, || {
-                    Err(Error::ResponseFailure(cloneable_err.clone()))
-                });
+                Self::drain_requests(&mut self.validation_requests, || Err(err.clone()));
             }
         }
 
@@ -936,13 +924,8 @@ impl AccountManager {
     }
 
     fn drain_device_requests_with_err(&mut self, err: Error) {
-        let cloneable_err = Arc::new(err);
-        Self::drain_requests(&mut self.rotation_requests, || {
-            Err(Error::ResponseFailure(cloneable_err.clone()))
-        });
-        Self::drain_requests(&mut self.validation_requests, || {
-            Err(Error::ResponseFailure(cloneable_err.clone()))
-        });
+        Self::drain_requests(&mut self.rotation_requests, || Err(err.clone()));
+        Self::drain_requests(&mut self.validation_requests, || Err(err.clone()));
     }
 
     fn drain_requests<T>(requests: &mut Vec<ResponseTx<T>>, result: impl Fn() -> Result<T, Error>) {
