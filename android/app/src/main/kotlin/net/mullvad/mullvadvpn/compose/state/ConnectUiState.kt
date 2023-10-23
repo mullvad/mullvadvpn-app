@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.state
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.talpid.net.TransportProtocol
 
 data class ConnectUiState(
@@ -13,7 +14,7 @@ data class ConnectUiState(
     val inAddress: Triple<String, Int, TransportProtocol>?,
     val outAddress: String,
     val showLocation: Boolean,
-    val connectNotificationState: ConnectNotificationState,
+    val inAppNotification: InAppNotification?,
     val isTunnelInfoExpanded: Boolean,
     val deviceName: String?,
     val daysLeftUntilExpiry: Int?
@@ -29,7 +30,7 @@ data class ConnectUiState(
                 outAddress = "",
                 showLocation = false,
                 isTunnelInfoExpanded = false,
-                connectNotificationState = ConnectNotificationState.HideNotification,
+                inAppNotification = null,
                 deviceName = null,
                 daysLeftUntilExpiry = null
             )

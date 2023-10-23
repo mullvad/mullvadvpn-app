@@ -35,9 +35,9 @@ import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.LocationInfo
-import net.mullvad.mullvadvpn.compose.component.Notification
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -83,7 +83,8 @@ fun ConnectScreen(
     onManageAccountClick: () -> Unit = {},
     onOpenOutOfTimeScreen: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onAccountClick: () -> Unit = {}
+    onAccountClick: () -> Unit = {},
+    onDismissNewDeviceClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -160,10 +161,11 @@ fun ConnectScreen(
                     .padding(bottom = Dimens.screenVerticalMargin)
                     .testTag(SCROLLABLE_COLUMN_TEST_TAG)
         ) {
-            Notification(
-                connectNotificationState = uiState.connectNotificationState,
+            NotificationBanner(
+                notification = uiState.inAppNotification,
                 onClickUpdateVersion = onUpdateVersionClick,
-                onClickShowAccount = onManageAccountClick
+                onClickShowAccount = onManageAccountClick,
+                onClickDismissNewDevice = onDismissNewDeviceClick,
             )
             Spacer(modifier = Modifier.weight(1f))
             if (

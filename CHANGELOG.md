@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate Report Problem view to compose.
 - Migrate View Logs view to compose.
 - Migrate voucher dialog to compose.
+- Add "New Device" in app notification & rework notification system
 
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.

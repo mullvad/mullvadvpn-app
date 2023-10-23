@@ -48,7 +48,8 @@ class ConnectFragment : BaseFragment() {
                     onManageAccountClick = connectViewModel::onManageAccountClick,
                     onOpenOutOfTimeScreen = ::openOutOfTimeScreen,
                     onSettingsClick = ::openSettingsView,
-                    onAccountClick = ::openAccountView
+                    onAccountClick = ::openAccountView,
+                    onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
                 )
             }
         }

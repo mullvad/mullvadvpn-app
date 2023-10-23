@@ -158,6 +158,8 @@
     </string>
     <string name="vpn_permission_error_notification_title">VPN permission error</string>
     <string name="vpn_permission_error_notification_message">Always-on VPN might be enabled for another app</string>
+    <string name="new_device_notification_title">NEW DEVICE CREATED</string>
+    <string name="new_device_notification_message"><![CDATA[Welcome, this device is now called <b>%s</b>. For more details see the info button in Account.]]></string>
     <string name="agree_and_continue">Agree and continue</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_disclaimer_body">To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\n\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device.</string>
