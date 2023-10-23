@@ -45,22 +45,14 @@ class AccountRepository(
         messageHandler
             .events<Event.AccountExpiryEvent>()
             .map { it.expiry }
-            .stateIn(
-                CoroutineScope(dispatcher),
-                SharingStarted.WhileSubscribed(),
-                AccountExpiry.Missing
-            )
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, AccountExpiry.Missing)
 
     val accountHistory: StateFlow<AccountHistory> =
         messageHandler
             .events<Event.AccountHistoryEvent>()
             .map { it.history }
             .onStart { fetchAccountHistory() }
-            .stateIn(
-                CoroutineScope(dispatcher),
-                SharingStarted.WhileSubscribed(),
-                AccountHistory.Missing
-            )
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, AccountHistory.Missing)
 
     private val loginEvents: SharedFlow<LoginResult> =
         messageHandler
