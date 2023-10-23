@@ -111,7 +111,6 @@ impl Error {
     /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.
     fn map_aborted(self) -> Self {
         if let Error::HyperError(error) = &self {
-            use std::error::Error;
             let mut source = error.source();
             while let Some(error) = source {
                 let io_error: Option<&std::io::Error> = error.downcast_ref();
