@@ -123,6 +123,7 @@ void MigrateCacheServiceUser()
 	common::fs::Mkdir(newCacheDir);
 
 	const auto localAppData = GetSystemUserLocalAppData();
+
 	const auto oldCacheDir = std::filesystem::path(localAppData).append(L"Mullvad VPN");
 
 	common::fs::ScopedNativeFileSystem nativeFileSystem;
