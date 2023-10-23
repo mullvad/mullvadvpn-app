@@ -79,33 +79,16 @@ pub async fn send_guest_probes(
     )
     .await;
 
-    let bind_addr = if let Some(interface) = interface {
-        SocketAddr::new(
-            rpc.get_interface_ip(interface)
-                .await
-                .expect("failed to obtain interface IP"),
-            0,
-        )
-    } else {
-        "0.0.0.0:0".parse().unwrap()
-    };
-
-    let send_handle = tokio::spawn(async move {
-        let tcp_rpc = rpc.clone();
-        let udp_rpc = rpc.clone();
-        tokio::spawn(async move {
-            let _ = tcp_rpc.send_tcp(interface, bind_addr, destination).await;
-        });
-        tokio::spawn(async move {
-            let _ = udp_rpc.send_udp(interface, bind_addr, destination).await;
-        });
-        ping_with_timeout(&rpc, destination.ip(), interface).await?;
-        Ok::<(), Error>(())
-    });
+    let send_handle = tokio::spawn(send_guest_probes_without_monitor(
+        rpc,
+        interface,
+        destination,
+    ));
 
     let monitor_result = pktmon.wait().await.unwrap();
 
     send_handle.abort();
+    let _ = send_handle.await;
 
     let mut result = ProbeResult::default();
 
@@ -125,6 +108,31 @@ pub async fn send_guest_probes(
     }
 
     Ok(result)
+}
+
+/// Send one probe per transport protocol to `destination` without running a packet monitor
+pub async fn send_guest_probes_without_monitor(
+    rpc: ServiceClient,
+    interface: Option<Interface>,
+    destination: SocketAddr,
+) {
+    let bind_addr = if let Some(interface) = interface {
+        SocketAddr::new(
+            rpc.get_interface_ip(interface)
+                .await
+                .expect("failed to obtain interface IP"),
+            0,
+        )
+    } else {
+        "0.0.0.0:0".parse().unwrap()
+    };
+
+    let tcp_rpc = rpc.clone();
+    let tcp_send = async move { tcp_rpc.send_tcp(interface, bind_addr, destination).await };
+    let udp_rpc = rpc.clone();
+    let udp_send = async move { udp_rpc.send_udp(interface, bind_addr, destination).await };
+    let icmp = async move { ping_with_timeout(&rpc, destination.ip(), interface).await };
+    let _ = tokio::join!(tcp_send, udp_send, icmp);
 }
 
 pub async fn ping_with_timeout(
@@ -274,11 +282,23 @@ pub async fn geoip_lookup_with_retries(rpc: &ServiceClient) -> Result<AmIMullvad
     }
 }
 
-pub struct AbortOnDrop<T>(pub tokio::task::JoinHandle<T>);
+pub struct AbortOnDrop<T>(Option<tokio::task::JoinHandle<T>>);
+
+impl<T> AbortOnDrop<T> {
+    pub fn new(inner: tokio::task::JoinHandle<T>) -> AbortOnDrop<T> {
+        AbortOnDrop(Some(inner))
+    }
+
+    pub fn into_inner(mut self) -> tokio::task::JoinHandle<T> {
+        self.0.take().unwrap()
+    }
+}
 
 impl<T> Drop for AbortOnDrop<T> {
     fn drop(&mut self) {
-        self.0.abort();
+        if let Some(task) = self.0.take() {
+            task.abort();
+        }
     }
 }
 
