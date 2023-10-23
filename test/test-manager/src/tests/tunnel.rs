@@ -5,10 +5,11 @@ use std::net::IpAddr;
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::relay_constraints::{
-    Constraint, LocationConstraint, OpenVpnConstraints, RelayConstraintsUpdate,
-    RelaySettingsUpdate, WireguardConstraints,
+    BridgeConstraints, BridgeSettings, BridgeState, Constraint, ObfuscationSettings,
+    OpenVpnConstraints, RelayConstraintsUpdate, RelaySettingsUpdate, SelectedObfuscation,
+    TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
 };
-use mullvad_types::relay_constraints::{GeographicLocationConstraint, TransportPort};
+use mullvad_types::wireguard;
 use pnet_packet::ip::IpNextHeaderProtocols;
 use talpid_types::net::{TransportProtocol, TunnelType};
 use test_macro::test_function;
@@ -133,12 +134,12 @@ pub async fn test_udp2tcp_tunnel(
     // TODO: ping a public IP on the fake network (not possible using real relay)
 
     mullvad_client
-        .set_obfuscation_settings(types::ObfuscationSettings {
-            selected_obfuscation: i32::from(
-                types::obfuscation_settings::SelectedObfuscation::Udp2tcp,
-            ),
-            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: None }),
-        })
+        .set_obfuscation_settings(types::ObfuscationSettings::from(ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+            udp2tcp: Udp2TcpObfuscationSettings {
+                port: Constraint::Any,
+            },
+        }))
         .await
         .expect("failed to enable udp2tcp");
 
@@ -222,23 +223,20 @@ pub async fn test_bridge(
     log::info!("Updating bridge settings");
 
     mullvad_client
-        .set_bridge_state(types::BridgeState {
-            state: i32::from(types::bridge_state::State::On),
-        })
+        .set_bridge_state(types::BridgeState::from(BridgeState::On))
         .await
         .expect("failed to enable bridge mode");
 
     mullvad_client
-        .set_bridge_settings(types::BridgeSettings {
-            r#type: Some(types::bridge_settings::Type::Normal(
-                types::bridge_settings::BridgeConstraints {
-                    location: helpers::into_locationconstraint(&entry)
-                        .map(types::LocationConstraint::from),
-                    providers: vec![],
-                    ownership: i32::from(types::Ownership::Any),
-                },
-            )),
-        })
+        .set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Normal(
+            BridgeConstraints {
+                location: helpers::into_constraint(&entry).expect(&format!(
+                    "Could not resolve location constraint: {:?}",
+                    entry
+                )),
+                ..Default::default()
+            },
+        )))
         .await
         .expect("failed to update bridge settings");
 
@@ -468,9 +466,9 @@ pub async fn test_quantum_resistant_tunnel(
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
     mullvad_client
-        .set_quantum_resistant_tunnel(types::QuantumResistantState {
-            state: i32::from(types::quantum_resistant_state::State::Off),
-        })
+        .set_quantum_resistant_tunnel(types::QuantumResistantState::from(
+            wireguard::QuantumResistantState::Off,
+        ))
         .await
         .expect("Failed to disable PQ tunnels");
 
@@ -487,15 +485,14 @@ pub async fn test_quantum_resistant_tunnel(
         tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
         ..Default::default()
     });
-
     update_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("Failed to update relay settings");
 
     mullvad_client
-        .set_quantum_resistant_tunnel(types::QuantumResistantState {
-            state: i32::from(types::quantum_resistant_state::State::On),
-        })
+        .set_quantum_resistant_tunnel(types::QuantumResistantState::from(
+            wireguard::QuantumResistantState::On,
+        ))
         .await
         .expect("Failed to enable PQ tunnels");
 
@@ -549,13 +546,9 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
-    use mullvad_types::{
-        relay_constraints::{ObfuscationSettings, SelectedObfuscation, Udp2TcpObfuscationSettings},
-        wireguard::QuantumResistantState,
-    };
     mullvad_client
         .set_quantum_resistant_tunnel(types::QuantumResistantState::from(
-            QuantumResistantState::On,
+            wireguard::QuantumResistantState::On,
         ))
         .await
         .expect("Failed to enable PQ tunnels");

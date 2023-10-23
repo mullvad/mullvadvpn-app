@@ -4,8 +4,8 @@ use futures::StreamExt;
 use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::{
     relay_constraints::{
-        Constraint, GeographicLocationConstraint, LocationConstraint, OpenVpnConstraints,
-        RelayConstraintsUpdate, RelaySettingsUpdate, WireguardConstraints,
+        BridgeState, Constraint, GeographicLocationConstraint, LocationConstraint,
+        ObfuscationSettings, RelayConstraintsUpdate, RelaySettingsUpdate,
     },
     states::TunnelState,
 };
