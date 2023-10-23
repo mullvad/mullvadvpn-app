@@ -33,6 +33,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/mullvadvpn/model/LocationConstraint$Location",
     "net/mullvad/mullvadvpn/model/LocationConstraint$CustomList",
     "net/mullvad/mullvadvpn/model/ObfuscationSettings",
+    "net/mullvad/mullvadvpn/model/Ownership",
     "net/mullvad/mullvadvpn/model/PlayPurchase",
     "net/mullvad/mullvadvpn/model/PlayPurchaseInitError",
     "net/mullvad/mullvadvpn/model/PlayPurchaseInitResult",

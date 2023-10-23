@@ -97,7 +97,11 @@ class RelayListListener(
             relaySettings =
                 newRelaySettings
                     ?: RelaySettings.Normal(
-                        RelayConstraints(Constraint.Any(), WireguardConstraints(Constraint.Any()))
+                        RelayConstraints(
+                            location = Constraint.Any(),
+                            ownership = Constraint.Any(),
+                            wireguardConstraints = WireguardConstraints(Constraint.Any()),
+                        )
                     )
 
             if (relayCountries != null) {

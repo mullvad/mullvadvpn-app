@@ -95,7 +95,13 @@ class RelayListListener(endpoint: ServiceEndpoint) {
         val wireguardConstraints: WireguardConstraints? = selectedWireguardConstraints
 
         val update =
-            RelaySettingsUpdate.Normal(RelayConstraintsUpdate(location, wireguardConstraints))
+            RelaySettingsUpdate.Normal(
+                RelayConstraintsUpdate(
+                    location = location,
+                    wireguardConstraints = wireguardConstraints,
+                    ownership = Constraint.Any()
+                )
+            )
 
         daemon.await().updateRelaySettings(update)
     }
