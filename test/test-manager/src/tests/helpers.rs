@@ -319,20 +319,24 @@ impl<T> Drop for AbortOnDrop<T> {
 }
 
 /// Disconnect and reset all relay, bridge, and obfuscation settings.
+///
+/// See [`mullvad_types::relay_constraints::RelayConstraintsUpdate`] for details, but in short:
+/// * Location constraint is [`Constraint::Any`]
+/// * Provider constraint is [`Constraint::Any`]
+/// * Ownership constraint is [`Constraint::Any`]
+/// * The default tunnel protocol is [`talpid_types::net::TunnelType::Wireguard`]
+/// * Wireguard settings are default (i.e. any port is used, no obfuscation ..)
+///   see [`mullvad_types::relay_constraints::WireguardConstraints`] for details.
+/// * OpenVPN settings are default (i.e. any port is used, no obfuscation ..)
+///   see [`mullvad_types::relay_constraints::OpenVpnConstraints`] for details.
 pub async fn reset_relay_settings(
     mullvad_client: &mut ManagementServiceClient,
 ) -> Result<(), Error> {
     disconnect_and_wait(mullvad_client).await?;
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Only(LocationConstraint::Location(
-            GeographicLocationConstraint::Country("se".to_string()),
-        ))),
-        tunnel_protocol: Some(Constraint::Any),
-        openvpn_constraints: Some(OpenVpnConstraints::default()),
-        wireguard_constraints: Some(WireguardConstraints::default()),
-        ..Default::default()
-    });
+    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate::default());
+    let bridge_state = BridgeState::Auto;
+    let obfuscation_settings = ObfuscationSettings::default();
 
     update_relay_settings(mullvad_client, relay_settings)
         .await
@@ -341,20 +345,16 @@ pub async fn reset_relay_settings(
         })?;
 
     mullvad_client
-        .set_bridge_state(types::BridgeState {
-            state: i32::from(types::bridge_state::State::Auto),
-        })
+        .set_bridge_state(types::BridgeState::from(bridge_state))
         .await
         .map_err(|error| Error::DaemonError(format!("Failed to reset bridge mode: {}", error)))?;
 
     mullvad_client
-        .set_obfuscation_settings(types::ObfuscationSettings {
-            selected_obfuscation: i32::from(types::obfuscation_settings::SelectedObfuscation::Off),
-            udp2tcp: Some(types::Udp2TcpObfuscationSettings { port: None }),
-        })
+        .set_obfuscation_settings(types::ObfuscationSettings::from(obfuscation_settings))
         .await
-        .map(|_| ())
-        .map_err(|error| Error::DaemonError(format!("Failed to reset obfuscation: {}", error)))
+        .map_err(|error| Error::DaemonError(format!("Failed to reset obfuscation: {}", error)))?;
+
+    Ok(())
 }
 
 pub async fn update_relay_settings(
