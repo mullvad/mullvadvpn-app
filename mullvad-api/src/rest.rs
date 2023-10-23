@@ -377,7 +377,6 @@ impl Request {
         // Obtain access token first
         if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
             let access_token = store.get_token(account).await?;
-            // TODO: Validity could be asserted at compile-time
             let auth = HeaderValue::from_str(&format!("Bearer {access_token}"))
                 .map_err(|_| Error::InvalidHeaderError)?;
             self.request
