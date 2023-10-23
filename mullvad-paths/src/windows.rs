@@ -1,5 +1,11 @@
+use crate::{Result, Error};
 use once_cell::sync::OnceCell;
-use std::{io, mem, path::PathBuf, ptr};
+use std::{
+    io, mem,
+    os::windows::prelude::OsStrExt,
+    path::{Path, PathBuf},
+    ptr,
+};
 use widestring::{WideCStr, WideCString};
 use windows_sys::{
     core::{GUID, PWSTR},
@@ -9,15 +15,21 @@ use windows_sys::{
             INVALID_HANDLE_VALUE, LUID, S_OK,
         },
         Security::{
-            AdjustTokenPrivileges, CreateWellKnownSid, EqualSid, GetTokenInformation,
-            ImpersonateSelf, LookupPrivilegeValueW, RevertToSelf, SecurityImpersonation, TokenUser,
-            WinLocalSystemSid, LUID_AND_ATTRIBUTES, SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES,
-            TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER,
+            self, AdjustTokenPrivileges,
+            Authorization::{
+                ConvertStringSecurityDescriptorToSecurityDescriptorW, SDDL_REVISION_1,
+            },
+            CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
+            IsValidSecurityDescriptor, LookupPrivilegeValueW, RevertToSelf, SecurityImpersonation,
+            SetFileSecurityW, TokenUser, WinLocalSystemSid, LUID_AND_ATTRIBUTES,
+            SECURITY_ATTRIBUTES, SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE,
+            TOKEN_IMPERSONATE, TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER,
         },
-        Storage::FileSystem::MAX_SID_SIZE,
+        Storage::FileSystem::{CreateDirectoryW, MAX_SID_SIZE},
         System::{
             Com::CoTaskMemFree,
             ProcessStatus::EnumProcesses,
+            Memory::LocalFree,
             Threading::{
                 GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken,
                 PROCESS_QUERY_INFORMATION,
@@ -29,7 +41,15 @@ use windows_sys::{
     },
 };
 
+// SAFETY: Only allowed to hold a SECURITY_ATTRIBUTES which points to an allocated and valid `lpSecurityDescriptor`
+pub struct SecurityAttributes(SECURITY_ATTRIBUTES);
 struct Handle(HANDLE);
+
+impl Drop for SecurityAttributes {
+    fn drop(&mut self) {
+        unsafe { LocalFree(self.0.lpSecurityDescriptor as isize) };
+    }
+}
 
 impl Drop for Handle {
     fn drop(&mut self) {
@@ -38,6 +58,145 @@ impl Drop for Handle {
                 CloseHandle(self.0);
             }
         }
+    }
+}
+
+/// Creates security attributes that give full access to admins and read only access to authenticated users
+pub fn create_security_attributes_with_admin_full_access_user_read_only(
+) -> Result<SecurityAttributes> {
+    let mut security_attributes = SECURITY_ATTRIBUTES {
+        nLength: u32::try_from(std::mem::size_of::<SECURITY_ATTRIBUTES>()).unwrap(),
+        lpSecurityDescriptor: ptr::null_mut(),
+        bInheritHandle: 0,
+    };
+
+    // Security Descriptor gives ownership to admin, group to admin, full-access to admin and read only access to authenticated users. OICI describes inheritance.
+    let sd: Vec<u16> = std::ffi::OsStr::new(
+        "O:S-1-5-32-544G:S-1-5-32-544D:P(A;OICI;GA;;;S-1-5-32-544)(A;OICI;GR;;;AU)",
+    )
+    .encode_wide()
+    .collect();
+
+    if 0 == unsafe {
+            ConvertStringSecurityDescriptorToSecurityDescriptorW(
+                sd.as_ptr(),
+                SDDL_REVISION_1,
+                &mut security_attributes.lpSecurityDescriptor,
+                ptr::null_mut(),
+            )
+        }
+    {
+        return Err(Error::GetSecurityAttributes(io::Error::last_os_error()));
+    }
+
+    // Guarantee that sd is dropped after pointer to sd is dropped.
+    drop(sd);
+
+    // SAFETY: `security_attributes.lpSecurityDescriptor` is now valid and allocated.
+    let security_attributes = SecurityAttributes(security_attributes);
+
+    if 0 == unsafe { IsValidSecurityDescriptor(security_attributes.0.lpSecurityDescriptor) }
+    {
+        return Err(Error::GetSecurityAttributes(io::Error::last_os_error()));
+    }
+
+    Ok(security_attributes)
+}
+
+/// Non-recursively create a directory at the given path with the given security attributes
+pub fn create_directory(
+    path: &Path,
+    security_attributes: &mut Option<SecurityAttributes>,
+) -> Result<()> {
+    // FIXME
+    //let security_attributes = &mut None;
+    let wide_path: Vec<u16> = path.as_os_str().encode_wide().collect();
+
+    let sa = security_attributes
+        .as_ref()
+        .map(|sa: &SecurityAttributes| &sa.0 as *const _)
+        .unwrap_or(ptr::null());
+
+    if ERROR_SUCCESS as i32 != unsafe { CreateDirectoryW(wide_path.as_ptr(), sa) } {
+        let err = io::Error::last_os_error();
+        if err.kind() != io::ErrorKind::AlreadyExists {
+            return Err(Error::CreateDirFailed(path.display().to_string(), err));
+        }
+    }
+
+    if let Some(security_attributes) = security_attributes {
+
+        let security_information = Security::OWNER_SECURITY_INFORMATION
+            | Security::GROUP_SECURITY_INFORMATION
+            | Security::DACL_SECURITY_INFORMATION
+            | Security::PROTECTED_DACL_SECURITY_INFORMATION;
+
+        let sd = security_attributes.0.lpSecurityDescriptor;
+
+        if ERROR_SUCCESS as i32
+            != unsafe { SetFileSecurityW(wide_path.as_ptr(), security_information, sd) }
+        {
+            return Err(Error::SetDirPermissionFailed(path.display().to_string(), io::Error::last_os_error()));
+        }
+    }
+
+    return Ok(());
+}
+
+fn write_to_file(msg: &str) {
+    let p = "C:\\Users\\ioio\\Desktop\\DUMP.txt";
+    let c = std::fs::read_to_string(p).unwrap();
+    std::fs::write(p, format!("{}\n{}", c, msg)).unwrap();
+}
+
+/// Recursively creates directories for the given path with the given security attributes
+/// only directories that do not already exist will have their permissions set.
+pub fn create_dir_recursive(
+    path: &Path,
+    permissions: &mut Option<SecurityAttributes>,
+) -> Result<()> {
+    // No directory to create
+    if path == Path::new("") {
+        return Ok(());
+    }
+
+    match create_directory(path, permissions) {
+        Ok(()) => return Ok(()),
+        // Could not find parent directory, try creating parent
+        Err(Error::CreateDirFailed(ref _path, ref e)) if e.kind() == io::ErrorKind::NotFound => (),
+        // Directory already exists
+        Err(_) if path.is_dir() => return Ok(()),
+        Err(e) => return Err(e),
+    }
+
+    match path.parent() {
+        // Create parent directory
+        Some(parent) => create_dir_recursive(parent, permissions)?,
+        None => {
+            // Reached the top of the tree but when creating directories only got NotFound for some reason
+            return Err(Error::CreateDirFailed(path.display().to_string(), io::Error::new(io::ErrorKind::Other, "reached top of directory tree but could not create directory")));
+        }
+    }
+
+    // If still can't create directory then fail
+    match create_directory(path, permissions) {
+        Ok(()) => Ok(()),
+        Err(e) => Err(e),
+    }
+}
+
+/// Recursively creates directories for the given path with permissions that give full access to admins and read only access to authenticated users.
+/// If any of the directories already exist this will not return an error, instead it will apply the permissions and if successful return Ok(()).
+pub fn create_privileged_directory(path: &Path) -> Result<()> {
+    write_to_file("Starting");
+    if let Err(e) = create_dir_recursive(
+        path,
+        &mut Some(create_security_attributes_with_admin_full_access_user_read_only()?),
+    ) {
+        write_to_file(&format!("Found an ERROR!!: {:?}", e));
+        return Err(e);
+    } else {
+        Ok(())
     }
 }
 

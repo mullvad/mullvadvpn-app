@@ -294,20 +294,7 @@ void __declspec(dllexport) NSISCALL SetLogTarget
 			FOLDERID_ProgramData));
 		logpath.append(L"Mullvad VPN");
 
-		if (FALSE == CreateDirectoryW(logpath.c_str(), nullptr))
-		{
-			if (ERROR_ALREADY_EXISTS != GetLastError())
-			{
-				std::wstringstream ss;
-
-				ss << L"Cannot create folder: "
-					<< L"\""
-					<< logpath
-					<< L"\"";
-
-				THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
-			}
-		}
+		common::fs::CreatePrivilegedDirectory(logpath);
 
 		logpath.append(logfile);
 

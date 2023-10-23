@@ -1,6 +1,11 @@
 #![deny(rust_2018_idioms)]
 
-use std::{fs, io, path::PathBuf};
+#[cfg(not(target_os = "windows"))]
+use std::fs;
+use std::{io, path::PathBuf};
+
+#[cfg(target_os = "windows")]
+use crate::windows::create_dir_recursive;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -19,6 +24,11 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Missing %ALLUSERSPROFILE% environment variable")]
     NoProgramDataDir,
+
+    #[cfg(windows)]
+    #[error(display = "Failed to create security attributes")]
+    GetSecurityAttributes(#[error(source)] io::Error),
+
 
     #[cfg(all(windows, feature = "deduce-system-service"))]
     #[error(display = "Failed to deduce system service directory")]
@@ -42,6 +52,7 @@ fn get_allusersprofile_dir() -> Result<PathBuf> {
     }
 }
 
+#[cfg(not(target_os = "windows"))]
 fn create_and_return(
     dir_fn: fn() -> Result<PathBuf>,
     permissions: Option<fs::Permissions>,
@@ -52,6 +63,16 @@ fn create_and_return(
         fs::set_permissions(&dir, permissions)
             .map_err(|e| Error::SetDirPermissionFailed(dir.display().to_string(), e))?;
     }
+    Ok(dir)
+}
+
+#[cfg(target_os = "windows")]
+fn create_and_return(
+    dir_fn: fn() -> Result<PathBuf>,
+    mut permissions: Option<crate::windows::SecurityAttributes>,
+) -> Result<PathBuf> {
+    let dir = dir_fn()?;
+    create_dir_recursive(&dir, &mut permissions)?;
     Ok(dir)
 }
 

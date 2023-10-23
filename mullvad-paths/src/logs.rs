@@ -10,7 +10,9 @@ pub fn log_dir() -> Result<PathBuf> {
     #[cfg(unix)]
     let permissions = Some(PermissionsExt::from_mode(0o755));
     #[cfg(not(unix))]
-    let permissions = None;
+    let permissions = Some(
+        crate::windows::create_security_attributes_with_admin_full_access_user_read_only()?
+    );
     crate::create_and_return(get_log_dir, permissions)
 }
 
