@@ -397,7 +397,7 @@ pub async fn test_wireguard_autoconnect(
         .await
         .expect("failed to enable auto-connect");
 
-    reboot(&mut rpc).await?;
+    helpers::reboot(&mut rpc).await?;
     rpc.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
         .await?;
 
@@ -439,7 +439,7 @@ pub async fn test_openvpn_autoconnect(
         .await
         .expect("failed to enable auto-connect");
 
-    reboot(&mut rpc).await?;
+    helpers::reboot(&mut rpc).await?;
     rpc.mullvad_daemon_wait_for_state(|state| state == ServiceStatus::Running)
         .await?;
 
@@ -449,19 +449,6 @@ pub async fn test_openvpn_autoconnect(
         matches!(state, mullvad_types::states::TunnelState::Connected { .. })
     })
     .await?;
-
-    Ok(())
-}
-
-async fn reboot(rpc: &mut ServiceClient) -> Result<(), Error> {
-    rpc.reboot().await?;
-
-    // The tunnel must be reconfigured after the virtual machine is up,
-    // or macOS refuses to assign an IP. The reasons for this are poorly understood.
-    #[cfg(target_os = "macos")]
-    crate::vm::network::macos::configure_tunnel()
-        .await
-        .map_err(|error| Error::Other(format!("Failed to recreate custom wg tun: {error}")))?;
 
     Ok(())
 }
