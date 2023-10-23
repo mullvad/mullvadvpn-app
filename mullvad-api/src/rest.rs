@@ -19,6 +19,7 @@ use hyper::{
 };
 use mullvad_types::account::AccountToken;
 use std::{
+    error::Error as StdError,
     future::Future,
     str::FromStr,
     sync::{Arc, Weak},
@@ -88,6 +89,21 @@ impl Error {
         matches!(self, Error::HyperError(_) | Error::TimeoutError)
     }
 
+    /// Return true if there was no route to the destination
+    pub fn is_offline(&self) -> bool {
+        match self {
+            Error::HyperError(error) if error.is_connect() => {
+                if let Some(cause) = error.source() {
+                    if let Some(err) = cause.downcast_ref::<std::io::Error>() {
+                        return err.raw_os_error() == Some(libc::ENETUNREACH);
+                    }
+                }
+                false
+            }
+            _ => false,
+        }
+    }
+
     pub fn is_aborted(&self) -> bool {
         matches!(self, Error::Aborted)
     }
@@ -95,7 +111,6 @@ impl Error {
     /// Returns a new instance for which `abortable_stream::Aborted` is mapped to `Self::Aborted`.
     fn map_aborted(self) -> Self {
         if let Error::HyperError(error) = &self {
-            use std::error::Error;
             let mut source = error.source();
             while let Some(error) = source {
                 let io_error: Option<&std::io::Error> = error.downcast_ref();
