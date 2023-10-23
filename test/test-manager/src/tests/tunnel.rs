@@ -48,9 +48,6 @@ pub async fn test_openvpn_tunnel(
         log::info!("Connect to {protocol} OpenVPN endpoint");
 
         let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(LocationConstraint::Location(
-                GeographicLocationConstraint::Country("se".to_string()),
-            ))),
             tunnel_protocol: Some(Constraint::Only(TunnelType::OpenVpn)),
             openvpn_constraints: Some(OpenVpnConstraints { port: constraint }),
             ..Default::default()
@@ -91,9 +88,6 @@ pub async fn test_wireguard_tunnel(
         log::info!("Connect to WireGuard endpoint on port {port}");
 
         let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(LocationConstraint::Location(
-                GeographicLocationConstraint::Country("se".to_string()),
-            ))),
             tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
             wireguard_constraints: Some(WireguardConstraints {
                 port: Constraint::Only(port),
@@ -149,11 +143,7 @@ pub async fn test_udp2tcp_tunnel(
         .expect("failed to enable udp2tcp");
 
     let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Only(LocationConstraint::Location(
-            GeographicLocationConstraint::Country("se".to_string()),
-        ))),
         tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
-        wireguard_constraints: Some(WireguardConstraints::default()),
         ..Default::default()
     });
 
@@ -394,9 +384,6 @@ pub async fn test_wireguard_autoconnect(
     log::info!("Setting tunnel protocol to WireGuard");
 
     let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Only(LocationConstraint::Location(
-            GeographicLocationConstraint::Country("se".to_string()),
-        ))),
         tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
         ..Default::default()
     });
@@ -439,9 +426,6 @@ pub async fn test_openvpn_autoconnect(
     log::info!("Setting tunnel protocol to OpenVPN");
 
     let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Only(LocationConstraint::Location(
-            GeographicLocationConstraint::Country("se".to_string()),
-        ))),
         tunnel_protocol: Some(Constraint::Only(TunnelType::OpenVpn)),
         ..Default::default()
     });
@@ -513,9 +497,6 @@ pub async fn test_quantum_resistant_tunnel(
     log::info!("Setting tunnel protocol to WireGuard");
 
     let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Only(LocationConstraint::Location(
-            GeographicLocationConstraint::Country("se".to_string()),
-        ))),
         tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
         ..Default::default()
     });
