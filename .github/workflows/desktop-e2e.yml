@@ -19,6 +19,11 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           ./test/ci-runtests.sh ${{ matrix.os }}
+      - uses: actions/upload-artifact@v3
+        if: '!cancelled()'
+        with:
+          name: ${{ matrix.os }}_report
+          path: ./test/.ci-logs/${{ matrix.os }}_report
   e2e-test-windows:
     name: Windows end-to-end tests
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
@@ -34,6 +39,11 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           ./test/ci-runtests.sh ${{ matrix.os }}
+      - uses: actions/upload-artifact@v3
+        if: '!cancelled()'
+        with:
+          name: ${{ matrix.os }}_report
+          path: ./test/.ci-logs/${{ matrix.os }}_report
   e2e-test-macos:
     name: macOS end-to-end tests
     runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
@@ -49,3 +59,33 @@ jobs:
         shell: bash -ieo pipefail {0}
         run: |
           ./test/ci-runtests.sh ${{ matrix.os }}
+      - uses: actions/upload-artifact@v3
+        if: '!cancelled()'
+        with:
+          name: ${{ matrix.os }}_report
+          path: ./test/.ci-logs/${{ matrix.os }}_report
+  compile-test-matrix:
+    name: Result matrix
+    needs: [e2e-test-linux, e2e-test-windows, e2e-test-macos]
+    if: '!cancelled()'
+    runs-on: [self-hosted, desktop-test, Linux]
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
+        with:
+          path: ./test/.ci-logs/artifacts
+      - name: Generate test result matrix
+        shell: bash -ieo pipefail {0}
+        run: |
+          cd test
+          # "Unpack" the downloaded report artifacts: https://github.com/actions/download-artifact/issues/141
+          cp ./.ci-logs/artifacts/*_report/*_report ./.ci-logs/
+          cargo run --bin test-manager format-test-reports ./.ci-logs/*_report | tee summary.html >> $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v3
+        with:
+          name: summary.html
+          path: test/summary.html
