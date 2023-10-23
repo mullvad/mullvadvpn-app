@@ -61,6 +61,7 @@ pub async fn setup_test_network() -> Result<()> {
                 Ok(_) => log::debug!("Created dummy interface"),
                 Err(error) => log::error!("Failed to create dummy interface: {error}"),
             }
+            return;
         }
         log::error!("Failed to create dummy interface: timed out");
     });
