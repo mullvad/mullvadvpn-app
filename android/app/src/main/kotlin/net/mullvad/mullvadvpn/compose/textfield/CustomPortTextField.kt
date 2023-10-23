@@ -21,7 +21,6 @@ fun CustomPortTextField(
         modifier = modifier,
         placeholderText = stringResource(id = R.string.custom_port_dialog_placeholder),
         onValueChanged = onValueChanged,
-        onFocusChange = {},
         onSubmit = onSubmit,
         isDigitsOnlyAllowed = true,
         isEnabled = true,

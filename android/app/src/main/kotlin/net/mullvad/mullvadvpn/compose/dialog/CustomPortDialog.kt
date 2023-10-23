@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
@@ -99,7 +100,7 @@ fun CustomPortDialog(
                         port.value.isNotEmpty() &&
                             allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0),
                     maxCharLength = 5,
-                    modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG)
+                    modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(Dimens.smallPadding))
                 Text(
