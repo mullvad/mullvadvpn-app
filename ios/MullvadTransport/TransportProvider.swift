@@ -82,6 +82,17 @@ public final class TransportProvider: RESTTransportProvider {
         }
     }
 
+    private func socks5() -> RESTTransport? {
+        return URLSessionSocks5Transport(
+            urlSession: urlSessionTransport.urlSession,
+            configuration: Socks5Configuration(proxyEndpoint: AnyIPEndpoint.ipv4(IPv4Endpoint(
+                ip: .loopback,
+                port: 8889
+            ))),
+            addressCache: addressCache
+        )
+    }
+
     /// Returns the last used shadowsocks configuration, otherwise a new randomized configuration.
     private func shadowsocksConfiguration() throws -> ShadowsocksConfiguration {
         // If a previous shadowsocks configuration was in cache, return it directly.
@@ -151,6 +162,8 @@ public final class TransportProvider: RESTTransportProvider {
                 currentTransport = shadowsocks()
             case .useURLSession:
                 currentTransport = urlSessionTransport
+            case .useSocks5:
+                currentTransport = socks5()
             }
         }
         return currentTransport

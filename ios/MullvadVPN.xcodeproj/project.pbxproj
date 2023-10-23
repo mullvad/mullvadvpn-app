@@ -116,6 +116,26 @@
 		585B4B8726D9098900555C4C /* TunnelStatusNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A94AE326CFD945001CB97C /* TunnelStatusNotificationProvider.swift */; };
 		585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585CA70E25F8C44600B47C62 /* UIMetrics.swift */; };
 		585E820327F3285E00939F0E /* SendStoreReceiptOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585E820227F3285E00939F0E /* SendStoreReceiptOperation.swift */; };
+		585F5A672AE68688001D9DF7 /* Socks5StatusCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A572AE6867F001D9DF7 /* Socks5StatusCode.swift */; };
+		585F5A682AE68688001D9DF7 /* Socks5ForwardingProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A582AE68680001D9DF7 /* Socks5ForwardingProxy.swift */; };
+		585F5A692AE68688001D9DF7 /* Socks5ConnectCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A592AE68680001D9DF7 /* Socks5ConnectCommand.swift */; };
+		585F5A6A2AE68688001D9DF7 /* Socks5EndpointReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A5A2AE68681001D9DF7 /* Socks5EndpointReader.swift */; };
+		585F5A6B2AE68688001D9DF7 /* Socks5Handshake.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A5B2AE68681001D9DF7 /* Socks5Handshake.swift */; };
+		585F5A6C2AE68688001D9DF7 /* Socks5Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A5C2AE68682001D9DF7 /* Socks5Command.swift */; };
+		585F5A6D2AE68688001D9DF7 /* Socks5HandshakeNegotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A5D2AE68683001D9DF7 /* Socks5HandshakeNegotiation.swift */; };
+		585F5A6E2AE68688001D9DF7 /* Socks5DataStreamHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A5E2AE68683001D9DF7 /* Socks5DataStreamHandler.swift */; };
+		585F5A6F2AE68688001D9DF7 /* Socks5Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A5F2AE68684001D9DF7 /* Socks5Error.swift */; };
+		585F5A702AE68688001D9DF7 /* Socks5Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A602AE68684001D9DF7 /* Socks5Connection.swift */; };
+		585F5A712AE68688001D9DF7 /* Socks5AddressType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A612AE68685001D9DF7 /* Socks5AddressType.swift */; };
+		585F5A722AE68688001D9DF7 /* Socks5Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A622AE68686001D9DF7 /* Socks5Constants.swift */; };
+		585F5A732AE68688001D9DF7 /* Socks5Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A632AE68686001D9DF7 /* Socks5Endpoint.swift */; };
+		585F5A742AE68688001D9DF7 /* Socks5Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A642AE68687001D9DF7 /* Socks5Authentication.swift */; };
+		585F5A752AE68688001D9DF7 /* Socks5ConnectNegotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A652AE68687001D9DF7 /* Socks5ConnectNegotiation.swift */; };
+		585F5A762AE68688001D9DF7 /* NWConnection+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A662AE68688001D9DF7 /* NWConnection+Extensions.swift */; };
+		585F5A782AE6879A001D9DF7 /* URLSessionSocks5Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A772AE6879A001D9DF7 /* URLSessionSocks5Transport.swift */; };
+		585F5A7A2AE6A523001D9DF7 /* DeferredCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A792AE6A523001D9DF7 /* DeferredCancellable.swift */; };
+		585F5A7C2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A7B2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift */; };
+		585F5A7E2AE6B62D001D9DF7 /* Socks5Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A7D2AE6B62D001D9DF7 /* Socks5Configuration.swift */; };
 		58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */; };
 		586168692976F6BD00EF8598 /* DisplayError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586168682976F6BD00EF8598 /* DisplayError.swift */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
@@ -1270,6 +1290,26 @@
 		585DA89226B0323E00B8C587 /* TunnelProviderMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProviderMessage.swift; sourceTree = "<group>"; };
 		585DA89826B0329200B8C587 /* PacketTunnelStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelStatus.swift; sourceTree = "<group>"; };
 		585E820227F3285E00939F0E /* SendStoreReceiptOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendStoreReceiptOperation.swift; sourceTree = "<group>"; };
+		585F5A572AE6867F001D9DF7 /* Socks5StatusCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5StatusCode.swift; sourceTree = "<group>"; };
+		585F5A582AE68680001D9DF7 /* Socks5ForwardingProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ForwardingProxy.swift; sourceTree = "<group>"; };
+		585F5A592AE68680001D9DF7 /* Socks5ConnectCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectCommand.swift; sourceTree = "<group>"; };
+		585F5A5A2AE68681001D9DF7 /* Socks5EndpointReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5EndpointReader.swift; sourceTree = "<group>"; };
+		585F5A5B2AE68681001D9DF7 /* Socks5Handshake.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Handshake.swift; sourceTree = "<group>"; };
+		585F5A5C2AE68682001D9DF7 /* Socks5Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Command.swift; sourceTree = "<group>"; };
+		585F5A5D2AE68683001D9DF7 /* Socks5HandshakeNegotiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5HandshakeNegotiation.swift; sourceTree = "<group>"; };
+		585F5A5E2AE68683001D9DF7 /* Socks5DataStreamHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5DataStreamHandler.swift; sourceTree = "<group>"; };
+		585F5A5F2AE68684001D9DF7 /* Socks5Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Error.swift; sourceTree = "<group>"; };
+		585F5A602AE68684001D9DF7 /* Socks5Connection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Connection.swift; sourceTree = "<group>"; };
+		585F5A612AE68685001D9DF7 /* Socks5AddressType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5AddressType.swift; sourceTree = "<group>"; };
+		585F5A622AE68686001D9DF7 /* Socks5Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Constants.swift; sourceTree = "<group>"; };
+		585F5A632AE68686001D9DF7 /* Socks5Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Endpoint.swift; sourceTree = "<group>"; };
+		585F5A642AE68687001D9DF7 /* Socks5Authentication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Authentication.swift; sourceTree = "<group>"; };
+		585F5A652AE68687001D9DF7 /* Socks5ConnectNegotiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectNegotiation.swift; sourceTree = "<group>"; };
+		585F5A662AE68688001D9DF7 /* NWConnection+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NWConnection+Extensions.swift"; sourceTree = "<group>"; };
+		585F5A772AE6879A001D9DF7 /* URLSessionSocks5Transport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionSocks5Transport.swift; sourceTree = "<group>"; };
+		585F5A792AE6A523001D9DF7 /* DeferredCancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeferredCancellable.swift; sourceTree = "<group>"; };
+		585F5A7B2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyIPEndpoint+Socks5.swift"; sourceTree = "<group>"; };
+		585F5A7D2AE6B62D001D9DF7 /* Socks5Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5Configuration.swift; sourceTree = "<group>"; };
 		58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryInAppNotificationProvider.swift; sourceTree = "<group>"; };
 		586168682976F6BD00EF8598 /* DisplayError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayError.swift; sourceTree = "<group>"; };
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
@@ -2313,6 +2353,29 @@
 			path = RelayCacheTracker;
 			sourceTree = "<group>";
 		};
+		585F5A562AE6866F001D9DF7 /* Socks5 */ = {
+			isa = PBXGroup;
+			children = (
+				585F5A662AE68688001D9DF7 /* NWConnection+Extensions.swift */,
+				585F5A612AE68685001D9DF7 /* Socks5AddressType.swift */,
+				585F5A642AE68687001D9DF7 /* Socks5Authentication.swift */,
+				585F5A5C2AE68682001D9DF7 /* Socks5Command.swift */,
+				585F5A592AE68680001D9DF7 /* Socks5ConnectCommand.swift */,
+				585F5A602AE68684001D9DF7 /* Socks5Connection.swift */,
+				585F5A652AE68687001D9DF7 /* Socks5ConnectNegotiation.swift */,
+				585F5A622AE68686001D9DF7 /* Socks5Constants.swift */,
+				585F5A5E2AE68683001D9DF7 /* Socks5DataStreamHandler.swift */,
+				585F5A632AE68686001D9DF7 /* Socks5Endpoint.swift */,
+				585F5A5A2AE68681001D9DF7 /* Socks5EndpointReader.swift */,
+				585F5A5F2AE68684001D9DF7 /* Socks5Error.swift */,
+				585F5A582AE68680001D9DF7 /* Socks5ForwardingProxy.swift */,
+				585F5A5B2AE68681001D9DF7 /* Socks5Handshake.swift */,
+				585F5A5D2AE68683001D9DF7 /* Socks5HandshakeNegotiation.swift */,
+				585F5A572AE6867F001D9DF7 /* Socks5StatusCode.swift */,
+			);
+			path = Socks5;
+			sourceTree = "<group>";
+		};
 		5864859729A0D012006C5743 /* Presentation controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -2971,14 +3034,19 @@
 		A97F1F422A1F4E1A00ECEFDE /* MullvadTransport */ = {
 			isa = PBXGroup;
 			children = (
+				585F5A7B2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift */,
+				585F5A792AE6A523001D9DF7 /* DeferredCancellable.swift */,
 				A97F1F432A1F4E1A00ECEFDE /* MullvadTransport.h */,
 				586F2BE129F6916F009E6924 /* shadowsocks.h */,
-				06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */,
-				58E0E2832A3718CE002E3420 /* URLSessionShadowsocksTransport.swift */,
-				01F1FF1B29F06124007083C3 /* ShadowsocksProxy.swift */,
-				A9D99B9F2A1F7F3A00DE27D3 /* TransportProvider.swift */,
 				A9467E872A2DCD57000DC21F /* ShadowsocksConfiguration.swift */,
 				A9467E8A2A2E0317000DC21F /* ShadowsocksConfigurationCache.swift */,
+				01F1FF1B29F06124007083C3 /* ShadowsocksProxy.swift */,
+				585F5A562AE6866F001D9DF7 /* Socks5 */,
+				A9D99B9F2A1F7F3A00DE27D3 /* TransportProvider.swift */,
+				58E0E2832A3718CE002E3420 /* URLSessionShadowsocksTransport.swift */,
+				585F5A772AE6879A001D9DF7 /* URLSessionSocks5Transport.swift */,
+				06FAE67C28F83CA50033DD93 /* URLSessionTransport.swift */,
+				585F5A7D2AE6B62D001D9DF7 /* Socks5Configuration.swift */,
 			);
 			path = MullvadTransport;
 			sourceTree = "<group>";
@@ -4650,11 +4718,31 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				585F5A7E2AE6B62D001D9DF7 /* Socks5Configuration.swift in Sources */,
+				585F5A732AE68688001D9DF7 /* Socks5Endpoint.swift in Sources */,
+				585F5A6D2AE68688001D9DF7 /* Socks5HandshakeNegotiation.swift in Sources */,
+				585F5A762AE68688001D9DF7 /* NWConnection+Extensions.swift in Sources */,
+				585F5A722AE68688001D9DF7 /* Socks5Constants.swift in Sources */,
 				5822C0052A3724A800A3A5FB /* ShadowsocksConfiguration.swift in Sources */,
+				585F5A752AE68688001D9DF7 /* Socks5ConnectNegotiation.swift in Sources */,
+				585F5A672AE68688001D9DF7 /* Socks5StatusCode.swift in Sources */,
 				A95F86B82A1F547000245DAC /* ShadowsocksProxy.swift in Sources */,
+				585F5A782AE6879A001D9DF7 /* URLSessionSocks5Transport.swift in Sources */,
+				585F5A6B2AE68688001D9DF7 /* Socks5Handshake.swift in Sources */,
+				585F5A682AE68688001D9DF7 /* Socks5ForwardingProxy.swift in Sources */,
+				585F5A7A2AE6A523001D9DF7 /* DeferredCancellable.swift in Sources */,
+				585F5A692AE68688001D9DF7 /* Socks5ConnectCommand.swift in Sources */,
 				A95F86B72A1F53BA00245DAC /* URLSessionTransport.swift in Sources */,
 				5822C0042A3724A800A3A5FB /* ShadowsocksConfigurationCache.swift in Sources */,
+				585F5A712AE68688001D9DF7 /* Socks5AddressType.swift in Sources */,
+				585F5A7C2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift in Sources */,
+				585F5A702AE68688001D9DF7 /* Socks5Connection.swift in Sources */,
+				585F5A6A2AE68688001D9DF7 /* Socks5EndpointReader.swift in Sources */,
+				585F5A6F2AE68688001D9DF7 /* Socks5Error.swift in Sources */,
+				585F5A6C2AE68688001D9DF7 /* Socks5Command.swift in Sources */,
 				A9D99BA02A1F7F3A00DE27D3 /* TransportProvider.swift in Sources */,
+				585F5A742AE68688001D9DF7 /* Socks5Authentication.swift in Sources */,
+				585F5A6E2AE68688001D9DF7 /* Socks5DataStreamHandler.swift in Sources */,
 				58E0E2842A3718CE002E3420 /* URLSessionShadowsocksTransport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
