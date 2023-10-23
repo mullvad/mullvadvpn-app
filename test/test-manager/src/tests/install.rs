@@ -1,4 +1,4 @@
-use super::helpers::{get_package_desc, ping_with_timeout, AbortOnDrop};
+use super::helpers::{get_package_desc, AbortOnDrop};
 use super::{Error, TestContext};
 
 use super::config::TEST_CONFIG;
@@ -48,7 +48,6 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> Re
 #[test_function(priority = -190)]
 pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<(), Error> {
     let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
-    let bind_addr: SocketAddr = "0.0.0.0:0".parse().unwrap();
 
     // Verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
@@ -122,11 +121,14 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     .await;
 
     let ping_rpc = rpc.clone();
-    let abort_on_drop = AbortOnDrop(tokio::spawn(async move {
+    let probe_sender = AbortOnDrop::new(tokio::spawn(async move {
         loop {
-            let _ = ping_rpc.send_tcp(None, bind_addr, inet_destination).await;
-            let _ = ping_rpc.send_udp(None, bind_addr, inet_destination).await;
-            let _ = ping_with_timeout(&ping_rpc, inet_destination.ip(), None).await;
+            super::helpers::send_guest_probes_without_monitor(
+                ping_rpc.clone(),
+                None,
+                inet_destination,
+            )
+            .await;
             tokio::time::sleep(Duration::from_secs(1)).await;
         }
     }));
@@ -147,7 +149,10 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     //
     // Check if any traffic was observed
     //
-    drop(abort_on_drop);
+    let probe_sender = probe_sender.into_inner();
+    probe_sender.abort();
+    let _ = probe_sender.await;
+
     let monitor_result = monitor.into_result().await.unwrap();
     assert_eq!(
         monitor_result.packets.len(),

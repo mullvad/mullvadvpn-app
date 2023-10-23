@@ -212,44 +212,50 @@ async fn leak_test_dns(
     // We should observe 2 outgoing packets to the whitelisted destination
     // on port 53, and only inside the desired interface.
 
-    spoof_packets(
-        rpc,
-        Some(Interface::Tunnel),
-        tun_bind_addr,
-        whitelisted_dest,
-    );
-    spoof_packets(
-        rpc,
-        Some(Interface::NonTunnel),
-        guest_bind_addr,
-        whitelisted_dest,
-    );
-
-    spoof_packets(
-        rpc,
-        Some(Interface::Tunnel),
-        tun_bind_addr,
-        blocked_dest_local,
-    );
-    spoof_packets(
-        rpc,
-        Some(Interface::NonTunnel),
-        guest_bind_addr,
-        blocked_dest_local,
-    );
-
-    spoof_packets(
-        rpc,
-        Some(Interface::Tunnel),
-        tun_bind_addr,
-        blocked_dest_public,
-    );
-    spoof_packets(
-        rpc,
-        Some(Interface::NonTunnel),
-        guest_bind_addr,
-        blocked_dest_public,
-    );
+    let rpc = rpc.clone();
+    let probes = tokio::spawn(async move {
+        tokio::join!(
+            // send to allowed dest
+            spoof_packets(
+                &rpc,
+                Some(Interface::Tunnel),
+                tun_bind_addr,
+                whitelisted_dest,
+            ),
+            spoof_packets(
+                &rpc,
+                Some(Interface::NonTunnel),
+                guest_bind_addr,
+                whitelisted_dest,
+            ),
+            // send to blocked local dest
+            spoof_packets(
+                &rpc,
+                Some(Interface::Tunnel),
+                tun_bind_addr,
+                blocked_dest_local,
+            ),
+            spoof_packets(
+                &rpc,
+                Some(Interface::NonTunnel),
+                guest_bind_addr,
+                blocked_dest_local,
+            ),
+            // send to blocked public dest
+            spoof_packets(
+                &rpc,
+                Some(Interface::Tunnel),
+                tun_bind_addr,
+                blocked_dest_public,
+            ),
+            spoof_packets(
+                &rpc,
+                Some(Interface::NonTunnel),
+                guest_bind_addr,
+                blocked_dest_public,
+            ),
+        )
+    });
 
     if use_tun {
         //
@@ -257,6 +263,10 @@ async fn leak_test_dns(
         //
 
         let tunnel_result = tunnel_monitor.wait().await.unwrap();
+
+        probes.abort();
+        let _ = probes.await;
+
         assert!(
             tunnel_result.packets.len() >= 2,
             "expected at least 2 in-tunnel packets to allowed destination only"
@@ -281,6 +291,9 @@ async fn leak_test_dns(
         );
     } else {
         let non_tunnel_result = non_tunnel_monitor.wait().await.unwrap();
+
+        probes.abort();
+        let _ = probes.await;
 
         //
         // Examine tunnel traffic
@@ -605,6 +618,7 @@ async fn run_dns_config_test<
     );
 
     handle.abort();
+    let _ = handle.await;
 
     Ok(())
 }
@@ -647,22 +661,23 @@ async fn connect_local_wg_relay(mullvad_client: &mut ManagementServiceClient) ->
     Ok(())
 }
 
-fn spoof_packets(
+async fn spoof_packets(
     rpc: &ServiceClient,
     interface: Option<Interface>,
     bind_addr: SocketAddr,
     dest: SocketAddr,
 ) {
-    let rpc1 = rpc.clone();
-    let rpc2 = rpc.clone();
-    tokio::spawn(async move {
+    let tcp_rpc = rpc.clone();
+    let tcp_send = async move {
         log::debug!("sending to {}/tcp from {}", dest, bind_addr);
-        let _ = rpc1.send_tcp(interface, bind_addr, dest).await;
-    });
-    tokio::spawn(async move {
+        let _ = tcp_rpc.send_tcp(interface, bind_addr, dest).await;
+    };
+    let udp_rpc = rpc.clone();
+    let udp_send = async move {
         log::debug!("sending to {}/udp from {}", dest, bind_addr);
-        let _ = rpc2.send_udp(interface, bind_addr, dest).await;
-    });
+        let _ = udp_rpc.send_udp(interface, bind_addr, dest).await;
+    };
+    let _ = tokio::join!(tcp_send, udp_send);
 }
 
 type ShouldContinue = bool;
