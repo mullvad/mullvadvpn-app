@@ -29,9 +29,11 @@ TEST_OS=$1
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
 OLD_APP_VERSION=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
-NEW_APP_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
-commit=$(git rev-parse HEAD^\{commit\})
-commit=${commit:0:6}
+NEW_APP_VERSION=2023.5-dev-03feae
+commit=03feae
+#NEW_APP_VERSION=$(cargo run -q --manifest-path="$APP_DIR/Cargo.toml" --bin mullvad-version)
+#commit=$(git rev-parse HEAD^\{commit\})
+#commit=${commit:0:6}
 
 TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
 
