@@ -15,6 +15,8 @@ public struct TransportStrategy: Equatable {
         case useURLSession
         /// Suggests connecting via Shadowsocks proxy
         case useShadowsocks
+        /// Suggests connecting via socks proxy
+        case useSocks5
     }
 
     /// The internal counter for suggested transports.
