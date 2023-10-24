@@ -177,9 +177,6 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     // Collect test details
     let tests: Vec<_> = inventory::iter::<crate::tests::TestMetadata>().collect();
 
-    // Add some styling to the summary.
-    println!("<head> <style> table, th, td {{ border: 1px solid black; }} </style> </head>");
-
     // Print a table
     println!("<table>");
 
