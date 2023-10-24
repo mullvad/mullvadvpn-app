@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { MacOsScrollbarVisibility } from '../../shared/ipc-schema';
 import useActions from '../lib/actionsHook';
+import { useStyledRef } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import userInterface from '../redux/userinterface/actions';
 
@@ -21,7 +22,7 @@ const StyledContainer = styled.div({
 export default function MacOsScrollbarDetection() {
   const visibility = useSelector((state) => state.userInterface.macOsScrollbarVisibility);
   const { setMacOsScrollbarVisibility } = useActions(userInterface);
-  const ref = useRef() as React.RefObject<HTMLDivElement>;
+  const ref = useStyledRef<HTMLDivElement>();
 
   useEffect(() => {
     if (visibility === MacOsScrollbarVisibility.automatic) {

@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
-import { useNormalRelaySettings } from '../../lib/utilityHooks';
+import { useNormalRelaySettings, useStyledRef } from '../../lib/utilityHooks';
 import { CustomScrollbarsRef } from '../CustomScrollbars';
 import { LocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
@@ -39,7 +39,7 @@ export function ScrollPositionContextProvider(props: ScrollPositionContextProps)
 
   const scrollPositions = useRef<Partial<Record<LocationType, ScrollPosition>>>({});
   const scrollViewRef = useRef<CustomScrollbarsRef>(null);
-  const spacePreAllocationViewRef = useRef() as React.RefObject<SpacePreAllocationView>;
+  const spacePreAllocationViewRef = useStyledRef<SpacePreAllocationView>();
   const selectedLocationRef = useRef<HTMLDivElement>(null);
 
   const saveScrollPosition = useCallback(() => {

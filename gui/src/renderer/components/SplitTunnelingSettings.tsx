@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
 
@@ -12,7 +12,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
-import { useAsyncEffect } from '../lib/utilityHooks';
+import { useAsyncEffect, useStyledRef } from '../lib/utilityHooks';
 import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -49,7 +49,7 @@ import Switch from './Switch';
 export default function SplitTunneling() {
   const { pop } = useHistory();
   const [browsing, setBrowsing] = useState(false);
-  const scrollbarsRef = useRef() as React.RefObject<CustomScrollbarsRef>;
+  const scrollbarsRef = useStyledRef<CustomScrollbarsRef>();
 
   const scrollToTop = useCallback(() => scrollbarsRef.current?.scrollToTop(true), [scrollbarsRef]);
 

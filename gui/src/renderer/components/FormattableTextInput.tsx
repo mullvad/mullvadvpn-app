@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
-import { useCombinedRefs } from '../lib/utilityHooks';
+import { useCombinedRefs, useStyledRef } from '../lib/utilityHooks';
 
 interface IFormattableTextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   allowedCharacters: string;
@@ -28,7 +28,7 @@ function FormattableTextInput(
     ...otherProps
   } = props;
 
-  const ref = useRef() as React.RefObject<HTMLInputElement>;
+  const ref = useStyledRef<HTMLInputElement>();
   const combinedRef = useCombinedRefs(ref, forwardedRef);
 
   const unformat = useCallback(
