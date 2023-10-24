@@ -41,6 +41,7 @@ data class Dimensions(
     val notificationBannerStartPadding: Dp = 16.dp,
     val notificationEndIconPadding: Dp = 4.dp,
     val notificationStatusIconSize: Dp = 10.dp,
+    val privacyPolicyBottomPadding: Dp = 120.dp, //
     val problemReportIconToTitlePadding: Dp = 60.dp,
     val progressIndicatorSize: Dp = 48.dp,
     val relayCircleSize: Dp = 16.dp,
