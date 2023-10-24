@@ -211,7 +211,7 @@ echo "* Building test runner"
 echo "**********************************"
 
 # Clean up packages. Try to keep ones that match the versions we're testing
-find "$PACKAGES_DIR/" -type f ! \( -name "*${OLD_APP_VERSION}*" -o -name "*${commit}*" \) -delete || true
+find "$PACKAGES_DIR/" -type f ! \( -name "*${OLD_APP_VERSION}_*" -o -name "*${OLD_APP_VERSION}.*" -o -name "*${commit}*" \) -delete || true
 
 function build_test_runner {
     local target=""

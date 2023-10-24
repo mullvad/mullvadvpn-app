@@ -38,10 +38,11 @@ case $TARGET in
             "${SCRIPT_DIR}/../target/$TARGET/release/test-runner" \
             "${PACKAGES_DIR}/"app-e2e-* \
             "${TEST_RUNNER_IMAGE_PATH}:/"
-        e2cp \
-            "${PACKAGES_DIR}/"*.deb \
-            "${PACKAGES_DIR}/"*.rpm \
-            "${SCRIPT_DIR}/../openvpn.ca.crt" \
+        e2cp "${PACKAGES_DIR}/"*.deb \
+            "${TEST_RUNNER_IMAGE_PATH}:/" || true
+        e2cp "${PACKAGES_DIR}/"*.rpm \
+            "${TEST_RUNNER_IMAGE_PATH}:/" || true
+        e2cp "${SCRIPT_DIR}/../openvpn.ca.crt" \
             "${TEST_RUNNER_IMAGE_PATH}:/"
         ;;
 
