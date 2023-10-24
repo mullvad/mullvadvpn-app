@@ -9,7 +9,7 @@ import { NavigationScrollbars } from './NavigationBar';
 import SearchBar from './SearchBar';
 import { HeaderTitle } from './SettingsHeader';
 
-export const StyledPageCover = styled.div({}, (props: { show: boolean }) => ({
+export const StyledPageCover = styled.div<{ $show: boolean }>((props) => ({
   position: 'absolute',
   zIndex: 2,
   top: 0,
@@ -18,7 +18,7 @@ export const StyledPageCover = styled.div({}, (props: { show: boolean }) => ({
   bottom: 0,
   backgroundColor: colors.black,
   opacity: 0.5,
-  display: props.show ? 'block' : 'none',
+  display: props.$show ? 'block' : 'none',
 }));
 
 export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
@@ -31,17 +31,21 @@ export const StyledContent = styled.div({
   flex: 1,
 });
 
-export const StyledCellButton = styled(Cell.CellButton)((props: { lookDisabled?: boolean }) => ({
-  ':not(:disabled):hover': {
-    backgroundColor: props.lookDisabled ? colors.blue : undefined,
+export const StyledCellButton = styled(Cell.CellButton)<{ $lookDisabled?: boolean }>((props) => ({
+  '&&:not(:disabled):hover': {
+    backgroundColor: props.$lookDisabled ? colors.blue : undefined,
   },
 }));
 
-const disabledApplication = (props: { lookDisabled?: boolean }) => ({
-  opacity: props.lookDisabled ? 0.6 : undefined,
+interface DisabledApplicationProps {
+  $lookDisabled?: boolean;
+}
+
+const disabledApplication = (props: DisabledApplicationProps) => ({
+  opacity: props.$lookDisabled ? 0.6 : undefined,
 });
 
-export const StyledIcon = styled(Cell.UntintedIcon)(disabledApplication, {
+export const StyledIcon = styled(Cell.UntintedIcon)<DisabledApplicationProps>(disabledApplication, {
   marginRight: '12px',
 });
 
@@ -54,11 +58,15 @@ export const StyledCellWarningIcon = styled(Cell.Icon)({
   marginRight: '3px',
 });
 
-export const StyledCellLabel = styled(Cell.Label)(disabledApplication, normalText, {
-  fontWeight: 400,
-  wordWrap: 'break-word',
-  overflow: 'hidden',
-});
+export const StyledCellLabel = styled(Cell.Label)<DisabledApplicationProps>(
+  disabledApplication,
+  normalText,
+  {
+    fontWeight: 400,
+    wordWrap: 'break-word',
+    overflow: 'hidden',
+  },
+);
 
 export const StyledIconPlaceholder = styled.div({
   width: '35px',

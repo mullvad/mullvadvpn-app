@@ -26,13 +26,13 @@ export const StyledAccountDropdownRemoveIcon = styled(ImageView)({
   marginLeft: '0px',
 });
 
-export const StyledInputSubmitIcon = styled(ImageView)((props: { visible: boolean }) => ({
+export const StyledInputSubmitIcon = styled(ImageView)<{ $visible: boolean }>((props) => ({
   flex: 0,
   borderWidth: '0px',
   width: '48px',
   alignItems: 'center',
   justifyContent: 'center',
-  opacity: props.visible ? 1 : 0,
+  opacity: props.$visible ? 1 : 0,
 }));
 
 export const StyledAccountDropdownItem = styled.li({
@@ -40,7 +40,7 @@ export const StyledAccountDropdownItem = styled.li({
   flex: 1,
   backgroundColor: colors.white60,
   cursor: 'default',
-  ':hover': {
+  '&&:hover': {
     backgroundColor: colors.white40,
   },
 });
@@ -51,7 +51,7 @@ export const StyledAccountDropdownItemButton = styled(Cell.CellButton)({
   flexDirection: 'row',
   alignItems: 'stretch',
   backgroundColor: 'transparent',
-  ':not(:disabled):hover': {
+  '&&:not(:disabled):hover': {
     backgroundColor: 'transparent',
   },
 });
@@ -75,11 +75,11 @@ export const StyledTopInfo = styled.div({
   flex: 1,
 });
 
-export const StyledFooter = styled(Footer)({}, (props: { show: boolean }) => ({
+export const StyledFooter = styled(Footer)<{ $show: boolean }>((props) => ({
   position: 'relative',
   width: '100%',
   bottom: 0,
-  transform: `translateY(${props.show ? 0 : 100}%)`,
+  transform: `translateY(${props.$show ? 0 : 100}%)`,
   backgroundColor: colors.darkBlue,
   transition: 'transform 250ms ease-in-out',
 }));
@@ -103,18 +103,18 @@ export const StyledLoginForm = styled.div({
 });
 
 interface IStyledAccountInputGroupProps {
-  editable: boolean;
-  active: boolean;
-  error: boolean;
+  $editable: boolean;
+  $active: boolean;
+  $error: boolean;
 }
 
-export const StyledAccountInputGroup = styled.form((props: IStyledAccountInputGroupProps) => ({
+export const StyledAccountInputGroup = styled.form<IStyledAccountInputGroupProps>((props) => ({
   borderWidth: '2px',
   borderStyle: 'solid',
   borderRadius: '8px',
   overflow: 'hidden',
-  borderColor: props.error ? colors.red40 : props.active ? colors.darkBlue : 'transparent',
-  opacity: props.editable ? 1 : 0.6,
+  borderColor: props.$error ? colors.red40 : props.$active ? colors.darkBlue : 'transparent',
+  opacity: props.$editable ? 1 : 0.6,
 }));
 
 export const StyledAccountInputBackdrop = styled.div({
@@ -123,14 +123,14 @@ export const StyledAccountInputBackdrop = styled.div({
   borderColor: colors.darkBlue,
 });
 
-export const StyledInputButton = styled.button((props: { visible: boolean }) => ({
+export const StyledInputButton = styled.button<{ $visible: boolean }>((props) => ({
   display: 'flex',
   flex: 0,
   borderWidth: 0,
   width: '48px',
   alignItems: 'center',
   justifyContent: 'center',
-  opacity: props.visible ? 1 : 0,
+  opacity: props.$visible ? 1 : 0,
   transition: 'opacity 250ms ease-in-out',
   backgroundColor: colors.green,
 }));
@@ -165,7 +165,7 @@ export const StyledInput = styled(FormattableTextInput)(largeText, {
   color: colors.blue,
   backgroundColor: 'transparent',
   flex: 1,
-  '::placeholder': {
+  '&&::placeholder': {
     color: colors.blue40,
   },
 });

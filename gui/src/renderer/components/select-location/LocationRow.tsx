@@ -29,15 +29,15 @@ import {
 } from './select-location-types';
 
 interface IButtonColorProps {
-  backgroundColor: string;
-  backgroundColorHover: string;
+  $backgroundColor: string;
+  $backgroundColorHover: string;
 }
 
 const buttonColor = (props: IButtonColorProps) => {
   return {
-    backgroundColor: props.backgroundColor,
-    ':not(:disabled):hover': {
-      backgroundColor: props.backgroundColorHover,
+    backgroundColor: props.$backgroundColor,
+    '&&:not(:disabled):hover': {
+      backgroundColor: props.$backgroundColorHover,
     },
   };
 };
@@ -48,10 +48,10 @@ export const StyledLocationRowContainer = styled(Cell.Container)({
   background: 'none',
 });
 
-export const StyledLocationRowButton = styled(Cell.Row)(
+export const StyledLocationRowButton = styled(Cell.Row)<IButtonColorProps & { $level: number }>(
   buttonColor,
-  (props: IButtonColorProps & { level: number }) => {
-    const paddingLeft = (props.level + 1) * 16 + 2;
+  (props) => {
+    const paddingLeft = (props.$level + 1) * 16 + 2;
 
     return {
       display: 'flex',
@@ -64,13 +64,13 @@ export const StyledLocationRowButton = styled(Cell.Row)(
   },
 );
 
-export const StyledLocationRowIcon = styled.button(buttonColor, {
+export const StyledLocationRowIcon = styled.button<IButtonColorProps>(buttonColor, {
   position: 'relative',
   alignSelf: 'stretch',
   paddingLeft: measurements.viewMargin,
   paddingRight: measurements.viewMargin,
 
-  '&::before': {
+  '&&::before': {
     content: '""',
     position: 'absolute',
     margin: 'auto',
@@ -93,26 +93,26 @@ export const StyledLocationRowLabel = styled(Cell.Label)(normalText, {
   whiteSpace: 'nowrap',
 });
 
-const StyledHoverIconButton = styled.button(
+const StyledHoverIconButton = styled.button<IButtonColorProps & { $isLast?: boolean }>(
   buttonColor,
-  (props: { isLast?: boolean } & IButtonColorProps) => ({
+  (props) => ({
     flex: 0,
     display: 'none',
     padding: '0 10px',
-    paddingRight: props.isLast ? '17px' : '10px',
+    paddingRight: props.$isLast ? '17px' : '10px',
     margin: 0,
     border: 0,
     height: measurements.rowMinHeight,
     appearance: 'none',
 
-    ':not(:disabled):hover': {
-      backgroundColor: props.backgroundColor,
+    '&&:not(:disabled):hover': {
+      backgroundColor: props.$backgroundColor,
     },
     [`${StyledLocationRowContainer}:hover &&`]: {
       display: 'block',
     },
     [`${StyledLocationRowButton}:hover ~ &&`]: {
-      backgroundColor: props.backgroundColorHover,
+      backgroundColor: props.$backgroundColorHover,
     },
   }),
 );
@@ -240,7 +240,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
           as="button"
           ref={buttonRef}
           onClick={handleClick}
-          level={props.level}
+          $level={props.level}
           disabled={props.source.disabled}
           includeMarginBottomOnLast
           {...background}>
@@ -249,7 +249,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
         </StyledLocationRowButton>
 
         {props.allowAddToCustomList ? (
-          <StyledHoverIconButton onClick={showAddToListDialog} isLast {...background}>
+          <StyledHoverIconButton onClick={showAddToListDialog} $isLast {...background}>
             <StyledHoverIcon source="icon-add" />
           </StyledHoverIconButton>
         ) : null}
@@ -258,7 +258,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
         {'customList' in props.source.location &&
         'country' in props.source.location &&
         props.level === 1 ? (
-          <StyledHoverIconButton onClick={onRemoveFromList} isLast {...background}>
+          <StyledHoverIconButton onClick={onRemoveFromList} $isLast {...background}>
             <StyledHoverIcon source="icon-remove" />
           </StyledHoverIconButton>
         ) : null}
@@ -269,7 +269,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
             <StyledHoverIconButton onClick={showEditDialog} {...background}>
               <StyledHoverIcon source="icon-edit" />
             </StyledHoverIconButton>
-            <StyledHoverIconButton onClick={onRemoveCustomList} isLast {...background}>
+            <StyledHoverIconButton onClick={onRemoveCustomList} $isLast {...background}>
               <StyledHoverIcon source="icon-close" />
             </StyledHoverIconButton>
           </>
@@ -297,7 +297,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
           onWillExpand={onWillExpand}
           onTransitionEnd={props.onTransitionEnd}
           animationDuration={150}>
-          <Cell.Group noMarginBottom>{props.children}</Cell.Group>
+          <Cell.Group $noMarginBottom>{props.children}</Cell.Group>
         </Accordion>
       )}
 
@@ -333,8 +333,8 @@ export function getButtonColor(selected: boolean, level: number, disabled?: bool
   }
 
   return {
-    backgroundColor,
-    backgroundColorHover: selected || disabled ? backgroundColor : colors.blue80,
+    $backgroundColor: backgroundColor,
+    $backgroundColorHover: selected || disabled ? backgroundColor : colors.blue80,
   };
 }
 

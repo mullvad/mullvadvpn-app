@@ -24,15 +24,15 @@ const inputTextStyles: React.CSSProperties = {
   padding: '0px',
 };
 
-const StyledInput = styled.input({}, (props: { focused: boolean; valid?: boolean }) => ({
+const StyledInput = styled.input<{ $focused: boolean; $valid?: boolean }>((props) => ({
   ...inputTextStyles,
   backgroundColor: 'transparent',
   border: 'none',
   width: '100%',
   height: '100%',
-  color: props.valid === false ? colors.red : props.focused ? colors.blue : colors.white,
-  '::placeholder': {
-    color: props.focused ? colors.blue60 : colors.white60,
+  color: props.$valid === false ? colors.red : props.$focused ? colors.blue : colors.white,
+  '&&::placeholder': {
+    color: props.$focused ? colors.blue60 : colors.white60,
   },
 }));
 
@@ -150,8 +150,8 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
           {...otherProps}
           ref={combinedRef}
           type="text"
-          valid={valid}
-          focused={isFocused}
+          $valid={valid}
+          $focused={isFocused}
           aria-invalid={!valid}
           onChange={onChange}
           onFocus={onFocus}
@@ -167,10 +167,10 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
 
 export const Input = React.memo(React.forwardRef(InputWithRef));
 
-const InputFrame = styled.div((props: { focused: boolean }) => ({
+const InputFrame = styled.div<{ $focused: boolean }>((props) => ({
   display: 'flex',
   flexGrow: 0,
-  backgroundColor: props.focused ? colors.white : 'rgba(255,255,255,0.1)',
+  backgroundColor: props.$focused ? colors.white : 'rgba(255,255,255,0.1)',
   borderRadius: '4px',
   padding: '6px 8px',
 }));
@@ -222,7 +222,7 @@ function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<
 
   return (
     <BackAction disabled={!focused} action={blur}>
-      <InputFrame focused={focused}>
+      <InputFrame $focused={focused}>
         <StyledAutoSizingTextInputContainer>
           <StyledAutoSizingTextInputWrapper>
             <Input
@@ -254,11 +254,11 @@ const StyledSubmitButton = styled.button({
   padding: '10px 0',
 });
 
-const StyledInputWrapper = styled.div(normalText, (props: { marginLeft: number }) => ({
+const StyledInputWrapper = styled.div<{ $marginLeft: number }>(normalText, (props) => ({
   position: 'relative',
   flex: 1,
   width: '171px',
-  marginLeft: props.marginLeft + 'px',
+  marginLeft: props.$marginLeft + 'px',
   lineHeight: '24px',
   minHeight: '24px',
   fontWeight: 400,
@@ -266,7 +266,7 @@ const StyledInputWrapper = styled.div(normalText, (props: { marginLeft: number }
   maxWidth: '100%',
 }));
 
-const StyledTextArea = styled.textarea(normalText, (props: { invalid?: boolean }) => ({
+const StyledTextArea = styled.textarea<{ $invalid?: boolean }>(normalText, (props) => ({
   position: 'absolute',
   top: 0,
   left: 0,
@@ -279,7 +279,7 @@ const StyledTextArea = styled.textarea(normalText, (props: { invalid?: boolean }
   fontWeight: 400,
   resize: 'none',
   padding: '10px 25px 10px 0',
-  color: props.invalid ? colors.red : 'auto',
+  color: props.$invalid ? colors.red : 'auto',
 }));
 
 const StyledInputFiller = styled.div({
@@ -366,7 +366,7 @@ export function RowInput(props: IRowInputProps) {
   return (
     <BackAction disabled={!focused} action={blur}>
       <StyledCellInputRowContainer>
-        <StyledInputWrapper marginLeft={props.paddingLeft ?? 0}>
+        <StyledInputWrapper $marginLeft={props.paddingLeft ?? 0}>
           <StyledInputFiller>{value}</StyledInputFiller>
           <StyledTextArea
             ref={textAreaRef}
@@ -374,7 +374,7 @@ export function RowInput(props: IRowInputProps) {
             onKeyDown={onKeyDown}
             rows={1}
             value={value}
-            invalid={props.invalid}
+            $invalid={props.invalid}
             onFocus={onFocus}
             onBlur={onBlur}
             placeholder={props.placeholder}

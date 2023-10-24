@@ -180,7 +180,7 @@ interface ITitleBarItemProps {
 
 export const TitleBarItem = React.memo(function TitleBarItemT(props: ITitleBarItemProps) {
   const { visible } = useContext(TitleBarItemContext);
-  return <StyledTitleBarItemLabel visible={visible}>{props.children}</StyledTitleBarItemLabel>;
+  return <StyledTitleBarItemLabel $visible={visible}>{props.children}</StyledTitleBarItemLabel>;
 });
 
 export function BackBarItem() {

@@ -11,18 +11,18 @@ const Container = styled.div({
   width: '100%',
 });
 
-const Caption = styled.span(normalText, (props: { open: boolean }) => ({
+const Caption = styled.span<{ $open: boolean }>(normalText, (props) => ({
   fontWeight: 600,
   lineHeight: '20px',
   minWidth: '0px',
-  color: props.open ? colors.white : colors.white40,
-  [Container + ':hover &']: {
+  color: props.$open ? colors.white : colors.white40,
+  [Container + ':hover &&']: {
     color: colors.white,
   },
 }));
 
 const Chevron = styled(ImageView)({
-  [Container + ':hover &']: {
+  [Container + ':hover &&']: {
     backgroundColor: colors.white,
   },
 });
@@ -37,7 +37,7 @@ interface IProps {
 export default function ConnectionPanelDisclosure(props: IProps) {
   return (
     <Container className={props.className} onClick={props.onToggle}>
-      <Caption open={props.pointsUp}>{props.children}</Caption>
+      <Caption $open={props.pointsUp}>{props.children}</Caption>
       <Chevron
         source={props.pointsUp ? 'icon-chevron-up' : 'icon-chevron-down'}
         width={22}

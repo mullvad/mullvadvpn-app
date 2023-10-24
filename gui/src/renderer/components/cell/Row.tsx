@@ -1,10 +1,17 @@
+import React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { measurements } from '../common-styles';
 import { Group } from './Group';
 
-export const Row = styled.div((props: { includeMarginBottomOnLast?: boolean }) => ({
+interface RowProps extends React.HTMLAttributes<HTMLDivElement> {
+  includeMarginBottomOnLast?: boolean;
+}
+
+export const Row = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'includeMarginBottomOnLast',
+})<RowProps>((props) => ({
   display: 'flex',
   alignItems: 'center',
   backgroundColor: colors.blue,
@@ -12,7 +19,7 @@ export const Row = styled.div((props: { includeMarginBottomOnLast?: boolean }) =
   paddingLeft: measurements.viewMargin,
   paddingRight: measurements.viewMargin,
   marginBottom: '1px',
-  [`${Group} > &:last-child`]: {
+  [`${Group} > &&:last-child`]: {
     marginBottom: props.includeMarginBottomOnLast ? '1px' : '0px',
   },
 }));

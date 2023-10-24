@@ -14,7 +14,7 @@ interface IProps {
   innerRef?: React.Ref<HTMLDivElement>;
 }
 
-const SwitchContainer = styled.div({}, (props: { disabled: boolean }) => ({
+const SwitchContainer = styled.div<{ disabled: boolean }>((props) => ({
   position: 'relative',
   width: '48px',
   height: '30px',
@@ -25,10 +25,10 @@ const SwitchContainer = styled.div({}, (props: { disabled: boolean }) => ({
   padding: '2px',
 }));
 
-const Knob = styled.div({}, (props: { isOn: boolean; disabled: boolean }) => {
-  let backgroundColor = props.isOn ? colors.green : colors.red;
+const Knob = styled.div<{ $isOn: boolean; disabled: boolean }>((props) => {
+  let backgroundColor = props.$isOn ? colors.green : colors.red;
   if (props.disabled) {
-    backgroundColor = props.isOn ? colors.green40 : colors.red40;
+    backgroundColor = props.$isOn ? colors.green40 : colors.red40;
   }
 
   return {
@@ -40,7 +40,7 @@ const Knob = styled.div({}, (props: { isOn: boolean; disabled: boolean }) => {
     backgroundColor,
     // When enabled the button should be placed all the way to the right (100%) minus padding (2px)
     // minus it's own width (22px).
-    left: props.isOn ? 'calc(100% - 2px - 22px)' : '2px',
+    left: props.$isOn ? 'calc(100% - 2px - 22px)' : '2px',
   };
 });
 
@@ -59,7 +59,7 @@ export default class Switch extends React.PureComponent<IProps> {
         aria-disabled={this.props.disabled ?? false}
         tabIndex={-1}
         className={this.props.className}>
-        <Knob disabled={this.props.disabled ?? false} isOn={this.props.isOn} />
+        <Knob disabled={this.props.disabled ?? false} $isOn={this.props.isOn} />
       </SwitchContainer>
     );
   }

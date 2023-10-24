@@ -21,10 +21,10 @@ export default function Launch() {
   );
 }
 
-const StyledFooter = styled(Footer)({}, (props: { show: boolean }) => ({
+const StyledFooter = styled(Footer)<{ $show: boolean }>((props) => ({
   backgroundColor: colors.blue,
   padding: `0 14px ${measurements.viewMargin}`,
-  opacity: props.show ? 1 : 0,
+  opacity: props.$show ? 1 : 0,
   transition: 'opacity 250ms ease-in-out',
 }));
 
@@ -55,7 +55,7 @@ function SettingsFooter(props: ISettingsFooterProps) {
   }, []);
 
   return (
-    <StyledFooter show={props.show}>
+    <StyledFooter $show={props.show}>
       <StyledSystemSettingsContainer>
         <StyledLaunchFooterPrompt>
           {messages.pgettext(

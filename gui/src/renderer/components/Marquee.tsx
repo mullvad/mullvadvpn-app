@@ -7,14 +7,16 @@ const Container = styled.div({
   overflow: 'hidden',
 });
 
-const Text = styled.span({}, (props: { overflow: number; alignRight: boolean }) => ({
+const Text = styled.span<{ $overflow: number; $alignRight: boolean }>((props) => ({
   display: 'inline-block',
   // Prevents Container from adding 2px below the text.
   verticalAlign: 'middle',
   whiteSpace: 'nowrap',
-  willChange: props.overflow > 0 ? 'transform' : 'auto',
-  transform: props.alignRight ? `translate3d(${-props.overflow}px, 0, 0)` : 'translate3d(0, 0, 0)',
-  transition: `transform linear ${props.overflow * 80}ms`,
+  willChange: props.$overflow > 0 ? 'transform' : 'auto',
+  transform: props.$alignRight
+    ? `translate3d(${-props.$overflow}px, 0, 0)`
+    : 'translate3d(0, 0, 0)',
+  transition: `transform linear ${props.$overflow * 80}ms`,
 }));
 
 interface IMarqueeProps {
@@ -67,8 +69,8 @@ export default class Marquee extends React.Component<IMarqueeProps, IMarqueeStat
         <Text
           key={this.state.uniqueKey}
           ref={this.textRef}
-          overflow={this.calculateOverflow()}
-          alignRight={this.state.alignRight}
+          $overflow={this.calculateOverflow()}
+          $alignRight={this.state.alignRight}
           onTransitionEnd={this.scheduleToggleAlignRight}
           {...otherProps}>
           {children}

@@ -55,7 +55,7 @@ export default function SplitTunneling() {
 
   return (
     <>
-      <StyledPageCover show={browsing} />
+      <StyledPageCover $show={browsing} />
       <BackAction action={pop}>
         <Layout>
           <SettingsContainer>
@@ -272,18 +272,18 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
     <>
       <StyledCellButton
         onClick={props.application.warning ? showWarningDialog : launch}
-        lookDisabled={disabled}>
+        $lookDisabled={disabled}>
         {props.application.icon ? (
           <StyledIcon
             source={props.application.icon}
             width={35}
             height={35}
-            lookDisabled={disabled}
+            $lookDisabled={disabled}
           />
         ) : (
           <StyledIconPlaceholder />
         )}
-        <StyledCellLabel lookDisabled={disabled}>{props.application.name}</StyledCellLabel>
+        <StyledCellLabel $lookDisabled={disabled}>{props.application.name}</StyledCellLabel>
         {props.application.warning && (
           <StyledCellWarningIcon source="icon-alert" tintColor={warningColor} width={18} />
         )}

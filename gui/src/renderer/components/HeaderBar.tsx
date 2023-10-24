@@ -29,16 +29,16 @@ const headerBarStyleColorMap = {
 };
 
 interface IHeaderBarContainerProps {
-  barStyle?: HeaderBarStyle;
-  accountInfoVisible: boolean;
-  unpinnedWindow: boolean;
+  $barStyle?: HeaderBarStyle;
+  $accountInfoVisible: boolean;
+  $unpinnedWindow: boolean;
 }
 
-const HeaderBarContainer = styled.header({}, (props: IHeaderBarContainerProps) => ({
+const HeaderBarContainer = styled.header<IHeaderBarContainerProps>((props) => ({
   padding: '15px 16px 0px',
-  minHeight: props.accountInfoVisible ? '80px' : '68px',
-  height: props.accountInfoVisible ? '80px' : '68px',
-  backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
+  minHeight: props.$accountInfoVisible ? '80px' : '68px',
+  height: props.$accountInfoVisible ? '80px' : '68px',
+  backgroundColor: headerBarStyleColorMap[props.$barStyle ?? HeaderBarStyle.default],
   transitionProperty: 'height, min-height',
   transitionDuration: '250ms',
   transitionTimingFunction: 'ease-in-out',
@@ -63,10 +63,10 @@ export default function HeaderBar(props: IHeaderBarProps) {
 
   return (
     <HeaderBarContainer
-      barStyle={props.barStyle}
+      $barStyle={props.barStyle}
       className={props.className}
-      accountInfoVisible={props.showAccountInfo ?? false}
-      unpinnedWindow={unpinnedWindow}>
+      $accountInfoVisible={props.showAccountInfo ?? false}
+      $unpinnedWindow={unpinnedWindow}>
       <HeaderBarContent>{props.children}</HeaderBarContent>
       {props.showAccountInfo && <HeaderBarDeviceInfo />}
     </HeaderBarContainer>

@@ -3,12 +3,12 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as Cell from './cell';
 
-const StyledRelayStatus = styled.div((props: { active: boolean }) => ({
+const StyledRelayStatus = styled.div<{ $active: boolean }>((props) => ({
   width: '16px',
   height: '16px',
   borderRadius: '8px',
   margin: '0 12px 0 4px',
-  backgroundColor: props.active ? colors.green90 : colors.red95,
+  backgroundColor: props.$active ? colors.green90 : colors.red95,
 }));
 
 const TickIcon = styled(Cell.Icon)({
@@ -25,6 +25,6 @@ export default function RelayStatusIndicator(props: IProps) {
   return props.selected ? (
     <TickIcon tintColor={colors.white} source="icon-tick" width={18} />
   ) : (
-    <StyledRelayStatus active={props.active} />
+    <StyledRelayStatus $active={props.active} />
   );
 }

@@ -20,7 +20,7 @@ export const StyledInput = styled(FormattableTextInput)(normalText, {
   backgroundColor: colors.white,
   border: 'none',
   borderRadius: '4px',
-  '::placeholder': {
+  '&&::placeholder': {
     color: colors.blue40,
   },
 });

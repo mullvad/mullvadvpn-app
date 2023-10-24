@@ -108,7 +108,7 @@ export default class Login extends React.Component<IProps, IState> {
             {this.createLoginForm()}
           </StyledLoginForm>
 
-          <StyledFooter show={allowInteraction}>{this.createFooter()}</StyledFooter>
+          <StyledFooter $show={allowInteraction}>{this.createFooter()}</StyledFooter>
         </Container>
       </Layout>
     );
@@ -297,9 +297,9 @@ export default class Login extends React.Component<IProps, IState> {
       <>
         <StyledSubtitle data-testid="subtitle">{this.formSubtitle()}</StyledSubtitle>
         <StyledAccountInputGroup
-          active={allowInteraction && this.state.isActive}
-          editable={allowInteraction}
-          error={hasError}
+          $active={allowInteraction && this.state.isActive}
+          $editable={allowInteraction}
+          $error={hasError}
           onSubmit={this.onSubmit}>
           <StyledAccountInputBackdrop>
             <StyledInput
@@ -318,14 +318,14 @@ export default class Login extends React.Component<IProps, IState> {
             />
             <StyledInputButton
               type="submit"
-              visible={allowLogin}
+              $visible={allowLogin}
               disabled={!allowLogin}
               aria-label={
                 // TRANSLATORS: This is used by screenreaders to communicate the login button.
                 messages.pgettext('accessibility', 'Login')
               }>
               <StyledInputSubmitIcon
-                visible={
+                $visible={
                   this.props.loginState.type !== 'logging in' && !this.props.isPerformingPostUpgrade
                 }
                 source="icon-arrow"

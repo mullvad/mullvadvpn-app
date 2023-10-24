@@ -22,7 +22,7 @@ interface ILabelProps {
 }
 
 export function Label(props: ILabelProps) {
-  return <StyledLabel textOffset={props.textOffset ?? 0}>{props.children}</StyledLabel>;
+  return <StyledLabel $textOffset={props.textOffset ?? 0}>{props.children}</StyledLabel>;
 }
 
 interface IIconProps {
@@ -108,7 +108,7 @@ const StyledSimpleButton = styled(SimpleButton)({
   borderRadius: 4,
   border: 'none',
   padding: 0,
-  ':disabled': {
+  '&&:disabled': {
     opacity: 0.5,
   },
 });
@@ -156,35 +156,35 @@ export function BlockingButton(props: IBlockingProps) {
 
 export const RedButton = styled(BaseButton)({
   backgroundColor: colors.red,
-  ':not(:disabled):hover': {
+  '&&:not(:disabled):hover': {
     backgroundColor: colors.red95,
   },
 });
 
 export const GreenButton = styled(BaseButton)({
   backgroundColor: colors.green,
-  ':not(:disabled):hover': {
+  '&&:not(:disabled):hover': {
     backgroundColor: colors.green90,
   },
 });
 
 export const BlueButton = styled(BaseButton)({
   backgroundColor: colors.blue80,
-  ':not(:disabled):hover': {
+  '&&:not(:disabled):hover': {
     backgroundColor: colors.blue60,
   },
 });
 
 export const TransparentButton = styled(BaseButton)(transparentButton, {
   backgroundColor: colors.white20,
-  ':not(:disabled):hover': {
+  '&&:not(:disabled):hover': {
     backgroundColor: colors.white40,
   },
 });
 
 export const RedTransparentButton = styled(BaseButton)(transparentButton, {
   backgroundColor: colors.red60,
-  ':not(:disabled):hover': {
+  '&&:not(:disabled):hover': {
     backgroundColor: colors.red80,
   },
 });
@@ -193,7 +193,7 @@ const StyledButtonWrapper = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  ':not(:last-child)': {
+  '&&:not(:last-child)': {
     marginBottom: measurements.buttonVerticalMargin,
   },
 });
