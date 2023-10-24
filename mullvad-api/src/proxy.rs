@@ -9,7 +9,7 @@ use std::{
     task::{self, Poll},
 };
 use talpid_types::{
-    net::{Endpoint, TransportProtocol},
+    net::{AllowedClients, Endpoint, TransportProtocol},
     ErrorExt,
 };
 use tokio::{
@@ -141,6 +141,37 @@ impl ApiConnectionMode {
             ApiConnectionMode::Direct => None,
             ApiConnectionMode::Proxied(proxy_config) => Some(proxy_config.get_endpoint()),
         }
+    }
+
+    /// TODO(markus):
+    /// 1. Implement seperately for windows
+    #[cfg(unix)]
+    pub fn allowed_clients(&self) -> AllowedClients {
+        use access_method::Socks5;
+        match self {
+            ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => AllowedClients::All,
+            ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => AllowedClients::Root,
+        }
+    }
+
+    #[cfg(windows)]
+    pub fn allowed_clients(&self) -> AllowedClients {
+        use access_method::Socks5;
+        let clients = match self {
+            // Specifying no clients means that *all* clients are allowed. Probably should be abstracted.
+            ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => vec![],
+            ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => {
+                let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
+                vec![
+                    daemon_exe
+                        .parent()
+                        .expect("missing executable parent directory")
+                        .join("mullvad-problem-report.exe"),
+                    daemon_exe,
+                ]
+            }
+        };
+        clients.into()
     }
 
     pub fn is_proxy(&self) -> bool {

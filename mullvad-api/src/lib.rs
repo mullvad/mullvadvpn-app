@@ -21,7 +21,7 @@ use std::{
     ops::Deref,
     path::Path,
 };
-use talpid_types::{net::Endpoint, ErrorExt};
+use talpid_types::{net::AllowedEndpoint, ErrorExt};
 
 pub mod availability;
 use availability::{ApiAvailability, ApiAvailabilityHandle};
@@ -221,13 +221,13 @@ pub enum Error {
 
 /// Closure that receives the next API (real or proxy) endpoint to use for `api.mullvad.net`.
 /// It should return a future that determines whether to reject the new endpoint or not.
-pub trait ApiEndpointUpdateCallback: Fn(Endpoint) -> Self::AcceptedNewEndpoint {
+pub trait ApiEndpointUpdateCallback: Fn(AllowedEndpoint) -> Self::AcceptedNewEndpoint {
     type AcceptedNewEndpoint: Future<Output = bool> + Send;
 }
 
 impl<U, T: Future<Output = bool> + Send> ApiEndpointUpdateCallback for U
 where
-    U: Fn(Endpoint) -> T,
+    U: Fn(AllowedEndpoint) -> T,
 {
     type AcceptedNewEndpoint = T;
 }

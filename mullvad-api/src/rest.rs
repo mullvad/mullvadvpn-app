@@ -25,7 +25,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::{
-    net::{Endpoint, TransportProtocol},
+    net::{AllowedEndpoint, Endpoint, TransportProtocol},
     ErrorExt,
 };
 
@@ -217,8 +217,14 @@ impl<
                             TransportProtocol::Tcp,
                         ),
                     };
+                    let allowed_clients = new_config.allowed_clients();
+                    // TODO(markus): Move this to !one! function in `ApiConnectionMode`
+                    let allowed_endpoint = AllowedEndpoint {
+                        endpoint,
+                        clients: allowed_clients,
+                    };
                     // Switch to new connection mode unless rejected by address change callback
-                    if (self.new_address_callback)(endpoint).await {
+                    if (self.new_address_callback)(allowed_endpoint).await {
                         self.connector_handle.set_connection_mode(new_config);
                     }
                 }
