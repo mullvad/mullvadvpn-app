@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,6 +31,7 @@ import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -73,22 +75,31 @@ fun PrivacyDisclaimerScreen(
             ) {
                 Text(
                     text = stringResource(id = R.string.privacy_disclaimer_title),
-                    fontSize = 24.sp,
-                    color = Color.White,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold
                 )
 
+                val fontSize = 14.sp
                 Text(
-                    text = stringResource(id = R.string.privacy_disclaimer_body),
-                    fontSize = 14.sp,
-                    color = Color.White,
+                    text = stringResource(id = R.string.privacy_disclaimer_body_first_paragraph),
+                    fontSize = fontSize,
+                    color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier.padding(top = 10.dp)
+                )
+
+                Spacer(modifier = Modifier.height(fontSize.toDp() + Dimens.smallPadding))
+
+                Text(
+                    text = stringResource(id = R.string.privacy_disclaimer_body_second_paragraph),
+                    fontSize = fontSize,
+                    color = MaterialTheme.colorScheme.onBackground,
                 )
 
                 Row(modifier = Modifier.padding(top = 10.dp)) {
                     ClickableText(
                         text = AnnotatedString(stringResource(id = R.string.privacy_policy_label)),
-                        onClick = { onPrivacyPolicyLinkClicked.invoke() },
+                        onClick = { onPrivacyPolicyLinkClicked() },
                         style =
                             TextStyle(
                                 fontSize = 12.sp,
