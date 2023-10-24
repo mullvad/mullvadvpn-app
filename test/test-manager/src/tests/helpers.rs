@@ -5,7 +5,8 @@ use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::{
     relay_constraints::{
         BridgeState, Constraint, GeographicLocationConstraint, LocationConstraint,
-        ObfuscationSettings, RelayConstraintsUpdate, RelaySettingsUpdate,
+        ObfuscationSettings, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettingsUpdate,
+        WireguardConstraints,
     },
     states::TunnelState,
 };
@@ -334,7 +335,14 @@ pub async fn reset_relay_settings(
 ) -> Result<(), Error> {
     disconnect_and_wait(mullvad_client).await?;
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate::default());
+    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+        location: Some(Constraint::Any),
+        tunnel_protocol: Some(Constraint::Any),
+        openvpn_constraints: Some(OpenVpnConstraints::default()),
+        wireguard_constraints: Some(WireguardConstraints::default()),
+        providers: Some(Constraint::Any),
+        ownership: Some(Constraint::Any),
+    });
     let bridge_state = BridgeState::Auto;
     let obfuscation_settings = ObfuscationSettings::default();
 

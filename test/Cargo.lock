@@ -1710,6 +1710,7 @@ dependencies = [
  "http",
  "hyper",
  "ipnetwork 0.16.0",
+ "libc",
  "log",
  "mullvad-fs",
  "mullvad-types",
