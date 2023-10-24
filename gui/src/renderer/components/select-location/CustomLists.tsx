@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
@@ -6,7 +6,7 @@ import { CustomListError, CustomLists, RelayLocation } from '../../../shared/dae
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
 import { measurements } from '../common-styles';
@@ -118,8 +118,8 @@ interface AddListFormProps {
 function AddListForm(props: AddListFormProps) {
   const [name, setName] = useState('');
   const [error, setError, unsetError] = useBoolean();
-  const containerRef = useRef<HTMLDivElement>() as React.RefObject<HTMLDivElement>;
-  const inputRef = useRef<HTMLInputElement>() as React.RefObject<HTMLInputElement>;
+  const containerRef = useStyledRef<HTMLDivElement>();
+  const inputRef = useStyledRef<HTMLInputElement>();
 
   // Errors should be reset when editing the value
   const onChange = useCallback((value: string) => {

@@ -1,8 +1,8 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { useBoolean, useCombinedRefs } from '../../lib/utilityHooks';
+import { useBoolean, useCombinedRefs, useStyledRef } from '../../lib/utilityHooks';
 import { normalText } from '../common-styles';
 import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
@@ -68,7 +68,7 @@ function InputWithRef(props: IInputProps, forwardedRef: React.Ref<HTMLInputEleme
   const [internalValue, setInternalValue] = useState(props.value ?? props.initialValue ?? '');
   const value = props.value ?? internalValue;
 
-  const inputRef = useRef() as React.RefObject<HTMLInputElement>;
+  const inputRef = useStyledRef<HTMLInputElement>();
   const combinedRef = useCombinedRefs(inputRef, forwardedRef);
 
   const onSubmit = useCallback(
@@ -197,7 +197,7 @@ function AutoSizingTextInputWithRef(props: IInputProps, forwardedRef: React.Ref<
   const { onFocus, onBlur, ...otherProps } = props;
 
   const [focused, setFocused, setBlurred] = useBoolean(false);
-  const inputRef = useRef() as React.RefObject<HTMLInputElement>;
+  const inputRef = useStyledRef<HTMLInputElement>();
   const combinedRef = useCombinedRefs(inputRef, forwardedRef);
 
   const onBlurWrapper = useCallback(
@@ -304,7 +304,7 @@ interface IRowInputProps {
 
 export function RowInput(props: IRowInputProps) {
   const [value, setValue] = useState(props.initialValue ?? '');
-  const textAreaRef = useRef() as React.RefObject<HTMLTextAreaElement>;
+  const textAreaRef = useStyledRef<HTMLTextAreaElement>();
   const [focused, setFocused, setBlurred] = useBoolean(false);
 
   const submit = useCallback(() => props.onSubmit(value), [props.onSubmit, value]);

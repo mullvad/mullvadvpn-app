@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { useStyledRef } from '../lib/utilityHooks';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
 
@@ -73,7 +74,7 @@ interface ISearchBarProps {
 }
 
 export default function SearchBar(props: ISearchBarProps) {
-  const inputRef = useRef() as React.RefObject<HTMLInputElement>;
+  const inputRef = useStyledRef<HTMLInputElement>();
 
   const onInput = useCallback(
     (event: React.FormEvent) => {

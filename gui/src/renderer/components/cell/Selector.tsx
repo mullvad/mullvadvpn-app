@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
+import { useStyledRef } from '../../lib/utilityHooks';
 import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
 import { normalText } from '../common-styles';
 import InfoButton from '../InfoButton';
@@ -212,7 +213,7 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
   const [customValue, setCustomValue] = useState(itemIsSelected ? undefined : `${value}`);
   const customIsSelected = customValue !== undefined;
 
-  const inputRef = useRef() as React.RefObject<HTMLInputElement>;
+  const inputRef = useStyledRef<HTMLInputElement>();
 
   const handleClickCustom = useCallback(() => {
     inputRef.current?.focus();

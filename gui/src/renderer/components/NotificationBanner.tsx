@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
+import { useStyledRef } from '../lib/utilityHooks';
 import * as AppButton from './AppButton';
 import { tinyText } from './common-styles';
 import ImageView from './ImageView';
@@ -156,7 +157,7 @@ export function NotificationBanner(props: INotificationBannerProps) {
   const [contentHeight, setContentHeight] = useState<number>();
   const [alignBottom, setAlignBottom] = useState(false);
 
-  const contentRef = useRef() as React.RefObject<HTMLDivElement>;
+  const contentRef = useStyledRef<HTMLDivElement>();
 
   // Save last non-undefined children to be able to show them during the hide-transition.
   const prevChildren = useRef<React.ReactNode>();

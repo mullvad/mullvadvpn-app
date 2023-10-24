@@ -11,7 +11,7 @@ import {
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
 import { useSelector } from '../../redux/store';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
@@ -152,7 +152,7 @@ interface IProps<C extends LocationSpecification> {
 // Renders the rows and its children for countries, cities and relays
 function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   const hasChildren = getLocationChildren(props.source).some((child) => child.visible);
-  const buttonRef = useRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement>;
+  const buttonRef = useStyledRef<HTMLButtonElement>();
   const userInvokedExpand = useRef(false);
 
   const { updateCustomList, deleteCustomList } = useAppContext();
