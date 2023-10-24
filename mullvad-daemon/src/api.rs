@@ -239,7 +239,7 @@ impl ApiEndpointUpdaterHandle {
 
     pub fn callback(&self) -> impl ApiEndpointUpdateCallback {
         let tunnel_tx = self.tunnel_cmd_tx.clone();
-        move |endpoint: Endpoint| {
+        move |allowed_endpoint: AllowedEndpoint| {
             let inner_tx = tunnel_tx.clone();
             async move {
                 let tunnel_tx = if let Some(tunnel_tx) = { inner_tx.lock().unwrap().as_ref() }
@@ -252,12 +252,15 @@ impl ApiEndpointUpdaterHandle {
                 };
                 let (result_tx, result_rx) = oneshot::channel();
                 let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                    get_allowed_endpoint(endpoint),
+                    allowed_endpoint.clone(),
                     result_tx,
                 ));
                 // Wait for the firewall policy to be updated.
                 let _ = result_rx.await;
-                log::debug!("API endpoint: {endpoint}");
+                log::debug!(
+                    "API endpoint: {endpoint}",
+                    endpoint = allowed_endpoint.endpoint
+                );
                 true
             }
         }
@@ -265,22 +268,22 @@ impl ApiEndpointUpdaterHandle {
 }
 
 pub(super) fn get_allowed_endpoint(endpoint: Endpoint) -> AllowedEndpoint {
+    #[cfg(unix)]
+    let clients = talpid_types::net::AllowedClients::Root;
     #[cfg(windows)]
-    let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
-    #[cfg(windows)]
-    let clients = vec![
-        daemon_exe
-            .parent()
-            .expect("missing executable parent directory")
-            .join("mullvad-problem-report.exe"),
-        daemon_exe,
-    ];
+    let clients = {
+        let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
+        vec![
+            daemon_exe
+                .parent()
+                .expect("missing executable parent directory")
+                .join("mullvad-problem-report.exe"),
+            daemon_exe,
+        ]
+        .into()
+    };
 
-    AllowedEndpoint {
-        #[cfg(windows)]
-        clients,
-        endpoint,
-    }
+    AllowedEndpoint { endpoint, clients }
 }
 
 pub(crate) fn forward_offline_state(

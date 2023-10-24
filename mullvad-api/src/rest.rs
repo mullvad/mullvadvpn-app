@@ -25,7 +25,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::{
-    net::{Endpoint, TransportProtocol},
+    net::{AllowedEndpoint, Endpoint, TransportProtocol},
     ErrorExt,
 };
 
@@ -217,8 +217,10 @@ impl<
                             TransportProtocol::Tcp,
                         ),
                     };
+                    let clients = new_config.allowed_clients();
+                    let allowed_endpoint = AllowedEndpoint { endpoint, clients };
                     // Switch to new connection mode unless rejected by address change callback
-                    if (self.new_address_callback)(endpoint).await {
+                    if (self.new_address_callback)(allowed_endpoint).await {
                         self.connector_handle.set_connection_mode(new_config);
                     }
                 }
