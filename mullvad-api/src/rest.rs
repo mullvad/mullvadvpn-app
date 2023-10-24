@@ -729,20 +729,16 @@ fn flatten_result<T, E>(
     }
 }
 
-impl From<hyper::Error> for Error {
-    fn from(value: hyper::Error) -> Self {
-        Error::HyperError(Arc::new(value))
-    }
+macro_rules! impl_into_arc_err {
+    ($ty:ty) => {
+        impl From<$ty> for Error {
+            fn from(error: $ty) -> Self {
+                Error::from(Arc::from(error))
+            }
+        }
+    };
 }
 
-impl From<serde_json::Error> for Error {
-    fn from(value: serde_json::Error) -> Self {
-        Error::DeserializeError(Arc::new(value))
-    }
-}
-
-impl From<http::Error> for Error {
-    fn from(value: http::Error) -> Self {
-        Error::HttpError(Arc::new(value))
-    }
-}
+impl_into_arc_err!(hyper::Error);
+impl_into_arc_err!(serde_json::Error);
+impl_into_arc_err!(http::Error);

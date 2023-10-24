@@ -1122,7 +1122,6 @@ fn map_device_error(error: &device::Error) -> Status {
             Status::new(Code::Unavailable, error.to_string())
         }
         device::Error::OtherRestError(error) => map_rest_error(error),
-        device::Error::ResponseFailure(error) => map_device_error(error.unpack()),
         _ => Status::new(Code::Unknown, error.to_string()),
     }
 }
