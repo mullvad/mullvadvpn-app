@@ -1,11 +1,11 @@
 use std::net::{Ipv4Addr, SocketAddrV4};
 
 use anyhow::{anyhow, Context, Result};
+use futures::future::{self, Either};
 use tokio::{io::AsyncWriteExt, process::Command};
 
 /// Pingable dummy LAN interface (IP)
-/// TODO: This should probably be a different host, not the gateway
-pub const DUMMY_LAN_INTERFACE_IP: Ipv4Addr = Ipv4Addr::new(192, 168, 64, 1);
+pub const DUMMY_LAN_INTERFACE_IP: Ipv4Addr = Ipv4Addr::new(192, 168, 64, 254);
 
 // Private key of the wireguard remote peer on host.
 const CUSTOM_TUN_REMOTE_PRIVKEY: &str = "gLvQuyqazziyf+pUCAFUgTnWIwn6fPE5MOReOqPEGHU=";
@@ -36,6 +36,11 @@ pub const NON_TUN_GATEWAY: Ipv4Addr = Ipv4Addr::new(192, 168, 64, 1);
 /// Name of the wireguard interface on the host
 pub const CUSTOM_TUN_INTERFACE_NAME: &str = "utun123";
 
+use std::time::Duration;
+
+/// Timeout for wireguard-go to create an interface
+const INTERFACE_SETUP_TIMEOUT: Duration = Duration::from_secs(5);
+
 /// Set up WireGuard relay and dummy hosts.
 pub async fn setup_test_network() -> Result<()> {
     log::debug!("Setting up test network");
@@ -45,7 +50,39 @@ pub async fn setup_test_network() -> Result<()> {
         .await
         .context("Failed to create WireGuard interface")?;
 
+    // A bit of trickery to detect when the bridge is available.
+    tokio::spawn(async move {
+        for _ in 0..30 {
+            let Ok(interface) = find_vm_bridge() else {
+                tokio::time::sleep(Duration::from_secs(1)).await;
+                continue;
+            };
+            match create_dummy_interface(interface).await {
+                Ok(_) => log::debug!("Created dummy interface"),
+                Err(error) => log::error!("Failed to create dummy interface: {error}"),
+            }
+            return;
+        }
+        log::error!("Failed to create dummy interface: timed out");
+    });
+
     Ok(())
+}
+
+async fn create_dummy_interface(interface: String) -> Result<()> {
+    let mut cmd = Command::new("/usr/bin/sudo");
+    cmd.args([
+        "/sbin/ifconfig",
+        &interface,
+        "alias",
+        &DUMMY_LAN_INTERFACE_IP.to_string(),
+    ]);
+    let output = cmd.output().await.context("Create dummy interface")?;
+    if output.status.success() {
+        Ok(())
+    } else {
+        Err(anyhow!("ifconfig failed: {:?}", output.status.code()))
+    }
 }
 
 /// A hack to find the Tart bridge interface using `NON_TUN_GATEWAY`.
@@ -84,28 +121,52 @@ async fn enable_forwarding() -> Result<()> {
 async fn create_wireguard_interface() -> Result<()> {
     log::debug!("Creating custom WireGuard tunnel");
 
-    // Check if the tunnel already exists
-    let mut cmd = Command::new("/sbin/ifconfig");
-    cmd.arg(CUSTOM_TUN_INTERFACE_NAME);
-    let output = cmd
-        .output()
-        .await
-        .context("Check if wireguard tunnel exists")?;
-    if output.status.success() {
-        log::debug!("Tunnel {CUSTOM_TUN_INTERFACE_NAME} already exists");
-    } else {
+    let mut go_proc = tokio::spawn(async move {
         let mut cmd = Command::new("/usr/bin/sudo");
-        cmd.args(["wireguard-go", CUSTOM_TUN_INTERFACE_NAME]);
+        cmd.kill_on_drop(true);
+        cmd.args(["wireguard-go", "-f", CUSTOM_TUN_INTERFACE_NAME]);
         let output = cmd.output().await.context("Run wireguard-go")?;
-        if !output.status.success() {
-            return Err(anyhow!(
-                "wireguard-go failed: {}",
-                output.status.code().unwrap()
-            ));
+        if output.status.success() {
+            Ok(())
+        } else {
+            Err(anyhow!(
+                "wireguard-go failed with status {:?}",
+                output.status.code()
+            ))
         }
-    }
+    });
 
-    Ok(())
+    let mut tunnel_check: tokio::task::JoinHandle<Result<()>> = tokio::spawn(async move {
+        loop {
+            // Check if the tunnel already exists
+            let mut cmd = Command::new("/sbin/ifconfig");
+            cmd.arg(CUSTOM_TUN_INTERFACE_NAME);
+            let output = cmd
+                .output()
+                .await
+                .context("Check if wireguard tunnel exists")?;
+            if output.status.success() {
+                log::debug!("Created custom WireGuard tunnel interface");
+                return Ok(());
+            }
+            tokio::time::sleep(Duration::from_secs(1)).await;
+        }
+    });
+
+    let result = tokio::time::timeout(
+        INTERFACE_SETUP_TIMEOUT,
+        future::select(&mut go_proc, &mut tunnel_check),
+    )
+    .await
+    .context("WireGuard interface setup timed out")?;
+
+    let result = match result {
+        Either::Left((result, _)) | Either::Right((result, _)) => result,
+    };
+
+    tunnel_check.abort();
+
+    result?
 }
 
 pub async fn configure_tunnel() -> Result<()> {
