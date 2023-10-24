@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,9 +33,11 @@ import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 
 @Preview
 @Composable
@@ -63,15 +67,24 @@ fun PrivacyDisclaimerScreen(
         ) {
             val (body, actionButtons) = createRefs()
             val sideMargin = Dimens.sideMargin
+            val scrollState = rememberScrollState()
 
             Column(
                 modifier =
-                    Modifier.constrainAs(body) {
-                        top.linkTo(parent.top, margin = sideMargin)
-                        start.linkTo(parent.start, margin = sideMargin)
-                        end.linkTo(parent.end, margin = sideMargin)
-                        width = Dimension.fillToConstraints
-                    },
+                    Modifier
+                        .constrainAs(body) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                            bottom.linkTo(actionButtons.top)
+                            width = Dimension.fillToConstraints
+                            height = Dimension.fillToConstraints
+                        }.drawVerticalScrollbar(
+                            state = scrollState,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
+                        )
+                        .verticalScroll(scrollState)
+                        .padding(sideMargin),
             ) {
                 Text(
                     text = stringResource(id = R.string.privacy_disclaimer_title),
@@ -123,10 +136,12 @@ fun PrivacyDisclaimerScreen(
             Column(
                 modifier =
                     Modifier.constrainAs(actionButtons) {
-                        bottom.linkTo(parent.bottom, margin = sideMargin)
+                        top.linkTo(body.bottom, margin = sideMargin)
                         start.linkTo(parent.start, margin = sideMargin)
                         end.linkTo(parent.end, margin = sideMargin)
+                        bottom.linkTo(parent.bottom, margin = sideMargin)
                         width = Dimension.fillToConstraints
+                        height = Dimension.preferredWrapContent
                     }
             ) {
                 PrimaryButton(
