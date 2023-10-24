@@ -26,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -205,6 +206,7 @@ private fun LoginContent(
             enabled = uiState.loginState is Idle,
             colors = mullvadWhiteTextFieldColors(),
             isError = uiState.loginState.isError(),
+            shape = if (!expandedDropdown) MaterialTheme.shapes.small else TextFieldDefaults.shape
         )
 
         AnimatedVisibility(visible = uiState.lastUsedAccount != null && expandedDropdown) {
