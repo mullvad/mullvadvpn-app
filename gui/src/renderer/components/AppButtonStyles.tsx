@@ -2,9 +2,9 @@ import styled from 'styled-components';
 
 import { buttonText } from './common-styles';
 
-export const StyledLabel = styled.span(buttonText, (props: { textOffset: number }) => ({
-  paddingLeft: props.textOffset > 0 ? `${props.textOffset}px` : 0,
-  paddingRight: props.textOffset < 0 ? `${-props.textOffset}px` : 0,
+export const StyledLabel = styled.span<{ $textOffset: number }>(buttonText, (props) => ({
+  paddingLeft: props.$textOffset > 0 ? `${props.$textOffset}px` : 0,
+  paddingRight: props.$textOffset < 0 ? `${-props.$textOffset}px` : 0,
   textAlign: 'center',
   wordBreak: 'break-word',
 }));

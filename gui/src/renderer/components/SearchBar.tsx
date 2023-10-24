@@ -22,15 +22,15 @@ export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   lineHeight: '24px',
   color: colors.white60,
   backgroundColor: colors.white10,
-  '::placeholder': {
+  '&&::placeholder': {
     color: colors.white60,
   },
-  ':focus': {
+  '&&:focus': {
     color: colors.blue,
     backgroundColor: colors.white,
-    '::placeholder': {
-      color: colors.blue40,
-    },
+  },
+  '&&:focus::placeholder': {
+    color: colors.blue40,
   },
 });
 
@@ -49,20 +49,20 @@ export const StyledSearchIcon = styled(ImageView)({
   top: '50%',
   transform: 'translateY(-50%)',
   left: '9px',
-  [`${StyledSearchInput}:focus ~ &`]: {
+  [`${StyledSearchInput}:focus ~ &&`]: {
     backgroundColor: colors.blue,
   },
 });
 
 export const StyledClearIcon = styled(ImageView)({
-  ':hover': {
+  '&&:hover': {
     backgroundColor: colors.white60,
   },
-  [`${StyledSearchInput}:focus ~ ${StyledClearButton} &`]: {
+  [`${StyledSearchInput}:focus ~ ${StyledClearButton} &&`]: {
     backgroundColor: colors.blue40,
-    ':hover': {
-      backgroundColor: colors.blue,
-    },
+  },
+  [`${StyledSearchInput}:focus ~ ${StyledClearButton} &&:hover`]: {
+    backgroundColor: colors.blue,
   },
 });
 

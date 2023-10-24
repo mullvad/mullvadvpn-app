@@ -21,7 +21,7 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const StyledSelector = styled(Selector)({
   marginBottom: 0,
-}) as typeof Selector;
+});
 
 export default function SelectLanguage() {
   const history = useHistory();

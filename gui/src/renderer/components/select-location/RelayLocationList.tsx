@@ -25,7 +25,7 @@ interface RelayLocationsProps extends CommonProps {
 
 export default function RelayLocationList({ source, ...props }: RelayLocationsProps) {
   return (
-    <Cell.Group noMarginBottom>
+    <Cell.Group $noMarginBottom>
       {source.map((country) => (
         <RelayLocation
           key={getLocationKey(country.location)}

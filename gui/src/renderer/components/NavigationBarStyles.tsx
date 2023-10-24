@@ -25,7 +25,7 @@ export const StyledNavigationBar = styled.nav({
   padding: '12px',
 });
 
-export const StyledTitleBarItemLabel = styled.h1(normalText, (props: { visible?: boolean }) => ({
+export const StyledTitleBarItemLabel = styled.h1<{ $visible?: boolean }>(normalText, (props) => ({
   fontWeight: 400,
   lineHeight: '22px',
   color: colors.white,
@@ -33,7 +33,7 @@ export const StyledTitleBarItemLabel = styled.h1(normalText, (props: { visible?:
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  opacity: props.visible ? 1 : 0,
+  opacity: props.$visible ? 1 : 0,
   transition: 'opacity 250ms ease-in-out',
 }));
 
@@ -51,7 +51,7 @@ export const StyledBackBarItemButton = styled.button({
 
 export const StyledBackBarItemIcon = styled(ImageView)({
   marginRight: '8px',
-  [StyledBackBarItemButton + ':hover &']: {
+  [StyledBackBarItemButton + ':hover &&']: {
     backgroundColor: colors.white60,
   },
 });

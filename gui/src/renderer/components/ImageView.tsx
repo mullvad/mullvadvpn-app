@@ -1,7 +1,10 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
-export interface IImageViewProps extends IImageMaskProps {
+import { NonTransientProps } from '../lib/styles';
+
+export interface IImageViewProps
+  extends NonTransientProps<IImageMaskProps, 'tintColor' | 'tintHoverColor'> {
   source: string;
   onClick?: (event: React.MouseEvent) => void;
   className?: string;
@@ -11,8 +14,8 @@ interface IImageMaskProps extends React.HTMLAttributes<HTMLElement> {
   width?: number;
   height?: number;
   disabled?: boolean;
-  tintColor?: string;
-  tintHoverColor?: string;
+  $tintColor?: string;
+  $tintHoverColor?: string;
 }
 
 const Wrapper = styled.div({
@@ -21,7 +24,7 @@ const Wrapper = styled.div({
   justifyContent: 'center',
 });
 
-const ImageMask = styled.div((props: IImageMaskProps) => {
+const ImageMask = styled.div<IImageMaskProps>((props) => {
   const maskWidth = props.width ? `${props.width}px` : 'auto';
   const maskHeight = props.height ? `${props.height}px` : 'auto';
   return {
@@ -29,9 +32,9 @@ const ImageMask = styled.div((props: IImageMaskProps) => {
     maskSize: `${maskWidth} ${maskHeight}`,
     maskPosition: 'center',
     lineHeight: 0,
-    backgroundColor: props.tintColor,
-    ':hover': {
-      backgroundColor: (!props.disabled && props.tintHoverColor) || props.tintColor,
+    backgroundColor: props.$tintColor,
+    '&&:hover': {
+      backgroundColor: (!props.disabled && props.$tintHoverColor) || props.$tintColor,
     },
   };
 });
@@ -47,9 +50,13 @@ export default function ImageView(props: IImageViewProps) {
   const style = useMemo(() => ({ WebkitMaskImage: `url('${url}')` }), [url]);
 
   if (props.tintColor) {
-    const { source: _source, ...otherProps } = props;
+    const { source: _source, tintColor, tintHoverColor, ...otherProps } = props;
     return (
-      <ImageMask style={style} {...otherProps}>
+      <ImageMask
+        style={style}
+        $tintColor={tintColor}
+        $tintHoverColor={tintHoverColor}
+        {...otherProps}>
         <HiddenImage src={url} width={props.width} height={props.height} />
       </ImageMask>
     );

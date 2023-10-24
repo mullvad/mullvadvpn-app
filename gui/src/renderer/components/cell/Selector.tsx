@@ -77,7 +77,7 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
   const title = props.title ? (
     <>
       <AriaLabel>
-        <StyledTitleLabel as="label" disabled={props.disabled} thin={props.thinTitle}>
+        <StyledTitleLabel as="label" disabled={props.disabled} $thin={props.thinTitle}>
           {props.title}
         </StyledTitleLabel>
       </AriaLabel>
@@ -91,7 +91,7 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
 
   // Add potential additional items to the list. Used for custom entry.
   const children = (
-    <Cell.Group noMarginBottom>
+    <Cell.Group $noMarginBottom>
       {items}
       {props.children}
     </Cell.Group>
@@ -121,8 +121,8 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
   }
 }
 
-const StyledCellIcon = styled(Cell.Icon)((props: { visible: boolean }) => ({
-  opacity: props.visible ? 1 : 0,
+const StyledCellIcon = styled(Cell.Icon)<{ $visible: boolean }>((props) => ({
+  opacity: props.$visible ? 1 : 0,
   marginRight: '8px',
 }));
 
@@ -156,7 +156,7 @@ function SelectorCell<T>(props: SelectorCellProps<T>) {
       aria-selected={props.isSelected}
       aria-disabled={props.disabled}>
       <StyledCellIcon
-        visible={props.isSelected}
+        $visible={props.isSelected}
         source="icon-tick"
         width={18}
         tintColor={colors.white}
@@ -170,9 +170,9 @@ interface StyledCustomContainerProps {
   selected: boolean;
 }
 
-const StyledCustomContainer = styled(Cell.Container)((props: StyledCustomContainerProps) => ({
+const StyledCustomContainer = styled(Cell.Container)<StyledCustomContainerProps>((props) => ({
   backgroundColor: props.selected ? colors.green : colors.blue40,
-  ':hover': {
+  '&&:hover': {
     backgroundColor: props.selected ? colors.green : colors.blue,
   },
 }));
@@ -286,7 +286,7 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
           aria-selected={customIsSelected}
           aria-disabled={props.disabled}>
           <StyledCellIcon
-            visible={customIsSelected}
+            $visible={customIsSelected}
             source="icon-tick"
             width={18}
             tintColor={colors.white}

@@ -14,11 +14,11 @@ interface IState {
   containerHeight: string;
 }
 
-const Container = styled.div((props: { height: string; animationDuration: number }) => ({
+const Container = styled.div<{ $height: string; $animationDuration: number }>((props) => ({
   display: 'flex',
-  height: props.height,
+  height: props.$height,
   overflow: 'hidden',
-  transition: `height ${props.animationDuration}ms ease-in-out`,
+  transition: `height ${props.$animationDuration}ms ease-in-out`,
 }));
 
 const Content = styled.div({
@@ -55,8 +55,8 @@ export default class Accordion extends React.Component<IProps, IState> {
     return (
       <Container
         ref={this.containerRef}
-        height={this.state.containerHeight}
-        animationDuration={this.props.animationDuration}
+        $height={this.state.containerHeight}
+        $animationDuration={this.props.animationDuration}
         onTransitionEnd={this.onTransitionEnd}>
         <Content ref={this.contentRef}>{this.state.mountChildren && this.props.children}</Content>
       </Container>

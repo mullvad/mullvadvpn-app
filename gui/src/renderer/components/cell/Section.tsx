@@ -18,15 +18,15 @@ const StyledSection = styled.div({
 
 interface SectionTitleProps {
   disabled?: boolean;
-  thin?: boolean;
+  $thin?: boolean;
 }
 
-export const SectionTitle = styled(Row)(buttonText, (props: SectionTitleProps) => ({
+export const SectionTitle = styled(Row)<SectionTitleProps>(buttonText, (props) => ({
   paddingRight: '16px',
   color: props.disabled ? colors.white20 : colors.white,
-  fontWeight: props.thin ? 400 : 600,
-  fontSize: props.thin ? '15px' : '18px',
-  ...(props.thin ? openSans : sourceSansPro),
+  fontWeight: props.$thin ? 400 : 600,
+  fontSize: props.$thin ? '15px' : '18px',
+  ...(props.$thin ? openSans : sourceSansPro),
 }));
 
 export const CellSectionContext = React.createContext<boolean>(false);

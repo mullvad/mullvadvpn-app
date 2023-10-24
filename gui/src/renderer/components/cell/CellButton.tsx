@@ -8,17 +8,17 @@ import { Row } from './Row';
 import { CellSectionContext } from './Section';
 
 interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  selected?: boolean;
-  containedInSection: boolean;
+  $selected?: boolean;
+  $containedInSection: boolean;
 }
 
-const StyledCellButton = styled(Row)({}, (props: IStyledCellButtonProps) => {
-  const backgroundColor = props.selected
+const StyledCellButton = styled(Row)<IStyledCellButtonProps>((props) => {
+  const backgroundColor = props.$selected
     ? colors.green
-    : props.containedInSection
+    : props.$containedInSection
     ? colors.blue40
     : colors.blue;
-  const backgroundColorHover = props.selected ? colors.green : colors.blue80;
+  const backgroundColorHover = props.$selected ? colors.green : colors.blue80;
 
   return {
     paddingRight: '16px',
@@ -27,7 +27,7 @@ const StyledCellButton = styled(Row)({}, (props: IStyledCellButtonProps) => {
     cursor: 'default',
     border: 'none',
     backgroundColor,
-    ':not(:disabled):hover': {
+    '&&:not(:disabled):hover': {
       backgroundColor: props.onClick ? backgroundColorHover : backgroundColor,
     },
   };
@@ -39,14 +39,16 @@ interface ICellButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>
 
 export const CellButton = styled(
   React.forwardRef(function Button(props: ICellButtonProps, ref: React.Ref<HTMLButtonElement>) {
+    const { selected, ...otherProps } = props;
     const containedInSection = useContext(CellSectionContext);
     return (
       <CellDisabledContext.Provider value={props.disabled ?? false}>
         <StyledCellButton
           as="button"
           ref={ref}
-          containedInSection={containedInSection}
-          {...props}
+          $selected={selected}
+          $containedInSection={containedInSection}
+          {...otherProps}
         />
       </CellDisabledContext.Provider>
     );

@@ -64,7 +64,7 @@ function SpecialLocationRow<T>(props: SpecialLocationRowProps<T>) {
   const background = getButtonColor(props.source.selected, 0, props.source.disabled);
   return (
     <StyledLocationRowContainerWithMargin ref={selectedRef}>
-      <StyledLocationRowButton onClick={onSelect} level={0} {...background}>
+      <StyledLocationRowButton onClick={onSelect} $level={0} {...background}>
         {icon && (
           <StyledSpecialLocationIcon
             source={icon}
@@ -79,8 +79,8 @@ function SpecialLocationRow<T>(props: SpecialLocationRowProps<T>) {
         <StyledLocationRowIcon
           as={StyledSpecialLocationInfoButton}
           message={props.source.info}
-          selected={props.source.selected}
           aria-label={messages.pgettext('accessibility', 'info')}
+          {...background}
         />
       )}
     </StyledLocationRowContainerWithMargin>

@@ -25,10 +25,10 @@ const securedDisplayStyleColorMap = {
   [SecuredDisplayStyle.failedToSecure]: colors.red,
 };
 
-const StyledSecuredLabel = styled.span((props: { displayStyle: SecuredDisplayStyle }) => ({
+const StyledSecuredLabel = styled.span<{ $displayStyle: SecuredDisplayStyle }>((props) => ({
   display: 'inline-block',
   minHeight: '22px',
-  color: securedDisplayStyleColorMap[props.displayStyle],
+  color: securedDisplayStyleColorMap[props.$displayStyle],
 }));
 
 interface ISecuredLabelProps {
@@ -37,8 +37,13 @@ interface ISecuredLabelProps {
 }
 
 export default function SecuredLabel(props: ISecuredLabelProps) {
+  const { displayStyle, ...otherProps } = props;
   return (
-    <StyledSecuredLabel {...props} role="status" aria-live="polite">
+    <StyledSecuredLabel
+      $displayStyle={displayStyle}
+      {...otherProps}
+      role="status"
+      aria-live="polite">
       {getLabelText(props.displayStyle)}
     </StyledSecuredLabel>
   );

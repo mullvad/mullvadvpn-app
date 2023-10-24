@@ -1,6 +1,7 @@
 import { batch, Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
+import { StyleSheetManager } from 'styled-components';
 
 import { hasExpired } from '../shared/account-expiry';
 import { ILinuxSplitTunnelingApplication, IWindowsApplication } from '../shared/application-types';
@@ -276,19 +277,21 @@ export default class AppRenderer {
     return (
       <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
-          <Lang>
-            <Router history={this.history.asHistory}>
-              <ErrorBoundary>
-                <ModalContainer>
-                  <KeyboardNavigation>
-                    <AppRouter />
-                    <Changelog />
-                  </KeyboardNavigation>
-                  {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-                </ModalContainer>
-              </ErrorBoundary>
-            </Router>
-          </Lang>
+          <StyleSheetManager enableVendorPrefixes>
+            <Lang>
+              <Router history={this.history.asHistory}>
+                <ErrorBoundary>
+                  <ModalContainer>
+                    <KeyboardNavigation>
+                      <AppRouter />
+                      <Changelog />
+                    </KeyboardNavigation>
+                    {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+                  </ModalContainer>
+                </ErrorBoundary>
+              </Router>
+            </Lang>
+          </StyleSheetManager>
         </Provider>
       </AppContext.Provider>
     );

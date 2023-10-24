@@ -57,8 +57,8 @@ const StyledSideButtonIcon = styled(Cell.Icon)({
   },
 });
 
-const StyledInput = styled(SimpleInput)((props: { error: boolean }) => ({
-  color: props.error ? colors.red : 'auto',
+const StyledInput = styled(SimpleInput)<{ $error: boolean }>((props) => ({
+  color: props.$error ? colors.red : 'auto',
 }));
 
 interface CustomListsProps {
@@ -93,8 +93,8 @@ export default function CustomLists(props: CustomListsProps) {
           {messages.pgettext('select-location-view', 'Custom lists')}
         </StyledHeaderLabel>
         <StyledCellButton
-          backgroundColor={colors.blue}
-          backgroundColorHover={colors.blue80}
+          $backgroundColor={colors.blue}
+          $backgroundColorHover={colors.blue80}
           onClick={showAddList}>
           <StyledSideButtonIcon source="icon-add" tintColor={colors.white60} width={18} />
         </StyledCellButton>
@@ -172,14 +172,14 @@ function AddListForm(props: AddListFormProps) {
             onSubmitValue={createList}
             onBlur={onBlur}
             maxLength={30}
-            error={error}
+            $error={error}
             autoFocus
           />
         </StyledInputContainer>
 
         <StyledAddListCellButton
-          backgroundColor={colors.blue}
-          backgroundColorHover={colors.blue80}
+          $backgroundColor={colors.blue}
+          $backgroundColorHover={colors.blue80}
           onClick={createList}>
           <StyledSideButtonIcon source="icon-check" tintColor={colors.white60} width={18} />
         </StyledAddListCellButton>

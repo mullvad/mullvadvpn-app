@@ -41,29 +41,36 @@ interface IState {
 
 export const StyledTransitionContainer = styled.div({ flex: 1 });
 
-export const StyledTransitionContent = styled.div.attrs({ 'data-testid': 'transition-content' })(
-  {},
-  (props: { transition?: IItemStyle; disableUserInteraction?: boolean }) => {
-    const x = `${props.transition?.x ?? 0}%`;
-    const y = `${props.transition?.y ?? 0}%`;
-    const duration = props.transition?.duration ?? 450;
+interface StyledTransitionContentProps {
+  $transition?: IItemStyle;
+  $disableUserInteraction?: boolean;
+}
 
-    return {
-      display: 'flex',
-      flexDirection: 'column',
-      position: 'absolute',
-      left: 0,
-      right: 0,
-      top: 0,
-      bottom: 0,
-      zIndex: props.transition?.inFront ? 1 : 0,
-      willChange: 'transform',
-      transform: `translate3d(${x}, ${y}, 0)`,
-      transition: `transform ${duration}ms ease-in-out`,
-      pointerEvents: props.disableUserInteraction ? 'none' : undefined,
-    };
-  },
-);
+export const StyledTransitionContent = styled.div.attrs<
+  StyledTransitionContentProps,
+  { 'data-testid': string }
+>({
+  'data-testid': 'transition-content',
+})((props) => {
+  const x = `${props.$transition?.x ?? 0}%`;
+  const y = `${props.$transition?.y ?? 0}%`;
+  const duration = props.$transition?.duration ?? 450;
+
+  return {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    zIndex: props.$transition?.inFront ? 1 : 0,
+    willChange: 'transform',
+    transform: `translate3d(${x}, ${y}, 0)`,
+    transition: `transform ${duration}ms ease-in-out`,
+    pointerEvents: props.$disableUserInteraction ? 'none' : undefined,
+  };
+});
 
 export const StyledTransitionView = styled.div({
   display: 'flex',
@@ -132,9 +139,9 @@ export default class TransitionContainer extends React.Component<IProps, IState>
           <WillExit key={this.state.currentItem.view.props.routePath} value={willExit}>
             <StyledTransitionContent
               ref={this.setCurrentContentRef}
-              transition={this.state.currentItemStyle}
+              $transition={this.state.currentItemStyle}
               onTransitionEnd={this.onTransitionEnd}
-              disableUserInteraction={willExit}>
+              $disableUserInteraction={willExit}>
               {this.state.currentItem.view}
             </StyledTransitionContent>
           </WillExit>
@@ -144,7 +151,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
           <WillExit key={this.state.nextItem.view.props.routePath} value={false}>
             <StyledTransitionContent
               ref={this.setNextContentRef}
-              transition={this.state.nextItemStyle}
+              $transition={this.state.nextItemStyle}
               onTransitionEnd={this.onTransitionEnd}>
               {this.state.nextItem.view}
             </StyledTransitionContent>

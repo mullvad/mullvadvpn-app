@@ -13,7 +13,7 @@ export const Container = styled.div({
 });
 
 export const ContentWrapper = styled.div({
-  ':not(:first-child)': {
+  '&&:not(:first-child)': {
     paddingTop: '8px',
   },
 });

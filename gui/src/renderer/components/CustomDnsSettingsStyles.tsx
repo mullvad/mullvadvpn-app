@@ -12,19 +12,16 @@ export const StyledAddCustomDnsButton = styled(Cell.CellButton)({
   backgroundColor: colors.blue40,
 });
 
-export const StyledAddCustomDnsLabel = styled(Cell.Label)(
-  {},
-  (props: { paddingLeft?: number }) => ({
-    fontFamily: 'Open Sans',
-    fontWeight: 400,
-    fontSize: '16px',
-    paddingLeft: (props.paddingLeft ?? 32) + 'px',
-    whiteSpace: 'pre-wrap',
-    overflowWrap: 'break-word',
-    width: '171px',
-    marginRight: '25px',
-  }),
-);
+export const StyledAddCustomDnsLabel = styled(Cell.Label)<{ $paddingLeft?: number }>((props) => ({
+  fontFamily: 'Open Sans',
+  fontWeight: 400,
+  fontSize: '16px',
+  paddingLeft: (props.$paddingLeft ?? 32) + 'px',
+  whiteSpace: 'pre-wrap',
+  overflowWrap: 'break-word',
+  width: '171px',
+  marginRight: '25px',
+}));
 
 export const StyledContainer = styled(Cell.Container)({
   display: 'flex',
@@ -59,7 +56,7 @@ export const StyledRemoveButton = styled.button({
 });
 
 export const StyledRemoveIcon = styled(ImageView)({
-  [StyledRemoveButton + ':hover &']: {
+  [StyledRemoveButton + ':hover &&']: {
     backgroundColor: colors.white80,
   },
 });

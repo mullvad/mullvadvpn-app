@@ -25,9 +25,9 @@ const ModalContent = styled.div({
   overflow: 'hidden',
 });
 
-const ModalBackground = styled.div({}, (props: { visible: boolean }) => ({
-  backgroundColor: props.visible ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
-  backdropFilter: props.visible ? 'blur(1.5px)' : '',
+const ModalBackground = styled.div<{ $visible: boolean }>((props) => ({
+  backgroundColor: props.$visible ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
+  backdropFilter: props.$visible ? 'blur(1.5px)' : '',
   position: 'absolute',
   display: 'flex',
   flexDirection: 'column',
@@ -37,7 +37,7 @@ const ModalBackground = styled.div({}, (props: { visible: boolean }) => ({
   right: 0,
   bottom: 0,
   transition: 'background-color 150ms ease-out',
-  pointerEvents: props.visible ? 'auto' : 'none',
+  pointerEvents: props.$visible ? 'auto' : 'none',
   zIndex: 2,
 }));
 
@@ -111,11 +111,11 @@ const ModalAlertContainer = styled.div({
   padding: '14px',
 });
 
-const StyledModalAlert = styled.div({}, (props: { visible: boolean; closing: boolean }) => {
+const StyledModalAlert = styled.div<{ $visible: boolean; $closing: boolean }>((props) => {
   let transform = '';
-  if (props.visible && props.closing) {
+  if (props.$visible && props.$closing) {
     transform = 'scale(80%)';
-  } else if (!props.visible) {
+  } else if (!props.$visible) {
     transform = 'translateY(10px) scale(98%)';
   }
 
@@ -126,7 +126,7 @@ const StyledModalAlert = styled.div({}, (props: { visible: boolean; closing: boo
     borderRadius: '11px',
     padding: '16px 0 16px 16px',
     maxHeight: '80vh',
-    opacity: props.visible && !props.closing ? 1 : 0,
+    opacity: props.$visible && !props.$closing ? 1 : 0,
     transform,
     boxShadow: ' 0px 15px 35px 5px rgba(0,0,0,0.5)',
     transition: 'all 150ms ease-out',
@@ -254,15 +254,15 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
   private renderModal() {
     return (
       <BackAction action={this.close}>
-        <ModalBackground visible={this.state.visible && !this.props.closing}>
+        <ModalBackground $visible={this.state.visible && !this.props.closing}>
           <ModalAlertContainer>
             <StyledModalAlert
               ref={this.modalRef}
               tabIndex={-1}
               role="dialog"
               aria-modal
-              visible={this.state.visible}
-              closing={this.props.closing}
+              $visible={this.state.visible}
+              $closing={this.props.closing}
               onTransitionEnd={this.onTransitionEnd}>
               <StyledCustomScrollbars>
                 {this.props.type && (
