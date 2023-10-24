@@ -14,7 +14,7 @@ use std::{
     fs, io,
     net::{IpAddr, Ipv4Addr},
 };
-use talpid_types::net::{AllowedTunnelTraffic, Endpoint, TransportProtocol};
+use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint, TransportProtocol};
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
@@ -519,7 +519,7 @@ impl<'a> PolicyBatch<'a> {
                 allowed_tunnel_traffic,
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
-                self.add_allow_endpoint_rules(&allowed_endpoint.endpoint);
+                self.add_allow_endpoint_rules(&allowed_endpoint);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
@@ -568,7 +568,7 @@ impl<'a> PolicyBatch<'a> {
                 allowed_endpoint,
             } => {
                 if let Some(endpoint) = allowed_endpoint {
-                    self.add_allow_endpoint_rules(&endpoint.endpoint);
+                    self.add_allow_endpoint_rules(&endpoint);
                 }
 
                 // Important to drop DNS before allowing LAN (to stop DNS leaking to the LAN)
@@ -628,24 +628,28 @@ impl<'a> PolicyBatch<'a> {
 
     /// Adds firewall rules allow traffic to flow to the API. Allows the app to reach the API in
     /// blocked states.
-    fn add_allow_endpoint_rules(&mut self, endpoint: &Endpoint) {
+    fn add_allow_endpoint_rules(&mut self, endpoint: &AllowedEndpoint) {
         let mut in_rule = Rule::new(&self.in_chain);
-        check_endpoint(&mut in_rule, End::Src, endpoint);
+        check_endpoint(&mut in_rule, End::Src, &endpoint.endpoint);
         let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
         in_rule.add_expr(&nft_expr!(ct state));
         in_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32));
         in_rule.add_expr(&nft_expr!(cmp != 0u32));
-        in_rule.add_expr(&nft_expr!(meta skuid));
-        in_rule.add_expr(&nft_expr!(cmp == super::ROOT_UID));
+        if !endpoint.clients.allow_all() {
+            in_rule.add_expr(&nft_expr!(meta skuid));
+            in_rule.add_expr(&nft_expr!(cmp == super::ROOT_UID));
+        }
 
         add_verdict(&mut in_rule, &Verdict::Accept);
 
         self.batch.add(&in_rule, nftnl::MsgType::Add);
 
         let mut out_rule = Rule::new(&self.out_chain);
-        check_endpoint(&mut out_rule, End::Dst, endpoint);
-        out_rule.add_expr(&nft_expr!(meta skuid));
-        out_rule.add_expr(&nft_expr!(cmp == super::ROOT_UID));
+        check_endpoint(&mut out_rule, End::Dst, &endpoint.endpoint);
+        if !endpoint.clients.allow_all() {
+            out_rule.add_expr(&nft_expr!(meta skuid));
+            out_rule.add_expr(&nft_expr!(cmp == super::ROOT_UID));
+        }
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);

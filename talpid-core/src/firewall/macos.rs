@@ -6,7 +6,7 @@ use std::{
     net::{IpAddr, Ipv4Addr},
 };
 use subslice::SubsliceExt;
-use talpid_types::net::{self, AllowedTunnelTraffic};
+use talpid_types::net::{self, AllowedEndpoint, AllowedTunnelTraffic};
 
 pub use pfctl::Error;
 
@@ -122,7 +122,7 @@ impl Firewall {
                 allowed_tunnel_traffic,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(*peer_endpoint)?];
-                rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
+                rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.clone())?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
@@ -175,7 +175,7 @@ impl Firewall {
             } => {
                 let mut rules = Vec::new();
                 if let Some(allowed_endpoint) = allowed_endpoint {
-                    rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.endpoint)?);
+                    rules.push(self.get_allowed_endpoint_rule(allowed_endpoint.clone())?);
                 }
 
                 if *allow_lan {
@@ -287,22 +287,26 @@ impl Firewall {
             .build()
     }
 
-    /// Produces a rule that allows traffic to flow to the API. Allows the app to reach the API in
-    /// blocked states.
+    /// Produces a rule that allows traffic to flow to the API. Allows the app (or other apps if configured)
+    /// to reach the API in blocked states.
     fn get_allowed_endpoint_rule(
         &self,
-        allowed_endpoint: net::Endpoint,
+        allowed_endpoint: AllowedEndpoint,
     ) -> Result<pfctl::FilterRule> {
-        let pfctl_proto = as_pfctl_proto(allowed_endpoint.protocol);
+        let pfctl_proto = as_pfctl_proto(allowed_endpoint.endpoint.protocol);
 
-        self.create_rule_builder(FilterRuleAction::Pass)
-            .direction(pfctl::Direction::Out)
-            .to(allowed_endpoint.address)
+        let mut rule = self.create_rule_builder(FilterRuleAction::Pass);
+        rule.direction(pfctl::Direction::Out)
+            .to(allowed_endpoint.endpoint.address)
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
-            .user(Uid::from(super::ROOT_UID))
-            .quick(true)
-            .build()
+            .quick(true);
+
+        if !allowed_endpoint.clients.allow_all() {
+            rule.user(Uid::from(super::ROOT_UID)).build()?;
+        }
+
+        rule.build()
     }
 
     fn get_block_dns_rules(&self) -> Result<Vec<pfctl::FilterRule>> {

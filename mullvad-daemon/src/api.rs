@@ -276,11 +276,11 @@ pub(super) fn get_allowed_endpoint(endpoint: Endpoint) -> AllowedEndpoint {
         daemon_exe,
     ];
 
-    AllowedEndpoint {
+    AllowedEndpoint::new(
+        endpoint,
         #[cfg(windows)]
         clients,
-        endpoint,
-    }
+    )
 }
 
 pub(crate) fn forward_offline_state(
