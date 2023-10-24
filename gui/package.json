@@ -26,7 +26,7 @@
     "react-simple-maps": "^3.0.0",
     "redux": "^4.2.0",
     "sprintf-js": "^1.1.2",
-    "styled-components": "^5.1.1"
+    "styled-components": "^6.1.0"
   },
   "optionalDependencies": {
     "grpc-tools": "^1.12.4",
@@ -52,7 +52,6 @@
     "@types/react-simple-maps": "^1.0.8",
     "@types/sinon": "^10.0.13",
     "@types/sprintf-js": "^1.1.2",
-    "@types/styled-components": "^5.1.26",
     "@types/topojson-specification": "^1.0.2",
     "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@typescript-eslint/parser": "^5.56.0",
