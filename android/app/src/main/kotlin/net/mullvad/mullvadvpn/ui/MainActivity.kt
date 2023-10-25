@@ -73,8 +73,6 @@ open class MainActivity : FragmentActivity() {
         uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
-    var backButtonHandler: (() -> Boolean)? = null
-
     private lateinit var accountRepository: AccountRepository
     private lateinit var deviceRepository: DeviceRepository
     private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
@@ -133,14 +131,6 @@ open class MainActivity : FragmentActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
-    }
-
-    override fun onBackPressed() {
-        val handled = backButtonHandler?.invoke() ?: false
-
-        if (!handled) {
-            super.onBackPressed()
-        }
     }
 
     override fun onStop() {
@@ -317,8 +307,7 @@ open class MainActivity : FragmentActivity() {
                 .filter { it is AccountExpiry.Available }
                 .map { it.date()?.isBeforeNow }
                 .first()
-        }
-            ?: false
+        } ?: false
     }
 
     private fun openLoginView() {
