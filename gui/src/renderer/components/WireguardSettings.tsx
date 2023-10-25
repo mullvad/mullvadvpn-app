@@ -8,12 +8,13 @@ import {
   liftConstraint,
   LiftedConstraint,
   ObfuscationType,
+  wrapConstraint,
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { removeNonNumericCharacters } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
-import { createWireguardRelayUpdater } from '../lib/constraint-updater';
+import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
@@ -132,7 +133,7 @@ export default function WireguardSettings() {
 
 function PortSelector() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
-  const { updateRelaySettings } = useAppContext();
+  const relaySettingsUpdater = useRelaySettingsUpdater();
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
 
   const wireguardPortItems = useMemo<Array<SelectorItem<number>>>(
@@ -147,23 +148,17 @@ function PortSelector() {
 
   const setWireguardPort = useCallback(
     async (port: number | null) => {
-      const relayUpdate = createWireguardRelayUpdater(relaySettings)
-        .tunnel.wireguard((wireguard) => {
-          if (port !== null) {
-            wireguard.port.exact(port);
-          } else {
-            wireguard.port.any();
-          }
-        })
-        .build();
       try {
-        await updateRelaySettings(relayUpdate);
+        await relaySettingsUpdater((settings) => {
+          settings.wireguardConstraints.port = wrapConstraint(port);
+          return settings;
+        });
       } catch (e) {
         const error = e as Error;
         log.error('Failed to update relay settings', error.message);
       }
     },
-    [relaySettings],
+    [relaySettingsUpdater],
   );
 
   const parseValue = useCallback((port: string) => parseInt(port), []);
@@ -288,7 +283,7 @@ function Udp2tcpPortSetting() {
         ...obfuscationSettings,
         udp2tcpSettings: {
           ...obfuscationSettings.udp2tcpSettings,
-          port: port === 'any' ? 'any' : { only: port },
+          port: wrapConstraint(port),
         },
       });
     },
@@ -324,7 +319,7 @@ function Udp2tcpPortSetting() {
 
 function MultihopSetting() {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
-  const { updateRelaySettings } = useAppContext();
+  const relaySettingsUpdater = useRelaySettingsUpdater();
 
   const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
 
@@ -332,17 +327,17 @@ function MultihopSetting() {
 
   const setMultihopImpl = useCallback(
     async (enabled: boolean) => {
-      const relayUpdate = createWireguardRelayUpdater(relaySettings)
-        .tunnel.wireguard((wireguard) => wireguard.useMultihop(enabled))
-        .build();
       try {
-        await updateRelaySettings(relayUpdate);
+        await relaySettingsUpdater((settings) => {
+          settings.wireguardConstraints.useMultihop = enabled;
+          return settings;
+        });
       } catch (e) {
         const error = e as Error;
         log.error('Failed to update WireGuard multihop settings', error.message);
       }
     },
-    [relaySettings, updateRelaySettings],
+    [relaySettingsUpdater],
   );
 
   const setMultihop = useCallback(
@@ -416,7 +411,7 @@ function MultihopSetting() {
 }
 
 function IpVersionSetting() {
-  const { updateRelaySettings } = useAppContext();
+  const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const ipVersion = useMemo(() => {
     const ipVersion = 'normal' in relaySettings ? relaySettings.normal.wireguard.ipVersion : 'any';
@@ -439,23 +434,17 @@ function IpVersionSetting() {
 
   const setIpVersion = useCallback(
     async (ipVersion: IpVersion | null) => {
-      const relayUpdate = createWireguardRelayUpdater(relaySettings)
-        .tunnel.wireguard((wireguard) => {
-          if (ipVersion !== null) {
-            wireguard.ipVersion.exact(ipVersion);
-          } else {
-            wireguard.ipVersion.any();
-          }
-        })
-        .build();
       try {
-        await updateRelaySettings(relayUpdate);
+        await relaySettingsUpdater((settings) => {
+          settings.wireguardConstraints.ipVersion = wrapConstraint(ipVersion);
+          return settings;
+        });
       } catch (e) {
         const error = e as Error;
         log.error('Failed to update relay settings', error.message);
       }
     },
-    [relaySettings, updateRelaySettings],
+    [relaySettingsUpdater],
   );
 
   return (

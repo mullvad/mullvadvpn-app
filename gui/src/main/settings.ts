@@ -56,8 +56,8 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetWireguardQuantumResistant((quantumResistant?: boolean) =>
       this.daemonRpc.setWireguardQuantumResistant(quantumResistant),
     );
-    IpcMainEventChannel.settings.handleUpdateRelaySettings((update) =>
-      this.daemonRpc.updateRelaySettings(update),
+    IpcMainEventChannel.settings.handleUpdateRelaySettings((relaySettings) =>
+      this.daemonRpc.updateRelaySettings(relaySettings),
     );
     IpcMainEventChannel.settings.handleUpdateBridgeSettings((bridgeSettings) => {
       return this.daemonRpc.setBridgeSettings(bridgeSettings);

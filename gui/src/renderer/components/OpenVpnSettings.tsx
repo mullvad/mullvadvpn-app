@@ -3,12 +3,17 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings } from '../../config.json';
-import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import {
+  BridgeState,
+  RelayProtocol,
+  TunnelProtocol,
+  wrapConstraint,
+} from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
-import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import { removeNonNumericCharacters } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
+import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useBoolean } from '../lib/utilityHooks';
@@ -177,34 +182,24 @@ function TransportProtocolSelector() {
 }
 
 function useProtocolAndPortUpdater() {
-  const { updateRelaySettings } = useAppContext();
+  const relaySettingsUpdater = useRelaySettingsUpdater();
 
   const updater = useCallback(
     async (protocol: RelayProtocol | null, port?: number | null) => {
-      const relayUpdate = RelaySettingsBuilder.normal()
-        .tunnel.openvpn((openvpn) => {
-          if (protocol) {
-            openvpn.protocol.exact(protocol);
-          } else {
-            openvpn.protocol.any();
-          }
-
-          if (port) {
-            openvpn.port.exact(port);
-          } else {
-            openvpn.port.any();
-          }
-        })
-        .build();
-
       try {
-        await updateRelaySettings(relayUpdate);
+        await relaySettingsUpdater((settings) => {
+          settings.openvpnConstraints.protocol = wrapConstraint(protocol);
+          if (port) {
+            settings.openvpnConstraints.port = wrapConstraint(port);
+          }
+          return settings;
+        });
       } catch (e) {
         const error = e as Error;
         log.error('Failed to update relay settings', error.message);
       }
     },
-    [updateRelaySettings],
+    [relaySettingsUpdater],
   );
 
   return updater;

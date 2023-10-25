@@ -112,6 +112,14 @@ export type LiftedConstraint<T> = 'any' | T;
 export function liftConstraint<T>(constraint: Constraint<T>): LiftedConstraint<T> {
   return constraint === 'any' ? constraint : constraint.only;
 }
+export function wrapConstraint<T>(
+  constraint: LiftedConstraint<T> | undefined | null,
+): Constraint<T> {
+  if (constraint) {
+    return constraint === 'any' ? 'any' : { only: constraint };
+  }
+  return 'any';
+}
 
 export type ProxyType = 'shadowsocks' | 'custom';
 export function proxyTypeToString(proxy: ProxyType): string {
@@ -262,19 +270,6 @@ export interface IRelaySettingsCustom {
 export type RelaySettings =
   | {
       normal: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>;
-    }
-  | {
-      customTunnelEndpoint: IRelaySettingsCustom;
-    };
-
-// types describing the partial update of RelaySettings
-export type RelaySettingsNormalUpdate = Partial<
-  IRelaySettingsNormal<Partial<IOpenVpnConstraints>, Partial<IWireguardConstraints>>
->;
-
-export type RelaySettingsUpdate =
-  | {
-      normal: RelaySettingsNormalUpdate;
     }
   | {
       customTunnelEndpoint: IRelaySettingsCustom;

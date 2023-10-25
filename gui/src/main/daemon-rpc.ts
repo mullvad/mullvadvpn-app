@@ -41,6 +41,7 @@ import {
   IRelayListCountry,
   IRelayListHostname,
   IRelayListWithEndpointData,
+  IRelaySettingsNormal,
   ISettings,
   ITunnelOptions,
   ITunnelStateRelayInfo,
@@ -58,12 +59,12 @@ import {
   RelayLocationGeographical,
   RelayProtocol,
   RelaySettings,
-  RelaySettingsUpdate,
   TunnelParameterError,
   TunnelProtocol,
   TunnelState,
   TunnelType,
   VoucherResponse,
+  wrapConstraint,
 } from '../shared/daemon-rpc-types';
 import log from '../shared/logging';
 import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
@@ -297,52 +298,14 @@ export class DaemonRpc {
   }
 
   // TODO: Custom tunnel configurations are not supported by the GUI.
-  public async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+  public async updateRelaySettings(relaySettings: RelaySettings): Promise<void> {
     if ('normal' in relaySettings) {
-      const settingsUpdate = relaySettings.normal;
-      const grpcRelaySettings = new grpcTypes.RelaySettingsUpdate();
+      const normalSettings = relaySettings.normal;
+      const grpcRelaySettings = new grpcTypes.RelaySettings();
+      grpcRelaySettings.setNormal(convertToRelayConstraints(normalSettings));
 
-      const normalUpdate = new grpcTypes.NormalRelaySettingsUpdate();
-
-      if (settingsUpdate.tunnelProtocol) {
-        const tunnelTypeUpdate = new grpcTypes.TunnelTypeUpdate();
-        if (settingsUpdate.tunnelProtocol !== 'any') {
-          tunnelTypeUpdate.setTunnelType(convertToTunnelType(settingsUpdate.tunnelProtocol.only));
-        }
-        normalUpdate.setTunnelType(tunnelTypeUpdate);
-      }
-
-      if (settingsUpdate.location) {
-        normalUpdate.setLocation(convertToLocation(liftConstraint(settingsUpdate.location)));
-      }
-
-      if (settingsUpdate.wireguardConstraints) {
-        normalUpdate.setWireguardConstraints(
-          convertToWireguardConstraints(settingsUpdate.wireguardConstraints),
-        );
-      }
-
-      if (settingsUpdate.openvpnConstraints) {
-        normalUpdate.setOpenvpnConstraints(
-          convertToOpenVpnConstraints(settingsUpdate.openvpnConstraints),
-        );
-      }
-
-      if (settingsUpdate.providers) {
-        const providerUpdate = new grpcTypes.ProviderUpdate();
-        providerUpdate.setProvidersList(settingsUpdate.providers);
-        normalUpdate.setProviders(providerUpdate);
-      }
-
-      if (settingsUpdate.ownership !== undefined) {
-        const ownershipUpdate = new grpcTypes.OwnershipUpdate();
-        ownershipUpdate.setOwnership(convertToOwnership(settingsUpdate.ownership));
-        normalUpdate.setOwnership(ownershipUpdate);
-      }
-
-      grpcRelaySettings.setNormal(normalUpdate);
-      await this.call<grpcTypes.RelaySettingsUpdate, Empty>(
-        this.client.updateRelaySettings,
+      await this.call<grpcTypes.RelaySettings, Empty>(
+        this.client.setRelaySettings,
         grpcRelaySettings,
       );
     }
@@ -1148,7 +1111,7 @@ function convertFromRelaySettings(
       case grpcTypes.RelaySettings.EndpointCase.NORMAL: {
         const normal = relaySettings.getNormal()!;
         const locationConstraint = convertFromLocationConstraint(normal.getLocation());
-        const location = locationConstraint ? { only: locationConstraint } : 'any';
+        const location = wrapConstraint(locationConstraint);
         // `getTunnelType()` is not falsy if type is 'any'
         const tunnelProtocol = convertFromTunnelTypeConstraint(
           normal.hasTunnelType() ? normal.getTunnelType() : undefined,
@@ -1184,7 +1147,7 @@ function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): Br
     const locationConstraint = convertFromLocationConstraint(
       bridgeSettings.getNormal()?.getLocation(),
     );
-    const location = locationConstraint ? { only: locationConstraint } : 'any';
+    const location = wrapConstraint(locationConstraint);
     const providers = normalSettings.providersList;
     const ownership = convertFromOwnership(normalSettings.ownership);
     return {
@@ -1475,7 +1438,7 @@ function convertFromWireguardConstraints(
   const entryLocation = constraints.getEntryLocation();
   if (entryLocation) {
     const location = convertFromLocationConstraint(entryLocation);
-    result.entryLocation = location ? { only: location } : 'any';
+    result.entryLocation = wrapConstraint(location);
   }
 
   return result;
@@ -1503,6 +1466,27 @@ function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
   } else {
     return 'any';
   }
+}
+
+function convertToRelayConstraints(
+  constraints: IRelaySettingsNormal<IOpenVpnConstraints, IWireguardConstraints>,
+): grpcTypes.NormalRelaySettings {
+  const relayConstraints = new grpcTypes.NormalRelaySettings();
+
+  if (constraints.tunnelProtocol !== 'any') {
+    relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol.only));
+  }
+  relayConstraints.setLocation(convertToLocation(liftConstraint(constraints.location)));
+  relayConstraints.setWireguardConstraints(
+    convertToWireguardConstraints(constraints.wireguardConstraints),
+  );
+  relayConstraints.setOpenvpnConstraints(
+    convertToOpenVpnConstraints(constraints.openvpnConstraints),
+  );
+  relayConstraints.setProvidersList(constraints.providers);
+  relayConstraints.setOwnership(convertToOwnership(constraints.ownership));
+
+  return relayConstraints;
 }
 
 function convertToNormalBridgeSettings(
