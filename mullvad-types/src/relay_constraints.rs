@@ -369,7 +369,6 @@ impl<'a> fmt::Display for LocationConstraintFormatter<'a> {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -607,6 +606,8 @@ pub struct OwnershipParseError;
 /// provider.
 pub type Provider = String;
 
+#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct Providers {
     providers: HashSet<Provider>,
@@ -986,7 +987,6 @@ impl RelaySettingsUpdate {
 #[serde(default)]
 pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
-    #[cfg_attr(target_os = "android", jnix(default))]
     pub providers: Option<Constraint<Providers>>,
     pub ownership: Option<Constraint<Ownership>>,
     #[cfg_attr(target_os = "android", jnix(default))]

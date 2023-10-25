@@ -99,7 +99,8 @@ class RelayListListener(endpoint: ServiceEndpoint) {
                 RelayConstraintsUpdate(
                     location = location,
                     wireguardConstraints = wireguardConstraints,
-                    ownership = Constraint.Any()
+                    ownership = Constraint.Any(),
+                    providers = Constraint.Any()
                 )
             )
 
