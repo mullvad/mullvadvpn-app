@@ -83,12 +83,12 @@ jobs:
           brew install xcbeautify
 
       - name: Run tests
-        uses: sersoft-gmbh/xcodebuild-action@v2
-        with:
-          project: ios/MullvadVPN.xcodeproj
-          scheme: MullvadVPN
-          test-plan: MullvadVPNCI
-          destination: platform=iOS Simulator,name=iPhone 15
-          action: test
-          cloned-source-packages-path: ios/${{ env.SOURCE_PACKAGES_PATH }}
-          output-formatter: xcbeautify
+        run: |
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPN \
+            -testPlan MullvadVPNCI \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            test 2>&1 | xcbeautify
+        working-directory: ios/
