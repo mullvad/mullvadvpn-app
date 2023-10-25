@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.ui.fragment
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.AccountScreen
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.ui.extension.requireMainActivity
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -40,16 +38,6 @@ class AccountFragment : BaseFragment() {
                 }
             }
         }
-    }
-
-    override fun onAttach(activity: Activity) {
-        super.onAttach(activity)
-        requireMainActivity().enterSecureScreen(this)
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        requireMainActivity().leaveSecureScreen(this)
     }
 
     override fun onEnterTransitionAnimationEnd() {

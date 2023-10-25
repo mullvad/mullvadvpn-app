@@ -9,13 +9,11 @@ import android.content.res.Configuration
 import android.net.VpnService
 import android.os.Bundle
 import android.util.Log
-import android.view.WindowManager
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
@@ -64,8 +62,6 @@ open class MainActivity : FragmentActivity() {
             // NotificationManager.areNotificationsEnabled is used to check the state rather than
             // handling the callback value.
         }
-
-    private var visibleSecureScreens = HashSet<Fragment>()
 
     private val deviceIsTv by lazy {
         val uiModeManager = getSystemService(UI_MODE_SERVICE) as UiModeManager
@@ -147,26 +143,6 @@ open class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         serviceConnectionManager.onDestroy()
         super.onDestroy()
-    }
-
-    fun enterSecureScreen(screen: Fragment) {
-        synchronized(this) {
-            visibleSecureScreens.add(screen)
-
-            if (!BuildConfig.DEBUG) {
-                window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-        }
-    }
-
-    fun leaveSecureScreen(screen: Fragment) {
-        synchronized(this) {
-            visibleSecureScreens.remove(screen)
-
-            if (!BuildConfig.DEBUG && visibleSecureScreens.isEmpty()) {
-                window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-        }
     }
 
     fun openAccount() {
@@ -307,7 +283,8 @@ open class MainActivity : FragmentActivity() {
                 .filter { it is AccountExpiry.Available }
                 .map { it.date()?.isBeforeNow }
                 .first()
-        } ?: false
+        }
+            ?: false
     }
 
     private fun openLoginView() {

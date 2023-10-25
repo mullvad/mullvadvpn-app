@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
+import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -74,6 +75,9 @@ fun AccountScreen(
     onLogoutClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    // This will enable SECURE_FLAG while this screen is visible to preview screenshot
+    SecureScreenWhileInView()
+
     val context = LocalContext.current
     val backgroundColor = MaterialTheme.colorScheme.background
     val systemUiController = rememberSystemUiController()
