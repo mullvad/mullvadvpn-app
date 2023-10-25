@@ -65,7 +65,7 @@ jobs:
       - name: Configure Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.0'
+          xcode-version: '15.0.1'
       - name: Configure Rust
         run: rustup target add x86_64-apple-ios
 
@@ -88,7 +88,7 @@ jobs:
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -testPlan MullvadVPNCI \
-            -destination "platform=iOS Simulator,OS=17.0,name=iPhone 14" \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             test 2>&1 | xcbeautify
         working-directory: ios/
