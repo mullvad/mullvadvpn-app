@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
@@ -99,7 +100,8 @@ class RelayListListener(endpoint: ServiceEndpoint) {
                 RelayConstraintsUpdate(
                     location = location,
                     wireguardConstraints = wireguardConstraints,
-                    ownership = Constraint.Any()
+                    ownership = Constraint.Any(),
+                    providers = Constraint.Any()
                 )
             )
 

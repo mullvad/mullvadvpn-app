@@ -101,6 +101,7 @@ class RelayListListener(
                             location = Constraint.Any(),
                             ownership = Constraint.Any(),
                             wireguardConstraints = WireguardConstraints(Constraint.Any()),
+                            providers = Constraint.Any()
                         )
                     )
 
