@@ -440,6 +440,56 @@ fun VpnSettingsScreen(
             itemWithDivider {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 InformationComposeCell(
+                    title = stringResource(id = R.string.wireguard_port_title),
+                    onInfoClicked = onWireguardPortInfoClicked
+                )
+            }
+
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
+                    isSelected = uiState.selectedWireguardPort is Constraint.Any,
+                    onCellClicked = { onWireguardPortSelected(Constraint.Any()) }
+                )
+            }
+
+            WIREGUARD_PRESET_PORTS.forEach { port ->
+                itemWithDivider {
+                    SelectableCell(
+                        title = port.toString(),
+                        testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
+                        isSelected = uiState.selectedWireguardPort.hasValue(port),
+                        onCellClicked = { onWireguardPortSelected(Constraint.Only(Port(port))) }
+                    )
+                }
+            }
+
+            itemWithDivider {
+                CustomPortCell(
+                    title = stringResource(id = R.string.wireguard_custon_port_title),
+                    isSelected = uiState.selectedWireguardPort.isCustom(),
+                    port =
+                        if (uiState.selectedWireguardPort.isCustom()) {
+                            uiState.selectedWireguardPort.toDisplayCustomPort()
+                        } else {
+                            savedCustomPort.value.toDisplayCustomPort()
+                        },
+                    onMainCellClicked = {
+                        if (savedCustomPort.value is Constraint.Only) {
+                            onWireguardPortSelected(savedCustomPort.value)
+                        } else {
+                            onShowCustomPortDialog()
+                        }
+                    },
+                    onPortCellClicked = { onShowCustomPortDialog() },
+                    mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
+                    numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
+                )
+            }
+
+            itemWithDivider {
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                InformationComposeCell(
                     title = stringResource(R.string.obfuscation_title),
                     onInfoClicked = { onObfuscationInfoClick() }
                 )
@@ -488,68 +538,21 @@ fun VpnSettingsScreen(
                     onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) }
                 )
             }
-            itemWithDivider {
+            item {
                 SelectableCell(
                     title = stringResource(id = R.string.off),
                     testTag = LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG,
                     isSelected = uiState.quantumResistant == QuantumResistantState.Off,
                     onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) }
                 )
-            }
-
-            itemWithDivider {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                InformationComposeCell(
-                    title = stringResource(id = R.string.wireguard_port_title),
-                    onInfoClicked = onWireguardPortInfoClicked
-                )
-            }
-
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = uiState.selectedWireguardPort is Constraint.Any,
-                    onCellClicked = { onWireguardPortSelected(Constraint.Any()) }
-                )
-            }
-
-            WIREGUARD_PRESET_PORTS.forEach { port ->
-                itemWithDivider {
-                    SelectableCell(
-                        title = port.toString(),
-                        testTag = String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, port),
-                        isSelected = uiState.selectedWireguardPort.hasValue(port),
-                        onCellClicked = { onWireguardPortSelected(Constraint.Only(Port(port))) }
-                    )
-                }
-            }
-
-            itemWithDivider {
-                CustomPortCell(
-                    title = stringResource(id = R.string.wireguard_custon_port_title),
-                    isSelected = uiState.selectedWireguardPort.isCustom(),
-                    port =
-                        if (uiState.selectedWireguardPort.isCustom()) {
-                            uiState.selectedWireguardPort.toDisplayCustomPort()
-                        } else {
-                            savedCustomPort.value.toDisplayCustomPort()
-                        },
-                    onMainCellClicked = {
-                        if (savedCustomPort.value is Constraint.Only) {
-                            onWireguardPortSelected(savedCustomPort.value)
-                        } else {
-                            onShowCustomPortDialog()
-                        }
-                    },
-                    onPortCellClicked = { onShowCustomPortDialog() },
-                    mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
-                    numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
-                )
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
             }
 
             item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
-            item { MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)) }
+            item {
+                MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+            }
         }
     }
 }
