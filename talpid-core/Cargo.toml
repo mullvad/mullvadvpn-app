@@ -31,7 +31,7 @@ talpid-openvpn = { path = "../talpid-openvpn" }
 triggered = "0.1.1"
 
 [target.'cfg(target_os = "android")'.dependencies]
-jnix = { version = "0.5", features = ["derive"] }
+jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = "0.23"

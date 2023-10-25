@@ -23,4 +23,4 @@ talpid-types = { path = "../talpid-types" }
 clap = { workspace = true , optional = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
-jnix = { version = "0.5", features = ["derive"] }
+jnix = { version = "0.5.1", features = ["derive"] }
