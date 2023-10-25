@@ -131,7 +131,10 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState = VpnSettingsUiState.createDefault(mtu = VALID_DUMMY_MTU_VALUE),
+                uiState =
+                    VpnSettingsUiState.createDefault(
+                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = VALID_DUMMY_MTU_VALUE)
+                    ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
@@ -262,9 +265,7 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
-        //        composeTestRule
-        //            .onNodeWithTag(LAZY_LIST_TEST_TAG)
-        //            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+
         // Assert
         composeTestRule.apply {
             onNodeWithText(DUMMY_DNS_ADDRESS).assertExists()
@@ -388,9 +389,6 @@ class VpnSettingsScreenTest {
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
-        //        composeTestRule
-        //            .onNodeWithTag(LAZY_LIST_TEST_TAG)
-        //            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
         // Act
         composeTestRule.onNodeWithText("Add a server").performClick()
