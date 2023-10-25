@@ -14,6 +14,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -67,18 +68,18 @@ fun MullvadSwitch(
 fun mullvadSwitchColors(): SwitchColors =
     SwitchDefaults.colors(
         checkedThumbColor = MaterialTheme.colorScheme.selected,
-        checkedTrackColor = MaterialTheme.colorScheme.primary,
+        checkedTrackColor = Color.Transparent,
         checkedBorderColor = MaterialTheme.colorScheme.onPrimary,
         //    checkedIconColor= SwitchTokens.SelectedIconColor.toColor(),
         uncheckedThumbColor = MaterialTheme.colorScheme.error,
-        uncheckedTrackColor = MaterialTheme.colorScheme.primary,
+        uncheckedTrackColor = Color.Transparent,
         uncheckedBorderColor = MaterialTheme.colorScheme.onPrimary,
         //    uncheckedIconColor= SwitchTokens.UnselectedIconColor.toColor(),
         disabledCheckedThumbColor =
             MaterialTheme.colorScheme.selected
                 .copy(alpha = AlphaDisabled)
                 .compositeOver(MaterialTheme.colorScheme.primary),
-        disabledCheckedTrackColor = MaterialTheme.colorScheme.primary,
+        disabledCheckedTrackColor = Color.Transparent,
         disabledCheckedBorderColor =
             MaterialTheme.colorScheme.onPrimary
                 .copy(alpha = AlphaDisabled)
@@ -87,7 +88,7 @@ fun mullvadSwitchColors(): SwitchColors =
             MaterialTheme.colorScheme.error
                 .copy(alpha = AlphaDisabled)
                 .compositeOver(MaterialTheme.colorScheme.primary),
-        disabledUncheckedTrackColor = MaterialTheme.colorScheme.primary,
+        disabledUncheckedTrackColor = Color.Transparent,
         disabledUncheckedBorderColor =
             MaterialTheme.colorScheme.onPrimary
                 .copy(alpha = AlphaDisabled)

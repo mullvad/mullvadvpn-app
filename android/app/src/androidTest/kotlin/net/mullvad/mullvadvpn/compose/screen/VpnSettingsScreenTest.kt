@@ -131,7 +131,10 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState = VpnSettingsUiState.createDefault(mtu = VALID_DUMMY_MTU_VALUE),
+                uiState =
+                    VpnSettingsUiState.createDefault(
+                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = VALID_DUMMY_MTU_VALUE)
+                    ),
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
             )
         }
