@@ -1837,13 +1837,13 @@ msgstr ""
 msgid "WireGuard MTU"
 msgstr ""
 
-msgid "WireGuard Port"
-msgstr ""
-
 msgid "WireGuard custom port"
 msgstr ""
 
 msgid "WireGuard obfuscation"
+msgstr ""
+
+msgid "WireGuard port"
 msgstr ""
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
