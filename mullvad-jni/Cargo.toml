@@ -19,7 +19,7 @@ crate_type = ["cdylib"]
 err-derive = { workspace = true }
 futures = "0.3"
 ipnetwork = "0.16"
-jnix = { version = "0.5", features = ["derive"] }
+jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 log-panics = "2"
 nix = "0.23"
