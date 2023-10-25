@@ -1,0 +1,5 @@
+xcode_version = "15.0.1"
+xcode_xip_name = "Xcode_15.0.1.xip"
+vm_name = "ventura-vanilla"
+user_name = "admin"
+shared_folder_path = "vm_shared_folder"
