@@ -8,7 +8,7 @@ use mullvad_types::{
     custom_list::{CustomList, Id},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettings},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::TunnelState,
@@ -221,10 +221,10 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<()> {
-        let update = types::RelaySettingsUpdate::from(update);
+    pub async fn set_relay_settings(&mut self, update: RelaySettings) -> Result<()> {
+        let update = types::RelaySettings::from(update);
         self.0
-            .update_relay_settings(update)
+            .set_relay_settings(update)
             .await
             .map_err(Error::Rpc)?;
         Ok(())

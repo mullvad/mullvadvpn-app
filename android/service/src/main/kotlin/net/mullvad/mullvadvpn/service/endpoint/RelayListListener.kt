@@ -12,9 +12,9 @@ import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
-import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
+import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayList
-import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
+import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
@@ -95,8 +95,8 @@ class RelayListListener(endpoint: ServiceEndpoint) {
         val wireguardConstraints: WireguardConstraints? = selectedWireguardConstraints
 
         val update =
-            RelaySettingsUpdate.Normal(
-                RelayConstraintsUpdate(
+            RelaySettings.Normal(
+                RelayConstraints(
                     location = location,
                     wireguardConstraints = wireguardConstraints,
                     ownership = Constraint.Any(),
@@ -104,7 +104,7 @@ class RelayListListener(endpoint: ServiceEndpoint) {
                 )
             )
 
-        daemon.await().updateRelaySettings(update)
+        daemon.await().setRelaySettings(update)
     }
 
     companion object {

@@ -13,7 +13,7 @@ use mullvad_paths;
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettings},
     relay_list::RelayList,
     settings::Settings,
     states::{TargetState, TunnelState},
@@ -164,16 +164,16 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
-    async fn update_relay_settings(
+    async fn set_relay_settings(
         &self,
-        request: Request<types::RelaySettingsUpdate>,
+        request: Request<types::RelaySettings>,
     ) -> ServiceResult<()> {
-        log::debug!("update_relay_settings");
+        log::debug!("set_relay_settings");
         let (tx, rx) = oneshot::channel();
         let constraints_update =
-            RelaySettingsUpdate::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
+            RelaySettings::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
 
-        let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
+        let message = DaemonCommand::SetRelaySettings(tx, constraints_update);
         self.send_command_to_daemon(message)?;
         self.wait_for_result(rx)
             .await?

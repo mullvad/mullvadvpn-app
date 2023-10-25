@@ -205,17 +205,22 @@ pub enum RelaySettings {
 }
 
 impl RelaySettings {
-    pub fn merge(&self, update: RelaySettingsUpdate) -> Self {
-        match update {
-            RelaySettingsUpdate::CustomTunnelEndpoint(relay) => {
-                RelaySettings::CustomTunnelEndpoint(relay)
+    /// Returns false if the specified relay settings update explicitly do not allow for bridging
+    /// (i.e. use UDP instead of TCP)
+    pub fn supports_bridge(&self) -> bool {
+        match &self {
+            RelaySettings::CustomTunnelEndpoint(endpoint) => {
+                endpoint.endpoint().protocol == TransportProtocol::Tcp
             }
-            RelaySettingsUpdate::Normal(constraint_update) => RelaySettings::Normal(match *self {
-                RelaySettings::CustomTunnelEndpoint(_) => {
-                    RelayConstraints::default().merge(constraint_update)
+            RelaySettings::Normal(update) => !matches!(
+                &update.openvpn_constraints,
+                OpenVpnConstraints {
+                    port: Constraint::Only(TransportPort {
+                        protocol: TransportProtocol::Udp,
+                        ..
+                    })
                 }
-                RelaySettings::Normal(ref constraint) => constraint.merge(constraint_update),
-            }),
+            ),
         }
     }
 }
@@ -362,9 +367,8 @@ impl<'a> fmt::Display for LocationConstraintFormatter<'a> {
 }
 
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]
-#[cfg_attr(not(target_os = "android"), derive(Default))]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayConstraints {
@@ -376,37 +380,6 @@ pub struct RelayConstraints {
     pub wireguard_constraints: WireguardConstraints,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub openvpn_constraints: OpenVpnConstraints,
-}
-
-#[cfg(target_os = "android")]
-impl Default for RelayConstraints {
-    fn default() -> Self {
-        RelayConstraints {
-            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-            location: Constraint::default(),
-            providers: Constraint::default(),
-            ownership: Constraint::default(),
-            wireguard_constraints: WireguardConstraints::default(),
-            openvpn_constraints: OpenVpnConstraints::default(),
-        }
-    }
-}
-
-impl RelayConstraints {
-    pub fn merge(&self, update: RelayConstraintsUpdate) -> Self {
-        RelayConstraints {
-            location: update.location.unwrap_or_else(|| self.location.clone()),
-            providers: update.providers.unwrap_or_else(|| self.providers.clone()),
-            ownership: update.ownership.unwrap_or(self.ownership),
-            tunnel_protocol: update.tunnel_protocol.unwrap_or(self.tunnel_protocol),
-            wireguard_constraints: update
-                .wireguard_constraints
-                .unwrap_or_else(|| self.wireguard_constraints.clone()),
-            openvpn_constraints: update
-                .openvpn_constraints
-                .unwrap_or(self.openvpn_constraints),
-        }
-    }
 }
 
 pub struct RelayConstraintsFormatter<'a> {
@@ -946,52 +919,4 @@ pub struct InternalBridgeConstraints {
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub transport_protocol: Constraint<TransportProtocol>,
-}
-
-/// Used to update the [`RelaySettings`] used in `mullvad-daemon`.
-#[derive(Debug, Deserialize, Serialize)]
-#[cfg_attr(target_os = "android", derive(FromJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-#[serde(rename_all = "snake_case")]
-pub enum RelaySettingsUpdate {
-    #[cfg_attr(target_os = "android", jnix(deny))]
-    CustomTunnelEndpoint(CustomTunnelEndpoint),
-    Normal(RelayConstraintsUpdate),
-}
-
-impl RelaySettingsUpdate {
-    /// Returns false if the specified relay settings update explicitly do not allow for bridging
-    /// (i.e. use UDP instead of TCP)
-    pub fn supports_bridge(&self) -> bool {
-        match &self {
-            RelaySettingsUpdate::CustomTunnelEndpoint(endpoint) => {
-                endpoint.endpoint().protocol == TransportProtocol::Tcp
-            }
-            RelaySettingsUpdate::Normal(update) => !matches!(
-                &update.openvpn_constraints,
-                Some(OpenVpnConstraints {
-                    port: Constraint::Only(TransportPort {
-                        protocol: TransportProtocol::Udp,
-                        ..
-                    })
-                })
-            ),
-        }
-    }
-}
-
-/// Used in [`RelaySettings`] to change relay constraints in the daemon.
-#[derive(Debug, Default, Deserialize, Serialize)]
-#[cfg_attr(target_os = "android", derive(FromJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-#[serde(default)]
-pub struct RelayConstraintsUpdate {
-    pub location: Option<Constraint<LocationConstraint>>,
-    pub providers: Option<Constraint<Providers>>,
-    pub ownership: Option<Constraint<Ownership>>,
-    #[cfg_attr(target_os = "android", jnix(default))]
-    pub tunnel_protocol: Option<Constraint<TunnelType>>,
-    pub wireguard_constraints: Option<WireguardConstraints>,
-    #[cfg_attr(target_os = "android", jnix(default))]
-    pub openvpn_constraints: Option<OpenVpnConstraints>,
 }

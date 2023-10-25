@@ -4,7 +4,7 @@ use mullvad_types::{
     account::{AccountData, AccountToken, PlayPurchase, VoucherSubmission},
     device::{Device, DeviceState},
     location::GeoIpLocation,
-    relay_constraints::{ObfuscationSettings, RelaySettingsUpdate},
+    relay_constraints::{ObfuscationSettings, RelaySettings},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
@@ -327,10 +327,10 @@ impl DaemonInterface {
             .map_err(Error::from)
     }
 
-    pub fn update_relay_settings(&self, update: RelaySettingsUpdate) -> Result<()> {
+    pub fn set_relay_settings(&self, update: RelaySettings) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(DaemonCommand::UpdateRelaySettings(tx, update))?;
+        self.send_command(DaemonCommand::SetRelaySettings(tx, update))?;
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?

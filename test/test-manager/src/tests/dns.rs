@@ -24,7 +24,7 @@ use crate::vm::network::{
     CUSTOM_TUN_REMOTE_TUN_ADDR, NON_TUN_GATEWAY,
 };
 
-use super::helpers::update_relay_settings;
+use super::helpers::set_relay_settings;
 
 /// How long to wait for expected "DNS queries" to appear
 const MONITOR_TIMEOUT: Duration = Duration::from_secs(5);
@@ -652,7 +652,7 @@ async fn connect_local_wg_relay(mullvad_client: &mut ManagementServiceClient) ->
         }),
     });
 
-    update_relay_settings(mullvad_client, relay_settings)
+    set_relay_settings(mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
