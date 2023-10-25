@@ -9,7 +9,6 @@ import android.content.res.Configuration
 import android.net.VpnService
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
@@ -57,7 +56,7 @@ import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
 open class MainActivity : FragmentActivity() {
-    private var requestNotificationPermissionLauncher: ActivityResultLauncher<String> =
+    private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             // NotificationManager.areNotificationsEnabled is used to check the state rather than
             // handling the callback value.
@@ -174,7 +173,6 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun launchDeviceStateHandler(): Job {
-
         return lifecycleScope.launch {
             launch {
                 deviceRepository.deviceState
