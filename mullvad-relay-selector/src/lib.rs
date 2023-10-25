@@ -1292,8 +1292,8 @@ mod test {
     use mullvad_types::{
         custom_list::CustomListsSettings,
         relay_constraints::{
-            BridgeConstraints, GeographicLocationConstraint, RelayConstraints,
-            RelayConstraintsUpdate, RelaySettingsUpdate, WireguardConstraints,
+            BridgeConstraints, GeographicLocationConstraint, RelayConstraints, RelaySettings,
+            WireguardConstraints,
         },
         relay_list::{
             OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayListCity, RelayListCountry,
@@ -2180,15 +2180,13 @@ mod test {
         ] {
             {
                 let mut config = relay_selector.config.lock();
-                config.relay_settings = config.relay_settings.merge(RelaySettingsUpdate::Normal(
-                    RelayConstraintsUpdate {
-                        tunnel_protocol: Some(tunnel_protocol),
-                        location: Some(Constraint::Only(LocationConstraint::from(
-                            GeographicLocationConstraint::Country("se".to_string()),
-                        ))),
-                        ..Default::default()
-                    },
-                ));
+                config.relay_settings = RelaySettings::Normal(RelayConstraints {
+                    tunnel_protocol,
+                    location: Constraint::Only(LocationConstraint::from(
+                        GeographicLocationConstraint::Country("se".to_string()),
+                    )),
+                    ..RelayConstraints::default()
+                });
             }
 
             let mut actual_ports = HashSet::new();
@@ -2267,13 +2265,10 @@ mod test {
         // Verify that bridges are ignored when tunnel protocol is WireGuard
         {
             let mut config = relay_selector.config.lock();
-            config.relay_settings =
-                config
-                    .relay_settings
-                    .merge(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-                        tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
-                        ..Default::default()
-                    }));
+            config.relay_settings = RelaySettings::Normal(RelayConstraints {
+                tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+                ..RelayConstraints::default()
+            });
         }
         for i in 0..20 {
             let (_relay, bridge, _obfs) = relay_selector.get_relay(i).unwrap();

@@ -1,4 +1,4 @@
-use super::helpers::{self, connect_and_wait, disconnect_and_wait, update_relay_settings};
+use super::helpers::{self, connect_and_wait, disconnect_and_wait, set_relay_settings};
 use super::{Error, TestContext};
 use std::net::IpAddr;
 
@@ -54,7 +54,7 @@ pub async fn test_openvpn_tunnel(
             ..Default::default()
         });
 
-        update_relay_settings(&mut mullvad_client, relay_settings)
+        set_relay_settings(&mut mullvad_client, relay_settings)
             .await
             .expect("failed to update relay settings");
 
@@ -97,7 +97,7 @@ pub async fn test_wireguard_tunnel(
             ..Default::default()
         });
 
-        update_relay_settings(&mut mullvad_client, relay_settings)
+        set_relay_settings(&mut mullvad_client, relay_settings)
             .await
             .expect("failed to update relay settings");
 
@@ -148,7 +148,7 @@ pub async fn test_udp2tcp_tunnel(
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -246,7 +246,7 @@ pub async fn test_bridge(
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -325,7 +325,7 @@ pub async fn test_multihop(
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -386,7 +386,7 @@ pub async fn test_wireguard_autoconnect(
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -428,7 +428,7 @@ pub async fn test_openvpn_autoconnect(
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -485,7 +485,7 @@ pub async fn test_quantum_resistant_tunnel(
         tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
         ..Default::default()
     });
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("Failed to update relay settings");
 
@@ -564,7 +564,7 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
         .expect("Failed to enable obfuscation");
 
     mullvad_client
-        .update_relay_settings(types::RelaySettingsUpdate::from(
+        .set_relay_settings(types::RelaySettingsUpdate::from(
             RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                 wireguard_constraints: WireguardConstraints {
                     use_multihop: true,

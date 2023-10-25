@@ -1306,19 +1306,19 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_verifyP
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_updateRelaySettings(
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setRelaySettings(
     env: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
-    relaySettingsUpdate: JObject<'_>,
+    relaySettings: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
 
     // SAFETY: The address points to an instance valid for the duration of this function call
     if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
-        let update = FromJava::from_java(&env, relaySettingsUpdate);
+        let update = FromJava::from_java(&env, relaySettings);
 
-        if let Err(error) = daemon_interface.update_relay_settings(update) {
+        if let Err(error) = daemon_interface.set_relay_settings(update) {
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to update relay settings")

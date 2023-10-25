@@ -100,7 +100,7 @@ pub async fn test_ui_tunnel_settings(
         ..Default::default()
     });
 
-    helpers::update_relay_settings(&mut mullvad_client, relay_settings)
+    helpers::set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 

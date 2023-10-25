@@ -47,7 +47,7 @@ use mullvad_types::{
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettings},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
@@ -232,7 +232,7 @@ pub enum DaemonCommand {
     /// Remove device from a given account.
     RemoveDevice(ResponseTx<(), Error>, AccountToken, DeviceId),
     /// Place constraints on the type of tunnel and relay
-    UpdateRelaySettings(ResponseTx<(), settings::Error>, RelaySettingsUpdate),
+    SetRelaySettings(ResponseTx<(), settings::Error>, RelaySettings),
     /// Set the allow LAN setting.
     SetAllowLan(ResponseTx<(), settings::Error>, bool),
     /// Set the beta program setting.
@@ -1055,7 +1055,7 @@ where
             }
             GetAccountHistory(tx) => self.on_get_account_history(tx),
             ClearAccountHistory(tx) => self.on_clear_account_history(tx).await,
-            UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update).await,
+            SetRelaySettings(tx, update) => self.on_set_relay_settings(tx, update).await,
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan).await,
             SetShowBetaReleases(tx, enabled) => self.on_set_show_beta_releases(tx, enabled).await,
             SetBlockWhenDisconnected(tx, block_when_disconnected) => {
@@ -1817,18 +1817,18 @@ where
         }
     }
 
-    async fn on_update_relay_settings(
+    async fn on_set_relay_settings(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
-        update: RelaySettingsUpdate,
+        update: RelaySettings,
     ) {
         match self
             .settings
-            .update(move |settings| settings.update_relay_settings(update))
+            .update(move |settings| settings.set_relay_settings(update))
             .await
         {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "update_relay_settings response");
+                Self::oneshot_send(tx, Ok(()), "set_relay_settings response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
@@ -1840,7 +1840,7 @@ where
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "update_relay_settings response");
+                Self::oneshot_send(tx, Err(e), "set_relay_settings response");
             }
         }
     }

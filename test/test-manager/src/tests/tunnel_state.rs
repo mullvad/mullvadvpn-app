@@ -1,6 +1,6 @@
 use super::helpers::{
     self, connect_and_wait, disconnect_and_wait, get_tunnel_state, send_guest_probes,
-    unreachable_wireguard_tunnel, update_relay_settings, wait_for_tunnel_state,
+    unreachable_wireguard_tunnel, set_relay_settings, wait_for_tunnel_state,
 };
 use super::{ui, Error, TestContext};
 use crate::assert_tunnel_state;
@@ -93,7 +93,7 @@ pub async fn test_connecting_state(
         config: mullvad_types::ConnectionConfig::Wireguard(unreachable_wireguard_tunnel()),
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -159,7 +159,7 @@ pub async fn test_connecting_state(
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -200,7 +200,7 @@ pub async fn test_error_state(
         .await
         .expect("failed to disable LAN sharing");
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -249,7 +249,7 @@ pub async fn test_error_state(
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -291,7 +291,7 @@ pub async fn test_connected_state(
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 

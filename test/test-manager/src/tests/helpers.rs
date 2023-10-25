@@ -346,7 +346,7 @@ pub async fn reset_relay_settings(
     let bridge_state = BridgeState::Auto;
     let obfuscation_settings = ObfuscationSettings::default();
 
-    update_relay_settings(mullvad_client, relay_settings)
+    set_relay_settings(mullvad_client, relay_settings)
         .await
         .map_err(|error| {
             Error::DaemonError(format!("Failed to reset relay settings: {}", error))
@@ -365,14 +365,14 @@ pub async fn reset_relay_settings(
     Ok(())
 }
 
-pub async fn update_relay_settings(
+pub async fn set_relay_settings(
     mullvad_client: &mut ManagementServiceClient,
     relay_settings_update: RelaySettingsUpdate,
 ) -> Result<(), Error> {
     let update = types::RelaySettingsUpdate::from(relay_settings_update);
 
     mullvad_client
-        .update_relay_settings(update)
+        .set_relay_settings(update)
         .await
         .map_err(|error| Error::DaemonError(format!("Failed to set relay settings: {}", error)))?;
     Ok(())

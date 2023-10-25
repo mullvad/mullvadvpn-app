@@ -6,8 +6,8 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         Constraint, GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
-        Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraintsUpdate,
-        RelaySettings, RelaySettingsUpdate, TransportPort, WireguardConstraints,
+        Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelaySettings,
+        TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -339,9 +339,21 @@ impl Relay {
 
     /// Get active relays which are not bridges.
 
-    async fn update_constraints(update: RelaySettingsUpdate) -> Result<()> {
+    async fn update_constraints(update_fn: impl FnOnce(&mut RelayConstraints)) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.update_relay_settings(update).await?;
+        let settings = rpc.get_settings().await?;
+
+        let relay_settings = settings.get_relay_settings();
+        let mut constraints = match relay_settings {
+            RelaySettings::Normal(normal) => normal,
+            RelaySettings::CustomTunnelEndpoint(_custom) => {
+                println!("Removing custom relay settings");
+                RelayConstraints::default()
+            }
+        };
+        update_fn(&mut constraints);
+        rpc.set_relay_settings(RelaySettings::Normal(constraints))
+            .await?;
         println!("Relay constraints updated");
         Ok(())
     }
@@ -408,7 +420,11 @@ impl Relay {
                 .await?
             }
         };
-        Self::update_constraints(RelaySettingsUpdate::CustomTunnelEndpoint(custom_endpoint)).await
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_relay_settings(RelaySettings::CustomTunnelEndpoint(custom_endpoint))
+            .await?;
+        println!("Relay constraints updated");
+        Ok(())
     }
 
     fn read_custom_openvpn_relay(
@@ -507,10 +523,9 @@ impl Relay {
                 location_constraint.map(LocationConstraint::Location)
             };
 
-        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(constraint),
-            ..Default::default()
-        }))
+        Self::update_constraints(|constraints| {
+            constraints.location = constraint;
+        })
         .await
     }
 
@@ -519,12 +534,10 @@ impl Relay {
         let list_id = super::custom_list::find_list_by_name(&mut rpc, &custom_list_name)
             .await?
             .id;
-        rpc.update_relay_settings(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            location: Some(Constraint::Only(LocationConstraint::CustomList { list_id })),
-            ..Default::default()
-        }))
-        .await?;
-        Ok(())
+        Self::update_constraints(|constraints| {
+            constraints.location = Constraint::Only(LocationConstraint::CustomList { list_id });
+        })
+        .await
     }
 
     async fn set_providers(providers: Vec<String>) -> Result<()> {
@@ -533,18 +546,16 @@ impl Relay {
         } else {
             Constraint::Only(Providers::new(providers.into_iter()).unwrap())
         };
-        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            providers: Some(providers),
-            ..Default::default()
-        }))
+        Self::update_constraints(|constraints| {
+            constraints.providers = providers;
+        })
         .await
     }
 
     async fn set_ownership(ownership: Constraint<Ownership>) -> Result<()> {
-        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            ownership: Some(ownership),
-            ..Default::default()
-        }))
+        Self::update_constraints(|constraints| {
+            constraints.ownership = ownership;
+        })
         .await
     }
 
@@ -558,10 +569,9 @@ impl Relay {
         };
         openvpn_constraints.port = parse_transport_port(port, protocol, &openvpn_constraints.port);
 
-        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            openvpn_constraints: Some(openvpn_constraints),
-            ..Default::default()
-        }))
+        Self::update_constraints(|constraints| {
+            constraints.openvpn_constraints = openvpn_constraints;
+        })
         .await
     }
 
@@ -628,10 +638,9 @@ impl Relay {
             None => (),
         }
 
-        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            wireguard_constraints: Some(wireguard_constraints),
-            ..Default::default()
-        }))
+        Self::update_constraints(|constraints| {
+            constraints.wireguard_constraints = wireguard_constraints;
+        })
         .await
     }
 
@@ -648,10 +657,9 @@ impl Relay {
     }
 
     async fn set_tunnel_protocol(protocol: Constraint<TunnelType>) -> Result<()> {
-        Self::update_constraints(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            tunnel_protocol: Some(protocol),
-            ..Default::default()
-        }))
+        Self::update_constraints(|constraints| {
+            constraints.tunnel_protocol = protocol;
+        })
         .await
     }
 }
