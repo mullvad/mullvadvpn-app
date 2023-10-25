@@ -43,7 +43,7 @@ class VpnSettingsFragment : BaseFragment() {
                         onDnsInputChange = vm::onDnsInputChange,
                         onSaveDnsClick = vm::onSaveDnsClick,
                         onRemoveDnsClick = vm::onRemoveDnsClick,
-                        onCancelDnsDialogClick = vm::onCancelDialogClick,
+                        onCancelDnsDialogClick = vm::onCancelDns,
                         onLocalNetworkSharingInfoClick = vm::onLocalNetworkSharingInfoClick,
                         onContentsBlockersInfoClick = vm::onContentsBlockerInfoClick,
                         onCustomDnsInfoClick = vm::onCustomDnsInfoClick,

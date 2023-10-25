@@ -54,8 +54,7 @@ class VpnSettingsViewModel(
     @Suppress("konsist.ensure public properties use permitted names")
     val toastMessages = _toastMessages.asSharedFlow()
 
-    private val dialogState =
-        MutableStateFlow<VpnSettingsDialogState>(VpnSettingsDialogState.NoDialog)
+    private val dialogState = MutableStateFlow<VpnSettingsDialogState?>(null)
 
     private val vmState =
         serviceConnectionManager.connectionState
@@ -103,7 +102,7 @@ class VpnSettingsViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                VpnSettingsUiState.DefaultUiState()
+                VpnSettingsUiState.createDefault()
             )
 
     fun onMtuCellClick() {
@@ -252,6 +251,9 @@ class VpnSettingsViewModel(
 
     fun onToggleDnsClick(isEnabled: Boolean) {
         updateCustomDnsState(isEnabled)
+        if (isEnabled && vmState.value.customDnsList.isEmpty()) {
+            onDnsClick(null)
+        }
         showApplySettingChangesWarningToast()
     }
 
@@ -374,7 +376,17 @@ class VpnSettingsViewModel(
         }
 
     private fun hideDialog() {
-        dialogState.update { VpnSettingsDialogState.NoDialog }
+        dialogState.update { null }
+    }
+
+    fun onCancelDns() {
+        if (
+            vmState.value.dialogState is VpnSettingsDialogState.DnsDialog &&
+                vmState.value.customDnsList.isEmpty()
+        ) {
+            onToggleDnsClick(false)
+        }
+        hideDialog()
     }
 
     private fun String.isDuplicateDns(stagedIndex: Int? = null): Boolean {

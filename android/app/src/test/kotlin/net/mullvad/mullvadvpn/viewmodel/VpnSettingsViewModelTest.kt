@@ -10,10 +10,12 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.VpnSettingsDialog
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -180,14 +182,14 @@ class VpnSettingsViewModelTest {
 
         // Act, Assert
         viewModel.uiState.test {
-            assertIs<VpnSettingsUiState.DefaultUiState>(awaitItem())
+            assertIs<VpnSettingsUiState>(awaitItem())
             mockSettingsUpdate.value = mockSettings
             viewModel.onWireguardPortInfoClicked()
             mockConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             portRangeSlot.captured.invoke(expectedPortRange)
             val state = awaitItem()
-            assertIs<VpnSettingsUiState.WireguardPortInfoDialogUiState>(state)
+            assertTrue { state.dialog is VpnSettingsDialog.WireguardPortInfo }
             assertLists(expectedPortRange, state.availablePortRanges)
         }
     }
