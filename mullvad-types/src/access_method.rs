@@ -104,6 +104,7 @@ impl std::fmt::Display for Id {
 
 /// Access Method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum AccessMethod {
     BuiltIn(BuiltInAccessMethod),
     Custom(CustomAccessMethod),
@@ -170,6 +171,7 @@ impl AccessMethodSetting {
 
 /// Built-In access method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum BuiltInAccessMethod {
     Direct,
     Bridge,
@@ -177,12 +179,14 @@ pub enum BuiltInAccessMethod {
 
 /// Custom access method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum CustomAccessMethod {
     Shadowsocks(Shadowsocks),
     Socks5(Socks5),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum Socks5 {
     Local(Socks5Local),
     Remote(Socks5Remote),
