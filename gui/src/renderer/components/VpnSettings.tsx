@@ -3,11 +3,11 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { colors, strings } from '../../config.json';
-import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import { IDnsOptions, TunnelProtocol, wrapConstraint } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
-import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import { useAppContext } from '../context';
+import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
@@ -663,25 +663,22 @@ function TunnelProtocolSetting() {
   const tunnelProtocol = useSelector((state) =>
     mapRelaySettingsToProtocol(state.settings.relaySettings),
   );
-  const { updateRelaySettings } = useAppContext();
+  const relaySettingsUpdater = useRelaySettingsUpdater();
 
-  const setTunnelProtocol = useCallback(async (tunnelProtocol: TunnelProtocol | null) => {
-    const relayUpdate = RelaySettingsBuilder.normal()
-      .tunnel.tunnelProtocol((config) => {
-        if (tunnelProtocol !== null) {
-          config.tunnelProtocol.exact(tunnelProtocol);
-        } else {
-          config.tunnelProtocol.any();
-        }
-      })
-      .build();
-    try {
-      await updateRelaySettings(relayUpdate);
-    } catch (e) {
-      const error = e as Error;
-      log.error('Failed to update tunnel protocol constraints', error.message);
-    }
-  }, []);
+  const setTunnelProtocol = useCallback(
+    async (tunnelProtocol: TunnelProtocol | null) => {
+      try {
+        await relaySettingsUpdater((settings) => ({
+          ...settings,
+          tunnelProtocol: wrapConstraint(tunnelProtocol),
+        }));
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to update tunnel protocol constraints', error.message);
+      }
+    },
+    [relaySettingsUpdater],
+  );
 
   const tunnelProtocolItems: Array<SelectorItem<TunnelProtocol>> = useMemo(
     () => [

@@ -23,7 +23,6 @@ import {
   liftConstraint,
   ObfuscationSettings,
   RelaySettings,
-  RelaySettingsUpdate,
   TunnelState,
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
@@ -304,7 +303,7 @@ export default class AppRenderer {
   public connectTunnel = () => IpcRendererEventChannel.tunnel.connect();
   public disconnectTunnel = () => IpcRendererEventChannel.tunnel.disconnect();
   public reconnectTunnel = () => IpcRendererEventChannel.tunnel.reconnect();
-  public updateRelaySettings = (relaySettings: RelaySettingsUpdate) =>
+  public updateRelaySettings = (relaySettings: RelaySettings) =>
     IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
   public updateBridgeSettings = (bridgeSettings: BridgeSettings) =>
     IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);

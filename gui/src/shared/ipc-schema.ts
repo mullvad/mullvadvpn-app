@@ -19,7 +19,7 @@ import {
   IRelayListWithEndpointData,
   ISettings,
   ObfuscationSettings,
-  RelaySettingsUpdate,
+  RelaySettings,
   TunnelState,
   VoucherResponse,
 } from './daemon-rpc-types';
@@ -172,7 +172,7 @@ export const ipcSchema = {
     setOpenVpnMssfix: invoke<number | undefined, void>(),
     setWireguardMtu: invoke<number | undefined, void>(),
     setWireguardQuantumResistant: invoke<boolean | undefined, void>(),
-    updateRelaySettings: invoke<RelaySettingsUpdate, void>(),
+    updateRelaySettings: invoke<RelaySettings, void>(),
     updateBridgeSettings: invoke<BridgeSettings, void>(),
     setDnsOptions: invoke<IDnsOptions, void>(),
     setObfuscationSettings: invoke<ObfuscationSettings, void>(),
