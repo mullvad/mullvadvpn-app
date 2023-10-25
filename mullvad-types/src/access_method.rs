@@ -104,6 +104,7 @@ impl std::fmt::Display for Id {
 
 /// Access Method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum AccessMethod {
     BuiltIn(BuiltInAccessMethod),
     Custom(CustomAccessMethod),
@@ -170,6 +171,7 @@ impl AccessMethodSetting {
 
 /// Built-In access method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum BuiltInAccessMethod {
     Direct,
     Bridge,
@@ -177,18 +179,21 @@ pub enum BuiltInAccessMethod {
 
 /// Custom access method datastructure.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum CustomAccessMethod {
     Shadowsocks(Shadowsocks),
     Socks5(Socks5),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub enum Socks5 {
     Local(Socks5Local),
     Remote(Socks5Remote),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub struct Shadowsocks {
     pub peer: SocketAddr,
     pub password: String,
@@ -200,6 +205,7 @@ pub struct Shadowsocks {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub struct Socks5Local {
     pub peer: SocketAddr,
     /// Port on localhost where the SOCKS5-proxy listens to.
@@ -207,6 +213,7 @@ pub struct Socks5Local {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
 pub struct Socks5Remote {
     pub peer: SocketAddr,
     pub authentication: Option<SocksAuth>,
