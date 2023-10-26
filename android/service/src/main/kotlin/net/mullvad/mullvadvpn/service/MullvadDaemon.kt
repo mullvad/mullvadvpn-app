@@ -135,8 +135,8 @@ class MullvadDaemon(
         }
     }
 
-    fun getAndEmitDeviceState(): DeviceState {
-        return getDevice(daemonInterfaceAddress).also { deviceState ->
+    fun getAndEmitDeviceState(): DeviceState? {
+        return getDevice(daemonInterfaceAddress)?.also { deviceState ->
             _deviceStateUpdates.tryEmit(deviceState)
         }
     }
@@ -257,7 +257,9 @@ class MullvadDaemon(
         accountToken: String?
     ): List<Device>?
 
-    private external fun getDevice(daemonInterfaceAddress: Long): DeviceState
+    // TODO: Review this method when redoing Daemon communication, it can be null which was not
+    // considered when this method was initially added.
+    private external fun getDevice(daemonInterfaceAddress: Long): DeviceState?
 
     private external fun updateDevice(daemonInterfaceAddress: Long)
 
