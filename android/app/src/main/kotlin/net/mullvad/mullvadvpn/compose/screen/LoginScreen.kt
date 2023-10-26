@@ -183,7 +183,14 @@ private fun LoginContent(
                         left = FocusRequester.Cancel
                         right = FocusRequester.Cancel
                     }
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .let {
+                        if (!expandedDropdown || uiState.lastUsedAccount == null) {
+                            it.clip(MaterialTheme.shapes.small)
+                        } else {
+                            it
+                        }
+                    },
             value = uiState.accountNumberInput,
             label = {
                 Text(

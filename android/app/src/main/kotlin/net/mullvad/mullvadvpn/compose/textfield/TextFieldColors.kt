@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
+import net.mullvad.mullvadvpn.lib.theme.color.Alpha40
 
 @Composable
 fun mullvadWhiteTextFieldColors(): TextFieldColors =
@@ -27,12 +28,15 @@ fun mullvadWhiteTextFieldColors(): TextFieldColors =
         errorTextColor = Color.Black,
         cursorColor = MaterialTheme.colorScheme.background,
         focusedPlaceholderColor = MaterialTheme.colorScheme.background,
-        unfocusedPlaceholderColor = MaterialTheme.colorScheme.primary,
+        unfocusedPlaceholderColor = MaterialTheme.colorScheme.primary.copy(alpha = Alpha40),
         focusedLabelColor = MaterialTheme.colorScheme.background,
         disabledLabelColor = Color.Gray,
-        unfocusedLabelColor = MaterialTheme.colorScheme.background,
+        unfocusedLabelColor = MaterialTheme.colorScheme.primary.copy(alpha = Alpha40),
         focusedLeadingIconColor = Color.Black,
         unfocusedSupportingTextColor = Color.Black,
+        focusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+        unfocusedIndicatorColor = MaterialTheme.colorScheme.onPrimary,
+        errorIndicatorColor = MaterialTheme.colorScheme.error
     )
 
 @Preview
@@ -49,7 +53,8 @@ private fun PreviewDarkTextField() {
                 onValueChange = {},
                 placeholder = { Text(text = "Placeholder") },
                 label = { Text(text = "Label") },
-                colors = mullvadDarkTextFieldColors()
+                colors = mullvadDarkTextFieldColors(),
+                shape = MaterialTheme.shapes.small
             )
 
             // Normal empty
@@ -58,7 +63,8 @@ private fun PreviewDarkTextField() {
                 onValueChange = {},
                 placeholder = { Text(text = "Placeholder") },
                 label = { Text(text = "Label") },
-                colors = mullvadDarkTextFieldColors()
+                colors = mullvadDarkTextFieldColors(),
+                shape = MaterialTheme.shapes.small
             )
 
             // Error
