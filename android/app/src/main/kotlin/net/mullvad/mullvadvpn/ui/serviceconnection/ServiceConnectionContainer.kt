@@ -37,7 +37,6 @@ class ServiceConnectionContainer(
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(connection)
-    var relayListListener = RelayListListener(connection, dispatcher, settingsListener)
 
     private var listenerId: Int? = null
 
@@ -68,7 +67,6 @@ class ServiceConnectionContainer(
         voucherRedeemer.onDestroy()
 
         appVersionInfoCache.onDestroy()
-        relayListListener.onDestroy()
     }
 
     private fun registerListener(connection: Messenger) {
