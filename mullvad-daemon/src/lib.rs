@@ -287,8 +287,8 @@ pub enum DaemonCommand {
     UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
     /// Get the currently used API access method
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
-    /// Get the addresses of all known API endpoints
-    GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
+    /// Test an API access method
+    TestApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1097,7 +1097,7 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
-            GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
+            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2340,11 +2340,57 @@ where
         Self::oneshot_send(tx, result, "get_current_api_access_method response");
     }
 
-    async fn on_get_api_addresses(&mut self, tx: ResponseTx<Vec<std::net::SocketAddr>, Error>) {
-        let api_proxy = mullvad_api::ApiProxy::new(self.api_handle.clone());
-        let result = api_proxy.get_api_addrs().await.map_err(Error::RestError);
+    /// Try to reach the Mullvad API using a specific access method, returning
+    /// an [`Error`] in the case where the test fails to reach the API.
+    ///
+    /// Ephemerally sets a new access method (associated with `access_method`)
+    /// to be used for subsequent API calls, before performing an API call and
+    /// switching back to the previously active access method. The previous
+    /// access method is *always* reset.
+    async fn on_test_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        access_method: mullvad_types::access_method::Id,
+    ) {
+        // NOTE: Preferably we would block all new API calls until the test is
+        // done and the previous access method is reset. Otherwise we run the
+        // risk of errounously triggering a rotation of the currently in-use
+        // access method.
+        let result = async {
+            // Setup test
+            let previous_access_method = self
+                .get_current_access_method()
+                .map_err(Error::AccessMethodError)?;
 
-        Self::oneshot_send(tx, result, "on_get_api_adressess response");
+            self.set_api_access_method(access_method)
+                .await
+                .map_err(Error::AccessMethodError)?;
+            // Perform test
+            //
+            // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
+            // request because we are *only* concerned with if we get a reply from
+            // the API, and not with the actual data that the endpoint returns.
+            let result = mullvad_api::ApiProxy::new(self.api_handle.clone())
+                .api_addrs_available()
+                .await
+                .map_err(Error::RestError);
+
+            // Reset test
+            self.set_api_access_method(previous_access_method.get_id())
+                .await
+                .map_err(|err| {
+                    log::error!(
+                        "Could not reset to previous access
+            method after API reachability test was carried out. This should only
+            happen if the previous access method was removed in the meantime."
+                    );
+                    Error::AccessMethodError(err)
+                })?;
+
+            result
+        };
+
+        Self::oneshot_send(tx, result.await, "on_test_api_access_method response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

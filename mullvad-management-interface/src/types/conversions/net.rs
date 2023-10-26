@@ -163,27 +163,6 @@ impl From<proto::IpVersion> for talpid_types::net::IpVersion {
     }
 }
 
-impl TryFrom<proto::ApiAddresses> for Vec<SocketAddr> {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(value: proto::ApiAddresses) -> Result<Self, Self::Error> {
-        value
-            .api_addresses
-            .iter()
-            .map(|api_address| api_address.parse::<SocketAddr>())
-            .collect::<Result<_, _>>()
-            .map_err(|_| FromProtobufTypeError::InvalidArgument("Invalid socket address"))
-    }
-}
-
-impl From<Vec<SocketAddr>> for proto::ApiAddresses {
-    fn from(value: Vec<SocketAddr>) -> Self {
-        Self {
-            api_addresses: value.iter().map(SocketAddr::to_string).collect(),
-        }
-    }
-}
-
 pub fn try_tunnel_type_from_i32(
     tunnel_type: i32,
 ) -> Result<talpid_types::net::TunnelType, FromProtobufTypeError> {

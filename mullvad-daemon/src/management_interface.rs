@@ -700,13 +700,13 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn get_api_addresses(&self, _: Request<()>) -> ServiceResult<types::ApiAddresses> {
-        log::debug!("get_api_addresses");
+    async fn test_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<()> {
+        log::debug!("test_api_access_method");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetApiAddresses(tx))?;
+        let api_access_method = mullvad_types::access_method::Id::try_from(request.into_inner())?;
+        self.send_command_to_daemon(DaemonCommand::TestApiAccessMethod(tx, api_access_method))?;
         self.wait_for_result(rx)
             .await?
-            .map(types::ApiAddresses::from)
             .map(Response::new)
             .map_err(map_daemon_error)
     }

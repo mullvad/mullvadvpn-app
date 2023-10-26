@@ -22,7 +22,6 @@ service ManagementService {
 
   rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
   rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
-  rpc GetApiAddresses(google.protobuf.Empty) returns (ApiAddresses) {}
 
   rpc IsPerformingPostUpgrade(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
@@ -80,6 +79,7 @@ service ManagementService {
   rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
+  rpc TestApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -104,8 +104,6 @@ message UUID { string value = 1; }
 message AccountData { google.protobuf.Timestamp expiry = 1; }
 
 message AccountHistory { google.protobuf.StringValue token = 1; }
-
-message ApiAddresses { repeated google.protobuf.StringValue api_addresses = 1; }
 
 message VoucherSubmission {
   uint64 seconds_added = 1;
