@@ -100,7 +100,21 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         actor.start(options: startOptions)
 
-        await actor.waitUntilConnected()
+        for await state in await actor.observedStates {
+            switch state {
+            case .connected, .disconnected, .error:
+                return
+            case let .connecting(connectionState):
+                // Give the tunnel a few tries to connect, otherwise return immediately. This will enable VPN in
+                // device settings, but the app will still report the true state via ObservedState over IPC.
+                // In essence, this prevents the 60s tunnel timeout to trigger.
+                if connectionState.connectionAttemptCount > 1 {
+                    return
+                }
+            default:
+                break
+            }
+        }
     }
 
     override func stopTunnel(with reason: NEProviderStopReason) async {
