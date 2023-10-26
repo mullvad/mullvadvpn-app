@@ -205,9 +205,9 @@ pub struct Shadowsocks {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Local {
-    pub peer: SocketAddr,
+    pub remote_peer: SocketAddr,
     /// Port on localhost where the SOCKS5-proxy listens to.
-    pub port: u16,
+    pub local_port: u16,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -258,16 +258,20 @@ impl Shadowsocks {
 }
 
 impl Socks5Local {
-    pub fn new(peer: SocketAddr, port: u16) -> Self {
-        Self { peer, port }
+    pub fn new(remote_peer: SocketAddr, local_port: u16) -> Self {
+        Self {
+            remote_peer,
+            local_port,
+        }
     }
 
-    /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
-    /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16, localport: u16) -> Option<Self> {
-        let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
-        let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer, localport))
+    /// Like [new()], but tries to parse `remote_ip` and `remote_port` into a
+    /// [`std::net::SocketAddr`] for you. If `remote_ip` or `remote_port` are
+    /// valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
+    pub fn from_args(remote_ip: String, remote_port: u16, local_port: u16) -> Option<Self> {
+        let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&remote_ip).ok()?);
+        let remote_peer = SocketAddr::new(peer_ip, remote_port);
+        Some(Self::new(remote_peer, local_port))
     }
 }
 
