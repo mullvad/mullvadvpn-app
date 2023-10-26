@@ -1729,6 +1729,9 @@ msgstr ""
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr ""
+
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr ""
 
@@ -1789,7 +1792,7 @@ msgstr ""
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr ""
 
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr ""
 
 msgid "Toggle VPN"
