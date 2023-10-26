@@ -60,7 +60,7 @@ class ForegroundNotificationManager(
             jobTracker.newBackgroundJob("notificationLoggedInJob") {
                 daemon
                     ?.deviceStateUpdates
-                    ?.onStart { emit(daemon.getAndEmitDeviceState()) }
+                    ?.onStart { daemon.getAndEmitDeviceState()?.let { emit(it) } }
                     ?.collect { deviceState -> loggedIn = deviceState is DeviceState.LoggedIn }
             }
         }
