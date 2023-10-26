@@ -10,10 +10,7 @@ import Foundation
 import StoreKit
 
 protocol StorePaymentManagerDelegate: AnyObject {
-    /// Return the account token associated with the payment.
+    /// Return the account number associated with the payment.
     /// Usually called for unfinished transactions coming back after the app was restarted.
-    func storePaymentManager(
-        _ manager: StorePaymentManager,
-        didRequestAccountTokenFor payment: SKPayment
-    ) -> String?
+    func storePaymentManager(_ manager: StorePaymentManager, didRequestAccountTokenFor payment: SKPayment) -> String?
 }
