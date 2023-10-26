@@ -73,11 +73,11 @@ export function useOnSelectEntryLocation() {
 }
 
 function useOnSelectLocation() {
-  const { updateRelaySettings } = useAppContext();
+  const { setRelaySettings } = useAppContext();
 
   return useCallback(async (relaySettings: RelaySettings) => {
     try {
-      await updateRelaySettings(relaySettings);
+      await setRelaySettings(relaySettings);
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to select the location: ${error.message}`);

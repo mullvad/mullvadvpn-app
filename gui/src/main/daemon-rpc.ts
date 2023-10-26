@@ -298,7 +298,7 @@ export class DaemonRpc {
   }
 
   // TODO: Custom tunnel configurations are not supported by the GUI.
-  public async updateRelaySettings(relaySettings: RelaySettings): Promise<void> {
+  public async setRelaySettings(relaySettings: RelaySettings): Promise<void> {
     if ('normal' in relaySettings) {
       const normalSettings = relaySettings.normal;
       const grpcRelaySettings = new grpcTypes.RelaySettings();

@@ -303,8 +303,8 @@ export default class AppRenderer {
   public connectTunnel = () => IpcRendererEventChannel.tunnel.connect();
   public disconnectTunnel = () => IpcRendererEventChannel.tunnel.disconnect();
   public reconnectTunnel = () => IpcRendererEventChannel.tunnel.reconnect();
-  public updateRelaySettings = (relaySettings: RelaySettings) =>
-    IpcRendererEventChannel.settings.updateRelaySettings(relaySettings);
+  public setRelaySettings = (relaySettings: RelaySettings) =>
+    IpcRendererEventChannel.settings.setRelaySettings(relaySettings);
   public updateBridgeSettings = (bridgeSettings: BridgeSettings) =>
     IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
   public setDnsOptions = (dnsOptions: IDnsOptions) =>
@@ -574,7 +574,7 @@ export default class AppRenderer {
     this.reduxActions.userInterface.updateLocale(locale);
   }
 
-  private setRelaySettings(relaySettings: RelaySettings) {
+  private setReduxRelaySettings(relaySettings: RelaySettings) {
     const actions = this.reduxActions;
 
     if ('normal' in relaySettings) {
@@ -789,7 +789,7 @@ export default class AppRenderer {
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
     reduxSettings.updateCustomLists(newSettings.customLists);
 
-    this.setRelaySettings(newSettings.relaySettings);
+    this.setReduxRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);
   }
 
