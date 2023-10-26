@@ -45,13 +45,13 @@ final class MigrationManagerTests: XCTestCase {
         let settings = TunnelSettingsV3()
         try SettingsManager.writeSettings(settings)
 
-        let nothingToMigrationExpectation = expectation(description: "No migration")
+        let nothingToMigrateExpectation = expectation(description: "No migration")
         manager.migrateSettings(store: store, proxyFactory: proxyFactory) { result in
             if case .nothing = result {
-                nothingToMigrationExpectation.fulfill()
+                nothingToMigrateExpectation.fulfill()
             }
         }
-        wait(for: [nothingToMigrationExpectation], timeout: 1)
+        wait(for: [nothingToMigrateExpectation], timeout: 1)
     }
 
     func testNothingToMigrateIfRecordedSettingsVersionHigherThanLatestSettings() throws {
@@ -59,26 +59,26 @@ final class MigrationManagerTests: XCTestCase {
         let settings = FutureVersionSettings()
         try write(settings: settings, version: Int.max - 1, in: store)
 
-        let nothingToMigrationExpectation = expectation(description: "No migration")
+        let nothingToMigrateExpectation = expectation(description: "No migration")
         manager.migrateSettings(store: store, proxyFactory: proxyFactory) { result in
             if case .nothing = result {
-                nothingToMigrationExpectation.fulfill()
+                nothingToMigrateExpectation.fulfill()
             }
         }
-        wait(for: [nothingToMigrationExpectation], timeout: 1)
+        wait(for: [nothingToMigrateExpectation], timeout: 1)
     }
 
     func testNothingToMigrateWhenSettingsAreNotFound() throws {
         let store = InMemorySettingsStore<KeychainError>()
         SettingsManager.unitTestStore = store
 
-        let nothingToMigrationExpectation = expectation(description: "No migration")
+        let nothingToMigrateExpectation = expectation(description: "No migration")
         manager.migrateSettings(store: store, proxyFactory: proxyFactory) { result in
             if case .nothing = result {
-                nothingToMigrationExpectation.fulfill()
+                nothingToMigrateExpectation.fulfill()
             }
         }
-        wait(for: [nothingToMigrationExpectation], timeout: 1)
+        wait(for: [nothingToMigrateExpectation], timeout: 1)
 
         // Reset the `SettingsManager` unit test store to avoid affecting other tests
         // since it's a globally shared instance
