@@ -87,10 +87,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         tunnelManager.addObserver(relayConstraintsObserver)
 
         storePaymentManager = StorePaymentManager(
-            application: application,
+            backgroundTaskProvider: application,
             queue: .default(),
             apiProxy: apiProxy,
-            accountsProxy: accountsProxy
+            accountsProxy: accountsProxy,
+            transactionLog: .default
         )
 
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
@@ -448,7 +449,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 self.logger.debug("Finished initialization.")
 
                 NotificationManager.shared.updateNotifications()
-                self.storePaymentManager.startPaymentQueueMonitoring()
+                self.storePaymentManager.start()
 
                 finish(nil)
             }
