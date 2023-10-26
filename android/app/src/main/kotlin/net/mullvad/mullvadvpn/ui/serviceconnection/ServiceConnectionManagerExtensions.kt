@@ -14,9 +14,6 @@ fun ServiceConnectionManager.deviceDataSource() =
 
 fun ServiceConnectionManager.customDns() = this.connectionState.value.readyContainer()?.customDns
 
-fun ServiceConnectionManager.relayListListener() =
-    this.connectionState.value.readyContainer()?.relayListListener
-
 fun ServiceConnectionManager.settingsListener() =
     this.connectionState.value.readyContainer()?.settingsListener
 
