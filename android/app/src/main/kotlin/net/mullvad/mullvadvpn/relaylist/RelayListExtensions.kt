@@ -2,14 +2,19 @@ package net.mullvad.mullvadvpn.relaylist
 
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayList
 
 /**
  * Convert from a model.RelayList to list of relaylist.RelayCountry Non-wiregaurd relays are
- * filtered out So are also cities that only contains non-wireguard relays Countries, cities and
- * relays are ordered by name
+ * filtered out and also relays that do not fit the ownership and provider list So are also cities
+ * that only contains non-wireguard relays Countries, cities and relays are ordered by name
  */
-fun RelayList.toRelayCountries(): List<RelayCountry> {
+fun RelayList.toRelayCountries(
+    ownership: Constraint<Ownership>,
+    providers: Constraint<Providers>
+): List<RelayCountry> {
     val relayCountries =
         this.countries
             .map { country ->
@@ -27,7 +32,8 @@ fun RelayList.toRelayCountries(): List<RelayCountry> {
                             relays = relays
                         )
 
-                    val validCityRelays = city.relays.filter { relay -> relay.isWireguardRelay }
+                    val validCityRelays =
+                        city.relays.filterValidRelays(ownership = ownership, providers = providers)
 
                     for (relay in validCityRelays) {
                         relays.add(
@@ -170,6 +176,26 @@ fun List<RelayCountry>.filterOnSearchTerm(
     }
 }
 
+private fun List<net.mullvad.mullvadvpn.model.Relay>.filterValidRelays(
+    ownership: Constraint<Ownership>,
+    providers: Constraint<Providers>
+): List<net.mullvad.mullvadvpn.model.Relay> =
+    this.filter { relay ->
+        var valid = relay.isWireguardRelay
+        if (valid && ownership is Constraint.Only) {
+            when {
+                ownership.value == Ownership.MullvadOwned && !relay.owned -> valid = false
+                ownership.value == Ownership.Rented && relay.owned -> valid = false
+            }
+        }
+        if (valid && providers is Constraint.Only) {
+            when {
+                providers.value.providers.contains(relay.provider).not() -> valid = false
+            }
+        }
+        valid
+    }
+
 /** Expand the parent(s), if any, for the current selected item */
 private fun List<RelayCountry>.expandItemForSelection(
     selectedItem: RelayItem?
@@ -208,8 +234,7 @@ private fun List<RelayCountry>.expandItemForSelection(
                 }
             }
         }
-    }
-        ?: this
+    } ?: this
 }
 
 private const val MIN_SEARCH_LENGTH = 2

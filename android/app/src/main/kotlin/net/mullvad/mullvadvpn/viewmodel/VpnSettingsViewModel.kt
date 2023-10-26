@@ -7,16 +7,11 @@ import androidx.lifecycle.viewModelScope
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -35,10 +30,8 @@ import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.relayListListener
+import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
+import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.isValidMtu
 import org.apache.commons.validator.routines.InetAddressValidator
 
@@ -46,7 +39,8 @@ class VpnSettingsViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
     private val resources: Resources,
-    private val serviceConnectionManager: ServiceConnectionManager,
+    portRangeUseCase: PortRangeUseCase,
+    private val relayListUseCase: RelayListUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
@@ -57,38 +51,26 @@ class VpnSettingsViewModel(
     private val dialogState = MutableStateFlow<VpnSettingsDialogState?>(null)
 
     private val vmState =
-        serviceConnectionManager.connectionState
-            .flatMapLatest { state ->
-                if (state is ServiceConnectionState.ConnectedReady) {
-                    flowOf(state.container)
-                } else {
-                    emptyFlow()
-                }
-            }
-            .flatMapLatest { serviceConnection ->
-                combine(
-                    repository.settingsUpdates,
-                    serviceConnection.relayListListener.portRangesCallbackFlow(),
-                    dialogState
-                ) { settings, portRanges, dialogState ->
-                    VpnSettingsViewModelState(
-                        mtuValue = settings?.mtuString() ?: "",
-                        isAutoConnectEnabled = settings?.autoConnect ?: false,
-                        isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
-                        isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
-                        customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                        contentBlockersOptions = settings?.contentBlockersSettings()
-                                ?: DefaultDnsOptions(),
-                        isAllowLanEnabled = settings?.allowLan ?: false,
-                        selectedObfuscation = settings?.selectedObfuscationSettings()
-                                ?: SelectedObfuscation.Off,
-                        dialogState = dialogState,
-                        quantumResistant = settings?.quantumResistant()
-                                ?: QuantumResistantState.Off,
-                        selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any(),
-                        availablePortRanges = portRanges
-                    )
-                }
+        combine(repository.settingsUpdates, portRangeUseCase.portRanges(), dialogState) {
+                settings,
+                portRanges,
+                dialogState ->
+                VpnSettingsViewModelState(
+                    mtuValue = settings?.mtuString() ?: "",
+                    isAutoConnectEnabled = settings?.autoConnect ?: false,
+                    isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
+                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
+                    customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
+                    contentBlockersOptions =
+                        settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
+                    isAllowLanEnabled = settings?.allowLan ?: false,
+                    selectedObfuscation =
+                        settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
+                    dialogState = dialogState,
+                    quantumResistant = settings?.quantumResistant() ?: QuantumResistantState.Off,
+                    selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any(),
+                    availablePortRanges = portRanges
+                )
             }
             .stateIn(
                 viewModelScope,
@@ -351,10 +333,7 @@ class VpnSettingsViewModel(
     }
 
     fun onWireguardPortSelected(port: Constraint<Port>) {
-        viewModelScope.launch(dispatcher) {
-            serviceConnectionManager.relayListListener()?.selectedWireguardConstraints =
-                WireguardConstraints(port = port)
-        }
+        relayListUseCase.updateSelectedWireguardConstraints(WireguardConstraints(port = port))
         hideDialog()
     }
 
@@ -421,11 +400,6 @@ class VpnSettingsViewModel(
     private fun Settings.contentBlockersSettings() = tunnelOptions.dnsOptions.defaultOptions
 
     private fun Settings.selectedObfuscationSettings() = obfuscationSettings.selectedObfuscation
-
-    private fun RelayListListener.portRangesCallbackFlow() = callbackFlow {
-        onPortRangesChange = { portRanges -> this.trySend(portRanges) }
-        awaitClose { onPortRangesChange = null }
-    }
 
     private fun Settings.getWireguardPort() =
         when (relaySettings) {
