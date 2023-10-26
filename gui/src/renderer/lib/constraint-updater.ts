@@ -76,7 +76,7 @@ export function useRelaySettingsModifier() {
 }
 
 export function useRelaySettingsUpdater() {
-  const { updateRelaySettings } = useAppContext();
+  const { setRelaySettings: updateRelaySettings } = useAppContext();
   const modifyRelaySettings = useRelaySettingsModifier();
 
   return useCallback(

@@ -73,7 +73,7 @@ export function useOnSelectEntryLocation() {
 }
 
 function useOnSelectLocation() {
-  const { updateRelaySettings } = useAppContext();
+  const { setRelaySettings: updateRelaySettings } = useAppContext();
 
   return useCallback(async (relaySettings: RelaySettings) => {
     try {
