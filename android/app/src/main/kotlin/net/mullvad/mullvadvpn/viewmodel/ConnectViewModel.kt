@@ -27,13 +27,13 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.combine
 import net.mullvad.mullvadvpn.util.daysFromNow
@@ -48,7 +48,8 @@ class ConnectViewModel(
     accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     private val inAppNotificationController: InAppNotificationController,
-    private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase
+    private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
+    private val relayListUseCase: RelayListUseCase
 ) : ViewModel() {
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
     val uiSideEffect = _uiSideEffect.asSharedFlow()
@@ -71,7 +72,7 @@ class ConnectViewModel(
             .flatMapLatest { serviceConnection ->
                 combine(
                     serviceConnection.locationInfoCache.locationCallbackFlow(),
-                    serviceConnection.relayListListener.relayListCallbackFlow(),
+                    relayListUseCase.relayListWithSelection(),
                     inAppNotificationController.notifications,
                     serviceConnection.connectionProxy.tunnelUiStateFlow(),
                     serviceConnection.connectionProxy.tunnelRealStateFlow(),
@@ -98,7 +99,7 @@ class ConnectViewModel(
                                 else -> null
                             }
                                 ?: location,
-                        relayLocation = relayLocation,
+                        relayLocation = relayLocation.second,
                         tunnelUiState = tunnelUiState,
                         tunnelRealState = tunnelRealState,
                         isTunnelInfoExpanded = isTunnelInfoExpanded,
@@ -135,11 +136,6 @@ class ConnectViewModel(
     private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
         onNewLocation = { this.trySend(it) }
         awaitClose { onNewLocation = null }
-    }
-
-    private fun RelayListListener.relayListCallbackFlow() = callbackFlow {
-        onRelayCountriesChange = { _, item -> this.trySend(item) }
-        awaitClose { onRelayCountriesChange = null }
     }
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
