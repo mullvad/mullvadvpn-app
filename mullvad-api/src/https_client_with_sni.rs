@@ -255,7 +255,10 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                 ProxyConfig::Socks(config) => match config {
                     access_method::Socks5::Local(config) => {
                         InnerConnectionMode::Socks5(SocksConfig {
-                            peer: SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.port),
+                            peer: SocketAddr::new(
+                                IpAddr::from(Ipv4Addr::LOCALHOST),
+                                config.local_port,
+                            ),
                             authentication: SocksAuth::None,
                         })
                     }

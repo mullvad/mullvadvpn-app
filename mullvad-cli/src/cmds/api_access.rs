@@ -116,11 +116,15 @@ impl ApiAccess {
                 }
                 CustomAccessMethod::Socks5(socks) => match socks {
                     mullvad_types::access_method::Socks5::Local(local) => {
-                        let ip = cmd.params.ip.unwrap_or(local.peer.ip()).to_string();
-                        let port = cmd.params.port.unwrap_or(local.peer.port());
-                        let local_port = cmd.params.local_port.unwrap_or(local.port);
-                        mullvad_types::access_method::Socks5Local::from_args(ip, port, local_port)
-                            .map(AccessMethod::from)
+                        let remote_ip = cmd.params.ip.unwrap_or(local.remote_peer.ip()).to_string();
+                        let remote_port = cmd.params.port.unwrap_or(local.remote_peer.port());
+                        let local_port = cmd.params.local_port.unwrap_or(local.local_port);
+                        mullvad_types::access_method::Socks5Local::from_args(
+                            remote_ip,
+                            remote_port,
+                            local_port,
+                        )
+                        .map(AccessMethod::from)
                     }
                     mullvad_types::access_method::Socks5::Remote(remote) => {
                         let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
@@ -223,9 +227,8 @@ impl ApiAccess {
                 rpc.set_access_method(previous_access_method.get_id())
                     .await?;
                 return Err(anyhow!(
-                    "Could not reach the Mullvad API using access method \"{}\". Rolling back to \"{}\"",
+                    "Could not reach the Mullvad API using access method \"{}\"",
                     new_access_method.get_name(),
-                    previous_access_method.get_name()
                 ));
             }
         };
@@ -586,8 +589,8 @@ mod pp {
                             }
                             writeln!(f)?;
                             print_option!("Protocol", "Socks5 (local)");
-                            print_option!("Peer", local.peer);
-                            print_option!("Local port", local.port);
+                            print_option!("Peer", local.remote_peer);
+                            print_option!("Local port", local.local_port);
                             Ok(())
                         }
                     },

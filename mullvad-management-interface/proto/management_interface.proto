@@ -333,8 +333,8 @@ message AccessMethod {
   message Direct {}
   message Bridges {}
   message Socks5Local {
-    string ip = 1;
-    uint32 port = 2;
+    string remote_ip = 1;
+    uint32 remote_port = 2;
     uint32 local_port = 3;
   }
   message SocksAuth {
