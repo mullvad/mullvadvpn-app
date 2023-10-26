@@ -76,14 +76,14 @@ export function useRelaySettingsModifier() {
 }
 
 export function useRelaySettingsUpdater() {
-  const { setRelaySettings: updateRelaySettings } = useAppContext();
+  const { setRelaySettings } = useAppContext();
   const modifyRelaySettings = useRelaySettingsModifier();
 
   return useCallback(
     async (fn: UpdateFunction) => {
       const modifiedSettings = modifyRelaySettings(fn);
-      await updateRelaySettings({ normal: modifiedSettings });
+      await setRelaySettings({ normal: modifiedSettings });
     },
-    [updateRelaySettings, modifyRelaySettings],
+    [setRelaySettings, modifyRelaySettings],
   );
 }
