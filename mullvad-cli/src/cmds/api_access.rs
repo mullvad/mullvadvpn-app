@@ -182,25 +182,16 @@ impl ApiAccess {
     /// Test an access method to see if it successfully reaches the Mullvad API.
     async fn test(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        // Retrieve the currently used access method. We will reset to this
-        // after we are done testing.
-        let previous_access_method = rpc.get_current_api_access_method().await?;
         let access_method = Self::get_access_method(&mut rpc, &item).await?;
 
         println!("Testing access method \"{}\"", access_method.name);
-        rpc.set_access_method(access_method.get_id()).await?;
-        // Make the daemon perform an network request which involves talking to the Mullvad API.
-        let result = match rpc.get_api_addresses().await {
+        match rpc.test_api_access_method(access_method.get_id()).await {
             Ok(_) => {
                 println!("Success!");
                 Ok(())
             }
-            Err(_) => Err(anyhow!("Could not reach the Mullvad API")),
-        };
-        // In any case, switch back to the previous access method.
-        rpc.set_access_method(previous_access_method.get_id())
-            .await?;
-        result
+            Err(_) => Err(anyhow!("Could not reach the Mullvad API.")),
+        }
     }
 
     /// Try to use of a specific [`AccessMethodSetting`] for subsequent calls to
@@ -217,30 +208,24 @@ impl ApiAccess {
     /// configured ones.
     async fn set(item: SelectItem) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let previous_access_method = rpc.get_current_api_access_method().await?;
         let mut new_access_method = Self::get_access_method(&mut rpc, &item).await?;
+        let current_access_method = rpc.get_current_api_access_method().await?;
         // Try to reach the API with the newly selected access method.
+        rpc.test_api_access_method(new_access_method.get_id())
+            .await
+            .map_err(|_| {
+                anyhow!("Could not reach the Mullvad API using access method \"{}\". Rolling back to \"{}\"", new_access_method.get_name(), current_access_method.get_name())
+            })?
+
+            ;
+        // If the test succeeded, the new access method should be used from now on.
         rpc.set_access_method(new_access_method.get_id()).await?;
-        match rpc.get_api_addresses().await {
-            Ok(_) => (),
-            Err(_) => {
-                // Roll-back to the previous access method
-                rpc.set_access_method(previous_access_method.get_id())
-                    .await?;
-                return Err(anyhow!(
-                    "Could not reach the Mullvad API using access method \"{}\"",
-                    new_access_method.get_name(),
-                ));
-            }
-        };
-        // It worked! Let the daemon keep using this access method.
-        let display_name = new_access_method.get_name();
+        println!("Using access method \"{}\"", new_access_method.get_name());
         // Toggle the enabled status if needed
         if !new_access_method.enabled() {
             new_access_method.enable();
             rpc.update_access_method(new_access_method).await?;
         }
-        println!("Using access method \"{}\"", display_name);
         Ok(())
     }
 
