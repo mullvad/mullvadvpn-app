@@ -18,10 +18,13 @@ import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.MessageHandler
+import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
+import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.mullvadvpn.util.ChangelogDataProvider
@@ -88,25 +91,29 @@ val uiModule = module {
     single { TunnelStateNotificationUseCase(get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get()) }
+    single { PortRangeUseCase(get()) }
+    single { RelayListUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
+
+    single { RelayListListener(get()) }
 
     // View models
     viewModel { AccountViewModel(get(), get(), get()) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
-    viewModel { ConnectViewModel(get(), get(), get(), get(), get()) }
+    viewModel { ConnectViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
-    viewModel { SelectLocationViewModel(get()) }
+    viewModel { SelectLocationViewModel(get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get()) }
     viewModel { ReportProblemViewModel(get()) }
     viewModel { ViewLogsViewModel(get()) }

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.lib.endpoint.BuildConfig
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
@@ -93,7 +94,7 @@ class ServiceConnectionManager(private val context: Context) : MessageHandler {
     }
 
     override fun <E : Event> events(klass: KClass<E>): Flow<E> {
-        return events.filterIsInstance(klass)
+        return events.map { it }.filterIsInstance(klass)
     }
 
     override fun trySendRequest(request: Request): Boolean {
