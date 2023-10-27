@@ -91,7 +91,8 @@ class RelayListListener(endpoint: ServiceEndpoint) {
         val location: Constraint<LocationConstraint> =
             selectedRelayLocation?.let { location ->
                 Constraint.Only(LocationConstraint.Location(location))
-            } ?: currentRelayConstraints.location
+            }
+                ?: currentRelayConstraints.location
         val wireguardConstraints: WireguardConstraints =
             selectedWireguardConstraints ?: currentRelayConstraints.wireguardConstraints
 
