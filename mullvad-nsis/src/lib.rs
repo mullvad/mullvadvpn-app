@@ -44,20 +44,27 @@ pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status
             Ok(()) => {
                 write_to_file("SENDING STATUS OK!");
                 Status::Ok
-            },
+            }
             Err(e) => {
                 write_to_file("FOUND AN ERROR!");
                 write_to_file(&format!("{:?}", e));
                 Status::OsError
-            },
+            }
         }
     })
 }
 
 fn write_to_file(msg: &str) {
+    use std::io::Write;
     let p = "C:\\Users\\ioio\\Desktop\\DUMP.txt";
-    let c = std::fs::read_to_string(p).unwrap();
-    std::fs::write(p, format!("{}\n{}", c, msg)).unwrap();
+    let c = match std::fs::read_to_string(p) {
+        Ok(c) => c,
+        Err(_) => String::new(),
+    };
+    let mut file = std::fs::File::create(p).unwrap();
+    file.write_all(format!("{}\n{}", c, msg).as_bytes())
+        .unwrap();
+    file.flush().unwrap();
 }
 
 /// Writes the system's app data path into `buffer` when `Status::Ok` is returned.
@@ -105,6 +112,6 @@ fn catch_and_log_unwind(func: impl FnOnce() -> Status + UnwindSafe) -> Status {
         Err(_error) => {
             write_to_file(&format!("PANICKED! {:?}", _error));
             Status::Panic
-        },
+        }
     }
 }

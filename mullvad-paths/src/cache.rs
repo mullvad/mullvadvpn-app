@@ -9,9 +9,8 @@ pub fn cache_dir() -> Result<PathBuf> {
     #[cfg(target_os = "macos")]
     let permissions = Some(std::os::unix::fs::PermissionsExt::from_mode(0o755));
     #[cfg(target_os = "windows")]
-    let permissions = Some(
-        crate::windows::create_security_attributes_with_admin_full_access_user_read_only()?
-    );
+    let permissions =
+        Some(crate::windows::create_security_attributes_with_admin_full_access_user_read_only()?);
     crate::create_and_return(get_cache_dir, permissions)
 }
 

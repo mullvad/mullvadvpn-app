@@ -1,4 +1,4 @@
-use crate::{Result, Error};
+use crate::{Error, Result};
 use once_cell::sync::OnceCell;
 use std::{
     io, mem,
@@ -17,19 +17,20 @@ use windows_sys::{
         Security::{
             self, AdjustTokenPrivileges,
             Authorization::{
-                ConvertStringSecurityDescriptorToSecurityDescriptorW, SDDL_REVISION_1,
+                ConvertStringSecurityDescriptorToSecurityDescriptorW, SetNamedSecurityInfoW,
+                SDDL_REVISION_1, SE_FILE_OBJECT,
             },
             CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
             IsValidSecurityDescriptor, LookupPrivilegeValueW, RevertToSelf, SecurityImpersonation,
-            SetFileSecurityW, TokenUser, WinLocalSystemSid, LUID_AND_ATTRIBUTES,
-            SECURITY_ATTRIBUTES, SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE,
+            TokenUser, WinLocalSystemSid, LUID_AND_ATTRIBUTES, SECURITY_ATTRIBUTES,
+            SECURITY_DESCRIPTOR, SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE,
             TOKEN_IMPERSONATE, TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER,
         },
         Storage::FileSystem::{CreateDirectoryW, MAX_SID_SIZE},
         System::{
             Com::CoTaskMemFree,
-            ProcessStatus::EnumProcesses,
             Memory::LocalFree,
+            ProcessStatus::EnumProcesses,
             Threading::{
                 GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken,
                 PROCESS_QUERY_INFORMATION,
@@ -42,12 +43,15 @@ use windows_sys::{
 };
 
 // SAFETY: Only allowed to hold a SECURITY_ATTRIBUTES which points to an allocated and valid `lpSecurityDescriptor`
-pub struct SecurityAttributes(SECURITY_ATTRIBUTES);
+pub struct SecurityAttributes {
+    security_attributes: SECURITY_ATTRIBUTES,
+    security_information: u32,
+}
 struct Handle(HANDLE);
 
 impl Drop for SecurityAttributes {
     fn drop(&mut self) {
-        unsafe { LocalFree(self.0.lpSecurityDescriptor as isize) };
+        unsafe { LocalFree(self.security_attributes.lpSecurityDescriptor as isize) };
     }
 }
 
@@ -75,28 +79,38 @@ pub fn create_security_attributes_with_admin_full_access_user_read_only(
         "O:S-1-5-32-544G:S-1-5-32-544D:P(A;OICI;GA;;;S-1-5-32-544)(A;OICI;GR;;;AU)",
     )
     .encode_wide()
+    // Add null terminator
+    .chain(std::iter::once(0))
     .collect();
 
     if 0 == unsafe {
-            ConvertStringSecurityDescriptorToSecurityDescriptorW(
-                sd.as_ptr(),
-                SDDL_REVISION_1,
-                &mut security_attributes.lpSecurityDescriptor,
-                ptr::null_mut(),
-            )
-        }
-    {
+        ConvertStringSecurityDescriptorToSecurityDescriptorW(
+            sd.as_ptr(),
+            SDDL_REVISION_1,
+            &mut security_attributes.lpSecurityDescriptor,
+            ptr::null_mut(),
+        )
+    } {
         return Err(Error::GetSecurityAttributes(io::Error::last_os_error()));
     }
 
     // Guarantee that sd is dropped after pointer to sd is dropped.
     drop(sd);
 
-    // SAFETY: `security_attributes.lpSecurityDescriptor` is now valid and allocated.
-    let security_attributes = SecurityAttributes(security_attributes);
+    let security_information = Security::OWNER_SECURITY_INFORMATION
+        | Security::GROUP_SECURITY_INFORMATION
+        | Security::DACL_SECURITY_INFORMATION
+        | Security::PROTECTED_DACL_SECURITY_INFORMATION;
 
-    if 0 == unsafe { IsValidSecurityDescriptor(security_attributes.0.lpSecurityDescriptor) }
-    {
+    // SAFETY: `security_attributes.lpSecurityDescriptor` is now valid and allocated.
+    let security_attributes = SecurityAttributes {
+        security_attributes,
+        security_information,
+    };
+
+    if 0 == unsafe {
+        IsValidSecurityDescriptor(security_attributes.security_attributes.lpSecurityDescriptor)
+    } {
         return Err(Error::GetSecurityAttributes(io::Error::last_os_error()));
     }
 
@@ -108,16 +122,18 @@ pub fn create_directory(
     path: &Path,
     security_attributes: &mut Option<SecurityAttributes>,
 ) -> Result<()> {
-    // FIXME
-    //let security_attributes = &mut None;
-    let wide_path: Vec<u16> = path.as_os_str().encode_wide().collect();
+    let wide_path: Vec<u16> = path.as_os_str()
+    .encode_wide()
+    // Add null terminator
+    .chain(std::iter::once(0))
+    .collect();
 
-    let sa = security_attributes
+    let sa_ptr = security_attributes
         .as_ref()
-        .map(|sa: &SecurityAttributes| &sa.0 as *const _)
+        .map(|sa: &SecurityAttributes| &sa.security_attributes as *const _)
         .unwrap_or(ptr::null());
 
-    if ERROR_SUCCESS as i32 != unsafe { CreateDirectoryW(wide_path.as_ptr(), sa) } {
+    if ERROR_SUCCESS as i32 != unsafe { CreateDirectoryW(wide_path.as_ptr(), sa_ptr) } {
         let err = io::Error::last_os_error();
         if err.kind() != io::ErrorKind::AlreadyExists {
             return Err(Error::CreateDirFailed(path.display().to_string(), err));
@@ -125,18 +141,29 @@ pub fn create_directory(
     }
 
     if let Some(security_attributes) = security_attributes {
+        let sd = security_attributes.security_attributes.lpSecurityDescriptor
+            as *const SECURITY_DESCRIPTOR;
 
-        let security_information = Security::OWNER_SECURITY_INFORMATION
-            | Security::GROUP_SECURITY_INFORMATION
-            | Security::DACL_SECURITY_INFORMATION
-            | Security::PROTECTED_DACL_SECURITY_INFORMATION;
+        // SAFETY: `SecurityAttributes` must only be constructed with a lpSecurityDescriptor which points to a valid allocated SECURITY_DESCRIPTOR
+        let sd = unsafe { *sd };
 
-        let sd = security_attributes.0.lpSecurityDescriptor;
-
-        if ERROR_SUCCESS as i32
-            != unsafe { SetFileSecurityW(wide_path.as_ptr(), security_information, sd) }
+        if ERROR_SUCCESS
+            != unsafe {
+                SetNamedSecurityInfoW(
+                    wide_path.as_ptr(),
+                    SE_FILE_OBJECT,
+                    security_attributes.security_information,
+                    sd.Owner,
+                    sd.Group,
+                    sd.Dacl,
+                    sd.Sacl,
+                )
+            }
         {
-            return Err(Error::SetDirPermissionFailed(path.display().to_string(), io::Error::last_os_error()));
+            return Err(Error::SetDirPermissionFailed(
+                path.display().to_string(),
+                io::Error::last_os_error(),
+            ));
         }
     }
 
@@ -145,7 +172,10 @@ pub fn create_directory(
 
 fn write_to_file(msg: &str) {
     let p = "C:\\Users\\ioio\\Desktop\\DUMP.txt";
-    let c = std::fs::read_to_string(p).unwrap();
+    let c = match std::fs::read_to_string(p) {
+        Ok(c) => c,
+        Err(_) => String::new(),
+    };
     std::fs::write(p, format!("{}\n{}", c, msg)).unwrap();
 }
 
@@ -174,7 +204,13 @@ pub fn create_dir_recursive(
         Some(parent) => create_dir_recursive(parent, permissions)?,
         None => {
             // Reached the top of the tree but when creating directories only got NotFound for some reason
-            return Err(Error::CreateDirFailed(path.display().to_string(), io::Error::new(io::ErrorKind::Other, "reached top of directory tree but could not create directory")));
+            return Err(Error::CreateDirFailed(
+                path.display().to_string(),
+                io::Error::new(
+                    io::ErrorKind::Other,
+                    "reached top of directory tree but could not create directory",
+                ),
+            ));
         }
     }
 

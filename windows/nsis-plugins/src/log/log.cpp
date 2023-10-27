@@ -3,7 +3,6 @@
 #include <libcommon/string.h>
 #include <libcommon/filesystem.h>
 #include <libcommon/registry/registry.h>
-#include <libcommon/filesystem.h>
 #include <libcommon/error.h>
 #include <windows.h>
 #include <nsis/pluginapi.h>
