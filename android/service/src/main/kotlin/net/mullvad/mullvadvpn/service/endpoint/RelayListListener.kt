@@ -87,12 +87,13 @@ class RelayListListener(endpoint: ServiceEndpoint) {
         }
 
     private suspend fun updateRelayConstraints() {
+        val currentRelayConstraints = getCurrentRelayConstraints()
         val location: Constraint<LocationConstraint> =
             selectedRelayLocation?.let { location ->
                 Constraint.Only(LocationConstraint.Location(location))
-            }
-                ?: Constraint.Any()
-        val wireguardConstraints: WireguardConstraints? = selectedWireguardConstraints
+            } ?: currentRelayConstraints.location
+        val wireguardConstraints: WireguardConstraints =
+            selectedWireguardConstraints ?: currentRelayConstraints.wireguardConstraints
 
         val update =
             RelaySettings.Normal(
@@ -106,6 +107,18 @@ class RelayListListener(endpoint: ServiceEndpoint) {
 
         daemon.await().setRelaySettings(update)
     }
+
+    private suspend fun getCurrentRelayConstraints(): RelayConstraints =
+        when (val relaySettings = daemon.await().getSettings()?.relaySettings) {
+            is RelaySettings.Normal -> relaySettings.relayConstraints
+            else ->
+                RelayConstraints(
+                    location = Constraint.Any(),
+                    providers = Constraint.Any(),
+                    ownership = Constraint.Any(),
+                    wireguardConstraints = WireguardConstraints(Constraint.Any())
+                )
+        }
 
     companion object {
         private enum class Command {
