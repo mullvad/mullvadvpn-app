@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,23 +18,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.AnimatedIconButton
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
-import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.ui.extension.copyToClipboard
 
 @Preview
 @Composable
 private fun PreviewCopyableObfuscationView() {
-    CopyableObfuscationView("1111222233334444")
+    AppTheme { CopyableObfuscationView("1111222233334444", modifier = Modifier.fillMaxWidth()) }
 }
 
 @Composable
-fun CopyableObfuscationView(content: String) {
+fun CopyableObfuscationView(content: String, modifier: Modifier = Modifier) {
     var obfuscationEnabled by remember { mutableStateOf(true) }
 
-    Row(
-        verticalAlignment = CenterVertically,
-        modifier = Modifier.padding(end = Dimens.sideMargin)
-    ) {
+    Row(verticalAlignment = CenterVertically, modifier = modifier) {
         AccountNumberView(
             accountNumber = content,
             obfuscateWithPasswordDots = obfuscationEnabled,

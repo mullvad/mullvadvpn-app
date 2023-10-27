@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,7 +36,7 @@ import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
-import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
@@ -45,6 +47,7 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.toExpiryDateString
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
+import org.joda.time.DateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -102,92 +105,94 @@ fun AccountScreen(
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_account),
-        navigationIcon = { NavigateBackIconButton(onBackClick) }
+        navigationIcon = { NavigateBackDownIconButton(onBackClick) }
     ) { modifier ->
         Column(
-            verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.Start,
-            modifier = modifier.animateContentSize()
+            verticalArrangement = Arrangement.spacedBy(Dimens.accountRowSpacing),
+            modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMargin)
         ) {
-            Text(
-                style = MaterialTheme.typography.labelMedium,
-                text = stringResource(id = R.string.device_name),
-                modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
-            )
+            DeviceNameRow(deviceName = uiState.deviceName ?: "") { showDeviceNameInfoDialog = true }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                InformationView(
-                    content = uiState.deviceName ?: "",
-                    whenMissing = MissingPolicy.SHOW_SPINNER
-                )
-                IconButton(
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    onClick = { showDeviceNameInfoDialog = true }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icon_info),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.inverseSurface
-                    )
-                }
-            }
+            AccountNumberRow(accountNumber = uiState.accountNumber ?: "")
 
-            Text(
-                style = MaterialTheme.typography.labelMedium,
-                text = stringResource(id = R.string.account_number),
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        top = Dimens.smallPadding
-                    )
-            )
-            CopyableObfuscationView(content = uiState.accountNumber ?: "")
-            Text(
-                style = MaterialTheme.typography.labelMedium,
-                text = stringResource(id = R.string.paid_until),
-                modifier = Modifier.padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
-            )
-
-            InformationView(
-                content = uiState.accountExpiry?.toExpiryDateString() ?: "",
-                whenMissing = MissingPolicy.SHOW_SPINNER
-            )
+            PaidUntilRow(accountExpiry = uiState.accountExpiry)
 
             Spacer(modifier = Modifier.weight(1f))
+
             if (IS_PLAY_BUILD.not()) {
                 ExternalButton(
                     text = stringResource(id = R.string.manage_account),
                     onClick = onManageAccountClick,
-                    modifier =
-                        Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.screenVerticalMargin
-                        )
+                    modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)
                 )
             }
 
             RedeemVoucherButton(
                 onClick = onRedeemVoucherClick,
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
-                    ),
+                modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin),
                 isEnabled = true
             )
 
             NegativeButton(
                 text = stringResource(id = R.string.log_out),
                 onClick = onLogoutClick,
-                modifier =
-                    Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
-                    )
+                modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)
+            )
+        }
+    }
+}
+
+@Composable
+private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            style = MaterialTheme.typography.labelMedium,
+            text = stringResource(id = R.string.device_name),
+        )
+
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            InformationView(content = deviceName, whenMissing = MissingPolicy.SHOW_SPINNER)
+            IconButton(onClick = onInfoClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_info),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.inverseSurface
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AccountNumberRow(accountNumber: String) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            style = MaterialTheme.typography.labelMedium,
+            text = stringResource(id = R.string.account_number),
+        )
+        CopyableObfuscationView(
+            content = accountNumber,
+            modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight).fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun PaidUntilRow(accountExpiry: DateTime?) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            style = MaterialTheme.typography.labelMedium,
+            text = stringResource(id = R.string.paid_until),
+        )
+
+        Row(
+            modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            InformationView(
+                content = accountExpiry?.toExpiryDateString() ?: "",
+                whenMissing = MissingPolicy.SHOW_SPINNER
             )
         }
     }
