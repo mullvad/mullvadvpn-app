@@ -197,7 +197,7 @@ where
 /// relay.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
-#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub enum RelaySettings {
     CustomTunnelEndpoint(CustomTunnelEndpoint),
@@ -412,6 +412,77 @@ impl<'a> fmt::Display for RelayConstraintsFormatter<'a> {
         )?;
         writeln!(f, "Provider(s): {}", self.constraints.providers)?;
         write!(f, "Ownership: {}", self.constraints.ownership)
+    }
+}
+
+#[cfg(target_os = "android")]
+impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for RelayConstraints
+where
+    'env: 'sub_env,
+{
+    const JNI_SIGNATURE: &'static str = "Lnet/mullvad/mullvadvpn/model/RelayConstraints;";
+
+    fn from_java(env: &JnixEnv<'env>, object: JObject<'sub_env>) -> Self {
+        let object_location = env
+            .call_method(
+                object,
+                "component1",
+                "()Lnet/mullvad/mullvadvpn/model/Constraint;",
+                &[],
+            )
+            .expect("missing RelayConstraints.location")
+            .l()
+            .expect("RelayConstraints.location did not return an object");
+
+        let location: Constraint<LocationConstraint> = Constraint::from_java(env, object_location);
+
+        let object_providers = env
+            .call_method(
+                object,
+                "component2",
+                "()Lnet/mullvad/mullvadvpn/model/Constraint;",
+                &[],
+            )
+            .expect("missing RelayConstraints.providers")
+            .l()
+            .expect("RelayConstraints.providers did not return an object");
+
+        let providers: Constraint<Providers> = Constraint::from_java(env, object_providers);
+
+        let object_ownership = env
+            .call_method(
+                object,
+                "component3",
+                "()Lnet/mullvad/mullvadvpn/model/Constraint;",
+                &[],
+            )
+            .expect("missing RelayConstraints.providers")
+            .l()
+            .expect("RelayConstraints.providers did not return an object");
+
+        let ownership: Constraint<Ownership> = Constraint::from_java(env, object_ownership);
+
+        let object_wireguard_constraints = env
+            .call_method(
+                object,
+                "component4",
+                "()Lnet/mullvad/mullvadvpn/model/WireguardConstraints;",
+                &[],
+            )
+            .expect("missing RelayConstraints.wireguard_constraints")
+            .l()
+            .expect("RelayConstraints.wireguard_constraints did not return an object");
+
+        let wireguard_constraints: WireguardConstraints =
+            WireguardConstraints::from_java(env, object_wireguard_constraints);
+
+        RelayConstraints {
+            location,
+            providers,
+            ownership,
+            wireguard_constraints,
+            ..Default::default()
+        }
     }
 }
 
