@@ -9,13 +9,10 @@ import android.content.res.Configuration
 import android.net.VpnService
 import android.os.Bundle
 import android.util.Log
-import android.view.WindowManager
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
@@ -59,21 +56,17 @@ import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
 open class MainActivity : FragmentActivity() {
-    private var requestNotificationPermissionLauncher: ActivityResultLauncher<String> =
+    private val requestNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             // NotificationManager.areNotificationsEnabled is used to check the state rather than
             // handling the callback value.
         }
-
-    private var visibleSecureScreens = HashSet<Fragment>()
 
     private val deviceIsTv by lazy {
         val uiModeManager = getSystemService(UI_MODE_SERVICE) as UiModeManager
 
         uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
-
-    var backButtonHandler: (() -> Boolean)? = null
 
     private lateinit var accountRepository: AccountRepository
     private lateinit var deviceRepository: DeviceRepository
@@ -135,14 +128,6 @@ open class MainActivity : FragmentActivity() {
         serviceConnectionManager.onVpnPermissionResult(resultCode == Activity.RESULT_OK)
     }
 
-    override fun onBackPressed() {
-        val handled = backButtonHandler?.invoke() ?: false
-
-        if (!handled) {
-            super.onBackPressed()
-        }
-    }
-
     override fun onStop() {
         Log.d("mullvad", "Stopping main activity")
         super.onStop()
@@ -157,26 +142,6 @@ open class MainActivity : FragmentActivity() {
     override fun onDestroy() {
         serviceConnectionManager.onDestroy()
         super.onDestroy()
-    }
-
-    fun enterSecureScreen(screen: Fragment) {
-        synchronized(this) {
-            visibleSecureScreens.add(screen)
-
-            if (!BuildConfig.DEBUG) {
-                window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-        }
-    }
-
-    fun leaveSecureScreen(screen: Fragment) {
-        synchronized(this) {
-            visibleSecureScreens.remove(screen)
-
-            if (!BuildConfig.DEBUG && visibleSecureScreens.isEmpty()) {
-                window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-            }
-        }
     }
 
     fun openAccount() {
@@ -208,7 +173,6 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun launchDeviceStateHandler(): Job {
-
         return lifecycleScope.launch {
             launch {
                 deviceRepository.deviceState

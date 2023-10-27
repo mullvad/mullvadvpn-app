@@ -22,6 +22,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
@@ -171,7 +174,12 @@ fun RedeemVoucherDialog(
         titleContentColor = MaterialTheme.colorScheme.onBackground,
         onDismissRequest = {
             onDismiss(uiState.voucherViewModelState is VoucherDialogState.Success)
-        }
+        },
+        properties =
+            DialogProperties(
+                securePolicy =
+                    if (BuildConfig.DEBUG) SecureFlagPolicy.Inherit else SecureFlagPolicy.SecureOn
+            )
     )
 }
 
