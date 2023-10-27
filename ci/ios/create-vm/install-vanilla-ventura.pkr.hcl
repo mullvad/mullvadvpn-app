@@ -23,8 +23,8 @@ source "tart-cli" "tart" {
    boot_command = [
     # hello, hola, bonjour, etc.
     "<wait60s><spacebar>",
-    # Language
-    "<wait30s><enter>",
+    # Force selection of english as a language.
+    "<wait30s>english<enter>",
     # Select Your Country and Region
     "<wait30s>united states<leftShiftOn><tab><leftShiftOff><spacebar>",
     # Written and Spoken Languages
@@ -61,14 +61,16 @@ source "tart-cli" "tart" {
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Enable Voice Over
     "<wait10s><leftAltOn><f5><leftAltOff><wait5s>v",
-    # Now that the installation is done, open "System Preferences"
-    "<wait10s><leftAltOn><spacebar><leftAltOff>System Preferences<enter>",
+    # Now that the installation is done, open "System Settings"
+    "<wait10s><leftAltOn><spacebar><leftAltOff>System Settings<enter>",
+    # Focus the Search pane
+    "<wait10s><leftAltOn>f<leftAltOff>",
     # Navigate to "Sharing"
-    "<wait10s>sharing<enter>",
+    "<wait10s>sharing<enter><wait5s><down>",
     # Enable Screen Sharing
-    "<wait10s><tab><tab><tab><tab><spacebar>",
+    "<wait10s><tab><spacebar>",
     # Enable Remote Login
-    "<wait10s><down><down><down><down><spacebar><tab><tab><spacebar>",
+    "<wait10s><tab><tab><tab><tab><tab><tab><spacebar>",
     # Disable Voice Over
     "<leftAltOn><f5><leftAltOff>",
   ]
