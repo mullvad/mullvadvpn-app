@@ -5,8 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.compose.button.DeviceRevokedLoginButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
@@ -72,8 +73,7 @@ fun DeviceRevokedScreen(
                             end.linkTo(parent.end)
                         }
                         .padding(horizontal = 12.dp)
-                        .width(80.dp)
-                        .height(80.dp)
+                        .size(Dimens.bigIconSize)
             )
 
             Column(

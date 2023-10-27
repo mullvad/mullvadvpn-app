@@ -245,10 +245,7 @@ private fun LoginContent(
 
 @Composable
 private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.size(Dimens.loginIconContainerSize)
-    ) {
+    Box(contentAlignment = Alignment.Center, modifier = modifier.size(Dimens.bigIconSize)) {
         when (loginState) {
             is Idle ->
                 if (loginState.loginError != null) {
