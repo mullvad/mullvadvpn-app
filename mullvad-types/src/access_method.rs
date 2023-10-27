@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
-use std::net::{IpAddr, Ipv4Addr, SocketAddr, SocketAddrV4};
+use std::net::SocketAddr;
 
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
@@ -241,66 +241,40 @@ impl BuiltInAccessMethod {
 }
 
 impl Shadowsocks {
-    pub fn new(peer: SocketAddr, cipher: String, password: String) -> Self {
+    pub fn new<I: Into<SocketAddr>>(peer: I, cipher: String, password: String) -> Self {
         Shadowsocks {
-            peer,
+            peer: peer.into(),
             password,
             cipher,
         }
     }
-
-    /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
-    /// If `ip` or `port` are valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16, cipher: String, password: String) -> Option<Self> {
-        let peer = SocketAddrV4::new(Ipv4Addr::from_str(&ip).ok()?, port).into();
-        Some(Self::new(peer, cipher, password))
-    }
 }
 
 impl Socks5Local {
-    pub fn new(remote_peer: SocketAddr, local_port: u16) -> Self {
+    pub fn new<I: Into<SocketAddr>>(remote_peer: I, local_port: u16) -> Self {
         Self {
-            remote_peer,
+            remote_peer: remote_peer.into(),
             local_port,
         }
-    }
-
-    /// Like [new()], but tries to parse `remote_ip` and `remote_port` into a
-    /// [`std::net::SocketAddr`] for you. If `remote_ip` or `remote_port` are
-    /// valid [`Some(Socks5Local)`] is returned, otherwise [`None`].
-    pub fn from_args(remote_ip: String, remote_port: u16, local_port: u16) -> Option<Self> {
-        let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&remote_ip).ok()?);
-        let remote_peer = SocketAddr::new(peer_ip, remote_port);
-        Some(Self::new(remote_peer, local_port))
     }
 }
 
 impl Socks5Remote {
-    pub fn new(peer: SocketAddr) -> Self {
+    pub fn new<I: Into<SocketAddr>>(peer: I) -> Self {
         Self {
-            peer,
+            peer: peer.into(),
             authentication: None,
         }
     }
 
-    /// Like [new()], but tries to parse `ip` and `port` into a [`std::net::SocketAddr`] for you.
-    /// If `ip` or `port` are valid [`Some(Socks5Remote)`] is returned, otherwise [`None`].
-    pub fn from_args(ip: String, port: u16) -> Option<Self> {
-        let peer_ip = IpAddr::V4(Ipv4Addr::from_str(&ip).ok()?);
-        let peer = SocketAddr::new(peer_ip, port);
-        Some(Self::new(peer))
-    }
-
-    /// Like [from_args()], but with authentication.
-    pub fn from_args_with_password(
-        ip: String,
-        port: u16,
-        username: String,
-        password: String,
-    ) -> Option<Self> {
-        let mut socks = Self::from_args(ip, port)?;
-        socks.authentication = Some(SocksAuth { username, password });
-        Some(socks)
+    pub fn new_with_authentication<I: Into<SocketAddr>>(
+        peer: I,
+        authentication: SocksAuth,
+    ) -> Self {
+        Self {
+            peer: peer.into(),
+            authentication: Some(authentication),
+        }
     }
 }
 

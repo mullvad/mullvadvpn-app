@@ -42,6 +42,8 @@ mod settings {
 /// [`crate::types::proto::ApiAccessMethod`] type to the internal
 /// [`mullvad_types::access_method::AccessMethodSetting`] data type.
 mod data {
+    use std::net::Ipv4Addr;
+
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method::{
         AccessMethod, AccessMethodSetting, BuiltInAccessMethod, CustomAccessMethod, Id,
@@ -142,15 +144,15 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::access_method::Socks5Local) -> Result<Self, Self::Error> {
-            Socks5Local::from_args(
-                value.remote_ip,
-                value.remote_port as u16,
+            let remote_ip = value.remote_ip.parse::<Ipv4Addr>().map_err(|_| {
+                FromProtobufTypeError::InvalidArgument(
+                    "Could not parse Socks5 (local) message from protobuf",
+                )
+            })?;
+            Ok(AccessMethod::from(Socks5Local::new(
+                (remote_ip, value.remote_port as u16),
                 value.local_port as u16,
-            )
-            .ok_or(FromProtobufTypeError::InvalidArgument(
-                "Could not parse Socks5 (local) message from protobuf",
-            ))
-            .map(AccessMethod::from)
+            )))
         }
     }
 
@@ -163,19 +165,19 @@ mod data {
                 port,
                 authentication,
             } = value;
-            let port = port as u16;
-            match authentication.map(SocksAuth::from) {
-                Some(SocksAuth { username, password }) => {
-                    Socks5Remote::from_args_with_password(ip, port, username, password)
-                }
-                None => Socks5Remote::from_args(ip, port),
-            }
-            .ok_or({
+            let ip = ip.parse::<Ipv4Addr>().map_err(|_| {
                 FromProtobufTypeError::InvalidArgument(
                     "Could not parse Socks5 (remote) message from protobuf",
                 )
-            })
-            .map(AccessMethod::from)
+            })?;
+            let port = port as u16;
+
+            Ok(AccessMethod::from(
+                match authentication.map(SocksAuth::from) {
+                    Some(auth) => Socks5Remote::new_with_authentication((ip, port), auth),
+                    None => Socks5Remote::new((ip, port)),
+                },
+            ))
         }
     }
 
@@ -183,11 +185,17 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::access_method::Shadowsocks) -> Result<Self, Self::Error> {
-            Shadowsocks::from_args(value.ip, value.port as u16, value.cipher, value.password)
-                .ok_or(FromProtobufTypeError::InvalidArgument(
-                    "Could not parse Shadowsocks message from protobuf",
-                ))
-                .map(AccessMethod::from)
+            let ip = value.ip.parse::<Ipv4Addr>().map_err(|_| {
+                FromProtobufTypeError::InvalidArgument(
+                    "Could not parse Socks5 (remote) message from protobuf",
+                )
+            })?;
+
+            Ok(AccessMethod::from(Shadowsocks::new(
+                (ip, value.port as u16),
+                value.cipher,
+                value.password,
+            )))
         }
     }
 
