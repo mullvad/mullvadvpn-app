@@ -35,7 +35,7 @@ interface IHeaderBarContainerProps {
 }
 
 const HeaderBarContainer = styled.header({}, (props: IHeaderBarContainerProps) => ({
-  padding: '15px 16px 0px',
+  padding: '15px 11px 0px 16px',
   minHeight: props.accountInfoVisible ? '80px' : '68px',
   height: props.accountInfoVisible ? '80px' : '68px',
   backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
@@ -151,15 +151,21 @@ function HeaderBarDeviceInfo() {
 
 const HeaderBarSettingsButtonContainer = styled.button({
   cursor: 'default',
-  padding: 0,
-  marginLeft: 8,
+  padding: '5px',
+  marginLeft: '3px',
   backgroundColor: 'transparent',
   border: 'none',
 });
 
 const HeaderBarAccountButtonContainer = styled(HeaderBarSettingsButtonContainer)({
-  marginRight: '16px',
+  marginRight: '11px',
 });
+
+const StyledHeaderBarImageView = styled(ImageView)((props) => ({
+  [`${HeaderBarSettingsButtonContainer}:hover &&`]: {
+    backgroundColor: props.tintHoverColor,
+  },
+}));
 
 interface IHeaderBarSettingsButtonProps {
   disabled?: boolean;
@@ -178,7 +184,7 @@ export function HeaderBarSettingsButton(props: IHeaderBarSettingsButtonProps) {
     <HeaderBarSettingsButtonContainer
       onClick={openSettings}
       aria-label={messages.gettext('Settings')}>
-      <ImageView
+      <StyledHeaderBarImageView
         height={24}
         width={24}
         source="icon-settings"
@@ -201,7 +207,7 @@ export function HeaderBarAccountButton() {
       onClick={openAccount}
       data-testid="account-button"
       aria-label={messages.gettext('Account settings')}>
-      <ImageView
+      <StyledHeaderBarImageView
         height={24}
         width={24}
         source="icon-account"
