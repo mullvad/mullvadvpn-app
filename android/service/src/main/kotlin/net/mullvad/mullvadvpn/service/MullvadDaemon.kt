@@ -289,7 +289,7 @@ class MullvadDaemon(
         playPurchase: PlayPurchase,
     ): PlayPurchaseVerifyResult
 
-    private external fun updateRelaySettings(
+    private external fun setRelaySettings(
         daemonInterfaceAddress: Long,
         update: RelaySettings
     )

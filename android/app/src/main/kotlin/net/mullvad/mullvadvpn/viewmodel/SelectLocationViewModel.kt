@@ -71,8 +71,10 @@ class SelectLocationViewModel(private val serviceConnectionManager: ServiceConne
     @Suppress("konsist.ensure public properties use permitted names")
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
-    fun selectRelay(relayItem: RelayItem?) {
-        serviceConnectionManager.relayListListener()?.selectedRelayLocation = relayItem?.location
+    fun selectRelay(relayItem: RelayItem) {
+        serviceConnectionManager
+            .relayListListener()
+            ?.updateSelectedRelayLocation(relayItem.location)
         serviceConnectionManager.connectionProxy()?.connect()
         viewModelScope.launch { _closeAction.emit(Unit) }
     }

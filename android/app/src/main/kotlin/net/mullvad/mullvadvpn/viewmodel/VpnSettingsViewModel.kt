@@ -77,14 +77,14 @@ class VpnSettingsViewModel(
                         isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
                         isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                         customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
-                        contentBlockersOptions = settings?.contentBlockersSettings()
-                                ?: DefaultDnsOptions(),
+                        contentBlockersOptions =
+                            settings?.contentBlockersSettings() ?: DefaultDnsOptions(),
                         isAllowLanEnabled = settings?.allowLan ?: false,
-                        selectedObfuscation = settings?.selectedObfuscationSettings()
-                                ?: SelectedObfuscation.Off,
+                        selectedObfuscation =
+                            settings?.selectedObfuscationSettings() ?: SelectedObfuscation.Off,
                         dialogState = dialogState,
-                        quantumResistant = settings?.quantumResistant()
-                                ?: QuantumResistantState.Off,
+                        quantumResistant =
+                            settings?.quantumResistant() ?: QuantumResistantState.Off,
                         selectedWireguardPort = settings?.getWireguardPort() ?: Constraint.Any(),
                         availablePortRanges = portRanges
                     )
@@ -352,8 +352,9 @@ class VpnSettingsViewModel(
 
     fun onWireguardPortSelected(port: Constraint<Port>) {
         viewModelScope.launch(dispatcher) {
-            serviceConnectionManager.relayListListener()?.selectedWireguardConstraints =
-                WireguardConstraints(port = port)
+            serviceConnectionManager
+                .relayListListener()
+                ?.updateSelectedWireguardConstraints(WireguardConstraints(port = port))
         }
         hideDialog()
     }
