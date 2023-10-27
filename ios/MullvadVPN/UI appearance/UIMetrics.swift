@@ -31,8 +31,11 @@ enum UIMetrics {
             trailing: 16
         )
 
-        /// Spacing between views in container (main view) in `CustomAlertViewController`
+        /// Spacing between view containers in `CustomAlertViewController`
         static let containerSpacing: CGFloat = 16
+
+        /// Spacing between view containers in `CustomAlertViewController`
+        static let interContainerSpacing: CGFloat = 4
     }
 
     enum DimmingView {
