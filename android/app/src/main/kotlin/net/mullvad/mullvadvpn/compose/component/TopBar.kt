@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Preview
 @Composable
@@ -303,7 +304,8 @@ fun MullvadTopBarWithDeviceName(
                         ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaTopBar)
             )
             if (daysLeftUntilExpiry != null) {
                 Text(
@@ -316,7 +318,8 @@ fun MullvadTopBarWithDeviceName(
                                 daysLeftUntilExpiry
                             )
                         ),
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaTopBar)
                 )
             } else {
                 Spacer(Modifier)
