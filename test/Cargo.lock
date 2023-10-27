@@ -1442,9 +1442,9 @@ checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
 
 [[package]]
 name = "jnix"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aecfa741840d59de75e6e9e2985ee44b6794cbc0b2074899089be6bf7ffa0afc"
+checksum = "5fd797d41e48568eb956ded20d7e5e3f2df1c02980d9e5b9aab9b47bd3a9f599"
 dependencies = [
  "jni",
  "jnix-macros",

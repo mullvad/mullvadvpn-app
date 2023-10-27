@@ -6,8 +6,8 @@ use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::relay_constraints::{
     BridgeConstraints, BridgeSettings, BridgeState, Constraint, ObfuscationSettings,
-    OpenVpnConstraints, RelayConstraintsUpdate, RelaySettingsUpdate, SelectedObfuscation,
-    TransportPort, Udp2TcpObfuscationSettings, WireguardConstraints,
+    OpenVpnConstraints, RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
+    Udp2TcpObfuscationSettings, WireguardConstraints,
 };
 use mullvad_types::wireguard;
 use pnet_packet::ip::IpNextHeaderProtocols;
@@ -48,9 +48,9 @@ pub async fn test_openvpn_tunnel(
     for (protocol, constraint) in CONSTRAINTS {
         log::info!("Connect to {protocol} OpenVPN endpoint");
 
-        let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            tunnel_protocol: Some(Constraint::Only(TunnelType::OpenVpn)),
-            openvpn_constraints: Some(OpenVpnConstraints { port: constraint }),
+        let relay_settings = RelaySettings::Normal(RelayConstraints {
+            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
+            openvpn_constraints: OpenVpnConstraints { port: constraint },
             ..Default::default()
         });
 
@@ -88,12 +88,12 @@ pub async fn test_wireguard_tunnel(
     for (port, should_succeed) in PORTS {
         log::info!("Connect to WireGuard endpoint on port {port}");
 
-        let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-            tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
-            wireguard_constraints: Some(WireguardConstraints {
+        let relay_settings = RelaySettings::Normal(RelayConstraints {
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+            wireguard_constraints: WireguardConstraints {
                 port: Constraint::Only(port),
                 ..Default::default()
-            }),
+            },
             ..Default::default()
         });
 
@@ -143,8 +143,8 @@ pub async fn test_udp2tcp_tunnel(
         .await
         .expect("failed to enable udp2tcp");
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
+        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
         ..Default::default()
     });
 
@@ -230,19 +230,16 @@ pub async fn test_bridge(
     mullvad_client
         .set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Normal(
             BridgeConstraints {
-                location: helpers::into_constraint(&entry).expect(&format!(
-                    "Could not resolve location constraint: {:?}",
-                    entry
-                )),
+                location: helpers::into_constraint(&entry),
                 ..Default::default()
             },
         )))
         .await
         .expect("failed to update bridge settings");
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
         location: helpers::into_constraint(&exit),
-        tunnel_protocol: Some(Constraint::Only(TunnelType::OpenVpn)),
+        tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
         ..Default::default()
     });
 
@@ -312,16 +309,15 @@ pub async fn test_multihop(
     };
     let (entry, exit) = helpers::random_entry_and_exit(&mut mullvad_client, relay_filter).await?;
     let exit_constraint = helpers::into_constraint(&exit);
-    let entry_constraint =
-        helpers::into_constraint(&entry).map(|entry_location| WireguardConstraints {
-            use_multihop: true,
-            entry_location,
-            ..Default::default()
-        });
+    let wireguard_constraints = WireguardConstraints {
+        use_multihop: true,
+        entry_location: helpers::into_constraint(&entry),
+        ..Default::default()
+    };
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
         location: exit_constraint,
-        wireguard_constraints: entry_constraint,
+        wireguard_constraints,
         ..Default::default()
     });
 
@@ -381,8 +377,8 @@ pub async fn test_wireguard_autoconnect(
 ) -> Result<(), Error> {
     log::info!("Setting tunnel protocol to WireGuard");
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
+        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
         ..Default::default()
     });
 
@@ -423,8 +419,8 @@ pub async fn test_openvpn_autoconnect(
 ) -> Result<(), Error> {
     log::info!("Setting tunnel protocol to OpenVPN");
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        tunnel_protocol: Some(Constraint::Only(TunnelType::OpenVpn)),
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
+        tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
         ..Default::default()
     });
 
@@ -481,8 +477,8 @@ pub async fn test_quantum_resistant_tunnel(
 
     log::info!("Setting tunnel protocol to WireGuard");
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        tunnel_protocol: Some(Constraint::Only(TunnelType::Wireguard)),
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
+        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
         ..Default::default()
     });
     set_relay_settings(&mut mullvad_client, relay_settings)
@@ -564,8 +560,8 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
         .expect("Failed to enable obfuscation");
 
     mullvad_client
-        .set_relay_settings(types::RelaySettingsUpdate::from(
-            RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+        .set_relay_settings(types::RelaySettings::from(RelaySettings::Normal(
+            RelayConstraints {
                 wireguard_constraints: WireguardConstraints {
                     use_multihop: true,
                     ..Default::default()
@@ -573,8 +569,8 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
                 .into(),
                 tunnel_protocol: Constraint::Only(TunnelType::Wireguard).into(),
                 ..Default::default()
-            }),
-        ))
+            },
+        )))
         .await
         .expect("Failed to update relay settings");
 
