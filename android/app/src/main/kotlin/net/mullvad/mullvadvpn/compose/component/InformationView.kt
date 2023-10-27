@@ -1,11 +1,7 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -59,13 +55,7 @@ fun InformationView(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = modifier.padding(Dimens.smallPadding)
                 ) {
-                    CircularProgressIndicator(
-                        modifier =
-                            Modifier.height(Dimens.loadingSpinnerSizeMedium)
-                                .width(Dimens.loadingSpinnerSizeMedium),
-                        color = MaterialTheme.colorScheme.onSecondary
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
+                    MullvadCircularProgressIndicatorSmall()
                 }
             }
         }
