@@ -321,12 +321,13 @@ pub enum AddSocks5Commands {
 }
 
 #[derive(Args, Debug, Clone)]
+#[group(requires_all = ["username", "password"])] // https://github.com/clap-rs/clap/issues/5092
 pub struct SocksAuthentication {
     /// Username for authentication against a remote SOCKS5 proxy
-    #[arg(short, long)]
+    #[arg(short, long, required = false)]
     username: String,
     /// Password for authentication against a remote SOCKS5 proxy
-    #[arg(short, long)]
+    #[arg(short, long, required = false)]
     password: String,
 }
 
