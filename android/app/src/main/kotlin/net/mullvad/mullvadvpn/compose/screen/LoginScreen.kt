@@ -304,8 +304,8 @@ private fun LoginState.supportingText(): String? {
                 }
             }
             is Loading.CreatingAccount -> R.string.creating_new_account
-            is Loading.LoggingIn,
-            Success -> R.string.logging_in_description
+            is Loading.LoggingIn -> R.string.logging_in_description
+            Success -> R.string.logged_in_description
         }
     return stringResource(id = res)
 }
