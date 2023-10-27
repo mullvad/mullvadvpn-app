@@ -39,12 +39,7 @@ fun InformationView(
             minTextSize = MaterialTheme.typography.labelMedium.fontSize,
             maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
             maxLines = maxLines,
-            modifier =
-                modifier.padding(
-                    start = Dimens.sideMargin,
-                    top = Dimens.smallPadding,
-                    bottom = Dimens.smallPadding
-                )
+            modifier = modifier.padding(vertical = Dimens.smallPadding)
         )
     } else {
         when (whenMissing) {
@@ -55,25 +50,18 @@ fun InformationView(
                     minTextSize = MaterialTheme.typography.labelMedium.fontSize,
                     maxTextSize = MaterialTheme.typography.titleSmall.fontSize,
                     maxLines = maxLines,
-                    modifier =
-                        modifier.padding(
-                            start = Dimens.sideMargin,
-                            top = Dimens.smallPadding,
-                            bottom = Dimens.smallPadding
-                        )
+                    modifier = modifier.padding(vertical = Dimens.smallPadding)
                 )
             }
             MissingPolicy.HIDE_VIEW -> {}
             MissingPolicy.SHOW_SPINNER -> {
-                Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = modifier.padding(Dimens.smallPadding)
+                ) {
                     CircularProgressIndicator(
                         modifier =
-                            Modifier.padding(
-                                    start = Dimens.sideMargin,
-                                    top = Dimens.smallPadding,
-                                    bottom = Dimens.smallPadding
-                                )
-                                .height(Dimens.loadingSpinnerSizeMedium)
+                            Modifier.height(Dimens.loadingSpinnerSizeMedium)
                                 .width(Dimens.loadingSpinnerSizeMedium),
                         color = MaterialTheme.colorScheme.onSecondary
                     )
