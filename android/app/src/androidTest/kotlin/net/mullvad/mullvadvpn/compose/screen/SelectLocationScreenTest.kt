@@ -156,15 +156,19 @@ class SelectLocationScreenTest {
     companion object {
         private val DUMMY_RELAY_1 =
             net.mullvad.mullvadvpn.model.Relay(
-                "Relay host 1",
-                true,
-                RelayEndpointData.Wireguard(WireguardRelayEndpointData)
+                hostname = "Relay host 1",
+                active = true,
+                endpointData = RelayEndpointData.Wireguard(WireguardRelayEndpointData),
+                owned = true,
+                provider = "PROVIDER"
             )
         private val DUMMY_RELAY_2 =
             net.mullvad.mullvadvpn.model.Relay(
-                "Relay host 2",
-                true,
-                RelayEndpointData.Wireguard(WireguardRelayEndpointData)
+                hostname = "Relay host 2",
+                active = true,
+                endpointData = RelayEndpointData.Wireguard(WireguardRelayEndpointData),
+                owned = true,
+                provider = "PROVIDER"
             )
         private val DUMMY_RELAY_CITY_1 =
             RelayListCity("Relay City 1", "RCi1", arrayListOf(DUMMY_RELAY_1))

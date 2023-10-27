@@ -81,9 +81,7 @@ pub struct Relay {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub include_in_country: bool,
     pub active: bool,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub owned: bool,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub provider: String,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub weight: u64,
