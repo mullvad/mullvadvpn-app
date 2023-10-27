@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 
 data class Dimensions(
     val backButtonSideMargin: Dp = 30.dp,
+    val bigIconSize: Dp = 44.dp,
     val buttonHeight: Dp = 44.dp,
     val buttonSeparation: Dp = 18.dp,
     val buttonVerticalPadding: Dp = 8.dp,
@@ -22,7 +23,6 @@ data class Dimensions(
     val dialogIconHeight: Dp = 44.dp,
     val dialogIconSize: Dp = 48.dp,
     val expandableCellChevronSize: Dp = 30.dp,
-    val iconFailSuccessSize: Dp = 60.dp,
     val iconFailSuccessTopMargin: Dp = 30.dp,
     val indentedCellStartPadding: Dp = 38.dp,
     val infoButtonVerticalPadding: Dp = 13.dp,
@@ -35,7 +35,6 @@ data class Dimensions(
     val loadingSpinnerSize: Dp = 24.dp,
     val loadingSpinnerSizeMedium: Dp = 28.dp,
     val loadingSpinnerStrokeWidth: Dp = 6.dp,
-    val loginIconContainerSize: Dp = 44.dp,
     val mediumPadding: Dp = 16.dp,
     val notificationBannerEndPadding: Dp = 8.dp,
     val notificationBannerStartPadding: Dp = 16.dp,

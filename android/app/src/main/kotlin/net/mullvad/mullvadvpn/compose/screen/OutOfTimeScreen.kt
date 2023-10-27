@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -150,6 +151,7 @@ fun OutOfTimeScreen(
                 modifier =
                     Modifier.align(Alignment.CenterHorizontally)
                         .padding(vertical = Dimens.screenVerticalMargin)
+                        .size(Dimens.bigIconSize)
             )
             Text(
                 text = stringResource(id = R.string.out_of_time),
