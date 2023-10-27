@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +33,7 @@ import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.LocationInfo
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
@@ -166,17 +165,13 @@ fun ConnectScreen(
                         uiState.tunnelRealState.actionAfterDisconnect ==
                             ActionAfterDisconnect.Reconnect)
             ) {
-                CircularProgressIndicator(
+                MullvadCircularProgressIndicatorLarge(
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier =
                         Modifier.padding(
                                 start = Dimens.sideMargin,
                                 end = Dimens.sideMargin,
                                 top = Dimens.mediumPadding
-                            )
-                            .size(
-                                width = Dimens.progressIndicatorSize,
-                                height = Dimens.progressIndicatorSize
                             )
                             .align(Alignment.CenterHorizontally)
                             .testTag(CIRCULAR_PROGRESS_INDICATOR)

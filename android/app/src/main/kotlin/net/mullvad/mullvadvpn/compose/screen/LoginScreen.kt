@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +39,6 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -55,6 +53,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
@@ -258,13 +257,7 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
                 } else {
                     // If view is Idle, we display empty box to keep the same size as other states
                 }
-            is Loading ->
-                CircularProgressIndicator(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = Dimens.loadingSpinnerStrokeWidth,
-                    strokeCap = StrokeCap.Round
-                )
+            is Loading -> MullvadCircularProgressIndicatorLarge()
             Success ->
                 Image(
                     painter = painterResource(id = R.drawable.icon_success),

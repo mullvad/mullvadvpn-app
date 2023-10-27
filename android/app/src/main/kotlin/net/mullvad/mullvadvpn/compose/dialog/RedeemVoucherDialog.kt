@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.compose.textfield.GroupedTextField
@@ -234,12 +233,7 @@ private fun EnterVoucherBody(
         modifier = Modifier.height(Dimens.listIconSize).fillMaxWidth()
     ) {
         if (uiState.voucherViewModelState is VoucherDialogState.Verifying) {
-            CircularProgressIndicator(
-                modifier =
-                    Modifier.height(Dimens.loadingSpinnerSizeMedium)
-                        .width(Dimens.loadingSpinnerSizeMedium),
-                color = MaterialTheme.colorScheme.onSecondary
-            )
+            MullvadCircularProgressIndicatorSmall()
             Text(
                 text = stringResource(id = R.string.verifying_voucher),
                 modifier = Modifier.padding(start = Dimens.smallPadding),

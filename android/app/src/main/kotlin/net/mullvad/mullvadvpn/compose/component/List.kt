@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -125,12 +123,7 @@ fun ListItem(
                     .padding(horizontal = Dimens.loadingSpinnerPadding)
         ) {
             if (isLoading) {
-                CircularProgressIndicator(
-                    strokeWidth = Dimens.loadingSpinnerStrokeWidth,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier =
-                        Modifier.height(Dimens.loadingSpinnerSize).width(Dimens.loadingSpinnerSize)
-                )
+                MullvadCircularProgressIndicatorMedium()
             } else if (iconResourceId != null) {
                 Image(
                     painter = painterResource(id = iconResourceId),
