@@ -6,9 +6,7 @@ use std::{
 
 use itertools::Itertools;
 use mullvad_management_interface::{types, ManagementServiceClient};
-use mullvad_types::{
-    relay_constraints::RelaySettingsUpdate, ConnectionConfig, CustomTunnelEndpoint,
-};
+use mullvad_types::{relay_constraints::RelaySettings, ConnectionConfig, CustomTunnelEndpoint};
 use talpid_types::net::wireguard;
 use test_macro::test_function;
 use test_rpc::{Interface, ServiceClient};
@@ -631,7 +629,7 @@ async fn connect_local_wg_relay(mullvad_client: &mut ManagementServiceClient) ->
         CUSTOM_TUN_REMOTE_REAL_PORT,
     );
 
-    let relay_settings = RelaySettingsUpdate::CustomTunnelEndpoint(CustomTunnelEndpoint {
+    let relay_settings = RelaySettings::CustomTunnelEndpoint(CustomTunnelEndpoint {
         host: peer_addr.ip().to_string(),
         config: ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
             tunnel: wireguard::TunnelConfig {
