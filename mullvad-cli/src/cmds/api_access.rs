@@ -83,7 +83,7 @@ impl ApiAccess {
         let mut rpc = MullvadProxyClient::new().await?;
         let name = cmd.name().to_string();
         let enabled = cmd.enabled();
-        let access_method = AccessMethod::try_from(cmd)?;
+        let access_method = AccessMethod::from(cmd);
         rpc.add_access_method(name, enabled, access_method).await?;
         Ok(())
     }
@@ -99,6 +99,9 @@ impl ApiAccess {
 
     /// Edit the data of an API access method.
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
+        use mullvad_types::access_method::{
+            Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth,
+        };
         let mut rpc = MullvadProxyClient::new().await?;
         let mut api_access_method = Self::get_access_method(&mut rpc, &cmd.item).await?;
 
@@ -107,42 +110,31 @@ impl ApiAccess {
             None => return Err(anyhow!("Can not edit built-in access method")),
             Some(x) => match x.clone() {
                 CustomAccessMethod::Shadowsocks(shadowsocks) => {
-                    let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip()).to_string();
+                    let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip());
                     let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
                     let password = cmd.params.password.unwrap_or(shadowsocks.password);
                     let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
-                    mullvad_types::access_method::Shadowsocks::from_args(ip, port, cipher, password)
-                        .map(AccessMethod::from)
+                    AccessMethod::from(Shadowsocks::new((ip, port), cipher, password))
                 }
                 CustomAccessMethod::Socks5(socks) => match socks {
-                    mullvad_types::access_method::Socks5::Local(local) => {
-                        let remote_ip = cmd.params.ip.unwrap_or(local.remote_peer.ip()).to_string();
+                    Socks5::Local(local) => {
+                        let remote_ip = cmd.params.ip.unwrap_or(local.remote_peer.ip());
                         let remote_port = cmd.params.port.unwrap_or(local.remote_peer.port());
                         let local_port = cmd.params.local_port.unwrap_or(local.local_port);
-                        mullvad_types::access_method::Socks5Local::from_args(
-                            remote_ip,
-                            remote_port,
-                            local_port,
-                        )
-                        .map(AccessMethod::from)
+                        AccessMethod::from(Socks5Local::new((remote_ip, remote_port), local_port))
                     }
-                    mullvad_types::access_method::Socks5::Remote(remote) => {
-                        let ip = cmd.params.ip.unwrap_or(remote.peer.ip()).to_string();
+                    Socks5::Remote(remote) => {
+                        let ip = cmd.params.ip.unwrap_or(remote.peer.ip());
                         let port = cmd.params.port.unwrap_or(remote.peer.port());
-                        match remote.authentication {
-                            None => mullvad_types::access_method::Socks5Remote::from_args(ip, port),
-                            Some(mullvad_types::access_method::SocksAuth {
-                                username,
-                                password,
-                            }) => {
+                        AccessMethod::from(match remote.authentication {
+                            None => Socks5Remote::new((ip, port)),
+                            Some(SocksAuth { username, password }) => {
                                 let username = cmd.params.username.unwrap_or(username);
                                 let password = cmd.params.password.unwrap_or(password);
-                                mullvad_types::access_method::Socks5Remote::from_args_with_password(
-                                    ip, port, username, password,
-                                )
+                                let auth = SocksAuth { username, password };
+                                Socks5Remote::new_with_authentication((ip, port), auth)
                             }
-                        }
-                        .map(AccessMethod::from)
+                        })
                     }
                 },
             },
@@ -151,9 +143,7 @@ impl ApiAccess {
         if let Some(name) = cmd.params.name {
             api_access_method.name = name;
         };
-        if let Some(access_method) = access_method {
-            api_access_method.access_method = access_method;
-        }
+        api_access_method.access_method = access_method;
 
         rpc.update_access_method(api_access_method).await?;
 
@@ -414,16 +404,12 @@ pub struct EditParams {
 /// Since these are not supposed to be used outside of the CLI,
 /// we define them in a hidden-away module.
 mod conversions {
-    use anyhow::{anyhow, Error};
+    use super::{AddCustomCommands, AddSocks5Commands, SocksAuthentication};
     use mullvad_types::access_method as daemon_types;
 
-    use super::{AddCustomCommands, AddSocks5Commands, SocksAuthentication};
-
-    impl TryFrom<AddCustomCommands> for daemon_types::AccessMethod {
-        type Error = Error;
-
-        fn try_from(value: AddCustomCommands) -> Result<Self, Self::Error> {
-            Ok(match value {
+    impl From<AddCustomCommands> for daemon_types::AccessMethod {
+        fn from(value: AddCustomCommands) -> Self {
+            match value {
                 AddCustomCommands::Socks5(socks) => match socks {
                     AddSocks5Commands::Local {
                         local_port,
@@ -433,14 +419,7 @@ mod conversions {
                         disabled: _,
                     } => {
                         println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
-                        daemon_types::Socks5Local::from_args(
-                            remote_ip.to_string(),
-                            remote_port,
-                            local_port,
-                        )
-                        .map(daemon_types::Socks5::Local)
-                        .map(daemon_types::AccessMethod::from)
-                        .ok_or(anyhow!("Could not create a local Socks5 access method"))?
+                        daemon_types::Socks5Local::new((remote_ip, remote_port), local_port).into()
                     }
                     AddSocks5Commands::Remote {
                         remote_ip,
@@ -448,29 +427,23 @@ mod conversions {
                         authentication,
                         name: _,
                         disabled: _,
-                    } => {
+                    } => daemon_types::AccessMethod::from(daemon_types::Socks5::Remote(
                         match authentication {
                             Some(SocksAuthentication { username, password }) => {
                                 println!("Adding SOCKS5-proxy: {username}:{password}@{remote_ip}:{remote_port}");
-                                daemon_types::Socks5Remote::from_args_with_password(
-                                    remote_ip.to_string(),
-                                    remote_port,
-                                    username,
-                                    password
+                                let auth =
+                                    mullvad_types::access_method::SocksAuth { username, password };
+                                daemon_types::Socks5Remote::new_with_authentication(
+                                    (remote_ip, remote_port),
+                                    auth,
                                 )
                             }
                             None => {
                                 println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
-                                daemon_types::Socks5Remote::from_args(
-                                    remote_ip.to_string(),
-                                    remote_port,
-                                )
+                                daemon_types::Socks5Remote::new((remote_ip, remote_port))
                             }
-                        }
-                        .map(daemon_types::Socks5::Remote)
-                        .map(daemon_types::AccessMethod::from)
-                        .ok_or(anyhow!("Could not create a remote Socks5 access method"))?
-                    }
+                        },
+                    )),
                 },
                 AddCustomCommands::Shadowsocks {
                     remote_ip,
@@ -483,16 +456,13 @@ mod conversions {
                     println!(
                 "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
                     );
-                    daemon_types::Shadowsocks::from_args(
-                        remote_ip.to_string(),
-                        remote_port,
+                    daemon_types::AccessMethod::from(daemon_types::Shadowsocks::new(
+                        (remote_ip, remote_port),
                         cipher,
                         password,
-                    )
-                    .map(daemon_types::AccessMethod::from)
-                    .ok_or(anyhow!("Could not create a Shadowsocks access method"))?
+                    ))
                 }
-            })
+            }
         }
     }
 }
