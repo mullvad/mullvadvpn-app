@@ -137,9 +137,25 @@ final class StoreTransactionLog {
     }
 
     /// Write a list of transaction identifiers on disk.
+    ///
     /// Transaction identifiers are stored as one per line.
+    /// Always ensures to exclude the transaction log file from backups after writing contents on disk.
     /// - Parameter serializedString: serialized transaction log
     private func persistInner(serializedString: String) throws {
         try serializedString.write(to: fileURL, atomically: true, encoding: .utf8)
+        excludeFromBackups()
+    }
+
+    /// Exclude transaction log file from backups.
+    private func excludeFromBackups() {
+        do {
+            var resourceValues = URLResourceValues()
+            resourceValues.isExcludedFromBackup = true
+
+            var mutableFileURL = fileURL
+            try mutableFileURL.setResourceValues(resourceValues)
+        } catch {
+            logger.error(error: error, message: "Failed to exclude transaction log from backups.")
+        }
     }
 }
