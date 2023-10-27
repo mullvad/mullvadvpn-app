@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Composable
 fun ScaffoldWithTopBar(
@@ -34,7 +33,7 @@ fun ScaffoldWithTopBar(
     statusBarColor: Color,
     navigationBarColor: Color,
     modifier: Modifier = Modifier,
-    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary,
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
@@ -74,7 +73,7 @@ fun ScaffoldWithTopBarAndDeviceName(
     statusBarColor: Color,
     navigationBarColor: Color?,
     modifier: Modifier = Modifier,
-    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary,
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,

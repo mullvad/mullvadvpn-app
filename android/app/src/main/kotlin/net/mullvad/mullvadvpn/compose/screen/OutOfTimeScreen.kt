@@ -33,7 +33,6 @@ import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -121,13 +120,6 @@ fun OutOfTimeScreen(
                 MaterialTheme.colorScheme.error
             },
         navigationBarColor = MaterialTheme.colorScheme.background,
-        iconTintColor =
-            if (uiState.tunnelState.isSecured()) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onError
-                }
-                .copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = uiState.deviceName,

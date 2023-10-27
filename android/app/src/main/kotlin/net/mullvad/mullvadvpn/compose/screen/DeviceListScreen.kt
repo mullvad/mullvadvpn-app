@@ -33,7 +33,6 @@ import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.formatDate
 
@@ -86,7 +85,6 @@ fun DeviceListScreen(
         topBarColor = MaterialTheme.colorScheme.primary,
         statusBarColor = MaterialTheme.colorScheme.primary,
         navigationBarColor = MaterialTheme.colorScheme.background,
-        iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
     ) {

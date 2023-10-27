@@ -49,7 +49,6 @@ import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -134,13 +133,6 @@ fun ConnectScreen(
                 MaterialTheme.colorScheme.error
             },
         navigationBarColor = null,
-        iconTintColor =
-            if (uiState.tunnelUiState.isSecured()) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onError
-                }
-                .copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         deviceName = uiState.deviceName,

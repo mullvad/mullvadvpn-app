@@ -71,7 +71,6 @@ private fun PreviewNotificationBanner() {
                     containerColor = MaterialTheme.colorScheme.primary,
                     onSettingsClicked = {},
                     onAccountClicked = {},
-                    iconTintColor = MaterialTheme.colorScheme.primary
                 )
                 Notification(it)
                 Spacer(modifier = Modifier.size(16.dp))

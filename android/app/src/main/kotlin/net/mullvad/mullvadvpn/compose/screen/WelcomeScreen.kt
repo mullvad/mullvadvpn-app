@@ -46,7 +46,6 @@ import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 
@@ -105,13 +104,6 @@ fun WelcomeScreen(
                 MaterialTheme.colorScheme.error
             },
         navigationBarColor = MaterialTheme.colorScheme.background,
-        iconTintColor =
-            if (uiState.tunnelState.isSecured()) {
-                    MaterialTheme.colorScheme.onPrimary
-                } else {
-                    MaterialTheme.colorScheme.onError
-                }
-                .copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         snackbarHostState = snackbarHostState

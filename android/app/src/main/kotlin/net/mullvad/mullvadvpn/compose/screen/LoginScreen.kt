@@ -65,7 +65,6 @@ import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Preview
 @Composable
@@ -114,7 +113,6 @@ fun LoginScreen(
         topBarColor = MaterialTheme.colorScheme.primary,
         statusBarColor = MaterialTheme.colorScheme.primary,
         navigationBarColor = MaterialTheme.colorScheme.background,
-        iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = null
     ) {

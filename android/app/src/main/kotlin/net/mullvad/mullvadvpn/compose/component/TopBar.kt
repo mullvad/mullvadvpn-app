@@ -49,7 +49,6 @@ private fun PreviewTopBar() {
     AppTheme {
         MullvadTopBar(
             containerColor = MaterialTheme.colorScheme.inversePrimary,
-            iconTintColor = MaterialTheme.colorScheme.onPrimary,
             onSettingsClicked = null,
             onAccountClicked = {}
         )
@@ -62,7 +61,6 @@ private fun PreviewSlimTopBar() {
     AppTheme {
         MullvadTopBar(
             containerColor = MaterialTheme.colorScheme.inversePrimary,
-            iconTintColor = MaterialTheme.colorScheme.onPrimary,
             onSettingsClicked = null,
             onAccountClicked = {}
         )
@@ -75,7 +73,6 @@ private fun PreviewNoIconAndLogoTopBar() {
     AppTheme {
         MullvadTopBar(
             containerColor = MaterialTheme.colorScheme.inversePrimary,
-            iconTintColor = MaterialTheme.colorScheme.onPrimary,
             isIconAndLogoVisible = false,
             onSettingsClicked = {},
             onAccountClicked = null,
@@ -89,7 +86,6 @@ private fun PreviewNothingTopBar() {
     AppTheme {
         MullvadTopBar(
             containerColor = MaterialTheme.colorScheme.inversePrimary,
-            iconTintColor = MaterialTheme.colorScheme.onPrimary,
             isIconAndLogoVisible = false,
             onSettingsClicked = null,
             onAccountClicked = null
@@ -103,7 +99,7 @@ fun MullvadTopBar(
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     modifier: Modifier = Modifier,
-    iconTintColor: Color,
+    iconTintColor: Color = MaterialTheme.colorScheme.onPrimary,
     isIconAndLogoVisible: Boolean = true
 ) {
     TopAppBar(
@@ -303,7 +299,8 @@ fun MullvadTopBarWithDeviceName(
                         ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
             if (daysLeftUntilExpiry != null) {
                 Text(
