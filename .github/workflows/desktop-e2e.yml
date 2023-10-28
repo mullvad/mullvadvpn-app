@@ -3,9 +3,61 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+  # TEMP
+  push:
 jobs:
+  prepare-linux:
+    if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+  build-linux:
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Checkout binaries submodule
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
+      - name: Build app
+        env:
+          USE_MOLD: false
+        run: ./build.sh
+      - name: Build test executable
+        run: ./gui/scripts/build-test-executable.sh
+      - uses: actions/upload-artifact@v3
+        if: '!cancelled()'
+        with:
+          name: linux-build
+          path: |
+            ./dist/*.rpm
+            ./dist/*.deb
+            ./dist/app-e2e-*
+
   e2e-test-linux:
     name: Linux end-to-end tests
+    needs: build-linux
+    if: '!cancelled()'
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     timeout-minutes: 240
     strategy:
@@ -13,6 +65,11 @@ jobs:
       matrix:
         os: [debian11, debian12, ubuntu2004, ubuntu2204, ubuntu2304, fedora38, fedora37, fedora36]
     steps:
+      - uses: actions/download-artifact@v3
+        if: ${{ needs.build-linux.result == 'success' }}
+        with:
+          name: linux-build
+          path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -26,7 +83,50 @@ jobs:
         with:
           name: ${{ matrix.os }}_report
           path: ./test/.ci-logs/${{ matrix.os }}_report
+
+  build-windows:
+    if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Checkout submodules
+        run: git submodule update --init --depth=1
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 18
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          target: i686-pc-windows-msvc
+          default: true
+      - name: Install msbuild
+        uses: microsoft/setup-msbuild@v1.0.2
+        with:
+          vs-version: 16
+      - name: Build app
+        shell: bash
+        # TODO: For some reason, 'npm run pack:win' wants to publish the artifacts
+        continue-on-error: true
+        run: ./build.sh
+      - name: Build test executable
+        shell: bash
+        run: ./gui/scripts/build-test-executable.sh
+      - uses: actions/upload-artifact@v3
+        if: '!cancelled()'
+        with:
+          name: windows-build
+          path: .\dist\*.exe
+
   e2e-test-windows:
+    needs: build-windows
+    if: '!cancelled()'
     name: Windows end-to-end tests
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     timeout-minutes: 240
@@ -35,6 +135,11 @@ jobs:
       matrix:
         os: [windows10, windows11]
     steps:
+      - uses: actions/download-artifact@v3
+        if: ${{ needs.build-windows.result == 'success' }}
+        with:
+          name: windows-build
+          path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -48,7 +153,50 @@ jobs:
         with:
           name: ${{ matrix.os }}_report
           path: ./test/.ci-logs/${{ matrix.os }}_report
+
+  build-macos:
+    if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Checkout submodules
+        run: git submodule update --init --depth=1
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          node-version: 18
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+          default: true
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.5
+      - name: Build app
+        run: ./build.sh --universal
+      - name: Build test executable
+        run: ./gui/scripts/build-test-executable.sh aarch64-apple-darwin
+        # FIXME: This fails for some reason, but the artifact is built
+        continue-on-error: true
+      - uses: actions/upload-artifact@v3
+        if: '!cancelled()'
+        with:
+          name: macos-build
+          path: |
+            ./dist/*.pkg
+            ./dist/app-e2e-*
+
   e2e-test-macos:
+    needs: build-macos
+    if: '!cancelled()'
     name: macOS end-to-end tests
     runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
     timeout-minutes: 240
@@ -57,6 +205,11 @@ jobs:
       matrix:
         os: [macos-14, macos-13, macos-12]
     steps:
+      - uses: actions/download-artifact@v3
+        if: ${{ needs.build-macos.result == 'success' }}
+        with:
+          name: macos-build
+          path: ~/Library/Caches/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -70,6 +223,7 @@ jobs:
         with:
           name: ${{ matrix.os }}_report
           path: ./test/.ci-logs/${{ matrix.os }}_report
+
   compile-test-matrix:
     name: Result matrix
     needs: [e2e-test-linux, e2e-test-windows, e2e-test-macos]
