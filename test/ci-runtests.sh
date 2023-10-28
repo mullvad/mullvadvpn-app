@@ -125,12 +125,12 @@ function download_app_package {
     local filename=$(get_app_filename $version $os)
     local url="${package_repo}/$version/$filename"
 
-    # TODO: integrity check
-
-    echo "Downloading build for $version ($os) from $url"
     mkdir -p "$PACKAGES_DIR"
     if [[ ! -f "$PACKAGES_DIR/$filename" ]]; then
+        echo "Downloading build for $version ($os) from $url"
         curl -sf -o "$PACKAGES_DIR/$filename" $url
+    else
+        echo "Found build for $version ($os)"
     fi
 }
 
@@ -173,10 +173,12 @@ function download_e2e_executable {
     local filename=$(get_e2e_filename $version $os)
     local url="${package_repo}/$version/additional-files/$filename"
 
-    echo "Downloading e2e executable for $version ($os) from $url"
     mkdir -p $PACKAGES_DIR
     if [[ ! -f "$PACKAGES_DIR/$filename" ]]; then
+        echo "Downloading e2e executable for $version ($os) from $url"
         curl -sf -o "$PACKAGES_DIR/$filename" $url
+    else
+        echo "Found e2e executable for $version ($os)"
     fi
 }
 
