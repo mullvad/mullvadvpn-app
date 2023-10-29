@@ -93,6 +93,7 @@ export const StyledNoResult = styled(Cell.CellFooter)({
   flexDirection: 'column',
   paddingTop: 0,
   marginTop: 0,
+  marginBottom: '69px',
 });
 
 export const StyledNoResultText = styled(Cell.CellFooterText)({

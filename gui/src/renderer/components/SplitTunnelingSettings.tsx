@@ -173,7 +173,21 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
       </SettingsHeader>
 
       <StyledSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
-      <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
+      {filteredApplications !== undefined && filteredApplications.length > 0 && (
+        <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
+      )}
+
+      {searchTerm !== '' &&
+        (filteredApplications === undefined || filteredApplications.length === 0) && (
+          <StyledNoResult>
+            <StyledNoResultText>
+              {formatHtml(
+                sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
+              )}
+            </StyledNoResultText>
+            <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
+          </StyledNoResult>
+        )}
 
       <StyledBrowseButton onClick={launchWithFilePicker}>
         {messages.pgettext('split-tunneling-view', 'Find another app')}
