@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
@@ -24,9 +25,10 @@ class RelayListListener(
         messageHandler
             .events<Event.NewRelayList>()
             .map { it.relayList }
+            .onStart { messageHandler.trySendRequest(Request.FetchRelayList) }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
-    fun updateSelectedRelayLocation(value: GeographicLocationConstraint?) {
+    fun updateSelectedRelayLocation(value: GeographicLocationConstraint) {
         messageHandler.trySendRequest(Request.SetRelayLocation(value))
     }
 
