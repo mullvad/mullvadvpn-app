@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.common.util.toGeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
-import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
@@ -55,7 +54,4 @@ class RelayListUseCase(
         val location = relaySettings?.relayConstraints()?.location
         return location?.let { this.findItemForLocation(location.toGeographicLocationConstraint()) }
     }
-
-    private fun RelaySettings.relayConstraints(): RelayConstraints? =
-        (this as? RelaySettings.Normal)?.relayConstraints
 }
