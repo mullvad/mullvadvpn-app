@@ -51,7 +51,4 @@ class RelayListUseCase(
         val location = relaySettings?.relayConstraints()?.location
         return location?.let { this.findItemForLocation(location.toGeographicLocationConstraint()) }
     }
-
-    private fun RelaySettings.relayConstraints(): RelayConstraints? =
-        (this as? RelaySettings.Normal)?.relayConstraints
 }
