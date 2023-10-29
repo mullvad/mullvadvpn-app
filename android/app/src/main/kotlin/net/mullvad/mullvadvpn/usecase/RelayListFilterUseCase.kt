@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayListCity
 import net.mullvad.mullvadvpn.model.RelayListCountry
+import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 
@@ -32,14 +33,14 @@ class RelayListFilterUseCase(
             settings?.relaySettings?.relayConstraints()?.providers ?: Constraint.Any()
         }
 
-    fun availableProviders(): Flow<List<Pair<String, Boolean>>> =
+    fun availableProviders(): Flow<List<Provider>> =
         relayListListener.relayListEvents.map { relayList ->
             relayList
                 ?.countries
                 ?.flatMap(RelayListCountry::cities)
                 ?.flatMap(RelayListCity::relays)
                 ?.filter { relay -> relay.isWireguardRelay }
-                ?.map { relay -> relay.provider to relay.owned }
+                ?.map { relay -> Provider(relay.provider, relay.owned) }
                 ?.distinct() ?: emptyList()
         }
 }

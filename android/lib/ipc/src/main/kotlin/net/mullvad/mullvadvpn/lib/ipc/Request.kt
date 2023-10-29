@@ -77,7 +77,7 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize data class SetEnableSplitTunneling(val enable: Boolean) : Request()
 
     @Parcelize
-    data class SetRelayLocation(val relayLocation: GeographicLocationConstraint?) : Request()
+    data class SetRelayLocation(val relayLocation: GeographicLocationConstraint) : Request()
 
     @Parcelize data class SetWireGuardMtu(val mtu: Int?) : Request()
 
@@ -101,6 +101,8 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize data class SetOwnership(val ownership: Constraint<Ownership>) : Request()
 
     @Parcelize data class SetProviders(val providers: Constraint<Providers>) : Request()
+
+    @Parcelize data object FetchRelayList : Request()
 
     companion object {
         private const val MESSAGE_KEY = "request"

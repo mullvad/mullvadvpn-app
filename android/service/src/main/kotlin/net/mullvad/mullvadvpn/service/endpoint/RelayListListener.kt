@@ -1,36 +1,29 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
-import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
-import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class RelayListListener(endpoint: ServiceEndpoint) {
-
-    private val commandChannel = spawnActor()
+class RelayListListener(
+    endpoint: ServiceEndpoint,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO
+) {
+    private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
     private val daemon = endpoint.intermittentDaemon
-
-    private var selectedRelayLocation by
-        observable<GeographicLocationConstraint?>(null) { _, _, _ ->
-            commandChannel.trySendBlocking(Command.SetRelayLocation)
-        }
-    private var selectedWireguardConstraints by
-        observable<WireguardConstraints?>(null) { _, _, _ ->
-            commandChannel.trySendBlocking(Command.SetWireguardConstraints)
-        }
 
     var relayList by
         observable<RelayList?>(null) { _, _, relays ->
@@ -46,18 +39,75 @@ class RelayListListener(endpoint: ServiceEndpoint) {
             }
         }
 
-        endpoint.dispatcher.registerHandler(Request.SetRelayLocation::class) { request ->
-            selectedRelayLocation = request.relayLocation
+        scope.launch {
+            endpoint.dispatcher.parsedMessages
+                .filterIsInstance<Request.SetRelayLocation>()
+                .collect { request ->
+                    val update =
+                        RelayConstraintsUpdate(
+                            location =
+                                Constraint.Only(LocationConstraint.Location(request.relayLocation)),
+                            providers = null,
+                            ownership = null,
+                            wireguardConstraints = null
+                        )
+                    daemon.await().updateRelaySettings(RelaySettingsUpdate.Normal(update))
+                }
         }
 
-        endpoint.dispatcher.registerHandler(Request.SetWireguardConstraints::class) { request ->
-            selectedWireguardConstraints = request.wireguardConstraints
+        scope.launch {
+            endpoint.dispatcher.parsedMessages
+                .filterIsInstance<Request.SetWireguardConstraints>()
+                .collect { request ->
+                    val update =
+                        RelayConstraintsUpdate(
+                            location = null,
+                            providers = null,
+                            ownership = null,
+                            wireguardConstraints = request.wireguardConstraints
+                        )
+                    daemon.await().updateRelaySettings(RelaySettingsUpdate.Normal(update))
+                }
+        }
+
+        scope.launch {
+            endpoint.dispatcher.parsedMessages.filterIsInstance<Request.SetOwnership>().collect {
+                request ->
+                val update =
+                    RelayConstraintsUpdate(
+                        location = null,
+                        providers = null,
+                        ownership = request.ownership,
+                        wireguardConstraints = null
+                    )
+                daemon.await().updateRelaySettings(RelaySettingsUpdate.Normal(update))
+            }
+        }
+
+        scope.launch {
+            endpoint.dispatcher.parsedMessages.filterIsInstance<Request.SetProviders>().collect {
+                request ->
+                val update =
+                    RelayConstraintsUpdate(
+                        location = null,
+                        providers = request.providers,
+                        ownership = null,
+                        wireguardConstraints = null
+                    )
+                daemon.await().updateRelaySettings(RelaySettingsUpdate.Normal(update))
+            }
+        }
+
+        scope.launch {
+            endpoint.dispatcher.parsedMessages.filterIsInstance<Request.FetchRelayList>().collect {
+                relayList = daemon.await().getRelayLocations()
+            }
         }
     }
 
     fun onDestroy() {
-        commandChannel.close()
         daemon.unregisterListener(this)
+        scope.cancel()
     }
 
     private fun setUpListener(daemon: MullvadDaemon) {
@@ -69,47 +119,6 @@ class RelayListListener(endpoint: ServiceEndpoint) {
             if (relayList == null) {
                 relayList = daemon.getRelayLocations()
             }
-        }
-    }
-
-    private fun spawnActor() =
-        GlobalScope.actor<Command>(Dispatchers.Default, Channel.CONFLATED) {
-            try {
-                for (command in channel) {
-                    when (command) {
-                        Command.SetRelayLocation,
-                        Command.SetWireguardConstraints -> updateRelayConstraints()
-                    }
-                }
-            } catch (exception: ClosedReceiveChannelException) {
-                // Closed sender, so stop the actor
-            }
-        }
-
-    private suspend fun updateRelayConstraints() {
-        val location: Constraint<LocationConstraint> =
-            selectedRelayLocation?.let { location ->
-                Constraint.Only(LocationConstraint.Location(location))
-            } ?: Constraint.Any()
-        val wireguardConstraints: WireguardConstraints? = selectedWireguardConstraints
-
-        val update =
-            RelaySettingsUpdate.Normal(
-                RelayConstraintsUpdate(
-                    location = location,
-                    wireguardConstraints = wireguardConstraints,
-                    ownership = Constraint.Any(),
-                    providers = Constraint.Any()
-                )
-            )
-
-        daemon.await().updateRelaySettings(update)
-    }
-
-    companion object {
-        private enum class Command {
-            SetRelayLocation,
-            SetWireguardConstraints
         }
     }
 }
