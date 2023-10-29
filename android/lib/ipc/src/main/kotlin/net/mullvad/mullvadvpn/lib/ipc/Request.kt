@@ -102,6 +102,8 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize data class SetProviders(val providers: Constraint<Providers>) : Request()
 
+    @Parcelize data object FetchRelayList : Request()
+
     companion object {
         private const val MESSAGE_KEY = "request"
 
