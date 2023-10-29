@@ -4,9 +4,12 @@ import android.os.Message as RawMessage
 import android.os.Messenger
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
+import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 
@@ -94,6 +97,10 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize
     data class SetWireGuardQuantumResistant(val quantumResistant: QuantumResistantState) :
         Request()
+
+    @Parcelize data class SetOwnership(val ownership: Constraint<Ownership>) : Request()
+
+    @Parcelize data class SetProviders(val providers: Constraint<Providers>) : Request()
 
     companion object {
         private const val MESSAGE_KEY = "request"

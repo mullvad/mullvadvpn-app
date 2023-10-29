@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.Request
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.model.WireguardEndpointData
@@ -30,6 +33,14 @@ class RelayListListener(
 
     fun updateSelectedWireguardConstraints(value: WireguardConstraints) {
         messageHandler.trySendRequest(Request.SetWireguardConstraints(value))
+    }
+
+    fun updateSelectedOwnershipFilter(value: Constraint<Ownership>) {
+        messageHandler.trySendRequest(Request.SetOwnership(value))
+    }
+
+    fun updateSelectedProvidersFilter(value: Constraint<Providers>) {
+        messageHandler.trySendRequest(Request.SetProviders(value))
     }
 
     private fun defaultRelayList() = RelayList(ArrayList(), WireguardEndpointData(ArrayList()))
