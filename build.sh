@@ -331,6 +331,8 @@ if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
         cargo run --bin mullvad "${CARGO_ARGS[@]}" -- shell-completions "$sh" \
             "build/shell-completions/"
     done
+else
+    mkdir -p "build"
 fi
 
 log_info "Updating relays.json..."
