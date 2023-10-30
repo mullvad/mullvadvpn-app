@@ -214,6 +214,7 @@
 		58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */; };
 		58AFC99529F96F7B000829DE /* AsyncBlockOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AFC99429F96F7B000829DE /* AsyncBlockOperationTests.swift */; };
 		58AFC99729F9753D000829DE /* AsyncResultBlockOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AFC99629F9753D000829DE /* AsyncResultBlockOperationTests.swift */; };
+		58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */; };
 		58B26E1E2943514300D5980C /* InAppNotificationDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E1D2943514300D5980C /* InAppNotificationDescriptor.swift */; };
 		58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E21294351EA00D5980C /* InAppNotificationProvider.swift */; };
 		58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E232943520C00D5980C /* NotificationProviderProtocol.swift */; };
@@ -4055,6 +4056,7 @@
 				A9A5FA3A2ACB05910083449F /* UIEdgeInsets+Extensions.swift in Sources */,
 				A9C342C52ACC42130045F00E /* ServerRelaysResponse+Stubs.swift in Sources */,
 				A9A5FA3B2ACB05910083449F /* UIMetrics.swift in Sources */,
+				58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */,
 				A9A5FA382ACB05600083449F /* InputTextFormatter.swift in Sources */,
 				A9A5FA372ACB052D0083449F /* ApplicationTarget.swift in Sources */,
 				A9A5F9E12ACB05160083449F /* AddressCacheTracker.swift in Sources */,
