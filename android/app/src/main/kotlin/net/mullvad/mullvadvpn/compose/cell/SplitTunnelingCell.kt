@@ -68,7 +68,7 @@ fun SplitTunnelingCell(
                 .wrapContentHeight()
                 .defaultMinSize(minHeight = Dimens.listItemHeightExtra)
                 .fillMaxWidth()
-                .padding(vertical = Dimens.listItemDivider)
+                .padding(bottom = Dimens.listItemDivider)
                 .background(
                     MaterialTheme.colorScheme.primary
                         .copy(alpha = Alpha40)
