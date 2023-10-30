@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ChevronView
+import net.mullvad.mullvadvpn.compose.component.VerticalDivider
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha40
@@ -255,12 +256,16 @@ fun RelayLocationCell(
                 )
             }
             if (relay.hasChildren) {
+                VerticalDivider(
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.padding(vertical = Dimens.verticalDividerPadding)
+                )
                 ChevronView(
                     isExpanded = expanded.value,
                     modifier =
                         Modifier.fillMaxHeight()
                             .clickable { expanded.value = !expanded.value }
-                            .padding(horizontal = Dimens.mediumPadding)
+                            .padding(horizontal = Dimens.largePadding)
                             .align(Alignment.CenterVertically)
                 )
             }
