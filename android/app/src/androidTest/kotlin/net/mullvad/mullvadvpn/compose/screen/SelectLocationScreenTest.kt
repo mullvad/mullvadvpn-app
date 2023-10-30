@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.RelayEndpointData
 import net.mullvad.mullvadvpn.model.RelayList
@@ -188,6 +189,6 @@ class SelectLocationScreenTest {
                     arrayListOf(DUMMY_RELAY_COUNTRY_1, DUMMY_RELAY_COUNTRY_2),
                     DUMMY_WIREGUARD_ENDPOINT_DATA
                 )
-                .toRelayCountries()
+                .toRelayCountries(ownership = Constraint.Any(), providers = Constraint.Any())
     }
 }
