@@ -34,12 +34,12 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
-import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
@@ -73,7 +73,6 @@ class ConnectViewModelTest {
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
     private val mockLocationInfoCache: LocationInfoCache = mockk(relaxUnitFun = true)
-    private val mockRelayListListener: RelayListListener = mockk(relaxUnitFun = true)
     private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
     private val mockConnectionProxy: ConnectionProxy = mockk()
     private val mockLocation: GeoIpLocation = mockk(relaxed = true)
@@ -87,13 +86,19 @@ class ConnectViewModelTest {
     // In App Notifications
     private val mockInAppNotificationController: InAppNotificationController = mockk()
 
+    // Relay list use case
+    private val mockRelayListUseCase: RelayListUseCase = mockk()
+
     // Captures
     private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
-    private val relaySlot = slot<(List<RelayCountry>, RelayItem?) -> Unit>()
 
     // Event notifiers
     private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected)
     private val eventNotifierTunnelRealState = EventNotifier<TunnelState>(TunnelState.Disconnected)
+
+    // Flows
+    private val relayListWithSelectionFlow =
+        MutableStateFlow<Pair<List<RelayCountry>, RelayItem?>>(Pair(emptyList(), null))
 
     @Before
     fun setup() {
@@ -107,7 +112,6 @@ class ConnectViewModelTest {
 
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
         every { mockServiceConnectionContainer.locationInfoCache } returns mockLocationInfoCache
-        every { mockServiceConnectionContainer.relayListListener } returns mockRelayListListener
         every { mockServiceConnectionContainer.appVersionInfoCache } returns mockAppVersionInfoCache
         every { mockServiceConnectionContainer.connectionProxy } returns mockConnectionProxy
 
@@ -124,8 +128,10 @@ class ConnectViewModelTest {
 
         // Listeners
         every { mockLocationInfoCache.onNewLocation = capture(locationSlot) } answers {}
-        every { mockRelayListListener.onRelayCountriesChange = capture(relaySlot) } answers {}
         every { mockAppVersionInfoCache.onUpdate = any() } answers {}
+
+        // Flows
+        every { mockRelayListUseCase.relayListWithSelection() } returns relayListWithSelectionFlow
 
         viewModel =
             ConnectViewModel(
@@ -133,6 +139,7 @@ class ConnectViewModelTest {
                 accountRepository = mockAccountRepository,
                 deviceRepository = mockDeviceRepository,
                 inAppNotificationController = mockInAppNotificationController,
+                relayListUseCase = mockRelayListUseCase,
                 newDeviceNotificationUseCase = mockk()
             )
     }
@@ -156,7 +163,6 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(mockLocation)
-                relaySlot.captured.invoke(mockk(), mockk())
                 viewModel.toggleTunnelInfoExpansion()
                 val result = awaitItem()
                 assertTrue(result.isTunnelInfoExpanded)
@@ -173,7 +179,6 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(mockLocation)
-                relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
                 val result = awaitItem()
                 assertEquals(tunnelRealStateTestItem, result.tunnelRealState)
@@ -190,7 +195,6 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(mockLocation)
-                relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelUiState.notify(tunnelUiStateTestItem)
                 val result = awaitItem()
                 assertEquals(tunnelUiStateTestItem, result.tunnelUiState)
@@ -202,13 +206,13 @@ class ConnectViewModelTest {
         runTest(testCoroutineRule.testDispatcher) {
             val relayTestItem =
                 RelayCountry(name = "Name", code = "Code", expanded = false, cities = emptyList())
+            relayListWithSelectionFlow.value = emptyList<RelayCountry>() to relayTestItem
 
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(mockLocation)
-                relaySlot.captured.invoke(mockk(), relayTestItem)
                 val result = awaitItem()
                 assertEquals(relayTestItem, result.relayLocation)
             }
@@ -231,7 +235,6 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(locationTestItem)
-                relaySlot.captured.invoke(mockk(), mockk())
                 val result = awaitItem()
                 assertEquals(locationTestItem, result.location)
             }
@@ -249,7 +252,6 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(locationTestItem)
-                relaySlot.captured.invoke(mockk(), mockk())
                 expectNoEvents()
                 val result = awaitItem()
                 assertEquals(locationTestItem, result.location)
@@ -308,7 +310,6 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(mockLocation)
-                relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelUiState.notify(tunnelUiState)
                 val result = awaitItem()
                 assertEquals(expectedConnectNotificationState, result.inAppNotification)
@@ -347,7 +348,6 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(mockLocation)
-                relaySlot.captured.invoke(mockk(), mockk())
                 eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
                 awaitItem()
             }
