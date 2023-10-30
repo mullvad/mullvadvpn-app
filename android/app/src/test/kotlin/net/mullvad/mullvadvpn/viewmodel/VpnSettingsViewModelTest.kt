@@ -159,7 +159,9 @@ class VpnSettingsViewModelTest {
         // Arrange
         val wireguardPort: Constraint<Port> = Constraint.Only(Port(99))
         val wireguardConstraints = WireguardConstraints(port = wireguardPort)
-        every { mockRelayListListener.selectedWireguardConstraints = any() } returns Unit
+        every {
+            mockRelayListListener.updateSelectedWireguardConstraints(wireguardConstraints)
+        } returns Unit
 
         // Act
         mockConnectionState.value =
@@ -168,7 +170,7 @@ class VpnSettingsViewModelTest {
 
         // Assert
         verify(exactly = 1) {
-            mockRelayListListener.selectedWireguardConstraints = wireguardConstraints
+            mockRelayListListener.updateSelectedWireguardConstraints(wireguardConstraints)
         }
     }
 
