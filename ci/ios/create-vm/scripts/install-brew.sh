@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-if which brew
+if command -v brew &>/dev/null
 then
     echo >&1 "brew is already installed, nothing to do here"
     exit 0
