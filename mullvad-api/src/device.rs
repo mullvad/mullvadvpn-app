@@ -109,7 +109,7 @@ impl DevicesProxy {
         let factory = self.handle.factory.clone();
         async move {
             let request = factory
-                .get(&format!("{ACCOUNTS_URL_PREFIX}/device"))?
+                .get(&format!("{ACCOUNTS_URL_PREFIX}/devices"))?
                 .expected_status(&[StatusCode::OK])
                 .account(account)?;
             service.request(request).await?.deserialize().await
