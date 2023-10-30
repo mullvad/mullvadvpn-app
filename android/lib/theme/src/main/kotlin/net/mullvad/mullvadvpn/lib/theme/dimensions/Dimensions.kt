@@ -58,6 +58,7 @@ data class Dimensions(
     val switchIconSize: Dp = 24.dp,
     val titleIconSize: Dp = 24.dp,
     val topBarHeight: Dp = 64.dp,
+    val verticalDividerPadding: Dp = 12.dp,
     val verticalSpace: Dp = 20.dp,
     val verticalSpacer: Dp = 1.dp,
 )
