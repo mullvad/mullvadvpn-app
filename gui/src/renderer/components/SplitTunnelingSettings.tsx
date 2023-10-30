@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
 
@@ -12,7 +12,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
-import { useAsyncEffect } from '../lib/utilityHooks';
+import { useAsyncEffect, useStyledRef } from '../lib/utilityHooks';
 import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -49,13 +49,13 @@ import Switch from './Switch';
 export default function SplitTunneling() {
   const { pop } = useHistory();
   const [browsing, setBrowsing] = useState(false);
-  const scrollbarsRef = useRef() as React.RefObject<CustomScrollbarsRef>;
+  const scrollbarsRef = useStyledRef<CustomScrollbarsRef>();
 
   const scrollToTop = useCallback(() => scrollbarsRef.current?.scrollToTop(true), [scrollbarsRef]);
 
   return (
     <>
-      <StyledPageCover show={browsing} />
+      <StyledPageCover $show={browsing} />
       <BackAction action={pop}>
         <Layout>
           <SettingsContainer>
@@ -173,7 +173,21 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
       </SettingsHeader>
 
       <StyledSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
-      <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
+      {filteredApplications !== undefined && filteredApplications.length > 0 && (
+        <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
+      )}
+
+      {searchTerm !== '' &&
+        (filteredApplications === undefined || filteredApplications.length === 0) && (
+          <StyledNoResult>
+            <StyledNoResultText>
+              {formatHtml(
+                sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
+              )}
+            </StyledNoResultText>
+            <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
+          </StyledNoResult>
+        )}
 
       <StyledBrowseButton onClick={launchWithFilePicker}>
         {messages.pgettext('split-tunneling-view', 'Find another app')}
@@ -258,18 +272,18 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
     <>
       <StyledCellButton
         onClick={props.application.warning ? showWarningDialog : launch}
-        lookDisabled={disabled}>
+        $lookDisabled={disabled}>
         {props.application.icon ? (
           <StyledIcon
             source={props.application.icon}
             width={35}
             height={35}
-            lookDisabled={disabled}
+            $lookDisabled={disabled}
           />
         ) : (
           <StyledIconPlaceholder />
         )}
-        <StyledCellLabel lookDisabled={disabled}>{props.application.name}</StyledCellLabel>
+        <StyledCellLabel $lookDisabled={disabled}>{props.application.name}</StyledCellLabel>
         {props.application.warning && (
           <StyledCellWarningIcon source="icon-alert" tintColor={warningColor} width={18} />
         )}

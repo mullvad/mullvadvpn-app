@@ -19,44 +19,44 @@ const StyledCustomScrollbars = styled.div({
   overflow: 'hidden',
 });
 
-const StyledScrollable = styled.div((props: { fillContainer?: boolean }) => ({
-  flex: props.fillContainer ? '1' : undefined,
+const StyledScrollable = styled.div<{ $fillContainer?: boolean }>((props) => ({
+  flex: props.$fillContainer ? '1' : undefined,
   width: '100%',
   overflow: 'auto',
-  '::-webkit-scrollbar': {
+  '&&::-webkit-scrollbar': {
     display: 'none',
   },
 }));
 
-const StyledTrack = styled.div({}, (props: { canScroll: boolean; show: boolean }) => ({
+const StyledTrack = styled.div<{ $canScroll: boolean; $show: boolean }>((props) => ({
   position: 'absolute',
   top: 0,
   right: 0,
   bottom: 0,
   width: '16px',
-  backgroundColor: props.show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
+  backgroundColor: props.$show ? 'rgba(0, 0, 0, 0.2)' : 'rgba(0, 0, 0, 0)',
   borderRadius: '8px',
   transition: 'width 0.1s ease-in-out, background-color 0.25s ease-in-out',
   zIndex: 99,
-  pointerEvents: props.canScroll ? 'auto' : 'none',
-  // Thumb should be less transparent when track is hovered.
-  [`&:hover ${StyledThumb}`]: {
-    backgroundColor: 'rgba(255, 255, 255, 0.65)',
-  },
+  pointerEvents: props.$canScroll ? 'auto' : 'none',
 }));
 
-const StyledThumb = styled.div(
-  {},
-  (props: { show: boolean; isDragging: boolean; wide: boolean }) => ({
+const StyledThumb = styled.div<{ $show: boolean; $isDragging: boolean; $wide: boolean }>(
+  (props) => ({
     position: 'absolute',
     top: 0,
     right: 0,
-    borderRadius: props.wide ? '6px' : '4px',
-    width: props.wide ? '12px' : '8px',
+    borderRadius: props.$wide ? '6px' : '4px',
+    width: props.$wide ? '12px' : '8px',
     transition:
       'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
-    opacity: props.show ? 1 : 0,
-    backgroundColor: props.isDragging ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
+    opacity: props.$show ? 1 : 0,
+    backgroundColor: props.$isDragging ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
+
+    // Thumb should be less transparent when track is hovered.
+    [`${StyledTrack}:hover &&`]: {
+      backgroundColor: 'rgba(255, 255, 255, 0.65)',
+    },
   }),
 );
 
@@ -260,20 +260,20 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       <StyledCustomScrollbars {...otherProps}>
         <StyledTrack
           ref={this.trackRef}
-          show={showScrollbars && this.state.active}
-          canScroll={this.state.canScroll}
+          $show={showScrollbars && this.state.active}
+          $canScroll={this.state.canScroll}
           onMouseEnter={this.handleMouseEnter}
           onMouseLeave={this.handleMouseLeave}>
           <StyledThumb
             ref={this.thumbRef}
-            show={showScrollbars}
-            isDragging={this.state.isDragging}
-            wide={this.state.active}
+            $show={showScrollbars}
+            $isDragging={this.state.isDragging}
+            $wide={this.state.active}
             onMouseDown={this.handleMouseDown}
           />
         </StyledTrack>
         <StyledScrollable
-          fillContainer={fillContainer}
+          $fillContainer={fillContainer}
           onScroll={this.onScroll}
           ref={this.scrollableRef}>
           <StyledScrollableContent ref={this.scrollableContentRef}>

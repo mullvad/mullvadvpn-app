@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
+import { useStyledRef } from '../lib/utilityHooks';
 import * as AppButton from './AppButton';
 import { tinyText } from './common-styles';
 import ImageView from './ImageView';
@@ -104,7 +105,7 @@ export const NotificationActions = styled.div({
 });
 
 interface INotificationIndicatorProps {
-  type?: InAppNotificationIndicatorType;
+  $type?: InAppNotificationIndicatorType;
 }
 
 const notificationIndicatorTypeColorMap = {
@@ -113,29 +114,29 @@ const notificationIndicatorTypeColorMap = {
   error: colors.red,
 };
 
-export const NotificationIndicator = styled.div((props: INotificationIndicatorProps) => ({
+export const NotificationIndicator = styled.div<INotificationIndicatorProps>((props) => ({
   width: '10px',
   height: '10px',
   borderRadius: '5px',
   marginTop: '4px',
   marginRight: '8px',
-  backgroundColor: props.type ? notificationIndicatorTypeColorMap[props.type] : 'transparent',
+  backgroundColor: props.$type ? notificationIndicatorTypeColorMap[props.$type] : 'transparent',
 }));
 
 interface ICollapsibleProps {
-  alignBottom: boolean;
-  height?: number;
+  $alignBottom: boolean;
+  $height?: number;
 }
 
-const Collapsible = styled.div({}, (props: ICollapsibleProps) => {
+const Collapsible = styled.div<ICollapsibleProps>((props) => {
   return {
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: props.alignBottom ? 'flex-end' : 'flex-start',
+    justifyContent: props.$alignBottom ? 'flex-end' : 'flex-start',
     backgroundColor: 'rgba(25, 38, 56, 0.95)',
     overflow: 'hidden',
     // Using auto as the initial value prevents transition if a notification is visible on mount.
-    height: props.height === undefined ? 'auto' : `${props.height}px`,
+    height: props.$height === undefined ? 'auto' : `${props.$height}px`,
     transition: 'height 250ms ease-in-out',
   };
 });
@@ -156,7 +157,7 @@ export function NotificationBanner(props: INotificationBannerProps) {
   const [contentHeight, setContentHeight] = useState<number>();
   const [alignBottom, setAlignBottom] = useState(false);
 
-  const contentRef = useRef() as React.RefObject<HTMLDivElement>;
+  const contentRef = useStyledRef<HTMLDivElement>();
 
   // Save last non-undefined children to be able to show them during the hide-transition.
   const prevChildren = useRef<React.ReactNode>();
@@ -174,7 +175,7 @@ export function NotificationBanner(props: INotificationBannerProps) {
   });
 
   return (
-    <Collapsible height={contentHeight} className={props.className} alignBottom={alignBottom}>
+    <Collapsible $height={contentHeight} className={props.className} $alignBottom={alignBottom}>
       <Content ref={contentRef}>{props.children ?? prevChildren.current}</Content>
     </Collapsible>
   );

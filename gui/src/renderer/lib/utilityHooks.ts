@@ -16,6 +16,10 @@ export function useMounted() {
   return isMounted;
 }
 
+export function useStyledRef<T>(): React.RefObject<T> {
+  return useRef() as React.RefObject<T>;
+}
+
 export function useCombinedRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
   return useCallback((element: T | null) => refs.forEach((ref) => assignToRef(element, ref)), []);
 }

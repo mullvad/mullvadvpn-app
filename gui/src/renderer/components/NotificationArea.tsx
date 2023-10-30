@@ -97,7 +97,7 @@ export default function NotificationArea(props: IProps) {
     if (notification) {
       return (
         <NotificationBanner className={props.className}>
-          <NotificationIndicator type={notification.indicator} />
+          <NotificationIndicator $type={notification.indicator} />
           <NotificationContent role="status" aria-live="polite">
             <NotificationTitle>{notification.title}</NotificationTitle>
             <NotificationSubtitle>{formatHtml(notification.subtitle ?? '')}</NotificationSubtitle>

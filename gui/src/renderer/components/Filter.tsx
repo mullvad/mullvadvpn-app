@@ -201,7 +201,7 @@ function providersSelector(state: IReduxState): Record<string, boolean> {
 
 const StyledSelector = styled(Selector)({
   marginBottom: 0,
-}) as typeof Selector;
+});
 
 interface IFilterByOwnershipProps {
   ownership: Ownership;
@@ -290,7 +290,7 @@ function FilterByProvider(props: IFilterByProviderProps) {
       <Accordion expanded={expanded}>
         <CheckboxRow
           label={messages.pgettext('filter-view', 'All providers')}
-          bold
+          $bold
           checked={Object.values(props.providers).every((value) => value)}
           onChange={toggleAll}
         />
@@ -310,7 +310,7 @@ function toggleAllProviders(providers: Record<string, boolean>, value?: boolean)
 }
 
 interface IStyledRowTitleProps {
-  bold?: boolean;
+  $bold?: boolean;
 }
 
 const StyledCheckbox = styled.div({
@@ -325,13 +325,13 @@ const StyledCheckbox = styled.div({
 
 const StyledRow = styled(Cell.Row)({
   backgroundColor: colors.blue40,
-  ':hover': {
+  '&&:hover': {
     backgroundColor: colors.blue80,
   },
 });
 
-const StyledRowTitle = styled.label(normalText, (props: IStyledRowTitleProps) => ({
-  fontWeight: props.bold ? 600 : 400,
+const StyledRowTitle = styled.label<IStyledRowTitleProps>(normalText, (props) => ({
+  fontWeight: props.$bold ? 600 : 400,
   color: colors.white,
   marginLeft: '22px',
 }));
@@ -350,7 +350,7 @@ function CheckboxRow(props: ICheckboxRowProps) {
       <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
         {props.checked && <ImageView source="icon-tick" width={18} tintColor={colors.green} />}
       </StyledCheckbox>
-      <StyledRowTitle aria-hidden bold={props.bold}>
+      <StyledRowTitle aria-hidden $bold={props.$bold}>
         {props.label}
       </StyledRowTitle>
     </StyledRow>

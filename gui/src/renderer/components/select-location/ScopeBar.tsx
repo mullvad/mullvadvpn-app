@@ -35,7 +35,7 @@ export function ScopeBar(props: IScopeBarProps) {
   return <StyledScopeBar className={props.className}>{children}</StyledScopeBar>;
 }
 
-const StyledScopeBarItem = styled.button(smallText, (props: { selected?: boolean }) => ({
+const StyledScopeBarItem = styled.button<{ selected?: boolean }>(smallText, (props) => ({
   cursor: 'default',
   flex: 1,
   flexBasis: 0,
@@ -44,7 +44,7 @@ const StyledScopeBarItem = styled.button(smallText, (props: { selected?: boolean
   textAlign: 'center',
   border: 'none',
   backgroundColor: props.selected ? colors.green : 'transparent',
-  ':hover': {
+  '&&:hover': {
     backgroundColor: props.selected ? colors.green : colors.blue40,
   },
 }));

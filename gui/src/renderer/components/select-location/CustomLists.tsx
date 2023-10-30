@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
@@ -6,7 +6,7 @@ import { CustomListError, CustomLists, RelayLocation } from '../../../shared/dae
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
-import { useBoolean } from '../../lib/utilityHooks';
+import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
 import { measurements } from '../common-styles';
@@ -57,8 +57,8 @@ const StyledSideButtonIcon = styled(Cell.Icon)({
   },
 });
 
-const StyledInput = styled(SimpleInput)((props: { error: boolean }) => ({
-  color: props.error ? colors.red : 'auto',
+const StyledInput = styled(SimpleInput)<{ $error: boolean }>((props) => ({
+  color: props.$error ? colors.red : 'auto',
 }));
 
 interface CustomListsProps {
@@ -93,8 +93,8 @@ export default function CustomLists(props: CustomListsProps) {
           {messages.pgettext('select-location-view', 'Custom lists')}
         </StyledHeaderLabel>
         <StyledCellButton
-          backgroundColor={colors.blue}
-          backgroundColorHover={colors.blue80}
+          $backgroundColor={colors.blue}
+          $backgroundColorHover={colors.blue80}
           onClick={showAddList}>
           <StyledSideButtonIcon source="icon-add" tintColor={colors.white60} width={18} />
         </StyledCellButton>
@@ -118,8 +118,8 @@ interface AddListFormProps {
 function AddListForm(props: AddListFormProps) {
   const [name, setName] = useState('');
   const [error, setError, unsetError] = useBoolean();
-  const containerRef = useRef<HTMLDivElement>() as React.RefObject<HTMLDivElement>;
-  const inputRef = useRef<HTMLInputElement>() as React.RefObject<HTMLInputElement>;
+  const containerRef = useStyledRef<HTMLDivElement>();
+  const inputRef = useStyledRef<HTMLInputElement>();
 
   // Errors should be reset when editing the value
   const onChange = useCallback((value: string) => {
@@ -172,14 +172,14 @@ function AddListForm(props: AddListFormProps) {
             onSubmitValue={createList}
             onBlur={onBlur}
             maxLength={30}
-            error={error}
+            $error={error}
             autoFocus
           />
         </StyledInputContainer>
 
         <StyledAddListCellButton
-          backgroundColor={colors.blue}
-          backgroundColorHover={colors.blue80}
+          $backgroundColor={colors.blue}
+          $backgroundColorHover={colors.blue80}
           onClick={createList}>
           <StyledSideButtonIcon source="icon-check" tintColor={colors.white60} width={18} />
         </StyledAddListCellButton>

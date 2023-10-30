@@ -6,7 +6,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatHtml } from '../lib/html-formatter';
 import { IpAddress } from '../lib/ip';
-import { useBoolean, useMounted } from '../lib/utilityHooks';
+import { useBoolean, useMounted, useStyledRef } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
@@ -57,9 +57,9 @@ export default function CustomDnsSettings() {
     [dns],
   );
 
-  const switchRef = useRef() as React.RefObject<HTMLDivElement>;
-  const addButtonRef = useRef() as React.RefObject<HTMLButtonElement>;
-  const inputContainerRef = useRef() as React.RefObject<HTMLDivElement>;
+  const switchRef = useStyledRef<HTMLDivElement>();
+  const addButtonRef = useStyledRef<HTMLButtonElement>();
+  const inputContainerRef = useStyledRef<HTMLDivElement>();
 
   const confirm = useCallback(() => {
     void confirmAction?.();
@@ -323,7 +323,7 @@ function CellListItem(props: ICellListItemProps) {
   const [invalid, setInvalid, setValid] = useBoolean(false);
   const isMounted = useMounted();
 
-  const inputContainerRef = useRef() as React.RefObject<HTMLDivElement>;
+  const inputContainerRef = useStyledRef<HTMLDivElement>();
 
   const onRemove = useCallback(() => props.onRemove(props.children), [
     props.onRemove,
