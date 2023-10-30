@@ -1,6 +1,7 @@
 use crate::{
     rest,
     rest::{RequestFactory, RequestServiceHandle},
+    API,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -13,7 +14,7 @@ use tokio::select;
 
 pub const AUTH_URL_PREFIX: &str = "auth/v1";
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct AccessTokenStore {
     tx: mpsc::UnboundedSender<StoreAction>,
 }
@@ -36,7 +37,8 @@ struct AccountState {
 }
 
 impl AccessTokenStore {
-    pub(crate) fn new(service: RequestServiceHandle, factory: RequestFactory) -> Self {
+    pub(crate) fn new(service: RequestServiceHandle) -> Self {
+        let factory = rest::RequestFactory::new(&API.host, None);
         let (tx, rx) = mpsc::unbounded();
         tokio::spawn(Self::service_requests(rx, service, factory));
         Self { tx }
@@ -174,8 +176,8 @@ async fn fetch_access_token(
         account_number: account_token,
     };
 
-    let rest_request = factory.post_json(&format!("{AUTH_URL_PREFIX}/token"), &request)?;
-    let response = service.request(rest_request).await?;
-    let response = rest::parse_rest_response(response, &[StatusCode::OK]).await?;
-    rest::deserialize_body(response).await
+    let rest_request = factory
+        .post_json(&format!("{AUTH_URL_PREFIX}/token"), &request)?
+        .expected_status(&[StatusCode::OK]);
+    service.request(rest_request).await?.deserialize().await
 }

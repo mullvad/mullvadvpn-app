@@ -10,17 +10,16 @@ use crate::{
 use futures::{
     channel::{mpsc, oneshot},
     stream::StreamExt,
-    Stream, TryFutureExt,
+    Stream,
 };
 use hyper::{
-    client::Client,
+    client::{connect::Connect, Client},
     header::{self, HeaderValue},
     Method, Uri,
 };
 use mullvad_types::account::AccountToken;
 use std::{
     error::Error as StdError,
-    future::Future,
     str::FromStr,
     sync::{Arc, Weak},
     time::Duration,
@@ -31,9 +30,6 @@ use talpid_types::ErrorExt;
 use crate::API;
 
 pub use hyper::StatusCode;
-
-pub type Request = hyper::Request<hyper::Body>;
-pub type Response = hyper::Response<hyper::Body>;
 
 const USER_AGENT: &str = "mullvad-app";
 
@@ -47,6 +43,9 @@ const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 /// Describes all the ways a REST request can fail
 #[derive(err_derive::Error, Debug, Clone)]
 pub enum Error {
+    #[error(display = "REST client service is down")]
+    RestServiceDown,
+
     #[error(display = "Request cancelled")]
     Aborted,
 
@@ -65,12 +64,6 @@ pub enum Error {
     #[error(display = "Failed to deserialize data")]
     DeserializeError(#[error(source)] Arc<serde_json::Error>),
 
-    #[error(display = "Failed to send request to rest client")]
-    SendError,
-
-    #[error(display = "Failed to receive response from rest client")]
-    ReceiveError,
-
     /// Unexpected response code
     #[error(display = "Unexpected response status code {} - {}", _0, _1)]
     ApiError(StatusCode, String),
@@ -79,9 +72,8 @@ pub enum Error {
     #[error(display = "Not a valid URI")]
     InvalidUri,
 
-    /// A new API config was requested, but the request could not be completed.
-    #[error(display = "Failed to rotate API config")]
-    NextApiConfigError,
+    #[error(display = "Set account token on factory with no access token store")]
+    NoAccessTokenStore,
 }
 
 impl Error {
@@ -201,45 +193,7 @@ impl<
     async fn process_command(&mut self, command: RequestCommand) {
         match command {
             RequestCommand::NewRequest(request, completion_tx) => {
-                let tx = self.command_tx.upgrade();
-                let timeout = request.timeout();
-
-                let hyper_request = request.into_request();
-
-                let api_availability = self.api_availability.clone();
-                let suspend_fut = api_availability.wait_for_unsuspend();
-                let request_fut = self.client.request(hyper_request).map_err(Error::from);
-
-                let request_future = async move {
-                    let _ = suspend_fut.await;
-                    request_fut.await
-                };
-
-                let future = async move {
-                    let response = tokio::time::timeout(timeout, request_future)
-                        .await
-                        .map_err(|_| Error::TimeoutError);
-
-                    let response = flatten_result(response).map_err(|error| error.map_aborted());
-
-                    if let Err(err) = &response {
-                        if err.is_network_error() && !api_availability.get_state().is_offline() {
-                            log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
-                            if let Some(tx) = tx {
-                                let (completion_tx, _completion_rx) = oneshot::channel();
-                                let _ =
-                                    tx.unbounded_send(RequestCommand::NextApiConfig(completion_tx));
-                            }
-                        }
-                    }
-
-                    if completion_tx.send(response).is_err() {
-                        log::trace!(
-                            "Failed to send response to caller, caller channel is shut down"
-                        );
-                    }
-                };
-                tokio::spawn(future);
+                self.handle_new_request(request, completion_tx);
             }
             RequestCommand::Reset => {
                 self.connector_handle.reset();
@@ -268,6 +222,34 @@ impl<
         }
     }
 
+    fn handle_new_request(
+        &mut self,
+        request: Request,
+        completion_tx: oneshot::Sender<Result<Response>>,
+    ) {
+        let tx = self.command_tx.upgrade();
+
+        let api_availability = self.api_availability.clone();
+        let request_future = request.into_future(self.client.clone(), api_availability.clone());
+
+        tokio::spawn(async move {
+            let response = request_future.await.map_err(|error| error.map_aborted());
+
+            // Switch API endpoint if the request failed due to a network error
+            if let Err(err) = &response {
+                if err.is_network_error() && !api_availability.get_state().is_offline() {
+                    log::error!("{}", err.display_chain_with_msg("HTTP request failed"));
+                    if let Some(tx) = tx {
+                        let (completion_tx, _completion_rx) = oneshot::channel();
+                        let _ = tx.unbounded_send(RequestCommand::NextApiConfig(completion_tx));
+                    }
+                }
+            }
+
+            let _ = completion_tx.send(response);
+        });
+    }
+
     async fn into_future(mut self) {
         while let Some(command) = self.command_rx.next().await {
             self.process_command(command).await;
@@ -289,12 +271,12 @@ impl RequestServiceHandle {
     }
 
     /// Submits a `RestRequest` for execution to the request service.
-    pub async fn request(&self, request: RestRequest) -> Result<Response> {
+    pub async fn request(&self, request: Request) -> Result<Response> {
         let (completion_tx, completion_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RequestCommand::NewRequest(request, completion_tx))
-            .map_err(|_| Error::SendError)?;
-        completion_rx.await.map_err(|_| Error::ReceiveError)?
+            .map_err(|_| Error::RestServiceDown)?;
+        completion_rx.await.map_err(|_| Error::RestServiceDown)?
     }
 
     /// Forcibly update the connection mode.
@@ -302,16 +284,15 @@ impl RequestServiceHandle {
         let (completion_tx, completion_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RequestCommand::NextApiConfig(completion_tx))
-            .map_err(|_| Error::SendError)?;
-
-        completion_rx.await.map_err(|_| Error::NextApiConfigError)?
+            .map_err(|_| Error::RestServiceDown)?;
+        completion_rx.await.map_err(|_| Error::RestServiceDown)?
     }
 }
 
 #[derive(Debug)]
 pub(crate) enum RequestCommand {
     NewRequest(
-        RestRequest,
+        Request,
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     Reset,
@@ -320,13 +301,15 @@ pub(crate) enum RequestCommand {
 
 /// A REST request that is sent to the RequestService to be executed.
 #[derive(Debug)]
-pub struct RestRequest {
-    request: Request,
+pub struct Request {
+    request: hyper::Request<hyper::Body>,
     timeout: Duration,
-    auth: Option<HeaderValue>,
+    access_token_store: Option<AccessTokenStore>,
+    account: Option<AccountToken>,
+    expected_status: &'static [hyper::StatusCode],
 }
 
-impl RestRequest {
+impl Request {
     /// Constructs a GET request with the given URI. Returns an error if the URI is not valid.
     pub fn get(uri: &str) -> Result<Self> {
         let uri = hyper::Uri::from_str(uri).map_err(|_| Error::InvalidUri)?;
@@ -343,54 +326,112 @@ impl RestRequest {
         };
 
         let request = builder.uri(uri).body(hyper::Body::empty())?;
-
-        Ok(RestRequest {
-            timeout: DEFAULT_TIMEOUT,
-            auth: None,
-            request,
-        })
+        Ok(Self::new(request, None))
     }
 
-    /// Set the auth header with the following format: `Bearer $auth`.
-    pub fn set_auth(&mut self, auth: Option<String>) -> Result<()> {
-        let header = match auth {
-            Some(auth) => Some(
-                HeaderValue::from_str(&format!("Bearer {auth}"))
-                    .map_err(|_| Error::InvalidHeaderError)?,
-            ),
-            None => None,
-        };
+    fn new(
+        request: hyper::Request<hyper::Body>,
+        access_token_store: Option<AccessTokenStore>,
+    ) -> Self {
+        Self {
+            request,
+            timeout: DEFAULT_TIMEOUT,
+            access_token_store,
+            account: None,
+            expected_status: &[],
+        }
+    }
 
-        self.auth = header;
-        Ok(())
+    /// Set the account token to obtain authentication for.
+    /// This fails if no store is set.
+    pub fn account(mut self, account: AccountToken) -> Result<Self> {
+        if self.access_token_store.is_none() {
+            return Err(Error::NoAccessTokenStore);
+        }
+        self.account = Some(account);
+        Ok(self)
     }
 
     /// Sets timeout for the request.
-    pub fn set_timeout(&mut self, timeout: Duration) {
+    pub fn timeout(mut self, timeout: Duration) -> Self {
         self.timeout = timeout;
+        self
     }
 
-    /// Retrieves timeout
-    pub fn timeout(&self) -> Duration {
-        self.timeout
+    pub fn expected_status(mut self, expected_status: &'static [hyper::StatusCode]) -> Self {
+        self.expected_status = expected_status;
+        self
     }
 
-    pub fn add_header<T: header::IntoHeaderName>(&mut self, key: T, value: &str) -> Result<()> {
+    pub fn header<T: header::IntoHeaderName>(mut self, key: T, value: &str) -> Result<Self> {
         let header_value =
             http::HeaderValue::from_str(value).map_err(|_| Error::InvalidHeaderError)?;
         self.request.headers_mut().insert(key, header_value);
-        Ok(())
+        Ok(self)
     }
 
-    /// Converts into a `hyper::Request<hyper::Body>`
-    fn into_request(self) -> Request {
-        let Self {
-            mut request, auth, ..
-        } = self;
-        if let Some(auth) = auth {
-            request.headers_mut().insert(header::AUTHORIZATION, auth);
+    async fn into_future<C: Connect + Clone + Send + Sync + 'static>(
+        self,
+        hyper_client: hyper::Client<C>,
+        api_availability: ApiAvailabilityHandle,
+    ) -> Result<Response> {
+        let timeout = self.timeout;
+        let inner_fut = self.into_future_without_timeout(hyper_client, api_availability);
+        tokio::time::timeout(timeout, inner_fut)
+            .await
+            .map_err(|_| Error::TimeoutError)?
+    }
+
+    async fn into_future_without_timeout<C: Connect + Clone + Send + Sync + 'static>(
+        mut self,
+        hyper_client: hyper::Client<C>,
+        api_availability: ApiAvailabilityHandle,
+    ) -> Result<Response> {
+        let _ = api_availability.wait_for_unsuspend().await;
+
+        // Obtain access token first
+        if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
+            let access_token = store.get_token(account).await?;
+            let auth = HeaderValue::from_str(&format!("Bearer {access_token}"))
+                .map_err(|_| Error::InvalidHeaderError)?;
+            self.request
+                .headers_mut()
+                .insert(header::AUTHORIZATION, auth);
         }
-        request
+
+        // Make request to hyper client
+        let response = hyper_client
+            .request(self.request)
+            .await
+            .map_err(Error::from);
+
+        // Notify access token store of expired tokens
+        if let (Some(account), Some(store)) = (&self.account, &self.access_token_store) {
+            store.check_response(account, &response);
+        }
+
+        // Parse unexpected responses and errors
+
+        let response = response?;
+
+        if !self.expected_status.contains(&response.status()) {
+            if !self.expected_status.is_empty() {
+                log::error!(
+                    "Unexpected HTTP status code {}, expected codes [{}]",
+                    response.status(),
+                    self.expected_status
+                        .iter()
+                        .map(ToString::to_string)
+                        .collect::<Vec<_>>()
+                        .join(",")
+                );
+            }
+            if !response.status().is_success() {
+                return handle_error_response(response).await;
+            }
+        }
+
+        Ok(Response::new(response))
     }
 
     /// Returns the URI of the request
@@ -399,13 +440,28 @@ impl RestRequest {
     }
 }
 
-impl From<Request> for RestRequest {
-    fn from(request: Request) -> Self {
-        Self {
-            request,
-            timeout: DEFAULT_TIMEOUT,
-            auth: None,
-        }
+/// Successful result of a REST request
+#[derive(Debug)]
+pub struct Response {
+    response: hyper::Response<hyper::Body>,
+}
+
+impl Response {
+    fn new(response: hyper::Response<hyper::Body>) -> Self {
+        Self { response }
+    }
+
+    pub fn status(&self) -> StatusCode {
+        self.response.status()
+    }
+
+    pub fn headers(&self) -> &hyper::HeaderMap<HeaderValue> {
+        self.response.headers()
+    }
+
+    pub async fn deserialize<T: serde::de::DeserializeOwned>(self) -> Result<T> {
+        let body_length = get_body_length(&self.response);
+        deserialize_body_inner(self.response, body_length).await
     }
 }
 
@@ -423,40 +479,54 @@ struct NewErrorResponse {
 
 #[derive(Clone)]
 pub struct RequestFactory {
-    hostname: String,
-    path_prefix: Option<String>,
-    pub timeout: Duration,
+    hostname: &'static str,
+    token_store: Option<AccessTokenStore>,
+    default_timeout: Duration,
 }
 
 impl RequestFactory {
-    pub fn new(hostname: String, path_prefix: Option<String>) -> Self {
+    pub fn new(hostname: &'static str, token_store: Option<AccessTokenStore>) -> Self {
         Self {
             hostname,
-            path_prefix,
-            timeout: DEFAULT_TIMEOUT,
+            token_store,
+            default_timeout: DEFAULT_TIMEOUT,
         }
     }
 
-    pub fn request(&self, path: &str, method: Method) -> Result<RestRequest> {
-        self.hyper_request(path, method)
-            .map(RestRequest::from)
-            .map(|req| self.set_request_timeout(req))
+    pub fn request(&self, path: &str, method: Method) -> Result<Request> {
+        Ok(
+            Request::new(self.hyper_request(path, method)?, self.token_store.clone())
+                .timeout(self.default_timeout),
+        )
     }
 
-    pub fn get(&self, path: &str) -> Result<RestRequest> {
-        self.hyper_request(path, Method::GET)
-            .map(RestRequest::from)
-            .map(|req| self.set_request_timeout(req))
+    pub fn get(&self, path: &str) -> Result<Request> {
+        self.request(path, Method::GET)
     }
 
-    pub fn post(&self, path: &str) -> Result<RestRequest> {
-        self.hyper_request(path, Method::POST)
-            .map(RestRequest::from)
-            .map(|req| self.set_request_timeout(req))
+    pub fn post(&self, path: &str) -> Result<Request> {
+        self.request(path, Method::POST)
     }
 
-    pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<RestRequest> {
+    pub fn put(&self, path: &str) -> Result<Request> {
+        self.request(path, Method::PUT)
+    }
+
+    pub fn delete(&self, path: &str) -> Result<Request> {
+        self.request(path, Method::DELETE)
+    }
+
+    pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<Request> {
         self.json_request(Method::POST, path, body)
+    }
+
+    pub fn put_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<Request> {
+        self.json_request(Method::PUT, path, body)
+    }
+
+    pub fn default_timeout(mut self, timeout: Duration) -> Self {
+        self.default_timeout = timeout;
+        self
     }
 
     fn json_request<S: serde::Serialize>(
@@ -464,7 +534,7 @@ impl RequestFactory {
         method: Method,
         path: &str,
         body: &S,
-    ) -> Result<RestRequest> {
+    ) -> Result<Request> {
         let mut request = self.hyper_request(path, method)?;
 
         let json_body = serde_json::to_string(&body)?;
@@ -482,94 +552,29 @@ impl RequestFactory {
             HeaderValue::from_static("application/json"),
         );
 
-        Ok(self.set_request_timeout(RestRequest::from(request)))
+        Ok(Request::new(request, self.token_store.clone()).timeout(self.default_timeout))
     }
 
-    pub fn delete(&self, path: &str) -> Result<RestRequest> {
-        self.hyper_request(path, Method::DELETE)
-            .map(RestRequest::from)
-            .map(|req| self.set_request_timeout(req))
-    }
-
-    fn hyper_request(&self, path: &str, method: Method) -> Result<Request> {
+    fn hyper_request(&self, path: &str, method: Method) -> Result<hyper::Request<hyper::Body>> {
         let uri = self.get_uri(path)?;
         let request = http::request::Builder::new()
             .method(method)
             .uri(uri)
             .header(header::USER_AGENT, HeaderValue::from_static(USER_AGENT))
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
-            .header(header::HOST, self.hostname.clone());
+            .header(header::HOST, HeaderValue::from_static(self.hostname));
 
         let result = request.body(hyper::Body::empty())?;
         Ok(result)
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
-        let prefix = self.path_prefix.as_ref().map(AsRef::as_ref).unwrap_or("");
-        let uri = format!("https://{}/{}{}", self.hostname, prefix, path);
+        let uri = format!("https://{}/{}", self.hostname, path);
         hyper::Uri::from_str(&uri).map_err(|_| Error::InvalidUri)
     }
-
-    fn set_request_timeout(&self, mut request: RestRequest) -> RestRequest {
-        request.timeout = self.timeout;
-        request
-    }
 }
 
-pub fn send_request(
-    factory: &RequestFactory,
-    service: RequestServiceHandle,
-    uri: &str,
-    method: Method,
-    access_token: Option<AccountToken>,
-    expected_statuses: &'static [hyper::StatusCode],
-) -> impl Future<Output = Result<Response>> {
-    let request = factory.request(uri, method);
-
-    async move {
-        let mut request = request?;
-        request.set_auth(access_token)?;
-        let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
-    }
-}
-
-pub fn send_json_request<B: serde::Serialize>(
-    factory: &RequestFactory,
-    service: RequestServiceHandle,
-    uri: &str,
-    method: Method,
-    body: &B,
-    access_token: Option<AccountToken>,
-    expected_statuses: &'static [hyper::StatusCode],
-) -> impl Future<Output = Result<Response>> {
-    let request = factory.json_request(method, uri, body);
-    async move {
-        let mut request = request?;
-        request.set_auth(access_token)?;
-        let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
-    }
-}
-
-pub async fn deserialize_body<T: serde::de::DeserializeOwned>(response: Response) -> Result<T> {
-    let body_length = get_body_length(&response);
-    deserialize_body_inner(response, body_length).await
-}
-
-async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
-    mut response: Response,
-    body_length: usize,
-) -> Result<T> {
-    let mut body: Vec<u8> = Vec::with_capacity(body_length);
-    while let Some(chunk) = response.body_mut().next().await {
-        body.extend(&chunk?);
-    }
-
-    serde_json::from_slice(&body).map_err(Error::from)
-}
-
-fn get_body_length(response: &Response) -> usize {
+fn get_body_length(response: &hyper::Response<hyper::Body>) -> usize {
     response
         .headers()
         .get(header::CONTENT_LENGTH)
@@ -578,29 +583,7 @@ fn get_body_length(response: &Response) -> usize {
         .unwrap_or(0)
 }
 
-pub async fn parse_rest_response(
-    response: Response,
-    expected_statuses: &'static [hyper::StatusCode],
-) -> Result<Response> {
-    if !expected_statuses.contains(&response.status()) {
-        log::error!(
-            "Unexpected HTTP status code {}, expected codes [{}]",
-            response.status(),
-            expected_statuses
-                .iter()
-                .map(ToString::to_string)
-                .collect::<Vec<_>>()
-                .join(",")
-        );
-        if !response.status().is_success() {
-            return handle_error_response(response).await;
-        }
-    }
-
-    Ok(response)
-}
-
-pub async fn handle_error_response<T>(response: Response) -> Result<T> {
+async fn handle_error_response<T>(response: hyper::Response<hyper::Body>) -> Result<T> {
     let status = response.status();
     let error_message = match status {
         hyper::StatusCode::METHOD_NOT_ALLOWED => "Method not allowed",
@@ -634,12 +617,23 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
     Err(Error::ApiError(status, error_message.to_owned()))
 }
 
+async fn deserialize_body_inner<T: serde::de::DeserializeOwned>(
+    mut response: hyper::Response<hyper::Body>,
+    body_length: usize,
+) -> Result<T> {
+    let mut body: Vec<u8> = Vec::with_capacity(body_length);
+    while let Some(chunk) = response.body_mut().next().await {
+        body.extend(&chunk?);
+    }
+
+    serde_json::from_slice(&body).map_err(Error::from)
+}
+
 #[derive(Clone)]
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
     pub availability: ApiAvailabilityHandle,
-    pub token_store: AccessTokenStore,
 }
 
 impl MullvadRestHandle {
@@ -649,13 +643,10 @@ impl MullvadRestHandle {
         address_cache: AddressCache,
         availability: ApiAvailabilityHandle,
     ) -> Self {
-        let token_store = AccessTokenStore::new(service.clone(), factory.clone());
-
         let handle = Self {
             service,
             factory,
             availability,
-            token_store,
         };
         #[cfg(feature = "api-override")]
         if API.disable_address_cache {
@@ -713,19 +704,6 @@ impl MullvadRestHandle {
 
     pub fn service(&self) -> RequestServiceHandle {
         self.service.clone()
-    }
-
-    pub fn factory(&self) -> &RequestFactory {
-        &self.factory
-    }
-}
-
-fn flatten_result<T, E>(
-    result: std::result::Result<std::result::Result<T, E>, E>,
-) -> std::result::Result<T, E> {
-    match result {
-        Ok(value) => value,
-        Err(err) => Err(err),
     }
 }
 

@@ -340,7 +340,8 @@ impl Runtime {
                 self.socket_bypass_tx.clone(),
             )
             .await;
-        let factory = rest::RequestFactory::new(API.host.clone(), None);
+        let token_store = access::AccessTokenStore::new(service.clone());
+        let factory = rest::RequestFactory::new(&API.host, Some(token_store));
 
         rest::MullvadRestHandle::new(
             service,
@@ -392,21 +393,13 @@ impl AccountsProxy {
 
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
-        let access_proxy = self.handle.token_store.clone();
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
-            let response = rest::send_request(
-                &factory,
-                service,
-                &format!("{ACCOUNTS_URL_PREFIX}/accounts/me"),
-                Method::GET,
-                Some(access_token),
-                &[StatusCode::OK],
-            )
-            .await;
-            access_proxy.check_response(&account, &response);
-
-            let account: AccountExpiryResponse = rest::deserialize_body(response?).await?;
+            let request = factory
+                .get(&format!("{ACCOUNTS_URL_PREFIX}/accounts/me"))?
+                .expected_status(&[StatusCode::OK])
+                .account(account)?;
+            let response = service.request(request).await?;
+            let account: AccountExpiryResponse = response.deserialize().await?;
             Ok(account.expiry)
         }
     }
@@ -418,24 +411,21 @@ impl AccountsProxy {
         }
 
         let service = self.handle.service.clone();
-        let response = rest::send_request(
-            &self.handle.factory,
-            service,
-            &format!("{ACCOUNTS_URL_PREFIX}/accounts"),
-            Method::POST,
-            None,
-            &[StatusCode::CREATED],
-        );
+        let factory = self.handle.factory.clone();
 
         async move {
-            let account: AccountCreationResponse = rest::deserialize_body(response.await?).await?;
+            let request = factory
+                .post(&format!("{ACCOUNTS_URL_PREFIX}/accounts"))?
+                .expected_status(&[StatusCode::CREATED]);
+            let response = service.request(request).await?;
+            let account: AccountCreationResponse = response.deserialize().await?;
             Ok(account.number)
         }
     }
 
     pub fn submit_voucher(
         &mut self,
-        account_token: AccountToken,
+        account: AccountToken,
         voucher_code: String,
     ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> {
         #[derive(serde::Serialize)]
@@ -445,26 +435,14 @@ impl AccountsProxy {
 
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
-        let access_proxy = self.handle.token_store.clone();
         let submission = VoucherSubmission { voucher_code };
 
         async move {
-            let access_token = access_proxy.get_token(&account_token).await?;
-
-            let response = rest::send_json_request(
-                &factory,
-                service,
-                &format!("{APP_URL_PREFIX}/submit-voucher"),
-                Method::POST,
-                &submission,
-                Some(access_token),
-                &[StatusCode::OK],
-            )
-            .await;
-
-            access_proxy.check_response(&account_token, &response);
-
-            rest::deserialize_body(response?).await
+            let request = factory
+                .post_json(&format!("{APP_URL_PREFIX}/submit-voucher"), &submission)?
+                .account(account)?
+                .expected_status(&[StatusCode::OK]);
+            service.request(request).await?.deserialize().await
         }
     }
 
@@ -480,26 +458,15 @@ impl AccountsProxy {
 
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
-        let access_proxy = self.handle.token_store.clone();
 
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
+            let request = factory
+                .post_json(&format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"), &())?
+                .account(account)?
+                .expected_status(&[StatusCode::OK]);
+            let response = service.request(request).await?;
 
-            let response = rest::send_json_request(
-                &factory,
-                service,
-                &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/init"),
-                Method::POST,
-                &(),
-                Some(access_token),
-                &[StatusCode::OK],
-            )
-            .await;
-
-            access_proxy.check_response(&account, &response);
-
-            let PlayPurchaseInitResponse { obfuscated_id } =
-                rest::deserialize_body(response?).await?;
+            let PlayPurchaseInitResponse { obfuscated_id } = response.deserialize().await?;
 
             Ok(obfuscated_id)
         }
@@ -513,24 +480,16 @@ impl AccountsProxy {
     ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
-        let access_proxy = self.handle.token_store.clone();
 
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
-
-            let response = rest::send_json_request(
-                &factory,
-                service,
-                &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
-                Method::POST,
-                &play_purchase,
-                Some(access_token),
-                &[StatusCode::ACCEPTED],
-            )
-            .await;
-
-            access_proxy.check_response(&account, &response);
-            response?;
+            let request = factory
+                .post_json(
+                    &format!("{GOOGLE_PAYMENTS_URL_PREFIX}/acknowledge"),
+                    &play_purchase,
+                )?
+                .account(account)?
+                .expected_status(&[StatusCode::ACCEPTED]);
+            service.request(request).await?;
             Ok(())
         }
     }
@@ -546,21 +505,14 @@ impl AccountsProxy {
 
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
-        let access_proxy = self.handle.token_store.clone();
 
         async move {
-            let access_token = access_proxy.get_token(&account).await?;
-            let response = rest::send_request(
-                &factory,
-                service,
-                &format!("{APP_URL_PREFIX}/www-auth-token"),
-                Method::POST,
-                Some(access_token),
-                &[StatusCode::OK],
-            )
-            .await;
-            access_proxy.check_response(&account, &response);
-            let response: AuthTokenResponse = rest::deserialize_body(response?).await?;
+            let request = factory
+                .post(&format!("{APP_URL_PREFIX}/www-auth-token"))?
+                .account(account)?
+                .expected_status(&[StatusCode::OK]);
+            let response = service.request(request).await?;
+            let response: AuthTokenResponse = response.deserialize().await?;
             Ok(response.auth_token)
         }
     }
@@ -598,19 +550,13 @@ impl ProblemReportProxy {
         };
 
         let service = self.handle.service.clone();
-
-        let request = rest::send_json_request(
-            &self.handle.factory,
-            service,
-            &format!("{APP_URL_PREFIX}/problem-report"),
-            Method::POST,
-            &report,
-            None,
-            &[StatusCode::NO_CONTENT],
-        );
+        let factory = self.handle.factory.clone();
 
         async move {
-            request.await?;
+            let request = factory
+                .post_json(&format!("{APP_URL_PREFIX}/problem-report"), &report)?
+                .expected_status(&[StatusCode::NO_CONTENT]);
+            service.request(request).await?;
             Ok(())
         }
     }
@@ -646,12 +592,11 @@ impl AppVersionProxy {
         let request = self.handle.factory.request(&path, Method::GET);
 
         async move {
-            let mut request = request?;
-            request.add_header("M-Platform-Version", &platform_version)?;
-
+            let request = request?
+                .expected_status(&[StatusCode::OK])
+                .header("M-Platform-Version", &platform_version)?;
             let response = service.request(request).await?;
-            let parsed_response = rest::parse_rest_response(response, &[StatusCode::OK]).await?;
-            rest::deserialize_body(parsed_response).await
+            response.deserialize().await
         }
     }
 }
@@ -667,18 +612,12 @@ impl ApiProxy {
     }
 
     pub async fn get_api_addrs(&self) -> Result<Vec<SocketAddr>, rest::Error> {
-        let service = self.handle.service.clone();
-
-        let response = rest::send_request(
-            &self.handle.factory,
-            service,
-            &format!("{APP_URL_PREFIX}/api-addrs"),
-            Method::GET,
-            None,
-            &[StatusCode::OK],
-        )
-        .await?;
-
-        rest::deserialize_body(response).await
+        let request = self
+            .handle
+            .factory
+            .get(&format!("{APP_URL_PREFIX}/api-addrs"))?
+            .expected_status(&[StatusCode::OK]);
+        let response = self.handle.service.request(request).await?;
+        response.deserialize().await
     }
 }
