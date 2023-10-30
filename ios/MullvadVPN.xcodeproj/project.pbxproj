@@ -214,6 +214,7 @@
 		58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */; };
 		58AFC99529F96F7B000829DE /* AsyncBlockOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AFC99429F96F7B000829DE /* AsyncBlockOperationTests.swift */; };
 		58AFC99729F9753D000829DE /* AsyncResultBlockOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AFC99629F9753D000829DE /* AsyncResultBlockOperationTests.swift */; };
+		58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */; };
 		58B26E1E2943514300D5980C /* InAppNotificationDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E1D2943514300D5980C /* InAppNotificationDescriptor.swift */; };
 		58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E21294351EA00D5980C /* InAppNotificationProvider.swift */; };
 		58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B26E232943520C00D5980C /* NotificationProviderProtocol.swift */; };
@@ -381,6 +382,7 @@
 		58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E14B276A61C000A79513 /* RotateKeyOperation.swift */; };
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
 		58F3F36A2AA08E3C00D3B0A4 /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3F3692AA08E3C00D3B0A4 /* PacketTunnelProvider.swift */; };
+		58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */; };
 		58F7753D2AB8473200425B47 /* BlockedStateErrorMapperStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
 		58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */; };
@@ -1479,6 +1481,7 @@
 		58F3C0A524A50155003E76BE /* relays.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
 		58F3F3652AA086A400D3B0A4 /* AutoCancellingTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoCancellingTask.swift; sourceTree = "<group>"; };
 		58F3F3692AA08E3C00D3B0A4 /* PacketTunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelProvider.swift; sourceTree = "<group>"; };
+		58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreTransactionLog.swift; sourceTree = "<group>"; };
 		58F7753C2AB8473200425B47 /* BlockedStateErrorMapperStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateErrorMapperStub.swift; sourceTree = "<group>"; };
 		58F7D26427EB50A300E4D821 /* ResultOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultOperation.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
@@ -2279,14 +2282,15 @@
 		5846226F26E229CD0035F7C2 /* StorePaymentManager */ = {
 			isa = PBXGroup;
 			children = (
-				5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */,
 				585E820227F3285E00939F0E /* SendStoreReceiptOperation.swift */,
+				5878A27629093A4F0096FC88 /* StorePaymentBlockObserver.swift */,
 				5878A27429093A310096FC88 /* StorePaymentEvent.swift */,
 				58DF28A42417CB4B00E836B0 /* StorePaymentManager.swift */,
 				5846227626E22A7C0035F7C2 /* StorePaymentManagerDelegate.swift */,
 				58FB865426E8BF3100F188BC /* StorePaymentManagerError.swift */,
 				5846227226E22A160035F7C2 /* StorePaymentObserver.swift */,
 				5846227026E229F20035F7C2 /* StoreSubscription.swift */,
+				58F70FE42AEA707800E6890E /* StoreTransactionLog.swift */,
 			);
 			path = StorePaymentManager;
 			sourceTree = "<group>";
@@ -4052,6 +4056,7 @@
 				A9A5FA3A2ACB05910083449F /* UIEdgeInsets+Extensions.swift in Sources */,
 				A9C342C52ACC42130045F00E /* ServerRelaysResponse+Stubs.swift in Sources */,
 				A9A5FA3B2ACB05910083449F /* UIMetrics.swift in Sources */,
+				58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */,
 				A9A5FA382ACB05600083449F /* InputTextFormatter.swift in Sources */,
 				A9A5FA372ACB052D0083449F /* ApplicationTarget.swift in Sources */,
 				A9A5F9E12ACB05160083449F /* AddressCacheTracker.swift in Sources */,
@@ -4342,6 +4347,7 @@
 				5878A279290954790096FC88 /* TunnelViewControllerInteractor.swift in Sources */,
 				7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */,
 				7A9CCCBF2A96302800DD6A34 /* SettingsCoordinator.swift in Sources */,
+				58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */,
 				582AE3102440A6CA00E6733A /* InputTextFormatter.swift in Sources */,
 				7A9CCCBA2A96302800DD6A34 /* CreateAccountVoucherCoordinator.swift in Sources */,
 				5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */,
