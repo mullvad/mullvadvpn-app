@@ -5,7 +5,7 @@ set -euo pipefail
 # shellcheck source=/dev/null
 source ~/.bash_profile
 
-if which xcodebuild
+if command -v xcodebuild &>/dev/null
 then
     echo >&1 "Running xcodebuild -runFirstLaunch"
     xcodebuild -runFirstLaunch

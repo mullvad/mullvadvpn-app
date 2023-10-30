@@ -5,7 +5,7 @@ set -euo pipefail
 # shellcheck source=/dev/null
 source ~/.bash_profile
 
-if which brew 
+if command -v brew &>/dev/null
 then
     echo >&1 "Installing go@1.19"
     brew install go@1.19

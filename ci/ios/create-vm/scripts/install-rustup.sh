@@ -4,7 +4,7 @@ set -euo pipefail
 # shellcheck source=/dev/null
 source ~/.bash_profile
 
-if ! which rustup
+if ! command -v rustup &>/dev/null
 then
     echo >&1 "Installing rustup"
     # Install rustup and automatically accept the prompt
