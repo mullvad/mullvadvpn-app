@@ -1,33 +1,25 @@
 package net.mullvad.mullvadvpn.compose.component
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
-import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 
 @Preview
@@ -110,11 +102,6 @@ fun ListItem(
             subText?.let {
                 Text(
                     text = subText,
-                    style = MaterialTheme.typography.listItemSubText,
-                    color =
-                        MaterialTheme.colorScheme.onPrimary
-                            .copy(alpha = AlphaDescription)
-                            .compositeOver(background)
                 )
             }
         }
@@ -123,23 +110,6 @@ fun ListItem(
             modifier =
                 Modifier.align(Alignment.CenterEnd)
                     .padding(horizontal = Dimens.loadingSpinnerPadding)
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    strokeWidth = Dimens.loadingSpinnerStrokeWidth,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier =
-                        Modifier.height(Dimens.loadingSpinnerSize).width(Dimens.loadingSpinnerSize)
-                )
-            } else if (iconResourceId != null) {
-                Image(
-                    painter = painterResource(id = iconResourceId),
-                    contentDescription = "Remove",
-                    modifier =
-                        onClick?.let { Modifier.align(Alignment.CenterEnd).clickable { onClick() } }
-                            ?: Modifier.align(Alignment.CenterEnd)
-                )
-            }
-        }
+        ) {}
     }
 }

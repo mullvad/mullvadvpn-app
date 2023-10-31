@@ -171,6 +171,7 @@ fun MullvadTopBar(
         colors =
             TopAppBarDefaults.topAppBarColors(
                 containerColor = containerColor,
+                actionIconContentColor = iconTintColor,
             ),
     )
 }
