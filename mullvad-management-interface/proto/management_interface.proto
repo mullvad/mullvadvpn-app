@@ -28,9 +28,9 @@ service ManagementService {
 
   // Relays and tunnel constraints
   rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc UpdateRelaySettings(RelaySettingsUpdate) returns (google.protobuf.Empty) {}
   rpc GetRelayLocations(google.protobuf.Empty) returns (RelayList) {}
   rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
+  rpc SetRelaySettings(RelaySettings) returns (google.protobuf.Empty) {}
   rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
   rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}
   rpc SetObfuscationSettings(ObfuscationSettings) returns (google.protobuf.Empty) {}
@@ -100,13 +100,6 @@ service ManagementService {
 }
 
 message UUID { string value = 1; }
-
-message RelaySettingsUpdate {
-  oneof type {
-    CustomRelaySettings custom = 1;
-    NormalRelaySettingsUpdate normal = 2;
-  }
-}
 
 message AccountData { google.protobuf.Timestamp expiry = 1; }
 
@@ -419,28 +412,12 @@ message NormalRelaySettings {
   Ownership ownership = 6;
 }
 
-// Constraints are only updated for fields that are provided
-message NormalRelaySettingsUpdate {
-  LocationConstraint location = 1;
-  ProviderUpdate providers = 2;
-  TunnelTypeUpdate tunnel_type = 3;
-  WireguardConstraints wireguard_constraints = 4;
-  OpenvpnConstraints openvpn_constraints = 5;
-  OwnershipUpdate ownership = 6;
-}
-
-message ProviderUpdate { repeated string providers = 1; }
-
-message TunnelTypeUpdate { optional TunnelType tunnel_type = 2; }
-
 message TransportPort {
   TransportProtocol protocol = 1;
   optional uint32 port = 2;
 }
 
 message OpenvpnConstraints { TransportPort port = 1; }
-
-message OwnershipUpdate { Ownership ownership = 1; }
 
 enum IpVersion {
   V4 = 0;

@@ -5,7 +5,7 @@ use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::{
     relay_constraints::{
         BridgeState, Constraint, GeographicLocationConstraint, LocationConstraint,
-        ObfuscationSettings, OpenVpnConstraints, RelayConstraintsUpdate, RelaySettingsUpdate,
+        ObfuscationSettings, OpenVpnConstraints, RelayConstraints, RelaySettings,
         WireguardConstraints,
     },
     states::TunnelState,
@@ -321,7 +321,7 @@ impl<T> Drop for AbortOnDrop<T> {
 
 /// Disconnect and reset all relay, bridge, and obfuscation settings.
 ///
-/// See [`mullvad_types::relay_constraints::RelayConstraintsUpdate`] for details, but in short:
+/// See [`mullvad_types::relay_constraints::RelayConstraints`] for details, but in short:
 /// * Location constraint is [`Constraint::Any`]
 /// * Provider constraint is [`Constraint::Any`]
 /// * Ownership constraint is [`Constraint::Any`]
@@ -335,18 +335,18 @@ pub async fn reset_relay_settings(
 ) -> Result<(), Error> {
     disconnect_and_wait(mullvad_client).await?;
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Any),
-        tunnel_protocol: Some(Constraint::Any),
-        openvpn_constraints: Some(OpenVpnConstraints::default()),
-        wireguard_constraints: Some(WireguardConstraints::default()),
-        providers: Some(Constraint::Any),
-        ownership: Some(Constraint::Any),
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
+        location: Constraint::Any,
+        tunnel_protocol: Constraint::Any,
+        openvpn_constraints: OpenVpnConstraints::default(),
+        wireguard_constraints: WireguardConstraints::default(),
+        providers: Constraint::Any,
+        ownership: Constraint::Any,
     });
     let bridge_state = BridgeState::Auto;
     let obfuscation_settings = ObfuscationSettings::default();
 
-    update_relay_settings(mullvad_client, relay_settings)
+    set_relay_settings(mullvad_client, relay_settings)
         .await
         .map_err(|error| {
             Error::DaemonError(format!("Failed to reset relay settings: {}", error))
@@ -365,14 +365,14 @@ pub async fn reset_relay_settings(
     Ok(())
 }
 
-pub async fn update_relay_settings(
+pub async fn set_relay_settings(
     mullvad_client: &mut ManagementServiceClient,
-    relay_settings_update: RelaySettingsUpdate,
+    relay_settings: RelaySettings,
 ) -> Result<(), Error> {
-    let update = types::RelaySettingsUpdate::from(relay_settings_update);
+    let new_settings = types::RelaySettings::from(relay_settings);
 
     mullvad_client
-        .update_relay_settings(update)
+        .set_relay_settings(new_settings)
         .await
         .map_err(|error| Error::DaemonError(format!("Failed to set relay settings: {}", error)))?;
     Ok(())
@@ -493,17 +493,10 @@ pub fn flatten_relaylist(relays: types::RelayList) -> Vec<types::Relay> {
 
 /// Convenience function for constructing a constraint from a given [`Relay`].
 ///
-/// Returns an [`Option`] because a [`Relay`] is not guaranteed to be poplutaed with a location
-/// vaule.
-pub fn into_constraint(relay: &types::Relay) -> Option<Constraint<LocationConstraint>> {
-    into_locationconstraint(relay).map(Constraint::Only)
-}
-
-/// Convenience function for constructing a location constraint from a given [`Relay`].
+/// # Panics
 ///
-/// Returns an [`Option`] because a [`Relay`] is not guaranteed to be poplutaed with a location
-/// vaule.
-pub fn into_locationconstraint(relay: &types::Relay) -> Option<LocationConstraint> {
+/// The relay must have a location set.
+pub fn into_constraint(relay: &types::Relay) -> Constraint<LocationConstraint> {
     relay
         .location
         .as_ref()
@@ -521,4 +514,6 @@ pub fn into_locationconstraint(relay: &types::Relay) -> Option<LocationConstrain
             },
         )
         .map(LocationConstraint::Location)
+        .map(Constraint::Only)
+        .expect("relay is missing location")
 }

@@ -1,6 +1,6 @@
 use super::helpers::{
     self, connect_and_wait, disconnect_and_wait, get_tunnel_state, send_guest_probes,
-    unreachable_wireguard_tunnel, update_relay_settings, wait_for_tunnel_state,
+    set_relay_settings, unreachable_wireguard_tunnel, wait_for_tunnel_state,
 };
 use super::{ui, Error, TestContext};
 use crate::assert_tunnel_state;
@@ -10,9 +10,7 @@ use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::{
-    relay_constraints::{
-        Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettingsUpdate,
-    },
+    relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
     states::TunnelState,
 };
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
@@ -88,12 +86,12 @@ pub async fn test_connecting_state(
     log::info!("Verify tunnel state: disconnected");
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected);
 
-    let relay_settings = RelaySettingsUpdate::CustomTunnelEndpoint(CustomTunnelEndpoint {
+    let relay_settings = RelaySettings::CustomTunnelEndpoint(CustomTunnelEndpoint {
         host: "1.3.3.7".to_owned(),
         config: mullvad_types::ConnectionConfig::Wireguard(unreachable_wireguard_tunnel()),
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -154,15 +152,6 @@ pub async fn test_connecting_state(
 
     disconnect_and_wait(&mut mullvad_client).await?;
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Any),
-        ..Default::default()
-    });
-
-    update_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
-
     Ok(())
 }
 
@@ -188,10 +177,10 @@ pub async fn test_error_state(
 
     log::info!("Enter error state");
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Only(LocationConstraint::Location(
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
+        location: Constraint::Only(LocationConstraint::Location(
             GeographicLocationConstraint::Country("xx".to_string()),
-        ))),
+        )),
         ..Default::default()
     });
 
@@ -200,7 +189,7 @@ pub async fn test_error_state(
         .await
         .expect("failed to disable LAN sharing");
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 
@@ -244,15 +233,6 @@ pub async fn test_error_state(
 
     disconnect_and_wait(&mut mullvad_client).await?;
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: Some(Constraint::Any),
-        ..Default::default()
-    });
-
-    update_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
-
     Ok(())
 }
 
@@ -286,12 +266,12 @@ pub async fn test_connected_state(
         .pop()
         .unwrap();
 
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
         location: helpers::into_constraint(&relay),
         ..Default::default()
     });
 
-    update_relay_settings(&mut mullvad_client, relay_settings)
+    set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 

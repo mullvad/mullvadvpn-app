@@ -3,12 +3,17 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings } from '../../config.json';
-import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import {
+  BridgeState,
+  RelayProtocol,
+  TunnelProtocol,
+  wrapConstraint,
+} from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
-import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import { removeNonNumericCharacters } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
+import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useBoolean } from '../lib/utilityHooks';
@@ -120,6 +125,7 @@ export default function OpenVpnSettings() {
 }
 
 function TransportProtocolSelector() {
+  const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const bridgeState = useSelector((state) => state.settings.bridgeState);
 
@@ -128,7 +134,15 @@ function TransportProtocolSelector() {
     return protocol === 'any' ? null : protocol;
   }, [relaySettings]);
 
-  const protocolAndPortUpdater = useProtocolAndPortUpdater();
+  const onSelect = useCallback(
+    async (protocol: RelayProtocol | null) => {
+      await relaySettingsUpdater((settings) => {
+        settings.openvpnConstraints.protocol = wrapConstraint(protocol);
+        return settings;
+      });
+    },
+    [relaySettingsUpdater],
+  );
 
   const items: SelectorItem<RelayProtocol>[] = useMemo(
     () => [
@@ -152,7 +166,7 @@ function TransportProtocolSelector() {
           title={messages.pgettext('openvpn-settings-view', 'Transport protocol')}
           items={items}
           value={protocol}
-          onSelect={protocolAndPortUpdater}
+          onSelect={onSelect}
           automaticValue={null}
         />
         {bridgeState === 'on' && (
@@ -176,41 +190,8 @@ function TransportProtocolSelector() {
   );
 }
 
-function useProtocolAndPortUpdater() {
-  const { updateRelaySettings } = useAppContext();
-
-  const updater = useCallback(
-    async (protocol: RelayProtocol | null, port?: number | null) => {
-      const relayUpdate = RelaySettingsBuilder.normal()
-        .tunnel.openvpn((openvpn) => {
-          if (protocol) {
-            openvpn.protocol.exact(protocol);
-          } else {
-            openvpn.protocol.any();
-          }
-
-          if (port) {
-            openvpn.port.exact(port);
-          } else {
-            openvpn.port.any();
-          }
-        })
-        .build();
-
-      try {
-        await updateRelaySettings(relayUpdate);
-      } catch (e) {
-        const error = e as Error;
-        log.error('Failed to update relay settings', error.message);
-      }
-    },
-    [updateRelaySettings],
-  );
-
-  return updater;
-}
-
 function PortSelector() {
+  const relaySettingsUpdater = useRelaySettingsUpdater();
   const relaySettings = useSelector((state) => state.settings.relaySettings);
 
   const protocol = useMemo(() => {
@@ -223,13 +204,14 @@ function PortSelector() {
     return port === 'any' ? null : port;
   }, [relaySettings]);
 
-  const protocolAndPortUpdater = useProtocolAndPortUpdater();
-
   const onSelect = useCallback(
     async (port: number | null) => {
-      await protocolAndPortUpdater(protocol, port);
+      await relaySettingsUpdater((settings) => {
+        settings.openvpnConstraints.port = wrapConstraint(port);
+        return settings;
+      });
     },
-    [protocolAndPortUpdater, protocol],
+    [relaySettingsUpdater],
   );
 
   const portItems = {

@@ -12,9 +12,9 @@ import net.mullvad.mullvadvpn.lib.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
-import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
+import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelayList
-import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
+import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
@@ -87,16 +87,18 @@ class RelayListListener(endpoint: ServiceEndpoint) {
         }
 
     private suspend fun updateRelayConstraints() {
+        val currentRelayConstraints = getCurrentRelayConstraints()
         val location: Constraint<LocationConstraint> =
             selectedRelayLocation?.let { location ->
                 Constraint.Only(LocationConstraint.Location(location))
             }
-                ?: Constraint.Any()
-        val wireguardConstraints: WireguardConstraints? = selectedWireguardConstraints
+                ?: currentRelayConstraints.location
+        val wireguardConstraints: WireguardConstraints =
+            selectedWireguardConstraints ?: currentRelayConstraints.wireguardConstraints
 
         val update =
-            RelaySettingsUpdate.Normal(
-                RelayConstraintsUpdate(
+            RelaySettings.Normal(
+                RelayConstraints(
                     location = location,
                     wireguardConstraints = wireguardConstraints,
                     ownership = Constraint.Any(),
@@ -104,8 +106,20 @@ class RelayListListener(endpoint: ServiceEndpoint) {
                 )
             )
 
-        daemon.await().updateRelaySettings(update)
+        daemon.await().setRelaySettings(update)
     }
+
+    private suspend fun getCurrentRelayConstraints(): RelayConstraints =
+        when (val relaySettings = daemon.await().getSettings()?.relaySettings) {
+            is RelaySettings.Normal -> relaySettings.relayConstraints
+            else ->
+                RelayConstraints(
+                    location = Constraint.Any(),
+                    providers = Constraint.Any(),
+                    ownership = Constraint.Any(),
+                    wireguardConstraints = WireguardConstraints(Constraint.Any())
+                )
+        }
 
     companion object {
         private enum class Command {

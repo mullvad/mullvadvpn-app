@@ -4,30 +4,33 @@ import BridgeSettingsBuilder from '../../../shared/bridge-settings-builder';
 import {
   BridgeSettings,
   RelayLocation,
-  RelaySettingsUpdate,
+  RelaySettings,
+  wrapConstraint,
 } from '../../../shared/daemon-rpc-types';
 import log from '../../../shared/logging';
-import RelaySettingsBuilder from '../../../shared/relay-settings-builder';
 import { useAppContext } from '../../context';
-import { createWireguardRelayUpdater } from '../../lib/constraint-updater';
+import { useRelaySettingsModifier } from '../../lib/constraint-updater';
 import { useHistory } from '../../lib/history';
-import { useSelector } from '../../redux/store';
 import { LocationType, SpecialBridgeLocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
 export function useOnSelectExitLocation() {
   const onSelectLocation = useOnSelectLocation();
   const history = useHistory();
+  const relaySettingsModifier = useRelaySettingsModifier();
   const { connectTunnel } = useAppContext();
 
   const onSelectRelay = useCallback(
     async (relayLocation: RelayLocation) => {
+      const settings = relaySettingsModifier((settings) => ({
+        ...settings,
+        location: wrapConstraint(relayLocation),
+      }));
       history.pop();
-      const relayUpdate = RelaySettingsBuilder.normal().location.fromRaw(relayLocation).build();
-      await onSelectLocation(relayUpdate);
+      await onSelectLocation({ normal: settings });
       await connectTunnel();
     },
-    [history],
+    [history, relaySettingsModifier],
   );
 
   const onSelectSpecial = useCallback((_location: undefined) => {
@@ -40,36 +43,44 @@ export function useOnSelectExitLocation() {
 export function useOnSelectEntryLocation() {
   const onSelectLocation = useOnSelectLocation();
   const { setLocationType } = useSelectLocationContext();
-  const baseRelaySettings = useSelector((state) => state.settings.relaySettings);
+  const relaySettingsModifier = useRelaySettingsModifier();
 
-  const onSelectRelay = useCallback(async (entryLocation: RelayLocation) => {
-    setLocationType(LocationType.exit);
-    const relayUpdate = createWireguardRelayUpdater(baseRelaySettings)
-      .tunnel.wireguard((wireguard) => wireguard.entryLocation.exact(entryLocation))
-      .build();
-    await onSelectLocation(relayUpdate);
-  }, []);
+  const onSelectRelay = useCallback(
+    async (entryLocation: RelayLocation) => {
+      setLocationType(LocationType.exit);
+      const settings = relaySettingsModifier((settings) => {
+        settings.wireguardConstraints.entryLocation = wrapConstraint(entryLocation);
+        return settings;
+      });
+      await onSelectLocation({ normal: settings });
+    },
+    [relaySettingsModifier],
+  );
 
-  const onSelectSpecial = useCallback(async (_location: 'any') => {
-    setLocationType(LocationType.exit);
-    const relayUpdate = createWireguardRelayUpdater(baseRelaySettings)
-      .tunnel.wireguard((wireguard) => wireguard.entryLocation.any())
-      .build();
-    await onSelectLocation(relayUpdate);
-  }, []);
+  const onSelectSpecial = useCallback(
+    async (_location: 'any') => {
+      setLocationType(LocationType.exit);
+      const settings = relaySettingsModifier((settings) => {
+        settings.wireguardConstraints.entryLocation = 'any';
+        return settings;
+      });
+      await onSelectLocation({ normal: settings });
+    },
+    [relaySettingsModifier],
+  );
 
   return [onSelectRelay, onSelectSpecial] as const;
 }
 
 function useOnSelectLocation() {
-  const { updateRelaySettings } = useAppContext();
+  const { setRelaySettings } = useAppContext();
 
-  return useCallback(async (relayUpdate: RelaySettingsUpdate) => {
+  return useCallback(async (relaySettings: RelaySettings) => {
     try {
-      await updateRelaySettings(relayUpdate);
+      await setRelaySettings(relaySettings);
     } catch (e) {
       const error = e as Error;
-      log.error(`Failed to select the exit location: ${error.message}`);
+      log.error(`Failed to select the location: ${error.message}`);
     }
   }, []);
 }

@@ -1,6 +1,6 @@
 use crate::settings::TunnelOptions;
 #[cfg(target_os = "android")]
-use jnix::IntoJava;
+use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -88,6 +88,20 @@ impl fmt::Display for CustomTunnelEndpoint {
                 connection.peer.public_key
             ),
         }
+    }
+}
+
+#[cfg(target_os = "android")]
+impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for CustomTunnelEndpoint
+where
+    'env: 'sub_env,
+{
+    const JNI_SIGNATURE: &'static str = "Lnet/mullvad/mullvadvpn/model/CustomTunnelEndpoint;";
+
+    fn from_java(_env: &JnixEnv<'env>, _object: JObject<'sub_env>) -> Self {
+        panic!(
+            "Attempting to convert from CustomTunnelEndpoint java class. This should never happen!"
+        );
     }
 }
 

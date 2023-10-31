@@ -352,8 +352,9 @@ class VpnSettingsViewModel(
 
     fun onWireguardPortSelected(port: Constraint<Port>) {
         viewModelScope.launch(dispatcher) {
-            serviceConnectionManager.relayListListener()?.selectedWireguardConstraints =
-                WireguardConstraints(port = port)
+            serviceConnectionManager
+                .relayListListener()
+                ?.updateSelectedWireguardConstraints(WireguardConstraints(port = port))
         }
         hideDialog()
     }

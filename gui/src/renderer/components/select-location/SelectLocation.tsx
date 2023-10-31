@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { colors } from '../../../config.json';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { useAppContext } from '../../context';
+import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
@@ -57,7 +57,7 @@ import { SpacePreAllocationView } from './SpacePreAllocationView';
 
 export default function SelectLocation() {
   const history = useHistory();
-  const { updateRelaySettings } = useAppContext();
+  const relaySettingsUpdater = useRelaySettingsUpdater();
   const {
     saveScrollPosition,
     resetScrollPositions,
@@ -85,13 +85,17 @@ export default function SelectLocation() {
 
   const onClearProviders = useCallback(async () => {
     resetScrollPositions();
-    await updateRelaySettings({ normal: { providers: [] } });
-  }, [resetScrollPositions]);
+    if (relaySettings) {
+      await relaySettingsUpdater((settings) => ({ ...settings, providers: [] }));
+    }
+  }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
 
   const onClearOwnership = useCallback(async () => {
     resetScrollPositions();
-    await updateRelaySettings({ normal: { ownership: Ownership.any } });
-  }, [resetScrollPositions]);
+    if (relaySettings) {
+      await relaySettingsUpdater((settings) => ({ ...settings, ownership: Ownership.any }));
+    }
+  }, [relaySettingsUpdater, resetScrollPositions, relaySettings]);
 
   const changeLocationType = useCallback(
     (locationType: LocationType) => {

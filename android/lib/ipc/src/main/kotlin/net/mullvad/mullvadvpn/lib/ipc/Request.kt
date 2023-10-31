@@ -74,7 +74,7 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize data class SetEnableSplitTunneling(val enable: Boolean) : Request()
 
     @Parcelize
-    data class SetRelayLocation(val relayLocation: GeographicLocationConstraint?) : Request()
+    data class SetRelayLocation(val relayLocation: GeographicLocationConstraint) : Request()
 
     @Parcelize data class SetWireGuardMtu(val mtu: Int?) : Request()
 
@@ -89,7 +89,7 @@ sealed class Request : Message.RequestMessage() {
     @Parcelize data class SetObfuscationSettings(val settings: ObfuscationSettings?) : Request()
 
     @Parcelize
-    data class SetWireguardConstraints(val wireguardConstraints: WireguardConstraints?) : Request()
+    data class SetWireguardConstraints(val wireguardConstraints: WireguardConstraints) : Request()
 
     @Parcelize
     data class SetWireGuardQuantumResistant(val quantumResistant: QuantumResistantState) :

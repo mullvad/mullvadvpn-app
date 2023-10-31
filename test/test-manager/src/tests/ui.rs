@@ -2,7 +2,7 @@ use super::config::TEST_CONFIG;
 use super::helpers;
 use super::{Error, TestContext};
 use mullvad_management_interface::{types, ManagementServiceClient};
-use mullvad_types::relay_constraints::{RelayConstraintsUpdate, RelaySettingsUpdate};
+use mullvad_types::relay_constraints::{RelayConstraints, RelaySettings};
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -95,12 +95,12 @@ pub async fn test_ui_tunnel_settings(
     .unwrap();
 
     // The test expects us to be disconnected and logged in but to have a specific relay selected
-    let relay_settings = RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+    let relay_settings = RelaySettings::Normal(RelayConstraints {
         location: helpers::into_constraint(&entry),
         ..Default::default()
     });
 
-    helpers::update_relay_settings(&mut mullvad_client, relay_settings)
+    helpers::set_relay_settings(&mut mullvad_client, relay_settings)
         .await
         .expect("failed to update relay settings");
 

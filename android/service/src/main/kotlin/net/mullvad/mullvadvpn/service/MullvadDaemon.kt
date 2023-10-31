@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.model.RelayList
-import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
+import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.RemoveDeviceEvent
 import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
@@ -182,8 +182,8 @@ class MullvadDaemon(
         return verifyPlayPurchase(daemonInterfaceAddress, playPurchase)
     }
 
-    fun updateRelaySettings(update: RelaySettingsUpdate) {
-        updateRelaySettings(daemonInterfaceAddress, update)
+    fun setRelaySettings(update: RelaySettings) {
+        setRelaySettings(daemonInterfaceAddress, update)
     }
 
     fun setObfuscationSettings(settings: ObfuscationSettings?) {
@@ -289,10 +289,7 @@ class MullvadDaemon(
         playPurchase: PlayPurchase,
     ): PlayPurchaseVerifyResult
 
-    private external fun updateRelaySettings(
-        daemonInterfaceAddress: Long,
-        update: RelaySettingsUpdate
-    )
+    private external fun setRelaySettings(daemonInterfaceAddress: Long, update: RelaySettings)
 
     private external fun setObfuscationSettings(
         daemonInterfaceAddress: Long,

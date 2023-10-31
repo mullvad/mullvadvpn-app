@@ -132,7 +132,7 @@ class SelectLocationViewModelTest {
             assertEquals(Unit, awaitItem())
             verify {
                 connectionProxyMock.connect()
-                mockRelayListListener.selectedRelayLocation = mockLocation
+                mockRelayListListener.updateSelectedRelayLocation(mockLocation)
             }
         }
     }
