@@ -7,10 +7,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -238,7 +236,7 @@ fun DeviceListScreen(
                 PrimaryButton(
                     text = stringResource(id = R.string.back),
                     onClick = onBackClick,
-                    modifier = Modifier.padding(top = Dimens.mediumPadding)
+                    modifier = Modifier.padding(top = Dimens.buttonSpacing)
                 )
             }
         }

@@ -137,7 +137,7 @@ fun DnsDialog(
             }
         },
         confirmButton = {
-            Column(verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding)) {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onAttemptToSave,
