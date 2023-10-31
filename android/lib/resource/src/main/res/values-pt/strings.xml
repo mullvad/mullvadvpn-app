@@ -171,7 +171,7 @@
     <string name="settings_vpn">Definições de VPN</string>
     <string name="show_account_number">Mostrar número de conta</string>
     <string name="show_system_apps">Mostrar aplicações do sistema</string>
-    <string name="split_tunneling_description">A divisão do túnel permite selecionar quais as aplicações que devem ser direcionadas através do túnel VPN.</string>
+    <string name="split_tunneling_description">Escolha as aplicações que deseja excluir do túnel VPN.</string>
     <string name="start_tunnel_error">Não foi possível iniciar a ligação de túnel. Envie um relatório do problema.</string>
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Alterar local</string>

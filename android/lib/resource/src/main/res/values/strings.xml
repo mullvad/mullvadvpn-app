@@ -121,7 +121,7 @@
     <string name="account_credit_expires_soon">Account credit expires soon</string>
     <string name="select_location">Select location</string>
     <string name="select_location_description">While connected, your real location is masked with a private and secure location in the selected region.</string>
-    <string name="split_tunneling_description">Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel.</string>
+    <string name="split_tunneling_description">Choose the apps you want to exclude from the VPN tunnel.</string>
     <string name="enable">Enable</string>
     <string name="enable_custom_dns">Use custom DNS server</string>
     <string name="add_a_server">Add a server</string>
