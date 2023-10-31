@@ -238,7 +238,7 @@ fun DeviceListScreen(
                 PrimaryButton(
                     text = stringResource(id = R.string.back),
                     onClick = onBackClick,
-                    modifier = Modifier.padding(top = Dimens.mediumPadding)
+                    modifier = Modifier.padding(top = Dimens.buttonSeparation)
                 )
             }
         }

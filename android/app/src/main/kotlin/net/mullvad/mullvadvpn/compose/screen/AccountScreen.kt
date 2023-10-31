@@ -120,25 +120,26 @@ fun AccountScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            if (IS_PLAY_BUILD.not()) {
-                ExternalButton(
-                    text = stringResource(id = R.string.manage_account),
-                    onClick = onManageAccountClick,
-                    modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)
+            Column(modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)) {
+                if (IS_PLAY_BUILD.not()) {
+                    ExternalButton(
+                        text = stringResource(id = R.string.manage_account),
+                        onClick = onManageAccountClick,
+                        modifier = Modifier.padding(bottom = Dimens.buttonSeparation)
+                    )
+                }
+
+                RedeemVoucherButton(
+                    onClick = onRedeemVoucherClick,
+                    modifier = Modifier.padding(bottom = Dimens.buttonSeparation),
+                    isEnabled = true
+                )
+
+                NegativeButton(
+                    text = stringResource(id = R.string.log_out),
+                    onClick = onLogoutClick,
                 )
             }
-
-            RedeemVoucherButton(
-                onClick = onRedeemVoucherClick,
-                modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin),
-                isEnabled = true
-            )
-
-            NegativeButton(
-                text = stringResource(id = R.string.log_out),
-                onClick = onLogoutClick,
-                modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)
-            )
         }
     }
 }

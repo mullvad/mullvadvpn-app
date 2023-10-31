@@ -9,7 +9,7 @@ data class Dimensions(
     val backButtonSideMargin: Dp = 30.dp,
     val bigIconSize: Dp = 44.dp,
     val buttonHeight: Dp = 44.dp,
-    val buttonSeparation: Dp = 18.dp,
+    val buttonSeparation: Dp = 12.dp,
     val buttonVerticalPadding: Dp = 8.dp,
     val cellEndPadding: Dp = 16.dp,
     val cellFooterTopPadding: Dp = 6.dp,
