@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -61,7 +61,7 @@ fun CustomPortDialog(
             )
         },
         confirmButton = {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     text = stringResource(id = R.string.custom_port_dialog_submit),
                     onClick = { onSave(port.value) },
@@ -72,13 +72,11 @@ fun CustomPortDialog(
                 if (showReset) {
                     NegativeButton(
                         text = stringResource(R.string.custom_port_dialog_remove),
-                        onClick = onReset,
-                        modifier = Modifier.padding(top = Dimens.mediumPadding),
+                        onClick = onReset
                     )
                 }
                 PrimaryButton(
                     text = stringResource(id = R.string.cancel),
-                    modifier = Modifier.padding(top = Dimens.mediumPadding),
                     onClick = onDismissRequest
                 )
             }

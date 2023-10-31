@@ -68,7 +68,7 @@ private fun ChangeListItem(text: String) {
                 text = "•",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier.width(Dimens.buttonSeparation),
+                modifier = Modifier.width(Dimens.buttonSpacing),
                 textAlign = TextAlign.Center
             )
             Text(

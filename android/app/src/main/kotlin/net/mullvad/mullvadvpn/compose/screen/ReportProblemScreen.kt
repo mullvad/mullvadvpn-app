@@ -163,16 +163,18 @@ fun ReportProblemScreen(
                 colors = mullvadWhiteTextFieldColors()
             )
 
-            PrimaryButton(
-                onClick = onNavigateToViewLogs,
-                text = stringResource(id = R.string.view_logs)
-            )
-
-            VariantButton(
-                onClick = { onSendReport(email, description) },
-                isEnabled = description.isNotEmpty(),
-                text = stringResource(id = R.string.send)
-            )
+            Column {
+                PrimaryButton(
+                    onClick = onNavigateToViewLogs,
+                    text = stringResource(id = R.string.view_logs)
+                )
+                Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
+                VariantButton(
+                    onClick = { onSendReport(email, description) },
+                    isEnabled = description.isNotEmpty(),
+                    text = stringResource(id = R.string.send)
+                )
+            }
         }
     }
 }
@@ -268,7 +270,9 @@ private fun ColumnScope.ErrorContent(retry: () -> Unit, onDismiss: () -> Unit) {
     )
     Spacer(modifier = Modifier.weight(1f))
     PrimaryButton(
-        modifier = Modifier.fillMaxWidth().padding(vertical = Dimens.mediumPadding),
+        modifier =
+            Modifier.fillMaxWidth()
+                .padding(top = Dimens.mediumPadding, bottom = Dimens.buttonSpacing),
         onClick = onDismiss,
         text = stringResource(id = R.string.edit_message)
     )

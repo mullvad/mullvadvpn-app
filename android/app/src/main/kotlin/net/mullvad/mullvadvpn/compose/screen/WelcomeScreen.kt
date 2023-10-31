@@ -282,7 +282,7 @@ private fun PaymentPanel(
                     Modifier.padding(
                         start = Dimens.sideMargin,
                         end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
+                        bottom = Dimens.buttonSpacing
                     )
             )
         }
