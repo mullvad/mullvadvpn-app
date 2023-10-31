@@ -1777,9 +1777,6 @@ msgstr ""
 msgid "Shows reminders when the account time is about to expire"
 msgstr ""
 
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr ""
-
 msgid "Submit"
 msgstr ""
 

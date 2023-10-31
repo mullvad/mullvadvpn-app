@@ -171,7 +171,7 @@
     <string name="settings_vpn">VPN-Einstellungen</string>
     <string name="show_account_number">Kontonummer anzeigen</string>
     <string name="show_system_apps">System-Apps anzeigen</string>
-    <string name="split_tunneling_description">Split-Tunnel-Steuerung macht es möglich, auszuwählen, welche Anwendungen nicht durch den VPN-Tunnel geroutet werden.</string>
+    <string name="split_tunneling_description">Wählen Sie die Apps aus, die Sie aus dem VPN-Tunnel ausschließen möchten.</string>
     <string name="start_tunnel_error">Die Tunnelverbindung konnte nicht gestartet werden. Bitte senden Sie einen Problembericht.</string>
     <string name="submit_button">Absenden</string>
     <string name="switch_location">Ort wechseln</string>
