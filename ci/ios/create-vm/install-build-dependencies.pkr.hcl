@@ -25,7 +25,7 @@ variable "user_name" { type = string }
 variable "xcode_xip_name" {
   type = string
 
-  validation { 
+  validation {
     condition = can(regex("Xcode_(\\d)+(\\.)?((\\d)+)?(\\.)?((\\d)+)?\\.xip", var.xcode_xip_name))
     error_message = "Invalid Xcode file name. Example of a valid file name: 'Xcode_15.0.1.xip'."
   }
@@ -36,6 +36,7 @@ source "tart-cli" "tart" {
   ssh_password = "admin"
   ssh_username = "admin"
   ssh_timeout  = "120s"
+  disk_size_gb = 80
 }
 
 build {
@@ -49,7 +50,7 @@ build {
 
   // Install brew
   provisioner "shell" {
-    environment_vars = [ 
+    environment_vars = [
     "USER=${var.user_name}"
     ]
     script = "scripts/install-brew.sh"
@@ -61,12 +62,12 @@ build {
   }
 
   // Install rustup
-  provisioner "shell" { 
+  provisioner "shell" {
     script = "scripts/install-rustup.sh"
   }
 
   // Install go
-  provisioner "shell" { 
+  provisioner "shell" {
     script = "scripts/install-go.sh"
   }
 
@@ -79,7 +80,7 @@ build {
   // Install Xcode via xcodes.app
   provisioner "shell" {
 
-    environment_vars = [ 
+    environment_vars = [
     "XCODE_VERSION=${var.xcode_version}",
     "XCODE_XIP_NAME=${var.xcode_xip_name}",
     "XCODE_SHARED_PATH=/tmp",
@@ -100,7 +101,7 @@ build {
   }
 
   // Remove everything in case of error
-  error-cleanup-provisioner "shell" { 
+  error-cleanup-provisioner "shell" {
     script = "scripts/cleanup.sh"
   }
 }
