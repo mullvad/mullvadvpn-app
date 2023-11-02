@@ -54,6 +54,24 @@ extension UIView {
 
         return pinEdges(edges, to: superview.layoutMarginsGuide)
     }
+
+    /**
+     Pin single edge to superview edge.
+     */
+    func pinEdgeToSuperview(_ edge: PinnableEdges.Edge) -> [NSLayoutConstraint] {
+        guard let superview else { return [] }
+
+        return pinEdges(PinnableEdges([edge]), to: superview)
+    }
+
+    /**
+     Pin single edge to superview margin edge.
+     */
+    func pinEdgeToSuperviewMargin(_ edge: PinnableEdges.Edge) -> [NSLayoutConstraint] {
+        guard let superview else { return [] }
+
+        return pinEdges(PinnableEdges([edge]), to: superview.layoutMarginsGuide)
+    }
 }
 
 /**

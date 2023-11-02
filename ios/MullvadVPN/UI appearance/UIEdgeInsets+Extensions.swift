@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 
 extension UIEdgeInsets {
+    /// Returns directional edge insets mapping left edge to leading and right edge to trailing.
     var toDirectionalInsets: NSDirectionalEdgeInsets {
         NSDirectionalEdgeInsets(
             top: top,
