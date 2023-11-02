@@ -38,7 +38,7 @@ class CustomDateComponentsFormattingTests: XCTestCase {
             unitsStyle: .full
         )
 
-        XCTAssertEqual(result, "0 days")
+        XCTAssertEqual(result, "Less than a day")
     }
 
     func testLessThanTwoYearsFormatting() throws {
@@ -71,7 +71,7 @@ class CustomDateComponentsFormattingTests: XCTestCase {
             unitsStyle: .full
         )
 
-        XCTAssertEqual(result, "0 days")
+        XCTAssertEqual(result, "Less than a day")
     }
 
     private func makeDateRange(addingComponents dateComponents: DateComponents) -> (Date, Date) {
