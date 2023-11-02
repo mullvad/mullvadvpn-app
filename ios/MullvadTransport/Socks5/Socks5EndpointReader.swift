@@ -52,7 +52,7 @@ struct Socks5EndpointReader {
         // The entire length of address + port
         let byteSize = addressLength + portLength
 
-        connection.receive(exactLength: byteSize) { [self] addressData, contentContext, isComplete, error in
+        connection.receive(exactLength: byteSize) { [self] addressData, _, _, error in
             if let error {
                 onFailure(Socks5Error.remoteConnectionFailure(error))
             } else if let addressData {
@@ -73,7 +73,7 @@ struct Socks5EndpointReader {
         // The length of domain length parameter in bytes.
         let domainLengthLength = MemoryLayout<UInt8>.size
 
-        connection.receive(exactLength: domainLengthLength) { [self] data, contentContext, isComplete, error in
+        connection.receive(exactLength: domainLengthLength) { [self] data, _, _, error in
             if let error {
                 onFailure(Socks5Error.remoteConnectionFailure(error))
             } else if let domainNameLength = data?.first {

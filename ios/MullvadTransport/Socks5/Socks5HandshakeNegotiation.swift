@@ -29,7 +29,7 @@ struct Socks5HandshakeNegotiation {
         // The length of a handshake reply in bytes.
         let replyLength = 2
 
-        connection.receive(exactLength: replyLength) { [self] data, context, isComplete, error in
+        connection.receive(exactLength: replyLength) { [self] data, _, _, error in
             if let error {
                 onFailure(Socks5Error.remoteConnectionFailure(error))
             } else if let data {

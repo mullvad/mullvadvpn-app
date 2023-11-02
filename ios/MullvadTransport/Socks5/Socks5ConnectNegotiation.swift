@@ -40,7 +40,7 @@ struct Socks5ConnectNegotiation {
         // The length of the preamble of the CONNECT reply.
         let replyPreambleLength = 4
 
-        connection.receive(exactLength: replyPreambleLength) { [self] data, contentContext, isComplete, error in
+        connection.receive(exactLength: replyPreambleLength) { [self] data, _, _, error in
             if let error {
                 onFailure(Socks5Error.remoteConnectionFailure(error))
             } else if let data {
