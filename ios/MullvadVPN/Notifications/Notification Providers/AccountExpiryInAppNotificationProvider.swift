@@ -10,8 +10,42 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
+struct AccountExpiry {
+    var expiryDate: Date?
+
+    var triggerDate: Date? {
+        guard let expiryDate else { return nil }
+
+        return Calendar.current.date(
+            byAdding: .day,
+            value: -NotificationConfiguration.closeToExpiryTriggerInterval,
+            to: expiryDate
+        )
+    }
+
+    var formattedDuration: String? {
+        let now = Date()
+
+        guard
+            let expiryDate,
+            let triggerDate,
+            let duration = CustomDateComponentsFormatting.localizedString(
+                from: Date(),
+                to: expiryDate,
+                unitsStyle: .full
+            ),
+            now >= triggerDate,
+            now < expiryDate
+        else {
+            return nil
+        }
+
+        return duration
+    }
+}
+
 final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider {
-    private var accountExpiry: Date?
+    private var accountExpiry = AccountExpiry()
     private var tunnelObserver: TunnelBlockObserver?
     private var timer: DispatchSourceTimer?
 
@@ -38,30 +72,9 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
     // MARK: - InAppNotificationProvider
 
     var notificationDescriptor: InAppNotificationDescriptor? {
-        let now = Date()
-        guard let accountExpiry, let triggerDate, now >= triggerDate,
-              now < accountExpiry
-        else {
+        guard let duration = accountExpiry.formattedDuration else {
             return nil
         }
-
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [.minute, .hour, .day]
-        formatter.maximumUnitCount = 1
-
-        let duration: String?
-        if accountExpiry.timeIntervalSince(now) < .minutes(1) {
-            duration = NSLocalizedString(
-                "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_LESS_THAN_ONE_MINUTE",
-                value: "Less than a minute",
-                comment: ""
-            )
-        } else {
-            duration = formatter.string(from: now, to: accountExpiry)
-        }
-
-        guard let duration else { return nil }
 
         return InAppNotificationDescriptor(
             identifier: identifier,
@@ -83,16 +96,6 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
 
     // MARK: - Private
 
-    private var triggerDate: Date? {
-        guard let accountExpiry else { return nil }
-
-        return Calendar.current.date(
-            byAdding: .day,
-            value: -NotificationConfiguration.closeToExpiryTriggerInterval,
-            to: accountExpiry
-        )
-    }
-
     private func invalidate(deviceState: DeviceState) {
         updateExpiry(deviceState: deviceState)
         updateTimer()
@@ -100,13 +103,13 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
     }
 
     private func updateExpiry(deviceState: DeviceState) {
-        accountExpiry = deviceState.accountData?.expiry
+        accountExpiry.expiryDate = deviceState.accountData?.expiry
     }
 
     private func updateTimer() {
         timer?.cancel()
 
-        guard let triggerDate else {
+        guard let triggerDate = accountExpiry.triggerDate else {
             return
         }
 
@@ -127,7 +130,7 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
     }
 
     private func timerDidFire() {
-        let shouldCancelTimer = accountExpiry.map { $0 <= Date() } ?? true
+        let shouldCancelTimer = accountExpiry.expiryDate.map { $0 <= Date() } ?? true
 
         if shouldCancelTimer {
             timer?.cancel()
