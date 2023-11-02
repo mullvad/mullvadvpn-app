@@ -286,7 +286,7 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
             generic: net::GenericTunnelOptions {
                 enable_ipv6: generic_options.enable_ipv6,
             },
-            #[cfg(not(target_os = "android"))]
+//            #[cfg(not(target_os = "android"))]
             dns_options: mullvad_types::settings::DnsOptions::try_from(dns_options)?,
         })
     }

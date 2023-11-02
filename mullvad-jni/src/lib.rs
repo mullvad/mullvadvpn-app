@@ -7,7 +7,7 @@ mod jni_event_listener;
 mod problem_report;
 mod talpid_vpn_service;
 
-use crate::{daemon_interface::DaemonInterface, jni_event_listener::JniEventListener};
+use crate::{daemon_interface::DaemonInterface};
 use jnix::{
     jni::{
         objects::{GlobalRef, JObject, JString, JValue},
@@ -21,6 +21,7 @@ use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_daemon::{
     device, exception_logging, logging, runtime::new_runtime_builder, version, Daemon,
     DaemonCommandChannel,
+    spawn_management_interface
 };
 use mullvad_types::{
     account::{AccountData, PlayPurchase, VoucherSubmission},
@@ -504,7 +505,7 @@ fn spawn_daemon(
     command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
 ) -> Result<(), Error> {
-    let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
+    // let listener = JniEventListener::spawn(env, this).map_err(Error::SpawnJniEventListener)?;
     let daemon_object = env
         .new_global_ref(*this)
         .map_err(Error::CreateGlobalReference)?;
@@ -532,13 +533,14 @@ fn spawn_daemon(
                 log::warn!("Ignoring API settings (already initialized)");
             }
         }
+        let event_listener = mullvad_daemon::main::spawn_management_interface(command_channel.sender())?;
 
         let daemon = runtime.block_on(Daemon::start(
             Some(resource_dir.clone()),
             resource_dir.clone(),
             resource_dir,
             cache_dir,
-            listener,
+            event_listener,
             command_channel,
             android_context,
         ));

@@ -18,6 +18,7 @@ pub fn get_default_rpc_socket_path() -> PathBuf {
     }
     #[cfg(target_os = "android")]
     {
+        log::warn!("HELLO? ");
         PathBuf::from(format!("{}/rpc-socket", crate::APP_PATH))
     }
 }
