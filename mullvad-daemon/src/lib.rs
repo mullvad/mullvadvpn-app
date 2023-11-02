@@ -15,7 +15,7 @@ mod geoip;
 pub mod logging;
 #[cfg(target_os = "macos")]
 mod macos;
-#[cfg(not(target_os = "android"))]
+//#[cfg(not(target_os = "android"))]
 pub mod management_interface;
 mod migrations;
 mod relay_list;
@@ -666,6 +666,8 @@ where
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
+
+        log::warn!("##### mullvad-daemon/lib.rs#start:!!!");
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
 
