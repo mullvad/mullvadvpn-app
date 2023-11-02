@@ -171,6 +171,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
         log::warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
+    log::warn!("##### mullvad-daemon/main.rs#run_standalone !!!");
     let daemon = create_daemon(log_dir).await?;
 
     let shutdown_handle = daemon.shutdown_handle();
@@ -201,6 +202,7 @@ async fn create_daemon(
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
     let command_channel = DaemonCommandChannel::new();
+    log::warn!("##### mullvad-daemon/main.rs#create_daemon !!!");
     let event_listener = spawn_management_interface(command_channel.sender())?;
 
     Daemon::start(
@@ -215,7 +217,7 @@ async fn create_daemon(
     .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
 }
 
-fn spawn_management_interface(
+pub extern fn spawn_management_interface(
     command_sender: DaemonCommandSender,
 ) -> Result<ManagementInterfaceEventBroadcaster, String> {
     let (socket_path, event_broadcaster) = ManagementInterfaceServer::start(command_sender)
