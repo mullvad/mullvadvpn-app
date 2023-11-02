@@ -50,6 +50,11 @@ enum UIMetrics {
         static let animationOptions: UIView.AnimationOptions = [.curveEaseInOut]
     }
 
+    enum AccessMethodActionSheetTransition {
+        static let duration: Duration = .milliseconds(250)
+        static let animationOptions: UIView.AnimationOptions = [.curveEaseInOut]
+    }
+
     enum SettingsRedeemVoucher {
         static let cornerRadius = 8.0
         static let preferredContentSize = CGSize(width: 280, height: 260)
@@ -72,6 +77,9 @@ enum UIMetrics {
         static let inputCellTextFieldLayoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         static let selectableSettingsCellLeftViewSpacing: CGFloat = 12
         static let checkableSettingsCellLeftViewSpacing: CGFloat = 20
+
+        /// Cell layout margins used in table views that use inset style.
+        static let insetLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
     }
 
     enum InAppBannerNotification {
@@ -150,4 +158,7 @@ extension UIMetrics {
 
     /// Common layout margins for location cell presentation
     static let selectLocationCellLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 28, bottom: 16, trailing: 12)
+
+    /// Layout margins used by content heading displayed below the large navigation title.
+    static let contentHeadingLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 24, bottom: 24, trailing: 24)
 }
