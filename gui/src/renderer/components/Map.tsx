@@ -2,6 +2,7 @@ import { mat4 } from 'gl-matrix';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import GLMap, { ConnectionState, Coordinate, MapData } from '../lib/map/3dmap';
 import { useCombinedRefs } from '../lib/utilityHooks';
@@ -63,10 +64,15 @@ function MapInner(props: MapParams) {
   const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
   const [canvasHeight, setCanvasHeight] = useState(493);
 
+  const scaleFactor = window.devicePixelRatio;
+
   const updateCanvasSize = useCallback((canvas: HTMLCanvasElement) => {
+    const scaleFactor = window.devicePixelRatio;
     const canvasRect = canvas.getBoundingClientRect();
-    canvas.width = canvasRect.width;
-    canvas.height = canvasRect.height;
+
+    canvas.width = Math.floor(canvasRect.width * scaleFactor);
+    canvas.height = Math.floor(canvasRect.height * scaleFactor);
+
     setCanvasWidth(canvasRect.width);
     setCanvasHeight(canvasRect.height);
   }, []);
@@ -132,8 +138,17 @@ function MapInner(props: MapParams) {
     return () => removeEventListener('resize', resizeCallback);
   }, [updateCanvasSize]);
 
+  useEffect(() => {
+    log.verbose('Canvas scale factor:', scaleFactor);
+  }, [scaleFactor]);
+
   return (
-    <StyledCanvas ref={combinedCanvasRef} id="glcanvas" width={canvasWidth} height={canvasHeight} />
+    <StyledCanvas
+      ref={combinedCanvasRef}
+      id="glcanvas"
+      width={Math.floor(canvasWidth * scaleFactor)}
+      height={Math.floor(canvasHeight * scaleFactor)}
+    />
   );
 }
 
