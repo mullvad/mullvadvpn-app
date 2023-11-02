@@ -2246,6 +2246,7 @@ dependencies = [
  "log-panics",
  "mullvad-api",
  "mullvad-daemon",
+ "mullvad-management-interface",
  "mullvad-problem-report",
  "mullvad-types",
  "nix 0.23.2",
