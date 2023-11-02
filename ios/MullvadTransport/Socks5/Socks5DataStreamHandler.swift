@@ -33,7 +33,7 @@ struct Socks5DataStreamHandler {
         localConnection.receive(
             minimumIncompleteLength: 1,
             maximumLength: Self.maxBytesToRead
-        ) { [self] content, contentContext, isComplete, error in
+        ) { [self] content, _, isComplete, error in
             if let error {
                 errorHandler(Socks5Error.localConnectionFailure(error))
                 return
@@ -58,7 +58,7 @@ struct Socks5DataStreamHandler {
         remoteConnection.receive(
             minimumIncompleteLength: 1,
             maximumLength: Self.maxBytesToRead
-        ) { [self] content, contentContext, isComplete, error in
+        ) { [self] content, _, isComplete, error in
             if let error {
                 errorHandler(Socks5Error.remoteConnectionFailure(error))
                 return
