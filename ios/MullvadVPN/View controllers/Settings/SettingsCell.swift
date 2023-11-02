@@ -17,18 +17,18 @@ enum SettingsDisclosureType {
     var image: UIImage? {
         switch self {
         case .none:
-            return nil
+            nil
         case .chevron:
-            return UIImage(named: "IconChevron")
+            UIImage(resource: .iconChevron)
         case .externalLink:
-            return UIImage(named: "IconExtlink")
+            UIImage(resource: .iconExtlink)
         case .tick:
-            return UIImage(named: "IconTickSml")
+            UIImage(resource: .iconTickSml)
         }
     }
 }
 
-class SettingsCell: UITableViewCell {
+class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     typealias InfoButtonHandler = () -> Void
 
     let contentContainerSubviewMaxCount = 2
