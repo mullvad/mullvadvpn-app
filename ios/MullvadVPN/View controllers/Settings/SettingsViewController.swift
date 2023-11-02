@@ -86,6 +86,8 @@ extension SettingsDataSource.Item {
             return .problemReport
         case .faq:
             return .faq
+        case .apiAccess:
+            return .apiAccess
         }
     }
 }
