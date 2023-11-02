@@ -38,30 +38,16 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
     // MARK: - InAppNotificationProvider
 
     var notificationDescriptor: InAppNotificationDescriptor? {
-        let now = Date()
-        guard let accountExpiry, let triggerDate, now >= triggerDate,
-              now < accountExpiry
+        guard
+            let accountExpiry,
+            let duration = CustomDateComponentsFormatting.localizedString(
+                from: Date(),
+                to: accountExpiry,
+                unitsStyle: .full
+            )
         else {
             return nil
         }
-
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .full
-        formatter.allowedUnits = [.minute, .hour, .day]
-        formatter.maximumUnitCount = 1
-
-        let duration: String?
-        if accountExpiry.timeIntervalSince(now) < .minutes(1) {
-            duration = NSLocalizedString(
-                "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_LESS_THAN_ONE_MINUTE",
-                value: "Less than a minute",
-                comment: ""
-            )
-        } else {
-            duration = formatter.string(from: now, to: accountExpiry)
-        }
-
-        guard let duration else { return nil }
 
         return InAppNotificationDescriptor(
             identifier: identifier,

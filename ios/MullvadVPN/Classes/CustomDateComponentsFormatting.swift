@@ -15,8 +15,9 @@ extension CustomDateComponentsFormatting {
     ///
     /// The behaviour of that method differs from `DateComponentsFormatter`:
     ///
-    /// 1. Intervals of two years or more are formatted in years quantity.
-    /// 2. Otherwise intervals matching none of the above are formatted in days quantity.
+    /// 1. Intervals of less than a day return a custom string.
+    /// 2. Intervals of two years or more are formatted in years quantity.
+    /// 3. Otherwise intervals matching none of the above are formatted in days quantity.
     ///
     static func localizedString(
         from start: Date,
@@ -24,13 +25,21 @@ extension CustomDateComponentsFormatting {
         calendar: Calendar = Calendar.current,
         unitsStyle: DateComponentsFormatter.UnitsStyle
     ) -> String? {
-        let years = calendar.dateComponents([.year], from: start, to: max(start, end)).year ?? 0
+        let dateComponents = calendar.dateComponents([.year, .day], from: start, to: max(start, end))
+
+        guard dateComponents.day != nil else {
+            return NSLocalizedString(
+                "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_LESS_THAN_ONE_DAY",
+                value: "Less than a day",
+                comment: ""
+            )
+        }
 
         let formatter = DateComponentsFormatter()
         formatter.calendar = calendar
         formatter.unitsStyle = unitsStyle
         formatter.maximumUnitCount = 1
-        formatter.allowedUnits = years >= 2 ? .year : .day
+        formatter.allowedUnits = (dateComponents.year ?? 0) >= 2 ? .year : .day
 
         return formatter.string(from: start, to: max(start, end))
     }
