@@ -9,10 +9,8 @@
 import MullvadSettings
 import UIKit
 
-final class SettingsDataSource: UITableViewDiffableDataSource<
-    SettingsDataSource.Section,
-    SettingsDataSource.Item
->, UITableViewDelegate {
+final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource.Section, SettingsDataSource.Item>,
+    UITableViewDelegate {
     enum CellReuseIdentifiers: String, CaseIterable {
         case basicCell
 
@@ -40,6 +38,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
         case version
         case problemReport
         case faq
+        case apiAccess
 
         var reuseIdentifier: CellReuseIdentifiers {
             .basicCell
@@ -133,6 +132,13 @@ final class SettingsDataSource: UITableViewDiffableDataSource<
             snapshot.appendSections([.main])
             snapshot.appendItems([.preferences], toSection: .main)
         }
+
+        #if DEBUG
+        if !snapshot.sectionIdentifiers.contains(.main) {
+            snapshot.appendSections([.main])
+        }
+        snapshot.appendItems([.apiAccess], toSection: .main)
+        #endif
 
         snapshot.appendSections([.version, .problemReport])
         snapshot.appendItems([.version], toSection: .version)
