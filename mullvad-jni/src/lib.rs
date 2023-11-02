@@ -21,7 +21,6 @@ use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_daemon::{
     device, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
     DaemonCommandChannel,
-    spawn_management_interface
 };
 use mullvad_types::{
     account::{AccountData, PlayPurchase, VoucherSubmission},
@@ -65,6 +64,9 @@ pub enum Error {
 
     #[error("Failed to spawn the JNI event listener")]
     SpawnJniEventListener(#[source] jni_event_listener::Error),
+
+    #[error(display = "Failed to spawn the JNI event listener")]
+    SpawnManagementInterface(#[error(source)] mullvad_daemon::management_interface::Error),
 }
 
 #[derive(IntoJava)]
@@ -533,6 +535,13 @@ fn spawn_daemon(
                 log::warn!("Ignoring API settings (already initialized)");
             }
         }
+        let event_listener = match runtime.block_on(async {spawn_management_interface(command_channel.sender()) }) {
+            Ok(event_listener) => event_listener,
+            Err(error) => {
+                let _ = tx.send(Err(error));
+                return;
+            }
+        };
 
         let daemon = runtime.block_on(Daemon::start(
             Some(resource_dir.clone()),
@@ -563,6 +572,25 @@ fn spawn_daemon(
     });
 
     rx.recv().unwrap()
+}
+
+use mullvad_daemon::{
+    management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
+    DaemonCommandSender,
+};
+
+fn spawn_management_interface(
+    command_sender: DaemonCommandSender,
+) -> Result<ManagementInterfaceEventBroadcaster, Error> {
+    let (socket_path, event_broadcaster) = ManagementInterfaceServer::start(command_sender)
+        .map_err(|error| {
+            log::error!("{}", error.display_chain_with_msg("Unable to start management interface server"));
+            Error::SpawnManagementInterface(error)
+        })?;
+
+    log::info!("Management interface listening on {}", socket_path);
+
+    Ok(event_broadcaster)
 }
 
 fn notify_daemon_stopped(jvm: Arc<JavaVM>, daemon_object: GlobalRef) {
