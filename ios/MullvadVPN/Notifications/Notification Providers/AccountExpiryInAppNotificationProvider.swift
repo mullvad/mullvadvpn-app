@@ -51,10 +51,10 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
         formatter.maximumUnitCount = 1
 
         let duration: String?
-        if accountExpiry.timeIntervalSince(now) < .minutes(1) {
+        if accountExpiry.timeIntervalSince(now) < .days(1) {
             duration = NSLocalizedString(
-                "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_LESS_THAN_ONE_MINUTE",
-                value: "Less than a minute",
+                "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_LESS_THAN_ONE_DAY",
+                value: "Less than a day",
                 comment: ""
             )
         } else {
