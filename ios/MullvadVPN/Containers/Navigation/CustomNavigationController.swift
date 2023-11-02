@@ -8,6 +8,7 @@
 
 import UIKit
 
+/// Custom navigation controller that applies the custom appearance to itself.
 class CustomNavigationController: UINavigationController {
     override var childForStatusBarHidden: UIViewController? {
         topViewController
@@ -21,5 +22,12 @@ class CustomNavigationController: UINavigationController {
         super.viewDidLoad()
 
         navigationBar.configureCustomAppeareance()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        // Navigation bar updates the prompt color on layout so we have to force our own appearance on each layout pass.
+        navigationBar.overridePromptColor()
     }
 }
