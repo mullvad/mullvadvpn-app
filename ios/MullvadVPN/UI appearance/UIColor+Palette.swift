@@ -75,6 +75,13 @@ extension UIColor {
         static let backButtonIndicatorColor = UIColor(white: 1.0, alpha: 0.4)
         static let backButtonTitleColor = UIColor(white: 1.0, alpha: 0.6)
         static let titleColor = UIColor.white
+        static let promptColor = UIColor.white
+    }
+
+    // Heading displayed below the navigation bar.
+    enum ContentHeading {
+        static let textColor = UIColor(white: 1.0, alpha: 0.6)
+        static let linkColor = UIColor.white
     }
 
     // Cells
@@ -91,6 +98,15 @@ extension UIColor {
         static let detailTextColor = UIColor(white: 1.0, alpha: 0.8)
 
         static let disclosureIndicatorColor = UIColor(white: 1.0, alpha: 0.8)
+        static let textFieldTextColor = UIColor.white
+        static let textFieldPlaceholderColor = UIColor(white: 1.0, alpha: 0.6)
+
+        static let validationErrorBorderColor = UIColor.dangerColor
+    }
+
+    enum TableSection {
+        static let headerTextColor = UIColor(white: 1.0, alpha: 0.8)
+        static let footerTextColor = UIColor(white: 1.0, alpha: 0.6)
     }
 
     enum SubCell {
@@ -127,4 +143,7 @@ extension UIColor {
     static let dangerColor = UIColor(red: 0.89, green: 0.25, blue: 0.22, alpha: 1.0)
     static let warningColor = UIColor(red: 1.0, green: 0.84, blue: 0.14, alpha: 1.0)
     static let successColor = UIColor(red: 0.27, green: 0.68, blue: 0.30, alpha: 1.0)
+
+    static let primaryTextColor = UIColor.white
+    static let secondaryTextColor = UIColor(white: 1.0, alpha: 0.8)
 }

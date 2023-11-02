@@ -78,6 +78,19 @@ struct SettingsCellFactory: CellFactoryProtocol {
             cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = nil
             cell.disclosureType = .externalLink
+
+        case .apiAccess:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "API_ACCESS_CELL_LABEL",
+                tableName: "Settings",
+                value: "API access",
+                comment: ""
+            )
+            cell.detailTitleLabel.text = nil
+            cell.accessibilityIdentifier = nil
+            cell.disclosureType = .chevron
         }
     }
 }
