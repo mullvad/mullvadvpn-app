@@ -202,7 +202,13 @@ final class Socks5Connection {
         let negotiation = Socks5ConnectNegotiation(
             connection: remoteConnection,
             endpoint: remoteServerEndpoint,
-            onComplete: { [self] _ in stream() },
+            onComplete: { [self] reply in
+                if case .succeeded = reply.status {
+                    stream()
+                } else {
+                    handleError(Socks5Error.connectionRejected(reply.status))
+                }
+            },
             onFailure: handleError
         )
         negotiation.perform()
