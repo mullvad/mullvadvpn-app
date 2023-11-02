@@ -56,21 +56,15 @@ struct Socks5ConnectNegotiation {
     }
 
     /**
-     Parse the bytes that comprise the preamble of a connect reply and evaluate the status code. Upon success read the endpoint data to produce the complete
-     reply and finish negotiation.
+     Parse the bytes that comprise the preamble of a connect reply. Upon success read the endpoint data to produce the complete reply and finish negotiation.
 
      The following fields are contained within the first 4 bytes: socks version, status code, reserved field, address type.
      */
     private func handlePartialReply(data: Data) throws {
-        // Parse partial reply that contains the status code.
+        // Parse partial reply that contains the status code and address type.
         let (statusCode, addressType) = try parsePartialReply(data: data)
 
-        // Verify the status code.
-        guard case .succeeded = statusCode else {
-            throw Socks5Error.connectionRejected(statusCode)
-        }
-
-        // Parse server bound endpoint when partial reply indicates success.
+        // Parse server bound endpoint to produce the complete reply.
         let endpointReader = Socks5EndpointReader(
             connection: connection,
             addressType: addressType,
