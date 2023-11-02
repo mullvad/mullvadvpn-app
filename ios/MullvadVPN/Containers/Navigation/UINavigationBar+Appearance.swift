@@ -9,6 +9,14 @@
 import UIKit
 
 extension UINavigationBar {
+    /// Override navigation bar prompt color as the default one ignores appearance configuration.
+    func overridePromptColor() {
+        let promptView = subviews.first { $0.description.contains("Prompt") }
+        let promptLabel = promptView?.subviews.first { $0 is UILabel } as? UILabel
+
+        promptLabel?.textColor = UIColor.NavigationBar.promptColor
+    }
+
     func configureCustomAppeareance() {
         var directionalMargins = directionalLayoutMargins
         directionalMargins.leading = UIMetrics.contentLayoutMargins.leading
