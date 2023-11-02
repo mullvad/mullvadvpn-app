@@ -217,7 +217,7 @@ async fn create_daemon(
     .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
 }
 
-pub extern fn spawn_management_interface(
+pub fn spawn_management_interface(
     command_sender: DaemonCommandSender,
 ) -> Result<ManagementInterfaceEventBroadcaster, String> {
     let (socket_path, event_broadcaster) = ManagementInterfaceServer::start(command_sender)

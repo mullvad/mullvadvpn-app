@@ -1,5 +1,10 @@
 package net.mullvad.mullvadvpn.service
 
+import io.grpc.ManagedChannel
+import io.grpc.netty.NettyChannelBuilder
+import io.netty.channel.DefaultEventLoop
+import io.netty.channel.unix.DomainSocketAddress
+import io.netty.channel.unix.DomainSocketChannel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
@@ -59,6 +64,15 @@ class MullvadDaemon(
             resourceDirectory = vpnService.filesDir.absolutePath,
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
+
+        val channel: ManagedChannel =
+            NettyChannelBuilder.forAddress(DomainSocketAddress("${vpnService.dataDir}/rpc-socket"))
+                .channelType(DomainSocketChannel::class.java)
+                .eventLoopGroup(DefaultEventLoop())
+                //.eventLoopGroup(EpollEventLoopGroup())
+                //.channelType(EpollDomainSocketChannel::class.java)
+                .usePlaintext()
+                .build()
 
         onSettingsChange.notify(getSettings())
 
