@@ -13,7 +13,6 @@ workspace = true
 [dependencies]
 thiserror = { workspace = true }
 
-[target.'cfg(not(target_os="android"))'.dependencies]
 log = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
