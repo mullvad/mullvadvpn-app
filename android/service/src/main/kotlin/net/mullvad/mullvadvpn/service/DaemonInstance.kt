@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.service
 
+import io.grpc.ManagedChannel
+import io.grpc.netty.NettyChannelBuilder
+import io.netty.channel.unix.DomainSocketAddress
 import java.io.File
 import kotlin.properties.Delegates.observable
 import kotlin.reflect.KClass
@@ -90,6 +93,8 @@ class DaemonInstance(private val vpnService: MullvadVpnService) {
 
         daemon = newDaemon
         intermittentDaemon.update(newDaemon)
+
+
     }
 
     private fun stopDaemon() {
