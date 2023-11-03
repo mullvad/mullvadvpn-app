@@ -14,7 +14,8 @@ include(
     ":lib:common-test",
     ":lib:billing",
     ":lib:payment",
-    ":lib:map"
+    ":lib:map",
+    ":lib:daemon-grpc"
 )
 include(
     ":test",

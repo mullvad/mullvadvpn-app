@@ -54,7 +54,7 @@ class DeviceRevokedViewModel(
                 proxy.disconnect()
             }
         }
-        accountRepository.logout()
+        viewModelScope.launch { accountRepository.logout() }
 
         viewModelScope.launch { _uiSideEffect.send(DeviceRevokedSideEffect.NavigateToLogin) }
     }

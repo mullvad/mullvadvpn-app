@@ -114,8 +114,7 @@ class OutOfTimeViewModel(
         // If the payment was successful we want to update the account expiry. If not successful we
         // should check payment availability and verify any purchases to handle potential errors.
         if (success) {
-            updateAccountExpiry()
-            //            _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
+            viewModelScope.launch { updateAccountExpiry() }
         } else {
             fetchPaymentAvailability()
             verifyPurchases() // Attempt to verify again
@@ -125,8 +124,8 @@ class OutOfTimeViewModel(
         }
     }
 
-    private fun updateAccountExpiry() {
-        accountRepository.fetchAccountExpiry()
+    private suspend fun updateAccountExpiry() {
+        accountRepository.getAccountExpiry()
     }
 
     private fun notOutOfTimeEffect() =

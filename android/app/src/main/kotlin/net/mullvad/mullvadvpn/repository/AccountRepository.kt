@@ -1,83 +1,63 @@
 package net.mullvad.mullvadvpn.repository
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.withContext
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
-import net.mullvad.mullvadvpn.lib.ipc.Request
-import net.mullvad.mullvadvpn.lib.ipc.events
+import kotlinx.coroutines.flow.update
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
+import net.mullvad.mullvadvpn.model.AccountState
 import net.mullvad.mullvadvpn.model.LoginResult
 
 class AccountRepository(
-    private val messageHandler: MessageHandler,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val managementService: ManagementService,
+    val scope: CoroutineScope
 ) {
-    private val accountCreationEvents: SharedFlow<AccountCreationResult> =
-        messageHandler
-            .events<Event.AccountCreationEvent>()
-            .map { it.result }
-            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
+    private val _cachedCreatedAccount = MutableStateFlow<String?>(null)
+    val cachedCreatedAccount = _cachedCreatedAccount.asStateFlow()
 
-    val accountExpiryState: StateFlow<AccountExpiry> =
-        messageHandler
-            .events<Event.AccountExpiryEvent>()
-            .map { it.expiry }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, AccountExpiry.Missing)
+    val accountState =
+        managementService.deviceState.stateIn(
+            scope = scope,
+            SharingStarted.Eagerly,
+            AccountState.Unrecognized
+        )
 
-    val accountHistory: StateFlow<AccountHistory> =
-        messageHandler
-            .events<Event.AccountHistoryEvent>()
-            .map { it.history }
-            .onStart { fetchAccountHistory() }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, AccountHistory.Missing)
+    private val _mutableAccountHistory: MutableStateFlow<AccountHistory> =
+        MutableStateFlow(AccountHistory.Missing)
+    val accountHistory: StateFlow<AccountHistory> = _mutableAccountHistory
 
-    private val loginEvents: SharedFlow<LoginResult> =
-        messageHandler
-            .events<Event.LoginEvent>()
-            .map { it.result }
-            .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
+    private val _mutableAccountExpiry: MutableStateFlow<AccountExpiry> =
+        MutableStateFlow(AccountExpiry.Missing)
+    val accountExpiry: StateFlow<AccountExpiry> = _mutableAccountExpiry
 
-    suspend fun createAccount(): AccountCreationResult =
-        withContext(dispatcher) {
-            val deferred = async { accountCreationEvents.first() }
-            messageHandler.trySendRequest(Request.CreateAccount)
-            deferred.await().also { fetchAccountHistory() }
-        }
+    suspend fun createAccount(): AccountCreationResult = managementService.createAccount()
 
     suspend fun login(accountToken: String): LoginResult =
-        withContext(Dispatchers.IO) {
-            val deferred = async { loginEvents.first() }
-            messageHandler.trySendRequest(Request.Login(accountToken))
-            deferred.await().also { fetchAccountHistory() }
-        }
+        managementService.loginAccount(accountToken)
 
-    fun logout() {
-        messageHandler.trySendRequest(Request.Logout)
+    suspend fun logout() = managementService.logoutAccount()
+
+    suspend fun fetchAccountHistory() {
+        _mutableAccountHistory.update { managementService.getAccountHistory() }
     }
 
-    fun fetchAccountExpiry() {
-        messageHandler.trySendRequest(Request.FetchAccountExpiry)
+    suspend fun clearAccountHistory() {
+        managementService.clearAccountHistory()
+        fetchAccountHistory()
     }
 
-    fun fetchAccountHistory() {
-        messageHandler.trySendRequest(Request.FetchAccountHistory)
-    }
-
-    fun clearAccountHistory() {
-        messageHandler.trySendRequest(Request.ClearAccountHistory)
+    suspend fun getAccountExpiry(): AccountExpiry {
+        val accountExpiry =
+            managementService.getAccountExpiry(
+                (accountState.value as AccountState.LoggedIn).accountToken
+            )
+        _mutableAccountExpiry.update { accountExpiry }
+        return accountExpiry
     }
 }

@@ -35,7 +35,7 @@ class AccountViewModel(
     val uiState: StateFlow<AccountUiState> =
         combine(
                 deviceRepository.deviceState,
-                accountRepository.accountExpiryState,
+                accountRepository.accountExpiry,
                 paymentUseCase.paymentAvailability
             ) { deviceState, accountExpiry, paymentAvailability ->
                 AccountUiState(
@@ -65,8 +65,10 @@ class AccountViewModel(
     }
 
     fun onLogoutClick() {
-        accountRepository.logout()
-        viewModelScope.launch { _uiSideEffect.send(UiSideEffect.NavigateToLogin) }
+        viewModelScope.launch {
+            accountRepository.logout()
+            _uiSideEffect.send(UiSideEffect.NavigateToLogin)
+        }
     }
 
     fun onCopyAccountNumber(accountNumber: String) {
@@ -105,7 +107,7 @@ class AccountViewModel(
     }
 
     private fun updateAccountExpiry() {
-        accountRepository.fetchAccountExpiry()
+        viewModelScope.launch { accountRepository.getAccountExpiry() }
     }
 
     sealed class UiSideEffect {

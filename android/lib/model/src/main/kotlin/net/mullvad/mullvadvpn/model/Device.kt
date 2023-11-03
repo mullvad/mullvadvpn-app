@@ -38,3 +38,13 @@ private fun String.capitalizeFirstCharOfEachWord(): String {
         .joinToString(" ") { word -> word.replaceFirstChar { firstChar -> firstChar.uppercase() } }
         .trimEnd()
 }
+
+sealed interface AccountState {
+    data class LoggedIn(val device: Device, val accountToken: String) : AccountState
+
+    data object Revoked : AccountState
+
+    data object LoggedOut : AccountState
+
+    data object Unrecognized : AccountState
+}

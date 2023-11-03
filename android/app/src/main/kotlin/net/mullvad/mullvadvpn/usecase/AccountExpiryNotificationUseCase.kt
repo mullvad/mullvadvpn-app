@@ -13,7 +13,7 @@ class AccountExpiryNotificationUseCase(
     private val accountRepository: AccountRepository,
 ) {
     fun notifications(): Flow<List<InAppNotification>> =
-        accountRepository.accountExpiryState
+        accountRepository.accountExpiry
             .map(::accountExpiryNotification)
             .map(::listOfNotNull)
             .distinctUntilChanged()

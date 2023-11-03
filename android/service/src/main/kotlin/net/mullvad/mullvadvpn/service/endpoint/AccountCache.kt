@@ -134,25 +134,26 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun doLogin(account: String) {
-        daemon.await().loginAccount(account).also { result ->
-            endpoint.sendEvent(Event.LoginEvent(result))
-        }
+        //        daemon.await().loginAccount(account).also { result ->
+        //            endpoint.sendEvent(Event.LoginEvent(result))
+        //        }
     }
 
     private suspend fun doLogout() {
-        daemon.await().logoutAccount()
-        accountExpiry = AccountExpiry.Missing
-        accountHistory = fetchAccountHistory()
+        //        daemon.await().logoutAccount()
+        //        accountExpiry = AccountExpiry.Missing
+        //        accountHistory = fetchAccountHistory()
     }
 
     private suspend fun fetchAccountHistory(): AccountHistory {
-        return daemon.await().getAccountHistory().let { history ->
-            if (history != null) {
-                AccountHistory.Available(history)
-            } else {
-                AccountHistory.Missing
-            }
-        }
+        //        return daemon.await().getAccountHistory().let { history ->
+        //            if (history != null) {
+        //                AccountHistory.Available(history)
+        //            } else {
+        //                AccountHistory.Missing
+        //            }
+        //        }
+        TODO()
     }
 
     private suspend fun fetchAccountExpiry(accountToken: String): AccountExpiry? {
