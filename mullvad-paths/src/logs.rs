@@ -8,11 +8,14 @@ use std::{env, path::PathBuf};
 /// one if that variable is unset.
 pub fn log_dir() -> Result<PathBuf> {
     #[cfg(unix)]
-    let permissions = Some(PermissionsExt::from_mode(0o755));
-    #[cfg(not(unix))]
-    let permissions =
-        Some(crate::windows::create_security_attributes_with_admin_full_access_user_read_only()?);
-    crate::create_and_return(get_log_dir, permissions)
+    {
+        let permissions = Some(PermissionsExt::from_mode(0o755));
+        crate::create_and_return(get_log_dir, permissions)
+    }
+    #[cfg(target_os = "windows")]
+    {
+        crate::create_and_return(get_log_dir, true)
+    }
 }
 
 /// Get the logging directory, but don't try to create it.

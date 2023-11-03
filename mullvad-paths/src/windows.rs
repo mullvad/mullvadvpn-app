@@ -13,7 +13,7 @@ use windows_sys::{
     Win32::{
         Foundation::{
             CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_READ, HANDLE,
-            INVALID_HANDLE_VALUE, LUID, S_OK, GENERIC_ALL, 
+            INVALID_HANDLE_VALUE, LUID, S_OK, GENERIC_ALL, PSID, GENERIC_ACCESS_RIGHTS, 
         },
         Security::{
             self, AdjustTokenPrivileges, INHERIT_ONLY, NO_INHERITANCE, SUB_CONTAINERS_AND_OBJECTS_INHERIT, 
@@ -45,18 +45,7 @@ use windows_sys::{
     },
 };
 
-// SAFETY: Only allowed to hold a SECURITY_ATTRIBUTES which points to an allocated and valid `lpSecurityDescriptor`
-pub struct SecurityAttributes {
-    security_attributes: SECURITY_ATTRIBUTES,
-    security_information: u32,
-}
 struct Handle(HANDLE);
-
-impl Drop for SecurityAttributes {
-    fn drop(&mut self) {
-        unsafe { LocalFree(self.security_attributes.lpSecurityDescriptor as isize) };
-    }
-}
 
 impl Drop for Handle {
     fn drop(&mut self) {
@@ -68,15 +57,6 @@ impl Drop for Handle {
     }
 }
 
-/*fn get_wide_path(path: &Path) -> Vec<u16> {
-        let wide_path: Vec<u16> = path.as_os_str()
-    .encode_wide()
-    // Add null terminator
-    .chain(std::iter::once(0))
-    .collect();
-    wide_path
-}*/
-
 fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
     let wide_string: Vec<u16> = string.as_ref()
         .encode_wide()
@@ -85,171 +65,7 @@ fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
         .collect();
     wide_string
 }
-/*
-fn set_security_attributes(
-    path: &Path,
-    security_attributes: &mut Option<SecurityAttributes>,
-) -> Result<()> {
-    set_security_attributes_non_obsolete(path, security_attributes)
-}
 
-fn set_security_attributes_non_obsolete(
-    path: &Path,
-    security_attributes: &mut Option<SecurityAttributes>,
-) -> Result<()> {
-    
-    if let Some(security_attributes) = security_attributes {
-        let wide_path = get_wide_str(path);
-
-        let sd = security_attributes.security_attributes.lpSecurityDescriptor as *const SECURITY_DESCRIPTOR;
-        write_to_file(&format!("set_security_attributes: before dereferncing sd pointer, pointer is_null: {}", sd.is_null()));
-
-        // SAFETY: `SecurityAttributes` must only be constructed with a lpSecurityDescriptor which points to a valid allocated SECURITY_DESCRIPTOR
-        // FIXME: We should handle the case where this is null since that is also a valid case
-        assert!(!sd.is_null());
-        //let sd = unsafe { *sd };
-        write_to_file(&format!("set_security_attributes: before unsafe call, path: {path:?}, wide_path: {wide_path:?}"));
-        unsafe {
-        
-        write_to_file(&format!("set_security_attributes: before unsafe call2, sd.Owner: {:?}, sd.Group: {:?}, sd.Dacl: {:?}, sd.Sacl: {:?}", (*sd).Owner, (*sd).Group, (*sd).Dacl, (*sd).Sacl));
-
-        }
-        let result = unsafe {
-            SetNamedSecurityInfoW(
-                wide_path.as_ptr(),
-                SE_FILE_OBJECT,
-                security_attributes.security_information,
-                (*sd).Owner,
-                (*sd).Group,
-                (*sd).Dacl,
-                (*sd).Sacl,
-            )
-        };
-        write_to_file(&format!("set_security_attributes: after unsafe call"));
-
-        if ERROR_SUCCESS != result {
-            let err = Error::SetDirPermissionFailed(
-                path.display().to_string(),
-                io::Error::from_raw_os_error(i32::try_from(result).expect("result too large for i32")),
-            );
-            //write_to_file(&format!("set_security_attributes: after failing to set permissions - err: {err:?}, wide_path: {wide_path:?}, path: {path:?}, result: {result:?}
-//Owner: {:?}, Group: {:?}, Dacl: {:?}, Sacl: {:?}",sd.Owner, sd.Group, sd.Dacl, sd.Sacl));
-
-            return Err(err);
-        }
-        write_to_file(&format!("set_security_attributes: after setting permissions"));
-    }
-
-    Ok(())
-}
-
-fn set_security_attributes_obsolete(
-    path: &Path,
-    security_attributes: &mut Option<SecurityAttributes>,
-) -> Result<()> {
-        write_to_file(&format!("set_security_attributes: on entry, security_attributes.is_none(): {}", security_attributes.is_none()));
-
-        if let Some(security_attributes) = security_attributes {
-                let wide_path = get_wide_str(path);
-        write_to_file(&format!("set_security_attributes: before unsafe call"));
-
-        let result = unsafe { SetFileSecurityW(wide_path.as_ptr(), security_attributes.security_information, security_attributes.security_attributes.lpSecurityDescriptor) };
-        write_to_file(&format!("set_security_attributes: after unsafe call"));
-
-        if 0 == result {
-            let err = Error::SetDirPermissionFailed(
-                path.display().to_string(),
-                io::Error::last_os_error(),
-            );
-            write_to_file(&format!("set_security_attributes: after failing to set permissions - err: {err:?}, wide_path: {wide_path:?}, path: {path:?}, result: {result:?}"));
-
-            return Err(err);
-        }
-        write_to_file(&format!("set_security_attributes: after setting permissions"));
-    }
-
-    Ok(())
-}
-*/
-/// Creates security attributes that give full access to admins and read only access to authenticated users
-pub fn create_security_attributes_with_admin_full_access_user_read_only(
-) -> Result<SecurityAttributes> {
-    let mut security_attributes = SECURITY_ATTRIBUTES {
-        nLength: u32::try_from(std::mem::size_of::<SECURITY_ATTRIBUTES>()).unwrap(),
-        lpSecurityDescriptor: ptr::null_mut(),
-        bInheritHandle: 0,
-    };
-
-    // TODO: If we want to set the owner and the group we need to either use an privilege constant OR the SID we use must be included in the callers token and must have
-    // the SE_GROUP_OWNER permission enabled
-    // Security Descriptor gives ownership to admin, group to admin, full-access to admin and read only access to authenticated users. OICI describes inheritance.
-    //let sd = get_wide_str(&Path::new("O:S-1-5-32-544G:S-1-5-32-544D:P(A;OICI;GA;;;S-1-5-32-544)(A;OICI;GR;;;AU)"));
-    let sd = get_wide_str(&Path::new("D:P(A;OICI;GA;;;S-1-5-32-544)(A;OICI;GR;;;AU)"));
-
-    if 0 == unsafe {
-        ConvertStringSecurityDescriptorToSecurityDescriptorW(
-            sd.as_ptr(),
-            SDDL_REVISION_1,
-            &mut security_attributes.lpSecurityDescriptor,
-            ptr::null_mut(),
-        )
-    } {
-        return Err(Error::GetSecurityAttributes(io::Error::last_os_error()));
-    }
-
-    // Guarantee that sd is dropped after pointer to sd is dropped.
-    drop(sd);
-
-    /*let security_information = Security::DACL_SECURITY_INFORMATION
-        | Security::PROTECTED_DACL_SECURITY_INFORMATION
-        | Security::GROUP_SECURITY_INFORMATION
-        | Security::OWNER_SECURITY_INFORMATION;*/
-
-    let security_information = Security::DACL_SECURITY_INFORMATION
-        /*| Security::PROTECTED_DACL_SECURITY_INFORMATION*/;
-
-    // SAFETY: `security_attributes.lpSecurityDescriptor` is now valid and allocated.
-    let security_attributes = SecurityAttributes {
-        security_attributes,
-        security_information,
-    };
-
-    if 0 == unsafe {
-        IsValidSecurityDescriptor(security_attributes.security_attributes.lpSecurityDescriptor)
-    } {
-        return Err(Error::GetSecurityAttributes(io::Error::last_os_error()));
-    }
-
-    Ok(security_attributes)
-}
-/*
-/// Non-recursively create a directory at the given path with the given security attributes
-pub fn create_directory(
-    path: &Path,
-    security_attributes: &mut Option<SecurityAttributes>,
-) -> Result<()> {
-    let wide_path = get_wide_str(&path);
-
-    let sa_ptr = security_attributes
-        .as_ref()
-        .map(|sa: &SecurityAttributes| &sa.security_attributes as *const _)
-        .unwrap_or(ptr::null());
-
-    if 0 == unsafe { CreateDirectoryW(wide_path.as_ptr(), sa_ptr) } {
-        let err = io::Error::last_os_error();
-        if err.kind() != io::ErrorKind::AlreadyExists {
-            return Err(Error::CreateDirFailed(path.display().to_string(), err));
-        }
-    }
-
-    write_to_file(&format!("create_directory: after creating directory - wide_path: {wide_path:?}, path: {path:?}"));
-
-    // FIXME: only on AlreadyExists
-    set_security_attributes(path, security_attributes)?;
-
-    return Ok(());
-}
-*/
 fn write_to_file(msg: &str) {
     println!("{msg}");
     use std::io::Write;
@@ -268,55 +84,14 @@ fn write_to_file(msg: &str) {
 /// only directories that do not already exist and the leaf directory will have their permissions set.
 pub fn create_dir_recursive(
     path: &Path,
-    permissions: &mut Option<SecurityAttributes>,
+    set_security_permissions: bool,
 ) -> Result<()> {
-    if permissions.is_none() {
+    if set_security_permissions {
         std::fs::create_dir_all(path).map_err(|e| Error::CreateDirFailed(format!("Could not create directory at {}", path.display()), e))
     } else {
         create_dir_with_permissions_recursive(path)
     }
-    //create_dir_recursive_inner(path, permissions)?;
-    // This makes sure that even if the leaf directory already existed it will have its permissions updated
-    //set_security_attributes(path, permissions)
 }
-/*
-fn create_dir_recursive_inner(
-    path: &Path,
-    permissions: &mut Option<SecurityAttributes>,
-) -> Result<()> {
-    write_to_file(&format!("create_dir_recursive_inner - path: {path:?}"));
-    // No directory to create
-    if path == Path::new("") {
-        return Ok(());
-    }
-
-    match create_directory(path, permissions) {
-        Ok(()) => return Ok(()),
-        // Could not find parent directory, try creating parent
-        Err(Error::CreateDirFailed(ref _path, ref e)) if e.kind() == io::ErrorKind::NotFound => (),
-        // Directory already exists
-        Err(_) if path.is_dir() => return Ok(()),
-        Err(e) => return Err(e),
-    }
-    write_to_file(&format!("create_dir_recursive_inner: after attempting to create directory - path: {path:?}"));
-
-    match path.parent() {
-        // Create parent directory
-        Some(parent) => create_dir_recursive_inner(parent, permissions)?,
-        None => {
-            // Reached the top of the tree but when creating directories only got NotFound for some reason
-            return Err(Error::CreateDirFailed(
-                path.display().to_string(),
-                io::Error::new(
-                    io::ErrorKind::Other,
-                    "reached top of directory tree but could not create directory",
-                ),
-            ));
-        }
-    }
-
-    create_directory(path, permissions)
-}*/
 
 fn create_dir_with_permissions_recursive(
     path: &Path,
@@ -367,7 +142,6 @@ pub fn create_privileged_directory(path: &Path) -> Result<()> {
     write_to_file("Starting");
     if let Err(e) = create_dir_with_permissions_recursive(
         path,
-        //&mut Some(create_security_attributes_with_admin_full_access_user_read_only()?),
     ) {
         write_to_file(&format!("Found an ERROR!!: {:?}", e));
         return Err(e);
@@ -379,77 +153,76 @@ pub fn create_privileged_directory(path: &Path) -> Result<()> {
 /// Sets security permissions for path such that admin has full ownership and access while authenticated users only have read access.
 fn set_security_permissions(path: &Path) -> Result<()> {
     write_to_file(&format!("set_security_permissions - path: {path:?}"));
-
     let wide_path = get_wide_str(path);
     let security_information = Security::DACL_SECURITY_INFORMATION
-         | Security::PROTECTED_DACL_SECURITY_INFORMATION;
-        //| Security::GROUP_SECURITY_INFORMATION
-        //| Security::OWNER_SECURITY_INFORMATION;
+        | Security::PROTECTED_DACL_SECURITY_INFORMATION
+        | Security::GROUP_SECURITY_INFORMATION
+        | Security::OWNER_SECURITY_INFORMATION;
 
-    let mut admin_sid_wide_str = get_wide_str("S-1-5-32-544");
-    let mut admin_psid = ptr::null_mut();
-    if 0 == unsafe { ConvertStringSidToSidW(admin_sid_wide_str.as_ptr(), &mut admin_psid) } {
-        // TODO: need to free memory here
-        return Err(Error::SetDirPermissionFailed(format!("Could not create admin SID"), io::Error::last_os_error()));
-    }
+    // Builtin admin SID https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
+    let (admin_ea, admin_psid) = create_explicit_access("S-1-5-32-544", GENERIC_ALL)?;
+    // admin_psid is now allocated and must be freed with FreeLocal and *MUST* outlive admin_ea
 
-    let admin_trustee = TRUSTEE_W {
-        pMultipleTrustee: ptr::null_mut(),
-        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
-        TrusteeForm: TRUSTEE_IS_SID,
-        TrusteeType: TRUSTEE_IS_GROUP,
-        // Is this correct?
-        //ptstrName: SDDL_BUILTIN_ADMINISTRATORS as *mut _,
-        ptstrName: admin_psid as *mut _,
+    // Authenticated users SID https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
+    let (authenticated_users_ea, authenticated_users_psid) = match create_explicit_access("S-1-5-11", GENERIC_READ) {
+        Ok((authenticated_users_ea, authenticated_users_psid)) => (authenticated_users_ea, authenticated_users_psid),
+        Err(e) => {
+            unsafe { LocalFree(admin_psid as isize) };
+            return Err(e);
+        }
     };
-    let admin_ea = EXPLICIT_ACCESS_W {
-        grfAccessPermissions: GENERIC_ALL,
-        grfAccessMode: SET_ACCESS,
-        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
-        Trustee: admin_trustee,
-    };
-
-    // TODO: LOOK THIS UP
-    let mut au_wide_sid_string = get_wide_str("S-1-5-11");
-    let mut authenticated_users_psid = ptr::null_mut();
-    if 0 == unsafe { ConvertStringSidToSidW(au_wide_sid_string.as_ptr(), &mut authenticated_users_psid) } {
-        // TODO: need to free memory here
-        return Err(Error::SetDirPermissionFailed(format!("Could not create authenticated users SID"), io::Error::last_os_error()));
-    }
-    
-    let authenticated_users_trustee = TRUSTEE_W {
-        pMultipleTrustee: ptr::null_mut(),
-        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
-        //TrusteeForm: TRUSTEE_IS_SID,
-        TrusteeForm: TRUSTEE_IS_SID,
-        TrusteeType: TRUSTEE_IS_GROUP,
-        // Is this correct?
-        ptstrName: authenticated_users_psid as *mut _,
-        //ptstrName: au_wide_sid_string.as_mut_ptr(),
-    };
-    let authenticated_users_ea = EXPLICIT_ACCESS_W {
-        grfAccessPermissions: GENERIC_READ,
-        grfAccessMode: SET_ACCESS,
-        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
-        Trustee: authenticated_users_trustee,
-    };
+    // authenticated_users_psid is now allocated and must be freed with FreeLocal and *MUST* outlive authenticated_users_ea
     
     let ea_entries = [admin_ea, authenticated_users_ea];
     let mut new_dacl = ptr::null_mut();
 
     let result = unsafe { SetEntriesInAclW(u32::try_from(ea_entries.len()).unwrap(), ea_entries.as_ptr(), ptr::null(), &mut new_dacl) };
     if ERROR_SUCCESS != result {
-        // TODO: need to free memory here
+        unsafe { LocalFree(admin_psid as isize) };
+        unsafe { LocalFree(authenticated_users_psid as isize) };
         return Err(Error::SetDirPermissionFailed(format!("SetEntriesInAclW failed"), io::Error::from_raw_os_error(i32::try_from(result).expect("result does not fit in i32"))));
     }
+    // new_dacl is now allocated and must be freed with FreeLocal
 
-    let result = unsafe { SetNamedSecurityInfoW(wide_path.as_ptr(), SE_FILE_OBJECT, security_information, /*admin_psid*/ptr::null_mut(), /*admin_psid*/ptr::null_mut(), new_dacl, ptr::null()) };
+    let result = unsafe { SetNamedSecurityInfoW(wide_path.as_ptr(), SE_FILE_OBJECT, security_information, admin_psid, admin_psid, new_dacl, ptr::null()) };
+
+    unsafe { LocalFree(new_dacl as isize) };
+    unsafe { LocalFree(admin_psid as isize) };
+    unsafe { LocalFree(authenticated_users_psid as isize) };
+
     if ERROR_SUCCESS != result {
-        // TODO: need to free memory here
-        return Err(Error::SetDirPermissionFailed(format!("SetNamedSecurityInfoW failed"), io::Error::from_raw_os_error(i32::try_from(result).expect("result does not fit in i32"))));
+        Err(Error::SetDirPermissionFailed(format!("SetNamedSecurityInfoW failed"), io::Error::from_raw_os_error(i32::try_from(result).expect("result does not fit in i32"))))
+    } else {
+        Ok(())
+    }
+}
+
+/// Takes a wide string encoded SID string and access rights and produces a EXPLICIT_ACCESS_W object and a raw pointer to the
+/// allocated SID object. The caller is responsible for calling LocalFree on the returned raw pointer when they are done with it.
+/// The raw pointer *MUST* outlive the EXPLICIT_ACCESS_W object.
+fn create_explicit_access(sid_wide_str: &str, access_rights: GENERIC_ACCESS_RIGHTS) -> Result<(EXPLICIT_ACCESS_W, PSID)> {
+    let sid_wide_str = get_wide_str(sid_wide_str);
+    let mut psid = ptr::null_mut();
+    if 0 == unsafe { ConvertStringSidToSidW(sid_wide_str.as_ptr(), &mut psid) } {
+        return Err(Error::SetDirPermissionFailed(format!("Could not create SID"), io::Error::last_os_error()));
     }
 
-    Ok(())
+    let trustee = TRUSTEE_W {
+        pMultipleTrustee: ptr::null_mut(),
+        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
+        TrusteeForm: TRUSTEE_IS_SID,
+        TrusteeType: TRUSTEE_IS_GROUP,
+        ptstrName: psid as *mut _,
+    };
+
+    let explicit_access = EXPLICIT_ACCESS_W {
+        grfAccessPermissions: access_rights,
+        grfAccessMode: SET_ACCESS,
+        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
+        Trustee: trustee,
+    };
+
+    Ok((explicit_access, psid))
 }
 
 /// Get local AppData path for the system service user.

@@ -68,10 +68,10 @@ fn create_and_return(
 #[cfg(target_os = "windows")]
 fn create_and_return(
     dir_fn: fn() -> Result<PathBuf>,
-    mut permissions: Option<crate::windows::SecurityAttributes>,
+    set_security_permissions: bool,
 ) -> Result<PathBuf> {
     let dir = dir_fn()?;
-    create_dir_recursive(&dir, &mut permissions)?;
+    create_dir_recursive(&dir, set_security_permissions)?;
     Ok(dir)
 }
 

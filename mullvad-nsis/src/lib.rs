@@ -42,7 +42,7 @@ pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status
         write_to_file(&format!("hello from interface for path {:?}", path));
         match mullvad_paths::windows::create_privileged_directory(path) {
             Ok(()) => {
-                write_to_file("SENDING STATUS OK!");
+                write_to_file(&format!("SENDING STATUS OK for {path:?}!"));
                 Status::Ok
             }
             Err(e) => {
