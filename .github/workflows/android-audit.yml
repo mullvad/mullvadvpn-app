@@ -2,7 +2,11 @@
 name: Android - Audit dependencies
 on:
   pull_request:
-    paths: [.github/workflows/android-audit.yml, android/gradle/verification-metadata.xml]
+    paths:
+      - .github/workflows/android-audit.yml
+      - android/gradle/verification-metadata.xml
+      - android/config/dependency-check-suppression.xml
+      - android/test/test-suppression.xml
   schedule:
     # At 06:20 UTC every day.
     # Notifications for scheduled workflows are sent to the user who last modified the cron
