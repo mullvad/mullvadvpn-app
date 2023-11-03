@@ -82,7 +82,7 @@ class ConnectViewModel(
                     serviceConnection.connectionProxy.tunnelUiStateFlow(),
                     serviceConnection.connectionProxy.tunnelRealStateFlow(),
                     serviceConnection.connectionProxy.lastKnownDisconnectedLocation(),
-                    accountRepository.accountExpiryState,
+                    accountRepository.accountExpiry,
                     deviceRepository.deviceState.map { it.deviceName() }
                 ) {
                     selectedRelayItem,
@@ -138,9 +138,10 @@ class ConnectViewModel(
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
     init {
-
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases { accountRepository.fetchAccountExpiry() }
+            paymentUseCase.verifyPurchases {
+                viewModelScope.launch { accountRepository.getAccountExpiry() }
+            }
         }
     }
 
