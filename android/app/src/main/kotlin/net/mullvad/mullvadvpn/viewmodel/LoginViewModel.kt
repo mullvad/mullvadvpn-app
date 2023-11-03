@@ -76,7 +76,7 @@ class LoginViewModel(
     val uiState: StateFlow<LoginUiState> =
         _uiState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), LoginUiState.INITIAL)
 
-    fun clearAccountHistory() = accountRepository.clearAccountHistory()
+    fun clearAccountHistory() = viewModelScope.launch { accountRepository.clearAccountHistory() }
 
     fun createAccount() {
         _loginState.value = Loading.CreatingAccount
