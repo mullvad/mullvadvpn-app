@@ -1,15 +1,9 @@
 package net.mullvad.mullvadvpn.service
 
 import android.annotation.SuppressLint
-import android.net.LocalSocketAddress
-import android.util.Log
-import com.google.protobuf.Empty
-import io.grpc.android.UdsChannelBuilder
-import kotlinx.coroutines.GlobalScope
+import java.io.File
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
-import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.model.AppVersionInfo
@@ -21,7 +15,6 @@ import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
-import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.model.PlayPurchase
 import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
@@ -60,6 +53,8 @@ class MullvadDaemon(
     val deviceListUpdates = _deviceListUpdates.asSharedFlow()
 
     init {
+        File("/data/data/net.mullvad.mullvadvpn/rpc-socket").delete()
+
         System.loadLibrary("mullvad_jni")
 
         initialize(
@@ -68,32 +63,6 @@ class MullvadDaemon(
             resourceDirectory = vpnService.filesDir.absolutePath,
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
-        val channel =
-            UdsChannelBuilder.forPath(
-                    "/data/data/net.mullvad.mullvadvpn/rpc-socket",
-                    LocalSocketAddress.Namespace.FILESYSTEM
-                )
-                .build()
-
-        val managementService = ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
-        GlobalScope.launch {
-            val derp = managementService.getDevice(Empty.getDefaultInstance())
-
-            Log.d("My event", derp.toString())
-            managementService.eventsListen(Empty.getDefaultInstance()).collect {
-                Log.d("My event", it.toString())
-            }
-        }
-
-        // val channel: ManagedChannel =
-        //
-        // NettyChannelBuilder.forAddress(DomainSocketAddress("${vpnService.dataDir}/rpc-socket"))
-        //        .channelType(DomainSocketChannel::class.java)
-        //        .eventLoopGroup(DefaultEventLoop())
-        //        //.eventLoopGroup(EpollEventLoopGroup())
-        //        //.channelType(EpollDomainSocketChannel::class.java)
-        //        .usePlaintext()
-        //        .build()
 
         onSettingsChange.notify(getSettings())
 
@@ -152,11 +121,11 @@ class MullvadDaemon(
         clearAccountHistory(daemonInterfaceAddress)
     }
 
-    fun loginAccount(accountToken: String): LoginResult {
-        return loginAccount(daemonInterfaceAddress, accountToken)
-    }
+    /*
 
     fun logoutAccount() = logoutAccount(daemonInterfaceAddress)
+
+     */
 
     fun getAndEmitDeviceList(accountToken: String): List<Device>? {
         return listDevices(daemonInterfaceAddress, accountToken).also { deviceList ->
@@ -296,11 +265,6 @@ class MullvadDaemon(
     private external fun reconnect(daemonInterfaceAddress: Long)
 
     private external fun clearAccountHistory(daemonInterfaceAddress: Long)
-
-    private external fun loginAccount(
-        daemonInterfaceAddress: Long,
-        accountToken: String?
-    ): LoginResult
 
     private external fun logoutAccount(daemonInterfaceAddress: Long)
 

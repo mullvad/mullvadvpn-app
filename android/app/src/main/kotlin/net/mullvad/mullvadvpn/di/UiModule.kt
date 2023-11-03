@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.di
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -10,6 +11,7 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -79,6 +81,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
+@SuppressLint("SdCardPath")
 val uiModule = module {
     single<SharedPreferences>(named(APP_PREFERENCES_NAME)) {
         androidApplication().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -102,7 +105,7 @@ val uiModule = module {
 
     single { ChangelogRepository(get(named(APP_PREFERENCES_NAME)), get()) }
 
-    single { AccountRepository(get()) }
+    single { AccountRepository(get(), MainScope()) }
     single { DeviceRepository(get()) }
     single {
         PrivacyDisclaimerRepository(
@@ -126,6 +129,7 @@ val uiModule = module {
     single { CustomListActionUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
+    single { ManagementService("/data/data/net.mullvad.mullvadvpn/rpc-socket", MainScope()) }
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
