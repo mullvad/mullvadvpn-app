@@ -55,9 +55,7 @@ android {
     }
     packagingOptions {
         this.excludes.add("META-INF/*")
-        resources {
-            excludes.add("META-INF/*")
-        }
+        resources { excludes.add("META-INF/*") }
     }
     packaging { resources { excludes.add("META-INF/*") } }
 
@@ -66,10 +64,10 @@ android {
     }
 }
 
+/*
 protobuf {
     // Configure the protoc executable
     protoc {
-        this.artifact = "com.google.protobuf:protoc:3.15.0"
         // Download from repositories
         // artifact("com.google.protobuf:protoc:3.0.0")
     }
@@ -78,6 +76,7 @@ protobuf {
         create("grpc") { artifact = "io.grpc:protoc-gen-grpc-java:1.57.2" }
         create("kotlin") { artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.0:jdk8@jar" }
     }
+
     generateProtoTasks {
         all().forEach {
             it.plugins {
@@ -90,6 +89,44 @@ protobuf {
                     option("lite")
                 }
             }*/
+        }
+    }
+}
+*/
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.24.1"
+    }
+    plugins {
+        create("java") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.57.2"
+        }
+        create("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.57.2"
+        }
+        create("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.0:jdk8@jar"
+        }
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.plugins {
+                create("java") {
+                    option("lite")
+                }
+                create("grpc") {
+                    option("lite")
+                }
+                create("grpckt") {
+                    option("lite")
+                }
+            }
+            it.builtins {
+                create("kotlin") {
+                    option("lite")
+                }
+            }
         }
     }
 }
@@ -112,12 +149,17 @@ dependencies {
     implementation(Dependencies.Kotlin.stdlib)
     implementation(Dependencies.KotlinX.coroutinesAndroid)
 
-    // implementation("io.netty:netty-all:4.1.0.CR1")
-    implementation("io.grpc:grpc-netty:1.57.2")
-    api("io.grpc:grpc-stub:1.57.2")
-    api("io.grpc:grpc-protobuf:1.57.2")
-    api("com.google.protobuf:protobuf-java-util:3.24.1")
-    api("com.google.protobuf:protobuf-kotlin:3.24.1")
-    api("io.grpc:grpc-kotlin-stub:1.4.0")
-    // api("com.google.protobuf:protobuf-kotlin-lite:$protobufVersion")
+    implementation("io.grpc:grpc-okhttp:$grpcVersion")
+    //    implementation("io.grpc:grpc-netty:1.57.2")
+    //    api("io.grpc:grpc-stub:$grpcVersion")
+    implementation("io.grpc:grpc-stub:$grpcVersion")
+    implementation("io.grpc:grpc-android:$grpcVersion")
+    implementation("io.grpc:grpc-kotlin-stub:$grpcKotlinVersion")
+    //    api("io.grpc:grpc-protobuf:$grpcVersion")
+    implementation("io.grpc:grpc-protobuf-lite:$grpcVersion")
+    implementation("com.google.protobuf:protobuf-kotlin-lite:$protobufVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+
+    //    api("com.google.protobuf:protobuf-java-util:$protobufVersion")
+    //    api("com.google.protobuf:protobuf-kotlin:$protobufVersion")
 }
