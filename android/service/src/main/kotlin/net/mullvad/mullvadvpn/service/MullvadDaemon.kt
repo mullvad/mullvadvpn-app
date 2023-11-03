@@ -1,12 +1,15 @@
 package net.mullvad.mullvadvpn.service
 
-import io.grpc.ManagedChannel
-import io.grpc.netty.NettyChannelBuilder
-import io.netty.channel.DefaultEventLoop
-import io.netty.channel.unix.DomainSocketAddress
-import io.netty.channel.unix.DomainSocketChannel
+import android.annotation.SuppressLint
+import android.net.LocalSocketAddress
+import android.util.Log
+import com.google.protobuf.Empty
+import io.grpc.android.UdsChannelBuilder
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import mullvad_daemon.management_interface.ManagementServiceGrpcKt
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.model.AppVersionInfo
@@ -36,6 +39,7 @@ import net.mullvad.mullvadvpn.model.UpdateCustomListResult
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.talpid.util.EventNotifier
 
+@SuppressLint("SdCardPath")
 class MullvadDaemon(
     vpnService: MullvadVpnService,
     apiEndpointConfiguration: ApiEndpointConfiguration
@@ -64,15 +68,32 @@ class MullvadDaemon(
             resourceDirectory = vpnService.filesDir.absolutePath,
             apiEndpoint = apiEndpointConfiguration.apiEndpoint()
         )
-
-        val channel: ManagedChannel =
-            NettyChannelBuilder.forAddress(DomainSocketAddress("${vpnService.dataDir}/rpc-socket"))
-                .channelType(DomainSocketChannel::class.java)
-                .eventLoopGroup(DefaultEventLoop())
-                //.eventLoopGroup(EpollEventLoopGroup())
-                //.channelType(EpollDomainSocketChannel::class.java)
-                .usePlaintext()
+        val channel =
+            UdsChannelBuilder.forPath(
+                    "/data/data/net.mullvad.mullvadvpn/rpc-socket",
+                    LocalSocketAddress.Namespace.FILESYSTEM
+                )
                 .build()
+
+        val managementService = ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
+        GlobalScope.launch {
+            val derp = managementService.getDevice(Empty.getDefaultInstance())
+
+            Log.d("My event", derp.toString())
+            managementService.eventsListen(Empty.getDefaultInstance()).collect {
+                Log.d("My event", it.toString())
+            }
+        }
+
+        // val channel: ManagedChannel =
+        //
+        // NettyChannelBuilder.forAddress(DomainSocketAddress("${vpnService.dataDir}/rpc-socket"))
+        //        .channelType(DomainSocketChannel::class.java)
+        //        .eventLoopGroup(DefaultEventLoop())
+        //        //.eventLoopGroup(EpollEventLoopGroup())
+        //        //.channelType(EpollDomainSocketChannel::class.java)
+        //        .usePlaintext()
+        //        .build()
 
         onSettingsChange.notify(getSettings())
 
