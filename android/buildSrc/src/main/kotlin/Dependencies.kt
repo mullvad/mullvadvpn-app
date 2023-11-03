@@ -88,6 +88,7 @@ object Dependencies {
     }
 
     object Mullvad {
+        const val daemonGrpc = ":lib:daemon-grpc"
         const val vpnService = ":service"
         const val tileService = ":tile"
 

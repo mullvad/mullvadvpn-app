@@ -87,7 +87,7 @@ class WelcomeViewModel(
     }
 
     private fun hasAddedTimeEffect() =
-        accountRepository.accountExpiryState
+        accountRepository.accountExpiry
             .mapNotNull { it.date() }
             .filter { it.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNow }
             .onEach { paymentUseCase.resetPurchaseResult() }
@@ -123,7 +123,7 @@ class WelcomeViewModel(
         // If the payment was successful we want to update the account expiry. If not successful we
         // should check payment availability and verify any purchases to handle potential errors.
         if (success) {
-            updateAccountExpiry()
+            viewModelScope.launch { updateAccountExpiry() }
             // Emission of out of time navigation is handled by launch in onStart
         } else {
             fetchPaymentAvailability()
@@ -134,8 +134,8 @@ class WelcomeViewModel(
         }
     }
 
-    private fun updateAccountExpiry() {
-        accountRepository.fetchAccountExpiry()
+    private suspend fun updateAccountExpiry() {
+        accountRepository.getAccountExpiry()
     }
 
     sealed interface UiSideEffect {
