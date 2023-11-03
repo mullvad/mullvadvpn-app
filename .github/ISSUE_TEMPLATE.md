@@ -5,6 +5,10 @@ Thank you for wanting to help us improve the Mullvad VPN app by reporting
 issues. But please read this first, since there is a chance you have a better
 option than filing an issue here: If...
 
+* this repository is for questions/suggestions/reports/etc specific to our
+VPN application. If what you are about to post is not related to our app,
+please contact our support team instead: support@mullvad.net
+
 * you ran into a problem with the app - Send a problem report directly from
 within the app. Go to Settings -> Report a problem. That way our support team
 get the error logs they need and will get back to you much faster than anyone will
