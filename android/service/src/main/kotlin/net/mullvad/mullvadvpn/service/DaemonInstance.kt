@@ -90,8 +90,6 @@ class DaemonInstance(private val vpnService: MullvadVpnService) {
 
         daemon = newDaemon
         intermittentDaemon.update(newDaemon)
-
-
     }
 
     private fun stopDaemon() {

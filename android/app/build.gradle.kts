@@ -307,6 +307,7 @@ afterEvaluate {
 play { serviceAccountCredentials.set(file("play-api-key.json")) }
 
 dependencies {
+    implementation(project(Dependencies.Mullvad.daemonGrpc))
     implementation(project(Dependencies.Mullvad.vpnService))
     implementation(project(Dependencies.Mullvad.tileService))
 
