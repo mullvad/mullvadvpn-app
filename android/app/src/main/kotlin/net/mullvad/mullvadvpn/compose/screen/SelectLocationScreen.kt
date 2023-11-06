@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +41,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.RelayLocationCell
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.constant.ContentType
@@ -151,14 +151,8 @@ fun SelectLocationScreen(
             when (uiState) {
                 SelectLocationUiState.Loading -> {
                     item(contentType = ContentType.PROGRESS) {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier =
-                                Modifier.size(
-                                        width = Dimens.progressIndicatorSize,
-                                        height = Dimens.progressIndicatorSize
-                                    )
-                                    .testTag(CIRCULAR_PROGRESS_INDICATOR)
+                        MullvadCircularProgressIndicatorLarge(
+                            Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
                         )
                     }
                 }

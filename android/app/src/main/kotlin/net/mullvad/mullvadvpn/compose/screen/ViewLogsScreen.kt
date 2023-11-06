@@ -7,7 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -20,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -66,9 +66,10 @@ fun ViewLogsScreen(
                     ),
         ) {
             if (uiState.isLoading) {
-                CircularProgressIndicator(
+                MullvadCircularProgressIndicatorMedium(
                     modifier =
-                        Modifier.padding(Dimens.mediumPadding).align(Alignment.CenterHorizontally)
+                        Modifier.padding(Dimens.mediumPadding).align(Alignment.CenterHorizontally),
+                    color = MaterialTheme.colorScheme.primary
                 )
             } else {
                 SelectionContainer {
