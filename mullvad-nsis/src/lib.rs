@@ -39,32 +39,11 @@ pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status
         let path = OsString::from_wide(path);
         let path = Path::new(&path);
 
-        write_to_file(&format!("hello from interface for path {:?}", path));
         match mullvad_paths::windows::create_privileged_directory(path) {
-            Ok(()) => {
-                write_to_file(&format!("SENDING STATUS OK for {path:?}!"));
-                Status::Ok
-            }
-            Err(e) => {
-                write_to_file("FOUND AN ERROR!");
-                write_to_file(&format!("{:?}", e));
-                Status::OsError
-            }
+            Ok(()) => Status::Ok,
+            Err(e) => Status::OsError,
         }
     })
-}
-
-fn write_to_file(msg: &str) {
-    use std::io::Write;
-    let p = "C:\\Users\\ioio\\Desktop\\DUMP.txt";
-    let c = match std::fs::read_to_string(p) {
-        Ok(c) => c,
-        Err(_) => String::new(),
-    };
-    let mut file = std::fs::File::create(p).unwrap();
-    file.write_all(format!("{}\n{}", c, msg).as_bytes())
-        .unwrap();
-    file.flush().unwrap();
 }
 
 /// Writes the system's app data path into `buffer` when `Status::Ok` is returned.
@@ -109,9 +88,6 @@ pub unsafe extern "C" fn get_system_local_appdata(
 fn catch_and_log_unwind(func: impl FnOnce() -> Status + UnwindSafe) -> Status {
     match std::panic::catch_unwind(func) {
         Ok(status) => status,
-        Err(_error) => {
-            write_to_file(&format!("PANICKED! {:?}", _error));
-            Status::Panic
-        }
+        Err(_) => Status::Panic,
     }
 }
