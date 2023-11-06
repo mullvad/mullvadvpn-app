@@ -104,6 +104,7 @@ fun MullvadTopBar(
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     iconTintColor: Color,
     isIconAndLogoVisible: Boolean = true
 ) {
@@ -149,7 +150,7 @@ fun MullvadTopBar(
         },
         actions = {
             if (onAccountClicked != null) {
-                IconButton(onClick = onAccountClicked) {
+                IconButton(enabled = enabled, onClick = onAccountClicked) {
                     Icon(
                         painter = painterResource(R.drawable.icon_account),
                         tint = iconTintColor,
@@ -159,7 +160,7 @@ fun MullvadTopBar(
             }
 
             if (onSettingsClicked != null) {
-                IconButton(onClick = onSettingsClicked) {
+                IconButton(enabled = enabled, onClick = onSettingsClicked) {
                     Icon(
                         painter = painterResource(R.drawable.icon_settings),
                         tint = iconTintColor,
@@ -274,6 +275,7 @@ fun MullvadTopBarWithDeviceName(
             onSettingsClicked,
             onAccountClicked,
             Modifier,
+            enabled = true,
             iconTintColor,
             isIconAndLogoVisible,
         )

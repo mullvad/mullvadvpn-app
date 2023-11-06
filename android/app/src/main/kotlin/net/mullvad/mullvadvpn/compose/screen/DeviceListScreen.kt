@@ -17,20 +17,29 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
+import net.mullvad.mullvadvpn.compose.destinations.RemoveDeviceConfirmationDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.dialog.DeviceRemovalDialog
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
@@ -42,6 +51,8 @@ import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.util.formatDate
+import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 @Preview
@@ -63,11 +74,49 @@ private fun PreviewDeviceListScreen() {
                                 isLoading = false
                             )
                         ),
-                    isLoading = true,
-                    stagedDevice = null
+                    isLoading = true
                 )
         )
     }
+}
+
+@Destination
+@Composable
+fun DeviceList(
+    navigator: DestinationsNavigator,
+    accountToken: String,
+    backResultBackNavigator: ResultRecipient<RemoveDeviceConfirmationDialogDestination, String>
+) {
+    val viewModel = koinViewModel<DeviceListViewModel>()
+    val state by viewModel.uiState.collectAsState()
+
+    backResultBackNavigator.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {
+                /* Do nothing */
+            }
+            is NavResult.Value -> {
+                viewModel.removeDevice(accountToken = accountToken, deviceIdToRemove = it.value)
+            }
+        }
+    }
+
+    DeviceListScreen(
+        state = state,
+        onBackClick = navigator::navigateUp,
+        onContinueWithLogin = {
+            navigator.navigate(LoginDestination(accountToken)) {
+                launchSingleTop = true
+                popUpTo(LoginDestination) { inclusive = true }
+            }
+        },
+        onSettingsClicked = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        navigateToRemoveDeviceConfirmationDialog = {
+            navigator.navigate(RemoveDeviceConfirmationDialogDestination(it)) {
+                launchSingleTop = true
+            }
+        }
+    )
 }
 
 @Composable
@@ -76,22 +125,11 @@ fun DeviceListScreen(
     onBackClick: () -> Unit = {},
     onContinueWithLogin: () -> Unit = {},
     onSettingsClicked: () -> Unit = {},
-    onDeviceRemovalClicked: (deviceId: String) -> Unit = {},
-    onDismissDeviceRemovalDialog: () -> Unit = {},
-    onConfirmDeviceRemovalDialog: () -> Unit = {}
+    navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit = {}
 ) {
-    if (state.stagedDevice != null) {
-        DeviceRemovalDialog(
-            onDismiss = onDismissDeviceRemovalDialog,
-            onConfirmDeviceRemovalDialog,
-            device = state.stagedDevice
-        )
-    }
 
     ScaffoldWithTopBar(
         topBarColor = MaterialTheme.colorScheme.primary,
-        statusBarColor = MaterialTheme.colorScheme.primary,
-        navigationBarColor = MaterialTheme.colorScheme.background,
         iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
@@ -115,7 +153,7 @@ fun DeviceListScreen(
                     DeviceListItem(
                         deviceUiState = deviceUiState,
                     ) {
-                        onDeviceRemovalClicked(deviceUiState.device.id)
+                        navigateToRemoveDeviceConfirmationDialog(deviceUiState.device)
                     }
                     if (state.deviceUiItems.lastIndex != index) {
                         Divider()
@@ -244,7 +282,6 @@ private fun DeviceListButtonPanel(
     onContinueWithLogin: () -> Unit,
     onBackClick: () -> Unit
 ) {
-
     Column(
         modifier =
             Modifier.padding(

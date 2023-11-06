@@ -14,10 +14,10 @@ object Versions {
     const val billingClient = "6.0.1"
 
     object Android {
-        const val compileSdkVersion = 33
+        const val compileSdkVersion = 34
         const val material = "1.9.0"
         const val minSdkVersion = 26
-        const val targetSdkVersion = 33
+        const val targetSdkVersion = 34
         const val volley = "1.2.1"
     }
 
@@ -39,6 +39,7 @@ object Versions {
     }
 
     object Compose {
+        const val destinations = "1.9.54"
         const val base = "1.5.1"
         const val constrainLayout = "1.0.1"
         const val foundation = base
@@ -48,6 +49,7 @@ object Versions {
     }
 
     object Plugin {
+
         // The androidAapt plugin version must be in sync with the android plugin version.
         // Required for Gradle metadata verification to work properly, see:
         // https://github.com/gradle/gradle/issues/19228
@@ -57,6 +59,9 @@ object Versions {
         const val dependencyCheck = "8.3.1"
         const val gradleVersions = "0.47.0"
         const val ktfmt = "0.13.0"
+        // Ksp version is linked with kotlin version, find matching release here:
+        // https://github.com/google/ksp/releases
+        const val ksp = "${kotlin}-1.0.13"
     }
 
     object Koin {

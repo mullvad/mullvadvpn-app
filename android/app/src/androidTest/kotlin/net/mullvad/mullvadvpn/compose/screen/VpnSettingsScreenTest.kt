@@ -16,7 +16,6 @@ import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.compose.state.VpnSettingsDialog
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
@@ -28,11 +27,10 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Port
-import net.mullvad.mullvadvpn.model.PortRange
 import net.mullvad.mullvadvpn.model.QuantumResistantState
 import net.mullvad.mullvadvpn.onNodeWithTagAndText
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
-import net.mullvad.mullvadvpn.viewmodel.StagedDns
+import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,7 +49,7 @@ class VpnSettingsScreenTest {
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
                 uiState = VpnSettingsUiState.createDefault(),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -74,7 +72,7 @@ class VpnSettingsScreenTest {
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
                 uiState = VpnSettingsUiState.createDefault(mtu = VALID_DUMMY_MTU_VALUE),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -93,8 +91,7 @@ class VpnSettingsScreenTest {
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
                 uiState = VpnSettingsUiState.createDefault(),
-                onMtuCellClick = mockedClickHandler,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
             )
         }
 
@@ -114,11 +111,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = EMPTY_STRING),
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -131,11 +125,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = VALID_DUMMY_MTU_VALUE)
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -148,11 +139,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = EMPTY_STRING)
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -169,12 +157,8 @@ class VpnSettingsScreenTest {
         val mockedSubmitHandler: (Int) -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = VALID_DUMMY_MTU_VALUE)
-                    ),
-                onSaveMtuClick = mockedSubmitHandler,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
             )
         }
 
@@ -190,11 +174,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = INVALID_DUMMY_MTU_VALUE)
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -208,12 +189,8 @@ class VpnSettingsScreenTest {
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = EMPTY_STRING)
-                    ),
-                onRestoreMtuClick = mockedClickHandler,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
             )
         }
 
@@ -230,12 +207,8 @@ class VpnSettingsScreenTest {
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog = VpnSettingsDialog.Mtu(mtuEditValue = EMPTY_STRING)
-                    ),
-                onCancelMtuDialogClick = mockedClickHandler,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
             )
         }
 
@@ -254,7 +227,6 @@ class VpnSettingsScreenTest {
                 uiState =
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
-                        isAllowLanEnabled = false,
                         customDnsItems =
                             listOf(
                                 CustomDnsItem(address = DUMMY_DNS_ADDRESS, false),
@@ -262,7 +234,7 @@ class VpnSettingsScreenTest {
                                 CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false)
                             )
                     ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -285,7 +257,7 @@ class VpnSettingsScreenTest {
                         isCustomDnsEnabled = false,
                         customDnsItems = listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false))
                     ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
         composeTestRule
@@ -304,11 +276,10 @@ class VpnSettingsScreenTest {
                 uiState =
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
-                        isAllowLanEnabled = true,
                         customDnsItems =
                             listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true))
                     ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -324,11 +295,10 @@ class VpnSettingsScreenTest {
                 uiState =
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
-                        isAllowLanEnabled = false,
                         customDnsItems =
                             listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false))
                     ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -344,11 +314,10 @@ class VpnSettingsScreenTest {
                 uiState =
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
-                        isAllowLanEnabled = true,
                         customDnsItems =
                             listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false))
                     ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -364,11 +333,10 @@ class VpnSettingsScreenTest {
                 uiState =
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
-                        isAllowLanEnabled = false,
                         customDnsItems =
                             listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true))
                     ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -385,8 +353,7 @@ class VpnSettingsScreenTest {
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
                 uiState = VpnSettingsUiState.createDefault(isCustomDnsEnabled = true),
-                onDnsClick = mockedClickHandler,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
             )
         }
 
@@ -402,17 +369,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.Dns(
-                                stagedDns =
-                                    StagedDns.NewDns(
-                                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false)
-                                    ),
-                            )
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -425,18 +383,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.Dns(
-                                stagedDns =
-                                    StagedDns.EditDns(
-                                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                        index = 0
-                                    )
-                            )
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -449,19 +397,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.Dns(
-                                stagedDns =
-                                    StagedDns.NewDns(
-                                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
-                                        validationResult = StagedDns.ValidationResult.Success
-                                    ),
-                            ),
-                        isAllowLanEnabled = false
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -474,19 +411,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.Dns(
-                                stagedDns =
-                                    StagedDns.NewDns(
-                                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = true),
-                                        validationResult = StagedDns.ValidationResult.Success
-                                    ),
-                            ),
-                        isAllowLanEnabled = true
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -499,19 +425,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.Dns(
-                                stagedDns =
-                                    StagedDns.NewDns(
-                                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                        validationResult = StagedDns.ValidationResult.Success
-                                    ),
-                            ),
-                        isAllowLanEnabled = true
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -524,19 +439,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.Dns(
-                                stagedDns =
-                                    StagedDns.NewDns(
-                                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                        validationResult = StagedDns.ValidationResult.Success
-                                    ),
-                            ),
-                        isAllowLanEnabled = false
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -549,18 +453,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.Dns(
-                                stagedDns =
-                                    StagedDns.NewDns(
-                                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                        validationResult = StagedDns.ValidationResult.InvalidAddress
-                                    )
-                            )
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -573,19 +467,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.Dns(
-                                stagedDns =
-                                    StagedDns.NewDns(
-                                        item = CustomDnsItem(DUMMY_DNS_ADDRESS, isLocal = false),
-                                        validationResult =
-                                            StagedDns.ValidationResult.DuplicateAddress
-                                    )
-                            ),
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -600,7 +483,7 @@ class VpnSettingsScreenTest {
             VpnSettingsScreen(
                 uiState =
                     VpnSettingsUiState.createDefault(quantumResistant = QuantumResistantState.On),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
         composeTestRule
@@ -624,8 +507,8 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         quantumResistant = QuantumResistantState.Auto,
                     ),
-                onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
+                onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener
             )
         }
         composeTestRule
@@ -646,11 +529,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog = VpnSettingsDialog.QuantumResistanceInfo
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -667,7 +547,7 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         selectedWireguardPort = Constraint.Only(Port(53))
                     ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -698,8 +578,8 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         selectedWireguardPort = Constraint.Only(Port(53))
                     ),
-                onWireguardPortSelected = mockSelectWireguardPortSelectionListener,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
+                onWireguardPortSelected = mockSelectWireguardPortSelectionListener
             )
         }
 
@@ -727,14 +607,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.WireguardPortInfo(
-                                availablePortRanges = listOf(PortRange(53, 53), PortRange(120, 121))
-                            )
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -751,14 +625,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.CustomPort(
-                                availablePortRanges = listOf(PortRange(53, 53), PortRange(120, 121))
-                            )
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -775,7 +643,7 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         selectedWireguardPort = Constraint.Only(Port(4000))
                     ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 
@@ -795,8 +663,7 @@ class VpnSettingsScreenTest {
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
                 uiState = VpnSettingsUiState.createDefault(),
-                onShowCustomPortDialog = mockOnShowCustomPortDialog,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
             )
         }
 
@@ -820,8 +687,7 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         selectedWireguardPort = Constraint.Only(Port(4000))
                     ),
-                onShowCustomPortDialog = mockOnShowCustomPortDialog,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
             )
         }
 
@@ -847,8 +713,8 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         selectedWireguardPort = Constraint.Only(Port(4000))
                     ),
-                onWireguardPortSelected = onWireguardPortSelected,
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow(),
+                onWireguardPortSelected = onWireguardPortSelected
             )
         }
 
@@ -872,14 +738,8 @@ class VpnSettingsScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             VpnSettingsScreen(
-                uiState =
-                    VpnSettingsUiState.createDefault(
-                        dialog =
-                            VpnSettingsDialog.CustomPort(
-                                availablePortRanges = listOf(PortRange(53, 53), PortRange(120, 121))
-                            )
-                    ),
-                toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()
+                uiState = VpnSettingsUiState.createDefault(),
+                sideEffect = MutableSharedFlow<VpnSettingsSideEffect>().asSharedFlow()
             )
         }
 

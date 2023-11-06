@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -16,7 +18,6 @@ import net.mullvad.mullvadvpn.dataproxy.UserReport
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 
 data class ReportProblemUiState(
-    val showConfirmNoEmail: Boolean = false,
     val sendingState: SendingReportUiState? = null,
     val email: String = "",
     val description: String = "",
@@ -30,22 +31,24 @@ sealed interface SendingReportUiState {
     data class Error(val error: SendProblemReportResult.Error) : SendingReportUiState
 }
 
+sealed interface ReportProblemSideEffect {
+    data class ShowConfirmNoEmail(val email: String, val description: String) :
+        ReportProblemSideEffect
+}
+
 class ReportProblemViewModel(
     private val mullvadProblemReporter: MullvadProblemReport,
     private val problemReportRepository: ProblemReportRepository
 ) : ViewModel() {
 
-    private val showConfirmNoEmail = MutableStateFlow(false)
     private val sendingState: MutableStateFlow<SendingReportUiState?> = MutableStateFlow(null)
 
     val uiState =
         combine(
-                showConfirmNoEmail,
                 sendingState,
                 problemReportRepository.problemReport,
-            ) { showConfirmNoEmail, pendingState, userReport ->
+            ) { pendingState, userReport ->
                 ReportProblemUiState(
-                    showConfirmNoEmail = showConfirmNoEmail,
                     sendingState = pendingState,
                     email = userReport.email ?: "",
                     description = userReport.description,
@@ -53,18 +56,17 @@ class ReportProblemViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ReportProblemUiState())
 
-    fun sendReport(
-        email: String,
-        description: String,
-    ) {
+    private val _uiSideEffect = MutableSharedFlow<ReportProblemSideEffect>()
+    val uiSideEffect = _uiSideEffect.asSharedFlow()
+
+    fun sendReport(email: String, description: String, skipEmptyEmailCheck: Boolean = false) {
         viewModelScope.launch {
             val userEmail = email.trim()
             val nullableEmail = if (email.isEmpty()) null else userEmail
-            if (shouldShowConfirmNoEmail(nullableEmail)) {
-                showConfirmNoEmail.tryEmit(true)
+            if (!skipEmptyEmailCheck && shouldShowConfirmNoEmail(nullableEmail)) {
+                _uiSideEffect.emit(ReportProblemSideEffect.ShowConfirmNoEmail(email, description))
             } else {
-                sendingState.tryEmit(SendingReportUiState.Sending)
-                showConfirmNoEmail.tryEmit(false)
+                sendingState.emit(SendingReportUiState.Sending)
 
                 // Ensure we show loading for at least MINIMUM_LOADING_TIME_MILLIS
                 val deferredResult = async {
@@ -87,10 +89,6 @@ class ReportProblemViewModel(
         sendingState.tryEmit(null)
     }
 
-    fun dismissConfirmNoEmail() {
-        showConfirmNoEmail.tryEmit(false)
-    }
-
     fun updateEmail(email: String) {
         problemReportRepository.setEmail(email)
     }
@@ -100,9 +98,7 @@ class ReportProblemViewModel(
     }
 
     private fun shouldShowConfirmNoEmail(userEmail: String?): Boolean =
-        userEmail.isNullOrEmpty() &&
-            !uiState.value.showConfirmNoEmail &&
-            uiState.value.sendingState !is SendingReportUiState
+        userEmail.isNullOrEmpty() && uiState.value.sendingState !is SendingReportUiState
 
     private fun SendProblemReportResult.toUiResult(email: String?): SendingReportUiState =
         when (this) {

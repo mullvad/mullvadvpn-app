@@ -26,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,11 +52,19 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
+import net.mullvad.mullvadvpn.compose.destinations.DeviceListDestination
+import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.destinations.WelcomeDestination
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
@@ -66,6 +76,9 @@ import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
+import net.mullvad.mullvadvpn.viewmodel.LoginUiSideEffect
+import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -99,9 +112,57 @@ private fun PreviewLoginSuccess() {
     AppTheme { LoginScreen(uiState = LoginUiState(loginState = Success)) }
 }
 
+@Destination
+@Composable
+fun Login(
+    navigator: DestinationsNavigator,
+    accountToken: String? = null,
+    vm: LoginViewModel = koinViewModel()
+) {
+    val state by vm.uiState.collectAsState()
+
+    LaunchedEffect(accountToken) {
+        if (accountToken != null) {
+            vm.onAccountNumberChange(accountToken)
+            vm.login(accountToken)
+        }
+    }
+    LaunchedEffect(Unit) {
+        vm.uiSideEffect.collect {
+            when (it) {
+                LoginUiSideEffect.NavigateToWelcome -> {
+                    navigator.navigate(WelcomeDestination) {
+                        launchSingleTop = true
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
+                LoginUiSideEffect.NavigateToConnect -> {
+                    navigator.navigate(ConnectDestination) {
+                        launchSingleTop = true
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
+                is LoginUiSideEffect.TooManyDevices -> {
+                    navigator.navigate(DeviceListDestination(it.accountToken.value)) {
+                        launchSingleTop = true
+                    }
+                }
+            }
+        }
+    }
+    LoginScreen(
+        state,
+        vm::login,
+        vm::createAccount,
+        vm::clearAccountHistory,
+        vm::onAccountNumberChange,
+        { navigator.navigate(SettingsDestination) }
+    )
+}
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(
+private fun LoginScreen(
     uiState: LoginUiState,
     onLoginClick: (String) -> Unit = {},
     onCreateAccountClick: () -> Unit = {},
@@ -112,11 +173,10 @@ fun LoginScreen(
     ScaffoldWithTopBar(
         modifier = Modifier.semantics { testTagsAsResourceId = true },
         topBarColor = MaterialTheme.colorScheme.primary,
-        statusBarColor = MaterialTheme.colorScheme.primary,
-        navigationBarColor = MaterialTheme.colorScheme.background,
         iconTintColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
-        onAccountClicked = null
+        enabled = uiState.loginState is Idle,
+        onAccountClicked = null,
     ) {
         val scrollState = rememberScrollState()
         Column(

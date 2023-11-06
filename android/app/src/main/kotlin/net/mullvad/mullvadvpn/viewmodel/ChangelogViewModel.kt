@@ -1,8 +1,13 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.os.Parcelable
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 
 class ChangelogViewModel(
@@ -10,34 +15,26 @@ class ChangelogViewModel(
     private val buildVersionCode: Int,
     private val alwaysShowChangelog: Boolean
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<ChangelogDialogUiState>(ChangelogDialogUiState.Hide)
-    val uiState = _uiState.asStateFlow()
 
-    fun refreshChangelogDialogUiState() {
-        val shouldShowChangelogDialog =
-            alwaysShowChangelog ||
-                changelogRepository.getVersionCodeOfMostRecentChangelogShowed() < buildVersionCode
-        _uiState.value =
-            if (shouldShowChangelogDialog) {
-                val changelogList = changelogRepository.getLastVersionChanges()
-                if (changelogList.isNotEmpty()) {
-                    ChangelogDialogUiState.Show(changelogList)
-                } else {
-                    ChangelogDialogUiState.Hide
-                }
-            } else {
-                ChangelogDialogUiState.Hide
-            }
+    private val _uiSideEffect = MutableSharedFlow<ChangeLog>(replay = 1, extraBufferCapacity = 1)
+    val uiSideEffect: SharedFlow<ChangeLog> = _uiSideEffect
+
+    init {
+        if (shouldShowChangeLog()) {
+            val changeLog =
+                ChangeLog(BuildConfig.VERSION_NAME, changelogRepository.getLastVersionChanges())
+            viewModelScope.launch { _uiSideEffect.emit(changeLog) }
+        }
     }
 
-    fun dismissChangelogDialog() {
+    fun markChangeLogAsRead() {
         changelogRepository.setVersionCodeOfMostRecentChangelogShowed(buildVersionCode)
-        _uiState.value = ChangelogDialogUiState.Hide
     }
+
+    private fun shouldShowChangeLog(): Boolean =
+        alwaysShowChangelog ||
+            (changelogRepository.getVersionCodeOfMostRecentChangelogShowed() < buildVersionCode &&
+                changelogRepository.getLastVersionChanges().isNotEmpty())
 }
 
-sealed class ChangelogDialogUiState {
-    data class Show(val changes: List<String>) : ChangelogDialogUiState()
-
-    data object Hide : ChangelogDialogUiState()
-}
+@Parcelize data class ChangeLog(val version: String, val changes: List<String>) : Parcelable

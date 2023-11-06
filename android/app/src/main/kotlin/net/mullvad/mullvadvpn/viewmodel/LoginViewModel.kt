@@ -106,10 +106,11 @@ class LoginViewModel(
 
                         if (refreshResult.isAvailable()) {
                             // Navigate to device list
+
                             _uiSideEffect.emit(
                                 LoginUiSideEffect.TooManyDevices(AccountToken(accountToken))
                             )
-                            return@launch
+                            Idle()
                         } else {
                             // Failed to fetch devices list
                             Idle(LoginError.Unknown(result.toString()))

@@ -16,9 +16,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -36,7 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.core.text.HtmlCompat
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import net.mullvad.mullvadvpn.R
@@ -49,11 +52,14 @@ import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -67,9 +73,22 @@ private fun PreviewSelectLocationScreen() {
         SelectLocationScreen(
             uiState = state,
             uiCloseAction = MutableSharedFlow(),
-            enterTransitionEndAction = MutableSharedFlow()
         )
     }
+}
+
+@Destination(style = SlideInFromBottomTransition::class)
+@Composable
+fun SelectLocation(navigator: DestinationsNavigator) {
+    val vm = koinViewModel<SelectLocationViewModel>()
+    val state = vm.uiState.collectAsState().value
+    SelectLocationScreen(
+        uiState = state,
+        uiCloseAction = vm.uiCloseAction,
+        onSelectRelay = vm::selectRelay,
+        onSearchTermInput = vm::onSearchTermInput,
+        onBackClick = navigator::navigateUp,
+    )
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -77,125 +96,125 @@ private fun PreviewSelectLocationScreen() {
 fun SelectLocationScreen(
     uiState: SelectLocationUiState,
     uiCloseAction: SharedFlow<Unit>,
-    enterTransitionEndAction: SharedFlow<Unit>,
     onSelectRelay: (item: RelayItem) -> Unit = {},
     onSearchTermInput: (searchTerm: String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val backgroundColor = MaterialTheme.colorScheme.background
-    val systemUiController = rememberSystemUiController()
 
     LaunchedEffect(Unit) { uiCloseAction.collect { onBackClick() } }
-    LaunchedEffect(Unit) {
-        enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
-    }
 
     val (backFocus, listFocus, searchBarFocus) = remember { FocusRequester.createRefs() }
-    Column(modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight()) {
-        Row(
+    Scaffold {
+        Column(
             modifier =
-                Modifier.padding(
-                        horizontal = Dimens.selectLocationTitlePadding,
-                        vertical = Dimens.selectLocationTitlePadding
-                    )
-                    .fillMaxWidth()
+                Modifier.padding(it).background(backgroundColor).fillMaxWidth().fillMaxHeight()
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_back),
-                contentDescription = null,
+            Row(
                 modifier =
-                    Modifier.focusRequester(backFocus)
-                        .focusProperties { next = listFocus }
-                        .focusProperties {
-                            down = listFocus
-                            right = searchBarFocus
+                    Modifier.padding(
+                            horizontal = Dimens.selectLocationTitlePadding,
+                            vertical = Dimens.selectLocationTitlePadding
+                        )
+                        .fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.icon_back),
+                    contentDescription = null,
+                    modifier =
+                        Modifier.focusRequester(backFocus)
+                            .focusProperties { next = listFocus }
+                            .focusProperties {
+                                down = listFocus
+                                right = searchBarFocus
+                            }
+                            .size(Dimens.titleIconSize)
+                            .rotate(270f)
+                            .clickable { onBackClick() }
+                )
+                Text(
+                    text = stringResource(id = R.string.select_location),
+                    modifier =
+                        Modifier.align(Alignment.CenterVertically)
+                            .weight(weight = 1f)
+                            .padding(end = Dimens.titleIconSize),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+            SearchTextField(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .focusRequester(searchBarFocus)
+                        .focusProperties { next = backFocus }
+                        .height(Dimens.searchFieldHeight)
+                        .padding(horizontal = Dimens.searchFieldHorizontalPadding)
+            ) { searchString ->
+                onSearchTermInput.invoke(searchString)
+            }
+            Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+            val lazyListState = rememberLazyListState()
+            LazyColumn(
+                modifier =
+                    Modifier.focusRequester(listFocus)
+                        .fillMaxSize()
+                        .drawVerticalScrollbar(
+                            lazyListState,
+                            MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                        ),
+                state = lazyListState,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when (uiState) {
+                    SelectLocationUiState.Loading -> {
+                        item(contentType = ContentType.PROGRESS) {
+                            MullvadCircularProgressIndicatorLarge(
+                                Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
+                            )
                         }
-                        .size(Dimens.titleIconSize)
-                        .rotate(270f)
-                        .clickable { onBackClick() }
-            )
-            Text(
-                text = stringResource(id = R.string.select_location),
-                modifier =
-                    Modifier.align(Alignment.CenterVertically)
-                        .weight(weight = 1f)
-                        .padding(end = Dimens.titleIconSize),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
-        }
-        SearchTextField(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .focusRequester(searchBarFocus)
-                    .focusProperties { next = backFocus }
-                    .height(Dimens.searchFieldHeight)
-                    .padding(horizontal = Dimens.searchFieldHorizontalPadding)
-        ) { searchString ->
-            onSearchTermInput.invoke(searchString)
-        }
-        Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
-        val lazyListState = rememberLazyListState()
-        LazyColumn(
-            modifier =
-                Modifier.focusRequester(listFocus)
-                    .fillMaxSize()
-                    .drawVerticalScrollbar(
-                        lazyListState,
-                        MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
-                    ),
-            state = lazyListState,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when (uiState) {
-                SelectLocationUiState.Loading -> {
-                    item(contentType = ContentType.PROGRESS) {
-                        MullvadCircularProgressIndicatorLarge(
-                            Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
-                        )
                     }
-                }
-                is SelectLocationUiState.ShowData -> {
-                    items(
-                        count = uiState.countries.size,
-                        key = { index -> uiState.countries[index].hashCode() },
-                        contentType = { ContentType.ITEM }
-                    ) { index ->
-                        val country = uiState.countries[index]
-                        RelayLocationCell(
-                            relay = country,
-                            selectedItem = uiState.selectedRelay,
-                            onSelectRelay = onSelectRelay,
-                            modifier = Modifier.animateContentSize()
-                        )
+                    is SelectLocationUiState.ShowData -> {
+                        items(
+                            count = uiState.countries.size,
+                            key = { index -> uiState.countries[index].hashCode() },
+                            contentType = { ContentType.ITEM }
+                        ) { index ->
+                            val country = uiState.countries[index]
+                            RelayLocationCell(
+                                relay = country,
+                                selectedItem = uiState.selectedRelay,
+                                onSelectRelay = onSelectRelay,
+                                modifier = Modifier.animateContentSize()
+                            )
+                        }
                     }
-                }
-                is SelectLocationUiState.NoSearchResultFound -> {
-                    item(contentType = ContentType.EMPTY_TEXT) {
-                        val firstRow =
-                            HtmlCompat.fromHtml(
-                                    textResource(
-                                        id = R.string.select_location_empty_text_first_row,
-                                        uiState.searchTerm
-                                    ),
-                                    HtmlCompat.FROM_HTML_MODE_COMPACT
-                                )
-                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
-                        Text(
-                            text =
-                                buildAnnotatedString {
-                                    append(firstRow)
-                                    appendLine()
-                                    append(
+                    is SelectLocationUiState.NoSearchResultFound -> {
+                        item(contentType = ContentType.EMPTY_TEXT) {
+                            val firstRow =
+                                HtmlCompat.fromHtml(
                                         textResource(
-                                            id = R.string.select_location_empty_text_second_row
-                                        )
+                                            id = R.string.select_location_empty_text_first_row,
+                                            uiState.searchTerm
+                                        ),
+                                        HtmlCompat.FROM_HTML_MODE_COMPACT
                                     )
-                                },
-                            style = MaterialTheme.typography.labelMedium,
-                            textAlign = TextAlign.Center
-                        )
+                                    .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                            Text(
+                                text =
+                                    buildAnnotatedString {
+                                        append(firstRow)
+                                        appendLine()
+                                        append(
+                                            textResource(
+                                                id = R.string.select_location_empty_text_second_row
+                                            )
+                                        )
+                                    },
+                                style = MaterialTheme.typography.labelMedium,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }

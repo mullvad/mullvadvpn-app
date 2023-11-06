@@ -8,19 +8,23 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
-import io.mockk.verify
-import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class ChangelogViewModelTest {
+    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var mockedChangelogRepository: ChangelogRepository
 
     private lateinit var viewModel: ChangelogViewModel
+
+    private val buildVersionCode = 10
 
     @Before
     fun setup() {
@@ -28,7 +32,6 @@ class ChangelogViewModelTest {
         mockkStatic(EVENT_NOTIFIER_EXTENSION_CLASS)
         every { mockedChangelogRepository.setVersionCodeOfMostRecentChangelogShowed(any()) } just
             Runs
-        viewModel = ChangelogViewModel(mockedChangelogRepository, 1, false)
     }
 
     @After
@@ -37,50 +40,36 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testInitialState() = runTest {
-        // Arrange, Act, Assert
-        viewModel.uiState.test { assertEquals(ChangelogDialogUiState.Hide, awaitItem()) }
+    fun testUpToDateVersionCode() = runTest {
+        // Arrange
+        every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
+            buildVersionCode
+        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
+
+        // If we have the most up to date version code, we should not show the changelog dialog
+        viewModel.uiSideEffect.test { expectNoEvents() }
     }
 
     @Test
-    fun testShowAndDismissChangelogDialog() = runTest {
-        viewModel.uiState.test {
-            // Arrange
-            val fakeList = listOf("test")
-            every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
-                -1
-            every { mockedChangelogRepository.getLastVersionChanges() } returns fakeList
+    fun testNotUpToDateVersionCode() = runTest {
+        // Arrange
+        every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
+        every { mockedChangelogRepository.getLastVersionChanges() } returns listOf("bla", "bla")
 
-            // Assert initial ui state
-            assertEquals(ChangelogDialogUiState.Hide, awaitItem())
-
-            // Refresh and verify that the dialog should be shown
-            viewModel.refreshChangelogDialogUiState()
-            assertEquals(ChangelogDialogUiState.Show(fakeList), awaitItem())
-
-            // Dismiss dialog and verify that the dialog should be hidden
-            viewModel.dismissChangelogDialog()
-            assertEquals(ChangelogDialogUiState.Hide, awaitItem())
-            verify { mockedChangelogRepository.setVersionCodeOfMostRecentChangelogShowed(1) }
-        }
+        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
+        // Given a new version with a change log we should return it
+        viewModel.uiSideEffect.test { assertNotNull(awaitItem()) }
     }
 
     @Test
-    fun testShowCaseChangelogWithEmptyListDialog() = runTest {
-        viewModel.uiState.test {
-            // Arrange
-            val fakeEmptyList = emptyList<String>()
-            every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
-                -1
-            every { mockedChangelogRepository.getLastVersionChanges() } returns fakeEmptyList
+    fun testNotUpToDateVersionCodeWithEmptyChangeLog() = runTest {
+        // Arrange
+        every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
+        every { mockedChangelogRepository.getLastVersionChanges() } returns emptyList()
 
-            // Assert initial ui state
-            assertEquals(ChangelogDialogUiState.Hide, awaitItem())
-
-            // Refresh and verify that the Ui state remain same due list being empty
-            viewModel.refreshChangelogDialogUiState()
-            expectNoEvents()
-        }
+        viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
+        // Given a new version with a change log we should not return it
+        viewModel.uiSideEffect.test { expectNoEvents() }
     }
 
     companion object {

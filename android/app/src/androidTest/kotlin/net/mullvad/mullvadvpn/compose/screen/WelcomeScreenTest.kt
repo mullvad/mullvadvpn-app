@@ -48,6 +48,7 @@ class WelcomeScreenTest {
                 onSettingsClick = {},
                 onAccountClick = {},
                 openConnectScreen = {},
+                navigateToDeviceInfoDialog = {},
                 onPurchaseBillingProductClick = { _, _ -> },
                 onClosePurchaseResultDialog = {}
             )
@@ -73,6 +74,7 @@ class WelcomeScreenTest {
                 onSettingsClick = {},
                 onAccountClick = {},
                 openConnectScreen = {},
+                navigateToDeviceInfoDialog = {},
                 onPurchaseBillingProductClick = { _, _ -> },
                 onClosePurchaseResultDialog = {}
             )
@@ -105,7 +107,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -128,7 +131,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -151,7 +155,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = mockClickListener,
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -174,7 +179,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -200,7 +206,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -228,7 +235,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -254,7 +262,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -282,7 +291,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -304,7 +314,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onClosePurchaseResultDialog = {},
-                onPurchaseBillingProductClick = { _, _ -> }
+                onPurchaseBillingProductClick = { _, _ -> },
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -333,7 +344,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -363,7 +375,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -393,7 +406,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -430,7 +444,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = { _, _ -> },
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 
@@ -461,7 +476,8 @@ class WelcomeScreenTest {
                 onAccountClick = {},
                 openConnectScreen = {},
                 onPurchaseBillingProductClick = clickHandler,
-                onClosePurchaseResultDialog = {}
+                onClosePurchaseResultDialog = {},
+                navigateToDeviceInfoDialog = {}
             )
         }
 

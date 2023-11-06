@@ -8,11 +8,17 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
+import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.MtuTextField
@@ -22,28 +28,33 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.util.isValidMtu
+import net.mullvad.mullvadvpn.viewmodel.MtuDialogSideEffect
+import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 private fun PreviewMtuDialog() {
-    AppTheme {
-        MtuDialog(mtuInitial = 1234, onSave = {}, onRestoreDefaultValue = {}, onDismiss = {})
-    }
+    AppTheme { MtuDialog(mtuInitial = 1234, EmptyDestinationsNavigator) }
 }
 
+@Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun MtuDialog(
-    mtuInitial: Int?,
-    onSave: (Int) -> Unit,
-    onRestoreDefaultValue: () -> Unit,
-    onDismiss: () -> Unit,
-) {
+fun MtuDialog(mtuInitial: Int?, navigator: DestinationsNavigator) {
     val mtu = remember { mutableStateOf(mtuInitial?.toString() ?: "") }
+    val viewModel = koinViewModel<MtuDialogViewModel>()
 
+    LaunchedEffect(Unit) {
+        viewModel.uiSideEffect.collect {
+            when (it) {
+                MtuDialogSideEffect.Complete -> navigator.navigateUp()
+            }
+        }
+    }
     val isValidMtu = mtu.value.toIntOrNull()?.isValidMtu() == true
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = navigator::navigateUp,
         title = {
             Text(
                 text = stringResource(id = R.string.wireguard_mtu),
@@ -59,7 +70,7 @@ fun MtuDialog(
                     onSubmit = { newMtuValue ->
                         val mtuInt = newMtuValue.toIntOrNull()
                         if (mtuInt?.isValidMtu() == true) {
-                            onSave(mtuInt)
+                            viewModel.onSaveClick(mtuInt)
                         }
                     },
                     isEnabled = true,
@@ -91,7 +102,7 @@ fun MtuDialog(
                     onClick = {
                         val mtuInt = mtu.value.toIntOrNull()
                         if (mtuInt?.isValidMtu() == true) {
-                            onSave(mtuInt)
+                            viewModel.onSaveClick(mtuInt)
                         }
                     }
                 )
@@ -99,13 +110,13 @@ fun MtuDialog(
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.reset_to_default_button),
-                    onClick = onRestoreDefaultValue
+                    onClick = viewModel::onRestoreClick
                 )
 
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.cancel),
-                    onClick = onDismiss
+                    onClick = navigator::navigateUp
                 )
             }
         },

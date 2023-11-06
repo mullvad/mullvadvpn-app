@@ -8,7 +8,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -40,7 +39,6 @@ class SelectLocationScreenTest {
             SelectLocationScreen(
                 uiState = SelectLocationUiState.Loading,
                 uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -59,7 +57,6 @@ class SelectLocationScreenTest {
                         selectedRelay = null
                     ),
                 uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -96,7 +93,6 @@ class SelectLocationScreenTest {
                         selectedRelay = updatedDummyList[0].cities[0].relays[0]
                     ),
                 uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -120,7 +116,6 @@ class SelectLocationScreenTest {
                 uiState =
                     SelectLocationUiState.ShowData(countries = emptyList(), selectedRelay = null),
                 uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onSearchTermInput = mockedSearchTermInput
             )
         }
@@ -142,7 +137,6 @@ class SelectLocationScreenTest {
             SelectLocationScreen(
                 uiState = SelectLocationUiState.NoSearchResultFound(searchTerm = mockSearchString),
                 uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onSearchTermInput = mockedSearchTermInput
             )
         }

@@ -9,10 +9,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.just
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.viewmodel.ChangelogDialogUiState
+import net.mullvad.mullvadvpn.viewmodel.ChangeLog
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -31,15 +30,15 @@ class ChangelogDialogTest {
     @Test
     fun testShowChangeLogWhenNeeded() {
         // Arrange
-        every { mockedViewModel.uiState } returns
-            MutableStateFlow(ChangelogDialogUiState.Show(listOf(CHANGELOG_ITEM)))
-        every { mockedViewModel.dismissChangelogDialog() } just Runs
+        every { mockedViewModel.markChangeLogAsRead() } just Runs
 
         composeTestRule.setContentWithTheme {
             ChangelogDialog(
-                changesList = listOf(CHANGELOG_ITEM),
-                version = CHANGELOG_VERSION,
-                onDismiss = { mockedViewModel.dismissChangelogDialog() }
+                ChangeLog(
+                    changes = listOf(CHANGELOG_ITEM),
+                    version = CHANGELOG_VERSION,
+                ),
+                onDismiss = { mockedViewModel.markChangeLogAsRead() }
             )
         }
 
@@ -50,7 +49,7 @@ class ChangelogDialogTest {
         composeTestRule.onNodeWithText(CHANGELOG_BUTTON_TEXT).performClick()
 
         // Assert
-        verify { mockedViewModel.dismissChangelogDialog() }
+        verify { mockedViewModel.markChangeLogAsRead() }
     }
 
     companion object {

@@ -16,8 +16,8 @@ fun Constraint<Port>.isCustom() =
         is Constraint.Only -> !WIREGUARD_PRESET_PORTS.contains(this.value.value)
     }
 
-fun Constraint<Port>.toDisplayCustomPort() =
+fun Constraint<Port>.toValueOrNull() =
     when (this) {
-        is Constraint.Any -> ""
-        is Constraint.Only -> this.value.value.toString()
+        is Constraint.Any -> null
+        is Constraint.Only -> this.value.value
     }

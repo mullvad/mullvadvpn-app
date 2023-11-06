@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.applist.AppData
+import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
@@ -28,7 +29,8 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.splitTunneling
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val dispatcher: CoroutineDispatcher
+    private val applicationsIconManager: ApplicationsIconManager,
+    private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val allApps = MutableStateFlow<List<AppData>?>(null)

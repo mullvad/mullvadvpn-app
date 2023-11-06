@@ -204,6 +204,7 @@ class SplitTunnelingViewModelTest {
             SplitTunnelingViewModel(
                 mockedApplicationsProvider,
                 mockedServiceConnectionManager,
+                applicationsIconManager = mockk(),
                 testCoroutineRule.testDispatcher
             )
     }

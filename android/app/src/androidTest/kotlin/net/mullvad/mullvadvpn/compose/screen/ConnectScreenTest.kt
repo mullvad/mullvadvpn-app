@@ -9,9 +9,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -26,7 +23,6 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
-import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.net.TransportProtocol
 import net.mullvad.talpid.net.TunnelEndpoint
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -57,7 +53,6 @@ class ConnectScreenTest {
         composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState = ConnectUiState.INITIAL,
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -88,7 +83,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -124,7 +118,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -158,7 +151,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -191,7 +183,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -225,7 +216,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -259,7 +249,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -298,7 +287,6 @@ class ConnectScreenTest {
                                 ErrorState(ErrorStateCause.StartTunnelError, true)
                             )
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -338,7 +326,6 @@ class ConnectScreenTest {
                                 ErrorState(ErrorStateCause.StartTunnelError, false)
                             )
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -372,7 +359,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -408,7 +394,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -444,7 +429,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onSwitchLocationClick = mockedClickHandler
             )
         }
@@ -477,7 +461,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onDisconnectClick = mockedClickHandler
             )
         }
@@ -510,7 +493,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onReconnectClick = mockedClickHandler
             )
         }
@@ -542,7 +524,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onConnectClick = mockedClickHandler
             )
         }
@@ -574,7 +555,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onCancelClick = mockedClickHandler
             )
         }
@@ -607,7 +587,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow(),
                 onToggleTunnelInfo = mockedClickHandler
             )
         }
@@ -647,7 +626,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -686,7 +664,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UpdateAvailable(versionInfo)
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -723,7 +700,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo)
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -757,7 +733,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.AccountExpiry(expiryDate)
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -796,7 +771,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo)
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -829,7 +803,6 @@ class ConnectScreenTest {
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.AccountExpiry(expiryDate)
                     ),
-                uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
             )
         }
 
@@ -846,10 +819,6 @@ class ConnectScreenTest {
         composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState = ConnectUiState.INITIAL,
-                uiSideEffect =
-                    MutableStateFlow(
-                        ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser("222")
-                    )
             )
         }
 
@@ -864,8 +833,6 @@ class ConnectScreenTest {
         composeTestRule.setContentWithTheme {
             ConnectScreen(
                 uiState = ConnectUiState.INITIAL,
-                uiSideEffect = MutableStateFlow(ConnectViewModel.UiSideEffect.OpenOutOfTimeView),
-                onOpenOutOfTimeScreen = mockedOpenScreenHandler
             )
         }
 

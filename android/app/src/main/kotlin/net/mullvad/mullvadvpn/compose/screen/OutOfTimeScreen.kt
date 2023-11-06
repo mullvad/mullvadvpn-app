@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,20 +27,32 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.destinations.AccountDestination
+import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
+import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
+import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.compose.transitions.NoTransition
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -50,6 +63,7 @@ import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -93,6 +107,45 @@ private fun PreviewOutOfTimeScreenError() {
             uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
+}
+
+@Destination(style = NoTransition::class)
+@Composable
+fun OutOfTime(
+    navigator: DestinationsNavigator,
+    resultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>
+) {
+    val vm = koinViewModel<OutOfTimeViewModel>()
+    val state = vm.uiState.collectAsState().value
+    resultRecipient.onNavResult {
+        // If we successfully redeemed a voucher, navigate to Connect screen
+        if (it is NavResult.Value && it.value) {
+            navigator.navigate(ConnectDestination) {
+                launchSingleTop = true
+                popUpTo(NavGraphs.root) { inclusive = true }
+            }
+        }
+    }
+    OutOfTimeScreen(
+        showSitePayment = IS_PLAY_BUILD.not(),
+        uiState = state,
+        uiSideEffect = vm.uiSideEffect,
+        onSitePaymentClick = vm::onSitePaymentClick,
+        onRedeemVoucherClick = {
+            navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
+        },
+        onSettingsClick = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onAccountClick = { navigator.navigate(AccountDestination) { launchSingleTop = true } },
+        openConnectScreen = {
+            navigator.navigate(ConnectDestination) {
+                launchSingleTop = true
+                popUpTo(NavGraphs.root) { inclusive = true }
+            }
+        },
+        onDisconnectClick = vm::onDisconnectClick,
+        onPurchaseBillingProductClick = vm::startBillingPayment,
+        onClosePurchaseResultDialog = vm::onClosePurchaseResultDialog
+    )
 }
 
 @Composable
@@ -143,13 +196,6 @@ fun OutOfTimeScreen(
             } else {
                 MaterialTheme.colorScheme.error
             },
-        statusBarColor =
-            if (uiState.tunnelState.isSecured()) {
-                MaterialTheme.colorScheme.inversePrimary
-            } else {
-                MaterialTheme.colorScheme.error
-            },
-        navigationBarColor = MaterialTheme.colorScheme.background,
         iconTintColor =
             if (uiState.tunnelState.isSecured()) {
                     MaterialTheme.colorScheme.onPrimary

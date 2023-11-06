@@ -32,8 +32,6 @@ class AccountViewModel(
 ) : ViewModel() {
 
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
-    private val _enterTransitionEndAction = MutableSharedFlow<Unit>()
-
     val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     val uiState: StateFlow<AccountUiState> =
@@ -53,9 +51,6 @@ class AccountViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
 
-    @Suppress("konsist.ensure public properties use permitted names")
-    val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
-
     init {
         updateAccountExpiry()
         verifyPurchases()
@@ -74,10 +69,11 @@ class AccountViewModel(
 
     fun onLogoutClick() {
         accountRepository.logout()
+        viewModelScope.launch { _uiSideEffect.emit(UiSideEffect.NavigateToLogin) }
     }
 
-    fun onTransitionAnimationEnd() {
-        viewModelScope.launch { _enterTransitionEndAction.emit(Unit) }
+    fun onCopyAccountNumber(accountNumber: String) {
+        viewModelScope.launch { _uiSideEffect.emit(UiSideEffect.CopyAccountNumber(accountNumber)) }
     }
 
     fun startBillingPayment(productId: ProductId, activityProvider: () -> Activity) {
@@ -115,7 +111,11 @@ class AccountViewModel(
     }
 
     sealed class UiSideEffect {
+        data object NavigateToLogin : UiSideEffect()
+
         data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect()
+
+        data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
     }
 }
 
