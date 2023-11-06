@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -11,11 +12,19 @@ import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.PaymentProvider
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -43,6 +52,12 @@ class OutOfTimeViewModelTest {
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
     private val accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
     private val deviceState = MutableStateFlow<DeviceState>(DeviceState.Initial)
+    private val paymentAvailability =
+        MutableStateFlow<PaymentAvailability>(PaymentAvailability.Loading)
+    private val purchaseResult =
+        MutableSharedFlow<PurchaseResult>(extraBufferCapacity = 1, replay = 1)
+    private val verifyPurchases =
+        MutableSharedFlow<VerificationResult>(extraBufferCapacity = 1, replay = 1)
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -55,6 +70,7 @@ class OutOfTimeViewModelTest {
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentProvider: PaymentProvider = mockk(relaxed = true)
+    private val mockPaymentRepository: PaymentRepository = mockk()
 
     private lateinit var viewModel: OutOfTimeViewModel
 
@@ -71,6 +87,14 @@ class OutOfTimeViewModelTest {
         every { mockAccountRepository.accountExpiryState } returns accountExpiryState
 
         every { mockDeviceRepository.deviceState } returns deviceState
+
+        coEvery { mockPaymentRepository.verifyPurchases() } returns verifyPurchases
+
+        coEvery { mockPaymentRepository.purchaseBillingProduct(any()) } returns purchaseResult
+
+        coEvery { mockPaymentRepository.queryPaymentAvailability() } returns paymentAvailability
+
+        every { mockPaymentProvider.paymentRepository } returns mockPaymentRepository
 
         viewModel =
             OutOfTimeViewModel(
@@ -115,9 +139,9 @@ class OutOfTimeViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 assertEquals(OutOfTimeUiState(deviceName = ""), awaitItem())
+                eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
                 val result = awaitItem()
                 assertEquals(tunnelRealStateTestItem, result.tunnelState)
             }
@@ -151,6 +175,157 @@ class OutOfTimeViewModelTest {
             // Assert
             verify { mockProxy.disconnect() }
         }
+
+    @Test
+    fun testBillingProductsUnavailableState() = runTest {
+        // Arrange
+        val mockPaymentAvailability = PaymentAvailability.ProductsUnavailable
+
+        // Act, Assert
+        viewModel.uiState.test {
+            // Default item
+            awaitItem()
+            paymentAvailability.tryEmit(mockPaymentAvailability)
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            val result = awaitItem().billingPaymentState
+            assertIs<PaymentState.NoPayment>(result)
+        }
+    }
+
+    @Test
+    fun testBillingProductsGenericErrorState() = runTest {
+        // Arrange
+        val mockPaymentAvailability = PaymentAvailability.Error.Other(mockk())
+
+        // Act, Assert
+        viewModel.uiState.test {
+            // Default item
+            assertIs<PaymentState.Loading>(awaitItem().billingPaymentState)
+            paymentAvailability.tryEmit(mockPaymentAvailability)
+            viewModel.onTryFetchProductsAgain()
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            // It should emit no payment
+            assertIs<PaymentState.NoPayment>(awaitItem().billingPaymentState)
+            val result = awaitItem().billingPaymentState
+            assertIs<PaymentState.Error.GenericError>(result)
+        }
+    }
+
+    @Test
+    fun testBillingProductsBillingErrorState() = runTest {
+        // Arrange
+        val mockPaymentAvailability = PaymentAvailability.Error.BillingUnavailable
+
+        // Act, Assert
+        viewModel.uiState.test {
+            // Default item
+            assertIs<PaymentState.Loading>(awaitItem().billingPaymentState)
+            paymentAvailability.tryEmit(mockPaymentAvailability)
+            viewModel.onTryFetchProductsAgain()
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            // It should emit no payment
+            assertIs<PaymentState.NoPayment>(awaitItem().billingPaymentState)
+            val result = awaitItem().billingPaymentState
+            assertIs<PaymentState.Error.BillingError>(result)
+        }
+    }
+
+    @Test
+    fun testBillingProductsPaymentAvailableState() = runTest {
+        // Arrange
+        val mockProduct: PaymentProduct = mockk()
+        val expectedProductList = listOf(mockProduct)
+        val mockPaymentAvailability = PaymentAvailability.ProductsAvailable(listOf(mockProduct))
+        paymentAvailability.tryEmit(mockPaymentAvailability)
+
+        // Act, Assert
+        viewModel.uiState.test {
+            // Default item
+            assertIs<PaymentState.Loading>(awaitItem().billingPaymentState)
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            // It should emit no payment
+            assertIs<PaymentState.NoPayment>(awaitItem().billingPaymentState)
+            val result = awaitItem().billingPaymentState
+            assertIs<PaymentState.PaymentAvailable>(result)
+            assertLists(expectedProductList, result.products)
+        }
+    }
+
+    @Test
+    fun testBillingVerificationError() = runTest {
+        // Arrange
+        val mockPurchaseResult = PurchaseResult.Error.VerificationError(null)
+
+        // Act, Assert
+        viewModel.uiState.test {
+            // Default item
+            awaitItem()
+            purchaseResult.tryEmit(mockPurchaseResult)
+            viewModel.startBillingPayment(productId = "mockId")
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            val result = awaitItem().purchaseResult
+            assertIs<PurchaseResult.Error.VerificationError>(result)
+        }
+    }
+
+    @Test
+    fun testBillingUserCancelled() = runTest {
+        // Arrange
+        val mockPurchaseResult = PurchaseResult.PurchaseCancelled
+
+        // Act, Assert
+        viewModel.uiState.test {
+            // Default item
+            awaitItem()
+            purchaseResult.tryEmit(mockPurchaseResult)
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            // It should emit no payment
+            assertIs<PaymentState.NoPayment>(awaitItem().billingPaymentState)
+            viewModel.startBillingPayment(productId = "mockId")
+            assertIs<PurchaseResult.PurchaseCancelled>(awaitItem().purchaseResult)
+            ensureAllEventsConsumed()
+        }
+    }
+
+    @Test
+    fun testBillingPurchaseCompleted() = runTest {
+        // Arrange
+        val mockPurchaseResult = PurchaseResult.PurchaseCompleted
+
+        // Act, Assert
+        viewModel.uiState.test {
+            // Default item
+            awaitItem()
+            purchaseResult.tryEmit(mockPurchaseResult)
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            // It should emit no payment
+            assertIs<PaymentState.NoPayment>(awaitItem().billingPaymentState)
+            viewModel.startBillingPayment(productId = "mockId")
+            val result = awaitItem().purchaseResult
+            assertIs<PurchaseResult.PurchaseCompleted>(result)
+        }
+    }
+
+    @Test
+    fun testStartBillingPayment() {
+        // Arrange
+        val mockProductId = "MOCK"
+        coEvery { mockPaymentRepository.purchaseBillingProduct(mockProductId) } returns
+            mockk(relaxed = true)
+
+        // Act
+        viewModel.startBillingPayment(mockProductId)
+
+        // Assert
+        coVerify { mockPaymentRepository.purchaseBillingProduct(mockProductId) }
+    }
 
     companion object {
         private const val SERVICE_CONNECTION_MANAGER_EXTENSIONS =
