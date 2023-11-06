@@ -1,34 +1,34 @@
 use crate::{Error, Result};
 use once_cell::sync::OnceCell;
 use std::{
+    ffi::OsStr,
     io, mem,
     os::windows::prelude::OsStrExt,
     path::{Path, PathBuf},
     ptr,
-    ffi::OsStr,
 };
 use widestring::{WideCStr, WideCString};
 use windows_sys::{
     core::{GUID, PWSTR},
     Win32::{
         Foundation::{
-            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_READ, HANDLE,
-            INVALID_HANDLE_VALUE, LUID, S_OK, GENERIC_ALL, PSID, GENERIC_ACCESS_RIGHTS, 
+            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ACCESS_RIGHTS,
+            GENERIC_ALL, GENERIC_READ, HANDLE, INVALID_HANDLE_VALUE, LUID, PSID, S_OK,
         },
         Security::{
-            self, AdjustTokenPrivileges, NO_INHERITANCE, SUB_CONTAINERS_AND_OBJECTS_INHERIT, 
+            self, AdjustTokenPrivileges,
             Authorization::{
-                SetNamedSecurityInfoW,
-                SE_FILE_OBJECT, ConvertStringSidToSidW, TRUSTEE_W, NO_MULTIPLE_TRUSTEE,
-                TRUSTEE_IS_SID, TRUSTEE_IS_GROUP, EXPLICIT_ACCESS_W, SET_ACCESS, SetEntriesInAclW,
+                ConvertStringSidToSidW, SetEntriesInAclW, SetNamedSecurityInfoW, EXPLICIT_ACCESS_W,
+                NO_MULTIPLE_TRUSTEE, SET_ACCESS, SE_FILE_OBJECT, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID,
+                TRUSTEE_W,
             },
             CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
-            LookupPrivilegeValueW, RevertToSelf, SecurityImpersonation,
-            TokenUser, WinLocalSystemSid, LUID_AND_ATTRIBUTES,
-            SE_PRIVILEGE_ENABLED, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE,
+            LookupPrivilegeValueW, RevertToSelf, SecurityImpersonation, TokenUser,
+            WinLocalSystemSid, LUID_AND_ATTRIBUTES, NO_INHERITANCE, SE_PRIVILEGE_ENABLED,
+            SUB_CONTAINERS_AND_OBJECTS_INHERIT, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE,
             TOKEN_IMPERSONATE, TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER,
         },
-        Storage::FileSystem::{MAX_SID_SIZE},
+        Storage::FileSystem::MAX_SID_SIZE,
         System::{
             Com::CoTaskMemFree,
             Memory::LocalFree,
@@ -81,20 +81,20 @@ fn write_to_file(msg: &str) {
 
 /// Recursively creates directories for the given path with the given security attributes
 /// only directories that do not already exist and the leaf directory will have their permissions set.
-pub fn create_dir_recursive(
-    path: &Path,
-    set_security_permissions: bool,
-) -> Result<()> {
+pub fn create_dir_recursive(path: &Path, set_security_permissions: bool) -> Result<()> {
     if set_security_permissions {
-        std::fs::create_dir_all(path).map_err(|e| Error::CreateDirFailed(format!("Could not create directory at {}", path.display()), e))
+        std::fs::create_dir_all(path).map_err(|e| {
+            Error::CreateDirFailed(
+                format!("Could not create directory at {}", path.display()),
+                e,
+            )
+        })
     } else {
         create_dir_with_permissions_recursive(path)
     }
 }
 
-fn create_dir_with_permissions_recursive(
-    path: &Path,
-) -> Result<()> {
+fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
     write_to_file(&format!("create_dir_recursive_inner - path: {path:?}"));
     // No directory to create
     if path == Path::new("") {
@@ -104,16 +104,23 @@ fn create_dir_with_permissions_recursive(
     match std::fs::create_dir(path) {
         Ok(()) => {
             return set_security_permissions(path);
-        },
+        }
         // Could not find parent directory, try creating parent
         Err(e) if e.kind() == io::ErrorKind::NotFound => (),
         // Directory already exists, set permissions
         Err(e) if e.kind() == io::ErrorKind::AlreadyExists && path.is_dir() => {
             return set_security_permissions(path);
-        },
-        Err(e) => return Err(Error::CreateDirFailed(format!("Could not create directory at {}", path.display()), e)),
+        }
+        Err(e) => {
+            return Err(Error::CreateDirFailed(
+                format!("Could not create directory at {}", path.display()),
+                e,
+            ))
+        }
     }
-    write_to_file(&format!("create_dir_recursive_inner: after attempting to create directory - path: {path:?}"));
+    write_to_file(&format!(
+        "create_dir_recursive_inner: after attempting to create directory - path: {path:?}"
+    ));
 
     match path.parent() {
         // Create parent directory
@@ -134,14 +141,11 @@ fn create_dir_with_permissions_recursive(
     set_security_permissions(path)
 }
 
-
 /// Recursively creates directories for the given path with permissions that give full access to admins and read only access to authenticated users.
 /// If any of the directories already exist this will not return an error, instead it will apply the permissions and if successful return Ok(()).
 pub fn create_privileged_directory(path: &Path) -> Result<()> {
     write_to_file("Starting");
-    if let Err(e) = create_dir_with_permissions_recursive(
-        path,
-    ) {
+    if let Err(e) = create_dir_with_permissions_recursive(path) {
         write_to_file(&format!("Found an ERROR!!: {:?}", e));
         return Err(e);
     } else {
@@ -163,34 +167,64 @@ fn set_security_permissions(path: &Path) -> Result<()> {
     // admin_psid is now allocated and must be freed with FreeLocal and *MUST* outlive admin_ea
 
     // Authenticated users SID https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
-    let (authenticated_users_ea, authenticated_users_psid) = match create_explicit_access("S-1-5-11", GENERIC_READ) {
-        Ok((authenticated_users_ea, authenticated_users_psid)) => (authenticated_users_ea, authenticated_users_psid),
-        Err(e) => {
-            unsafe { LocalFree(admin_psid as isize) };
-            return Err(e);
-        }
-    };
+    let (authenticated_users_ea, authenticated_users_psid) =
+        match create_explicit_access("S-1-5-11", GENERIC_READ) {
+            Ok((authenticated_users_ea, authenticated_users_psid)) => {
+                (authenticated_users_ea, authenticated_users_psid)
+            }
+            Err(e) => {
+                unsafe { LocalFree(admin_psid as isize) };
+                return Err(e);
+            }
+        };
     // authenticated_users_psid is now allocated and must be freed with FreeLocal and *MUST* outlive authenticated_users_ea
-    
+
     let ea_entries = [admin_ea, authenticated_users_ea];
     let mut new_dacl = ptr::null_mut();
 
-    let result = unsafe { SetEntriesInAclW(u32::try_from(ea_entries.len()).unwrap(), ea_entries.as_ptr(), ptr::null(), &mut new_dacl) };
+    let result = unsafe {
+        SetEntriesInAclW(
+            u32::try_from(ea_entries.len()).unwrap(),
+            ea_entries.as_ptr(),
+            ptr::null(),
+            &mut new_dacl,
+        )
+    };
     if ERROR_SUCCESS != result {
         unsafe { LocalFree(admin_psid as isize) };
         unsafe { LocalFree(authenticated_users_psid as isize) };
-        return Err(Error::SetDirPermissionFailed(format!("SetEntriesInAclW failed"), io::Error::from_raw_os_error(i32::try_from(result).expect("result does not fit in i32"))));
+        return Err(Error::SetDirPermissionFailed(
+            format!("SetEntriesInAclW failed"),
+            io::Error::from_raw_os_error(
+                i32::try_from(result).expect("result does not fit in i32"),
+            ),
+        ));
     }
     // new_dacl is now allocated and must be freed with FreeLocal
 
-    let result = unsafe { SetNamedSecurityInfoW(wide_path.as_ptr(), SE_FILE_OBJECT, security_information, admin_psid, admin_psid, new_dacl, ptr::null()) };
+    let result = unsafe {
+        SetNamedSecurityInfoW(
+            wide_path.as_ptr(),
+            SE_FILE_OBJECT,
+            security_information,
+            admin_psid,
+            admin_psid,
+            new_dacl,
+            ptr::null(),
+        )
+    };
 
     unsafe { LocalFree(new_dacl as isize) };
     unsafe { LocalFree(admin_psid as isize) };
     unsafe { LocalFree(authenticated_users_psid as isize) };
 
     if ERROR_SUCCESS != result {
-        Err(Error::SetDirPermissionFailed(format!("SetNamedSecurityInfoW failed"), io::Error::from_raw_os_error(i32::try_from(result).expect("result does not fit in i32"))))
+        Err(Error::SetDirPermissionFailed(
+            format!("SetNamedSecurityInfoW failed"),
+            io::Error::from_raw_os_error(
+                i32::try_from(result).expect("result does not fit in i32"),
+            ),
+        ))
     } else {
         Ok(())
     }
@@ -199,11 +233,17 @@ fn set_security_permissions(path: &Path) -> Result<()> {
 /// Takes a wide string encoded SID string and access rights and produces a EXPLICIT_ACCESS_W object and a raw pointer to the
 /// allocated SID object. The caller is responsible for calling LocalFree on the returned raw pointer when they are done with it.
 /// The raw pointer *MUST* outlive the EXPLICIT_ACCESS_W object.
-fn create_explicit_access(sid_wide_str: &str, access_rights: GENERIC_ACCESS_RIGHTS) -> Result<(EXPLICIT_ACCESS_W, PSID)> {
+fn create_explicit_access(
+    sid_wide_str: &str,
+    access_rights: GENERIC_ACCESS_RIGHTS,
+) -> Result<(EXPLICIT_ACCESS_W, PSID)> {
     let sid_wide_str = get_wide_str(sid_wide_str);
     let mut psid = ptr::null_mut();
     if 0 == unsafe { ConvertStringSidToSidW(sid_wide_str.as_ptr(), &mut psid) } {
-        return Err(Error::SetDirPermissionFailed(format!("Could not create SID"), io::Error::last_os_error()));
+        return Err(Error::SetDirPermissionFailed(
+            format!("Could not create SID"),
+            io::Error::last_os_error(),
+        ));
     }
 
     let trustee = TRUSTEE_W {
