@@ -4,7 +4,7 @@
 use std::fs;
 use std::{io, path::PathBuf};
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 use crate::windows::create_dir_recursive;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -65,7 +65,7 @@ fn create_and_return(
     Ok(dir)
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(windows)]
 fn create_and_return(
     dir_fn: fn() -> Result<PathBuf>,
     set_security_permissions: bool,

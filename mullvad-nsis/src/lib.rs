@@ -30,7 +30,7 @@ pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status
         let len = loop {
             if *(path.offset(i)) == 0 {
                 break i;
-            } else if i > MAX_PATH_SIZE {
+            } else if i >= MAX_PATH_SIZE {
                 return Status::InvalidArguments;
             }
             i += 1;

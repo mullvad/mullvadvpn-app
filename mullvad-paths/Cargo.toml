@@ -30,5 +30,4 @@ features = [
     "Win32_System_SystemServices",
     "Win32_System_Threading",
     "Win32_UI_Shell",
-    "Win32_System_Memory",
 ]

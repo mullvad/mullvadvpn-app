@@ -148,6 +148,7 @@ fn set_security_permissions(path: &Path) -> Result<()> {
                 (authenticated_users_ea, authenticated_users_psid)
             }
             Err(e) => {
+                drop(admin_ea);
                 unsafe { LocalFree(admin_psid as isize) };
                 return Err(e);
             }
@@ -166,6 +167,7 @@ fn set_security_permissions(path: &Path) -> Result<()> {
         )
     };
     if ERROR_SUCCESS != result {
+        drop(ea_entries);
         unsafe { LocalFree(admin_psid as isize) };
         unsafe { LocalFree(authenticated_users_psid as isize) };
         return Err(Error::SetDirPermissionFailed(
@@ -189,6 +191,7 @@ fn set_security_permissions(path: &Path) -> Result<()> {
         )
     };
 
+    drop(ea_entries);
     unsafe { LocalFree(new_dacl as isize) };
     unsafe { LocalFree(admin_psid as isize) };
     unsafe { LocalFree(authenticated_users_psid as isize) };
