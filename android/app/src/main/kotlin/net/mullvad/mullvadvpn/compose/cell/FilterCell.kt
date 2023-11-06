@@ -47,7 +47,6 @@ fun FilterCell(
             Modifier.horizontalScroll(scrollState)
                 .padding(
                     horizontal = Dimens.searchFieldHorizontalPadding,
-                    vertical = Dimens.selectLocationTitlePadding
                 )
                 .fillMaxWidth(),
     ) {
