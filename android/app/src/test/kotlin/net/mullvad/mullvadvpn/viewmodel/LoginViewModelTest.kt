@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountCreationResult
+import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.DeviceListEvent
@@ -25,6 +26,7 @@ import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import org.joda.time.DateTime
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -86,6 +88,8 @@ class LoginViewModelTest {
             val uiStates = loginViewModel.uiState.testIn(backgroundScope)
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.login(any()) } returns LoginResult.Ok
+            coEvery { mockedAccountRepository.accountExpiryState } returns
+                MutableStateFlow(AccountExpiry.Available(DateTime.now().plusDays(3)))
 
             // Act, Assert
             uiStates.skipDefaultItem()

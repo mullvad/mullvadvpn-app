@@ -34,8 +34,8 @@
                   android:exported="true"
                   android:launchMode="singleTask"
                   android:configChanges="orientation|screenSize|screenLayout"
-                  android:screenOrientation="locked"
-                  android:windowSoftInputMode="adjustPan">
+                  android:screenOrientation="fullUser"
+                  android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

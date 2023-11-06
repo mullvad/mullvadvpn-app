@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
@@ -39,12 +40,17 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
+import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
+import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
+import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.ServiceConnectionViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
+import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
@@ -98,6 +104,7 @@ val uiModule = module {
     single { NewDeviceNotificationUseCase(get()) }
     single { PortRangeUseCase(get()) }
     single { RelayListUseCase(get(), get()) }
+    single { OutOfTimeUseCase(get(), get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -124,19 +131,26 @@ val uiModule = module {
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
-    viewModel { ConnectViewModel(get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { ConnectViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
+    viewModel { MtuDialogViewModel(get()) }
+    viewModel { parameters ->
+        DnsDialogViewModel(get(), get(), parameters.getOrNull(), parameters.getOrNull())
+    }
     viewModel { PrivacyDisclaimerViewModel(get()) }
     viewModel { SelectLocationViewModel(get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }
+    viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
+    viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get()) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get()) }
+    viewModel { PaymentViewModel(get()) }
+    viewModel { ServiceConnectionViewModel(get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
