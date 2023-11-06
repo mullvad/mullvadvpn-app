@@ -216,7 +216,7 @@ fun ConnectScreen(
                         .padding(horizontal = Dimens.sideMargin)
                         .testTag(LOCATION_INFO_TEST_TAG)
             )
-            Spacer(modifier = Modifier.height(Dimens.buttonSeparation))
+            Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
             SwitchLocationButton(
                 modifier =
                     Modifier.fillMaxWidth()
@@ -231,7 +231,7 @@ fun ConnectScreen(
                         stringResource(id = R.string.switch_location)
                     }
             )
-            Spacer(modifier = Modifier.height(Dimens.buttonSeparation))
+            Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
             ConnectionButton(
                 state = uiState.tunnelUiState,
                 modifier =

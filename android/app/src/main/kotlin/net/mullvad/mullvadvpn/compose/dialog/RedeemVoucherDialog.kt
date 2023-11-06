@@ -111,7 +111,7 @@ fun RedeemVoucherDialog(
                     VariantButton(
                         text = stringResource(id = R.string.redeem),
                         onClick = { onRedeem(uiState.voucherInput) },
-                        modifier = Modifier.padding(bottom = Dimens.mediumPadding),
+                        modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
                         isEnabled = uiState.voucherInput.length == VOUCHER_LENGTH
                     )
                 }

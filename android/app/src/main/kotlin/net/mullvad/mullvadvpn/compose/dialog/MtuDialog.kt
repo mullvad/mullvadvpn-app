@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -82,7 +83,7 @@ fun MtuDialog(
             }
         },
         confirmButton = {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
                     isEnabled = isValidMtu,
@@ -96,13 +97,13 @@ fun MtuDialog(
                 )
 
                 PrimaryButton(
-                    modifier = Modifier.padding(top = Dimens.mediumPadding).fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.reset_to_default_button),
                     onClick = onRestoreDefaultValue
                 )
 
                 PrimaryButton(
-                    modifier = Modifier.padding(top = Dimens.mediumPadding).fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     text = stringResource(R.string.cancel),
                     onClick = onDismiss
                 )

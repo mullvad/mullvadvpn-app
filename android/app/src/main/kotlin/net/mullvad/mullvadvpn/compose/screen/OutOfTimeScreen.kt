@@ -187,7 +187,7 @@ fun OutOfTimeScreen(
                         Modifier.padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
-                            bottom = Dimens.buttonSeparation
+                            bottom = Dimens.buttonSpacing
                         )
                 )
             }
@@ -199,7 +199,7 @@ fun OutOfTimeScreen(
                         Modifier.padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
-                            bottom = Dimens.buttonSeparation
+                            bottom = Dimens.buttonSpacing
                         )
                 )
             }
