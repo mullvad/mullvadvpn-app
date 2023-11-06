@@ -148,7 +148,6 @@ fn set_security_permissions(path: &Path) -> Result<()> {
                 (authenticated_users_ea, authenticated_users_psid)
             }
             Err(e) => {
-                drop(admin_ea);
                 unsafe { LocalFree(admin_psid as isize) };
                 return Err(e);
             }
@@ -167,11 +166,10 @@ fn set_security_permissions(path: &Path) -> Result<()> {
         )
     };
     if ERROR_SUCCESS != result {
-        drop(ea_entries);
         unsafe { LocalFree(admin_psid as isize) };
         unsafe { LocalFree(authenticated_users_psid as isize) };
         return Err(Error::SetDirPermissionFailed(
-            format!("SetEntriesInAclW failed"),
+            String::from("SetEntriesInAclW failed"),
             io::Error::from_raw_os_error(
                 i32::try_from(result).expect("result does not fit in i32"),
             ),
@@ -191,14 +189,13 @@ fn set_security_permissions(path: &Path) -> Result<()> {
         )
     };
 
-    drop(ea_entries);
     unsafe { LocalFree(new_dacl as isize) };
     unsafe { LocalFree(admin_psid as isize) };
     unsafe { LocalFree(authenticated_users_psid as isize) };
 
     if ERROR_SUCCESS != result {
         Err(Error::SetDirPermissionFailed(
-            format!("SetNamedSecurityInfoW failed"),
+            String::from("SetNamedSecurityInfoW failed"),
             io::Error::from_raw_os_error(
                 i32::try_from(result).expect("result does not fit in i32"),
             ),
@@ -219,7 +216,7 @@ fn create_explicit_access(
     let mut psid = ptr::null_mut();
     if 0 == unsafe { ConvertStringSidToSidW(sid_wide_str.as_ptr(), &mut psid) } {
         return Err(Error::SetDirPermissionFailed(
-            format!("Could not create SID"),
+            String::from("Could not create SID"),
             io::Error::last_os_error(),
         ));
     }
