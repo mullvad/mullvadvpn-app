@@ -1,37 +1,13 @@
 package net.mullvad.mullvadvpn.util
 
-import android.view.animation.Animation
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.withTimeoutOrNull
-import net.mullvad.mullvadvpn.lib.common.util.safeOffer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.talpid.util.EventNotifier
-
-fun Animation.transitionFinished(): Flow<Unit> =
-    callbackFlow {
-            val transitionAnimationListener =
-                object : Animation.AnimationListener {
-                    override fun onAnimationStart(animation: Animation?) {}
-
-                    override fun onAnimationEnd(animation: Animation?) {
-                        safeOffer(Unit)
-                    }
-
-                    override fun onAnimationRepeat(animation: Animation?) {}
-                }
-            setAnimationListener(transitionAnimationListener)
-            awaitClose {
-                Dispatchers.Main.dispatch(EmptyCoroutineContext) { setAnimationListener(null) }
-            }
-        }
-        .take(1)
 
 fun <R> Flow<ServiceConnectionState>.flatMapReadyConnectionOrDefault(
     default: Flow<R>,
@@ -129,3 +105,10 @@ inline fun <T1, T2, T3, T4, T5, T6, T7, T8, R> combine(
 
 suspend inline fun <T> Deferred<T>.awaitWithTimeoutOrNull(timeout: Long) =
     withTimeoutOrNull(timeout) { await() }
+
+fun <T> Deferred<T>.getOrDefault(default: T) =
+    try {
+        getCompleted()
+    } catch (e: IllegalStateException) {
+        default
+    }

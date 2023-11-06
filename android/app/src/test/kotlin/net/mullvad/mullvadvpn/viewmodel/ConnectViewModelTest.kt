@@ -39,10 +39,10 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.talpid.tunnel.ErrorState
-import net.mullvad.talpid.tunnel.ErrorStateCause
 import net.mullvad.talpid.util.EventNotifier
 import org.junit.After
 import org.junit.Before
@@ -99,6 +99,10 @@ class ConnectViewModelTest {
     // Flows
     private val selectedRelayFlow = MutableStateFlow<RelayItem?>(null)
 
+    // Out Of Time Use Case
+    private val outOfTimeUseCase: OutOfTimeUseCase = mockk()
+    private val outOfTimeViewFlow = MutableStateFlow(false)
+
     @Before
     fun setup() {
         mockkStatic(CACHE_EXTENSION_CLASS)
@@ -132,6 +136,7 @@ class ConnectViewModelTest {
         // Flows
         every { mockRelayListUseCase.selectedRelayItem() } returns selectedRelayFlow
 
+        every { outOfTimeUseCase() } returns outOfTimeViewFlow
         viewModel =
             ConnectViewModel(
                 serviceConnectionManager = mockServiceConnectionManager,
@@ -139,7 +144,8 @@ class ConnectViewModelTest {
                 deviceRepository = mockDeviceRepository,
                 inAppNotificationController = mockInAppNotificationController,
                 relayListUseCase = mockRelayListUseCase,
-                newDeviceNotificationUseCase = mockk()
+                newDeviceNotificationUseCase = mockk(),
+                outOfTimeUseCase = outOfTimeUseCase
             )
     }
 
@@ -337,8 +343,6 @@ class ConnectViewModelTest {
     fun testOutOfTimeUiSideEffect() =
         runTest(testCoroutineRule.testDispatcher) {
             // Arrange
-            val errorStateCause = ErrorStateCause.AuthFailed("[EXPIRED_ACCOUNT]")
-            val tunnelRealStateTestItem = TunnelState.Error(ErrorState(errorStateCause, true))
             val deferred = async { viewModel.uiSideEffect.first() }
 
             // Act
@@ -347,12 +351,12 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(mockLocation)
-                eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
+                outOfTimeViewFlow.value = true
                 awaitItem()
             }
 
             // Assert
-            assertIs<ConnectViewModel.UiSideEffect.OpenOutOfTimeView>(deferred.await())
+            assertIs<ConnectViewModel.UiSideEffect.OutOfTime>(deferred.await())
         }
 
     companion object {

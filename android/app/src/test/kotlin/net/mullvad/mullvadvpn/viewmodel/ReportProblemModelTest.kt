@@ -87,16 +87,30 @@ class ReportProblemModelTest {
         coEvery { mockMullvadProblemReport.sendReport(any()) } returns
             SendProblemReportResult.Success
         val email = ""
+        val description = "My description"
+
+        coEvery { mockProblemReportRepository.setDescription(any()) } answers
+            {
+                problemReportFlow.value = problemReportFlow.value.copy(description = arg(0))
+            }
 
         // Act, Assert
         viewModel.uiState.test {
-            assertEquals(ReportProblemUiState(false, null), awaitItem())
-            viewModel.sendReport(email, "My description")
-            assertEquals(ReportProblemUiState(true, null), awaitItem())
-            viewModel.sendReport(email, "My description")
-            assertEquals(ReportProblemUiState(false, SendingReportUiState.Sending), awaitItem())
+            assertEquals(ReportProblemUiState(), awaitItem())
+            viewModel.updateDescription(description)
+            assertEquals(ReportProblemUiState(description = description), awaitItem())
+
+            viewModel.sendReport(email, description, true)
             assertEquals(
-                ReportProblemUiState(false, SendingReportUiState.Success(null)),
+                ReportProblemUiState(SendingReportUiState.Sending, email, description),
+                awaitItem()
+            )
+            assertEquals(
+                ReportProblemUiState(
+                    SendingReportUiState.Success(null),
+                    "",
+                    "",
+                ),
                 awaitItem()
             )
         }
@@ -109,16 +123,42 @@ class ReportProblemModelTest {
         coEvery { mockMullvadProblemReport.sendReport(any()) } returns
             SendProblemReportResult.Success
         val email = "my@email.com"
+        val description = "My description"
+
+        coEvery { mockProblemReportRepository.setEmail(any()) } answers
+            {
+                problemReportFlow.value = problemReportFlow.value.copy(email = arg(0))
+            }
+        coEvery { mockProblemReportRepository.setDescription(any()) } answers
+            {
+                problemReportFlow.value = problemReportFlow.value.copy(description = arg(0))
+            }
 
         // Act, Assert
         viewModel.uiState.test {
-            assertEquals(awaitItem(), ReportProblemUiState(false, null))
-            viewModel.sendReport(email, "My description")
+            assertEquals(awaitItem(), ReportProblemUiState(null, "", ""))
+            viewModel.updateEmail(email)
+            awaitItem()
+            viewModel.updateDescription(description)
+            awaitItem()
 
-            assertEquals(awaitItem(), ReportProblemUiState(false, SendingReportUiState.Sending))
+            viewModel.sendReport(email, description)
+
             assertEquals(
-                awaitItem(),
-                ReportProblemUiState(false, SendingReportUiState.Success(email))
+                ReportProblemUiState(
+                    SendingReportUiState.Sending,
+                    email,
+                    description,
+                ),
+                awaitItem()
+            )
+            assertEquals(
+                ReportProblemUiState(
+                    SendingReportUiState.Success(email),
+                    "",
+                    "",
+                ),
+                awaitItem()
             )
         }
     }
@@ -145,20 +185,5 @@ class ReportProblemModelTest {
 
         // Assert
         verify { mockProblemReportRepository.setDescription(description) }
-    }
-
-    @Test
-    fun testUpdateProblemReport() = runTest {
-        // Arrange
-        val userReport = UserReport("my@email.com", "My description")
-
-        // Act, Assert
-        viewModel.uiState.test {
-            awaitItem()
-            problemReportFlow.value = userReport
-            val result = awaitItem()
-            assertEquals(userReport.email, result.email)
-            assertEquals(userReport.description, result.description)
-        }
     }
 }

@@ -16,18 +16,38 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.viewmodel.ChangeLog
+import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
+import org.koin.androidx.compose.koinViewModel
+
+@Destination(style = DestinationStyle.Dialog::class)
+@Composable
+fun Changelog(navController: NavController, changeLog: ChangeLog) {
+    val viewModel = koinViewModel<ChangelogViewModel>()
+
+    ChangelogDialog(
+        changeLog,
+        onDismiss = {
+            viewModel.markChangeLogAsRead()
+            navController.navigateUp()
+        }
+    )
+}
 
 @Composable
-fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () -> Unit) {
+fun ChangelogDialog(changeLog: ChangeLog, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = version,
+                text = changeLog.version,
                 style = MaterialTheme.typography.headlineLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
@@ -46,7 +66,7 @@ fun ChangelogDialog(changesList: List<String>, version: String, onDismiss: () ->
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                changesList.forEach { changeItem -> ChangeListItem(text = changeItem) }
+                changeLog.changes.forEach { changeItem -> ChangeListItem(text = changeItem) }
             }
         },
         confirmButton = {
@@ -80,7 +100,9 @@ private fun ChangeListItem(text: String) {
 @Preview
 @Composable
 private fun PreviewChangelogDialogWithSingleShortItem() {
-    AppTheme { ChangelogDialog(changesList = listOf("Item 1"), version = "1111.1", onDismiss = {}) }
+    AppTheme {
+        ChangelogDialog(ChangeLog(changes = listOf("Item 1"), version = "1111.1"), onDismiss = {})
+    }
 }
 
 @Preview
@@ -93,8 +115,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 
     AppTheme {
         ChangelogDialog(
-            changesList = listOf(longPreviewText, longPreviewText),
-            version = "1111.1",
+            ChangeLog(changes = listOf(longPreviewText, longPreviewText), version = "1111.1"),
             onDismiss = {}
         )
     }
@@ -105,20 +126,22 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 private fun PreviewChangelogDialogWithTenShortItems() {
     AppTheme {
         ChangelogDialog(
-            changesList =
-                listOf(
-                    "Item 1",
-                    "Item 2",
-                    "Item 3",
-                    "Item 4",
-                    "Item 5",
-                    "Item 6",
-                    "Item 7",
-                    "Item 8",
-                    "Item 9",
-                    "Item 10"
-                ),
-            version = "1111.1",
+            ChangeLog(
+                changes =
+                    listOf(
+                        "Item 1",
+                        "Item 2",
+                        "Item 3",
+                        "Item 4",
+                        "Item 5",
+                        "Item 6",
+                        "Item 7",
+                        "Item 8",
+                        "Item 9",
+                        "Item 10"
+                    ),
+                version = "1111.1"
+            ),
             onDismiss = {}
         )
     }
