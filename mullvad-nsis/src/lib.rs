@@ -41,7 +41,7 @@ pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status
 
         match mullvad_paths::windows::create_privileged_directory(path) {
             Ok(()) => Status::Ok,
-            Err(e) => Status::OsError,
+            Err(_) => Status::OsError,
         }
     })
 }
