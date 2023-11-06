@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -33,6 +35,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.combine
@@ -40,7 +43,6 @@ import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.toInAddress
 import net.mullvad.mullvadvpn.util.toOutAddress
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.tunnel.ErrorStateCause
 
 @OptIn(FlowPreview::class)
 class ConnectViewModel(
@@ -49,7 +51,8 @@ class ConnectViewModel(
     private val deviceRepository: DeviceRepository,
     private val inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
-    private val relayListUseCase: RelayListUseCase
+    private val relayListUseCase: RelayListUseCase,
+    private val outOfTimeUseCase: OutOfTimeUseCase
 ) : ViewModel() {
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
     val uiSideEffect = _uiSideEffect.asSharedFlow()
@@ -88,9 +91,6 @@ class ConnectViewModel(
                     accountExpiry,
                     isTunnelInfoExpanded,
                     deviceName ->
-                    if (tunnelRealState.isTunnelErrorStateDueToExpiredAccount()) {
-                        _uiSideEffect.tryEmit(UiSideEffect.OpenOutOfTimeView)
-                    }
                     ConnectUiState(
                         location =
                             when (tunnelRealState) {
@@ -133,6 +133,13 @@ class ConnectViewModel(
             .debounce(UI_STATE_DEBOUNCE_DURATION_MILLIS)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
+    init {
+        viewModelScope.launch {
+            outOfTimeUseCase().filter { it }.first()
+            _uiSideEffect.emit(UiSideEffect.OutOfTime)
+        }
+    }
+
     private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
         onNewLocation = { this.trySend(it) }
         awaitClose { onNewLocation = null }
@@ -143,12 +150,6 @@ class ConnectViewModel(
 
     private fun ConnectionProxy.tunnelRealStateFlow(): Flow<TunnelState> =
         callbackFlowFromNotifier(this.onStateChange)
-
-    private fun TunnelState.isTunnelErrorStateDueToExpiredAccount(): Boolean {
-        return ((this as? TunnelState.Error)?.errorState?.cause as? ErrorStateCause.AuthFailed)
-            ?.isCausedByExpiredAccount()
-            ?: false
-    }
 
     fun toggleTunnelInfoExpansion() {
         _isTunnelInfoExpanded.value = _isTunnelInfoExpanded.value.not()
@@ -187,7 +188,7 @@ class ConnectViewModel(
     sealed interface UiSideEffect {
         data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect
 
-        data object OpenOutOfTimeView : UiSideEffect
+        data object OutOfTime : UiSideEffect
     }
 
     companion object {

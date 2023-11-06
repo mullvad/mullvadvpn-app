@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -15,31 +14,36 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
-import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
+import net.mullvad.mullvadvpn.compose.destinations.AccountDestination
+import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
+import net.mullvad.mullvadvpn.compose.destinations.PaymentDestination
+import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
+import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.compose.transitions.NoTransition
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -50,6 +54,7 @@ import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -58,7 +63,6 @@ private fun PreviewOutOfTimeScreenDisconnected() {
         OutOfTimeScreen(
             showSitePayment = true,
             uiState = OutOfTimeUiState(tunnelState = TunnelState.Disconnected, "Heroic Frog"),
-            uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
 }
@@ -71,7 +75,6 @@ private fun PreviewOutOfTimeScreenConnecting() {
             showSitePayment = true,
             uiState =
                 OutOfTimeUiState(tunnelState = TunnelState.Connecting(null, null), "Strong Rabbit"),
-            uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
 }
@@ -90,50 +93,85 @@ private fun PreviewOutOfTimeScreenError() {
                         ),
                     deviceName = "Stable Horse"
                 ),
-            uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }
+}
+
+@Destination(style = NoTransition::class)
+@Composable
+fun OutOfTime(
+    navigator: DestinationsNavigator,
+    resultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>,
+    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
+) {
+    val vm = koinViewModel<OutOfTimeViewModel>()
+    val state = vm.uiState.collectAsState().value
+    resultRecipient.onNavResult {
+        // If we successfully redeemed a voucher, navigate to Connect screen
+        if (it is NavResult.Value && it.value) {
+            navigator.navigate(ConnectDestination) {
+                launchSingleTop = true
+                popUpTo(NavGraphs.root) { inclusive = true }
+            }
+        }
+    }
+
+    playPaymentResultRecipient.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {
+                /* Do nothing */
+            }
+            is NavResult.Value -> vm.onClosePurchaseResultDialog(it.value)
+        }
+    }
+
+    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
+    LaunchedEffect(key1 = Unit) {
+        vm.uiSideEffect.collect { uiSideEffect ->
+            when (uiSideEffect) {
+                is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
+                    openAccountPage(uiSideEffect.token)
+                OutOfTimeViewModel.UiSideEffect.OpenConnectScreen -> {
+                    navigator.navigate(ConnectDestination) {
+                        launchSingleTop = true
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
+
+    OutOfTimeScreen(
+        showSitePayment = IS_PLAY_BUILD.not(),
+        uiState = state,
+        onSitePaymentClick = vm::onSitePaymentClick,
+        onRedeemVoucherClick = {
+            navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
+        },
+        onSettingsClick = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onAccountClick = { navigator.navigate(AccountDestination) { launchSingleTop = true } },
+        onDisconnectClick = vm::onDisconnectClick,
+        onPurchaseBillingProductClick = { productId ->
+            navigator.navigate(PaymentDestination(productId)) { launchSingleTop = true }
+        },
+        navigateToVerificationPendingDialog = {
+            navigator.navigate(VerificationPendingDialogDestination) { launchSingleTop = true }
+        }
+    )
 }
 
 @Composable
 fun OutOfTimeScreen(
     showSitePayment: Boolean,
     uiState: OutOfTimeUiState,
-    uiSideEffect: SharedFlow<OutOfTimeViewModel.UiSideEffect>,
     onDisconnectClick: () -> Unit = {},
     onSitePaymentClick: () -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
-    openConnectScreen: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onAccountClick: () -> Unit = {},
-    onPurchaseBillingProductClick: (ProductId, activityProvider: () -> Activity) -> Unit = { _, _ ->
-    },
-    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {}
+    onPurchaseBillingProductClick: (ProductId) -> Unit = { _ -> },
+    navigateToVerificationPendingDialog: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
-    LaunchedEffect(key1 = Unit) {
-        uiSideEffect.collect { uiSideEffect ->
-            when (uiSideEffect) {
-                is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
-                    openAccountPage(uiSideEffect.token)
-                OutOfTimeViewModel.UiSideEffect.OpenConnectScreen -> openConnectScreen()
-            }
-        }
-    }
-
-    var showVerificationPendingDialog by remember { mutableStateOf(false) }
-    if (showVerificationPendingDialog) {
-        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
-    }
-
-    uiState.paymentDialogData?.let {
-        PaymentDialog(
-            paymentDialogData = uiState.paymentDialogData,
-            retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
-            onCloseDialog = onClosePurchaseResultDialog
-        )
-    }
 
     val scrollState = rememberScrollState()
     ScaffoldWithTopBarAndDeviceName(
@@ -143,13 +181,6 @@ fun OutOfTimeScreen(
             } else {
                 MaterialTheme.colorScheme.error
             },
-        statusBarColor =
-            if (uiState.tunnelState.isSecured()) {
-                MaterialTheme.colorScheme.inversePrimary
-            } else {
-                MaterialTheme.colorScheme.error
-            },
-        navigationBarColor = MaterialTheme.colorScheme.background,
         iconTintColor =
             if (uiState.tunnelState.isSecured()) {
                     MaterialTheme.colorScheme.onPrimary
@@ -223,9 +254,9 @@ fun OutOfTimeScreen(
                 PlayPayment(
                     billingPaymentState = uiState.billingPaymentState,
                     onPurchaseBillingProductClick = { productId ->
-                        onPurchaseBillingProductClick(productId) { context as Activity }
+                        onPurchaseBillingProductClick(productId)
                     },
-                    onInfoClick = { showVerificationPendingDialog = true },
+                    onInfoClick = navigateToVerificationPendingDialog,
                     modifier =
                         Modifier.padding(
                                 start = Dimens.sideMargin,

@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -28,7 +26,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
-import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
@@ -57,13 +54,11 @@ class OutOfTimeViewModel(
                     serviceConnection.connectionProxy.tunnelStateFlow(),
                     deviceRepository.deviceState,
                     paymentUseCase.paymentAvailability,
-                    paymentUseCase.purchaseResult
-                ) { tunnelState, deviceState, paymentAvailability, purchaseResult ->
+                ) { tunnelState, deviceState, paymentAvailability ->
                     OutOfTimeUiState(
                         tunnelState = tunnelState,
                         deviceName = deviceState.deviceName() ?: "",
                         billingPaymentState = paymentAvailability?.toPaymentState(),
-                        paymentDialogData = purchaseResult?.toPaymentDialogData()
                     )
                 }
             }
@@ -106,10 +101,6 @@ class OutOfTimeViewModel(
 
     fun onDisconnectClick() {
         viewModelScope.launch { serviceConnectionManager.connectionProxy()?.disconnect() }
-    }
-
-    fun startBillingPayment(productId: ProductId, activityProvider: () -> Activity) {
-        viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
     private fun verifyPurchases() {

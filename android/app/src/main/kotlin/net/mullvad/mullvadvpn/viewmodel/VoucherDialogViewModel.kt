@@ -45,7 +45,7 @@ class VoucherDialogViewModel(
             }
             .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
 
-    var uiState =
+    val uiState =
         _shared
             .flatMapLatest { serviceConnection ->
                 voucherRedeemer = serviceConnection.voucherRedeemer
