@@ -12,6 +12,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -22,6 +23,9 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -36,7 +40,9 @@ import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
 import org.joda.time.DateTimeConstants
+import org.koin.androidx.compose.koinViewModel
 
 @Preview(device = Devices.TV_720p)
 @Composable
@@ -88,6 +94,18 @@ private fun PreviewRedeemVoucherDialogSuccess() {
             onDismiss = {}
         )
     }
+}
+
+@Destination(style = DestinationStyle.Dialog::class)
+@Composable
+fun RedeemVoucher(resultBackNavigator: ResultBackNavigator<Boolean>) {
+    val vm = koinViewModel<VoucherDialogViewModel>()
+    RedeemVoucherDialog(
+        uiState = vm.uiState.collectAsState().value,
+        onVoucherInputChange = { vm.onVoucherInputChange(it) },
+        onRedeem = { vm.onRedeem(it) },
+        onDismiss = { resultBackNavigator.navigateBack(result = it) }
+    )
 }
 
 @Composable

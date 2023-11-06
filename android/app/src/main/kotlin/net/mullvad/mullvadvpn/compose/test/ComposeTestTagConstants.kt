@@ -1,5 +1,9 @@
 package net.mullvad.mullvadvpn.compose.test
 
+// Top Bar
+const val TOP_BAR_ACCOUNT_BUTTON = "top_bar_account_button"
+const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
+
 // VpnSettingsScreen
 const val LAZY_LIST_TEST_TAG = "lazy_list_test_tag"
 const val LAZY_LIST_LAST_ITEM_TEST_TAG = "lazy_list_last_item_test_tag"
