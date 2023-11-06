@@ -293,12 +293,8 @@ fun VpnSettingsScreen(
                     onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
                     onInfoClicked = { onLocalNetworkSharingInfoClick() }
                 )
-            }
-            item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() })
             }
-            item { MtuSubtitle() }
 
             itemWithDivider {
                 ExpandableComposeCell(
@@ -363,7 +359,7 @@ fun VpnSettingsScreen(
                     )
                 }
 
-                itemWithDivider {
+                item {
                     NormalSwitchComposeCell(
                         title = stringResource(R.string.block_social_media_title),
                         isToggled = uiState.contentBlockersOptions.blockSocialMedia,
@@ -389,63 +385,55 @@ fun VpnSettingsScreen(
                 }
             }
 
-            itemWithDivider {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                InformationComposeCell(
-                    title = stringResource(R.string.obfuscation_title),
-                    onInfoClicked = { onObfuscationInfoClick() }
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = uiState.selectedObfuscation == SelectedObfuscation.Auto,
-                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Auto) }
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.obfuscation_on_udp_over_tcp),
-                    isSelected = uiState.selectedObfuscation == SelectedObfuscation.Udp2Tcp,
-                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Udp2Tcp) }
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.off),
-                    isSelected = uiState.selectedObfuscation == SelectedObfuscation.Off,
-                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) }
+            item {
+                HeaderSwitchComposeCell(
+                    title = stringResource(R.string.enable_custom_dns),
+                    isToggled = uiState.isCustomDnsEnabled,
+                    isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                    onCellClicked = { newValue -> onToggleDnsClick(newValue) },
+                    onInfoClicked = { onCustomDnsInfoClick() }
                 )
             }
 
-            itemWithDivider {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                InformationComposeCell(
-                    title = stringResource(R.string.quantum_resistant_title),
-                    onInfoClicked = { onQuantumResistanceInfoClicked() }
-                )
+            if (uiState.isCustomDnsEnabled) {
+                itemsIndexed(uiState.customDnsItems) { index, item ->
+                    DnsCell(
+                        address = item.address,
+                        isUnreachableLocalDnsWarningVisible =
+                            item.isLocal && uiState.isAllowLanEnabled.not(),
+                        onClick = { onDnsClick(index) },
+                        modifier = Modifier.animateItemPlacement()
+                    )
+                    Divider()
+                }
+
+                itemWithDivider {
+                    BaseCell(
+                        onCellClicked = { onDnsClick(null) },
+                        title = {
+                            Text(
+                                text = stringResource(id = R.string.add_a_server),
+                                color = Color.White,
+                            )
+                        },
+                        bodyView = {},
+                        background = MaterialTheme.colorScheme.secondaryContainer,
+                        startPadding = biggerPadding,
+                    )
+                }
             }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.automatic),
-                    isSelected = uiState.quantumResistant == QuantumResistantState.Auto,
-                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Auto) }
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.on),
-                    testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG,
-                    isSelected = uiState.quantumResistant == QuantumResistantState.On,
-                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) }
-                )
-            }
-            itemWithDivider {
-                SelectableCell(
-                    title = stringResource(id = R.string.off),
-                    testTag = LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG,
-                    isSelected = uiState.quantumResistant == QuantumResistantState.Off,
-                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) }
+
+            item {
+                CustomDnsCellSubtitle(
+                    isCellClickable = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
+                    modifier =
+                        Modifier.background(MaterialTheme.colorScheme.secondary)
+                            .padding(
+                                start = Dimens.cellStartPadding,
+                                top = topPadding,
+                                end = Dimens.cellEndPadding,
+                                bottom = Dimens.cellLabelVerticalPadding,
+                            )
                 )
             }
 
@@ -499,58 +487,71 @@ fun VpnSettingsScreen(
                 )
             }
 
-            item {
+            itemWithDivider {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                HeaderSwitchComposeCell(
-                    title = stringResource(R.string.enable_custom_dns),
-                    isToggled = uiState.isCustomDnsEnabled,
-                    isEnabled = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                    onCellClicked = { newValue -> onToggleDnsClick(newValue) },
-                    onInfoClicked = { onCustomDnsInfoClick() }
+                InformationComposeCell(
+                    title = stringResource(R.string.obfuscation_title),
+                    onInfoClicked = { onObfuscationInfoClick() }
+                )
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
+                    isSelected = uiState.selectedObfuscation == SelectedObfuscation.Auto,
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Auto) }
+                )
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.obfuscation_on_udp_over_tcp),
+                    isSelected = uiState.selectedObfuscation == SelectedObfuscation.Udp2Tcp,
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Udp2Tcp) }
+                )
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.off),
+                    isSelected = uiState.selectedObfuscation == SelectedObfuscation.Off,
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Off) }
                 )
             }
 
-            if (uiState.isCustomDnsEnabled) {
-                itemsIndexed(uiState.customDnsItems) { index, item ->
-                    DnsCell(
-                        address = item.address,
-                        isUnreachableLocalDnsWarningVisible =
-                            item.isLocal && uiState.isAllowLanEnabled.not(),
-                        onClick = { onDnsClick(index) },
-                        modifier = Modifier.animateItemPlacement()
-                    )
-                    Divider()
-                }
-
-                itemWithDivider {
-                    BaseCell(
-                        onCellClicked = { onDnsClick(null) },
-                        title = {
-                            Text(
-                                text = stringResource(id = R.string.add_a_server),
-                                color = Color.White,
-                            )
-                        },
-                        bodyView = {},
-                        background = MaterialTheme.colorScheme.secondaryContainer,
-                        startPadding = biggerPadding,
-                    )
-                }
+            itemWithDivider {
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                InformationComposeCell(
+                    title = stringResource(R.string.quantum_resistant_title),
+                    onInfoClicked = { onQuantumResistanceInfoClicked() }
+                )
             }
-
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
+                    isSelected = uiState.quantumResistant == QuantumResistantState.Auto,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Auto) }
+                )
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.on),
+                    testTag = LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG,
+                    isSelected = uiState.quantumResistant == QuantumResistantState.On,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.On) }
+                )
+            }
             item {
-                CustomDnsCellSubtitle(
-                    isCellClickable = uiState.contentBlockersOptions.isAnyBlockerEnabled().not(),
-                    modifier =
-                        Modifier.background(MaterialTheme.colorScheme.secondary)
-                            .testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)
-                            .padding(
-                                start = Dimens.cellStartPadding,
-                                top = topPadding,
-                                end = Dimens.cellEndPadding,
-                                bottom = Dimens.cellLabelVerticalPadding,
-                            )
+                SelectableCell(
+                    title = stringResource(id = R.string.off),
+                    testTag = LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG,
+                    isSelected = uiState.quantumResistant == QuantumResistantState.Off,
+                    onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) }
                 )
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+            }
+
+            item { MtuComposeCell(mtuValue = uiState.mtu, onEditMtu = { onMtuCellClick() }) }
+            item {
+                MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
             }
         }
     }
