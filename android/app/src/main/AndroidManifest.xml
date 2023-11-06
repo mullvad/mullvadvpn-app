@@ -30,7 +30,6 @@
         -->
         <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
                   android:exported="true"
-                  android:label="@string/app_name"
                   android:launchMode="singleTask"
                   android:configChanges="orientation|screenSize|screenLayout"
                   android:screenOrientation="locked"
