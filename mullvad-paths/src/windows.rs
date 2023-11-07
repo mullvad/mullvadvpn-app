@@ -81,6 +81,11 @@ pub fn create_dir_recursive(path: &Path, set_security_permissions: bool) -> Resu
     }
 }
 
+/// If directory at path already exists, set permissions for it.
+/// If directory at path don't exist but parent does, create directory and set permissions.
+/// If parent directory at path does not exist then recurse and create parent directory and set
+/// permissions for it, then create child directory and set permissions.
+/// This does not set permissions for parent directories that already exists.
 fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
     // No directory to create
     if path == Path::new("") {
