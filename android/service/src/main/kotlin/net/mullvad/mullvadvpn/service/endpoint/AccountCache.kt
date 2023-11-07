@@ -72,8 +72,9 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
             registerHandler(Request.FetchAccountExpiry::class) { _ ->
                 jobTracker.newBackgroundJob("fetchAccountExpiry") {
-                    accountExpiry =
-                        cachedAccountToken?.let { fetchAccountExpiry(it) } ?: AccountExpiry.Missing
+                    val token = cachedAccountToken ?: return@newBackgroundJob
+                    val newAccountExpiry = fetchAccountExpiry(token) ?: return@newBackgroundJob
+                    accountExpiry = newAccountExpiry
                 }
             }
 
@@ -141,6 +142,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     private suspend fun doLogout() {
         daemon.await().logoutAccount()
+        accountExpiry = AccountExpiry.Missing
         accountHistory = fetchAccountHistory()
     }
 
@@ -154,15 +156,15 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    private suspend fun fetchAccountExpiry(accountToken: String): AccountExpiry {
+    private suspend fun fetchAccountExpiry(accountToken: String): AccountExpiry? {
         return fetchAccountData(accountToken).let { result ->
-            if (result is GetAccountDataResult.Ok) {
-                result.accountData.expiry.parseAsDateTime()?.let { parsedDateTime ->
-                    AccountExpiry.Available(parsedDateTime)
+            when (result) {
+                is GetAccountDataResult.Ok -> {
+                    result.accountData.expiry.parseAsDateTime()?.let { AccountExpiry.Available(it) }
                 }
-                    ?: AccountExpiry.Missing
-            } else {
-                AccountExpiry.Missing
+                GetAccountDataResult.InvalidAccount -> AccountExpiry.Missing
+                GetAccountDataResult.OtherError -> null
+                GetAccountDataResult.RpcError -> null
             }
         }
     }
