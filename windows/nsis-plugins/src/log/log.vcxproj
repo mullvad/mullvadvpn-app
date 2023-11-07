@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;LOG_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../../mullvad-nsis/include;$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -85,7 +85,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;LOG_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../../../mullvad-nsis/include;$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
