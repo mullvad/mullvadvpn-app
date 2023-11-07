@@ -781,9 +781,17 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
 
     private func addTunnelObserver() {
         let tunnelObserver =
-            TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
-                self?.deviceStateDidChange(deviceState, previousDeviceState: previousDeviceState)
-            })
+            TunnelBlockObserver(
+                didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
+                    if case let .error(observedState) = tunnelStatus.observedState,
+                       observedState.reason == .accountExpired {
+                        self?.router.present(.outOfTime)
+                    }
+                },
+                didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
+                    self?.deviceStateDidChange(deviceState, previousDeviceState: previousDeviceState)
+                }
+            )
 
         tunnelManager.addObserver(tunnelObserver)
 
