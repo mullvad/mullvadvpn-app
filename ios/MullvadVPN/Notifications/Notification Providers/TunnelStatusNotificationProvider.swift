@@ -57,7 +57,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
 
     private func handleTunnelStatus(_ tunnelStatus: TunnelStatus) {
         let invalidateForTunnelError: Bool
-        if case let .error(blockStateReason) = tunnelStatus.state {
+        if case let .error(blockStateReason) = tunnelStatus.state, blockStateReason != .accountExpired {
             invalidateForTunnelError = updateLastTunnelError(blockStateReason)
         } else {
             invalidateForTunnelError = updateLastTunnelError(nil)
@@ -231,8 +231,6 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
             errorString = "No servers match your settings, try changing server or other settings."
         case .invalidAccount:
             errorString = "You are logged in with an invalid account number. Please log out and try another one."
-        case .accountExpired:
-            errorString = "Account is out of time."
         case .deviceRevoked, .deviceLoggedOut:
             errorString = "Unable to authenticate account. Please log out and log back in."
         default:
