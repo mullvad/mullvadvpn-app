@@ -12,19 +12,19 @@ use windows_sys::{
     core::{GUID, PWSTR},
     Win32::{
         Foundation::{
-            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ACCESS_RIGHTS,
-            GENERIC_ALL, GENERIC_READ, HANDLE, INVALID_HANDLE_VALUE, LUID, PSID, S_OK,
+            CloseHandle, ERROR_INSUFFICIENT_BUFFER, ERROR_SUCCESS, GENERIC_ALL, GENERIC_READ,
+            HANDLE, INVALID_HANDLE_VALUE, LUID, S_OK,
         },
         Security::{
             self, AdjustTokenPrivileges,
             Authorization::{
-                ConvertStringSidToSidW, SetEntriesInAclW, SetNamedSecurityInfoW, EXPLICIT_ACCESS_W,
-                NO_MULTIPLE_TRUSTEE, SET_ACCESS, SE_FILE_OBJECT, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID,
-                TRUSTEE_W,
+                SetEntriesInAclW, SetNamedSecurityInfoW, EXPLICIT_ACCESS_W, NO_MULTIPLE_TRUSTEE,
+                SET_ACCESS, SE_FILE_OBJECT, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
             },
             CreateWellKnownSid, EqualSid, GetTokenInformation, ImpersonateSelf,
             LookupPrivilegeValueW, RevertToSelf, SecurityImpersonation, TokenUser,
-            WinLocalSystemSid, LUID_AND_ATTRIBUTES, NO_INHERITANCE, SE_PRIVILEGE_ENABLED,
+            WinAuthenticatedUserSid, WinBuiltinAdministratorsSid, WinLocalSystemSid,
+            LUID_AND_ATTRIBUTES, NO_INHERITANCE, SE_PRIVILEGE_ENABLED,
             SUB_CONTAINERS_AND_OBJECTS_INHERIT, TOKEN_ADJUST_PRIVILEGES, TOKEN_DUPLICATE,
             TOKEN_IMPERSONATE, TOKEN_PRIVILEGES, TOKEN_QUERY, TOKEN_USER,
         },
@@ -69,14 +69,14 @@ fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
 /// only directories that do not already exist and the leaf directory will have their permissions set.
 pub fn create_dir_recursive(path: &Path, set_security_permissions: bool) -> Result<()> {
     if set_security_permissions {
+        create_dir_with_permissions_recursive(path)
+    } else {
         std::fs::create_dir_all(path).map_err(|e| {
             Error::CreateDirFailed(
                 format!("Could not create directory at {}", path.display()),
                 e,
             )
         })
-    } else {
-        create_dir_with_permissions_recursive(path)
     }
 }
 
@@ -137,22 +137,69 @@ fn set_security_permissions(path: &Path) -> Result<()> {
         | Security::GROUP_SECURITY_INFORMATION
         | Security::OWNER_SECURITY_INFORMATION;
 
-    // Builtin admin SID https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
-    let (admin_ea, admin_psid) = create_explicit_access("S-1-5-32-544", GENERIC_ALL)?;
-    // admin_psid is now allocated and must be freed with FreeLocal and *MUST* outlive admin_ea
+    let mut admin_psid = [0u8; MAX_SID_SIZE as usize];
+    let mut admin_psid_len = u32::try_from(admin_psid.len()).unwrap();
+    if unsafe {
+        CreateWellKnownSid(
+            WinBuiltinAdministratorsSid,
+            ptr::null_mut(),
+            admin_psid.as_mut_ptr() as _,
+            &mut admin_psid_len,
+        )
+    } == 0
+    {
+        return Err(Error::SetDirPermissionFailed(
+            String::from("Could not create admin SID"),
+            io::Error::last_os_error(),
+        ));
+    }
 
-    // Authenticated users SID https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/manage/understand-security-identifiers
-    let (authenticated_users_ea, authenticated_users_psid) =
-        match create_explicit_access("S-1-5-11", GENERIC_READ) {
-            Ok((authenticated_users_ea, authenticated_users_psid)) => {
-                (authenticated_users_ea, authenticated_users_psid)
-            }
-            Err(e) => {
-                unsafe { LocalFree(admin_psid as isize) };
-                return Err(e);
-            }
-        };
-    // authenticated_users_psid is now allocated and must be freed with FreeLocal and *MUST* outlive authenticated_users_ea
+    let trustee = TRUSTEE_W {
+        pMultipleTrustee: ptr::null_mut(),
+        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
+        TrusteeForm: TRUSTEE_IS_SID,
+        TrusteeType: TRUSTEE_IS_GROUP,
+        ptstrName: admin_psid.as_mut_ptr() as *mut _,
+    };
+
+    let admin_ea = EXPLICIT_ACCESS_W {
+        grfAccessPermissions: GENERIC_ALL,
+        grfAccessMode: SET_ACCESS,
+        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
+        Trustee: trustee,
+    };
+
+    let mut au_psid = [0u8; MAX_SID_SIZE as usize];
+    let mut au_psid_len = u32::try_from(au_psid.len()).unwrap();
+    if unsafe {
+        CreateWellKnownSid(
+            WinAuthenticatedUserSid,
+            ptr::null_mut(),
+            au_psid.as_mut_ptr() as _,
+            &mut au_psid_len,
+        )
+    } == 0
+    {
+        return Err(Error::SetDirPermissionFailed(
+            String::from("Could not create authenticated users SID"),
+            io::Error::last_os_error(),
+        ));
+    }
+
+    let trustee = TRUSTEE_W {
+        pMultipleTrustee: ptr::null_mut(),
+        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
+        TrusteeForm: TRUSTEE_IS_SID,
+        TrusteeType: TRUSTEE_IS_GROUP,
+        ptstrName: au_psid.as_mut_ptr() as *mut _,
+    };
+
+    let authenticated_users_ea = EXPLICIT_ACCESS_W {
+        grfAccessPermissions: GENERIC_READ,
+        grfAccessMode: SET_ACCESS,
+        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
+        Trustee: trustee,
+    };
 
     let ea_entries = [admin_ea, authenticated_users_ea];
     let mut new_dacl = ptr::null_mut();
@@ -166,8 +213,6 @@ fn set_security_permissions(path: &Path) -> Result<()> {
         )
     };
     if ERROR_SUCCESS != result {
-        unsafe { LocalFree(admin_psid as isize) };
-        unsafe { LocalFree(authenticated_users_psid as isize) };
         return Err(Error::SetDirPermissionFailed(
             String::from("SetEntriesInAclW failed"),
             io::Error::from_raw_os_error(
@@ -182,16 +227,14 @@ fn set_security_permissions(path: &Path) -> Result<()> {
             wide_path.as_ptr(),
             SE_FILE_OBJECT,
             security_information,
-            admin_psid,
-            admin_psid,
+            admin_psid.as_mut_ptr() as *mut _,
+            admin_psid.as_mut_ptr() as *mut _,
             new_dacl,
             ptr::null(),
         )
     };
 
     unsafe { LocalFree(new_dacl as isize) };
-    unsafe { LocalFree(admin_psid as isize) };
-    unsafe { LocalFree(authenticated_users_psid as isize) };
 
     if ERROR_SUCCESS != result {
         Err(Error::SetDirPermissionFailed(
@@ -203,40 +246,6 @@ fn set_security_permissions(path: &Path) -> Result<()> {
     } else {
         Ok(())
     }
-}
-
-/// Takes a wide string encoded SID string and access rights and produces a EXPLICIT_ACCESS_W object and a raw pointer to the
-/// allocated SID object. The caller is responsible for calling LocalFree on the returned raw pointer when they are done with it.
-/// The raw pointer *MUST* outlive the EXPLICIT_ACCESS_W object.
-fn create_explicit_access(
-    sid_wide_str: &str,
-    access_rights: GENERIC_ACCESS_RIGHTS,
-) -> Result<(EXPLICIT_ACCESS_W, PSID)> {
-    let sid_wide_str = get_wide_str(sid_wide_str);
-    let mut psid = ptr::null_mut();
-    if 0 == unsafe { ConvertStringSidToSidW(sid_wide_str.as_ptr(), &mut psid) } {
-        return Err(Error::SetDirPermissionFailed(
-            String::from("Could not create SID"),
-            io::Error::last_os_error(),
-        ));
-    }
-
-    let trustee = TRUSTEE_W {
-        pMultipleTrustee: ptr::null_mut(),
-        MultipleTrusteeOperation: NO_MULTIPLE_TRUSTEE,
-        TrusteeForm: TRUSTEE_IS_SID,
-        TrusteeType: TRUSTEE_IS_GROUP,
-        ptstrName: psid as *mut _,
-    };
-
-    let explicit_access = EXPLICIT_ACCESS_W {
-        grfAccessPermissions: access_rights,
-        grfAccessMode: SET_ACCESS,
-        grfInheritance: NO_INHERITANCE | SUB_CONTAINERS_AND_OBJECTS_INHERIT,
-        Trustee: trustee,
-    };
-
-    Ok((explicit_access, psid))
 }
 
 /// Get local AppData path for the system service user.
