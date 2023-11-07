@@ -56,6 +56,7 @@ build {
     script = "scripts/install-brew.sh"
   }
 
+
   // Install required brew dependencies
   provisioner "shell" {
     script = "scripts/install-brew-dependencies.sh"
@@ -98,6 +99,11 @@ build {
   // Run the xcodebuild first launch prompt to automatically accept terms and conditions, and download the iOS runtime simulator
   provisioner "shell" {
     script = "scripts/run-xcode-first-launch.sh"
+  }
+
+  // Add Apple root certs
+  privisioner "shell" {
+    script = "scripts/add-apple-certs.sh"
   }
 
   // Remove everything in case of error
