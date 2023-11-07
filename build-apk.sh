@@ -27,7 +27,6 @@ while [ ! -z "${1:-""}" ]; do
         GRADLE_BUILD_TYPE="debug"
         GRADLE_TASKS=(createOssProdDebugDistApk)
         BUNDLE_TASKS=(createOssProdDebugDistBundle)
-        CARGO_ARGS="--features api-override"
     elif [[ "${1:-""}" == "--fdroid" ]]; then
         GRADLE_BUILD_TYPE="fdroid"
         GRADLE_TASKS=(createOssProdFdroidDistApk)
@@ -56,6 +55,8 @@ if [[ "$BUILD_TYPE" == "release" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     echo "Removing old Rust build artifacts"
     cargo clean
     CARGO_ARGS+=" --locked"
+else
+    CARGO_ARGS+=" --features api-override"
 fi
 
 pushd "$SCRIPT_DIR/android"
