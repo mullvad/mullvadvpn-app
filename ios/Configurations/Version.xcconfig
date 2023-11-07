@@ -2,7 +2,7 @@
 VERSIONING_SYSTEM = apple-generic
 
 // Marketing version, aka major.minor
-MARKETING_VERSION = 2023.5
+MARKETING_VERSION = 2023.7
 
 // Build number
 // Normally we reset the build number to 1 after bumping MARKETING_VERSION.
