@@ -133,7 +133,7 @@
 		585F5A752AE68688001D9DF7 /* Socks5ConnectNegotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A652AE68687001D9DF7 /* Socks5ConnectNegotiation.swift */; };
 		585F5A762AE68688001D9DF7 /* NWConnection+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A662AE68688001D9DF7 /* NWConnection+Extensions.swift */; };
 		585F5A782AE6879A001D9DF7 /* URLSessionSocks5Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A772AE6879A001D9DF7 /* URLSessionSocks5Transport.swift */; };
-		585F5A7A2AE6A523001D9DF7 /* DeferredCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A792AE6A523001D9DF7 /* DeferredCancellable.swift */; };
+		585F5A7A2AE6A523001D9DF7 /* CancellableChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A792AE6A523001D9DF7 /* CancellableChain.swift */; };
 		585F5A7C2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A7B2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift */; };
 		585F5A7E2AE6B62D001D9DF7 /* Socks5Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585F5A7D2AE6B62D001D9DF7 /* Socks5Configuration.swift */; };
 		58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */; };
@@ -1313,7 +1313,7 @@
 		585F5A652AE68687001D9DF7 /* Socks5ConnectNegotiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectNegotiation.swift; sourceTree = "<group>"; };
 		585F5A662AE68688001D9DF7 /* NWConnection+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NWConnection+Extensions.swift"; sourceTree = "<group>"; };
 		585F5A772AE6879A001D9DF7 /* URLSessionSocks5Transport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionSocks5Transport.swift; sourceTree = "<group>"; };
-		585F5A792AE6A523001D9DF7 /* DeferredCancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeferredCancellable.swift; sourceTree = "<group>"; };
+		585F5A792AE6A523001D9DF7 /* CancellableChain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CancellableChain.swift; sourceTree = "<group>"; };
 		585F5A7B2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyIPEndpoint+Socks5.swift"; sourceTree = "<group>"; };
 		585F5A7D2AE6B62D001D9DF7 /* Socks5Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5Configuration.swift; sourceTree = "<group>"; };
 		58607A4C2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryInAppNotificationProvider.swift; sourceTree = "<group>"; };
@@ -3050,7 +3050,7 @@
 			isa = PBXGroup;
 			children = (
 				585F5A7B2AE6A537001D9DF7 /* AnyIPEndpoint+Socks5.swift */,
-				585F5A792AE6A523001D9DF7 /* DeferredCancellable.swift */,
+				585F5A792AE6A523001D9DF7 /* CancellableChain.swift */,
 				A97F1F432A1F4E1A00ECEFDE /* MullvadTransport.h */,
 				586F2BE129F6916F009E6924 /* shadowsocks.h */,
 				A9467E872A2DCD57000DC21F /* ShadowsocksConfiguration.swift */,
@@ -4752,7 +4752,7 @@
 				585F5A782AE6879A001D9DF7 /* URLSessionSocks5Transport.swift in Sources */,
 				585F5A6B2AE68688001D9DF7 /* Socks5Handshake.swift in Sources */,
 				585F5A682AE68688001D9DF7 /* Socks5ForwardingProxy.swift in Sources */,
-				585F5A7A2AE6A523001D9DF7 /* DeferredCancellable.swift in Sources */,
+				585F5A7A2AE6A523001D9DF7 /* CancellableChain.swift in Sources */,
 				585F5A692AE68688001D9DF7 /* Socks5ConnectCommand.swift in Sources */,
 				A95F86B72A1F53BA00245DAC /* URLSessionTransport.swift in Sources */,
 				5822C0042A3724A800A3A5FB /* ShadowsocksConfigurationCache.swift in Sources */,

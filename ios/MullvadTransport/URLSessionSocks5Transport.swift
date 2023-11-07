@@ -72,7 +72,7 @@ public class URLSessionSocks5Transport: RESTTransport {
         request: URLRequest,
         completion: @escaping (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable {
-        let deferred = DeferredCancellable()
+        let chain = CancellableChain()
 
         socksProxy.start { [weak self, weak socksProxy] error in
             if let error {
@@ -80,14 +80,14 @@ public class URLSessionSocks5Transport: RESTTransport {
             } else if let self, let localPort = socksProxy?.listenPort {
                 let token = self.startDataTask(request: request, localPort: localPort, completion: completion)
 
-                // Propagate cancellation from deferred to the data task cancellation token.
-                deferred.connect(token)
+                // Propagate cancellation from the chain to the data task cancellation token.
+                chain.link(token)
             } else {
                 completion(nil, nil, URLError(.cancelled))
             }
         }
 
-        return deferred
+        return chain
     }
 
     /// Execute data task, rewriting the original URLRequest to communicate over the socks proxy listening on the local TCP port.
