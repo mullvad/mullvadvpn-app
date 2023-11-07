@@ -65,8 +65,9 @@ fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
     wide_string
 }
 
-/// Recursively creates directories for the given path with the given security attributes
-/// only directories that do not already exist and the leaf directory will have their permissions set.
+/// Recursively creates directories, if set_security_permissions is true it will set
+/// file permissions corresponding to Authenticated Users - Read Only and Administrators - Full
+/// Access. Only directories that do not already exist and the leaf directory will have their permissions set.
 pub fn create_dir_recursive(path: &Path, set_security_permissions: bool) -> Result<()> {
     if set_security_permissions {
         create_dir_with_permissions_recursive(path)
