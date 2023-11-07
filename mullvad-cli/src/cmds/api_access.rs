@@ -4,7 +4,7 @@ use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, CustomAcce
 use std::net::IpAddr;
 
 use clap::{Args, Subcommand};
-use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
+use talpid_types::net::{openvpn::SHADOWSOCKS_CIPHERS, TransportProtocol};
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum ApiAccess {
@@ -118,10 +118,21 @@ impl ApiAccess {
                 }
                 CustomAccessMethod::Socks5(socks) => match socks {
                     Socks5::Local(local) => {
-                        let remote_ip = cmd.params.ip.unwrap_or(local.remote_peer.ip());
-                        let remote_port = cmd.params.port.unwrap_or(local.remote_peer.port());
+                        let remote_ip = cmd.params.ip.unwrap_or(local.remote_endpoint.address.ip());
+                        let remote_port = cmd
+                            .params
+                            .port
+                            .unwrap_or(local.remote_endpoint.address.port());
                         let local_port = cmd.params.local_port.unwrap_or(local.local_port);
-                        AccessMethod::from(Socks5Local::new((remote_ip, remote_port), local_port))
+                        let remote_peer_transport_protocol = cmd
+                            .params
+                            .transport_protocol
+                            .unwrap_or(local.remote_endpoint.protocol);
+                        AccessMethod::from(Socks5Local::new_with_transport_protocol(
+                            (remote_ip, remote_port),
+                            local_port,
+                            remote_peer_transport_protocol,
+                        ))
                     }
                     Socks5::Remote(remote) => {
                         let ip = cmd.params.ip.unwrap_or(remote.peer.ip());
@@ -306,6 +317,14 @@ pub enum AddSocks5Commands {
         remote_ip: IpAddr,
         /// The port of the remote peer
         remote_port: u16,
+        /// The Mullvad App can not know which transport protocol that the
+        /// remote peer accepts, but it needs to know this in order to correctly
+        /// exempt the connection traffic in the firewall.
+        ///
+        /// By default, the transport protocol is assumed to be `TCP`, but it
+        /// can optionally be set to `UDP` as well.
+        #[arg(long, default_value_t = TransportProtocol::Tcp)]
+        transport_protocol: TransportProtocol,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
         #[arg(default_value_t = false, short, long)]
@@ -398,6 +417,9 @@ pub struct EditParams {
     /// The port that the server on localhost is listening on [Socks5 (Local proxy)]
     #[arg(long)]
     local_port: Option<u16>,
+    /// The transport protocol used by the remote proxy [Socks5 (Local proxy)]
+    #[arg(long)]
+    transport_protocol: Option<TransportProtocol>,
 }
 
 /// Implement conversions from CLI types to Daemon types.
@@ -418,9 +440,15 @@ mod conversions {
                         remote_port,
                         name: _,
                         disabled: _,
+                        transport_protocol,
                     } => {
-                        println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}");
-                        daemon_types::Socks5Local::new((remote_ip, remote_port), local_port).into()
+                        println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}/{transport_protocol}");
+                        daemon_types::Socks5Local::new_with_transport_protocol(
+                            (remote_ip, remote_port),
+                            local_port,
+                            transport_protocol,
+                        )
+                        .into()
                     }
                     AddSocks5Commands::Remote {
                         remote_ip,
@@ -559,7 +587,13 @@ mod pp {
                             }
                             writeln!(f)?;
                             print_option!("Protocol", "Socks5 (local)");
-                            print_option!("Peer", local.remote_peer);
+                            print_option!(
+                                "Peer",
+                                format!(
+                                    "{}/{}",
+                                    local.remote_endpoint.address, local.remote_endpoint.protocol
+                                )
+                            );
                             print_option!("Local port", local.local_port);
                             Ok(())
                         }

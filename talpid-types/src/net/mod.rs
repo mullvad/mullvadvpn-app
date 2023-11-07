@@ -276,10 +276,10 @@ impl fmt::Display for Endpoint {
 /// Host that should be reachable in any tunnel state.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct AllowedEndpoint {
-    /// Paths that should be allowed to communicate with `endpoint`.
-    #[cfg(windows)]
-    pub clients: Vec<PathBuf>,
+    /// How to connect to a certain `endpoint`.
     pub endpoint: Endpoint,
+    /// Clients that should be allowed to communicate with `endpoint`.
+    pub clients: AllowedClients,
 }
 
 impl fmt::Display for AllowedEndpoint {
@@ -288,20 +288,90 @@ impl fmt::Display for AllowedEndpoint {
         write!(f, "{}", self.endpoint)?;
         #[cfg(windows)]
         {
-            write!(f, "{} for", self.endpoint)?;
-            #[cfg(windows)]
-            for client in &self.clients {
-                write!(
-                    f,
-                    " {}",
-                    client
-                        .file_name()
-                        .map(|s| s.to_string_lossy())
-                        .unwrap_or(std::borrow::Cow::Borrowed("<UNKNOWN>"))
-                )?;
-            }
+            let clients = if self.clients.allow_all() {
+                "any executable".to_string()
+            } else {
+                self.clients
+                    .iter()
+                    .map(|client| {
+                        client
+                            .file_name()
+                            .map(|s| s.to_string_lossy())
+                            .unwrap_or(std::borrow::Cow::Borrowed("<UNKNOWN>"))
+                    })
+                    .collect::<Vec<_>>()
+                    .join(" ")
+            };
+            write!(
+                f,
+                "{endpoint} for {clients}",
+                endpoint = self.endpoint,
+                clients = clients
+            )?;
         }
         Ok(())
+    }
+}
+
+/// Clients which should be able to reach an allowed host in any tunnel state.
+///
+/// # Note
+/// On Windows, there is no predetermined binary which should be allowed to leak
+/// traffic outside of the tunnel. Thus, [`std::default::Default`] is not
+/// implemented for [`AllowedClients`].
+#[cfg(windows)]
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct AllowedClients(std::sync::Arc<[PathBuf]>);
+
+#[cfg(windows)]
+impl std::ops::Deref for AllowedClients {
+    type Target = [PathBuf];
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+#[cfg(windows)]
+impl From<Vec<PathBuf>> for AllowedClients {
+    fn from(value: Vec<PathBuf>) -> Self {
+        Self(value.into())
+    }
+}
+
+#[cfg(windows)]
+impl AllowedClients {
+    /// Allow all clients to leak traffic to an allowed [`Endpoint`].
+    pub fn all() -> Self {
+        vec![].into()
+    }
+
+    pub fn allow_all(&self) -> bool {
+        self.is_empty()
+    }
+}
+
+/// Clients which should be able to reach an allowed host in any tunnel state.
+#[cfg(unix)]
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub enum AllowedClients {
+    /// Allow only clients running as `root` to leak traffic to an allowed [`Endpoint`].
+    ///
+    /// # Note
+    /// The most secure client(s) is our own, which runs as root.
+    Root,
+    /// Allow *all* clients to leak traffic to an allowed [`Endpoint`].
+    ///
+    /// This is necessary on platforms which does not have proper support for
+    /// split-tunneling, but which wants to support running local proxies which
+    /// may not run as root.
+    All,
+}
+
+#[cfg(unix)]
+impl AllowedClients {
+    pub fn allow_all(&self) -> bool {
+        matches!(self, AllowedClients::All)
     }
 }
 
