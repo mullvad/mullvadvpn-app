@@ -13,7 +13,9 @@ use mullvad_paths;
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettings},
+    relay_constraints::{
+        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+    },
     relay_list::RelayList,
     settings::Settings,
     states::{TargetState, TunnelState},
@@ -377,6 +379,31 @@ impl ManagementService for ManagementServiceImpl {
     #[cfg(target_os = "android")]
     async fn set_dns_options(&self, _: Request<types::DnsOptions>) -> ServiceResult<()> {
         Ok(Response::new(()))
+    }
+
+    async fn set_relay_override(
+        &self,
+        request: Request<types::RelayOverride>,
+    ) -> ServiceResult<()> {
+        let relay_override =
+            RelayOverride::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
+        log::debug!("set_relay_override");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetRelayOverride(tx, relay_override))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_settings_error)
+    }
+
+    async fn clear_all_relay_overrides(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("clear_all_relay_overrides");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ClearAllRelayOverrides(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_settings_error)
     }
 
     // Account management

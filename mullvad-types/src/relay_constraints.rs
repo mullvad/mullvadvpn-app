@@ -1008,3 +1008,17 @@ pub struct RelayOverride {
     /// IPv6 address to use instead of the default
     pub ipv6_addr_in: Option<Ipv6Addr>,
 }
+
+impl RelayOverride {
+    pub fn empty(hostname: Hostname) -> RelayOverride {
+        RelayOverride {
+            hostname,
+            ipv4_addr_in: None,
+            ipv6_addr_in: None,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self == &Self::empty(self.hostname.clone())
+    }
+}
