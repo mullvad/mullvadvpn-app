@@ -178,7 +178,7 @@ private extension MarkdownParserTests {
     func link(title: String, url: String) -> NSAttributedString {
         var attributes: [NSAttributedString.Key: Any] = [
             .font: defaultStylingOptions.font,
-            .hyperlink: url,
+            .link: url,
         ]
         if let linkColor = defaultStylingOptions.linkColor {
             attributes[.foregroundColor] = linkColor

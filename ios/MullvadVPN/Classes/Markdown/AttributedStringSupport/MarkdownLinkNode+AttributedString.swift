@@ -10,7 +10,7 @@ import Foundation
 
 extension MarkdownLinkNode: AttributedMarkdown {
     func attributedString(options: MarkdownStylingOptions, applyEffect: MarkdownEffectCallback?) -> NSAttributedString {
-        var attributes: [NSAttributedString.Key: Any] = [.font: options.font, .hyperlink: url]
+        var attributes: [NSAttributedString.Key: Any] = [.font: options.font, options.linkAttribute.attributeKey: url]
 
         if let linkColor = options.linkColor {
             attributes[.foregroundColor] = linkColor
