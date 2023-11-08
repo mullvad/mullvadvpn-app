@@ -38,6 +38,9 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import org.joda.time.DateTimeConstants
 
+private const val VALID_VOUCHER_CHARACTER_REGEX_PATTERN = "^[A-Za-z0-9- \r\n]*$"
+private const val IGNORED_VOUCHER_CHARACTER_REGEX_PATTERN = """[- \n\r]"""
+
 @Preview(device = Devices.TV_720p)
 @Composable
 private fun PreviewRedeemVoucherDialog() {
@@ -224,16 +227,20 @@ private fun EnterVoucherBody(
                 onRedeem(input)
             }
         },
-        onValueChanged = { input -> onVoucherInputChange(input.uppercase()) },
+        onValueChanged = { input ->
+            val str = input.replace(Regex(IGNORED_VOUCHER_CHARACTER_REGEX_PATTERN), "")
+            onVoucherInputChange(
+                str.substring(0, Integer.min(VOUCHER_LENGTH, str.length)).uppercase()
+            )
+        },
         isValidValue =
             uiState.voucherInput.isEmpty() || uiState.voucherInput.length == MAX_VOUCHER_LENGTH,
         keyboardType = KeyboardType.Password,
         placeholderText = stringResource(id = R.string.voucher_hint),
         visualTransformation = vouchersVisualTransformation(),
-        maxCharLength = VOUCHER_LENGTH,
         isDigitsOnlyAllowed = false,
         isEnabled = true,
-        validateRegex = "^[A-Za-z0-9]*$".toRegex()
+        validateRegex = VALID_VOUCHER_CHARACTER_REGEX_PATTERN.toRegex()
     )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(
