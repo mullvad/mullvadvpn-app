@@ -47,7 +47,9 @@ use mullvad_types::{
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettings},
+    relay_constraints::{
+        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+    },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
@@ -253,6 +255,10 @@ pub enum DaemonCommand {
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
+    /// Set override options to use for a given relay
+    SetRelayOverride(ResponseTx<(), settings::Error>, RelayOverride),
+    /// Remove all relay override options
+    ClearAllRelayOverrides(ResponseTx<(), settings::Error>),
     /// Toggle macOS network check leak
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
@@ -1077,6 +1083,10 @@ where
                     .await
             }
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
+            SetRelayOverride(tx, relay_override) => {
+                self.on_set_relay_override(tx, relay_override).await
+            }
+            ClearAllRelayOverrides(tx) => self.on_clear_all_relay_overrides(tx).await,
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu).await,
             SetWireguardRotationInterval(tx, interval) => {
                 self.on_set_wireguard_rotation_interval(tx, interval).await
@@ -2159,6 +2169,56 @@ where
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_dns_options response");
+            }
+        }
+    }
+
+    async fn on_set_relay_override(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        relay_override: RelayOverride,
+    ) {
+        match self
+            .settings
+            .update(move |settings| settings.set_relay_override(relay_override))
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_relay_override response");
+                if settings_changed {
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings));
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_relay_override response");
+            }
+        }
+    }
+
+    async fn on_clear_all_relay_overrides(&mut self, tx: ResponseTx<(), settings::Error>) {
+        match self
+            .settings
+            .update(move |settings| settings.relay_overrides.clear())
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "clear_all_relay_overrides response");
+                if settings_changed {
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
+                    self.relay_selector
+                        .set_config(new_selector_config(&self.settings));
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "clear_all_relay_overrides response");
             }
         }
     }
