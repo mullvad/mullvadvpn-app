@@ -2522,5 +2522,6 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
         obfuscation_settings: settings.obfuscation_settings.clone(),
         default_tunnel_type,
         custom_lists: settings.custom_lists.clone(),
+        relay_overrides: settings.relay_overrides.clone(),
     }
 }
