@@ -10,7 +10,12 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt, str::FromStr};
+use std::{
+    collections::HashSet,
+    fmt,
+    net::{Ipv4Addr, Ipv6Addr},
+    str::FromStr,
+};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -990,4 +995,16 @@ pub struct InternalBridgeConstraints {
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub transport_protocol: Constraint<TransportProtocol>,
+}
+
+/// Options to override for a particular relay to use instead of the ones specified in the relay
+/// list
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub struct RelayOverride {
+    /// Hostname for which to override the given options
+    pub hostname: Hostname,
+    /// IPv4 address to use instead of the default
+    pub ipv4_addr_in: Option<Ipv4Addr>,
+    /// IPv6 address to use instead of the default
+    pub ipv6_addr_in: Option<Ipv6Addr>,
 }
