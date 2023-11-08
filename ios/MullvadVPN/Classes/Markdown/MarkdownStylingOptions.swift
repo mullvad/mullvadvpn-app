@@ -10,6 +10,8 @@ import UIKit
 
 struct MarkdownStylingOptions {
     var font: UIFont
+    var textColor: UIColor?
+    var linkColor: UIColor?
     var paragraphStyle: NSParagraphStyle = .default
 
     var boldFont: UIFont {
