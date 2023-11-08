@@ -171,7 +171,7 @@
     <string name="settings_vpn">VPN-asetukset</string>
     <string name="show_account_number">Näytä tilin numero</string>
     <string name="show_system_apps">Näytä järjestelmäsovellukset</string>
-    <string name="split_tunneling_description">Jaettu tunnelointi antaa mahdollisuuden valita, mitä sovelluksia ei reititetä VPN-tunnelin kautta.</string>
+    <string name="split_tunneling_description">Valitse sovellukset, jotka haluat sulkea pois VPN-tunnelista.</string>
     <string name="start_tunnel_error">Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="submit_button">Lähetä</string>
     <string name="switch_location">Vaihda sijaintia</string>

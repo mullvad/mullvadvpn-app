@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -67,7 +68,7 @@ fun SplitTunnelingCell(
                 .wrapContentHeight()
                 .defaultMinSize(minHeight = Dimens.listItemHeightExtra)
                 .fillMaxWidth()
-                .padding(vertical = Dimens.listItemDivider)
+                .padding(bottom = Dimens.listItemDivider)
                 .background(
                     MaterialTheme.colorScheme.primary
                         .copy(alpha = Alpha40)
@@ -93,7 +94,7 @@ fun SplitTunnelingCell(
                     .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding)
                     .align(Alignment.CenterVertically)
         )
-        Image(
+        Icon(
             painter =
                 painterResource(
                     id =
@@ -104,6 +105,7 @@ fun SplitTunnelingCell(
                         }
                 ),
             contentDescription = null,
+            tint = MaterialTheme.colorScheme.onBackground.copy(alpha = Alpha40),
             modifier =
                 Modifier.padding(end = Dimens.cellStartPadding)
                     .align(Alignment.CenterVertically)

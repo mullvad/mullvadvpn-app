@@ -171,7 +171,7 @@
     <string name="settings_vpn">VPN 설정</string>
     <string name="show_account_number">계정 번호 표시</string>
     <string name="show_system_apps">시스템 앱 표시</string>
-    <string name="split_tunneling_description">분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다.</string>
+    <string name="split_tunneling_description">VPN 터널에서 제외할 앱을 선택하세요.</string>
     <string name="start_tunnel_error">터널 연결을 시작할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="submit_button">제출</string>
     <string name="switch_location">위치 전환</string>

@@ -171,7 +171,7 @@
     <string name="settings_vpn">Ustawienia VPN</string>
     <string name="show_account_number">Pokaż numer konta</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
-    <string name="split_tunneling_description">Dzielone tunelowanie umożliwia wybranie aplikacji, które nie powinny być kierowane przez tunel VPN.</string>
+    <string name="split_tunneling_description">Wybierz aplikacje, które chcesz wykluczyć z tunelu VPN.</string>
     <string name="start_tunnel_error">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</string>
     <string name="submit_button">Prześlij</string>
     <string name="switch_location">Zmień lokalizację</string>

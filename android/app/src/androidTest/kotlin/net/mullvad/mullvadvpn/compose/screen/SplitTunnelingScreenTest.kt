@@ -207,8 +207,7 @@ class SplitTunnelingScreenTest {
         private const val INCLUDED_APP_PACKAGE_NAME = "included-pkg"
         private const val INCLUDED_APP_NAME = "Included Name"
         private const val TITLE = "Split tunneling"
-        private const val DESCRIPTION =
-            "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+        private const val DESCRIPTION = "Choose the apps you want to exclude from the VPN tunnel."
         private const val EXCLUDED_APPLICATIONS = "Excluded applications"
         private const val SHOW_SYSTEM_APPS = "Show system apps"
         private const val ALL_APPLICATIONS = "All applications"
