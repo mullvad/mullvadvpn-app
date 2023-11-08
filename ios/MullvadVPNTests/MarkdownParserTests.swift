@@ -85,27 +85,23 @@ final class MarkdownParserTests: XCTestCase {
 
     func testTransformingBoldToAttributedString() {
         var parser = MarkdownParser(markdown: "**bold text**")
-        let attributedString = parser.parse()
-            .attributedString(options: defaultStylingOptions, applyEffect: nil)
+        let attributedString = parser.parse().attributedString(options: defaultStylingOptions)
 
-        let expectedString = NSAttributedString(
-            string: "bold text",
-            attributes: [
-                .font: defaultStylingOptions.boldFont,
-                .paragraphStyle: defaultStylingOptions.paragraphStyle,
-            ]
-        )
+        let expectedString = NSMutableAttributedString()
+        paragraph(appendingInto: expectedString) {
+            bold("bold text")
+        }
+
         XCTAssertTrue(expectedString.isEqual(to: attributedString))
     }
 
     func testTransformingLinkToAttributedString() {
         var parser = MarkdownParser(markdown: "[Mullvad VPN](https://mullvad.net/)")
-        let attributedString = parser.parse()
-            .attributedString(options: defaultStylingOptions, applyEffect: nil)
+        let attributedString = parser.parse().attributedString(options: defaultStylingOptions)
 
         let expectedString = NSMutableAttributedString()
         paragraph(appendingInto: expectedString) {
-            [link(title: "Mullvad VPN", url: "https://mullvad.net/")]
+            link(title: "Mullvad VPN", url: "https://mullvad.net/")
         }
 
         XCTAssertTrue(expectedString.isEqual(to: attributedString))
@@ -113,15 +109,14 @@ final class MarkdownParserTests: XCTestCase {
 
     func testTransformingParagraphsToAttributedString() {
         var parser = MarkdownParser(markdown: "Paragraph 1\nStill paragraph 1\n\nParagraph 2")
-        let parsedString = parser.parse()
-            .attributedString(options: defaultStylingOptions, applyEffect: nil)
+        let parsedString = parser.parse().attributedString(options: defaultStylingOptions)
 
         let expectedString = NSMutableAttributedString()
         paragraph(appendingInto: expectedString) {
-            [text("Paragraph 1\u{2028}Still paragraph 1\n")]
+            text("Paragraph 1\u{2028}Still paragraph 1\n")
         }
         paragraph(appendingInto: expectedString) {
-            [text("Paragraph 2")]
+            text("Paragraph 2")
         }
 
         XCTAssertTrue(parsedString.isEqual(to: expectedString))
@@ -135,24 +130,20 @@ final class MarkdownParserTests: XCTestCase {
         """
 
         var parser = MarkdownParser(markdown: markdown)
-        let parsedString = parser.parse().attributedString(options: defaultStylingOptions, applyEffect: nil)
+        let parsedString = parser.parse().attributedString(options: defaultStylingOptions)
 
         let expectedString = NSMutableAttributedString()
 
         paragraph(appendingInto: expectedString) {
-            [
-                text("Manage default and setup custom methods to access to Mullvad VPN API. "),
-                link(title: "About API access...", url: "#about"),
-                text("\n"),
-            ]
+            text("Manage default and setup custom methods to access to Mullvad VPN API. ")
+            link(title: "About API access...", url: "#about")
+            text("\n")
         }
         paragraph(appendingInto: expectedString) {
-            [
-                bold("Important:"),
-                text(" direct access method "),
-                bold("cannot"),
-                text(" be removed."),
-            ]
+            bold("Important:")
+            text(" direct access method ")
+            bold("cannot")
+            text(" be removed.")
         }
         XCTAssertTrue(parsedString.isEqual(to: expectedString))
     }
@@ -161,7 +152,7 @@ final class MarkdownParserTests: XCTestCase {
 private extension MarkdownParserTests {
     func paragraph(
         appendingInto resultString: NSMutableAttributedString,
-        _ builder: () -> [NSAttributedString]
+        @ParagraphBuilder builder: () -> [NSAttributedString]
     ) {
         let mutableString = NSMutableAttributedString()
 
@@ -183,27 +174,36 @@ private extension MarkdownParserTests {
         if let linkColor = defaultStylingOptions.linkColor {
             attributes[.foregroundColor] = linkColor
         }
-        return NSAttributedString(
-            string: title,
-            attributes: attributes
-        )
+        return NSAttributedString(string: title, attributes: attributes)
     }
 
     func bold(_ text: String) -> NSAttributedString {
-        NSAttributedString(
-            string: text,
-            attributes: [
-                .font: defaultStylingOptions.boldFont,
-            ]
-        )
+        NSAttributedString(string: text, attributes: [.font: defaultStylingOptions.boldFont])
     }
 
     func text(_ text: String) -> NSAttributedString {
-        NSAttributedString(
-            string: text,
-            attributes: [
-                .font: defaultStylingOptions.font,
-            ]
-        )
+        NSAttributedString(string: text, attributes: [.font: defaultStylingOptions.font])
     }
+}
+
+@resultBuilder
+private enum ParagraphBuilder {
+    static func buildPartialBlock(first: NSAttributedString) -> [NSAttributedString] { [first] }
+    static func buildPartialBlock(first: [NSAttributedString]) -> [NSAttributedString] { first }
+
+    static func buildPartialBlock(
+        accumulated: [NSAttributedString],
+        next: NSAttributedString
+    ) -> [NSAttributedString] {
+        accumulated + [next]
+    }
+
+    static func buildPartialBlock(
+        accumulated: [NSAttributedString],
+        next: [NSAttributedString]
+    ) -> [NSAttributedString] {
+        accumulated + next
+    }
+
+    static func buildBlock() -> [NSAttributedString] { [] }
 }

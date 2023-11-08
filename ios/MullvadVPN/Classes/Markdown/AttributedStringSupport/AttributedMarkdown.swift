@@ -35,3 +35,13 @@ extension NSAttributedString.Key {
     /// The value associated with this key can be a `String` or an `URL`.
     static let hyperlink = NSAttributedString.Key("HyperLink")
 }
+
+extension AttributedMarkdown {
+    /// Convert the type to attributed string.
+    ///
+    /// - Parameter options: markdown styling options.
+    /// - Returns: the attributed string.
+    func attributedString(options: MarkdownStylingOptions) -> NSAttributedString {
+        attributedString(options: options, applyEffect: nil)
+    }
+}
