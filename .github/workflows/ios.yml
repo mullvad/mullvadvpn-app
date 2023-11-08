@@ -36,6 +36,7 @@ jobs:
 
       - name: Run swiftlint
         run: |
+          brew install swiftlint
           swiftlint --version
           swiftlint --reporter github-actions-logging
         working-directory: ios
