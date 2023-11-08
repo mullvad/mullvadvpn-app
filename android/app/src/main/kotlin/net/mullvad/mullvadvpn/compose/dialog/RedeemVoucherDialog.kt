@@ -95,7 +95,8 @@ fun RedeemVoucherDialog(
     uiState: VoucherDialogUiState,
     onVoucherInputChange: (String) -> Unit = {},
     onRedeem: (voucherCode: String) -> Unit,
-    onDismiss: (isTimeAdded: Boolean) -> Unit
+    onDismiss: (isTimeAdded: Boolean) -> Unit,
+    voucherValidator: (voucher: String) -> Boolean = { true }
 ) {
     AlertDialog(
         title = {
@@ -164,6 +165,7 @@ fun RedeemVoucherDialog(
                     EnterVoucherBody(
                         uiState = uiState,
                         onVoucherInputChange = onVoucherInputChange,
+                        voucherValidator = voucherValidator,
                         onRedeem = onRedeem
                     )
                 }
@@ -214,8 +216,9 @@ private fun RedeemSuccessBody(message: String) {
 @Composable
 private fun EnterVoucherBody(
     uiState: VoucherDialogUiState,
+    onRedeem: (voucherCode: String) -> Unit,
     onVoucherInputChange: (String) -> Unit = {},
-    onRedeem: (voucherCode: String) -> Unit
+    voucherValidator: (voucher: String) -> Boolean = { true }
 ) {
     GroupedTextField(
         value = uiState.voucherInput,
@@ -224,16 +227,15 @@ private fun EnterVoucherBody(
                 onRedeem(input)
             }
         },
-        onValueChanged = { input -> onVoucherInputChange(input.uppercase()) },
+        onValueChanged = { input -> onVoucherInputChange(input) },
         isValidValue =
             uiState.voucherInput.isEmpty() || uiState.voucherInput.length == MAX_VOUCHER_LENGTH,
         keyboardType = KeyboardType.Password,
         placeholderText = stringResource(id = R.string.voucher_hint),
         visualTransformation = vouchersVisualTransformation(),
-        maxCharLength = VOUCHER_LENGTH,
         isDigitsOnlyAllowed = false,
         isEnabled = true,
-        validateRegex = "^[A-Za-z0-9]*$".toRegex()
+        validator = voucherValidator
     )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(

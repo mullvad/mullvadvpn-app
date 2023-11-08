@@ -34,7 +34,8 @@ class RedeemVoucherDialogFragment(val onDialogDismiss: (Boolean) -> Unit = {}) :
                         onDismiss = {
                             onDismiss(voucherDialog)
                             onDialogDismiss(it)
-                        }
+                        },
+                        voucherValidator = { vm.validateVoucher(it) }
                     )
                 }
             }
