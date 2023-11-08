@@ -40,6 +40,10 @@ final class PreferencesInteractor {
         tunnelManager.setDNSSettings(newDNSSettings, completionHandler: completion)
     }
 
+    func setObfuscationSettings(_ newSettings: WireGuardObfuscationSettings) {
+        tunnelManager.setObfuscationSettings(newSettings)
+    }
+
     func setPort(_ port: UInt16?, completion: (() -> Void)? = nil) {
         var relayConstraints = tunnelManager.settings.relayConstraints
 
