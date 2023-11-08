@@ -14,15 +14,29 @@ public enum WireGuardObfuscationState: Codable {
     case off
 }
 
-public enum WireGuardObfuscationPort: Codable {
-    case automatic
-    case port80
-    case port5001
+public enum WireGuardObfuscationPort: UInt16, Codable {
+    case automatic = 0
+    case port80 = 80
+    case port5001 = 5001
+
+    public var portValue: UInt16 {
+        rawValue
+    }
+
+    public init?(rawValue: UInt16) {
+        switch rawValue {
+        case 80:
+            self = .port80
+        case 5001:
+            self = .port5001
+        default: self = .automatic
+        }
+    }
 }
 
 public struct WireGuardObfuscationSettings: Codable, Equatable {
-    let state: WireGuardObfuscationState
-    let port: WireGuardObfuscationPort
+    public let state: WireGuardObfuscationState
+    public let port: WireGuardObfuscationPort
 
     public init(state: WireGuardObfuscationState = .automatic, port: WireGuardObfuscationPort = .automatic) {
         self.state = state

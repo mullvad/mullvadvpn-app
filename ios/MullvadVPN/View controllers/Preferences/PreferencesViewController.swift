@@ -6,6 +6,7 @@
 //  Copyright © 2021 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import UIKit
 
 class PreferencesViewController: UITableViewController, PreferencesDataSourceDelegate {
@@ -36,7 +37,6 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
-        tableView.allowsSelectionDuringEditing = true
         tableView.allowsMultipleSelection = true
 
         dataSource = PreferencesDataSource(tableView: tableView)
@@ -48,7 +48,6 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             value: "VPN settings",
             comment: ""
         )
-        navigationItem.rightBarButtonItem = editButtonItem
 
         interactor.tunnelSettingsDidChange = { [weak self] newSettings in
             self?.dataSource?.update(from: newSettings)
@@ -60,24 +59,13 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             self?.dataSource?.setAvailablePortRanges(cachedRelays.relays.wireguard.portRanges)
         }
 
-        tableView.tableHeaderView =
-            UIView(frame: .init(origin: .zero, size: .init(width: 0, height: UIMetrics.TableView.sectionSpacing)))
+        tableView.tableHeaderView = UIView(frame: CGRect(
+            origin: .zero,
+            size: CGSize(width: 0, height: UIMetrics.TableView.sectionSpacing)
+        ))
     }
 
-    override func setEditing(_ editing: Bool, animated: Bool) {
-        _ = dataSource?.revertWireGuardPortCellToLastSelection()
-
-        super.setEditing(editing, animated: animated)
-
-        dataSource?.setEditing(editing, animated: animated)
-
-        navigationItem.setHidesBackButton(editing, animated: animated)
-
-        // Disable swipe to dismiss when editing
-        isModalInPresentation = editing
-    }
-
-    private func showContentBlockerInfo(with message: String) {
+    private func showInfo(with message: String) {
         let presentation = AlertPresentation(
             id: "preferences-content-blockers-alert",
             icon: .info,
@@ -85,7 +73,7 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
             buttons: [
                 AlertAction(
                     title: NSLocalizedString(
-                        "PREFERENCES_CONTENT_BLOCKERS_OK_ACTION",
+                        "PREFERENCES_VPN_SETTINGS_OK_ACTION",
                         tableName: "ContentBlockers",
                         value: "Got it!",
                         comment: ""
@@ -112,46 +100,17 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
 
     // MARK: - PreferencesDataSourceDelegate
 
-    func preferencesDataSource(
-        _ dataSource: PreferencesDataSource,
-        didChangeViewModel dataModel: PreferencesViewModel
-    ) {
-        let dnsSettings = dataModel.asDNSSettings()
-
-        interactor.setDNSSettings(dnsSettings)
+    func didChangeViewModel(_ viewModel: PreferencesViewModel) {
+        interactor.setObfuscationSettings(WireGuardObfuscationSettings(
+            state: viewModel.obfuscationState,
+            port: viewModel.obfuscationPort
+        ))
     }
 
-    // swiftlint:disable:next function_body_length
-    func preferencesDataSource(
-        _ dataSource: PreferencesDataSource,
-        showInfo item: PreferencesDataSource.InfoButtonItem?
-    ) {
+    func showInfo(for item: PreferencesInfoButtonItem) {
         var message = ""
 
         switch item {
-        case .contentBlockers:
-            message = NSLocalizedString(
-                "PREFERENCES_CONTENT_BLOCKERS_GENERAL",
-                tableName: "ContentBlockers",
-                value: """
-                When this feature is enabled it stops the device from contacting certain \
-                domains or websites known for distributing ads, malware, trackers and more. \
-                This might cause issues on certain websites, services, and programs.
-                """,
-                comment: ""
-            )
-
-        case .blockMalware:
-            message = NSLocalizedString(
-                "PREFERENCES_CONTENT_BLOCKERS_MALWARE",
-                tableName: "ContentBlockers",
-                value: """
-                Warning: The malware blocker is not an anti-virus and should not \
-                be treated as such, this is just an extra layer of protection.
-                """,
-                comment: ""
-            )
-
         case .wireGuardPorts:
             let portsString = humanReadablePortRepresentation(
                 interactor.cachedRelays?.relays.wireguard.portRanges ?? []
@@ -173,7 +132,6 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 portsString
             )
 
-        #if DEBUG
         case .wireGuardObfuscation:
             message = NSLocalizedString(
                 "PREFERENCES_WIRE_GUARD_OBFUSCATION_GENERAL",
@@ -193,16 +151,20 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
                 value: "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server.",
                 comment: ""
             )
-        #endif
 
         default:
             assertionFailure("No matching InfoButtonItem")
         }
 
-        showContentBlockerInfo(with: message)
+        showInfo(with: message)
     }
 
-    func preferencesDataSource(_ dataSource: PreferencesDataSource, didSelectPort port: UInt16?) {
+    func showDNSSettings() {
+        let viewController = CustomDNSViewController(interactor: interactor, alertPresenter: alertPresenter)
+        navigationController?.pushViewController(viewController, animated: true)
+    }
+
+    func didSelectWireGuardPort(_ port: UInt16?) {
         interactor.setPort(port)
     }
 }
