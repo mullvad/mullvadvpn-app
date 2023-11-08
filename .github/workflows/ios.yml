@@ -11,7 +11,7 @@ on:
 jobs:
   check-formatting:
     name: Check formatting
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
       - name: Install SwiftFormat
         run: |
@@ -29,20 +29,21 @@ jobs:
 
   swiftlint:
     name: Run swiftlint
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Run swiftlint
         run: |
+          brew install swiftlint
           swiftlint --version
           swiftlint --reporter github-actions-logging
         working-directory: ios
 
   test:
     name: Unit tests
-    runs-on: macos-13
+    runs-on: macos-13-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
@@ -62,12 +63,17 @@ jobs:
         with:
           go-version: 1.19.5
 
+      - name: Set up yeetd to workaround XCode being slow in CI
+        run: |
+          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
+          sudo installer -pkg yeetd-normal.pkg -target /
+          yeetd &
       - name: Configure Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '15.0.1'
       - name: Configure Rust
-        run: rustup target add x86_64-apple-ios
+        run: rustup target add aarch64-apple-ios-sim
 
       - name: Configure Xcode project
         run: |
