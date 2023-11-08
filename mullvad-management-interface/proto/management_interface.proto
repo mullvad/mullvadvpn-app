@@ -390,6 +390,13 @@ message Settings {
   ObfuscationSettings obfuscation_settings = 10;
   CustomListSettings custom_lists = 11;
   ApiAccessMethodSettings api_access_methods = 12;
+  repeated RelayOverride relay_overrides = 13;
+}
+
+message RelayOverride {
+  string hostname = 1;
+  optional string ipv4_addr_in = 2;
+  optional string ipv6_addr_in = 3;
 }
 
 message SplitTunnelSettings {
