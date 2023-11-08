@@ -46,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate View Logs view to compose.
 - Migrate voucher dialog to compose.
 - Add "New Device" in app notification & rework notification system
+- Add support for in app purchases for versions that are released on Google Play.
 
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.
