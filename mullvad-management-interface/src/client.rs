@@ -8,7 +8,9 @@ use mullvad_types::{
     custom_list::{CustomList, Id},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeState, ObfuscationSettings, RelaySettings},
+    relay_constraints::{
+        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+    },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::TunnelState,
@@ -336,6 +338,23 @@ impl MullvadProxyClient {
     pub async fn set_dns_options(&mut self, options: DnsOptions) -> Result<()> {
         let options = types::DnsOptions::from(&options);
         self.0.set_dns_options(options).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    pub async fn set_relay_override(&mut self, relay_override: RelayOverride) -> Result<()> {
+        let r#override = types::RelayOverride::from(relay_override);
+        self.0
+            .set_relay_override(r#override)
+            .await
+            .map_err(Error::Rpc)?;
+        Ok(())
+    }
+
+    pub async fn clear_all_relay_overrides(&mut self) -> Result<()> {
+        self.0
+            .clear_all_relay_overrides(())
+            .await
+            .map_err(Error::Rpc)?;
         Ok(())
     }
 
