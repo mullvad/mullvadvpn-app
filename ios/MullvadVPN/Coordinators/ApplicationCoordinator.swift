@@ -77,6 +77,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private let accountsProxy: RESTAccountHandling
     private var tunnelObserver: TunnelObserver?
     private var appPreferences: AppPreferencesDataSource
+    private var outgoingConnectionService: OutgoingConnectionServiceHandling
 
     private var outOfTimeTimer: Timer?
 
@@ -91,6 +92,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         apiProxy: APIQuerying,
         devicesProxy: DeviceHandling,
         accountsProxy: RESTAccountHandling,
+        outgoingConnectionService: OutgoingConnectionServiceHandling,
         appPreferences: AppPreferencesDataSource
     ) {
         self.tunnelManager = tunnelManager
@@ -100,6 +102,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         self.devicesProxy = devicesProxy
         self.accountsProxy = accountsProxy
         self.appPreferences = appPreferences
+        self.outgoingConnectionService = outgoingConnectionService
 
         super.init()
 
@@ -676,7 +679,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     }
 
     private func makeTunnelCoordinator() -> TunnelCoordinator {
-        let tunnelCoordinator = TunnelCoordinator(tunnelManager: tunnelManager)
+        let tunnelCoordinator = TunnelCoordinator(
+            tunnelManager: tunnelManager,
+            outgoingConnectionService: outgoingConnectionService
+        )
 
         tunnelCoordinator.showSelectLocationPicker = { [weak self] in
             self?.router.present(.selectLocation, animated: true)
