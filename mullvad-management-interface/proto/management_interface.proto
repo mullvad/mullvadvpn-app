@@ -46,6 +46,8 @@ service ManagementService {
   rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
   rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
+  rpc SetRelayOverride(RelayOverride) returns (google.protobuf.Empty) {}
+  rpc ClearAllRelayOverrides(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   // Account management
   rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}

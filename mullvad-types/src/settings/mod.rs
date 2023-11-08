@@ -174,6 +174,19 @@ impl Settings {
             self.relay_settings = new_settings;
         }
     }
+
+    pub fn set_relay_override(&mut self, relay_override: RelayOverride) {
+        if let Some(elem) = self
+            .relay_overrides
+            .iter_mut()
+            .find(|elem| elem.hostname == relay_override.hostname)
+        {
+            // Update existing options
+            *elem = relay_override;
+        } else {
+            self.relay_overrides.push(relay_override);
+        }
+    }
 }
 
 /// TunnelOptions holds configuration data that applies to all kinds of tunnels.
