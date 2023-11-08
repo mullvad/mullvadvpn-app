@@ -27,14 +27,13 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
             value: "Device is inactive",
             comment: ""
         )
-        titleLabel.font = UIFont.systemFont(ofSize: 32)
         return titleLabel
     }()
 
     private lazy var bodyLabel: UILabel = {
         let bodyLabel = UILabel()
         bodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        bodyLabel.font = UIFont.systemFont(ofSize: 17)
+        bodyLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         bodyLabel.numberOfLines = 0
         bodyLabel.textColor = .white
         bodyLabel.text = NSLocalizedString(
