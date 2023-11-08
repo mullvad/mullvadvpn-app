@@ -218,7 +218,7 @@ fn set_security_permissions(path: &Path) -> Result<()> {
             &mut new_dacl,
         )
     };
-    if ERROR_SUCCESS != result {
+    if result != ERROR_SUCCESS {
         return Err(Error::SetDirPermissionFailed(
             String::from("SetEntriesInAclW failed"),
             io::Error::from_raw_os_error(
@@ -242,7 +242,7 @@ fn set_security_permissions(path: &Path) -> Result<()> {
 
     unsafe { LocalFree(new_dacl as isize) };
 
-    if ERROR_SUCCESS != result {
+    if result != ERROR_SUCCESS {
         Err(Error::SetDirPermissionFailed(
             String::from("SetNamedSecurityInfoW failed"),
             io::Error::from_raw_os_error(
