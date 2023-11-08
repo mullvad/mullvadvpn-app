@@ -19,3 +19,6 @@ fun ServiceConnectionManager.settingsListener() =
 
 fun ServiceConnectionManager.splitTunneling() =
     this.connectionState.value.readyContainer()?.splitTunneling
+
+fun ServiceConnectionManager.voucherRedeemer() =
+    this.connectionState.value.readyContainer()?.voucherRedeemer

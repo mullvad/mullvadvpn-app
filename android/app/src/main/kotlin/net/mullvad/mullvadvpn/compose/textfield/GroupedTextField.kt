@@ -18,12 +18,14 @@ fun GroupedTextField(
     maxCharLength: Int = Int.MAX_VALUE,
     isValidValue: Boolean,
     isDigitsOnlyAllowed: Boolean,
-    validateRegex: Regex,
+    validateRegex: Regex?,
 ) {
     CustomTextField(
         value = value,
         keyboardType = keyboardType,
-        onValueChanged = { if (validateRegex.matches(it)) onValueChanged(it) },
+        onValueChanged = {
+            if (validateRegex == null || validateRegex.matches(it)) onValueChanged(it)
+        },
         onSubmit = onSubmit,
         isDigitsOnlyAllowed = isDigitsOnlyAllowed,
         modifier = modifier,
