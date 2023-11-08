@@ -185,7 +185,7 @@ impl RelayListUpdater {
         );
 
         let mut parsed_relays = self.parsed_relays.lock();
-        *parsed_relays = new_parsed_relays;
+        parsed_relays.update(new_parsed_relays);
         (self.on_update)(parsed_relays.locations());
         Ok(())
     }
