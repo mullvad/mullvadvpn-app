@@ -6,15 +6,14 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import UIKit
 
 protocol PreferencesCellEventHandler {
-    func addDNSEntry()
-    func didChangeDNSEntry(with identifier: UUID, inputString: String) -> Bool
-    func didChangeState(for preference: PreferencesDataSource.Item, isOn: Bool)
-    func showInfo(for button: PreferencesDataSource.InfoButtonItem)
+    func showInfo(for button: PreferencesInfoButtonItem)
     func addCustomPort(_ port: UInt16)
     func selectCustomPortEntry(_ port: UInt16) -> Bool
+    func selectObfuscationState(_ state: WireGuardObfuscationState)
 }
 
 final class PreferencesCellFactory: CellFactoryProtocol {
@@ -36,118 +35,21 @@ final class PreferencesCellFactory: CellFactoryProtocol {
         return cell
     }
 
-    func configure(
-        _ cell: UITableViewCell,
-        toggleSetting: Bool,
-        title: String,
-        for preference: PreferencesDataSource.Item
-    ) {
-        guard let cell = cell as? SettingsSwitchCell else { return }
-
-        cell.titleLabel.text = title
-        cell.accessibilityHint = nil
-        cell.applySubCellStyling()
-        cell.setOn(toggleSetting, animated: false)
-        cell.action = { [weak self] isOn in
-            self?.delegate?.didChangeState(
-                for: preference,
-                isOn: isOn
-            )
-        }
-    }
-
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func configureCell(_ cell: UITableViewCell, item: PreferencesDataSource.Item, indexPath: IndexPath) {
         switch item {
-        case .blockAdvertising:
-            let localizedString = NSLocalizedString(
-                "BLOCK_ADS_CELL_LABEL",
+        case .dnsSettings:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "DNS_SETTINGS_CELL_LABEL",
                 tableName: "Preferences",
-                value: "Ads",
+                value: "DNS settings",
                 comment: ""
             )
 
-            configure(
-                cell,
-                toggleSetting: viewModel.blockAdvertising,
-                title: localizedString,
-                for: .blockAdvertising
-            )
-
-        case .blockTracking:
-            let localizedString = NSLocalizedString(
-                "BLOCK_TRACKERS_CELL_LABEL",
-                tableName: "Preferences",
-                value: "Trackers",
-                comment: ""
-            )
-            configure(
-                cell,
-                toggleSetting: viewModel.blockTracking,
-                title: localizedString,
-                for: .blockTracking
-            )
-
-        case .blockMalware:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-
-            let localizedString = NSLocalizedString(
-                "BLOCK_MALWARE_CELL_LABEL",
-                tableName: "Preferences",
-                value: "Malware",
-                comment: ""
-            )
-            configure(
-                cell,
-                toggleSetting: viewModel.blockMalware,
-                title: localizedString,
-                for: .blockMalware
-            )
-            cell.infoButtonHandler = { [weak self] in
-                self?.delegate?.showInfo(for: .blockMalware)
-            }
-
-        case .blockAdultContent:
-            let localizedString = NSLocalizedString(
-                "BLOCK_ADULT_CELL_LABEL",
-                tableName: "Preferences",
-                value: "Adult content",
-                comment: ""
-            )
-            configure(
-                cell,
-                toggleSetting: viewModel.blockAdultContent,
-                title: localizedString,
-                for: .blockAdultContent
-            )
-
-        case .blockGambling:
-            let localizedString = NSLocalizedString(
-                "BLOCK_GAMBLING_CELL_LABEL",
-                tableName: "Preferences",
-                value: "Gambling",
-                comment: ""
-            )
-            configure(
-                cell,
-                toggleSetting: viewModel.blockGambling,
-                title: localizedString,
-                for: .blockGambling
-            )
-
-        case .blockSocialMedia:
-            let localizedString = NSLocalizedString(
-                "BLOCK_SOCIAL_MEDIA_CELL_LABEL",
-                tableName: "Preferences",
-                value: "Social media",
-                comment: ""
-            )
-            configure(
-                cell,
-                toggleSetting: viewModel.blockSocialMedia,
-                title: localizedString,
-                for: .blockSocialMedia
-            )
+            cell.disclosureType = .chevron
+            cell.accessibilityHint = nil
 
         case let .wireGuardPort(port):
             guard let cell = cell as? SelectableSettingsCell else { return }
@@ -206,61 +108,6 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 }
             }
 
-        case .useCustomDNS:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
-                "CUSTOM_DNS_CELL_LABEL",
-                tableName: "Preferences",
-                value: "Use custom DNS",
-                comment: ""
-            )
-            cell.setEnabled(viewModel.customDNSPrecondition == .satisfied)
-            cell.setOn(viewModel.effectiveEnableCustomDNS, animated: false)
-            cell.accessibilityHint = viewModel.customDNSPrecondition
-                .localizedDescription(isEditing: isEditing)
-            cell.action = { [weak self] isOn in
-                self?.delegate?.didChangeState(for: .useCustomDNS, isOn: isOn)
-            }
-
-        case .addDNSServer:
-            guard let cell = cell as? SettingsAddDNSEntryCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
-                "ADD_CUSTOM_DNS_SERVER_CELL_LABEL",
-                tableName: "Preferences",
-                value: "Add a server",
-                comment: ""
-            )
-            cell.action = { [weak self] in
-                self?.delegate?.addDNSEntry()
-            }
-
-        case let .dnsServer(entryIdentifier):
-            guard let cell = cell as? SettingsDNSTextCell else { return }
-
-            let dnsServerEntry = viewModel.dnsEntry(entryIdentifier: entryIdentifier)!
-
-            cell.textField.text = dnsServerEntry.address
-            cell.isValidInput = dsnEntryIsValid(identifier: entryIdentifier, cell: cell)
-
-            cell.onTextChange = { [weak self] cell in
-                cell.isValidInput = self?
-                    .dsnEntryIsValid(identifier: entryIdentifier, cell: cell) ?? false
-            }
-
-            cell.onReturnKey = { cell in
-                cell.endEditing(false)
-            }
-
-        case .dnsServerInfo:
-            guard let cell = cell as? SettingsDNSInfoCell else { return }
-
-            cell.titleLabel.attributedText = viewModel.customDNSPrecondition.attributedLocalizedDescription(
-                isEditing: isEditing,
-                preferredFont: .systemFont(ofSize: 14)
-            )
-        #if DEBUG
         case .wireGuardObfuscationAutomatic:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
@@ -272,6 +119,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityHint = nil
             cell.applySubCellStyling()
+
         case .wireGuardObfuscationOn:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
@@ -308,14 +156,6 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityHint = nil
             cell.applySubCellStyling()
-        #endif
         }
-    }
-
-    private func dsnEntryIsValid(identifier: UUID, cell: SettingsDNSTextCell) -> Bool {
-        delegate?.didChangeDNSEntry(
-            with: identifier,
-            inputString: cell.textField.text ?? ""
-        ) ?? false
     }
 }
