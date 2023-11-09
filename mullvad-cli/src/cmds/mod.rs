@@ -83,7 +83,12 @@ impl std::fmt::Display for BooleanOption {
 }
 
 async fn receive_confirmation(msg: &'static str, default: bool) -> bool {
-    println!("{}", msg);
+    let helper_str = match default {
+        true => "[Y/n]",
+        false => "[y/N]",
+    };
+
+    println!("{msg} {helper_str}");
 
     tokio::task::spawn_blocking(move || loop {
         let mut buf = String::new();
