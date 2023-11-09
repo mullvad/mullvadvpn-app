@@ -8,9 +8,7 @@ object Versions {
     const val kotlinCompilerExtensionVersion = "1.5.3"
     const val kotlinx = "1.7.3"
     const val leakCanary = "2.12"
-    // Make sure the following issue has been fixed before upgrading mockk:
-    // https://github.com/mockk/mockk/issues/1035
-    const val mockk = "1.13.3"
+    const val mockk = "1.13.8"
     const val mockWebserver = "4.11.0"
     const val turbine = "1.0.0"
 
