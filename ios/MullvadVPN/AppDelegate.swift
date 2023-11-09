@@ -69,16 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         tunnelStore = TunnelStore(application: application)
-
-        tunnelManager = TunnelManager(
-            application: application,
-            tunnelStore: tunnelStore,
-            relayCacheTracker: relayCacheTracker,
-            accountsProxy: accountsProxy,
-            devicesProxy: devicesProxy,
-            apiProxy: apiProxy,
-            accessTokenManager: proxyFactory.configuration.accessTokenManager
-        )
+        tunnelManager = createTunnelManager(application: application)
 
         let constraintsUpdater = RelayConstraintsUpdater()
         relayConstraintsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
@@ -120,6 +111,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         startInitialization(application: application)
 
         return true
+    }
+
+    private func createTunnelManager(application: UIApplication) -> TunnelManager {
+        return TunnelManager(
+            application: application,
+            tunnelStore: tunnelStore,
+            relayCacheTracker: relayCacheTracker,
+            accountsProxy: accountsProxy,
+            devicesProxy: devicesProxy,
+            apiProxy: apiProxy,
+            accessTokenManager: proxyFactory.configuration.accessTokenManager
+        )
     }
 
     private func setUpProxies(containerURL: URL) {
