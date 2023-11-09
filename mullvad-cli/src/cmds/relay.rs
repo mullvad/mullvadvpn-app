@@ -6,8 +6,8 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         Constraint, GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
-        Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelaySettings,
-        TransportPort, WireguardConstraints,
+        Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
+        RelaySettings, TransportPort, WireguardConstraints,
     },
     relay_list::{RelayEndpointData, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -21,7 +21,7 @@ use talpid_types::net::{
 };
 
 use super::{relay_constraints::LocationArgs, BooleanOption};
-use crate::print_option;
+use crate::{cmds::receive_confirmation, print_option};
 
 #[derive(Subcommand, Debug)]
 pub enum Relay {
@@ -37,6 +37,10 @@ pub enum Relay {
 
     /// Update the relay list
     Update,
+
+    /// Override options for individual relays/servers
+    #[clap(subcommand)]
+    Override(OverrideCommands),
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -201,6 +205,50 @@ pub enum SetCustomCommands {
     },
 }
 
+#[derive(Subcommand, Debug, Clone)]
+pub enum OverrideCommands {
+    /// Show current custom fields for servers
+    Get,
+    /// Set a custom field for a server
+    #[clap(subcommand)]
+    Set(OverrideSetCommands),
+    /// Unset a custom field for a server
+    #[clap(subcommand)]
+    Unset(OverrideUnsetCommands),
+    /// Unset custom IPs for all servers
+    ClearAll {
+        /// Clear overrides without asking for confirmation
+        #[arg(long, short = 'y', default_value_t = false)]
+        confirm: bool,
+    },
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum OverrideSetCommands {
+    /// Override entry IPv4 address for a given relay
+    Ipv4 {
+        /// The unique hostname for the server to set the override on
+        hostname: String,
+        /// The IPv4 address to use to connect to this server
+        address: Ipv4Addr,
+    },
+    /// Override entry IPv6 address for a given relay
+    Ipv6 {
+        /// The unique hostname for the server to set the override on
+        hostname: String,
+        /// The IPv6 address to use to connect to this server
+        address: Ipv6Addr,
+    },
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum OverrideUnsetCommands {
+    /// Remove overridden entry IPv4 address for the given server
+    Ipv4 { hostname: String },
+    /// Remove overridden entry IPv6 address for the given server
+    Ipv6 { hostname: String },
+}
+
 impl Relay {
     pub async fn handle(self) -> Result<()> {
         match self {
@@ -208,6 +256,7 @@ impl Relay {
             Relay::List => Self::list().await,
             Relay::Update => Self::update().await,
             Relay::Set(subcmd) => Self::set(subcmd).await,
+            Relay::Override(subcmd) => Self::r#override(subcmd).await,
         }
     }
 
@@ -661,6 +710,86 @@ impl Relay {
             constraints.tunnel_protocol = protocol;
         })
         .await
+    }
+
+    async fn update_override(
+        hostname: &str,
+        update_fn: impl FnOnce(&mut RelayOverride),
+    ) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let settings = rpc.get_settings().await?;
+
+        let mut relay_overrides = settings.relay_overrides;
+        let mut element = relay_overrides
+            .iter()
+            .position(|elem| elem.hostname == hostname)
+            .map(|index| relay_overrides.swap_remove(index))
+            .unwrap_or_else(|| RelayOverride::empty(hostname.to_owned()));
+        update_fn(&mut element);
+
+        rpc.set_relay_override(element).await?;
+        println!("Updated override options for {hostname}");
+        Ok(())
+    }
+
+    async fn r#override(subcmd: OverrideCommands) -> Result<()> {
+        match subcmd {
+            OverrideCommands::Get => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                let settings = rpc.get_settings().await?;
+                for relay_override in settings.relay_overrides {
+                    println!("{}", relay_override.hostname);
+                    if let Some(addr) = relay_override.ipv4_addr_in {
+                        println!("{:<4}ipv4: {addr}", " ");
+                    }
+                    if let Some(addr) = relay_override.ipv6_addr_in {
+                        println!("{:<4}ipv6: {addr}", " ");
+                    }
+                }
+            }
+            OverrideCommands::Set(set_cmds) => match set_cmds {
+                OverrideSetCommands::Ipv4 { hostname, address } => {
+                    Self::update_override(&hostname, |relay_override| {
+                        relay_override.ipv4_addr_in = Some(address)
+                    })
+                    .await?;
+                }
+                OverrideSetCommands::Ipv6 { hostname, address } => {
+                    Self::update_override(&hostname, |relay_override| {
+                        relay_override.ipv6_addr_in = Some(address)
+                    })
+                    .await?;
+                }
+            },
+            OverrideCommands::Unset(cmds) => match cmds {
+                OverrideUnsetCommands::Ipv4 { hostname } => {
+                    Self::update_override(&hostname, |relay_override| {
+                        let _ = relay_override.ipv4_addr_in.take();
+                    })
+                    .await?;
+                }
+                OverrideUnsetCommands::Ipv6 { hostname } => {
+                    Self::update_override(&hostname, |relay_override| {
+                        let _ = relay_override.ipv6_addr_in.take();
+                    })
+                    .await?;
+                }
+            },
+            OverrideCommands::ClearAll { confirm } => {
+                if confirm
+                    || receive_confirmation(
+                        "Are you sure you want to clear all overrides? [Y/n]",
+                        true,
+                    )
+                    .await
+                {
+                    let mut rpc = MullvadProxyClient::new().await?;
+                    rpc.clear_all_relay_overrides().await?;
+                    println!("All overrides unset");
+                }
+            }
+        }
+        Ok(())
     }
 }
 
