@@ -1010,7 +1010,15 @@ pub struct RelayOverride {
 }
 
 impl RelayOverride {
+    pub fn empty(hostname: Hostname) -> RelayOverride {
+        RelayOverride {
+            hostname,
+            ipv4_addr_in: None,
+            ipv6_addr_in: None,
+        }
+    }
+
     pub fn is_empty(&self) -> bool {
-        self.ipv4_addr_in.is_none() && self.ipv6_addr_in.is_none()
+        self == &Self::empty(self.hostname.clone())
     }
 }
