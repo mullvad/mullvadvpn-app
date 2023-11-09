@@ -281,23 +281,14 @@ extension PacketTunnelActor {
         settings: Settings,
         reason: ReconnectReason
     ) throws -> ConnectionState? {
-        let relayConstraints = settings.relayConstraints
-        let privateKey = settings.privateKey
-
         switch state {
         case .initial:
-            return ConnectionState(
-                selectedRelay: try selectRelay(
-                    nextRelay: nextRelay,
-                    relayConstraints: relayConstraints,
-                    currentRelay: nil,
-                    connectionAttemptCount: 0
-                ),
-                relayConstraints: relayConstraints,
-                currentKey: privateKey,
+            return try makeConnectionStateInner(
+                nextRelay: nextRelay,
+                settings: settings,
                 keyPolicy: .useCurrent,
                 networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
-                connectionAttemptCount: 0
+                lastKeyRotation: nil
             )
 
         case var .connecting(connState), var .reconnecting(connState):
@@ -312,6 +303,8 @@ extension PacketTunnelActor {
             fallthrough
 
         case var .connected(connState):
+            let relayConstraints = settings.relayConstraints
+
             connState.selectedRelay = try selectRelay(
                 nextRelay: nextRelay,
                 relayConstraints: relayConstraints,
@@ -319,23 +312,16 @@ extension PacketTunnelActor {
                 connectionAttemptCount: connState.connectionAttemptCount
             )
             connState.relayConstraints = relayConstraints
-            connState.currentKey = privateKey
+            connState.currentKey = settings.privateKey
 
             return connState
 
         case let .error(blockedState):
-            return ConnectionState(
-                selectedRelay: try selectRelay(
-                    nextRelay: nextRelay,
-                    relayConstraints: relayConstraints,
-                    currentRelay: nil,
-                    connectionAttemptCount: 0
-                ),
-                relayConstraints: relayConstraints,
-                currentKey: privateKey,
+            return try makeConnectionStateInner(
+                nextRelay: nextRelay,
+                settings: settings,
                 keyPolicy: blockedState.keyPolicy,
                 networkReachability: blockedState.networkReachability,
-                connectionAttemptCount: 0,
                 lastKeyRotation: blockedState.lastKeyRotation
             )
 
@@ -345,13 +331,51 @@ extension PacketTunnelActor {
     }
 
     /**
+     Create a connection state when `State` is either `.inital` or `.error`.
+
+     - Parameters:
+         - nextRelay: next relay to connect to.
+         - settings: current settings.
+         - relayConstraints: relay constraints.
+         - privateKey: WireGuard private key.
+         - connectionAttemptCount: number of failed connection attempts so far.
+
+     - Returns: New connection state, or `nil` if new relay cannot be selected.
+     */
+    private func makeConnectionStateInner(
+        nextRelay: NextRelay,
+        settings: Settings,
+        keyPolicy: KeyPolicy,
+        networkReachability: NetworkReachability,
+        lastKeyRotation: Date?
+    ) throws -> ConnectionState? {
+        let relayConstraints = settings.relayConstraints
+        let privateKey = settings.privateKey
+
+        return ConnectionState(
+            selectedRelay: try selectRelay(
+                nextRelay: nextRelay,
+                relayConstraints: relayConstraints,
+                currentRelay: nil,
+                connectionAttemptCount: 0
+            ),
+            relayConstraints: relayConstraints,
+            currentKey: privateKey,
+            keyPolicy: keyPolicy,
+            networkReachability: networkReachability,
+            connectionAttemptCount: 0,
+            lastKeyRotation: lastKeyRotation
+        )
+    }
+
+    /**
      Select next relay to connect to based on `NextRelay` and other input parameters.
 
      - Parameters:
-     - nextRelay: next relay to connect to.
-     - relayConstraints: relay constraints.
-     - currentRelay: currently selected relay.
-     - connectionAttemptCount: number of failed connection attempts so far.
+         - nextRelay: next relay to connect to.
+         - relayConstraints: relay constraints.
+         - currentRelay: currently selected relay.
+         - connectionAttemptCount: number of failed connection attempts so far.
 
      - Returns: selector result that contains the credentials of the next relay that the tunnel should connect to.
      */
@@ -383,3 +407,5 @@ extension PacketTunnelActor {
 }
 
 extension PacketTunnelActor: PacketTunnelActorProtocol {}
+
+// swiftlint:disable:this file_length
