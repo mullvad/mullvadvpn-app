@@ -54,19 +54,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         configureLogging()
 
-        addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
-        addressCache.loadFromFile()
-
-        setUpProxies(containerURL: containerURL)
-
         let relayCache = RelayCache(cacheDirectory: containerURL)
-        relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
-
-        addressCacheTracker = AddressCacheTracker(
-            application: application,
-            apiProxy: apiProxy,
-            store: addressCache
-        )
+        setUpCaches(application: application, containerURL: containerURL, relayCache: relayCache)
 
         tunnelStore = TunnelStore(application: application)
 
@@ -120,6 +109,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         startInitialization(application: application)
 
         return true
+    }
+
+    private func setUpCaches(application: UIApplication, containerURL: URL, relayCache: RelayCache) {
+        addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
+        addressCache.loadFromFile()
+
+        setUpProxies(containerURL: containerURL)
+
+        relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
+
+        addressCacheTracker = AddressCacheTracker(
+            application: application,
+            apiProxy: apiProxy,
+            store: addressCache
+        )
     }
 
     private func setUpProxies(containerURL: URL) {

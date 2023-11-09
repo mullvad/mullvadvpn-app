@@ -54,6 +54,8 @@ class SettingsViewController: UITableViewController, SettingsDataSourceDelegate 
             })
         )
 
+        navigationController?.navigationBar.standardAppearance.titleTextAttributes = [.foregroundColor: UIColor.red]
+
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension
