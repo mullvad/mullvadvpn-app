@@ -92,6 +92,7 @@ pub struct Settings {
     /// might be located.
     pub tunnel_options: TunnelOptions,
     /// Overrides for relays
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub relay_overrides: Vec<RelayOverride>,
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
