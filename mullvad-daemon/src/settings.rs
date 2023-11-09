@@ -38,10 +38,10 @@ pub enum Error {
     WriteError(String, #[error(source)] io::Error),
 }
 
-#[derive(Debug)]
 pub struct SettingsPersister {
     settings: Settings,
     path: PathBuf,
+    on_change_listeners: Vec<Box<dyn Fn(&Settings)>>,
 }
 
 pub type MadeChanges = bool;
@@ -77,7 +77,11 @@ impl SettingsPersister {
             settings.show_beta_releases = true;
         }
 
-        let mut persister = SettingsPersister { settings, path };
+        let mut persister = SettingsPersister {
+            settings,
+            path,
+            on_change_listeners: vec![],
+        };
 
         if should_save {
             if let Err(error) = persister.save().await {
@@ -89,6 +93,16 @@ impl SettingsPersister {
         }
 
         persister
+    }
+
+    pub fn register_change_listener(&mut self, change_listener: impl Fn(&Settings) + 'static) {
+        self.on_change_listeners.push(Box::new(change_listener));
+    }
+
+    fn notify_listeners(&self) {
+        for listener in &self.on_change_listeners {
+            listener(&self.settings);
+        }
     }
 
     async fn load_from_file(path: &Path) -> Result<(Settings, bool), Error> {
@@ -150,7 +164,11 @@ impl SettingsPersister {
                     .map_err(|e| Error::DeleteError(path.display().to_string(), e))
                     .await
             })
-            .await
+            .await?;
+
+        self.notify_listeners();
+
+        Ok(())
     }
 
     pub fn to_settings(&self) -> Settings {
@@ -187,6 +205,9 @@ impl SettingsPersister {
 
         Self::save_inner(&self.path, &new_settings).await?;
         self.settings = new_settings;
+
+        self.notify_listeners();
+
         Ok(true)
     }
 
