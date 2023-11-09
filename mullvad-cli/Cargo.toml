@@ -32,8 +32,9 @@ tokio = { workspace = true, features =  ["macros", "rt-multi-thread", "fs"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
-[target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
-clap_complete = { version = "4.4.8" }
+# [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
+clap_complete = { version = "4.5.2" }
+clap_complete_nushell = "4.5.1"
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"

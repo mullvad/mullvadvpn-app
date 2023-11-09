@@ -1,8 +1,13 @@
+#![deny(rust_2018_idioms)]
+
+// #[cfg(all(unix, not(target_os = "android")))]
 use anyhow::Result;
 use clap::Parser;
 
 mod cmds;
 mod format;
+use clap_complete_nushell::Nushell;
+
 use cmds::*;
 
 pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
@@ -117,7 +122,7 @@ enum Cli {
     Version,
 
     /// Generate completion scripts for the specified shell
-    #[cfg(all(unix, not(target_os = "android")))]
+    // #[cfg(all(unix, not(target_os = "android")))]
     #[command(hide = true)]
     ShellCompletions {
         /// The shell to generate the script for
@@ -176,15 +181,20 @@ async fn main() -> Result<()> {
         Cli::ImportSettings { file } => patch::import(file).await,
         Cli::ExportSettings { file } => patch::export(file).await,
 
-        #[cfg(all(unix, not(target_os = "android")))]
-        Cli::ShellCompletions { shell, dir } => {
-            use anyhow::Context;
+        // #[cfg(all(unix, not(target_os = "android")))]
+        Cli::ShellCompletions { shell: _, dir } => {
             use clap::CommandFactory;
 
             // FIXME: The shell completions include hidden commands (including "shell-completions")
             println!("Generating shell completions to {}", dir.display());
-            clap_complete::generate_to(shell, &mut Cli::command(), BIN_NAME, dir)
-                .context("Failed to generate shell completions")?;
+            // clap_complete::generate_to(shell, &mut Cli::command(), BIN_NAME, dir)
+            //     .map_err(|_| anyhow!("Failed to generate shell completions"))?;
+            clap_complete::generate(
+                Nushell,
+                &mut Cli::command(),
+                BIN_NAME,
+                &mut std::io::stdout(),
+            );
             Ok(())
         }
     }
