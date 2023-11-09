@@ -3,7 +3,7 @@ use clap::Subcommand;
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    location::Location,
+    location::{CountryCode, Location},
     relay_constraints::{
         Constraint, GeographicLocationConstraint, LocationConstraint, LocationConstraintFormatter,
         Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
@@ -13,6 +13,7 @@ use mullvad_types::{
     ConnectionConfig, CustomTunnelEndpoint,
 };
 use std::{
+    collections::HashMap,
     io::BufRead,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
 };
@@ -737,13 +738,78 @@ impl Relay {
             OverrideCommands::Get => {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let settings = rpc.get_settings().await?;
+
+                let mut overrides = HashMap::new();
                 for relay_override in settings.relay_overrides {
-                    println!("{}", relay_override.hostname);
-                    if let Some(addr) = relay_override.ipv4_addr_in {
-                        println!("{:<4}ipv4: {addr}", " ");
+                    overrides.insert(relay_override.hostname.clone(), relay_override);
+                }
+
+                struct Country {
+                    name: String,
+                    code: CountryCode,
+                    cities: Vec<City>,
+                }
+                struct City {
+                    name: String,
+                    code: CountryCode,
+                    overrides: Vec<RelayOverride>,
+                }
+
+                let mut countries_with_overrides = vec![];
+                for country in get_filtered_relays().await? {
+                    let mut country_with_overrides = Country {
+                        name: country.name,
+                        code: country.code,
+                        cities: vec![],
+                    };
+
+                    for city in country.cities {
+                        let mut city_with_overrides = City {
+                            name: city.name,
+                            code: city.code,
+                            overrides: vec![],
+                        };
+
+                        for relay in city.relays {
+                            if let Some(relay_override) = overrides.remove(&relay.hostname) {
+                                city_with_overrides.overrides.push(relay_override);
+                            }
+                        }
+
+                        if !city_with_overrides.overrides.is_empty() {
+                            country_with_overrides.cities.push(city_with_overrides);
+                        }
                     }
-                    if let Some(addr) = relay_override.ipv6_addr_in {
-                        println!("{:<4}ipv6: {addr}", " ");
+
+                    if !country_with_overrides.cities.is_empty() {
+                        countries_with_overrides.push(country_with_overrides);
+                    }
+                }
+
+                let print_relay_override = |relay_override: RelayOverride| {
+                    println!("{:<8}{}:", " ", relay_override.hostname);
+                    if let Some(ipv4) = relay_override.ipv4_addr_in {
+                        println!("{:<12}ipv4: {ipv4}", " ");
+                    }
+                    if let Some(ipv6) = relay_override.ipv6_addr_in {
+                        println!("{:<12}ipv6: {ipv6}", " ");
+                    }
+                };
+
+                for country in countries_with_overrides {
+                    println!("{} ({})", country.name, country.code);
+                    for city in country.cities {
+                        println!("{:<4}{} ({})", " ", city.name, city.code);
+                        for relay_override in city.overrides {
+                            print_relay_override(relay_override);
+                        }
+                    }
+                }
+
+                if !overrides.is_empty() {
+                    println!("Overrides for unrecognized servers. Consider removing these!");
+                    for relay_override in overrides.into_values() {
+                        print_relay_override(relay_override);
                     }
                 }
             }
