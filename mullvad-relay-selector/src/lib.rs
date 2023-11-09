@@ -178,8 +178,10 @@ impl ParsedRelays {
                 .insert(r#override.hostname.to_owned(), r#override);
         }
 
+        let mut remaining_overrides = self.overrides.clone();
+
         for relay in &mut self.relays {
-            if let Some(overrides) = self.overrides.get(&relay.hostname) {
+            if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
                 if let Some(ipv4_addr_in) = overrides.ipv4_addr_in {
                     log::debug!(
                         "Overriding ipv4_addr_in for {}: {ipv4_addr_in}",
@@ -195,6 +197,13 @@ impl ParsedRelays {
                     relay.ipv6_addr_in = Some(ipv6_addr_in.clone());
                 }
             }
+        }
+
+        for relay_override in remaining_overrides.into_values() {
+            log::warn!(
+                "No overrides were applied for hostname \"{}\": not found",
+                relay_override.hostname
+            );
         }
     }
 
