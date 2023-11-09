@@ -18,6 +18,7 @@ included:  # case-sensitive paths to include during linting. `--path` is ignored
 excluded:  # case-sensitive paths to ignore during linting. Takes precedence over `included`
   - AdditionalAssets
   - Assets
+  - Build
   - Configurations
   - MullvadVPNScreenshots
 
