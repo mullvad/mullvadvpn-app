@@ -1532,6 +1532,7 @@ mod test {
                 bridge_state: BridgeState::Auto,
                 default_tunnel_type: default_tunnel_type(),
                 custom_lists: CustomListsSettings::default(),
+                relay_overrides: vec![],
             })),
         }
     }
