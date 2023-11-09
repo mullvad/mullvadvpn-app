@@ -1008,3 +1008,9 @@ pub struct RelayOverride {
     /// IPv6 address to use instead of the default
     pub ipv6_addr_in: Option<Ipv6Addr>,
 }
+
+impl RelayOverride {
+    pub fn is_empty(&self) -> bool {
+        self.ipv4_addr_in.is_none() && self.ipv6_addr_in.is_none()
+    }
+}

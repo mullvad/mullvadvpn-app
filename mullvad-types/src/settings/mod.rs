@@ -176,6 +176,16 @@ impl Settings {
     }
 
     pub fn set_relay_override(&mut self, relay_override: RelayOverride) {
+        if relay_override.is_empty() {
+            if let Some(index) = self
+                .relay_overrides
+                .iter()
+                .position(|elem| elem.hostname == relay_override.hostname)
+            {
+                self.relay_overrides.swap_remove(index);
+            }
+            return;
+        }
         if let Some(elem) = self
             .relay_overrides
             .iter_mut()
