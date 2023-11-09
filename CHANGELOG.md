@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
   `mullvad api-access`, and the initially supported network protocols are `Shadowsocks` and
   `SOCKS5`.
 - Add social media content blocker.
+- Add ability to override server IPs to the CLI.
 
 ### Changed
 - Update Electron from 25.2.0 to 26.3.0.
