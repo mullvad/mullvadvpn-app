@@ -55,7 +55,7 @@ export function DeviceRevokedView() {
   const { leaveRevokedDevice } = useAppContext();
   const tunnelState = useSelector((state) => state.connection.status);
 
-  const Button = tunnelState.state === 'disconnected' ? AppButton.GreenButton : AppButton.RedButton;
+  const Button = tunnelState.state === 'disconnected' ? AppButton.BlueButton : AppButton.RedButton;
 
   return (
     <Layout>
