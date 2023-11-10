@@ -46,6 +46,11 @@ android {
         }
     }
 
+    androidResources {
+        @Suppress("UnstableApiUsage")
+        generateLocaleConfig = true
+    }
+
     if (keystorePropertiesFile.exists()) {
         signingConfigs {
             create(SigningConfigs.RELEASE) {
