@@ -23,13 +23,28 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- A new option to block Social media
+- Add filtering on ownership and provider to location selection view.
+- Add blocked state.
+
+
+## [2023.6 - 2023-10-12]
+### Removed
+- Remove voucher redemption from the app.
+
+
+## [2023.5 - 2023-09-22]
+### Added
+- A new option to block Social media.
+
+### Fixed
+- Fixed crash when deleting an account whilst connected.
+
 
 ## [2023.4 - 2023-09-12]
 ### Added
 - Allow redeeming vouchers in account view.
 - Allow deleting account in account view.
-- Add new account flow
+- Add new account flow.
 
 ### Fixed
 - Invalidate API IP address cache to fix connectivity issues for some of devices updating from
@@ -45,7 +60,6 @@ Line wrap the file at 100 chars.                                              Th
   not match the one stored on device.
 - Add WireGuard port selection to settings.
 - Add redeeming voucher code on account view.
-- Add filtering on ownership and provider to location selection view.
 
 ## [2023.2 - 2023-04-03]
 ### Changed
