@@ -27,20 +27,19 @@ class RevokedDeviceViewController: UIViewController, RootContainment {
             value: "Device is inactive",
             comment: ""
         )
-        titleLabel.font = UIFont.systemFont(ofSize: 32)
         return titleLabel
     }()
 
     private lazy var bodyLabel: UILabel = {
         let bodyLabel = UILabel()
         bodyLabel.translatesAutoresizingMaskIntoConstraints = false
-        bodyLabel.font = UIFont.systemFont(ofSize: 17)
+        bodyLabel.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         bodyLabel.numberOfLines = 0
         bodyLabel.textColor = .white
         bodyLabel.text = NSLocalizedString(
             "DESCRIPTION_LABEL",
             tableName: "RevokedDevice",
-            value: "You have revoked this device. To connect again, you will need to log back in.",
+            value: "You have removed this device. To connect again, you will need to log back in.",
             comment: ""
         )
         return bodyLabel
