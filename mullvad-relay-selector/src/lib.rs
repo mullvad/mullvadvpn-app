@@ -102,18 +102,17 @@ impl ParsedRelays {
         }
         ParsedRelays {
             last_updated,
-            relays: Self::relays_with_location(&relay_list),
+            relays: Self::parse_relays(&relay_list).collect(),
             locations: relay_list,
             overrides: HashMap::new(),
         }
     }
 
-    fn relays_with_location(relay_list: &RelayList) -> Vec<Relay> {
-        let mut relays = vec![];
-        for country in &relay_list.countries {
-            for city in &country.cities {
-                for relay in &city.relays {
-                    let mut relay_with_location = relay.clone();
+    fn parse_relays(relay_list: &RelayList) -> impl Iterator<Item = Relay> + '_ {
+        relay_list.countries.iter().flat_map(|country| {
+            country.cities.iter().flat_map(|city| {
+                city.relays.iter().map(|relay| {
+                    let mut relay_with_location = relay.to_owned();
                     relay_with_location.location = Some(Location {
                         country: country.name.clone(),
                         country_code: country.code.clone(),
@@ -122,11 +121,10 @@ impl ParsedRelays {
                         latitude: city.latitude,
                         longitude: city.longitude,
                     });
-                    relays.push(relay_with_location);
-                }
-            }
-        }
-        relays
+                    relay_with_location
+                })
+            })
+        })
     }
 
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self, Error> {
@@ -162,7 +160,7 @@ impl ParsedRelays {
     }
 
     fn reset_overrides(&mut self) {
-        self.relays = Self::relays_with_location(&self.locations);
+        self.relays = Self::parse_relays(&self.locations).collect();
     }
 
     fn append_overrides(&mut self, overrides: Vec<RelayOverride>) {
