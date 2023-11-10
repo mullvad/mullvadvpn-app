@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 
 fun ProductDetailsResult.toPaymentAvailability(
-    productIdToPaymentStatus: Map<String, PaymentStatus>
+    productIdToPaymentStatus: Map<String, PaymentStatus?>
 ) =
     when {
         this.billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
