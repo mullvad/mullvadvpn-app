@@ -228,6 +228,7 @@ android {
     }
 
     project.tasks.preBuild.dependsOn("ensureJniDirectoryExist")
+    project.tasks.preBuild.dependsOn("ensureValidVersionCode")
 }
 
 androidComponents {
@@ -261,6 +262,17 @@ tasks.register("ensureJniDirectoryExist") {
     doFirst {
         if (!file(extraJniDirectory).exists()) {
             throw GradleException("Missing JNI directory: $extraJniDirectory")
+        }
+    }
+}
+
+// This is a safety net to avoid generating too big version codes, since that could potentially be
+// hard and inconvenient to recover from.
+tasks.register("ensureValidVersionCode") {
+    doLast {
+        val versionCode = project.android.defaultConfig.versionCode!!
+        if (versionCode >= MAX_ALLOWED_VERSION_CODE) {
+            throw GradleException("Bad version code: $versionCode")
         }
     }
 }
