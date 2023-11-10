@@ -177,25 +177,20 @@ impl Settings {
     }
 
     pub fn set_relay_override(&mut self, relay_override: RelayOverride) {
-        if relay_override.is_empty() {
-            if let Some(index) = self
-                .relay_overrides
-                .iter()
-                .position(|elem| elem.hostname == relay_override.hostname)
-            {
-                self.relay_overrides.swap_remove(index);
-            }
-            return;
-        }
-        if let Some(elem) = self
+        let existing_override = self
             .relay_overrides
             .iter_mut()
-            .find(|elem| elem.hostname == relay_override.hostname)
-        {
-            // Update existing options
-            *elem = relay_override;
-        } else {
-            self.relay_overrides.push(relay_override);
+            .enumerate()
+            .find(|(_, elem)| elem.hostname == relay_override.hostname);
+        match existing_override {
+            None => self.relay_overrides.push(relay_override),
+            Some((index, elem)) => {
+                if relay_override.is_empty() {
+                    self.relay_overrides.swap_remove(index);
+                } else {
+                    *elem = relay_override;
+                }
+            }
         }
     }
 }
