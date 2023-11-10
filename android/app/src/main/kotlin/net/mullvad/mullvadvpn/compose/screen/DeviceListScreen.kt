@@ -222,8 +222,7 @@ private fun DeviceListItem(
                     text =
                         deviceUiState.device.created.parseAsDateTime()?.let { creationDate ->
                             stringResource(id = R.string.created_x, creationDate.formatDate())
-                        }
-                            ?: "",
+                        } ?: "",
                     style = MaterialTheme.typography.listItemSubText,
                     color =
                         MaterialTheme.colorScheme.onPrimary
@@ -244,7 +243,7 @@ private fun DeviceListItem(
                 IconButton(onClick = onDeviceRemovalClicked) {
                     Icon(
                         painter = painterResource(id = R.drawable.icon_close),
-                        contentDescription = "Remove",
+                        contentDescription = stringResource(id = R.string.remove_button),
                     )
                 }
             }
