@@ -3,7 +3,7 @@ use anyhow::Result;
 use mullvad_management_interface::MullvadProxyClient;
 
 pub async fn handle() -> Result<()> {
-    if !receive_confirmation("Are you sure you want to disconnect, log out, delete all settings, logs and cache files for the Mullvad VPN system service? [y/N]", false).await {
+    if !receive_confirmation("Are you sure you want to disconnect, log out, delete all settings, logs and cache files for the Mullvad VPN system service?", false).await {
         return Ok(());
     }
     let mut rpc = MullvadProxyClient::new().await?;

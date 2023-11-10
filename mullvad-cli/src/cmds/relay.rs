@@ -859,11 +859,8 @@ impl Relay {
             },
             OverrideCommands::ClearAll { confirm } => {
                 if confirm
-                    || receive_confirmation(
-                        "Are you sure you want to clear all overrides? [Y/n]",
-                        true,
-                    )
-                    .await
+                    || receive_confirmation("Are you sure you want to clear all overrides?", true)
+                        .await
                 {
                     let mut rpc = MullvadProxyClient::new().await?;
                     rpc.clear_all_relay_overrides().await?;
