@@ -63,6 +63,10 @@ class TunnelViewController: UIViewController, RootContainment {
             self?.setTunnelState(tunnelStatus.state, animated: true)
         }
 
+        interactor.didGetOutGoingAddress = { [weak self] outgoingConnectionInfo in
+            self?.contentView.update(from: outgoingConnectionInfo)
+        }
+
         contentView.actionHandler = { [weak self] action in
             switch action {
             case .connect:
@@ -143,7 +147,6 @@ class TunnelViewController: UIViewController, RootContainment {
 
         case let .connected(tunnelRelay):
             let center = tunnelRelay.location.geoCoordinate
-
             mapViewController.setCenter(center, animated: animated) {
                 self.contentView.setAnimatingActivity(false)
                 self.mapViewController.addLocationMarker(coordinate: center)
