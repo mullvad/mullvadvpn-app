@@ -925,11 +925,13 @@ pub fn find_relay_by_hostname(
         })
 }
 
+/// Return a list of all active non-bridge relays
 pub async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
     let mut rpc = MullvadProxyClient::new().await?;
     get_filtered_relays_with_client(&mut rpc).await
 }
 
+/// Return a list of all active non-bridge relays
 async fn get_filtered_relays_with_client(
     rpc: &mut MullvadProxyClient,
 ) -> Result<Vec<RelayListCountry>> {
