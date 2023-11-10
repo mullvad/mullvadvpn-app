@@ -67,13 +67,12 @@ impl RelayMatcher<WireguardMatcher> {
 impl<T: EndpointMatcher> RelayMatcher<T> {
     /// Filter a list of relays and their endpoints based on constraints.
     /// Only relays with (and including) matching endpoints are returned.
-    pub fn filter_matching_relay_list(&self, relays: &[Relay]) -> Vec<Relay> {
-        let matches = relays
-            .iter()
-            .filter(|relay| self.pre_filter_matching_relay(relay));
-
+    pub fn filter_matching_relay_list<'a, R: Iterator<Item = &'a Relay> + Clone>(
+        &self,
+        relays: R,
+    ) -> Vec<Relay> {
+        let matches = relays.filter(|relay| self.pre_filter_matching_relay(relay));
         let ignore_include_in_country = !matches.clone().any(|relay| relay.include_in_country);
-
         matches
             .filter(|relay| self.post_filter_matching_relay(relay, ignore_include_in_country))
             .cloned()

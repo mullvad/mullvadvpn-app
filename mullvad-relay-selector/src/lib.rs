@@ -6,7 +6,7 @@ use ipnetwork::IpNetwork;
 use mullvad_types::{
     custom_list::CustomListsSettings,
     endpoint::{MullvadEndpoint, MullvadWireguardEndpoint},
-    location::{Coordinates, Hostname, Location},
+    location::{Coordinates, Location},
     relay_constraints::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint,
         Match, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
@@ -80,63 +80,80 @@ pub enum Error {
 
 struct ParsedRelays {
     last_updated: SystemTime,
-    locations: RelayList,
-    relays: Vec<Relay>,
-    overrides: HashMap<Hostname, RelayOverride>,
+    parsed_list: RelayList,
+    original_list: RelayList,
+    overrides: Vec<RelayOverride>,
 }
 
 impl ParsedRelays {
-    pub fn empty() -> Self {
+    /// Return a flat iterator with all relays
+    pub fn relays(&self) -> impl Iterator<Item = &Relay> + Clone + '_ {
+        self.parsed_list.relays()
+    }
+
+    pub fn update(&mut self, new_relays: RelayList) {
+        *self = Self::from_relay_list(new_relays, SystemTime::now(), &self.overrides);
+
+        log::info!(
+            "Updated relay inventory has {} relays",
+            self.relays().count()
+        );
+    }
+
+    pub fn last_updated(&self) -> SystemTime {
+        self.last_updated
+    }
+
+    fn set_overrides(&mut self, new_overrides: &[RelayOverride]) {
+        self.parsed_list = Self::parse_relay_list(&self.original_list, new_overrides);
+        self.overrides = new_overrides.to_vec();
+    }
+
+    fn empty() -> Self {
         ParsedRelays {
             last_updated: time::UNIX_EPOCH,
-            locations: RelayList::empty(),
-            relays: Vec::new(),
-            overrides: HashMap::new(),
+            parsed_list: RelayList::empty(),
+            original_list: RelayList::empty(),
+            overrides: vec![],
         }
     }
 
-    pub fn from_relay_list(mut relay_list: RelayList, last_updated: SystemTime) -> Self {
-        // Append data for obfuscation protocols ourselves, since the API does not provide it.
-        if relay_list.wireguard.udp2tcp_ports.is_empty() {
-            relay_list.wireguard.udp2tcp_ports.extend(UDP2TCP_PORTS);
-        }
-        ParsedRelays {
-            last_updated,
-            relays: Self::relays_with_location(&relay_list),
-            locations: relay_list,
-            overrides: HashMap::new(),
-        }
-    }
-
-    fn relays_with_location(relay_list: &RelayList) -> Vec<Relay> {
-        let mut relays = vec![];
-        for country in &relay_list.countries {
-            for city in &country.cities {
-                for relay in &city.relays {
-                    let mut relay_with_location = relay.clone();
-                    relay_with_location.location = Some(Location {
-                        country: country.name.clone(),
-                        country_code: country.code.clone(),
-                        city: city.name.clone(),
-                        city_code: city.code.clone(),
-                        latitude: city.latitude,
-                        longitude: city.longitude,
-                    });
-                    relays.push(relay_with_location);
-                }
+    /// Try to read the relays from disk, preferring the newer ones.
+    fn from_dir(
+        cache_path: &Path,
+        resource_path: &Path,
+        overrides: &[RelayOverride],
+    ) -> Result<Self, Error> {
+        // prefer the resource path's relay list if the cached one doesn't exist or was modified
+        // before the resource one was created.
+        let cached_relays = Self::from_file(cache_path, overrides);
+        let bundled_relays = match Self::from_file(resource_path, overrides) {
+            Ok(bundled_relays) => bundled_relays,
+            Err(e) => {
+                log::error!("Failed to load bundled relays: {}", e);
+                return cached_relays;
             }
+        };
+
+        if cached_relays
+            .as_ref()
+            .map(|cached| cached.last_updated > bundled_relays.last_updated)
+            .unwrap_or(false)
+        {
+            cached_relays
+        } else {
+            Ok(bundled_relays)
         }
-        relays
     }
 
-    pub fn from_file(path: impl AsRef<Path>) -> Result<Self, Error> {
+    fn from_file(path: impl AsRef<Path>, overrides: &[RelayOverride]) -> Result<Self, Error> {
         log::debug!("Reading relays from {}", path.as_ref().display());
         let (last_modified, file) =
             Self::open_file(path.as_ref()).map_err(Error::OpenRelayCache)?;
         let relay_list =
             serde_json::from_reader(io::BufReader::new(file)).map_err(Error::Serialize)?;
 
-        Ok(Self::from_relay_list(relay_list, last_modified))
+        Ok(Self::from_relay_list(relay_list, last_modified, overrides))
     }
 
     fn open_file(path: &Path) -> io::Result<(SystemTime, std::fs::File)> {
@@ -145,66 +162,58 @@ impl ParsedRelays {
         Ok((last_modified, file))
     }
 
-    pub fn last_updated(&self) -> SystemTime {
-        self.last_updated
+    fn from_relay_list(
+        relay_list: RelayList,
+        last_updated: SystemTime,
+        overrides: &[RelayOverride],
+    ) -> Self {
+        ParsedRelays {
+            last_updated,
+            parsed_list: Self::parse_relay_list(&relay_list, overrides),
+            original_list: relay_list,
+            overrides: overrides.to_vec(),
+        }
     }
 
-    pub fn locations(&self) -> &RelayList {
-        &self.locations
-    }
-
-    pub fn relays(&self) -> &Vec<Relay> {
-        &self.relays
-    }
-
-    pub fn tag(&self) -> Option<&str> {
-        self.locations.etag.as_deref()
-    }
-
-    fn reset_overrides(&mut self) {
-        self.relays = Self::relays_with_location(&self.locations);
-    }
-
-    fn append_overrides(&mut self, overrides: Vec<RelayOverride>) {
-        self.overrides.clear();
-        for r#override in overrides {
-            self.overrides
-                .insert(r#override.hostname.to_owned(), r#override);
+    fn parse_relay_list(relay_list: &RelayList, overrides: &[RelayOverride]) -> RelayList {
+        let mut remaining_overrides = HashMap::new();
+        for relay_override in overrides {
+            remaining_overrides.insert(
+                relay_override.hostname.to_owned(),
+                relay_override.to_owned(),
+            );
         }
 
-        let mut remaining_overrides = self.overrides.clone();
+        let mut parsed_list = relay_list.clone();
 
-        for relay in &mut self.relays {
-            if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
-                if let Some(ipv4_addr_in) = overrides.ipv4_addr_in {
-                    log::debug!(
-                        "Overriding ipv4_addr_in for {}: {ipv4_addr_in}",
-                        relay.hostname
-                    );
-                    relay.ipv4_addr_in = ipv4_addr_in;
-                }
-                if let Some(ipv6_addr_in) = overrides.ipv6_addr_in {
-                    log::debug!(
-                        "Overriding ipv6_addr_in for {}: {ipv6_addr_in}",
-                        relay.hostname
-                    );
-                    relay.ipv6_addr_in = Some(ipv6_addr_in);
+        // Append data for obfuscation protocols ourselves, since the API does not provide it.
+        if parsed_list.wireguard.udp2tcp_ports.is_empty() {
+            parsed_list.wireguard.udp2tcp_ports.extend(UDP2TCP_PORTS);
+        }
+
+        // Add location and override relay data
+        for country in &mut parsed_list.countries {
+            for city in &mut country.cities {
+                for relay in &mut city.relays {
+                    // Append location data
+                    relay.location = Some(Location {
+                        country: country.name.clone(),
+                        country_code: country.code.clone(),
+                        city: city.name.clone(),
+                        city_code: city.code.clone(),
+                        latitude: city.latitude,
+                        longitude: city.longitude,
+                    });
+
+                    // Append overrides
+                    if let Some(overrides) = remaining_overrides.remove(&relay.hostname) {
+                        overrides.apply_to_relay(relay);
+                    }
                 }
             }
         }
 
-        for relay_override in remaining_overrides.into_values() {
-            log::warn!(
-                "No overrides were applied for hostname \"{}\": not found",
-                relay_override.hostname
-            );
-        }
-    }
-
-    /// Update list while keeping overrides
-    pub fn update(&mut self, update: ParsedRelays) {
-        let old = std::mem::replace(self, update);
-        self.append_overrides(old.overrides.into_values().collect());
+        parsed_list
     }
 }
 
@@ -230,22 +239,21 @@ impl RelaySelector {
     pub fn new(config: SelectorConfig, resource_dir: &Path, cache_dir: &Path) -> Self {
         let cache_path = cache_dir.join(RELAYS_FILENAME);
         let resource_path = resource_dir.join(RELAYS_FILENAME);
-        let mut unsynchronized_parsed_relays =
-            Self::read_relays_from_disk(&cache_path, &resource_path).unwrap_or_else(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Unable to load cached relays")
-                );
-                ParsedRelays::empty()
-            });
+        let unsynchronized_parsed_relays =
+            ParsedRelays::from_dir(&cache_path, &resource_path, &config.relay_overrides)
+                .unwrap_or_else(|error| {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Unable to load cached and bundled relays")
+                    );
+                    ParsedRelays::empty()
+                });
         log::info!(
             "Initialized with {} cached relays from {}",
-            unsynchronized_parsed_relays.relays().len(),
+            unsynchronized_parsed_relays.relays().count(),
             DateTime::<Local>::from(unsynchronized_parsed_relays.last_updated())
                 .format(DATE_TIME_FORMAT_STR)
         );
-
-        unsynchronized_parsed_relays.append_overrides(config.relay_overrides.clone());
 
         RelaySelector {
             config: Arc::new(Mutex::new(config)),
@@ -255,15 +263,14 @@ impl RelaySelector {
 
     pub fn set_config(&mut self, config: SelectorConfig) {
         let mut parsed_relays = self.parsed_relays.lock();
-        parsed_relays.reset_overrides();
-        parsed_relays.append_overrides(config.relay_overrides.clone());
+        parsed_relays.set_overrides(&config.relay_overrides);
         *self.config.lock() = config;
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
     /// relays in them.
     pub fn get_locations(&mut self) -> RelayList {
-        self.parsed_relays.lock().locations().clone()
+        self.parsed_relays.lock().original_list.clone()
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints.
@@ -367,8 +374,8 @@ impl RelaySelector {
         let (openvpn_data, wireguard_data) = {
             let relays = self.parsed_relays.lock();
             (
-                relays.locations.openvpn.clone(),
-                relays.locations.wireguard.clone(),
+                relays.parsed_list.openvpn.clone(),
+                relays.parsed_list.wireguard.clone(),
             )
         };
 
@@ -411,7 +418,7 @@ impl RelaySelector {
             ownership: relay_constraints.ownership,
             endpoint_matcher: OpenVpnMatcher::new(
                 relay_constraints.openvpn_constraints,
-                self.parsed_relays.lock().locations.openvpn.clone(),
+                self.parsed_relays.lock().parsed_list.openvpn.clone(),
             ),
         };
 
@@ -519,7 +526,7 @@ impl RelaySelector {
         retry_attempt: u32,
         custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
-        let wg_endpoint_data = self.parsed_relays.lock().locations.wireguard.clone();
+        let wg_endpoint_data = self.parsed_relays.lock().parsed_list.wireguard.clone();
 
         // NOTE: If not using multihop then `location` is set as the only location constraint.
         // If using multihop then location is the exit constraint and
@@ -586,8 +593,8 @@ impl RelaySelector {
         let (openvpn_data, wireguard_data) = {
             let relays = self.parsed_relays.lock();
             (
-                relays.locations.openvpn.clone(),
-                relays.locations.wireguard.clone(),
+                relays.parsed_list.openvpn.clone(),
+                relays.parsed_list.wireguard.clone(),
             )
         };
         let mut matcher = RelayMatcher::new(
@@ -976,7 +983,7 @@ impl RelaySelector {
             self.pick_random_relay(&matching_relays).cloned()
         };
         relay.and_then(|relay| {
-            self.pick_random_bridge(&self.parsed_relays.lock().locations.bridge, &relay)
+            self.pick_random_bridge(&self.parsed_relays.lock().parsed_list.bridge, &relay)
                 .map(|bridge| (bridge, relay.clone()))
         })
     }
@@ -1049,7 +1056,12 @@ impl RelaySelector {
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
     ) -> Option<SelectedObfuscator> {
-        let udp2tcp_ports = &self.parsed_relays.lock().locations.wireguard.udp2tcp_ports;
+        let udp2tcp_ports = &self
+            .parsed_relays
+            .lock()
+            .parsed_list
+            .wireguard
+            .udp2tcp_ports;
         let udp2tcp_endpoint = if obfuscation_settings.port.is_only() {
             udp2tcp_ports
                 .iter()
@@ -1079,14 +1091,13 @@ impl RelaySelector {
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
         match default_tunnel_type {
             TunnelType::OpenVpn => {
-                let location_supports_openvpn =
-                    self.parsed_relays.lock().relays().iter().any(|relay| {
-                        relay.active
-                            && relay.endpoint_data == RelayEndpointData::Openvpn
-                            && location_constraint.matches_with_opts(relay, true)
-                            && providers_constraint.matches(relay)
-                            && ownership_constraint.matches(relay)
-                    });
+                let location_supports_openvpn = self.parsed_relays.lock().relays().any(|relay| {
+                    relay.active
+                        && relay.endpoint_data == RelayEndpointData::Openvpn
+                        && location_constraint.matches_with_opts(relay, true)
+                        && providers_constraint.matches(relay)
+                        && ownership_constraint.matches(relay)
+                });
 
                 if location_supports_openvpn {
                     let (preferred_port, preferred_protocol) =
@@ -1095,14 +1106,13 @@ impl RelaySelector {
                 }
             }
             TunnelType::Wireguard => {
-                let location_supports_wireguard =
-                    self.parsed_relays.lock().relays().iter().any(|relay| {
-                        relay.active
-                            && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                            && location_constraint.matches_with_opts(relay, true)
-                            && providers_constraint.matches(relay)
-                            && ownership_constraint.matches(relay)
-                    });
+                let location_supports_wireguard = self.parsed_relays.lock().relays().any(|relay| {
+                    relay.active
+                        && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
+                        && location_constraint.matches_with_opts(relay, true)
+                        && providers_constraint.matches(relay)
+                        && ownership_constraint.matches(relay)
+                });
 
                 // If location does not support WireGuard, defer to preferred OpenVPN tunnel
                 // constraints
@@ -1249,36 +1259,10 @@ impl RelaySelector {
             })
     }
 
-    /// Try to read the relays from disk, preferring the newer ones.
-    fn read_relays_from_disk(
-        cache_path: &Path,
-        resource_path: &Path,
-    ) -> Result<ParsedRelays, Error> {
-        // prefer the resource path's relay list if the cached one doesn't exist or was modified
-        // before the resource one was created.
-        let cached_relays = ParsedRelays::from_file(cache_path);
-        let bundled_relays = match ParsedRelays::from_file(resource_path) {
-            Ok(bundled_relays) => bundled_relays,
-            Err(e) => {
-                log::error!("Failed to load bundled relays: {}", e);
-                return cached_relays;
-            }
-        };
-
-        if cached_relays
-            .as_ref()
-            .map(|cached| cached.last_updated > bundled_relays.last_updated)
-            .unwrap_or(false)
-        {
-            cached_relays
-        } else {
-            Ok(bundled_relays)
-        }
-    }
-
     fn wireguard_exit_matcher(&self) -> WireguardMatcher {
-        let mut tunnel =
-            WireguardMatcher::from_endpoint(self.parsed_relays.lock().locations.wireguard.clone());
+        let mut tunnel = WireguardMatcher::from_endpoint(
+            self.parsed_relays.lock().parsed_list.wireguard.clone(),
+        );
         tunnel.ip_version = WIREGUARD_EXIT_IP_VERSION;
         tunnel.port = WIREGUARD_EXIT_PORT;
         tunnel
@@ -1510,6 +1494,7 @@ mod test {
             parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
                 relay_list,
                 SystemTime::now(),
+                &[],
             ))),
             config: Arc::new(Mutex::new(SelectorConfig {
                 relay_settings: RelaySettings::Normal(RelayConstraints {

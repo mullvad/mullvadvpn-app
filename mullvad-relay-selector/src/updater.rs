@@ -91,7 +91,7 @@ impl RelayListUpdater {
             futures::select! {
                 _check_update = next_check => {
                     if download_future.is_terminated() && self.should_update() {
-                        let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
+                        let tag = self.parsed_relays.lock().parsed_list.etag.clone();
                         download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
                         self.last_check = SystemTime::now();
                     }
@@ -104,7 +104,7 @@ impl RelayListUpdater {
                 cmd = cmd_rx.next() => {
                     match cmd {
                         Some(()) => {
-                            let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
+                            let tag = self.parsed_relays.lock().parsed_list.etag.clone();
                             download_future = Box::pin(Self::download_relay_list(self.api_availability.clone(), self.api_client.clone(), tag).fuse());
                             self.last_check = SystemTime::now();
                         },
@@ -178,15 +178,9 @@ impl RelayListUpdater {
             );
         }
 
-        let new_parsed_relays = ParsedRelays::from_relay_list(new_relay_list, SystemTime::now());
-        log::info!(
-            "Downloaded relay inventory has {} relays",
-            new_parsed_relays.relays().len()
-        );
-
         let mut parsed_relays = self.parsed_relays.lock();
-        parsed_relays.update(new_parsed_relays);
-        (self.on_update)(parsed_relays.locations());
+        parsed_relays.update(new_relay_list);
+        (self.on_update)(&parsed_relays.original_list);
         Ok(())
     }
 
