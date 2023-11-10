@@ -291,3 +291,25 @@ jobs:
           path: /tmp/mullvad-${{ matrix.test-type }}-instrumentation-report
           if-no-files-found: ignore
           retention-days: 1
+
+  instrumented-firebase-tests:
+    name: Run instrumented firebase tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build-app]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: apks
+          path: android
+
+      - name: Run tests on Firebase Test Lab
+        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        with:
+          arg-spec: 'android/test/firebase-test-lab.yaml:default'
