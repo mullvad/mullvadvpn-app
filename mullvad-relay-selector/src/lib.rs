@@ -1510,6 +1510,7 @@ mod test {
             parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
                 relay_list,
                 SystemTime::now(),
+                &[],
             ))),
             config: Arc::new(Mutex::new(SelectorConfig {
                 relay_settings: RelaySettings::Normal(RelayConstraints {
