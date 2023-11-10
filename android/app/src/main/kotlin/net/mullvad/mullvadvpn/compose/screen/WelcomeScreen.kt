@@ -48,7 +48,6 @@ import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -68,8 +67,7 @@ private fun PreviewWelcomeScreen() {
                     deviceName = "Happy Mole",
                     billingPaymentState =
                         PaymentState.PaymentAvailable(
-                            products =
-                                listOf(PaymentProduct("product", "$44", PaymentStatus.AVAILABLE))
+                            products = listOf(PaymentProduct("product", "$44", null))
                         )
                 ),
             uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),

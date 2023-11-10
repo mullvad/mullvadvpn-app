@@ -6,13 +6,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentAvailability
+import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentStatus
 import net.mullvad.mullvadvpn.lib.billing.extension.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.PlayPurchase
@@ -133,11 +133,4 @@ class BillingPaymentRepository(
             )
         )
     }
-
-    private fun Int.toPaymentStatus(): PaymentStatus =
-        when (this) {
-            Purchase.PurchaseState.PURCHASED -> PaymentStatus.VERIFICATION_IN_PROGRESS
-            Purchase.PurchaseState.PENDING -> PaymentStatus.PENDING
-            else -> PaymentStatus.AVAILABLE
-        }
 }

@@ -28,13 +28,7 @@ private fun PreviewPlayPaymentButtonPaymentAvailable() {
                 billingPaymentState =
                     PaymentState.PaymentAvailable(
                         products =
-                            listOf(
-                                PaymentProduct(
-                                    productId = "test",
-                                    price = "$10",
-                                    status = PaymentStatus.AVAILABLE
-                                )
-                            )
+                            listOf(PaymentProduct(productId = "test", price = "$10", status = null))
                     ),
                 onPurchaseBillingProductClick = {},
                 modifier = Modifier.padding(Dimens.screenVerticalMargin)
@@ -149,7 +143,7 @@ fun PlayPaymentButton(
                     VariantButton(
                         text = stringResource(id = R.string.add_30_days_time_x, product.price),
                         onClick = { onPurchaseBillingProductClick(product.productId) },
-                        isEnabled = product.status == PaymentStatus.AVAILABLE
+                        isEnabled = product.status == null
                     )
                 }
             }
