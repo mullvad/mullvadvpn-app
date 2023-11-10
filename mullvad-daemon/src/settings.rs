@@ -41,6 +41,7 @@ pub enum Error {
 pub struct SettingsPersister {
     settings: Settings,
     path: PathBuf,
+    #[allow(clippy::type_complexity)]
     on_change_listeners: Vec<Box<dyn Fn(&Settings)>>,
 }
 

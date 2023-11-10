@@ -1974,13 +1974,11 @@ where
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
-                if settings_changed {
-                    if self.get_target_tunnel_type() == Some(TunnelType::OpenVpn) {
-                        log::info!(
-                            "Initiating tunnel restart because the OpenVPN mssfix setting changed"
-                        );
-                        self.reconnect_tunnel();
-                    }
+                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::OpenVpn) {
+                    log::info!(
+                        "Initiating tunnel restart because the OpenVPN mssfix setting changed"
+                    );
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => {
@@ -2108,11 +2106,9 @@ where
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_quantum_resistant_tunnel response");
-                if settings_changed {
-                    if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
-                        log::info!("Reconnecting because the PQ safety setting changed");
-                        self.reconnect_tunnel();
-                    }
+                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
+                    log::info!("Reconnecting because the PQ safety setting changed");
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => {
