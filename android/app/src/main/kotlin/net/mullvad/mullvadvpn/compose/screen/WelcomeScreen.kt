@@ -33,7 +33,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.PlayPaymentButton
+import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
@@ -317,7 +317,7 @@ private fun PaymentPanel(
                 .background(color = MaterialTheme.colorScheme.background)
     ) {
         Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
-        PlayPaymentButton(
+        PlayPayment(
             billingPaymentState = billingPaymentState,
             onPurchaseBillingProductClick = onPurchaseBillingProductClick,
             modifier =

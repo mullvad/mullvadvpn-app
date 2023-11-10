@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.button
+package net.mullvad.mullvadvpn.compose.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
@@ -21,10 +22,10 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 @Preview
 @Composable
-private fun PreviewPlayPaymentButtonPaymentAvailable() {
+private fun PreviewPlayPaymentPaymentAvailable() {
     AppTheme {
         Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            PlayPaymentButton(
+            PlayPayment(
                 billingPaymentState =
                     PaymentState.PaymentAvailable(
                         products =
@@ -39,10 +40,10 @@ private fun PreviewPlayPaymentButtonPaymentAvailable() {
 
 @Preview
 @Composable
-private fun PreviewPlayPaymentButtonLoading() {
+private fun PreviewPlayPaymentLoading() {
     AppTheme {
         Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            PlayPaymentButton(
+            PlayPayment(
                 billingPaymentState = PaymentState.Loading,
                 onPurchaseBillingProductClick = {},
                 modifier = Modifier.padding(Dimens.screenVerticalMargin)
@@ -53,10 +54,10 @@ private fun PreviewPlayPaymentButtonLoading() {
 
 @Preview
 @Composable
-private fun PreviewPlayPaymentButtonPaymentPending() {
+private fun PreviewPlayPaymentPaymentPending() {
     AppTheme {
         Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            PlayPaymentButton(
+            PlayPayment(
                 billingPaymentState =
                     PaymentState.PaymentAvailable(
                         products =
@@ -77,10 +78,10 @@ private fun PreviewPlayPaymentButtonPaymentPending() {
 
 @Preview
 @Composable
-private fun PreviewPlayPaymentButtonVerificationInProgress() {
+private fun PreviewPlayPaymentVerificationInProgress() {
     AppTheme {
         Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
-            PlayPaymentButton(
+            PlayPayment(
                 billingPaymentState =
                     PaymentState.PaymentAvailable(
                         products =
@@ -100,7 +101,7 @@ private fun PreviewPlayPaymentButtonVerificationInProgress() {
 }
 
 @Composable
-fun PlayPaymentButton(
+fun PlayPayment(
     billingPaymentState: PaymentState,
     onPurchaseBillingProductClick: (String) -> Unit,
     modifier: Modifier = Modifier
