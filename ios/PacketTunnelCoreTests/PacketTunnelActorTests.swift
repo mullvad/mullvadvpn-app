@@ -302,7 +302,12 @@ final class PacketTunnelActorTests: XCTestCase {
         await fulfillment(of: [disconnectedStateExpectation, didStopObserverExpectation], timeout: 1)
     }
 
-    func testSetErrorStateGetsCancelledWhenStopping() async throws {
+    // FIXME: Reconsider if this test should exist. As it stands currently, it
+    // relies the packet tunnel process processing app message calls and a
+    // `stopTunnel()` call in a particular, deterministic order, which makes it
+    // unreliable. In reality, we cannot guarantee the order between those
+    // calls, and it fails almost reliably on low core count VMs.
+    func setErrorStateGetsCancelledWhenStopping() async throws {
         let actor = PacketTunnelActor.mock()
         let connectingStateExpectation = expectation(description: "Connecting state")
         let disconnectedStateExpectation = expectation(description: "Disconnected state")
