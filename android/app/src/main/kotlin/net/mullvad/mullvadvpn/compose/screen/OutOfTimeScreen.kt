@@ -25,9 +25,9 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
-import net.mullvad.mullvadvpn.compose.button.PlayPaymentButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
+import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.PaymentAvailabilityErrorDialog
@@ -212,7 +212,7 @@ fun OutOfTimeScreen(
                         )
                 )
             }
-            PlayPaymentButton(
+            PlayPayment(
                 billingPaymentState = uiState.billingPaymentState,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
                 modifier =

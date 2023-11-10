@@ -33,12 +33,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ExternalButton
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
-import net.mullvad.mullvadvpn.compose.button.PlayPaymentButton
+import net.mullvad.mullvadvpn.compose.component.PlayPaymentButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
+import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.PaymentAvailabilityErrorDialog
@@ -170,7 +171,7 @@ fun AccountScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Column(modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)) {
-                PlayPaymentButton(
+                PlayPayment(
                     billingPaymentState = uiState.billingPaymentState,
                     onPurchaseBillingProductClick = onPurchaseBillingProductClick,
                     modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
