@@ -74,7 +74,7 @@ private fun PreviewAccountScreen() {
                                 PaymentProduct(
                                     "productId",
                                     price = "34 SEK",
-                                    status = PaymentStatus.AVAILABLE
+                                    status = null
                                 ),
                                 PaymentProduct(
                                     "productId_pending",
