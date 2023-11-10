@@ -318,4 +318,4 @@ jobs:
         env:
           SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         with:
-          arg-spec: 'android/test/firebase-test-lab.yaml:default'
+          arg-spec: 'android/test/firebase-test-lab.yml:default'
