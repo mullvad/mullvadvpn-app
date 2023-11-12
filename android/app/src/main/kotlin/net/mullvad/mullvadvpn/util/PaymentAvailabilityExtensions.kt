@@ -10,6 +10,7 @@ fun PaymentAvailability.toPaymentState(): PaymentState =
         is PaymentAvailability.Error.Other -> PaymentState.Error.Generic
         is PaymentAvailability.ProductsAvailable -> PaymentState.PaymentAvailable(products)
         PaymentAvailability.ProductsUnavailable -> PaymentState.NoPayment
+        PaymentAvailability.NoProductsFounds -> PaymentState.NoProductsFounds
         PaymentAvailability.Loading -> PaymentState.Loading
         // Unrecoverable error states
         PaymentAvailability.Error.DeveloperError,

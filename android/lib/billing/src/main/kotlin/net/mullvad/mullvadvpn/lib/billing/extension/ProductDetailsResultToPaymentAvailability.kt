@@ -17,7 +17,7 @@ fun ProductDetailsResult.toPaymentAvailability(
                     productDetailsList.toPaymentProducts(productIdToPaymentStatus)
                 )
             } else {
-                PaymentAvailability.ProductsUnavailable
+                PaymentAvailability.NoProductsFounds
             }
         }
         BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->

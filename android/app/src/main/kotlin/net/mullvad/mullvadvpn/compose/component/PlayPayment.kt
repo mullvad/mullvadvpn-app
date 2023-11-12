@@ -117,7 +117,7 @@ fun PlayPayment(
                 modifier = modifier.size(size = Dimens.progressIndicatorSize)
             )
         }
-        PaymentState.NoPayment -> {
+        PaymentState.NoPayment, PaymentState.NoProductsFounds -> {
             // Show nothing
         }
         is PaymentState.PaymentAvailable -> {

@@ -17,15 +17,12 @@ import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.PlayPurchase
 import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
-import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
 
 class BillingPaymentRepository(
     private val billingRepository: BillingRepository,
     private val playPurchaseRepository: PlayPurchaseRepository
 ) : PaymentRepository {
-
-    private var inc = 0
 
     override fun queryPaymentAvailability(): Flow<PaymentAvailability> = flow {
         emit(PaymentAvailability.Loading)
@@ -129,16 +126,11 @@ class BillingPaymentRepository(
     }
 
     private suspend fun verifyPurchase(purchase: Purchase): PlayPurchaseVerifyResult {
-        if (inc == 0) {
-            inc = 1
-            return PlayPurchaseVerifyResult.Error(PlayPurchaseVerifyError.OtherError)
-        } else {
-            return playPurchaseRepository.verifyPlayPurchase(
-                PlayPurchase(
-                    productId = purchase.products.first(),
-                    purchaseToken = purchase.purchaseToken,
-                )
+        return playPurchaseRepository.verifyPlayPurchase(
+            PlayPurchase(
+                productId = purchase.products.first(),
+                purchaseToken = purchase.purchaseToken,
             )
-        }
+        )
     }
 }
