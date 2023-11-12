@@ -33,15 +33,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
+import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
-import net.mullvad.mullvadvpn.compose.dialog.PaymentAvailabilityErrorDialog
-import net.mullvad.mullvadvpn.compose.dialog.PurchaseResultDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
@@ -110,17 +109,12 @@ fun WelcomeScreen(
         }
     }
 
-    uiState.purchaseResult?.let {
-        PurchaseResultDialog(
-            purchaseResult = uiState.purchaseResult,
-            retry = onRetryVerification,
-            onCloseDialog = onClosePurchaseResultDialog
-        )
-    }
-
-    PaymentAvailabilityErrorDialog(
-        paymentAvailability = uiState.billingPaymentState,
-        retry = onRetryFetchProducts,
+    PaymentDialog(
+        purchaseResult = uiState.purchaseResult,
+        paymentStateError = uiState.billingPaymentState as? PaymentState.Error,
+        retryFetchProducts = onRetryFetchProducts,
+        retryVerification = onRetryVerification,
+        onCloseDialog = onClosePurchaseResultDialog
     )
 
     val scrollState = rememberScrollState()
