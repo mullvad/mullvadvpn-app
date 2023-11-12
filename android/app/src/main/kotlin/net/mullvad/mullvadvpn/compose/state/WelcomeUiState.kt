@@ -7,6 +7,6 @@ data class WelcomeUiState(
     val tunnelState: TunnelState = TunnelState.Disconnected,
     val accountNumber: String? = null,
     val deviceName: String? = null,
-    val billingPaymentState: PaymentState = PaymentState.Loading,
+    val billingPaymentState: PaymentState = PaymentState.NoPayment,
     val purchaseResult: PurchaseResult? = null
 )
