@@ -167,6 +167,9 @@ fun PaymentDialog(
                     PaymentClickAction.RETRY_FETCH_PRODUCTS -> retryFetchProducts()
                     PaymentClickAction.RETRY_VERIFICATION -> retryVerification()
                     PaymentClickAction.CLOSE -> onCloseDialog(paymentSuccessful)
+                    PaymentClickAction.CLOSE_PAYMENT_ERROR -> {
+                        /*Do nothing*/
+                    }
                 }
             }
         )
@@ -310,7 +313,11 @@ private fun paymentAvailabilityErrorDialogData(): PaymentDialogData =
         title = R.string.payment_billing_error_dialog_title,
         message = R.string.payment_billing_error_dialog_message,
         icon = PaymentDialogIcon.FAIL,
-        confirmAction = DialogAction(message = R.string.cancel, onClick = PaymentClickAction.CLOSE),
+        confirmAction =
+            DialogAction(
+                message = R.string.cancel,
+                onClick = PaymentClickAction.CLOSE_PAYMENT_ERROR
+            ),
         dismissAction =
             DialogAction(
                 message = R.string.try_again,
