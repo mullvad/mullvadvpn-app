@@ -225,7 +225,7 @@ class WelcomeViewModelTest {
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.GenericError>(result)
+            assertIs<PaymentState.Error.Generic>(result)
         }
     }
 
@@ -243,7 +243,7 @@ class WelcomeViewModelTest {
             serviceConnectionState.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.BillingError>(result)
+            assertIs<PaymentState.Error.Billing>(result)
         }
     }
 

@@ -142,7 +142,7 @@ class AccountViewModelTest {
             awaitItem() // Default state
             paymentAvailability.tryEmit(PaymentAvailability.Error.Other(mockk()))
             val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.GenericError>(result)
+            assertIs<PaymentState.Error.Generic>(result)
         }
     }
 
@@ -153,7 +153,7 @@ class AccountViewModelTest {
             awaitItem() // Default state
             paymentAvailability.tryEmit(PaymentAvailability.Error.BillingUnavailable)
             val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.BillingError>(result)
+            assertIs<PaymentState.Error.Billing>(result)
         }
     }
 

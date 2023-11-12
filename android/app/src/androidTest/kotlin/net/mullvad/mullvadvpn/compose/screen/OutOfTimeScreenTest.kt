@@ -233,7 +233,7 @@ class OutOfTimeScreenTest {
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
-                uiState = OutOfTimeUiState(billingPaymentState = PaymentState.Error.BillingError),
+                uiState = OutOfTimeUiState(billingPaymentState = PaymentState.Error.Billing),
                 uiSideEffect = MutableStateFlow(OutOfTimeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},

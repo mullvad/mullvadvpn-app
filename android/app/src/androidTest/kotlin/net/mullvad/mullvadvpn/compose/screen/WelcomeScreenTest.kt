@@ -273,7 +273,7 @@ class WelcomeScreenTest {
         composeTestRule.setContent {
             WelcomeScreen(
                 showSitePayment = true,
-                uiState = WelcomeUiState(billingPaymentState = PaymentState.Error.BillingError),
+                uiState = WelcomeUiState(billingPaymentState = PaymentState.Error.Billing),
                 uiSideEffect = MutableStateFlow(WelcomeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
