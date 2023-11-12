@@ -9,25 +9,26 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 fun ProductDetailsResult.toPaymentAvailability(
     productIdToPaymentStatus: Map<String, PaymentStatus?>
 ) =
-    when {
-        this.billingResult.responseCode == BillingClient.BillingResponseCode.OK &&
-            this.productDetailsList.isNullOrEmpty() -> {
-            PaymentAvailability.ProductsUnavailable
+    when (this.billingResult.responseCode) {
+        BillingClient.BillingResponseCode.OK -> {
+            val productDetailsList = this.productDetailsList
+            if (productDetailsList?.isNotEmpty() == true) {
+                PaymentAvailability.ProductsAvailable(
+                    productDetailsList.toPaymentProducts(productIdToPaymentStatus)
+                )
+            } else {
+                PaymentAvailability.ProductsUnavailable
+            }
         }
-        this.billingResult.responseCode == BillingClient.BillingResponseCode.OK ->
-            PaymentAvailability.ProductsAvailable(
-                this.productDetailsList?.toPaymentProducts(productIdToPaymentStatus) ?: emptyList()
-            )
-        this.billingResult.responseCode == BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
+        BillingClient.BillingResponseCode.BILLING_UNAVAILABLE ->
             PaymentAvailability.Error.BillingUnavailable
-        this.billingResult.responseCode == BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE ->
+        BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE ->
             PaymentAvailability.Error.ServiceUnavailable
-        this.billingResult.responseCode == BillingClient.BillingResponseCode.DEVELOPER_ERROR ->
+        BillingClient.BillingResponseCode.DEVELOPER_ERROR ->
             PaymentAvailability.Error.DeveloperError
-        this.billingResult.responseCode ==
-            BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED ->
+        BillingClient.BillingResponseCode.FEATURE_NOT_SUPPORTED ->
             PaymentAvailability.Error.FeatureNotSupported
-        this.billingResult.responseCode == BillingClient.BillingResponseCode.ITEM_UNAVAILABLE ->
+        BillingClient.BillingResponseCode.ITEM_UNAVAILABLE ->
             PaymentAvailability.Error.ItemUnavailable
         else ->
             PaymentAvailability.Error.Other(
