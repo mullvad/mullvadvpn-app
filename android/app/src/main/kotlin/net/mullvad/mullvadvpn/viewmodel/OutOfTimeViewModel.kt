@@ -18,13 +18,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.constant.PAYMENT_AVAILABILITY_DEBOUNCE
-import net.mullvad.mullvadvpn.constant.PAYMENT_AVAILABILITY_DELAY
-import net.mullvad.mullvadvpn.constant.PURCHASES_DELAY
+import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.payment.extensions.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
@@ -74,8 +72,8 @@ class OutOfTimeViewModel(
                     OutOfTimeUiState(
                         tunnelState = tunnelState,
                         deviceName = deviceState.deviceName() ?: "",
-                        billingPaymentState = paymentAvailability?.toPaymentState()
-                                ?: PaymentState.NoPayment,
+                        billingPaymentState =
+                            paymentAvailability?.toPaymentState() ?: PaymentState.NoPayment,
                         purchaseResult = purchaseResult
                     )
                 }
@@ -139,7 +137,7 @@ class OutOfTimeViewModel(
                     if (it == VerificationResult.Success) {
                         // Update the payment availability after a successful verification.
                         // We add a small delay so that the status is correct
-                        fetchPaymentAvailability(PURCHASES_DELAY)
+                        fetchPaymentAvailability()
                     }
                 }
             }
@@ -148,9 +146,8 @@ class OutOfTimeViewModel(
     }
 
     @OptIn(FlowPreview::class)
-    private fun fetchPaymentAvailability(delay: Long = 0L) {
+    private fun fetchPaymentAvailability() {
         viewModelScope.launch {
-            delay(delay)
             paymentRepository
                 ?.queryPaymentAvailability()
                 ?.debounce(PAYMENT_AVAILABILITY_DEBOUNCE) // This is added to avoid flickering
@@ -160,7 +157,7 @@ class OutOfTimeViewModel(
     }
 
     fun onRetryFetchProducts() {
-        fetchPaymentAvailability(PAYMENT_AVAILABILITY_DELAY)
+        fetchPaymentAvailability()
     }
 
     fun onClosePurchaseResultDialog(success: Boolean) {
@@ -168,10 +165,11 @@ class OutOfTimeViewModel(
         // during the purchase or the purchase ended successfully.
         // In those cases we want to update the both the payment availability and the account
         // expiry.
-        fetchPaymentAvailability(PAYMENT_AVAILABILITY_DELAY)
         if (success) {
             updateAccountExpiry()
             _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
+        } else {
+            fetchPaymentAvailability()
         }
         _purchaseResult.tryEmit(null) // So that we do not show the dialog again.
     }

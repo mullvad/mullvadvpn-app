@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,11 +13,9 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.constant.PAYMENT_AVAILABILITY_DEBOUNCE
-import net.mullvad.mullvadvpn.constant.PAYMENT_AVAILABILITY_DELAY
-import net.mullvad.mullvadvpn.constant.PURCHASES_DELAY
+import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.extensions.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -60,8 +57,8 @@ class AccountViewModel(
                     accountNumber = deviceState.token() ?: "",
                     accountExpiry = accountExpiry.date(),
                     purchaseResult = purchaseResult,
-                    billingPaymentState = paymentAvailability?.toPaymentState()
-                            ?: PaymentState.Loading
+                    billingPaymentState =
+                        paymentAvailability?.toPaymentState() ?: PaymentState.Loading
                 )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
@@ -110,8 +107,7 @@ class AccountViewModel(
                 paymentRepository?.verifyPurchases()?.collect {
                     if (it == VerificationResult.Success) {
                         // Update the payment availability after a successful verification.
-                        // We add a small delay so that the status is correct
-                        fetchPaymentAvailability(PURCHASES_DELAY)
+                        fetchPaymentAvailability()
                     }
                 }
             }
@@ -120,9 +116,8 @@ class AccountViewModel(
     }
 
     @OptIn(FlowPreview::class)
-    private fun fetchPaymentAvailability(delay: Long = 0L) {
+    private fun fetchPaymentAvailability() {
         viewModelScope.launch {
-            delay(delay)
             paymentRepository
                 ?.queryPaymentAvailability()
                 ?.debounce(PAYMENT_AVAILABILITY_DEBOUNCE) // This is added to avoid flickering
@@ -132,7 +127,7 @@ class AccountViewModel(
     }
 
     fun onRetryFetchProducts() {
-        fetchPaymentAvailability(PAYMENT_AVAILABILITY_DELAY)
+        fetchPaymentAvailability()
     }
 
     fun onClosePurchaseResultDialog(success: Boolean) {
@@ -140,9 +135,10 @@ class AccountViewModel(
         // during the purchase or the purchase ended successfully.
         // In those cases we want to update the both the payment availability and the account
         // expiry.
-        fetchPaymentAvailability(PAYMENT_AVAILABILITY_DELAY)
         if (success) {
             updateAccountExpiry()
+        } else {
+            fetchPaymentAvailability()
         }
         _purchaseResult.tryEmit(null) // So that we do not show the dialog again.
     }

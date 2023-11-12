@@ -17,6 +17,7 @@ data class DialogAction(
 
 enum class PaymentClickAction {
     CLOSE,
+    CLOSE_PAYMENT_ERROR,
     RETRY_VERIFICATION,
     RETRY_FETCH_PRODUCTS
 }
