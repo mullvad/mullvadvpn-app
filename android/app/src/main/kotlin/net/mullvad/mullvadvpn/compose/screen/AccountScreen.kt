@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ExternalButton
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
-import net.mullvad.mullvadvpn.compose.component.PlayPaymentButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
@@ -42,12 +41,12 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
-import net.mullvad.mullvadvpn.compose.dialog.PaymentAvailabilityErrorDialog
-import net.mullvad.mullvadvpn.compose.dialog.PurchaseResultDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -72,11 +71,7 @@ private fun PreviewAccountScreen() {
                     billingPaymentState =
                         PaymentState.PaymentAvailable(
                             listOf(
-                                PaymentProduct(
-                                    "productId",
-                                    price = "34 SEK",
-                                    status = null
-                                ),
+                                PaymentProduct("productId", price = "34 SEK", status = null),
                                 PaymentProduct(
                                     "productId_pending",
                                     price = "34 SEK",
@@ -132,17 +127,12 @@ fun AccountScreen(
         DeviceNameInfoDialog { showDeviceNameInfoDialog = false }
     }
 
-    uiState.purchaseResult?.let {
-        PurchaseResultDialog(
-            purchaseResult = uiState.purchaseResult,
-            retry = onRetryVerification,
-            onCloseDialog = onClosePurchaseResultDialog
-        )
-    }
-
-    PaymentAvailabilityErrorDialog(
-        paymentAvailability = uiState.billingPaymentState,
-        retry = onRetryFetchProducts
+    PaymentDialog(
+        purchaseResult = uiState.purchaseResult,
+        paymentStateError = uiState.billingPaymentState as? PaymentState.Error,
+        retryFetchProducts = onRetryFetchProducts,
+        retryVerification = onRetryVerification,
+        onCloseDialog = onClosePurchaseResultDialog
     )
 
     LaunchedEffect(Unit) {
