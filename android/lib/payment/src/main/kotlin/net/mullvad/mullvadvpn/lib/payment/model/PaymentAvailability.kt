@@ -7,6 +7,8 @@ sealed interface PaymentAvailability {
 
     data object ProductsUnavailable : PaymentAvailability
 
+    data object NoProductsFounds : PaymentAvailability
+
     sealed interface Error: PaymentAvailability {
         data object BillingUnavailable : Error
 
