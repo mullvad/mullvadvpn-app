@@ -30,10 +30,10 @@ import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.dialog.PaymentAvailabilityErrorDialog
-import net.mullvad.mullvadvpn.compose.dialog.PurchaseResultDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -115,17 +115,12 @@ fun OutOfTimeScreen(
         }
     }
 
-    uiState.purchaseResult?.let {
-        PurchaseResultDialog(
-            purchaseResult = uiState.purchaseResult,
-            retry = onRetryVerification,
-            onCloseDialog = onClosePurchaseResultDialog
-        )
-    }
-
-    PaymentAvailabilityErrorDialog(
-        paymentAvailability = uiState.billingPaymentState,
-        retry = onRetryFetchProducts
+    PaymentDialog(
+        purchaseResult = uiState.purchaseResult,
+        paymentStateError = uiState.billingPaymentState as? PaymentState.Error,
+        retryFetchProducts = onRetryFetchProducts,
+        retryVerification = onRetryVerification,
+        onCloseDialog = onClosePurchaseResultDialog
     )
 
     val scrollState = rememberScrollState()
