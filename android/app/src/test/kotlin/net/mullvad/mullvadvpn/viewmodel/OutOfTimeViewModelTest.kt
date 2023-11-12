@@ -209,7 +209,7 @@ class OutOfTimeViewModelTest {
             // It should emit no payment
             assertIs<PaymentState.NoPayment>(awaitItem().billingPaymentState)
             val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.GenericError>(result)
+            assertIs<PaymentState.Error.Generic>(result)
         }
     }
 
@@ -229,7 +229,7 @@ class OutOfTimeViewModelTest {
             // It should emit no payment
             assertIs<PaymentState.NoPayment>(awaitItem().billingPaymentState)
             val result = awaitItem().billingPaymentState
-            assertIs<PaymentState.Error.BillingError>(result)
+            assertIs<PaymentState.Error.Billing>(result)
         }
     }
 

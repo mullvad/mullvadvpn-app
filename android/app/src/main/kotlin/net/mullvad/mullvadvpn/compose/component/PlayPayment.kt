@@ -107,8 +107,8 @@ fun PlayPayment(
     modifier: Modifier = Modifier
 ) {
     when (billingPaymentState) {
-        PaymentState.Error.BillingError,
-        PaymentState.Error.GenericError -> {
+        PaymentState.Error.Billing,
+        PaymentState.Error.Generic -> {
             // We show some kind of dialog error at the top
         }
         PaymentState.Loading -> {

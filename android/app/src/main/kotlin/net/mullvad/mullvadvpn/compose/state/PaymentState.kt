@@ -10,8 +10,8 @@ sealed interface PaymentState {
     data class PaymentAvailable(val products: List<PaymentProduct>) : PaymentState
 
     sealed interface Error : PaymentState {
-        data object GenericError : Error
+        data object Generic : Error
 
-        data object BillingError : Error
+        data object Billing : Error
     }
 }
