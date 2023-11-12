@@ -176,7 +176,7 @@ class AccountScreenTest {
                 showSitePayment = true,
                 uiState =
                     AccountUiState.default()
-                        .copy(billingPaymentState = PaymentState.Error.BillingError),
+                        .copy(billingPaymentState = PaymentState.Error.Billing),
                 uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
