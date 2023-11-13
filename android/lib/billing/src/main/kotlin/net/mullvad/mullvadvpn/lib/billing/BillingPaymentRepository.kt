@@ -37,7 +37,6 @@ class BillingPaymentRepository(
                 .queryProducts(listOf(ProductIds.OneMonth))
                 .toPaymentAvailability(productIdToPaymentStatus)
         )
-        return@flow
     }
 
     override fun purchaseProduct(productId: ProductId): Flow<PurchaseResult> = flow {
