@@ -69,6 +69,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHand
             apiProxy: appDelegate.apiProxy,
             devicesProxy: appDelegate.devicesProxy,
             accountsProxy: appDelegate.accountsProxy,
+            outgoingConnectionService: OutgoingConnectionService(
+                outgoingConnectionProxy: OutgoingConnectionProxy(urlSession: REST.makeURLSession())
+            ),
             appPreferences: AppPreferences()
         )
 

@@ -13,6 +13,12 @@ extension REST {
     /// Default API hostname.
     public static let defaultAPIHostname = "api.mullvad.net"
 
+    /// Exit ipV4  API hostname.
+    public static let ipV4APIHostname = "ipv4.am.i.mullvad.net"
+
+    /// Exit ipV6  API hostname.
+    public static let ipV6APIHostname = "ipv6.am.i.mullvad.net"
+
     /// Default API endpoint.
     public static let defaultAPIEndpoint = AnyIPEndpoint(string: "45.83.223.196:443")!
 

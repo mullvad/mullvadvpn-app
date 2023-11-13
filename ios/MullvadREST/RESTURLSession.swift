@@ -16,7 +16,7 @@ extension REST {
         let secCertificate = SecCertificateCreateWithData(nil, data as CFData)!
 
         let sessionDelegate = SSLPinningURLSessionDelegate(
-            sslHostname: defaultAPIHostname,
+            sslHostnames: [defaultAPIHostname, ipV4APIHostname, ipV6APIHostname],
             trustedRootCertificates: [secCertificate]
         )
 

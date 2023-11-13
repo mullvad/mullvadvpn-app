@@ -25,10 +25,16 @@ class TunnelCoordinator: Coordinator, Presenting {
 
     var showSelectLocationPicker: (() -> Void)?
 
-    init(tunnelManager: TunnelManager) {
+    init(
+        tunnelManager: TunnelManager,
+        outgoingConnectionService: OutgoingConnectionServiceHandling
+    ) {
         self.tunnelManager = tunnelManager
 
-        let interactor = TunnelViewControllerInteractor(tunnelManager: tunnelManager)
+        let interactor = TunnelViewControllerInteractor(
+            tunnelManager: tunnelManager,
+            outgoingConnectionService: outgoingConnectionService
+        )
         controller = TunnelViewController(interactor: interactor)
 
         super.init()

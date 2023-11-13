@@ -11,13 +11,13 @@ import MullvadLogging
 import Security
 
 final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
-    private let sslHostname: String
+    private let sslHostnames: [String]
     private let trustedRootCertificates: [SecCertificate]
 
     private let logger = Logger(label: "SSLPinningURLSessionDelegate")
 
-    init(sslHostname: String, trustedRootCertificates: [SecCertificate]) {
-        self.sslHostname = sslHostname
+    init(sslHostnames: [String], trustedRootCertificates: [SecCertificate]) {
+        self.sslHostnames = sslHostnames
         self.trustedRootCertificates = trustedRootCertificates
     }
 
@@ -30,7 +30,7 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
     ) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
            let serverTrust = challenge.protectionSpace.serverTrust,
-           verifyServerTrust(serverTrust) {
+           sslHostnames.first(where: { verifyServerTrust($0, serverTrust: serverTrust) }) != nil {
             completionHandler(.useCredential, URLCredential(trust: serverTrust))
         } else {
             completionHandler(.rejectProtectionSpace, nil)
@@ -39,7 +39,7 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
 
     // MARK: - Private
 
-    private func verifyServerTrust(_ serverTrust: SecTrust) -> Bool {
+    private func verifyServerTrust(_ sslHostname: String, serverTrust: SecTrust) -> Bool {
         var secResult: OSStatus
 
         // Set SSL policy
