@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.PlayPurchase
@@ -39,7 +40,7 @@ class BillingPaymentRepository(
         return@flow
     }
 
-    override fun purchaseProduct(productId: String): Flow<PurchaseResult> = flow {
+    override fun purchaseProduct(productId: ProductId): Flow<PurchaseResult> = flow {
         emit(PurchaseResult.PurchaseStarted)
         // Get transaction id
         val obfuscatedId: String =
@@ -52,7 +53,10 @@ class BillingPaymentRepository(
             }
 
         val result =
-            billingRepository.startPurchaseFlow(productId = productId, obfuscatedId = obfuscatedId)
+            billingRepository.startPurchaseFlow(
+                productId = productId.id,
+                obfuscatedId = obfuscatedId
+            )
 
         if (result.responseCode == BillingResponseCode.OK) {
             emit(PurchaseResult.BillingFlowStarted)

@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.constant.PAYMENT_AVAILABILITY_DEBOUNCE
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.payment.extensions.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -119,7 +120,7 @@ class OutOfTimeViewModel(
         viewModelScope.launch { serviceConnectionManager.connectionProxy()?.disconnect() }
     }
 
-    fun startBillingPayment(productId: String) {
+    fun startBillingPayment(productId: ProductId) {
         viewModelScope.launch {
             paymentRepository?.purchaseProduct(productId)?.collect(_purchaseResult)
         }
