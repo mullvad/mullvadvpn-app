@@ -88,10 +88,7 @@ struct ParsedRelays {
 impl ParsedRelays {
     /// Return a flat iterator with all relays
     pub fn relays(&self) -> impl Iterator<Item = &Relay> + Clone + '_ {
-        self.parsed_list
-            .countries
-            .iter()
-            .flat_map(|country| country.cities.iter().flat_map(|city| city.relays.iter()))
+        self.original_list.relays()
     }
 
     pub fn update(&mut self, new_relays: RelayList) {
