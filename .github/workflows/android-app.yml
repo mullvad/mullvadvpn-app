@@ -16,7 +16,13 @@ on:
       - '!scripts/**'
       - '!windows/**'
       - '!**/**.md'
-
+  schedule:
+    # At 06:20 UTC every day.
+    # Notifications for scheduled workflows are sent to the user who last modified the cron
+    # syntax in the workflow file. If you update this you must have notifications for
+    # Github Actions enabled, so these don't go unnoticed.
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
+    - cron: '20 6 * * *'
   workflow_dispatch:
     inputs:
       override_container_image:
@@ -291,3 +297,25 @@ jobs:
           path: /tmp/mullvad-${{ matrix.test-type }}-instrumentation-report
           if-no-files-found: ignore
           retention-days: 1
+
+  instrumented-firebase-tests:
+    name: Run instrumented firebase tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build-app]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: apks
+          path: android
+
+      - name: Run tests on Firebase Test Lab
+        uses: asadmansr/Firebase-Test-Lab-Action@v1.0
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        with:
+          arg-spec: 'android/test/firebase-test-lab.yml:default'
