@@ -3,7 +3,7 @@ use crate::{
     custom_list::CustomListsSettings,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint,
-        LocationConstraint, ObfuscationSettings, RelayConstraints, RelaySettings,
+        LocationConstraint, ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
         RelaySettingsFormatter, SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
@@ -91,6 +91,9 @@ pub struct Settings {
     /// Options that should be applied to tunnels of a specific type regardless of where the relays
     /// might be located.
     pub tunnel_options: TunnelOptions,
+    /// Overrides for relays
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub relay_overrides: Vec<RelayOverride>,
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
     /// Split tunneling settings
@@ -131,16 +134,17 @@ impl Default for Settings {
                 ..Default::default()
             },
             bridge_state: BridgeState::Auto,
+            custom_lists: CustomListsSettings::default(),
+            api_access_methods: access_method::Settings::default(),
             allow_lan: false,
             block_when_disconnected: false,
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
+            relay_overrides: vec![],
             show_beta_releases: false,
             #[cfg(windows)]
             split_tunnel: SplitTunnelSettings::default(),
             settings_version: CURRENT_SETTINGS_VERSION,
-            custom_lists: CustomListsSettings::default(),
-            api_access_methods: access_method::Settings::default(),
         }
     }
 }
@@ -169,6 +173,24 @@ impl Settings {
             );
 
             self.relay_settings = new_settings;
+        }
+    }
+
+    pub fn set_relay_override(&mut self, relay_override: RelayOverride) {
+        let existing_override = self
+            .relay_overrides
+            .iter_mut()
+            .enumerate()
+            .find(|(_, elem)| elem.hostname == relay_override.hostname);
+        match existing_override {
+            None => self.relay_overrides.push(relay_override),
+            Some((index, elem)) => {
+                if relay_override.is_empty() {
+                    self.relay_overrides.swap_remove(index);
+                } else {
+                    *elem = relay_override;
+                }
+            }
         }
     }
 }

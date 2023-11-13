@@ -10,7 +10,12 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use serde::{Deserialize, Serialize};
-use std::{collections::HashSet, fmt, str::FromStr};
+use std::{
+    collections::HashSet,
+    fmt,
+    net::{Ipv4Addr, Ipv6Addr},
+    str::FromStr,
+};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
@@ -990,4 +995,47 @@ pub struct InternalBridgeConstraints {
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
     pub transport_protocol: Constraint<TransportProtocol>,
+}
+
+/// Options to override for a particular relay to use instead of the ones specified in the relay
+/// list
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub struct RelayOverride {
+    /// Hostname for which to override the given options
+    pub hostname: Hostname,
+    /// IPv4 address to use instead of the default
+    pub ipv4_addr_in: Option<Ipv4Addr>,
+    /// IPv6 address to use instead of the default
+    pub ipv6_addr_in: Option<Ipv6Addr>,
+}
+
+impl RelayOverride {
+    pub fn empty(hostname: Hostname) -> RelayOverride {
+        RelayOverride {
+            hostname,
+            ipv4_addr_in: None,
+            ipv6_addr_in: None,
+        }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self == &Self::empty(self.hostname.clone())
+    }
+
+    pub fn apply_to_relay(&self, relay: &mut Relay) {
+        if let Some(ipv4_addr_in) = self.ipv4_addr_in {
+            log::debug!(
+                "Overriding ipv4_addr_in for {}: {ipv4_addr_in}",
+                relay.hostname
+            );
+            relay.ipv4_addr_in = ipv4_addr_in;
+        }
+        if let Some(ipv6_addr_in) = self.ipv6_addr_in {
+            log::debug!(
+                "Overriding ipv6_addr_in for {}: {ipv6_addr_in}",
+                relay.hostname
+            );
+            relay.ipv6_addr_in = Some(ipv6_addr_in);
+        }
+    }
 }

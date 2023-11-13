@@ -545,6 +545,42 @@ impl TryFrom<proto::TransportPort> for mullvad_types::relay_constraints::Transpo
     }
 }
 
+impl From<mullvad_types::relay_constraints::RelayOverride> for proto::RelayOverride {
+    fn from(r#override: mullvad_types::relay_constraints::RelayOverride) -> proto::RelayOverride {
+        proto::RelayOverride {
+            hostname: r#override.hostname,
+            ipv4_addr_in: r#override.ipv4_addr_in.map(|addr| addr.to_string()),
+            ipv6_addr_in: r#override.ipv6_addr_in.map(|addr| addr.to_string()),
+        }
+    }
+}
+
+impl TryFrom<proto::RelayOverride> for mullvad_types::relay_constraints::RelayOverride {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(
+        r#override: proto::RelayOverride,
+    ) -> Result<mullvad_types::relay_constraints::RelayOverride, Self::Error> {
+        Ok(mullvad_types::relay_constraints::RelayOverride {
+            hostname: r#override.hostname,
+            ipv4_addr_in: r#override
+                .ipv4_addr_in
+                .map(|addr| {
+                    addr.parse()
+                        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid IPv4 address"))
+                })
+                .transpose()?,
+            ipv6_addr_in: r#override
+                .ipv6_addr_in
+                .map(|addr| {
+                    addr.parse()
+                        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid IPv6 address"))
+                })
+                .transpose()?,
+        })
+    }
+}
+
 pub fn try_providers_constraint_from_proto(
     providers: &[String],
 ) -> Result<Constraint<mullvad_types::relay_constraints::Providers>, FromProtobufTypeError> {

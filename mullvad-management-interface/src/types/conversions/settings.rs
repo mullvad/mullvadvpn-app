@@ -45,6 +45,12 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
             api_access_methods: Some(proto::ApiAccessMethodSettings::from(
                 &settings.api_access_methods,
             )),
+            relay_overrides: settings
+                .relay_overrides
+                .iter()
+                .cloned()
+                .map(proto::RelayOverride::from)
+                .collect(),
         }
     }
 }
@@ -168,6 +174,11 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             block_when_disconnected: settings.block_when_disconnected,
             auto_connect: settings.auto_connect,
             tunnel_options: mullvad_types::settings::TunnelOptions::try_from(tunnel_options)?,
+            relay_overrides: settings
+                .relay_overrides
+                .into_iter()
+                .map(mullvad_types::relay_constraints::RelayOverride::try_from)
+                .collect::<Result<Vec<_>, _>>()?,
             show_beta_releases: settings.show_beta_releases,
             #[cfg(windows)]
             split_tunnel: mullvad_types::settings::SplitTunnelSettings::from(split_tunnel),

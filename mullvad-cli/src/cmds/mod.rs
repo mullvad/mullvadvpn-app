@@ -1,4 +1,5 @@
 use clap::builder::{PossibleValuesParser, TypedValueParser, ValueParser};
+use std::io::stdin;
 use std::ops::Deref;
 
 pub mod account;
@@ -79,4 +80,29 @@ impl std::fmt::Display for BooleanOption {
             self.off_label.fmt(f)
         }
     }
+}
+
+async fn receive_confirmation(msg: &'static str, default: bool) -> bool {
+    let helper_str = match default {
+        true => "[Y/n]",
+        false => "[y/N]",
+    };
+
+    println!("{msg} {helper_str}");
+
+    tokio::task::spawn_blocking(move || loop {
+        let mut buf = String::new();
+        if let Err(e) = stdin().read_line(&mut buf) {
+            eprintln!("Couldn't read from STDIN: {e}");
+            return false;
+        }
+        match buf.trim().to_ascii_lowercase().as_str() {
+            "" => return default,
+            "y" | "ye" | "yes" => return true,
+            "n" | "no" => return false,
+            _ => eprintln!("Unexpected response. Please enter \"y\" or \"n\""),
+        }
+    })
+    .await
+    .unwrap()
 }
