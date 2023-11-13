@@ -294,7 +294,8 @@ void __declspec(dllexport) NSISCALL SetLogTarget
 			FOLDERID_ProgramData));
 		logpath.append(L"Mullvad VPN");
 
-		const wchar_t* w_path = logpath.wstring().c_str();
+		auto logpath_wstring = logpath.wstring();
+		const wchar_t* w_path = logpath_wstring.c_str();
 
 		if (Status::Ok != create_privileged_directory(reinterpret_cast<const uint16_t*>(w_path)))
 		{
