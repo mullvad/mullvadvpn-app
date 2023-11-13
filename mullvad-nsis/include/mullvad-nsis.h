@@ -21,4 +21,6 @@ extern "C" {
 /// the final null terminator.
 Status get_system_local_appdata(uint16_t *buffer, uintptr_t *buffer_size);
 
+Status create_privileged_directory(const uint16_t* path);
+
 } // extern "C"

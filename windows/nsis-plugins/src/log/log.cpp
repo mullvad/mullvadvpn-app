@@ -3,7 +3,6 @@
 #include <libcommon/string.h>
 #include <libcommon/filesystem.h>
 #include <libcommon/registry/registry.h>
-#include <libcommon/filesystem.h>
 #include <libcommon/error.h>
 #include <windows.h>
 #include <nsis/pluginapi.h>
@@ -13,6 +12,7 @@
 #include <sstream>
 #include <iomanip>
 #include <filesystem>
+#include <mullvad-nsis.h>
 
 Logger *g_logger = nullptr;
 
@@ -294,19 +294,12 @@ void __declspec(dllexport) NSISCALL SetLogTarget
 			FOLDERID_ProgramData));
 		logpath.append(L"Mullvad VPN");
 
-		if (FALSE == CreateDirectoryW(logpath.c_str(), nullptr))
+		auto logpath_wstring = logpath.wstring();
+		const wchar_t* w_path = logpath_wstring.c_str();
+
+		if (Status::Ok != create_privileged_directory(reinterpret_cast<const uint16_t*>(w_path)))
 		{
-			if (ERROR_ALREADY_EXISTS != GetLastError())
-			{
-				std::wstringstream ss;
-
-				ss << L"Cannot create folder: "
-					<< L"\""
-					<< logpath
-					<< L"\"";
-
-				THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
-			}
+		    THROW_ERROR("Failed to create log directory");
 		}
 
 		logpath.append(logfile);

@@ -1,6 +1,12 @@
 #![cfg(all(target_arch = "x86", target_os = "windows"))]
 
-use std::{os::windows::ffi::OsStrExt, panic::UnwindSafe, ptr};
+use std::{
+    ffi::OsString,
+    os::windows::ffi::{OsStrExt, OsStringExt},
+    panic::UnwindSafe,
+    path::Path,
+    ptr,
+};
 
 #[repr(C)]
 pub enum Status {
@@ -9,6 +15,35 @@ pub enum Status {
     InsufficientBufferSize,
     OsError,
     Panic,
+}
+
+/// Max path size allowed
+const MAX_PATH_SIZE: isize = 32_767;
+
+/// SAFETY: path needs to be a windows path encoded as a string of u16 that terminates in 0 (two nul-bytes).
+/// The string is also not allowed to be greater than `MAX_PATH_SIZE`.
+#[no_mangle]
+pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status {
+    catch_and_log_unwind(|| {
+        let mut i = 0;
+        // Calculate the length of the path by checking when the first u16 == 0
+        let len = loop {
+            if *(path.offset(i)) == 0 {
+                break i;
+            } else if i >= MAX_PATH_SIZE {
+                return Status::InvalidArguments;
+            }
+            i += 1;
+        };
+        let path = std::slice::from_raw_parts(path, len as usize);
+        let path = OsString::from_wide(path);
+        let path = Path::new(&path);
+
+        match mullvad_paths::windows::create_privileged_directory(path) {
+            Ok(()) => Status::Ok,
+            Err(_) => Status::OsError,
+        }
+    })
 }
 
 /// Writes the system's app data path into `buffer` when `Status::Ok` is returned.
@@ -53,6 +88,6 @@ pub unsafe extern "C" fn get_system_local_appdata(
 fn catch_and_log_unwind(func: impl FnOnce() -> Status + UnwindSafe) -> Status {
     match std::panic::catch_unwind(func) {
         Ok(status) => status,
-        Err(_error) => Status::Panic,
+        Err(_) => Status::Panic,
     }
 }
