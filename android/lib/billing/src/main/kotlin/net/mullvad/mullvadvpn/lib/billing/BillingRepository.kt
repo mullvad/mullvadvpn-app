@@ -104,7 +104,7 @@ class BillingRepository(context: Context) : KoinComponent {
             }
         }
 
-    suspend fun queryProducts(productIds: List<String> = listOf(PRODUCT_ID)): ProductDetailsResult {
+    suspend fun queryProducts(productIds: List<String>): ProductDetailsResult {
         return queryProductDetails(productIds)
     }
 
@@ -202,9 +202,5 @@ class BillingRepository(context: Context) : KoinComponent {
                 )
             }
         }
-    }
-
-    companion object {
-        private const val PRODUCT_ID = "test"
     }
 }
