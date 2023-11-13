@@ -291,7 +291,7 @@ mod test {
     fn test_v6_to_v7_migration() {
         let mut old_settings = serde_json::from_str(V6_SETTINGS).unwrap();
 
-        assert!(version_matches(&mut old_settings));
+        assert!(version_matches(&old_settings));
         migrate(&mut old_settings).unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(V7_SETTINGS).unwrap();
 
