@@ -99,7 +99,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
 
     var isSecured: Bool {
         switch self {
-        case .reconnecting, .connecting, .connected, .waitingForConnectivity(.noConnection), .error(.accountExpired):
+        case .reconnecting, .connecting, .connected, .waitingForConnectivity(.noConnection), .error(.accountExpired),
+             .error(.deviceRevoked):
             return true
         case .pendingReconnect, .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             return false
