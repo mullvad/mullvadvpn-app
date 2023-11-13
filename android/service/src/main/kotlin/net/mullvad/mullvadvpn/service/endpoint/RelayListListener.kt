@@ -67,25 +67,20 @@ class RelayListListener(
         }
 
         scope.launch {
-            endpoint.dispatcher.parsedMessages.filterIsInstance<Request.SetOwnership>().collect {
-                request ->
-                val update = getCurrentRelayConstraints().copy(ownership = request.ownership)
-                daemon.await().setRelaySettings(RelaySettings.Normal(update))
-            }
-        }
-
-        scope.launch {
-            endpoint.dispatcher.parsedMessages.filterIsInstance<Request.SetProviders>().collect {
-                request ->
-                val update = getCurrentRelayConstraints().copy(providers = request.providers)
-                daemon.await().setRelaySettings(RelaySettings.Normal(update))
-            }
-        }
-
-        scope.launch {
             endpoint.dispatcher.parsedMessages.filterIsInstance<Request.FetchRelayList>().collect {
                 relayList = daemon.await().getRelayLocations()
             }
+        }
+
+        scope.launch {
+            endpoint.dispatcher.parsedMessages
+                .filterIsInstance<Request.SetOwnershipAndProviders>()
+                .collect { request ->
+                    val update =
+                        getCurrentRelayConstraints()
+                            .copy(ownership = request.ownership, providers = request.providers)
+                    daemon.await().setRelaySettings(RelaySettings.Normal(update))
+                }
         }
     }
 

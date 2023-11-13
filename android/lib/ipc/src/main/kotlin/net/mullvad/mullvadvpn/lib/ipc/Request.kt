@@ -103,11 +103,13 @@ sealed class Request : Message.RequestMessage() {
     data class SetWireGuardQuantumResistant(val quantumResistant: QuantumResistantState) :
         Request()
 
-    @Parcelize data class SetOwnership(val ownership: Constraint<Ownership>) : Request()
-
-    @Parcelize data class SetProviders(val providers: Constraint<Providers>) : Request()
-
     @Parcelize data object FetchRelayList : Request()
+
+    @Parcelize
+    data class SetOwnershipAndProviders(
+        val ownership: Constraint<Ownership>,
+        val providers: Constraint<Providers>
+    ) : Request()
 
     companion object {
         private const val MESSAGE_KEY = "request"
