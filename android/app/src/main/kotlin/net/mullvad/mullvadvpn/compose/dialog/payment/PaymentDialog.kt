@@ -34,7 +34,7 @@ private fun PreviewPaymentDialogPurchaseCompleted() {
                     message = R.string.payment_completed_dialog_message,
                     icon = PaymentDialogIcon.SUCCESS,
                     confirmAction =
-                        DialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
+                        PaymentDialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
                     successfulPayment = true
                 ),
             onClick = { _, _ -> }
@@ -53,7 +53,7 @@ private fun PreviewPaymentDialogPurchasePending() {
                     message = R.string.payment_pending_dialog_message,
                     icon = PaymentDialogIcon.SUCCESS,
                     confirmAction =
-                        DialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
+                        PaymentDialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
                     closeOnDismiss = true
                 ),
             onClick = { _, _ -> }
@@ -72,9 +72,9 @@ private fun PreviewPaymentDialogVerificationFailed() {
                     message = R.string.payment_verification_error_dialog_message,
                     icon = PaymentDialogIcon.FAIL,
                     confirmAction =
-                        DialogAction(message = R.string.cancel, PaymentClickAction.CLOSE),
+                        PaymentDialogAction(message = R.string.cancel, PaymentClickAction.CLOSE),
                     dismissAction =
-                        DialogAction(
+                        PaymentDialogAction(
                             message = R.string.try_again,
                             PaymentClickAction.RETRY_VERIFICATION
                         ),
@@ -96,7 +96,10 @@ private fun PreviewPaymentDialogGenericError() {
                     message = R.string.try_again,
                     icon = PaymentDialogIcon.FAIL,
                     confirmAction =
-                        DialogAction(message = R.string.cancel, onClick = PaymentClickAction.CLOSE)
+                        PaymentDialogAction(
+                            message = R.string.cancel,
+                            onClick = PaymentClickAction.CLOSE
+                        )
                 ),
             onClick = { _, _ -> }
         )
@@ -130,9 +133,12 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
                     message = R.string.payment_billing_error_dialog_message,
                     icon = PaymentDialogIcon.FAIL,
                     confirmAction =
-                        DialogAction(message = R.string.cancel, onClick = PaymentClickAction.CLOSE),
+                        PaymentDialogAction(
+                            message = R.string.cancel,
+                            onClick = PaymentClickAction.CLOSE
+                        ),
                     dismissAction =
-                        DialogAction(
+                        PaymentDialogAction(
                             message = R.string.try_again,
                             onClick = PaymentClickAction.RETRY_FETCH_PRODUCTS
                         )
@@ -269,7 +275,10 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 message = R.string.payment_pending_dialog_message,
                 icon = PaymentDialogIcon.SUCCESS,
                 confirmAction =
-                    DialogAction(message = R.string.got_it, onClick = PaymentClickAction.CLOSE)
+                    PaymentDialogAction(
+                        message = R.string.got_it,
+                        onClick = PaymentClickAction.CLOSE
+                    )
             )
         // Success state
         PurchaseResult.PurchaseCompleted ->
@@ -278,7 +287,7 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 message = R.string.payment_completed_dialog_message,
                 icon = PaymentDialogIcon.SUCCESS,
                 confirmAction =
-                    DialogAction(
+                    PaymentDialogAction(
                         message = R.string.got_it,
                         onClick = PaymentClickAction.CLOSE,
                     ),
@@ -291,7 +300,10 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 message = R.string.try_again,
                 icon = PaymentDialogIcon.FAIL,
                 confirmAction =
-                    DialogAction(message = R.string.cancel, onClick = PaymentClickAction.CLOSE)
+                    PaymentDialogAction(
+                        message = R.string.cancel,
+                        onClick = PaymentClickAction.CLOSE
+                    )
             )
         is PurchaseResult.Error.VerificationError ->
             PaymentDialogData(
@@ -299,9 +311,12 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 message = R.string.payment_verification_error_dialog_message,
                 icon = PaymentDialogIcon.FAIL,
                 confirmAction =
-                    DialogAction(message = R.string.cancel, onClick = PaymentClickAction.CLOSE),
+                    PaymentDialogAction(
+                        message = R.string.cancel,
+                        onClick = PaymentClickAction.CLOSE
+                    ),
                 dismissAction =
-                    DialogAction(
+                    PaymentDialogAction(
                         message = R.string.try_again,
                         onClick = PaymentClickAction.RETRY_VERIFICATION
                     )
@@ -314,12 +329,12 @@ private fun paymentAvailabilityErrorDialogData(): PaymentDialogData =
         message = R.string.payment_billing_error_dialog_message,
         icon = PaymentDialogIcon.FAIL,
         confirmAction =
-            DialogAction(
+            PaymentDialogAction(
                 message = R.string.cancel,
                 onClick = PaymentClickAction.CLOSE_PAYMENT_ERROR
             ),
         dismissAction =
-            DialogAction(
+            PaymentDialogAction(
                 message = R.string.try_again,
                 onClick = PaymentClickAction.RETRY_FETCH_PRODUCTS
             )

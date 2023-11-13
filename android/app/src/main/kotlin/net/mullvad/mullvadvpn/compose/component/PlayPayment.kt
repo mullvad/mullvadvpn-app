@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -110,7 +111,9 @@ fun PlayPayment(
             // We show some kind of dialog error at the top
         }
         PaymentState.Loading -> {
-            MullvadCircularProgressIndicatorSmall(modifier = modifier)
+            Column(modifier = modifier.fillMaxWidth()) {
+                MullvadCircularProgressIndicatorSmall(modifier = modifier)
+            }
         }
         PaymentState.NoPayment,
         PaymentState.NoProductsFounds -> {
