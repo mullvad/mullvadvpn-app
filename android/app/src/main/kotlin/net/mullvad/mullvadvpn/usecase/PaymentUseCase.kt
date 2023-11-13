@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.usecase
 
+import android.app.Activity
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,7 @@ interface PaymentUseCase {
     val paymentAvailability: Flow<PaymentAvailability?>
     val purchaseResult: Flow<PurchaseResult?>
 
-    suspend fun purchaseProduct(productId: ProductId)
+    suspend fun purchaseProduct(productId: ProductId, activityProvider: () -> Activity)
 
     suspend fun queryPaymentAvailability()
 
@@ -34,8 +35,8 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
     override val paymentAvailability = _paymentAvailability.asStateFlow()
     override val purchaseResult = _purchaseResult.asStateFlow()
 
-    override suspend fun purchaseProduct(productId: ProductId) {
-        paymentRepository.purchaseProduct(productId)?.collect(_purchaseResult)
+    override suspend fun purchaseProduct(productId: ProductId, activityProvider: () -> Activity) {
+        paymentRepository.purchaseProduct(productId, activityProvider).collect(_purchaseResult)
     }
 
     @OptIn(FlowPreview::class)
@@ -71,7 +72,7 @@ class EmptyPaymentUseCase : PaymentUseCase {
     override val paymentAvailability = MutableStateFlow(PaymentAvailability.ProductsUnavailable)
     override val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
 
-    override suspend fun purchaseProduct(productId: ProductId) {
+    override suspend fun purchaseProduct(productId: ProductId, activityProvider: () -> Activity) {
         // No op
     }
 

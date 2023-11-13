@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -80,7 +81,7 @@ private fun PreviewWelcomeScreen() {
             onSettingsClick = {},
             onAccountClick = {},
             openConnectScreen = {},
-            onPurchaseBillingProductClick = {},
+            onPurchaseBillingProductClick = { _, _ -> },
             onRetryFetchProducts = {},
             onRetryVerification = {},
             onClosePurchaseResultDialog = {}
@@ -98,7 +99,7 @@ fun WelcomeScreen(
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
     openConnectScreen: () -> Unit,
-    onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
+    onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
     onRetryVerification: () -> Unit,
     onClosePurchaseResultDialog: (success: Boolean) -> Unit,
     onRetryFetchProducts: () -> Unit
@@ -307,8 +308,9 @@ private fun PaymentPanel(
     billingPaymentState: PaymentState,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
-    onPurchaseBillingProductClick: (productId: ProductId) -> Unit
+    onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit
 ) {
+    val context = LocalContext.current
     Column(
         modifier =
             Modifier.fillMaxWidth()
@@ -318,7 +320,9 @@ private fun PaymentPanel(
         Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
         PlayPayment(
             billingPaymentState = billingPaymentState,
-            onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+            onPurchaseBillingProductClick = { productId ->
+                onPurchaseBillingProductClick(productId) { context as Activity }
+            },
             modifier =
                 Modifier.padding(
                         start = Dimens.sideMargin,

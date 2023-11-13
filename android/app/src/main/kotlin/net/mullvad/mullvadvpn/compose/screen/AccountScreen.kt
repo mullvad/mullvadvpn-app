@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.app.Activity
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -101,7 +102,10 @@ fun AccountScreen(
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onPurchaseBillingProductClick: (productId: ProductId) -> Unit = {},
+    onPurchaseBillingProductClick:
+        (productId: ProductId, activityProvider: () -> Activity) -> Unit =
+        { _, _ ->
+        },
     onRetryVerification: () -> Unit = {},
     onRetryFetchProducts: () -> Unit = {},
     onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},
@@ -168,7 +172,9 @@ fun AccountScreen(
             Column(modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)) {
                 PlayPayment(
                     billingPaymentState = uiState.billingPaymentState,
-                    onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                    onPurchaseBillingProductClick = { productId ->
+                        onPurchaseBillingProductClick(productId) { context as Activity }
+                    },
                     modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
                 )
 

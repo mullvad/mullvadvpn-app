@@ -1,33 +1,24 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.constant.PAYMENT_AVAILABILITY_DEBOUNCE
-import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
-import net.mullvad.mullvadvpn.lib.payment.extensions.toPurchaseResult
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -36,6 +27,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
@@ -44,13 +36,10 @@ class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
     private val deviceRepository: DeviceRepository,
-    paymentProvider: PaymentProvider,
+    private val paymentUseCase: PaymentUseCase,
     private val pollAccountExpiry: Boolean = true,
 ) : ViewModel() {
-    private val paymentRepository = paymentProvider.paymentRepository
 
-    private val _paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
-    private val _purchaseResult = MutableStateFlow<PurchaseResult?>(null)
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
     val uiSideEffect = _uiSideEffect.asSharedFlow()
 
@@ -67,8 +56,8 @@ class OutOfTimeViewModel(
                 combine(
                     serviceConnection.connectionProxy.tunnelStateFlow(),
                     deviceRepository.deviceState,
-                    _paymentAvailability,
-                    _purchaseResult
+                    paymentUseCase.paymentAvailability,
+                    paymentUseCase.purchaseResult
                 ) { tunnelState, deviceState, paymentAvailability, purchaseResult ->
                     OutOfTimeUiState(
                         tunnelState = tunnelState,
@@ -120,41 +109,19 @@ class OutOfTimeViewModel(
         viewModelScope.launch { serviceConnectionManager.connectionProxy()?.disconnect() }
     }
 
-    fun startBillingPayment(productId: ProductId) {
-        viewModelScope.launch {
-            paymentRepository?.purchaseProduct(productId)?.collect(_purchaseResult)
-        }
+    fun startBillingPayment(productId: ProductId, activityProvider: () -> Activity) {
+        viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
     fun verifyPurchases(updatePurchaseResult: Boolean = true) {
         viewModelScope.launch {
-            if (updatePurchaseResult) {
-                paymentRepository
-                    ?.verifyPurchases()
-                    ?.map(VerificationResult::toPurchaseResult)
-                    ?.collect(_purchaseResult)
-            } else {
-                paymentRepository?.verifyPurchases()?.collect {
-                    if (it == VerificationResult.Success) {
-                        // Update the payment availability after a successful verification.
-                        // We add a small delay so that the status is correct
-                        fetchPaymentAvailability()
-                    }
-                }
-            }
+            paymentUseCase.verifyPurchases(updatePurchaseResult)
             updateAccountExpiry()
         }
     }
 
-    @OptIn(FlowPreview::class)
     private fun fetchPaymentAvailability() {
-        viewModelScope.launch {
-            paymentRepository
-                ?.queryPaymentAvailability()
-                ?.debounce(PAYMENT_AVAILABILITY_DEBOUNCE) // This is added to avoid flickering
-                ?.collect(_paymentAvailability)
-                ?: run { _paymentAvailability.emit(PaymentAvailability.ProductsUnavailable) }
-        }
+        viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
     }
 
     fun onRetryFetchProducts() {
@@ -172,7 +139,7 @@ class OutOfTimeViewModel(
         } else {
             fetchPaymentAvailability()
         }
-        _purchaseResult.tryEmit(null) // So that we do not show the dialog again.
+        paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
     }
 
     private fun updateAccountExpiry() {

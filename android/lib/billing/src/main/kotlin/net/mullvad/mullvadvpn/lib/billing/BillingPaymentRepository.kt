@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.billing
 
+import android.app.Activity
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.Purchase
 import kotlinx.coroutines.flow.Flow
@@ -39,7 +40,10 @@ class BillingPaymentRepository(
         )
     }
 
-    override fun purchaseProduct(productId: ProductId): Flow<PurchaseResult> = flow {
+    override fun purchaseProduct(
+        productId: ProductId,
+        activityProvider: () -> Activity
+    ): Flow<PurchaseResult> = flow {
         emit(PurchaseResult.PurchaseStarted)
         // Get transaction id
         val obfuscatedId: String =
@@ -54,7 +58,8 @@ class BillingPaymentRepository(
         val result =
             billingRepository.startPurchaseFlow(
                 productId = productId.id,
-                obfuscatedId = obfuscatedId
+                obfuscatedId = obfuscatedId,
+                activityProvider = activityProvider
             )
 
         if (result.responseCode == BillingResponseCode.OK) {
