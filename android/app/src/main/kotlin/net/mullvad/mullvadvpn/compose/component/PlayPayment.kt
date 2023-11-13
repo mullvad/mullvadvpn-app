@@ -4,8 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -112,12 +110,10 @@ fun PlayPayment(
             // We show some kind of dialog error at the top
         }
         PaymentState.Loading -> {
-            CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = modifier.size(size = Dimens.progressIndicatorSize)
-            )
+            MullvadCircularProgressIndicatorSmall(modifier = modifier)
         }
-        PaymentState.NoPayment, PaymentState.NoProductsFounds -> {
+        PaymentState.NoPayment,
+        PaymentState.NoProductsFounds -> {
             // Show nothing
         }
         is PaymentState.PaymentAvailable -> {
