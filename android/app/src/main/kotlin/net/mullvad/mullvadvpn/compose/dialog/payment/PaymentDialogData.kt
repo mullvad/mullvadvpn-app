@@ -4,13 +4,13 @@ data class PaymentDialogData(
     val title: Int? = null,
     val message: Int? = null,
     val icon: PaymentDialogIcon,
-    val confirmAction: DialogAction? = null,
-    val dismissAction: DialogAction? = null,
+    val confirmAction: PaymentDialogAction? = null,
+    val dismissAction: PaymentDialogAction? = null,
     val closeOnDismiss: Boolean = true,
     val successfulPayment: Boolean = false,
 )
 
-data class DialogAction(
+data class PaymentDialogAction(
     val message: Int,
     val onClick: PaymentClickAction,
 )
