@@ -8,13 +8,17 @@
 
 import Foundation
 import MullvadSettings
+import MullvadTypes
 
 final class TunnelViewControllerInteractor {
     private let tunnelManager: TunnelManager
+    private let outgoingConnectionService: OutgoingConnectionServiceHandling
     private var tunnelObserver: TunnelObserver?
+    private var outgoingConnectionTask: Task<Void, Error>?
 
-    var didUpdateDeviceState: ((_ deviceState: DeviceState, _ previousDeviceState: DeviceState) -> Void)?
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
+    var didUpdateDeviceState: ((_ deviceState: DeviceState, _ previousDeviceState: DeviceState) -> Void)?
+    var didGetOutGoingAddress: (@MainActor (OutgoingConnectionInfo) -> Void)?
 
     var tunnelStatus: TunnelStatus {
         tunnelManager.tunnelStatus
@@ -24,17 +28,40 @@ final class TunnelViewControllerInteractor {
         tunnelManager.deviceState
     }
 
-    init(tunnelManager: TunnelManager) {
+    deinit {
+        outgoingConnectionTask?.cancel()
+    }
+
+    init(
+        tunnelManager: TunnelManager,
+        outgoingConnectionService: OutgoingConnectionServiceHandling
+    ) {
         self.tunnelManager = tunnelManager
+        self.outgoingConnectionService = outgoingConnectionService
 
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
-                self?.didUpdateTunnelStatus?(tunnelStatus)
+                guard let self else { return }
+                outgoingConnectionTask?.cancel()
+                switch tunnelStatus.state {
+                case .connected:
+                    outgoingConnectionTask = Task(priority: .high) { [weak self] in
+                        guard let outgoingConnectionInfo = try await self?.outgoingConnectionService
+                            .getOutgoingConnectionInfo() else {
+                            return
+                        }
+                        await self?.didGetOutGoingAddress?(outgoingConnectionInfo)
+                    }
+                    fallthrough
+                default:
+                    didUpdateTunnelStatus?(tunnelStatus)
+                }
             },
             didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 self?.didUpdateDeviceState?(deviceState, previousDeviceState)
             }
         )
+
         tunnelManager.addObserver(tunnelObserver)
 
         self.tunnelObserver = tunnelObserver

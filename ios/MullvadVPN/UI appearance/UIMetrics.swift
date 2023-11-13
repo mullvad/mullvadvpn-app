@@ -94,6 +94,11 @@ enum UIMetrics {
         static let chipViewLayoutMargins = UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
         static let chipViewLabelSpacing: CGFloat = 7
     }
+
+    enum ConnectionPanelView {
+        static let inRowHeight: CGFloat = 22
+        static let outRowHeight: CGFloat = 44
+    }
 }
 
 extension UIMetrics {

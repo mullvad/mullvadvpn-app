@@ -147,6 +147,15 @@ final class TunnelControlView: UIView {
         updateTunnelRelay()
     }
 
+    func update(from outgoingConnectionInfo: OutgoingConnectionInfo) {
+        if let tunnelRelay = tunnelState.relay {
+            connectionPanel.dataSource = ConnectionPanelData(
+                inAddress: "\(tunnelRelay.endpoint.ipv4Relay) UDP",
+                outAddress: outgoingConnectionInfo.outAddress
+            )
+        }
+    }
+
     func setAnimatingActivity(_ isAnimating: Bool) {
         if isAnimating {
             activityIndicator.startAnimating()
@@ -223,6 +232,7 @@ final class TunnelControlView: UIView {
             )
 
             connectionPanel.dataSource = ConnectionPanelData(
+                // TODO: - UDP shouldn't  be hardcoded after tunnel obfuscation
                 inAddress: "\(tunnelRelay.endpoint.ipv4Relay) UDP",
                 outAddress: nil
             )
@@ -261,8 +271,7 @@ final class TunnelControlView: UIView {
             containerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             containerView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
 
-            locationContainerView.topAnchor
-                .constraint(greaterThanOrEqualTo: containerView.topAnchor),
+            locationContainerView.topAnchor.constraint(greaterThanOrEqualTo: containerView.topAnchor),
             locationContainerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
             locationContainerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
 
