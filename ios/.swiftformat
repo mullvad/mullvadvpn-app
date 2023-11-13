@@ -32,7 +32,9 @@ organizeDeclarations,             \
 # Do not reorder switch case statements
 sortedSwitchCases,                \
 # Do not add // MARK: ClassName before every type
-markTypes
+markTypes,                        \
+# disable enum imports since it seems borken
+enumNamespaces
 
 
 --rules                           \
