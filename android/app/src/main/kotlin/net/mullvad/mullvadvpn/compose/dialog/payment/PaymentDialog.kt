@@ -148,7 +148,7 @@ fun PaymentDialog(
     paymentStateError: PaymentState.Error?,
     retryFetchProducts: () -> Unit,
     retryVerification: () -> Unit,
-    onCloseDialog: (paymentSuccessful: Boolean) -> Unit
+    onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit
 ) {
     var paymentDialogData by
         remember(purchaseResult, paymentStateError) {
@@ -161,12 +161,12 @@ fun PaymentDialog(
     paymentDialogData?.let {
         ShowPaymentDialog(
             paymentDialogData = it,
-            onClick = { paymentSuccessful, clickAction ->
+            onClick = { isPaymentSuccessful, clickAction ->
                 paymentDialogData = null
                 when (clickAction) {
                     PaymentClickAction.RETRY_FETCH_PRODUCTS -> retryFetchProducts()
                     PaymentClickAction.RETRY_VERIFICATION -> retryVerification()
-                    PaymentClickAction.CLOSE -> onCloseDialog(paymentSuccessful)
+                    PaymentClickAction.CLOSE -> onCloseDialog(isPaymentSuccessful)
                     PaymentClickAction.CLOSE_PAYMENT_ERROR -> {
                         /*Do nothing*/
                     }
@@ -179,7 +179,7 @@ fun PaymentDialog(
 @Composable
 private fun ShowPaymentDialog(
     paymentDialogData: PaymentDialogData,
-    onClick: (paymentSuccessful: Boolean, clickAction: PaymentClickAction) -> Unit
+    onClick: (isPaymentSuccessful: Boolean, clickAction: PaymentClickAction) -> Unit
 ) {
     AlertDialog(
         icon = {
