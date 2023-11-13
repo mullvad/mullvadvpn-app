@@ -39,7 +39,7 @@ class BillingPaymentRepository(
         return@flow
     }
 
-    override fun purchaseBillingProduct(productId: String): Flow<PurchaseResult> = flow {
+    override fun purchaseProduct(productId: String): Flow<PurchaseResult> = flow {
         emit(PurchaseResult.PurchaseStarted)
         // Get transaction id
         val obfuscatedId: String =
