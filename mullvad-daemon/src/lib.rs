@@ -657,11 +657,26 @@ where
                 );
                 None
             });
-        let settings = SettingsPersister::load(&settings_dir).await;
+
+        let settings_event_listener = event_listener.clone();
+        let mut settings = SettingsPersister::load(&settings_dir).await;
+        settings.register_change_listener(move |settings| {
+            // Notify management interface server of changes to the settings
+            settings_event_listener.notify_settings(settings.to_owned());
+        });
+
         let app_version_info = version_check::load_cache(&cache_dir).await;
 
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
+
+        let settings_relay_selector = relay_selector.clone();
+        settings.register_change_listener(move |settings| {
+            // Notify relay selector of changes to the settings/selector config
+            settings_relay_selector
+                .clone()
+                .set_config(new_selector_config(settings));
+        });
 
         let proxy_provider = api::ApiConnectionModeProvider::new(
             cache_dir.clone(),
@@ -741,6 +756,18 @@ where
             relay_selector.clone(),
             settings.tunnel_options.clone(),
         );
+
+        let param_gen = parameters_generator.clone();
+        let (param_gen_tx, mut param_gen_rx) = mpsc::unbounded();
+        tokio::spawn(async move {
+            while let Some(tunnel_options) = param_gen_rx.next().await {
+                param_gen.set_tunnel_options(&tunnel_options).await;
+            }
+        });
+        settings.register_change_listener(move |settings| {
+            let _ = param_gen_tx.unbounded_send(settings.tunnel_options.to_owned());
+        });
+
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -1149,8 +1176,6 @@ where
 
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
         self.app_version_info = Some(app_version_info.clone());
-        self.relay_selector
-            .set_config(new_selector_config(&self.settings));
         self.event_listener.notify_app_version(app_version_info);
     }
 
@@ -1264,12 +1289,7 @@ where
                 .await
                 .map_err(Error::SettingsError),
         };
-        let changed = *save_result.as_ref().unwrap_or(&false);
         let _ = tx.send(save_result.map(|_| ()));
-        if changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
-        }
     }
 
     async fn on_set_target_state(
@@ -1843,10 +1863,6 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_relay_settings response");
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
                     log::info!("Initiating tunnel restart because the relay settings changed");
                     self.reconnect_tunnel();
                 }
@@ -1867,8 +1883,6 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_allow_lan response");
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
             }
@@ -1892,8 +1906,6 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_show_beta_releases response");
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
                     let mut handle = self.version_updater_handle.clone();
                     handle.set_show_beta_releases(enabled).await;
                 }
@@ -1918,8 +1930,6 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
                     self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
                         block_when_disconnected,
                     ));
@@ -1942,12 +1952,8 @@ where
             .update(move |settings| settings.auto_connect = auto_connect)
             .await
         {
-            Ok(settings_changed) => {
+            Ok(_settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set auto-connect response");
-                if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                }
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
@@ -1968,18 +1974,11 @@ where
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
-                if settings_changed {
-                    self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options)
-                        .await;
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    if self.get_target_tunnel_type() == Some(TunnelType::OpenVpn) {
-                        log::info!(
-                            "Initiating tunnel restart because the OpenVPN mssfix setting changed"
-                        );
-                        self.reconnect_tunnel();
-                    }
+                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::OpenVpn) {
+                    log::info!(
+                        "Initiating tunnel restart because the OpenVPN mssfix setting changed"
+                    );
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => {
@@ -2001,10 +2000,6 @@ where
         {
             Ok(settings_changes) => {
                 if settings_changes {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
                     if let Err(error) = self.api_handle.service().next_api_endpoint().await {
                         log::error!("Failed to rotate API endpoint: {}", error);
                     }
@@ -2035,10 +2030,6 @@ where
         {
             Ok(settings_changed) => {
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
                     self.reconnect_tunnel();
                 }
                 Self::oneshot_send(tx, Ok(()), "set_obfuscation_settings");
@@ -2065,10 +2056,6 @@ where
         {
             Ok(settings_changed) => {
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
                     log::info!("Initiating tunnel restart because bridge state changed");
                     self.reconnect_tunnel();
                 }
@@ -2094,11 +2081,6 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_enable_ipv6 response");
                 if settings_changed {
-                    self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options)
-                        .await;
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
                     log::info!("Initiating tunnel restart because the enable IPv6 setting changed");
                     self.reconnect_tunnel();
                 }
@@ -2124,16 +2106,10 @@ where
         {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_quantum_resistant_tunnel response");
-                if settings_changed {
-                    self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options)
-                        .await;
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    if self.get_target_tunnel_type() == Some(TunnelType::Wireguard) {
-                        log::info!("Reconnecting because the PQ safety setting changed");
-                        self.reconnect_tunnel();
-                    }
+                if settings_changed && self.get_target_tunnel_type() == Some(TunnelType::Wireguard)
+                {
+                    log::info!("Reconnecting because the PQ safety setting changed");
+                    self.reconnect_tunnel();
                 }
             }
             Err(e) => {
@@ -2159,10 +2135,6 @@ where
                     let settings = self.settings.to_settings();
                     let resolvers =
                         dns::addresses_from_options(&settings.tunnel_options.dns_options);
-                    self.parameters_generator
-                        .set_tunnel_options(&settings.tunnel_options)
-                        .await;
-                    self.event_listener.notify_settings(settings);
                     self.send_tunnel_command(TunnelCommand::Dns(resolvers));
                 }
             }
@@ -2186,10 +2158,6 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_relay_override response");
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
                     self.reconnect_tunnel();
                 }
             }
@@ -2209,10 +2177,6 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "clear_all_relay_overrides response");
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.relay_selector
-                        .set_config(new_selector_config(&self.settings));
                     self.reconnect_tunnel();
                 }
             }
@@ -2236,11 +2200,6 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
                 if settings_changed {
-                    self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options)
-                        .await;
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
                     if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
                         log::info!(
                             "Initiating tunnel restart because the WireGuard MTU setting changed"
@@ -2279,11 +2238,6 @@ where
                             error.display_chain_with_msg("Failed to update rotation interval")
                         );
                     }
-                    self.parameters_generator
-                        .set_tunnel_options(&self.settings.tunnel_options)
-                        .await;
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
                 }
             }
             Err(e) => {
