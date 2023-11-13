@@ -56,7 +56,6 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 import org.koin.dsl.bind
-import org.koin.dsl.module
 
 open class MainActivity : FragmentActivity() {
     private val requestNotificationPermissionLauncher =
@@ -81,13 +80,7 @@ open class MainActivity : FragmentActivity() {
     private var currentDeviceState: DeviceState? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        loadKoinModules(
-            listOf(
-                uiModule,
-                paymentModule,
-                module { single { this@MainActivity } bind Activity::class }
-            )
-        )
+        loadKoinModules(listOf(uiModule, paymentModule))
 
         getKoin().apply {
             accountRepository = get()
@@ -290,8 +283,7 @@ open class MainActivity : FragmentActivity() {
                 .filter { it is AccountExpiry.Available }
                 .map { it.date()?.isBeforeNow }
                 .first()
-        }
-            ?: false
+        } ?: false
     }
 
     private fun openLoginView() {
