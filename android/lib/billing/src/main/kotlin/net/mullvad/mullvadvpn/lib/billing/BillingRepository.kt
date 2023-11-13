@@ -108,7 +108,11 @@ class BillingRepository(context: Context) : KoinComponent {
         return queryProductDetails(productIds)
     }
 
-    suspend fun startPurchaseFlow(productId: String, obfuscatedId: String): BillingResult {
+    suspend fun startPurchaseFlow(
+        productId: String,
+        obfuscatedId: String,
+        activityProvider: () -> Activity
+    ): BillingResult {
         return try {
             checkAndConnect()
 
@@ -142,12 +146,7 @@ class BillingRepository(context: Context) : KoinComponent {
                     .build()
 
             // Get the activity from Koin
-            val activity =
-                getKoin().getOrNull<Activity>()
-                    ?: throw BillingException(
-                        responseCode = BillingResponseCode.ERROR,
-                        message = "No activity found"
-                    )
+            val activity = activityProvider()
             // Launch the billing flow
             billingClient.launchBillingFlow(activity, billingFlowParams)
         } catch (t: Throwable) {

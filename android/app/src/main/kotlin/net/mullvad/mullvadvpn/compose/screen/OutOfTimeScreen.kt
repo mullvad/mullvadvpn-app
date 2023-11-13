@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -100,7 +102,8 @@ fun OutOfTimeScreen(
     openConnectScreen: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onAccountClick: () -> Unit = {},
-    onPurchaseBillingProductClick: (ProductId) -> Unit = {},
+    onPurchaseBillingProductClick: (ProductId, activityProvider: () -> Activity) -> Unit = { _, _ ->
+    },
     onRetryFetchProducts: () -> Unit = {},
     onRetryVerification: () -> Unit = {},
     onClosePurchaseResultDialog: (success: Boolean) -> Unit = {}
@@ -151,6 +154,7 @@ fun OutOfTimeScreen(
         deviceName = uiState.deviceName,
         timeLeft = null
     ) {
+        val context = LocalContext.current
         Column(
             modifier =
                 Modifier.fillMaxSize()
@@ -210,7 +214,9 @@ fun OutOfTimeScreen(
             }
             PlayPayment(
                 billingPaymentState = uiState.billingPaymentState,
-                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                onPurchaseBillingProductClick = { productId ->
+                    onPurchaseBillingProductClick(productId) { context as Activity }
+                },
                 modifier =
                     Modifier.padding(
                             start = Dimens.sideMargin,

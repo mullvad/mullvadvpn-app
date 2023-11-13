@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
@@ -110,8 +111,8 @@ class WelcomeViewModel(
         }
     }
 
-    fun startBillingPayment(productId: ProductId) {
-        viewModelScope.launch { paymentUseCase.purchaseProduct(productId) }
+    fun startBillingPayment(productId: ProductId, activityProvider: () -> Activity) {
+        viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
     fun verifyPurchases(updatePurchaseResult: Boolean = true) {
