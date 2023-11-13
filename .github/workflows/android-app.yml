@@ -29,6 +29,10 @@ on:
         description: Override container image
         type: string
         required: false
+      run_firebase_tests:
+        description: Run firebase tests
+        type: boolean
+        required: false
   # Build if main is updated to ensure up-to-date caches are available
   push:
     branches: [main]
@@ -300,7 +304,7 @@ jobs:
 
   instrumented-firebase-tests:
     name: Run instrumented firebase tests
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'schedule' || github.event.inputs.run_firebase_tests == true
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [build-app]
