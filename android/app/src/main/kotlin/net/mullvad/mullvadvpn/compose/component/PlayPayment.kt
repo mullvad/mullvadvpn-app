@@ -16,6 +16,8 @@ import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -28,7 +30,13 @@ private fun PreviewPlayPaymentPaymentAvailable() {
                 billingPaymentState =
                     PaymentState.PaymentAvailable(
                         products =
-                            listOf(PaymentProduct(productId = "test", price = "$10", status = null))
+                            listOf(
+                                PaymentProduct(
+                                    productId = ProductId("test"),
+                                    price = ProductPrice("$10"),
+                                    status = null
+                                )
+                            )
                     ),
                 onPurchaseBillingProductClick = {},
                 modifier = Modifier.padding(Dimens.screenVerticalMargin)
@@ -62,8 +70,8 @@ private fun PreviewPlayPaymentPaymentPending() {
                         products =
                             listOf(
                                 PaymentProduct(
-                                    productId = "test",
-                                    price = "$10",
+                                    productId = ProductId("test"),
+                                    price = ProductPrice("$10"),
                                     status = PaymentStatus.PENDING
                                 )
                             )
@@ -86,8 +94,8 @@ private fun PreviewPlayPaymentVerificationInProgress() {
                         products =
                             listOf(
                                 PaymentProduct(
-                                    productId = "test",
-                                    price = "$10",
+                                    productId = ProductId("test"),
+                                    price = ProductPrice("$10"),
                                     status = PaymentStatus.VERIFICATION_IN_PROGRESS
                                 )
                             )
@@ -102,7 +110,7 @@ private fun PreviewPlayPaymentVerificationInProgress() {
 @Composable
 fun PlayPayment(
     billingPaymentState: PaymentState,
-    onPurchaseBillingProductClick: (String) -> Unit,
+    onPurchaseBillingProductClick: (ProductId) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (billingPaymentState) {

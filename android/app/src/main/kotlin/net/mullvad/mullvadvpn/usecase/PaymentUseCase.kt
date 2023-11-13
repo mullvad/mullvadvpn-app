@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.constant.PAYMENT_AVAILABILITY_DEBOUNCE
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.extensions.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 
@@ -17,7 +18,7 @@ interface PaymentUseCase {
     val paymentAvailability: Flow<PaymentAvailability?>
     val purchaseResult: Flow<PurchaseResult?>
 
-    suspend fun purchaseProduct(productId: String)
+    suspend fun purchaseProduct(productId: ProductId)
 
     suspend fun queryPaymentAvailability()
 
@@ -33,8 +34,8 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
     override val paymentAvailability = _paymentAvailability.asStateFlow()
     override val purchaseResult = _purchaseResult.asStateFlow()
 
-    override suspend fun purchaseProduct(productId: String) {
-        paymentRepository?.purchaseProduct(productId)?.collect(_purchaseResult)
+    override suspend fun purchaseProduct(productId: ProductId) {
+        paymentRepository.purchaseProduct(productId)?.collect(_purchaseResult)
     }
 
     @OptIn(FlowPreview::class)
@@ -70,7 +71,7 @@ class EmptyPaymentUseCase : PaymentUseCase {
     override val paymentAvailability = MutableStateFlow(PaymentAvailability.ProductsUnavailable)
     override val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
 
-    override suspend fun purchaseProduct(productId: String) {
+    override suspend fun purchaseProduct(productId: ProductId) {
         // No op
     }
 

@@ -46,9 +46,10 @@ import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.toExpiryDateString
@@ -71,10 +72,14 @@ private fun PreviewAccountScreen() {
                     billingPaymentState =
                         PaymentState.PaymentAvailable(
                             listOf(
-                                PaymentProduct("productId", price = "34 SEK", status = null),
                                 PaymentProduct(
-                                    "productId_pending",
-                                    price = "34 SEK",
+                                    ProductId("productId"),
+                                    price = ProductPrice("34 SEK"),
+                                    status = null
+                                ),
+                                PaymentProduct(
+                                    ProductId("productId_pending"),
+                                    price = ProductPrice("34 SEK"),
                                     status = PaymentStatus.PENDING
                                 )
                             ),
@@ -96,7 +101,7 @@ fun AccountScreen(
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onPurchaseBillingProductClick: (productId: String) -> Unit = {},
+    onPurchaseBillingProductClick: (productId: ProductId) -> Unit = {},
     onRetryVerification: () -> Unit = {},
     onRetryFetchProducts: () -> Unit = {},
     onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},

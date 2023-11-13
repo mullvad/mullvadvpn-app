@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -99,7 +100,7 @@ fun OutOfTimeScreen(
     openConnectScreen: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onAccountClick: () -> Unit = {},
-    onPurchaseBillingProductClick: (String) -> Unit = {},
+    onPurchaseBillingProductClick: (ProductId) -> Unit = {},
     onRetryFetchProducts: () -> Unit = {},
     onRetryVerification: () -> Unit = {},
     onClosePurchaseResultDialog: (success: Boolean) -> Unit = {}
