@@ -92,7 +92,7 @@ class AccountViewModel(
 
     fun startBillingPayment(productId: String) {
         viewModelScope.launch {
-            paymentRepository?.purchaseBillingProduct(productId)?.collect(_purchaseResult)
+            paymentRepository?.purchaseProduct(productId)?.collect(_purchaseResult)
         }
     }
 

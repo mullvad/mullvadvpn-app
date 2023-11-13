@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 
 interface PaymentRepository {
 
-    fun purchaseBillingProduct(productId: String) : Flow<PurchaseResult>
+    fun purchaseProduct(productId: String) : Flow<PurchaseResult>
 
     fun verifyPurchases() : Flow<VerificationResult>
 
