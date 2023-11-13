@@ -87,6 +87,17 @@ class RelayListListener(
                 relayList = daemon.await().getRelayLocations()
             }
         }
+
+        scope.launch {
+            endpoint.dispatcher.parsedMessages
+                .filterIsInstance<Request.SetOwnershipAndProviders>()
+                .collect { request ->
+                    val update =
+                        getCurrentRelayConstraints()
+                            .copy(ownership = request.ownership, providers = request.providers)
+                    daemon.await().setRelaySettings(RelaySettings.Normal(update))
+                }
+        }
     }
 
     fun onDestroy() {

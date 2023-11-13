@@ -23,6 +23,13 @@ class RelayListFilterUseCase(
         relayListListener.updateSelectedProvidersFilter(providers)
     }
 
+    fun updateOwnershipAndProviderFilter(
+        ownership: Constraint<Ownership>,
+        providers: Constraint<Providers>
+    ) {
+        relayListListener.updateSelectedOwnershipAndProviderFilter(ownership, providers)
+    }
+
     fun selectedOwnership(): Flow<Constraint<Ownership>> =
         settingsRepository.settingsUpdates.map { settings ->
             settings?.relaySettings?.relayConstraints()?.ownership ?: Constraint.Any()
