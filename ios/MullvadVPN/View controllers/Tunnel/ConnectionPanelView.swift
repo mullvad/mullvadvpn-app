@@ -75,9 +75,6 @@ class ConnectionPanelView: UIView {
         inAddressRow.translatesAutoresizingMaskIntoConstraints = false
         outAddressRow.translatesAutoresizingMaskIntoConstraints = false
 
-        // Remove this line when we have out address
-        outAddressRow.isHidden = true
-
         inAddressRow.title = NSLocalizedString(
             "IN_ADDRESS_LABEL",
             tableName: "ConnectionPanel",
@@ -105,6 +102,9 @@ class ConnectionPanelView: UIView {
             stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
+            inAddressRow.heightAnchor.constraint(equalToConstant: UIMetrics.ConnectionPanelView.inRowHeight),
+            outAddressRow.heightAnchor.constraint(equalToConstant: UIMetrics.ConnectionPanelView.outRowHeight),
+
             // Align all text labels with the guide, so that they maintain equal width
             textLabelLayoutGuide.trailingAnchor
                 .constraint(equalTo: inAddressRow.textLabelLayoutGuide.trailingAnchor),
@@ -125,6 +125,7 @@ class ConnectionPanelView: UIView {
     private func didChangeDataSource() {
         inAddressRow.value = dataSource?.inAddress
         outAddressRow.value = dataSource?.outAddress
+        outAddressRow.alpha = dataSource?.outAddress == nil ? 0 : 1.0
     }
 
     private func toggleConnectionInfoVisibility() {
@@ -182,6 +183,8 @@ class ConnectionPanelAddressRow: UIView {
         detailTextLabel.font = .systemFont(ofSize: 17)
         detailTextLabel.textColor = .white
         detailTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        detailTextLabel.numberOfLines = .zero
+        detailTextLabel.lineBreakMode = .byWordWrapping
         return detailTextLabel
     }()
 
@@ -189,6 +192,7 @@ class ConnectionPanelAddressRow: UIView {
         let stackView = UIStackView(arrangedSubviews: [textLabel, detailTextLabel])
         stackView.spacing = UIStackView.spacingUseSystem
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.alignment = .top
         return stackView
     }()
 
