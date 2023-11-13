@@ -16,6 +16,8 @@ use tokio::{
     io::{self, AsyncWriteExt},
 };
 
+pub mod patch;
+
 const SETTINGS_FILE: &str = "settings.json";
 
 #[derive(err_derive::Error, Debug)]
