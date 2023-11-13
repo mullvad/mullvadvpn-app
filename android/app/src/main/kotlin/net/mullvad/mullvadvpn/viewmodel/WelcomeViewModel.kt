@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -109,7 +110,7 @@ class WelcomeViewModel(
         }
     }
 
-    fun startBillingPayment(productId: String) {
+    fun startBillingPayment(productId: ProductId) {
         viewModelScope.launch { paymentUseCase.purchaseProduct(productId) }
     }
 

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -79,7 +80,7 @@ class AccountViewModel(
         viewModelScope.launch { _enterTransitionEndAction.emit(Unit) }
     }
 
-    fun startBillingPayment(productId: String) {
+    fun startBillingPayment(productId: ProductId) {
         viewModelScope.launch { paymentUseCase.purchaseProduct(productId) }
     }
 

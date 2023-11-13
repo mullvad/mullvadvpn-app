@@ -47,6 +47,8 @@ import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -66,7 +68,10 @@ private fun PreviewWelcomeScreen() {
                     deviceName = "Happy Mole",
                     billingPaymentState =
                         PaymentState.PaymentAvailable(
-                            products = listOf(PaymentProduct("product", "$44", null))
+                            products =
+                                listOf(
+                                    PaymentProduct(ProductId("product"), ProductPrice("$44"), null)
+                                )
                         )
                 ),
             uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
@@ -93,7 +98,7 @@ fun WelcomeScreen(
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
     openConnectScreen: () -> Unit,
-    onPurchaseBillingProductClick: (productId: String) -> Unit,
+    onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
     onRetryVerification: () -> Unit,
     onClosePurchaseResultDialog: (success: Boolean) -> Unit,
     onRetryFetchProducts: () -> Unit
@@ -302,7 +307,7 @@ private fun PaymentPanel(
     billingPaymentState: PaymentState,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
-    onPurchaseBillingProductClick: (productId: String) -> Unit
+    onPurchaseBillingProductClick: (productId: ProductId) -> Unit
 ) {
     Column(
         modifier =
