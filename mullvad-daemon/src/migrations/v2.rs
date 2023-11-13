@@ -181,7 +181,7 @@ mod test {
     fn test_v2_migration() {
         let mut old_settings = serde_json::from_str(V2_SETTINGS).unwrap();
 
-        assert!(version_matches(&mut old_settings));
+        assert!(version_matches(&old_settings));
 
         migrate(&mut old_settings).unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(V3_SETTINGS).unwrap();

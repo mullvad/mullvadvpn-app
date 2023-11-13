@@ -997,7 +997,7 @@ mod tests {
     }
 
     static WG_PRIVATE_KEY: Lazy<wireguard::PrivateKey> =
-        Lazy::new(|| wireguard::PrivateKey::new_from_random());
+        Lazy::new(wireguard::PrivateKey::new_from_random);
     static WG_PUBLIC_KEY: Lazy<wireguard::PublicKey> =
         Lazy::new(|| wireguard::PrivateKey::new_from_random().public_key());
     static WG_CONFIG: Lazy<Config> = Lazy::new(|| Config {
