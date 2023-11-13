@@ -7,5 +7,8 @@ default:
   use-orchestrator: true
   device:
     - {model: shiba, version: 34, locale: en, orientation: portrait}
+    - {model: tangorpro, version: 33, locale: en, orientation: portrait}
+    - {model: felix, version: 33, locale: en, orientation: portrait}
+    - {model: GoogleTvEmulator, version: 30, locale: en, orientation: landscape}
   environment-variables:
     clearPackageData: "true"
