@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 @Composable
 private fun PreviewPaymentDialogPurchaseCompleted() {
     AppTheme {
-        ShowPaymentDialog(
+        PaymentDialogContent(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.payment_completed_dialog_title,
@@ -46,7 +46,7 @@ private fun PreviewPaymentDialogPurchaseCompleted() {
 @Composable
 private fun PreviewPaymentDialogPurchasePending() {
     AppTheme {
-        ShowPaymentDialog(
+        PaymentDialogContent(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.payment_pending_dialog_title,
@@ -64,7 +64,7 @@ private fun PreviewPaymentDialogPurchasePending() {
 @Composable
 private fun PreviewPaymentDialogVerificationFailed() {
     AppTheme {
-        ShowPaymentDialog(
+        PaymentDialogContent(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.payment_verification_error_dialog_title,
@@ -88,7 +88,7 @@ private fun PreviewPaymentDialogVerificationFailed() {
 @Composable
 private fun PreviewPaymentDialogGenericError() {
     AppTheme {
-        ShowPaymentDialog(
+        PaymentDialogContent(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.error_occurred,
@@ -109,10 +109,10 @@ private fun PreviewPaymentDialogGenericError() {
 @Composable
 private fun PreviewPaymentDialogLoading() {
     AppTheme {
-        ShowPaymentDialog(
+        PaymentDialogContent(
             paymentDialogData =
                 PaymentDialogData(
-                    title = R.string.connecting,
+                    title = R.string.loading_connecting,
                     icon = PaymentDialogIcon.LOADING,
                     closeOnDismiss = false
                 ),
@@ -125,7 +125,7 @@ private fun PreviewPaymentDialogLoading() {
 @Composable
 private fun PreviewPaymentDialogPaymentAvailabilityError() {
     AppTheme {
-        ShowPaymentDialog(
+        PaymentDialogContent(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.payment_billing_error_dialog_title,
@@ -158,7 +158,7 @@ fun PaymentDialog(
         remember(purchaseResult) { mutableStateOf(purchaseResult?.toPaymentDialogData()) }
 
     paymentDialogData?.let {
-        ShowPaymentDialog(
+        PaymentDialogContent(
             paymentDialogData = it,
             onClick = { isPaymentSuccessful, clickAction ->
                 paymentDialogData = null
@@ -173,7 +173,7 @@ fun PaymentDialog(
 }
 
 @Composable
-private fun ShowPaymentDialog(
+private fun PaymentDialogContent(
     paymentDialogData: PaymentDialogData,
     onClick: (isPaymentSuccessful: Boolean, clickAction: PaymentClickAction) -> Unit
 ) {

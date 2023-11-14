@@ -47,8 +47,7 @@ class AccountViewModel(
                     accountNumber = deviceState.token() ?: "",
                     accountExpiry = accountExpiry.date(),
                     purchaseResult = purchaseResult,
-                    billingPaymentState =
-                        paymentAvailability?.toPaymentState() ?: PaymentState.Loading
+                    billingPaymentState = paymentAvailability?.toPaymentState()
                 )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
@@ -127,7 +126,7 @@ data class AccountUiState(
     val deviceName: String?,
     val accountNumber: String?,
     val accountExpiry: DateTime?,
-    val billingPaymentState: PaymentState = PaymentState.Loading,
+    val billingPaymentState: PaymentState? = null,
     val purchaseResult: PurchaseResult? = null,
 ) {
     companion object {

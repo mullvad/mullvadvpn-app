@@ -68,8 +68,7 @@ class WelcomeViewModel(
                         tunnelState = tunnelState,
                         accountNumber = deviceState.token(),
                         deviceName = deviceState.deviceName(),
-                        billingPaymentState =
-                            paymentAvailability?.toPaymentState() ?: PaymentState.Loading,
+                        billingPaymentState = paymentAvailability?.toPaymentState(),
                         purchaseResult = purchaseResult
                     )
                 }

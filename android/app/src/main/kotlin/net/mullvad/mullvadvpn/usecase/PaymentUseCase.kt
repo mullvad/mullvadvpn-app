@@ -1,13 +1,10 @@
 package net.mullvad.mullvadvpn.usecase
 
 import android.app.Activity
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.map
-import net.mullvad.mullvadvpn.constant.PAYMENT_AVAILABILITY_DEBOUNCE
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.extensions.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
@@ -41,12 +38,8 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
         paymentRepository.purchaseProduct(productId, activityProvider).collect(_purchaseResult)
     }
 
-    @OptIn(FlowPreview::class)
     override suspend fun queryPaymentAvailability() {
-        paymentRepository
-            .queryPaymentAvailability()
-            .debounce(PAYMENT_AVAILABILITY_DEBOUNCE) // This is added to avoid flickering
-            .collect(_paymentAvailability)
+        paymentRepository.queryPaymentAvailability().collect(_paymentAvailability)
     }
 
     override suspend fun resetPurchaseResult() {
