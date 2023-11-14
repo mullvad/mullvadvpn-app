@@ -201,6 +201,7 @@ private fun ShowPaymentDialog(
                         contentDescription = null
                     )
                 PaymentDialogIcon.LOADING -> MullvadCircularProgressIndicatorMedium()
+                else -> {}
             }
         },
         title = {
@@ -255,10 +256,16 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
     when (this) {
         // Idle states
         PurchaseResult.PurchaseCancelled,
-        PurchaseResult.BillingFlowStarted,
         is PurchaseResult.Error.BillingError -> {
             // Show nothing
             null
+        }
+        // Background state
+        PurchaseResult.BillingFlowStarted -> {
+            PaymentDialogData(
+                title = R.string.payment_in_progress_dialog_title,
+                closeOnDismiss = false
+            )
         }
         // Loading states
         PurchaseResult.PurchaseStarted,
