@@ -82,7 +82,6 @@ private fun PreviewWelcomeScreen() {
             onAccountClick = {},
             openConnectScreen = {},
             onPurchaseBillingProductClick = { _, _ -> },
-            onRetryFetchProducts = {},
             onRetryVerification = {},
             onClosePurchaseResultDialog = {}
         )
@@ -101,8 +100,7 @@ fun WelcomeScreen(
     openConnectScreen: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
     onRetryVerification: () -> Unit,
-    onClosePurchaseResultDialog: (success: Boolean) -> Unit,
-    onRetryFetchProducts: () -> Unit
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
@@ -117,8 +115,7 @@ fun WelcomeScreen(
 
     PaymentDialog(
         purchaseResult = uiState.purchaseResult,
-        paymentStateError = uiState.billingPaymentState as? PaymentState.Error,
-        retryFetchProducts = onRetryFetchProducts,
+        retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
         retryVerification = onRetryVerification,
         onCloseDialog = onClosePurchaseResultDialog
     )
