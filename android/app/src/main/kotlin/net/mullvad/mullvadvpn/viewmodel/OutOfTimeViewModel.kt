@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
-import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -64,8 +63,7 @@ class OutOfTimeViewModel(
                     OutOfTimeUiState(
                         tunnelState = tunnelState,
                         deviceName = deviceState.deviceName() ?: "",
-                        billingPaymentState =
-                            paymentAvailability?.toPaymentState(),
+                        billingPaymentState = paymentAvailability?.toPaymentState(),
                         purchaseResult = purchaseResult
                     )
                 }
@@ -152,7 +150,7 @@ class OutOfTimeViewModel(
                 PaymentStatus.PENDING ->
                     paymentUseCase.setPurchaseResult(PurchaseResult.Completed.Pending)
                 PaymentStatus.VERIFICATION_IN_PROGRESS ->
-                    paymentUseCase.setPurchaseResult(PurchaseResult.Error.VerificationError(null))
+                    paymentUseCase.setPurchaseResult(PurchaseResult.Completed.Pending)
                 null -> {
                     /*Do nothing*/
                 }

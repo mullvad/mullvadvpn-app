@@ -233,17 +233,16 @@
     <string name="payment_completed_dialog_title">Time was successfully added</string>
     <string name="payment_completed_dialog_message">30 days was added to your account.</string>
     <string name="got_it">Got it!</string>
-    <string name="payment_verification_error_dialog_title">Payment was unsuccessful</string>
+    <string name="payment_verification_error_dialog_title">Payment failed</string>
     <string name="payment_verification_error_dialog_message">We were unable to verify your payment, please try again.</string>
-    <string name="payment_billing_error_dialog_title">Google Play services not available</string>
-    <string name="payment_billing_error_dialog_message">Unable to connect to Google Play services. Please make sure you have the latest version of Google Play services.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Could not connect to Mullvad services</string>
-    <string name="payment_obfuscation_id_error_dialog_message">Unable to connect to Mullvad. Please make sure you have the correct settings.</string>
-    <string name="payment_status_pending">Payment pending</string>
-    <string name="payment_status_verification_in_progress">We are verifying your payment</string>
-    <string name="payment_pending_dialog_title">Purchase pending</string>
-    <string name="payment_pending_dialog_message">Your payment is currently under process. Time will be added when the process is complete</string>
-    <string name="payment_in_progress_dialog_title">Payment in progress</string>
+    <string name="payment_billing_error_dialog_title">Google Play unavailable</string>
+    <string name="payment_billing_error_dialog_message">We were unable to start the payment process, please make sure you have the latest version of Google Play.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad services unavailable</string>
+    <string name="payment_obfuscation_id_error_dialog_message">Unable to communicate with Mullvad services. Please try again later.</string>
+    <string name="payment_status_pending">Google Play payment pending</string>
+    <string name="payment_status_verification_in_progress">Verifying payment</string>
+    <string name="payment_pending_dialog_title">Verifying payment</string>
+    <string name="payment_pending_dialog_message">Your payment is currently being processed. Your added time might not show immediately.</string>
     <string name="loading_connecting">Connecting...</string>
-    <string name="loading_verifying">Verifying...</string>
+    <string name="loading_verifying">Verifying purchase...</string>
 </resources>
