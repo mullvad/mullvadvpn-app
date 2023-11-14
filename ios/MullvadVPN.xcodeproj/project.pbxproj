@@ -650,6 +650,15 @@
 		F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */; };
 		F09A297D2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A297A2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift */; };
 		F09A29822A9F8AD200EA3B6F /* RedeemVoucherInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A297F2A9F8AD200EA3B6F /* RedeemVoucherInteractor.swift */; };
+		F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04AF2AE7F83D003D4F89 /* OutgoingConnectionProxy.swift */; };
+		F09D04B52AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04B42AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift */; };
+		F09D04B72AE941DA003D4F89 /* OutgoingConnectionProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04B62AE941DA003D4F89 /* OutgoingConnectionProxyTests.swift */; };
+		F09D04B92AE95111003D4F89 /* OutgoingConnectionProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04AF2AE7F83D003D4F89 /* OutgoingConnectionProxy.swift */; };
+		F09D04BB2AE95396003D4F89 /* MockURLProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BA2AE95396003D4F89 /* MockURLProtocol.swift */; };
+		F09D04BD2AEBB7C5003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
+		F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */; };
+		F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
+		F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
 		F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */; };
 		F0C6FA812A66E23300F521F0 /* DeleteAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */; };
@@ -1636,6 +1645,13 @@
 		F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
 		F09A297A2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherContentView.swift; sourceTree = "<group>"; };
 		F09A297F2A9F8AD200EA3B6F /* RedeemVoucherInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherInteractor.swift; sourceTree = "<group>"; };
+		F09D04AF2AE7F83D003D4F89 /* OutgoingConnectionProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionProxy.swift; sourceTree = "<group>"; };
+		F09D04B42AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OutgoingConnectionProxy+Stub.swift"; sourceTree = "<group>"; };
+		F09D04B62AE941DA003D4F89 /* OutgoingConnectionProxyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionProxyTests.swift; sourceTree = "<group>"; };
+		F09D04BA2AE95396003D4F89 /* MockURLProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLProtocol.swift; sourceTree = "<group>"; };
+		F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionService.swift; sourceTree = "<group>"; };
+		F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionServiceTests.swift; sourceTree = "<group>"; };
+		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
 		F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewConfiguration.swift; sourceTree = "<group>"; };
 		F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountOperation.swift; sourceTree = "<group>"; };
@@ -2128,14 +2144,15 @@
 		583FE01E29C197D5006E85F9 /* Tunnel */ = {
 			isa = PBXGroup;
 			children = (
-				58B43C1825F77DB60002C8C3 /* TunnelControlView.swift */,
-				58C3F4F82964B08300D72515 /* MapViewController.swift */,
 				58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */,
-				58CCA00F224249A1004F3011 /* TunnelViewController.swift */,
 				5878A27A2909649A0096FC88 /* CustomOverlayRenderer.swift */,
-				5878A278290954790096FC88 /* TunnelViewControllerInteractor.swift */,
 				58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */,
+				58C3F4F82964B08300D72515 /* MapViewController.swift */,
+				F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
+				58B43C1825F77DB60002C8C3 /* TunnelControlView.swift */,
+				58CCA00F224249A1004F3011 /* TunnelViewController.swift */,
+				5878A278290954790096FC88 /* TunnelViewControllerInteractor.swift */,
 			);
 			path = Tunnel;
 			sourceTree = "<group>";
@@ -2493,6 +2510,10 @@
 				F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */,
 				A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */,
 				58C3FA652A38549D006A450A /* MockFileCache.swift */,
+				F09D04BA2AE95396003D4F89 /* MockURLProtocol.swift */,
+				F09D04B42AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift */,
+				F09D04B62AE941DA003D4F89 /* OutgoingConnectionProxyTests.swift */,
+				F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */,
 				A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */,
 				A9C342C22ACC3EE90045F00E /* RelayCacheTracker+Stubs.swift */,
 				584B26F3237434D00073B10E /* RelaySelectorTests.swift */,
@@ -2503,6 +2524,7 @@
 				A9E0317B2ACBFC7E0095D843 /* TunnelStore+Stubs.swift */,
 				A9E031792ACB0AE70095D843 /* UIApplication+Stubs.swift */,
 				58165EBD2A262CBB00688EAD /* WgKeyRotationTests.swift */,
+				F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */,
 			);
 			path = MullvadVPNTests;
 			sourceTree = "<group>";
@@ -2737,6 +2759,7 @@
 				58C774C929AB543C003A1A56 /* Containers */,
 				58CAF9F22983D32200BE19F7 /* Coordinators */,
 				583FE02329C1AC9F006E85F9 /* Extensions */,
+				F09D04B82AE94F27003D4F89 /* GeneralAPIs */,
 				58B26E1F2943516500D5980C /* Notifications */,
 				586A950B2901250A007BAF2B /* Operations */,
 				5864859729A0D012006C5743 /* Presentation controllers */,
@@ -3016,6 +3039,14 @@
 				F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */,
 			);
 			path = RedeemVoucher;
+			sourceTree = "<group>";
+		};
+		F09D04B82AE94F27003D4F89 /* GeneralAPIs */ = {
+			isa = PBXGroup;
+			children = (
+				F09D04AF2AE7F83D003D4F89 /* OutgoingConnectionProxy.swift */,
+			);
+			path = GeneralAPIs;
 			sourceTree = "<group>";
 		};
 		F0E361892A4ADCF500AEEF2B /* Welcome */ = {
@@ -4100,10 +4131,13 @@
 				A9A5F9EE2ACB05160083449F /* RESTCreateApplePaymentResponse+Localization.swift in Sources */,
 				A9A5F9EF2ACB05160083449F /* String+AccountFormatting.swift in Sources */,
 				A9A5F9F02ACB05160083449F /* String+FuzzyMatch.swift in Sources */,
+				F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */,
 				A9A5F9F12ACB05160083449F /* String+Split.swift in Sources */,
 				A9A5F9F22ACB05160083449F /* NotificationConfiguration.swift in Sources */,
 				A9A5F9F32ACB05160083449F /* AccountExpirySystemNotificationProvider.swift in Sources */,
 				A9A5F9F52ACB05160083449F /* RegisteredDeviceInAppNotificationProvider.swift in Sources */,
+				F09D04B72AE941DA003D4F89 /* OutgoingConnectionProxyTests.swift in Sources */,
+				F09D04B92AE95111003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				A9A5F9F62ACB05160083449F /* TunnelStatusNotificationProvider.swift in Sources */,
 				A9A5F9F72ACB05160083449F /* NotificationProviderProtocol.swift in Sources */,
 				A9A5F9F82ACB05160083449F /* NotificationProviderIdentifier.swift in Sources */,
@@ -4144,12 +4178,14 @@
 				A9A5FA142ACB05160083449F /* MapConnectionStatusOperation.swift in Sources */,
 				A9A5FA152ACB05160083449F /* RedeemVoucherOperation.swift in Sources */,
 				A9A5FA162ACB05160083449F /* RotateKeyOperation.swift in Sources */,
+				F09D04B52AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift in Sources */,
 				A9A5FA172ACB05160083449F /* SendTunnelProviderMessageOperation.swift in Sources */,
 				A9A5FA182ACB05160083449F /* SetAccountOperation.swift in Sources */,
 				A9A5FA192ACB05160083449F /* StartTunnelOperation.swift in Sources */,
 				A9A5FA1A2ACB05160083449F /* StopTunnelOperation.swift in Sources */,
 				A9A5FA1B2ACB05160083449F /* Tunnel.swift in Sources */,
 				A9A5FA1C2ACB05160083449F /* Tunnel+Messaging.swift in Sources */,
+				F09D04BB2AE95396003D4F89 /* MockURLProtocol.swift in Sources */,
 				A9A5FA1D2ACB05160083449F /* TunnelBlockObserver.swift in Sources */,
 				A9A5FA1E2ACB05160083449F /* TunnelConfiguration.swift in Sources */,
 				A9A5FA1F2ACB05160083449F /* TunnelInteractor.swift in Sources */,
@@ -4159,6 +4195,7 @@
 				A9A5FA222ACB05160083449F /* TunnelObserver.swift in Sources */,
 				A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */,
 				A9E0317F2ACC331C0095D843 /* TunnelStatusBlockObserver.swift in Sources */,
+				F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */,
 				A9A5FA232ACB05160083449F /* TunnelState.swift in Sources */,
 				A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */,
 				A9A5FA252ACB05160083449F /* UpdateAccountDataOperation.swift in Sources */,
@@ -4174,6 +4211,7 @@
 				A9A5FA2E2ACB05160083449F /* FileCacheTests.swift in Sources */,
 				A9A5FA2F2ACB05160083449F /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
 				A9A5FA302ACB05160083449F /* InputTextFormatterTests.swift in Sources */,
+				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
 				A9A5FA312ACB05160083449F /* MockFileCache.swift in Sources */,
 				A9A5FA322ACB05160083449F /* RelayCacheTests.swift in Sources */,
 				A9A5FA332ACB05160083449F /* RelaySelectorTests.swift in Sources */,
@@ -4485,6 +4523,7 @@
 				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
 				58FB865526E8BF3100F188BC /* StorePaymentManagerError.swift in Sources */,
+				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
@@ -4502,6 +4541,7 @@
 				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
 				A9C342C12ACC37E30045F00E /* TunnelStatusBlockObserver.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
+				F09D04BD2AEBB7C5003D4F89 /* OutgoingConnectionService.swift in Sources */,
 				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				5871167F2910035700D41AAC /* PreferencesInteractor.swift in Sources */,
 				7A9CCCC22A96302800DD6A34 /* SafariCoordinator.swift in Sources */,
