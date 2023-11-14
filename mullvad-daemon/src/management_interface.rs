@@ -700,7 +700,7 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn test_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<()> {
+    async fn test_api_access_method(&self, request: Request<types::Uuid>) -> ServiceResult<bool> {
         log::debug!("test_api_access_method");
         let (tx, rx) = oneshot::channel();
         let api_access_method = mullvad_types::access_method::Id::try_from(request.into_inner())?;

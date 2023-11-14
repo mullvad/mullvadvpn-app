@@ -622,22 +622,14 @@ impl ApiProxy {
     }
 
     /// Check the availablility of `{APP_URL_PREFIX}/api-addrs`.
-    pub async fn api_addrs_available(&self) -> Result<(), rest::Error> {
-        let service = self.handle.service.clone();
+    pub async fn api_addrs_available(&self) -> Result<bool, rest::Error> {
+        let request = self
+            .handle
+            .factory
+            .head(&format!("{APP_URL_PREFIX}/api-addrs"))?
+            .expected_status(&[StatusCode::OK]);
 
-        rest::send_request(
-            &self.handle.factory,
-            service,
-            &format!("{APP_URL_PREFIX}/api-addrs"),
-            Method::HEAD,
-            None,
-            &[StatusCode::OK],
-        )
-        .await?;
-
-        // NOTE: A HEAD request should *not* have a body:
-        // https://developer.mozilla.org/en-US/docs/web/http/methods/head
-        // I.e., no need to deserialize the result.
-        Ok(())
+        let response = self.handle.service.request(request).await?;
+        Ok(response.status().is_success())
     }
 }

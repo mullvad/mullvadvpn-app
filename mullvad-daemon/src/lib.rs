@@ -64,7 +64,7 @@ use std::{
     mem,
     path::PathBuf,
     pin::Pin,
-    sync::{Arc, Mutex, Weak},
+    sync::{Arc, Weak},
     time::Duration,
 };
 #[cfg(any(target_os = "linux", windows))]
@@ -177,6 +177,9 @@ pub enum Error {
     #[error(display = "Access method error")]
     AccessMethodError(#[error(source)] access_method::Error),
 
+    #[error(display = "API connection mode error")]
+    ApiConnectionModeError(#[error(source)] api::Error),
+
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
     GroupIdError(#[error(source)] io::Error),
@@ -288,7 +291,7 @@ pub enum DaemonCommand {
     /// Get the currently used API access method
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
     /// Test an API access method
-    TestApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
+    TestApiAccessMethod(ResponseTx<bool, Error>, mullvad_types::access_method::Id),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -594,7 +597,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    connection_modes: Arc<Mutex<api::ConnectionModesIterator>>,
+    connection_modes_handler: api::Ehandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -657,23 +660,23 @@ where
         let initial_selector_config = new_selector_config(&settings);
         let relay_selector = RelaySelector::new(initial_selector_config, &resource_dir, &cache_dir);
 
-        let proxy_provider = api::ApiConnectionModeProvider::new(
-            cache_dir.clone(),
-            relay_selector.clone(),
-            settings
+        let connection_modes: Vec<_> = settings
                 .api_access_methods
                 .access_method_settings
                 .iter()
                 // We only care about the access methods which are set to 'enabled' by the user.
                 .filter(|api_access_method| api_access_method.enabled())
                 .cloned()
-                .collect(),
-        );
+                .collect();
 
-        let connection_modes = proxy_provider.handle();
+        let connection_modes_handler =
+            api::Ehandle::new(cache_dir.clone(), relay_selector.clone(), connection_modes);
 
         let api_handle = api_runtime
-            .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
+            .mullvad_rest_handle(
+                Box::pin(connection_modes_handler.as_stream()),
+                endpoint_updater.callback(),
+            )
             .await;
 
         let migration_complete = if let Some(migration_data) = migration_data {
@@ -811,7 +814,7 @@ where
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
-            connection_modes,
+            connection_modes_handler,
             api_runtime,
             api_handle,
             version_updater_handle,
@@ -2334,10 +2337,14 @@ where
     }
 
     fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {
-        let result = self
-            .get_current_access_method()
-            .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "get_current_api_access_method response");
+        let handle = self.connection_modes_handler.clone();
+        tokio::spawn(async move {
+            let result = handle
+                .get_access_method()
+                .await
+                .map_err(Error::ApiConnectionModeError);
+            Self::oneshot_send(tx, result, "get_current_api_access_method response");
+        });
     }
 
     /// Try to reach the Mullvad API using a specific access method, returning
@@ -2349,34 +2356,66 @@ where
     /// access method is *always* reset.
     async fn on_test_api_access_method(
         &mut self,
-        tx: ResponseTx<(), Error>,
+        tx: ResponseTx<bool, Error>,
         access_method: mullvad_types::access_method::Id,
     ) {
         // NOTE: Preferably we would block all new API calls until the test is
         // done and the previous access method is reset. Otherwise we run the
         // risk of errounously triggering a rotation of the currently in-use
         // access method.
-        let result = async {
+        let api_handle = self.api_handle.clone();
+        let handle = self.connection_modes_handler.clone();
+        let access_method = self.get_api_access_method(access_method);
+        // TODO(markus): Clean up this error handling
+        let new_access_method = if let Ok(access_method) = access_method {
+            access_method
+        } else {
+            Self::oneshot_send(
+                tx,
+                access_method
+                    .map(|_| false)
+                    .map_err(Error::AccessMethodError),
+                "on_test_api_access_method response",
+            );
+            return;
+        };
+
+        let fut = async move {
             // Setup test
-            let previous_access_method = self
-                .get_current_access_method()
-                .map_err(Error::AccessMethodError)?;
-
-            self.set_api_access_method(access_method)
+            let previous_access_method = handle
+                .get_access_method()
                 .await
-                .map_err(Error::AccessMethodError)?;
-            // Perform test
+                .map_err(Error::ApiConnectionModeError)
+                // TODO(markus): Do not unwrap!
+                .unwrap();
+
+            let x = new_access_method.clone();
+            handle.set_access_method(new_access_method)
+                .await
+                .map_err(Error::ApiConnectionModeError)
+                // TODO(markus): Do not unwrap!
+                .unwrap();
+
+            // We need to perform a rotation of API endpoint after a set action
+            let rotation_handle = api_handle.clone();
+            rotation_handle
+                .service()
+                .next_api_endpoint()
+                .await
+                .map_err(|err| {
+                    log::error!("Failed to rotate API endpoint: {err}");
+                    err
+                })
+                // TODO(markus): Error handling
+                .unwrap();
+
+            // Set up the reset
             //
-            // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
-            // request because we are *only* concerned with if we get a reply from
-            // the API, and not with the actual data that the endpoint returns.
-            let result = mullvad_api::ApiProxy::new(self.api_handle.clone())
-                .api_addrs_available()
-                .await
-                .map_err(Error::RestError);
-
-            // Reset test
-            self.set_api_access_method(previous_access_method.get_id())
+            // In case the API call fails, the next API endpoint will
+            // automatically be selected, which means that we need to set up
+            // with the previous API endpoint beforehand.
+            handle
+                .set_access_method(previous_access_method)
                 .await
                 .map_err(|err| {
                     log::error!(
@@ -2384,13 +2423,47 @@ where
             method after API reachability test was carried out. This should only
             happen if the previous access method was removed in the meantime."
                     );
-                    Error::AccessMethodError(err)
-                })?;
+                    err
+                })
+                // TODO(markus): Do not unwrap!
+                .unwrap();
 
-            result
+            // Perform test
+            //
+            // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
+            // request because we are *only* concerned with if we get a reply from
+            // the API, and not with the actual data that the endpoint returns.
+            let result = mullvad_api::ApiProxy::new(api_handle)
+                .api_addrs_available()
+                .await
+                .map_err(Error::RestError);
+
+            // We need to perform a rotation of API endpoint after a set action
+            // Note that this will be done automatically if the API call fails,
+            // so it only has to be done if the call succeeded ..
+            if result.as_ref().is_ok_and(|&succeeded| succeeded) {
+                rotation_handle
+                .service()
+                .next_api_endpoint()
+                .await
+                .map_err(|err| {
+                    log::error!("Failed to rotate API endpoint: {err}");
+                    err
+                })
+                // TODO(markus): Error handling
+                .unwrap();
+            }
+
+            log::info!(
+                "The result of testing {method:?} is {result:?}",
+                method = x.access_method,
+                result = result
+            );
+
+            Self::oneshot_send(tx, result, "on_test_api_access_method response");
         };
 
-        Self::oneshot_send(tx, result.await, "on_test_api_access_method response");
+        tokio::spawn(fut);
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
