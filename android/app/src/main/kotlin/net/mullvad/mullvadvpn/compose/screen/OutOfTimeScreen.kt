@@ -15,6 +15,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -33,9 +37,9 @@ import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -104,9 +108,7 @@ fun OutOfTimeScreen(
     onAccountClick: () -> Unit = {},
     onPurchaseBillingProductClick: (ProductId, activityProvider: () -> Activity) -> Unit = { _, _ ->
     },
-    onRetryVerification: () -> Unit = {},
-    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},
-    onPaymentInfoClick: (PaymentStatus?) -> Unit = {}
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
@@ -120,11 +122,15 @@ fun OutOfTimeScreen(
         }
     }
 
+    var showVerificationPendingDialog by remember { mutableStateOf(false) }
+    if (showVerificationPendingDialog) {
+        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
+    }
+
     uiState.paymentDialogData?.let {
         PaymentDialog(
             paymentDialogData = uiState.paymentDialogData,
             retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
-            retryVerification = onRetryVerification,
             onCloseDialog = onClosePurchaseResultDialog
         )
     }
@@ -219,7 +225,7 @@ fun OutOfTimeScreen(
                     onPurchaseBillingProductClick = { productId ->
                         onPurchaseBillingProductClick(productId) { context as Activity }
                     },
-                    onInfoClick = onPaymentInfoClick,
+                    onInfoClick = { showVerificationPendingDialog = false },
                     modifier =
                         Modifier.padding(
                                 start = Dimens.sideMargin,

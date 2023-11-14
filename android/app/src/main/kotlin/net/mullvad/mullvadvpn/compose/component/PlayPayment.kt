@@ -121,7 +121,7 @@ private fun PreviewPlayPaymentVerificationInProgress() {
 fun PlayPayment(
     billingPaymentState: PaymentState,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
-    onInfoClick: (PaymentStatus?) -> Unit,
+    onInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (billingPaymentState) {
@@ -155,7 +155,7 @@ fun PlayPayment(
                                 text = statusMessage,
                                 modifier = Modifier.padding(bottom = Dimens.smallPadding)
                             )
-                            IconButton(onClick = { onInfoClick(product.status) }) {
+                            IconButton(onClick = onInfoClick) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.icon_info),
                                     contentDescription = null,

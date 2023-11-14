@@ -4,9 +4,7 @@ import android.app.Activity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
-import net.mullvad.mullvadvpn.lib.payment.extensions.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
@@ -23,10 +21,6 @@ interface PaymentUseCase {
     suspend fun resetPurchaseResult()
 
     suspend fun verifyPurchases()
-
-    suspend fun verifyPurchasesAndUpdatePurchaseResult()
-
-    suspend fun setPurchaseResult(purchaseResult: PurchaseResult)
 }
 
 class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : PaymentUseCase {
@@ -56,17 +50,6 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
             }
         }
     }
-
-    override suspend fun verifyPurchasesAndUpdatePurchaseResult() {
-        paymentRepository
-            .verifyPurchases()
-            .map(VerificationResult::toPurchaseResult)
-            .collect(_purchaseResult)
-    }
-
-    override suspend fun setPurchaseResult(purchaseResult: PurchaseResult) {
-        _purchaseResult.emit(purchaseResult)
-    }
 }
 
 class EmptyPaymentUseCase : PaymentUseCase {
@@ -86,14 +69,6 @@ class EmptyPaymentUseCase : PaymentUseCase {
     }
 
     override suspend fun verifyPurchases() {
-        // No op
-    }
-
-    override suspend fun verifyPurchasesAndUpdatePurchaseResult() {
-        // No op
-    }
-
-    override suspend fun setPurchaseResult(purchaseResult: PurchaseResult) {
         // No op
     }
 }
