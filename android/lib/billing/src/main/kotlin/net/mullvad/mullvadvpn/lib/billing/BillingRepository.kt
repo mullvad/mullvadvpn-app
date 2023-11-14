@@ -15,6 +15,7 @@ import com.android.billingclient.api.QueryProductDetailsParams.Product
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
+import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -66,10 +67,10 @@ class BillingRepository(context: Context) : KoinComponent {
                 .build()
     }
 
-    private val checkAndConnectMutex = Mutex()
+    private val ensureConnectedMutex = Mutex()
 
-    private suspend fun checkAndConnect() =
-        checkAndConnectMutex.withLock {
+    private suspend fun ensureConnected() =
+        ensureConnectedMutex.withLock {
             suspendCoroutine {
                 if (
                     billingClient.isReady &&
@@ -77,32 +78,36 @@ class BillingRepository(context: Context) : KoinComponent {
                 ) {
                     it.resume(Unit)
                 } else {
-                    billingClient.startConnection(
-                        object : BillingClientStateListener {
-                            override fun onBillingServiceDisconnected() {
-                                // Maybe do something here?
-                                it.resumeWithException(
-                                    BillingException(
-                                        BillingResponseCode.SERVICE_DISCONNECTED,
-                                        "Billing service disconnected"
-                                    )
-                                )
-                            }
-
-                            override fun onBillingSetupFinished(result: BillingResult) {
-                                if (result.responseCode == BillingResponseCode.OK) {
-                                    it.resume(Unit)
-                                } else {
-                                    it.resumeWithException(
-                                        BillingException(result.responseCode, result.debugMessage)
-                                    )
-                                }
-                            }
-                        }
-                    )
+                    startConnection(it)
                 }
             }
         }
+
+    private fun startConnection(continuation: Continuation<Unit>) {
+        billingClient.startConnection(
+            object : BillingClientStateListener {
+                override fun onBillingServiceDisconnected() {
+                    // Maybe do something here?
+                    continuation.resumeWithException(
+                        BillingException(
+                            BillingResponseCode.SERVICE_DISCONNECTED,
+                            "Billing service disconnected"
+                        )
+                    )
+                }
+
+                override fun onBillingSetupFinished(result: BillingResult) {
+                    if (result.responseCode == BillingResponseCode.OK) {
+                        continuation.resume(Unit)
+                    } else {
+                        continuation.resumeWithException(
+                            BillingException(result.responseCode, result.debugMessage)
+                        )
+                    }
+                }
+            }
+        )
+    }
 
     suspend fun queryProducts(productIds: List<String>): ProductDetailsResult {
         return queryProductDetails(productIds)
@@ -114,7 +119,7 @@ class BillingRepository(context: Context) : KoinComponent {
         activityProvider: () -> Activity
     ): BillingResult {
         return try {
-            checkAndConnect()
+            ensureConnected()
 
             val productDetailsResult = queryProductDetails(listOf(productId))
 
@@ -160,7 +165,7 @@ class BillingRepository(context: Context) : KoinComponent {
 
     suspend fun queryPurchases(): PurchasesResult {
         return try {
-            checkAndConnect()
+            ensureConnected()
 
             val queryPurchaseHistoryParams: QueryPurchasesParams =
                 QueryPurchasesParams.newBuilder()
@@ -179,7 +184,7 @@ class BillingRepository(context: Context) : KoinComponent {
 
     private suspend fun queryProductDetails(productIds: List<String>): ProductDetailsResult {
         return try {
-            checkAndConnect()
+            ensureConnected()
 
             val productList =
                 productIds.map { productId ->
