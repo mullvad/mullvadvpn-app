@@ -116,12 +116,14 @@ fun WelcomeScreen(
         }
     }
 
-    PaymentDialog(
-        purchaseResult = uiState.purchaseResult,
-        retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
-        retryVerification = onRetryVerification,
-        onCloseDialog = onClosePurchaseResultDialog
-    )
+    uiState.paymentDialogData?.let {
+        PaymentDialog(
+            paymentDialogData = uiState.paymentDialogData,
+            retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
+            retryVerification = onRetryVerification,
+            onCloseDialog = onClosePurchaseResultDialog
+        )
+    }
 
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
