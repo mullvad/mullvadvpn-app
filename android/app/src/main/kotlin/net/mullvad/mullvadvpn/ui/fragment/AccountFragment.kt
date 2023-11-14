@@ -36,7 +36,7 @@ class AccountFragment : BaseFragment() {
                         onManageAccountClick = vm::onManageAccountClick,
                         onLogoutClick = vm::onLogoutClick,
                         onPurchaseBillingProductClick = vm::startBillingPayment,
-                        onRetryVerification = vm::verifyPurchases,
+                        onRetryVerification = vm::onRetryVerification,
                         onRetryFetchProducts = vm::onRetryFetchProducts,
                         onClosePurchaseResultDialog = vm::onClosePurchaseResultDialog,
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() }

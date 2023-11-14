@@ -88,7 +88,7 @@ class OutOfTimeViewModel(
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
         }
-        verifyPurchases(updatePurchaseResult = false)
+        verifyPurchases()
         fetchPaymentAvailability()
     }
 
@@ -113,11 +113,15 @@ class OutOfTimeViewModel(
         viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
-    fun verifyPurchases(updatePurchaseResult: Boolean = true) {
+    private fun verifyPurchases() {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases(updatePurchaseResult)
+            paymentUseCase.verifyPurchases()
             updateAccountExpiry()
         }
+    }
+
+    fun onRetryVerification() {
+        viewModelScope.launch { paymentUseCase.verifyPurchasesAndUpdatePurchaseResult() }
     }
 
     private fun fetchPaymentAvailability() {
@@ -139,7 +143,9 @@ class OutOfTimeViewModel(
         } else {
             fetchPaymentAvailability()
         }
-        paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
+        viewModelScope.launch {
+            paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
+        }
     }
 
     private fun updateAccountExpiry() {

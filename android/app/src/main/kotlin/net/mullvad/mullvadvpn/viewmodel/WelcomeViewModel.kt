@@ -94,7 +94,7 @@ class WelcomeViewModel(
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
         }
-        verifyPurchases(updatePurchaseResult = false)
+        verifyPurchases()
         fetchPaymentAvailability()
     }
 
@@ -115,11 +115,15 @@ class WelcomeViewModel(
         viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
-    fun verifyPurchases(updatePurchaseResult: Boolean = true) {
+    private fun verifyPurchases() {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases(updatePurchaseResult)
+            paymentUseCase.verifyPurchases()
             updateAccountExpiry()
         }
+    }
+
+    fun onRetryVerification() {
+        viewModelScope.launch { paymentUseCase.verifyPurchasesAndUpdatePurchaseResult() }
     }
 
     @OptIn(FlowPreview::class)
@@ -142,7 +146,9 @@ class WelcomeViewModel(
         } else {
             fetchPaymentAvailability()
         }
-        paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
+        viewModelScope.launch {
+            paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
+        }
     }
 
     private fun updateAccountExpiry() {
