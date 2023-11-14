@@ -133,6 +133,12 @@ enum Cli {
     /// Manage custom lists
     #[clap(subcommand)]
     CustomList(custom_list::CustomList),
+
+    /// Apply a JSON patch
+    ImportSettings {
+        /// File to read from. If this is "-", read from standard input
+        file: String,
+    },
 }
 
 #[tokio::main]
@@ -160,6 +166,7 @@ async fn main() -> Result<()> {
         Cli::SplitTunnel(cmd) => cmd.handle().await,
         Cli::Status { cmd, args } => status::handle(cmd, args).await,
         Cli::CustomList(cmd) => cmd.handle().await,
+        Cli::ImportSettings { file } => import_settings::handle(file).await,
 
         #[cfg(all(unix, not(target_os = "android")))]
         Cli::ShellCompletions { shell, dir } => {
