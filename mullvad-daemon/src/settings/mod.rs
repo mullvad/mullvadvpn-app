@@ -40,6 +40,22 @@ pub enum Error {
     WriteError(String, #[error(source)] io::Error),
 }
 
+/// Converts an instance of [`mullvad_daemon::settings::Error`] into a management interface status
+impl From<Error> for mullvad_management_interface::Status {
+    fn from(error: Error) -> mullvad_management_interface::Status {
+        use mullvad_management_interface::{Code, Status};
+
+        match error {
+            Error::DeleteError(..) | Error::WriteError(..) | Error::ReadError(..) => {
+                Status::new(Code::FailedPrecondition, error.to_string())
+            }
+            Error::SerializeError(..) | Error::ParseError(..) => {
+                Status::new(Code::Internal, error.to_string())
+            }
+        }
+    }
+}
+
 pub struct SettingsPersister {
     settings: Settings,
     path: PathBuf,

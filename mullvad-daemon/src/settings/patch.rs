@@ -41,6 +41,21 @@ pub enum Error {
     Settings(#[error(source)] super::Error),
 }
 
+impl From<Error> for mullvad_management_interface::Status {
+    fn from(error: Error) -> mullvad_management_interface::Status {
+        use mullvad_management_interface::Status;
+
+        match error {
+            Error::InvalidOrMissingValue(_)
+            | Error::UnknownOrProhibitedKey(_)
+            | Error::ParsePatch(_)
+            | Error::DeserializePatched(_) => Status::invalid_argument(error.to_string()),
+            Error::Settings(error) => Status::from(error),
+            error => Status::unknown(error.to_string()),
+        }
+    }
+}
+
 enum MergeStrategy {
     /// Replace or append keys to objects, and replace everything else
     Replace,

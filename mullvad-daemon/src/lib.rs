@@ -349,6 +349,8 @@ pub enum DaemonCommand {
     /// Verify that a google play payment was successful through the API.
     #[cfg(target_os = "android")]
     VerifyPlayPurchase(ResponseTx<(), Error>, PlayPurchase),
+    /// Patch the settings using a blob of JSON settings
+    ApplyJsonSettings(ResponseTx<(), settings::patch::Error>, String),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -1171,6 +1173,7 @@ where
             VerifyPlayPurchase(tx, play_purchase) => {
                 self.on_verify_play_purchase(tx, play_purchase)
             }
+            ApplyJsonSettings(tx, blob) => self.on_apply_json_settings(tx, blob).await,
         }
     }
 
@@ -2437,6 +2440,18 @@ where
                 "verify_play_purchase response",
             );
         });
+    }
+
+    async fn on_apply_json_settings(
+        &mut self,
+        tx: ResponseTx<(), settings::patch::Error>,
+        blob: String,
+    ) {
+        let result = settings::patch::merge_validate_patch(&mut self.settings, &blob).await;
+        if result.is_ok() {
+            self.reconnect_tunnel();
+        }
+        Self::oneshot_send(tx, result, "apply_json_settings response");
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to

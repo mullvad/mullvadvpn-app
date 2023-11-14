@@ -99,6 +99,9 @@ service ManagementService {
   // Notify the split tunnel monitor that a volume was mounted or dismounted
   // (Windows).
   rpc CheckVolumes(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+  // Apply a JSON blob to the settings
+  rpc ApplyJsonSettings(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 }
 
 message UUID { string value = 1; }
