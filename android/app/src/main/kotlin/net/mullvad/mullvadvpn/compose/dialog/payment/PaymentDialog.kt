@@ -306,6 +306,7 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                         message = R.string.try_again,
                         onClick = PaymentClickAction.RETRY_PURCHASE
                     ),
+                productId = this.productId
             )
         is PurchaseResult.Error.VerificationError ->
             PaymentDialogData(
