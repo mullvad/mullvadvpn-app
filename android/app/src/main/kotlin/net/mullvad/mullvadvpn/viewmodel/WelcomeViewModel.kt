@@ -19,9 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
-import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -123,10 +121,6 @@ class WelcomeViewModel(
         }
     }
 
-    fun onRetryVerification() {
-        viewModelScope.launch { paymentUseCase.verifyPurchasesAndUpdatePurchaseResult() }
-    }
-
     @OptIn(FlowPreview::class)
     private fun fetchPaymentAvailability() {
         viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
@@ -145,20 +139,6 @@ class WelcomeViewModel(
         }
         viewModelScope.launch {
             paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
-        }
-    }
-
-    fun onPaymentInfoClick(status: PaymentStatus?) {
-        viewModelScope.launch {
-            when (status) {
-                PaymentStatus.PENDING ->
-                    paymentUseCase.setPurchaseResult(PurchaseResult.Completed.Pending)
-                PaymentStatus.VERIFICATION_IN_PROGRESS ->
-                    paymentUseCase.setPurchaseResult(PurchaseResult.Completed.Pending)
-                null -> {
-                    /*Do nothing*/
-                }
-            }
         }
     }
 

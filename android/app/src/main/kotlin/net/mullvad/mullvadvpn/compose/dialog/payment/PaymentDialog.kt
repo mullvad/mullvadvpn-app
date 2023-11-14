@@ -11,7 +11,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -22,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 @Composable
 private fun PreviewPaymentDialogPurchaseCompleted() {
     AppTheme {
-        PaymentDialogContent(
+        PaymentDialog(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.payment_completed_dialog_title,
@@ -32,7 +31,8 @@ private fun PreviewPaymentDialogPurchaseCompleted() {
                         PaymentDialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
                     successfulPayment = true
                 ),
-            onClick = { _, _ -> }
+            retryPurchase = {},
+            onCloseDialog = {}
         )
     }
 }
@@ -41,7 +41,7 @@ private fun PreviewPaymentDialogPurchaseCompleted() {
 @Composable
 private fun PreviewPaymentDialogPurchasePending() {
     AppTheme {
-        PaymentDialogContent(
+        PaymentDialog(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.payment_pending_dialog_title,
@@ -50,31 +50,8 @@ private fun PreviewPaymentDialogPurchasePending() {
                         PaymentDialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
                     closeOnDismiss = true
                 ),
-            onClick = { _, _ -> }
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun PreviewPaymentDialogVerificationFailed() {
-    AppTheme {
-        PaymentDialogContent(
-            paymentDialogData =
-                PaymentDialogData(
-                    title = R.string.payment_verification_error_dialog_title,
-                    message = R.string.payment_verification_error_dialog_message,
-                    icon = PaymentDialogIcon.FAIL,
-                    confirmAction =
-                        PaymentDialogAction(message = R.string.cancel, PaymentClickAction.CLOSE),
-                    dismissAction =
-                        PaymentDialogAction(
-                            message = R.string.try_again,
-                            PaymentClickAction.RETRY_VERIFICATION
-                        ),
-                    closeOnDismiss = true
-                ),
-            onClick = { _, _ -> }
+            retryPurchase = {},
+            onCloseDialog = {}
         )
     }
 }
@@ -83,7 +60,7 @@ private fun PreviewPaymentDialogVerificationFailed() {
 @Composable
 private fun PreviewPaymentDialogGenericError() {
     AppTheme {
-        PaymentDialogContent(
+        PaymentDialog(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.error_occurred,
@@ -95,7 +72,8 @@ private fun PreviewPaymentDialogGenericError() {
                             onClick = PaymentClickAction.CLOSE
                         )
                 ),
-            onClick = { _, _ -> }
+            retryPurchase = {},
+            onCloseDialog = {}
         )
     }
 }
@@ -104,14 +82,15 @@ private fun PreviewPaymentDialogGenericError() {
 @Composable
 private fun PreviewPaymentDialogLoading() {
     AppTheme {
-        PaymentDialogContent(
+        PaymentDialog(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.loading_connecting,
                     icon = PaymentDialogIcon.LOADING,
                     closeOnDismiss = false
                 ),
-            onClick = { _, _ -> }
+            retryPurchase = {},
+            onCloseDialog = {}
         )
     }
 }
@@ -120,7 +99,7 @@ private fun PreviewPaymentDialogLoading() {
 @Composable
 private fun PreviewPaymentDialogPaymentAvailabilityError() {
     AppTheme {
-        PaymentDialogContent(
+        PaymentDialog(
             paymentDialogData =
                 PaymentDialogData(
                     title = R.string.payment_billing_error_dialog_title,
@@ -137,7 +116,8 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
                             onClick = PaymentClickAction.RETRY_PURCHASE
                         )
                 ),
-            onClick = { _, _ -> }
+            retryPurchase = {},
+            onCloseDialog = {}
         )
     }
 }
@@ -146,26 +126,14 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
 fun PaymentDialog(
     paymentDialogData: PaymentDialogData,
     retryPurchase: (ProductId) -> Unit,
-    retryVerification: () -> Unit,
     onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit
 ) {
-    PaymentDialogContent(
-        paymentDialogData = paymentDialogData,
-        onClick = { isPaymentSuccessful, clickAction ->
-            when (clickAction) {
-                PaymentClickAction.RETRY_PURCHASE -> retryPurchase(paymentDialogData.productId)
-                PaymentClickAction.RETRY_VERIFICATION -> retryVerification()
-                PaymentClickAction.CLOSE -> onCloseDialog(isPaymentSuccessful)
-            }
+    val onClick: (Boolean, PaymentClickAction) -> Unit = { isPaymentSuccessful, action ->
+        when (action) {
+            PaymentClickAction.CLOSE -> onCloseDialog(isPaymentSuccessful)
+            PaymentClickAction.RETRY_PURCHASE -> retryPurchase(paymentDialogData.productId)
         }
-    )
-}
-
-@Composable
-private fun PaymentDialogContent(
-    paymentDialogData: PaymentDialogData,
-    onClick: (isPaymentSuccessful: Boolean, clickAction: PaymentClickAction) -> Unit
-) {
+    }
     AlertDialog(
         icon = {
             when (paymentDialogData.icon) {
@@ -214,7 +182,7 @@ private fun PaymentDialogContent(
         },
         dismissButton = {
             paymentDialogData.dismissAction?.let {
-                NegativeButton(
+                PrimaryButton(
                     text = stringResource(id = it.message),
                     onClick = { onClick(paymentDialogData.successfulPayment, it.onClick) }
                 )
