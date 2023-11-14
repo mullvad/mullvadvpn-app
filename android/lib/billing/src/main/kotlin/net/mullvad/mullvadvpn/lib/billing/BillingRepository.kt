@@ -133,8 +133,7 @@ class BillingRepository(context: Context) {
                     .setProductDetailsParamsList(productDetailsParamsList)
                     .setObfuscatedAccountId(obfuscatedId)
                     .build()
-
-            // Get the activity from Koin
+            
             val activity = activityProvider()
             // Launch the billing flow
             billingClient.launchBillingFlow(activity, billingFlowParams)
