@@ -11,6 +11,6 @@ fun VerificationResult.toPurchaseResult(): PurchaseResult? =
             PurchaseResult.Error.VerificationError(this.exception)
         VerificationResult.FetchingUnfinishedPurchases -> PurchaseResult.PurchaseStarted
         VerificationResult.NoVerification -> null
-        VerificationResult.Success -> PurchaseResult.PurchaseCompleted
+        VerificationResult.Success -> PurchaseResult.Completed.Success
         VerificationResult.VerificationStarted -> PurchaseResult.VerificationStarted
     }
