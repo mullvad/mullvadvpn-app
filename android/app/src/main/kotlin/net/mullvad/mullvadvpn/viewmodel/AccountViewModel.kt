@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialogData
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -21,6 +22,7 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
@@ -47,7 +49,7 @@ class AccountViewModel(
                     deviceName = deviceState.deviceName() ?: "",
                     accountNumber = deviceState.token() ?: "",
                     accountExpiry = accountExpiry.date(),
-                    purchaseResult = purchaseResult,
+                    paymentDialogData = purchaseResult?.toPaymentDialogData(),
                     billingPaymentState = paymentAvailability?.toPaymentState()
                 )
             }
@@ -142,7 +144,7 @@ data class AccountUiState(
     val accountNumber: String?,
     val accountExpiry: DateTime?,
     val billingPaymentState: PaymentState? = null,
-    val purchaseResult: PurchaseResult? = null,
+    val paymentDialogData: PaymentDialogData? = null
 ) {
     companion object {
         fun default() =
@@ -151,7 +153,7 @@ data class AccountUiState(
                 accountNumber = DeviceState.Unknown.token(),
                 accountExpiry = AccountExpiry.Missing.date(),
                 billingPaymentState = PaymentState.Loading,
-                purchaseResult = null,
+                paymentDialogData = null,
             )
     }
 }

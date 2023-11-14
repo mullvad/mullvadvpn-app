@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
+import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
@@ -70,7 +71,7 @@ class WelcomeViewModel(
                         accountNumber = deviceState.token(),
                         deviceName = deviceState.deviceName(),
                         billingPaymentState = paymentAvailability?.toPaymentState(),
-                        purchaseResult = purchaseResult
+                        paymentDialogData = purchaseResult?.toPaymentDialogData()
                     )
                 }
             }
