@@ -190,7 +190,24 @@ fn merge_relay_overrides(
         });
 
         match existing_obj {
-            Some(existing_val) => *existing_val = patch_override,
+            Some(existing_val) => {
+                // Replace or append to existing values
+                match (existing_val, patch_override) {
+                    (
+                        serde_json::Value::Object(ref mut current),
+                        serde_json::Value::Object(ref patch),
+                    ) => {
+                        for (k, v) in patch {
+                            current.insert(k.to_owned(), v.to_owned());
+                        }
+                    }
+                    _ => {
+                        return Err(Error::InvalidOrMissingValue(
+                            "all override entries must be objects",
+                        ));
+                    }
+                }
+            }
             None => new_array.push(patch_override),
         }
     }
@@ -438,6 +455,22 @@ fn test_patch_relay_override() {
     let current = r#"{ "relay_overrides": [  { "hostname": "test", "ipv4_addr_in": "1.3.3.7" }, { "hostname": "test2", "ipv4_addr_in": "1.2.3.4" } ] }"#;
     let patch = r#"{ "relay_overrides": [ { "hostname": "test2", "ipv4_addr_in": "0.0.0.0" }, { "hostname": "test3", "ipv4_addr_in": "192.168.1.1" } ] }"#;
     let expected = r#"{ "relay_overrides": [  { "hostname": "test", "ipv4_addr_in": "1.3.3.7" }, { "hostname": "test2", "ipv4_addr_in": "0.0.0.0" }, { "hostname": "test3", "ipv4_addr_in": "192.168.1.1" } ] }"#;
+
+    let mut current: serde_json::Value = serde_json::from_str(current).unwrap();
+    let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
+    let expected: serde_json::Value = serde_json::from_str(expected).unwrap();
+
+    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap();
+    merge_patch_to_value(&PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
+
+    assert_eq!(current, expected);
+
+    // For same hostname, only update specified overrides
+    //
+    let current =
+        r#"{ "relay_overrides": [  { "hostname": "test", "ipv4_addr_in": "1.3.3.7" } ] }"#;
+    let patch = r#"{ "relay_overrides": [  { "hostname": "test", "ipv6_addr_in": "::1" } ] }"#;
+    let expected = r#"{ "relay_overrides": [  { "hostname": "test", "ipv4_addr_in": "1.3.3.7", "ipv6_addr_in": "::1" } ] }"#;
 
     let mut current: serde_json::Value = serde_json::from_str(current).unwrap();
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
