@@ -166,12 +166,15 @@ const config = {
     artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
     category: 'Network',
     icon: distAssets('icon.icns'),
-    extraFiles: [{ from: distAssets('linux/mullvad-gui-launcher.sh'), to: '.' }],
+    extraFiles: [
+      { from: distAssets('linux/mullvad-gui-launcher.sh'), to: '.' },
+      { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')), to: '.' },
+      { from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')), to: '.' },
+      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
+    ],
     extraResources: [
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-problem-report')), to: '.' },
       { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-setup')), to: '.' },
-      { from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')), to: '.' },
-      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
     ],
   },
 
@@ -202,6 +205,7 @@ const config = {
 
   rpm: {
     fpm: [
+      '--no-depends',
       // Prevents RPM from packaging build-id metadata, some of which is the
       // same across all electron-builder applications, which causes package
       // conflicts
@@ -227,7 +231,6 @@ const config = {
     ],
     afterInstall: distAssets('linux/after-install.sh'),
     afterRemove: distAssets('linux/after-remove.sh'),
-    depends: ['libXScrnSaver', 'libnotify', 'dbus-libs'],
   },
 };
 
