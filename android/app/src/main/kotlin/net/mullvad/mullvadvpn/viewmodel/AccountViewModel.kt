@@ -120,7 +120,7 @@ class AccountViewModel(
                 PaymentStatus.PENDING ->
                     paymentUseCase.setPurchaseResult(PurchaseResult.Completed.Pending)
                 PaymentStatus.VERIFICATION_IN_PROGRESS ->
-                    paymentUseCase.setPurchaseResult(PurchaseResult.Error.VerificationError(null))
+                    paymentUseCase.setPurchaseResult(PurchaseResult.Completed.Pending)
                 null -> {
                     /*Do nothing*/
                 }
