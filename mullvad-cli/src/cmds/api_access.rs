@@ -186,11 +186,11 @@ impl ApiAccess {
 
         println!("Testing access method \"{}\"", access_method.name);
         match rpc.test_api_access_method(access_method.get_id()).await {
-            Ok(_) => {
+            Ok(true) => {
                 println!("Success!");
                 Ok(())
             }
-            Err(_) => Err(anyhow!("Could not reach the Mullvad API.")),
+            Ok(false) | Err(_) => Err(anyhow!("Could not reach the Mullvad API.")),
         }
     }
 
