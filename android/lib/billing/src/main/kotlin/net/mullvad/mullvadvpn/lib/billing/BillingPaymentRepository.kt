@@ -104,7 +104,7 @@ class BillingPaymentRepository(
         // Wait for a callback from the billing library
         when (val event = billingRepository.purchaseEvents.firstOrNull()) {
             is PurchaseEvent.Error -> emit(event.toPurchaseResult())
-            is PurchaseEvent.PurchaseCompleted -> {
+            is PurchaseEvent.Completed -> {
                 val purchase =
                     event.purchases.firstOrNull()
                         ?: run {
