@@ -179,7 +179,7 @@ const config = {
     fpm: [
       '--no-depends',
       '--version',
-      getDebVersion(),
+      getLinuxVersion(),
       '--before-install',
       distAssets('linux/before-install.sh'),
       '--before-remove',
@@ -202,6 +202,8 @@ const config = {
 
   rpm: {
     fpm: [
+      '--version',
+      getLinuxVersion(),
       // Prevents RPM from packaging build-id metadata, some of which is the
       // same across all electron-builder applications, which causes package
       // conflicts
@@ -427,9 +429,12 @@ function getMacArch() {
   }
 }
 
-// Replace '-' between components with a tilde to make the version comparison understand that
-// YYYY.NN-dev-HHHHHH > YYYY.NN > YYYY.NN-betaN-dev-HHHHHH > YYYY.NN-betaN.
-function getDebVersion() {
+// Replace '-' with `~` (tilde) before the beta component, to make the version comparison
+// understand that stable `YYYY.NN` is newer than beta `YYYY.NN-betaN`. Both Debian and
+// Fedora do this where a tilde denotes a version component that must be sorted as earlier
+// than a non-tilde version component
+// https://docs.fedoraproject.org/en-US/packaging-guidelines/Versioning/#_complex_versioning
+function getLinuxVersion() {
   const [version, ...prereleaseParts] = productVersion([]).split('-');
   const [major, minor] = version.split('.');
   const prerelease = prereleaseParts.join('-');
