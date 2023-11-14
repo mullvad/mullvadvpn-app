@@ -18,7 +18,9 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -141,6 +143,20 @@ class OutOfTimeViewModel(
         }
         viewModelScope.launch {
             paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
+        }
+    }
+
+    fun onPaymentInfoClick(status: PaymentStatus?) {
+        viewModelScope.launch {
+            when (status) {
+                PaymentStatus.PENDING ->
+                    paymentUseCase.setPurchaseResult(PurchaseResult.Completed.Pending)
+                PaymentStatus.VERIFICATION_IN_PROGRESS ->
+                    paymentUseCase.setPurchaseResult(PurchaseResult.Error.VerificationError(null))
+                null -> {
+                    /*Do nothing*/
+                }
+            }
         }
     }
 

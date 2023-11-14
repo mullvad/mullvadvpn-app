@@ -108,6 +108,7 @@ fun AccountScreen(
         },
     onRetryVerification: () -> Unit = {},
     onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},
+    onPaymentInfoClick: (PaymentStatus?) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
@@ -174,6 +175,7 @@ fun AccountScreen(
                         onPurchaseBillingProductClick = { productId ->
                             onPurchaseBillingProductClick(productId) { context as Activity }
                         },
+                        onInfoClick = onPaymentInfoClick,
                         modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
                     )
                 }

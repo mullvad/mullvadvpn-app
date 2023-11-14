@@ -25,6 +25,8 @@ interface PaymentUseCase {
     suspend fun verifyPurchases()
 
     suspend fun verifyPurchasesAndUpdatePurchaseResult()
+
+    suspend fun setPurchaseResult(purchaseResult: PurchaseResult)
 }
 
 class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : PaymentUseCase {
@@ -61,6 +63,10 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
             .map(VerificationResult::toPurchaseResult)
             .collect(_purchaseResult)
     }
+
+    override suspend fun setPurchaseResult(purchaseResult: PurchaseResult) {
+        _purchaseResult.emit(purchaseResult)
+    }
 }
 
 class EmptyPaymentUseCase : PaymentUseCase {
@@ -84,6 +90,10 @@ class EmptyPaymentUseCase : PaymentUseCase {
     }
 
     override suspend fun verifyPurchasesAndUpdatePurchaseResult() {
+        // No op
+    }
+
+    override suspend fun setPurchaseResult(purchaseResult: PurchaseResult) {
         // No op
     }
 }

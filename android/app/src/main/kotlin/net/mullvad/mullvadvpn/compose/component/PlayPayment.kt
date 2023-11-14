@@ -3,12 +3,17 @@ package net.mullvad.mullvadvpn.compose.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
@@ -40,6 +45,7 @@ private fun PreviewPlayPaymentPaymentAvailable() {
                             )
                     ),
                 onPurchaseBillingProductClick = {},
+                onInfoClick = {},
                 modifier = Modifier.padding(Dimens.screenVerticalMargin)
             )
         }
@@ -54,6 +60,7 @@ private fun PreviewPlayPaymentLoading() {
             PlayPayment(
                 billingPaymentState = PaymentState.Loading,
                 onPurchaseBillingProductClick = {},
+                onInfoClick = {},
                 modifier = Modifier.padding(Dimens.screenVerticalMargin)
             )
         }
@@ -78,6 +85,7 @@ private fun PreviewPlayPaymentPaymentPending() {
                             )
                     ),
                 onPurchaseBillingProductClick = {},
+                onInfoClick = {},
                 modifier = Modifier.padding(Dimens.screenVerticalMargin)
             )
         }
@@ -102,6 +110,7 @@ private fun PreviewPlayPaymentVerificationInProgress() {
                             )
                     ),
                 onPurchaseBillingProductClick = {},
+                onInfoClick = {},
                 modifier = Modifier.padding(Dimens.screenVerticalMargin)
             )
         }
@@ -112,6 +121,7 @@ private fun PreviewPlayPaymentVerificationInProgress() {
 fun PlayPayment(
     billingPaymentState: PaymentState,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
+    onInfoClick: (PaymentStatus?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (billingPaymentState) {
@@ -138,12 +148,21 @@ fun PlayPayment(
                             else -> null
                         }
                     statusMessage?.let {
-                        Text(
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            text = statusMessage,
-                            modifier = Modifier.padding(bottom = Dimens.smallPadding)
-                        )
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                                text = statusMessage,
+                                modifier = Modifier.padding(bottom = Dimens.smallPadding)
+                            )
+                            IconButton(onClick = { onInfoClick(product.status) }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.icon_info),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onBackground
+                                )
+                            }
+                        }
                     }
                     VariantButton(
                         text =
