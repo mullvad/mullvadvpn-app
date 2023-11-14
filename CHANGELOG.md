@@ -65,6 +65,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
 
+### Security
+#### Windows
+- Fix possible privilege escalation by setting stricter permissions on mullvad directories such as
+  the directory in ProgramData.
 
 ## [android/2023.7] - 2023-10-11
 ### Changed
