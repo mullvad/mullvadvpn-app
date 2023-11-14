@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
+import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
@@ -64,7 +65,7 @@ class OutOfTimeViewModel(
                         tunnelState = tunnelState,
                         deviceName = deviceState.deviceName() ?: "",
                         billingPaymentState = paymentAvailability?.toPaymentState(),
-                        purchaseResult = purchaseResult
+                        paymentDialogData = purchaseResult?.toPaymentDialogData()
                     )
                 }
             }
