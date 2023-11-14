@@ -677,6 +677,11 @@ impl MullvadProxyClient {
     }
 
     // check_volumes
+
+    pub async fn apply_json_settings(&mut self, blob: String) -> Result<()> {
+        self.0.apply_json_settings(blob).await.map_err(Error::Rpc)?;
+        Ok(())
+    }
 }
 
 fn map_device_error(status: Status) -> Error {

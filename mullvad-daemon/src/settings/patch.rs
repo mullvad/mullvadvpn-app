@@ -41,6 +41,24 @@ pub enum Error {
     Settings(#[error(source)] super::Error),
 }
 
+/// Converts an [Error] to a management interface status
+#[cfg(not(target_os = "android"))]
+impl From<Error> for mullvad_management_interface::Status {
+    fn from(error: Error) -> mullvad_management_interface::Status {
+        use mullvad_management_interface::Status;
+
+        match error {
+            Error::InvalidOrMissingValue(_)
+            | Error::UnknownOrProhibitedKey(_)
+            | Error::ParsePatch(_)
+            | Error::DeserializePatched(_)
+            | Error::RecursionLimit => Status::invalid_argument(error.to_string()),
+            Error::Settings(error) => Status::from(error),
+            Error::SerializeSettings(error) => Status::internal(error.to_string()),
+        }
+    }
+}
+
 enum MergeStrategy {
     /// Replace or append keys to objects, and replace everything else
     Replace,
