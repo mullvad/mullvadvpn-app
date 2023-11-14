@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.compose.dialog.payment
 data class PaymentDialogData(
     val title: Int? = null,
     val message: Int? = null,
-    val icon: PaymentDialogIcon,
+    val icon: PaymentDialogIcon? = null,
     val confirmAction: PaymentDialogAction? = null,
     val dismissAction: PaymentDialogAction? = null,
     val closeOnDismiss: Boolean = true,
