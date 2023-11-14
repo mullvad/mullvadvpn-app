@@ -8,8 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import struct Network.IPv4Address
-import struct Network.IPv6Address
+import Network
 
 extension REST {
     public struct ServerLocation: Codable, Equatable {

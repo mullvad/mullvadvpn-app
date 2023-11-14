@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 import PacketTunnelCore
-import class WireGuardKitTypes.PrivateKey
+import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
 struct RelaySelectorStub: RelaySelectorProtocol {

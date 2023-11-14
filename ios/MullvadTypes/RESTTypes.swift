@@ -7,8 +7,7 @@
 //
 
 import Foundation
-import struct WireGuardKitTypes.IPAddressRange
-import class WireGuardKitTypes.PublicKey
+import WireGuardKitTypes
 
 public struct Account: Codable, Equatable {
     public let id: String

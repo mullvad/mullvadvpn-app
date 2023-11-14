@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import class WireGuardKitTypes.PrivateKey
+import WireGuardKitTypes
 
 extension State {
     /// Returns the target state to which the actor state should transition when requested to reconnect.

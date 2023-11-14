@@ -9,8 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadTypes
-import protocol Network.IPAddress
-import struct Network.IPv4Address
+import Network
 
 /// Tunnel monitor.
 public final class TunnelMonitor: TunnelMonitorProtocol {

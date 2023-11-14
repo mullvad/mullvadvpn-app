@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import struct Network.IPv6Address
+import Network
 
 public struct IPv6Endpoint: Hashable, Equatable, Codable, CustomStringConvertible {
     public let ip: IPv6Address

@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 import TunnelObfuscation
-import class WireGuardKitTypes.PrivateKey
+import WireGuardKitTypes
 
 /**
  Tunnel actor state with metadata describing the current phase of packet tunnel lifecycle.

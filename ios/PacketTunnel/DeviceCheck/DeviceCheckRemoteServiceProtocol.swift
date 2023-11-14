@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import class WireGuardKitTypes.PublicKey
+import WireGuardKitTypes
 
 /// A protocol that formalizes remote service dependency used by `DeviceCheckOperation`.
 protocol DeviceCheckRemoteServiceProtocol {

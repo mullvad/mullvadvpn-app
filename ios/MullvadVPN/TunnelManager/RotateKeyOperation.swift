@@ -12,7 +12,7 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-import class WireGuardKitTypes.PrivateKey
+import WireGuardKitTypes
 
 class RotateKeyOperation: ResultOperation<Void> {
     private let logger = Logger(label: "RotateKeyOperation")

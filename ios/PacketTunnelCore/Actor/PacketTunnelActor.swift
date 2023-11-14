@@ -10,7 +10,7 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 import NetworkExtension
-import class WireGuardKitTypes.PrivateKey
+import WireGuardKitTypes
 
 /**
  Packet tunnel state machine implemented as an actor.

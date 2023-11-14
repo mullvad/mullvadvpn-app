@@ -8,7 +8,7 @@
 
 @testable import MullvadREST
 import MullvadTypes
-import struct Network.IPv4Address
+import Network
 import XCTest
 
 final class AddressCacheTests: XCTestCase {

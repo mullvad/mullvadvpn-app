@@ -7,9 +7,7 @@
 //
 
 import Foundation
-import protocol Network.IPAddress
-import struct Network.IPv4Address
-import struct Network.IPv6Address
+import Network
 
 /// ICMP client.
 public final class Pinger: PingerProtocol {

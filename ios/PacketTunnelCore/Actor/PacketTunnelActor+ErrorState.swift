@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import class WireGuardKitTypes.PrivateKey
+import WireGuardKitTypes
 
 extension PacketTunnelActor {
     /**
