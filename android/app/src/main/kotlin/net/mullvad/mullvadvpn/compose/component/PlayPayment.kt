@@ -150,7 +150,7 @@ fun PlayPayment(
                     }
                     VariantButton(
                         text =
-                            stringResource(id = R.string.add_30_days_time_x, product.price.price),
+                            stringResource(id = R.string.add_30_days_time_x, product.price.value),
                         onClick = { onPurchaseBillingProductClick(product.productId) },
                         isEnabled = product.status == null
                     )
