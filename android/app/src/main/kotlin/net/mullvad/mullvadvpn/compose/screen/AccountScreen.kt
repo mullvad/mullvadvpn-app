@@ -168,13 +168,15 @@ fun AccountScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Column(modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)) {
-                PlayPayment(
-                    billingPaymentState = uiState.billingPaymentState,
-                    onPurchaseBillingProductClick = { productId ->
-                        onPurchaseBillingProductClick(productId) { context as Activity }
-                    },
-                    modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
-                )
+                uiState.billingPaymentState?.let {
+                    PlayPayment(
+                        billingPaymentState = uiState.billingPaymentState,
+                        onPurchaseBillingProductClick = { productId ->
+                            onPurchaseBillingProductClick(productId) { context as Activity }
+                        },
+                        modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
+                    )
+                }
 
                 if (showSitePayment) {
                     ExternalButton(

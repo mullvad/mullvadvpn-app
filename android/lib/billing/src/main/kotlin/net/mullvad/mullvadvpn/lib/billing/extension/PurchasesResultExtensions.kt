@@ -4,14 +4,8 @@ import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.PurchasesResult
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 
-fun PurchasesResult.purchases(excludePending: Boolean = true): List<Purchase> =
-    this.purchasesList.filter {
-        if (excludePending) {
-            it.purchaseState != Purchase.PurchaseState.PENDING
-        } else {
-            true
-        }
-    }
+fun PurchasesResult.nonPendingPurchases(): List<Purchase> =
+    this.purchasesList.filter { it.purchaseState != Purchase.PurchaseState.PENDING }
 
 fun PurchasesResult.responseCode(): Int = this.billingResult.responseCode
 

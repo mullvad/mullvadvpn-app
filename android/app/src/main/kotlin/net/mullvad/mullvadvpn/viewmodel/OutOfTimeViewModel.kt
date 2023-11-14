@@ -63,7 +63,7 @@ class OutOfTimeViewModel(
                         tunnelState = tunnelState,
                         deviceName = deviceState.deviceName() ?: "",
                         billingPaymentState =
-                            paymentAvailability?.toPaymentState() ?: PaymentState.NoPayment,
+                            paymentAvailability?.toPaymentState(),
                         purchaseResult = purchaseResult
                     )
                 }

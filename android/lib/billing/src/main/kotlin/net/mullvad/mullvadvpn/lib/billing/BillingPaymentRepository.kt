@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import net.mullvad.mullvadvpn.lib.billing.extension.getProductDetails
-import net.mullvad.mullvadvpn.lib.billing.extension.purchases
+import net.mullvad.mullvadvpn.lib.billing.extension.nonPendingPurchases
 import net.mullvad.mullvadvpn.lib.billing.extension.responseCode
 import net.mullvad.mullvadvpn.lib.billing.extension.toBillingException
 import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentAvailability
@@ -53,7 +53,7 @@ class BillingPaymentRepository(
         val productDetailsResult = billingRepository.queryProducts(listOf(productId.value))
 
         val productDetails =
-            when (productDetailsResult.billingResult.responseCode) {
+            when (productDetailsResult.responseCode()) {
                 BillingResponseCode.OK -> {
                     productDetailsResult.getProductDetails(productId.value)
                         ?: run {
@@ -132,7 +132,7 @@ class BillingPaymentRepository(
         val purchasesResult = billingRepository.queryPurchases()
         when (purchasesResult.responseCode()) {
             BillingResponseCode.OK -> {
-                val purchases = purchasesResult.purchases()
+                val purchases = purchasesResult.nonPendingPurchases()
                 if (purchases.isNotEmpty()) {
                     emit(VerificationResult.VerificationStarted)
                     val verificationResult = verifyPurchase(purchases.first())

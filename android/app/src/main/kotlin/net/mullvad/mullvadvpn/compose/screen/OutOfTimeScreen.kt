@@ -209,19 +209,21 @@ fun OutOfTimeScreen(
                         )
                 )
             }
-            PlayPayment(
-                billingPaymentState = uiState.billingPaymentState,
-                onPurchaseBillingProductClick = { productId ->
-                    onPurchaseBillingProductClick(productId) { context as Activity }
-                },
-                modifier =
-                    Modifier.padding(
-                            start = Dimens.sideMargin,
-                            end = Dimens.sideMargin,
-                            bottom = Dimens.screenVerticalMargin
-                        )
-                        .align(Alignment.CenterHorizontally)
-            )
+            uiState.billingPaymentState?.let {
+                PlayPayment(
+                    billingPaymentState = uiState.billingPaymentState,
+                    onPurchaseBillingProductClick = { productId ->
+                        onPurchaseBillingProductClick(productId) { context as Activity }
+                    },
+                    modifier =
+                        Modifier.padding(
+                                start = Dimens.sideMargin,
+                                end = Dimens.sideMargin,
+                                bottom = Dimens.screenVerticalMargin
+                            )
+                            .align(Alignment.CenterHorizontally)
+                )
+            }
             if (showSitePayment) {
                 SitePaymentButton(
                     onClick = onSitePaymentClick,
