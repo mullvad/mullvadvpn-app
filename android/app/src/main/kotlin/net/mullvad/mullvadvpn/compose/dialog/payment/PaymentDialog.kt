@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
-import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
@@ -139,7 +139,7 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
                     dismissAction =
                         PaymentDialogAction(
                             message = R.string.try_again,
-                            onClick = PaymentClickAction.RETRY_FETCH_PRODUCTS
+                            onClick = PaymentClickAction.RETRY_PURCHASE
                         )
                 ),
             onClick = { _, _ -> }
@@ -150,18 +150,12 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
 @Composable
 fun PaymentDialog(
     purchaseResult: PurchaseResult?,
-    paymentStateError: PaymentState.Error?,
-    retryFetchProducts: () -> Unit,
+    retryPurchase: (ProductId) -> Unit,
     retryVerification: () -> Unit,
     onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit
 ) {
     var paymentDialogData by
-        remember(purchaseResult, paymentStateError) {
-            val dialogData =
-                purchaseResult?.toPaymentDialogData()
-                    ?: paymentStateError?.let { paymentAvailabilityErrorDialogData() }
-            mutableStateOf(dialogData)
-        }
+        remember(purchaseResult) { mutableStateOf(purchaseResult?.toPaymentDialogData()) }
 
     paymentDialogData?.let {
         ShowPaymentDialog(
@@ -169,12 +163,9 @@ fun PaymentDialog(
             onClick = { isPaymentSuccessful, clickAction ->
                 paymentDialogData = null
                 when (clickAction) {
-                    PaymentClickAction.RETRY_FETCH_PRODUCTS -> retryFetchProducts()
+                    PaymentClickAction.RETRY_PURCHASE -> retryPurchase(it.productId)
                     PaymentClickAction.RETRY_VERIFICATION -> retryVerification()
                     PaymentClickAction.CLOSE -> onCloseDialog(isPaymentSuccessful)
-                    PaymentClickAction.CLOSE_PAYMENT_ERROR -> {
-                        /*Do nothing*/
-                    }
                 }
             }
         )
@@ -255,22 +246,23 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
     when (this) {
         // Idle states
         PurchaseResult.Completed.Cancelled,
+        PurchaseResult.BillingFlowStarted,
         is PurchaseResult.Error.BillingError -> {
             // Show nothing
             null
         }
-        // Background state
-        PurchaseResult.BillingFlowStarted -> {
+        // Fetching products and obfuscated id loading state
+        PurchaseResult.FetchingProducts,
+        PurchaseResult.FetchingObfuscationId ->
             PaymentDialogData(
-                title = R.string.payment_in_progress_dialog_title,
+                title = R.string.loading_connecting,
+                icon = PaymentDialogIcon.LOADING,
                 closeOnDismiss = false
             )
-        }
-        // Loading states
-        PurchaseResult.PurchaseStarted,
+        // Verifying loading states
         PurchaseResult.VerificationStarted ->
             PaymentDialogData(
-                title = R.string.connecting,
+                title = R.string.loading_verifying,
                 icon = PaymentDialogIcon.LOADING,
                 closeOnDismiss = false
             )
@@ -301,14 +293,19 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
         // Error states
         is PurchaseResult.Error.TransactionIdError ->
             PaymentDialogData(
-                title = R.string.error_occurred,
-                message = R.string.try_again,
+                title = R.string.payment_obfuscation_id_error_dialog_title,
+                message = R.string.payment_obfuscation_id_error_dialog_message,
                 icon = PaymentDialogIcon.FAIL,
                 confirmAction =
                     PaymentDialogAction(
                         message = R.string.cancel,
                         onClick = PaymentClickAction.CLOSE
-                    )
+                    ),
+                dismissAction =
+                    PaymentDialogAction(
+                        message = R.string.try_again,
+                        onClick = PaymentClickAction.RETRY_PURCHASE
+                    ),
             )
         is PurchaseResult.Error.VerificationError ->
             PaymentDialogData(
@@ -326,21 +323,28 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                         onClick = PaymentClickAction.RETRY_VERIFICATION
                     )
             )
-    }
-
-private fun paymentAvailabilityErrorDialogData(): PaymentDialogData =
-    PaymentDialogData(
-        title = R.string.payment_billing_error_dialog_title,
-        message = R.string.payment_billing_error_dialog_message,
-        icon = PaymentDialogIcon.FAIL,
-        confirmAction =
-            PaymentDialogAction(
-                message = R.string.cancel,
-                onClick = PaymentClickAction.CLOSE_PAYMENT_ERROR
-            ),
-        dismissAction =
-            PaymentDialogAction(
-                message = R.string.try_again,
-                onClick = PaymentClickAction.RETRY_FETCH_PRODUCTS
+        is PurchaseResult.Error.FetchProductsError,
+        is PurchaseResult.Error.NoProductFound -> {
+            PaymentDialogData(
+                title = R.string.payment_billing_error_dialog_title,
+                message = R.string.payment_billing_error_dialog_message,
+                icon = PaymentDialogIcon.FAIL,
+                confirmAction =
+                    PaymentDialogAction(
+                        message = R.string.cancel,
+                        onClick = PaymentClickAction.CLOSE
+                    ),
+                dismissAction =
+                    PaymentDialogAction(
+                        message = R.string.try_again,
+                        onClick = PaymentClickAction.RETRY_PURCHASE
+                    ),
+                productId =
+                    when (this) {
+                        is PurchaseResult.Error.FetchProductsError -> this.productId
+                        is PurchaseResult.Error.NoProductFound -> this.productId
+                        else -> ProductId("")
+                    }
             )
-    )
+        }
+    }

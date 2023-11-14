@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.lib.payment.model
 
 sealed interface PurchaseResult {
-    data object PurchaseStarted : PurchaseResult
+    data object FetchingProducts : PurchaseResult
+
+    data object FetchingObfuscationId : PurchaseResult
 
     data object BillingFlowStarted : PurchaseResult
 
@@ -17,7 +19,11 @@ sealed interface PurchaseResult {
     }
 
     sealed interface Error : PurchaseResult {
-        data class TransactionIdError(val exception: Throwable?) : Error
+        data class NoProductFound(val productId: ProductId) : Error
+
+        data class FetchProductsError(val productId: ProductId, val exception: Throwable?) : Error
+
+        data class TransactionIdError(val productId: ProductId, val exception: Throwable?) : Error
 
         data class BillingError(val exception: Throwable?) : Error
 

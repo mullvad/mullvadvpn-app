@@ -6,6 +6,7 @@ import com.android.billingclient.api.Purchase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import net.mullvad.mullvadvpn.lib.billing.extension.getProductDetails
 import net.mullvad.mullvadvpn.lib.billing.extension.purchases
 import net.mullvad.mullvadvpn.lib.billing.extension.responseCode
 import net.mullvad.mullvadvpn.lib.billing.extension.toBillingException
@@ -47,20 +48,44 @@ class BillingPaymentRepository(
         productId: ProductId,
         activityProvider: () -> Activity
     ): Flow<PurchaseResult> = flow {
-        emit(PurchaseResult.PurchaseStarted)
+        emit(PurchaseResult.FetchingProducts)
+
+        val productDetailsResult = billingRepository.queryProducts(listOf(productId.value))
+
+        val productDetails =
+            when (productDetailsResult.billingResult.responseCode) {
+                BillingResponseCode.OK -> {
+                    productDetailsResult.getProductDetails(productId.value)
+                        ?: run {
+                            emit(PurchaseResult.Error.NoProductFound(productId))
+                            return@flow
+                        }
+                }
+                else -> {
+                    emit(
+                        PurchaseResult.Error.FetchProductsError(
+                            productId,
+                            productDetailsResult.toBillingException()
+                        )
+                    )
+                    return@flow
+                }
+            }
+
         // Get transaction id
+        emit(PurchaseResult.FetchingObfuscationId)
         val obfuscatedId: String =
             when (val result = initialisePurchase()) {
                 is PlayPurchaseInitResult.Ok -> result.obfuscatedId
                 else -> {
-                    emit(PurchaseResult.Error.TransactionIdError(null))
+                    emit(PurchaseResult.Error.TransactionIdError(productId, null))
                     return@flow
                 }
             }
 
         val result =
             billingRepository.startPurchaseFlow(
-                productId = productId.value,
+                productDetails = productDetails,
                 obfuscatedId = obfuscatedId,
                 activityProvider = activityProvider
             )

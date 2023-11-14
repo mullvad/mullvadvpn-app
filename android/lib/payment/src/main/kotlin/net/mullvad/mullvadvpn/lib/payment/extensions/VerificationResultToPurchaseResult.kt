@@ -9,7 +9,7 @@ fun VerificationResult.toPurchaseResult(): PurchaseResult? =
             PurchaseResult.Error.BillingError(this.exception)
         is VerificationResult.Error.VerificationError ->
             PurchaseResult.Error.VerificationError(this.exception)
-        VerificationResult.FetchingUnfinishedPurchases -> PurchaseResult.PurchaseStarted
+        VerificationResult.FetchingUnfinishedPurchases -> PurchaseResult.VerificationStarted
         VerificationResult.NothingToVerify -> null
         VerificationResult.Success -> PurchaseResult.Completed.Success
         VerificationResult.VerificationStarted -> PurchaseResult.VerificationStarted
