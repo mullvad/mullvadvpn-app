@@ -1,4 +1,5 @@
 use crate::{
+    api,
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
@@ -25,6 +26,9 @@ pub enum Error {
     /// Access method could not be rotate
     #[error(display = "Access method could not be rotated")]
     RotationError,
+    /// Daemon API error
+    #[error(display = "Daemon API handling error")]
+    Api(#[error(source)] api::Error),
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -81,7 +85,9 @@ where
             Some(api_access_method) => {
                 if api_access_method.is_builtin() {
                     Err(Error::RemoveBuiltIn)
-                } else if api_access_method.get_id() == self.get_current_access_method()?.get_id() {
+                } else if api_access_method.get_id()
+                    == self.get_current_access_method().await?.get_id()
+                {
                     Ok(Command::Rotate)
                 } else {
                     Ok(Command::Nothing)
@@ -108,20 +114,26 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        let access_method = self
-            .settings
-            .api_access_methods
-            .find(&access_method)
-            .ok_or(Error::NoSuchMethod(access_method))?;
-        {
-            let mut connection_modes = self.connection_modes.lock().unwrap();
-            connection_modes.set_access_method(access_method.clone());
-        }
+        let access_method = self.get_api_access_method(access_method)?;
+        self.connection_modes_handler
+            .set_access_method(access_method)
+            .await?;
         // Force a rotation of Access Methods.
         //
         // This is not a call to `process_command` due to the restrictions on
         // recursively calling async functions.
         self.force_api_endpoint_rotation().await
+    }
+
+    pub fn get_api_access_method(
+        &mut self,
+        access_method: access_method::Id,
+    ) -> Result<AccessMethodSetting, Error> {
+        self.settings
+            .api_access_methods
+            .find(&access_method)
+            .ok_or(Error::NoSuchMethod(access_method))
+            .cloned()
     }
 
     /// "Updates" an [`AccessMethodSetting`] by replacing the existing entry
@@ -135,7 +147,7 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
-        let current = self.get_current_access_method()?;
+        let current = self.get_current_access_method().await?;
         let mut command = Command::Nothing;
         let settings_update = |settings: &mut Settings| {
             if let Some(access_method) = settings
@@ -160,9 +172,8 @@ where
 
     /// Return the [`AccessMethodSetting`] which is currently used to access the
     /// Mullvad API.
-    pub fn get_current_access_method(&self) -> Result<AccessMethodSetting, Error> {
-        let connections_modes = self.connection_modes.lock().unwrap();
-        Ok(connections_modes.peek())
+    pub async fn get_current_access_method(&self) -> Result<AccessMethodSetting, Error> {
+        Ok(self.connection_modes_handler.get_access_method().await?)
     }
 
     /// Change which [`AccessMethodSetting`] which will be used to figure out
@@ -184,16 +195,18 @@ where
             self.event_listener
                 .notify_settings(self.settings.to_settings());
 
-            let mut connection_modes = self.connection_modes.lock().unwrap();
-            connection_modes.update_access_methods(
-                self.settings
-                    .api_access_methods
-                    .access_method_settings
-                    .iter()
-                    .filter(|api_access_method| api_access_method.enabled())
-                    .cloned()
-                    .collect(),
-            )
+            let handle = self.connection_modes_handler.clone();
+            let new_access_methods = self
+                .settings
+                .api_access_methods
+                .access_method_settings
+                .iter()
+                .filter(|api_access_method| api_access_method.enabled())
+                .cloned()
+                .collect();
+            tokio::spawn(async move {
+                let _ = handle.update_access_methods(new_access_methods).await;
+            });
         };
         self
     }

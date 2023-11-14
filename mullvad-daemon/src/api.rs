@@ -2,7 +2,8 @@
 use crate::{DaemonCommand, DaemonEventSender};
 use futures::{
     channel::{mpsc, oneshot},
-    Future, Stream, StreamExt,
+    stream::unfold,
+    Stream, StreamExt,
 };
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
@@ -13,17 +14,205 @@ use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
 use std::{
     path::PathBuf,
-    pin::Pin,
     sync::{Arc, Mutex, Weak},
-    task::Poll,
 };
 #[cfg(target_os = "android")]
 use talpid_core::mpsc::Sender;
 use talpid_core::tunnel_state_machine::TunnelCommand;
-use talpid_types::{
-    net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint},
-    ErrorExt,
-};
+use talpid_types::net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint};
+
+// TODO(markus): Remove text
+/// Here, a new agent was born.
+
+pub enum Message {
+    Get(ResponseTx<AccessMethodSetting>),
+    Set(ResponseTx<()>, AccessMethodSetting),
+    Next(ResponseTx<ApiConnectionMode>),
+    Update(ResponseTx<()>, Vec<AccessMethodSetting>),
+}
+
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Oddly specific.
+    #[error(display = "Very Generic error.")]
+    Generic,
+}
+
+#[derive(Clone)]
+pub struct Ehandle {
+    cmd_tx: mpsc::UnboundedSender<Message>,
+}
+
+impl Ehandle {
+    pub fn new(
+        cache_dir: PathBuf,
+        relay_selector: RelaySelector,
+        connection_modes: Vec<AccessMethodSetting>,
+    ) -> Self {
+        let (cmd_tx, cmd_rx) = mpsc::unbounded();
+
+        let mut actor = EActor {
+            cmd_rx,
+            state: ApiConnectionModeProvider::new(cache_dir, relay_selector, connection_modes),
+        };
+        tokio::spawn(async move { actor.run().await });
+        Self { cmd_tx }
+    }
+
+    async fn send_command<T>(&self, make_cmd: impl FnOnce(ResponseTx<T>) -> Message) -> Result<T> {
+        let (tx, rx) = oneshot::channel();
+        // TODO(markus): Error handling
+        self.cmd_tx.unbounded_send(make_cmd(tx)).unwrap();
+        // TODO(markus): Error handling
+        rx.await.unwrap()
+    }
+
+    pub async fn get_access_method(&self) -> Result<AccessMethodSetting> {
+        self.send_command(Message::Get).await.map_err(|err| {
+            log::error!("Failed to get current access method!");
+            err
+        })
+    }
+
+    pub async fn set_access_method(&self, value: AccessMethodSetting) -> Result<()> {
+        self.send_command(|tx| Message::Set(tx, value))
+            .await
+            .map_err(|err| {
+                log::error!("Failed to set new access method!");
+                err
+            })
+    }
+
+    pub async fn update_access_methods(&self, values: Vec<AccessMethodSetting>) -> Result<()> {
+        self.send_command(|tx| Message::Update(tx, values))
+            .await
+            .map_err(|err| {
+                log::error!("Failed to update new access methods!");
+                err
+            })
+    }
+
+    pub async fn next(&self) -> Result<ApiConnectionMode> {
+        self.send_command(Message::Next).await.map_err(|err| {
+            log::error!("Failed to update new access methods!");
+            err
+        })
+    }
+
+    /// Stream the connection modes of this actor.
+    pub fn as_stream(&self) -> impl Stream<Item = ApiConnectionMode> {
+        let handle = self.clone();
+        unfold(handle, |handle| async move {
+            let connection_mode = handle
+                .next()
+                .await
+                .expect("It should always be safe to `unwrap` a new API connection mode");
+            Some((connection_mode, handle))
+        })
+    }
+}
+
+pub struct EActor {
+    cmd_rx: mpsc::UnboundedReceiver<Message>,
+    state: ApiConnectionModeProvider,
+}
+
+impl EActor {
+    async fn run(&mut self) {
+        while let Some(cmd) = self.cmd_rx.next().await {
+            let _ = match cmd {
+                Message::Get(tx) => self.on_get_access_method(tx),
+                Message::Set(tx, value) => self.on_set_access_method(tx, value),
+                Message::Next(tx) => self.on_next_connection_mode(tx),
+                Message::Update(tx, values) => self.on_update_access_methods(tx, values),
+            }
+            .map_err(|err| {
+                log::error!("todo(markus): Some error occured {err}");
+                err
+            });
+        }
+    }
+
+    fn reply<T>(&self, tx: ResponseTx<T>, value: T) -> Result<()> {
+        // TODO(markus): The error probably should come from the value/tx
+        tx.send(Ok(value)).map_err(|_| Error::Generic)
+    }
+
+    fn on_get_access_method(&mut self, tx: ResponseTx<AccessMethodSetting>) -> Result<()> {
+        let value = self.get_access_method()?;
+        self.reply(tx, value)
+    }
+
+    fn get_access_method(&mut self) -> Result<AccessMethodSetting> {
+        let connections_modes = self.state.connection_modes.lock().unwrap();
+        Ok(connections_modes.peek())
+    }
+
+    fn on_set_access_method(
+        &mut self,
+        tx: ResponseTx<()>,
+        value: AccessMethodSetting,
+    ) -> Result<()> {
+        self.set_access_method(value)?;
+        self.reply(tx, ())
+    }
+
+    fn set_access_method(&mut self, value: AccessMethodSetting) -> Result<()> {
+        let mut connections_modes = self.state.connection_modes.lock().unwrap();
+        connections_modes.set_access_method(value);
+        Ok(())
+    }
+
+    fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
+        let next = self.next_connection_mode();
+        // Save the new connection mode to cache!
+        {
+            let cache_dir = self.state.cache_dir.clone();
+            let next = next.clone();
+            tokio::spawn(async move {
+                if next.save(&cache_dir).await.is_err() {
+                    log::warn!(
+                        "Failed to save {connection_mode} to cache",
+                        connection_mode = next
+                    )
+                }
+            });
+        }
+        self.reply(tx, next)
+    }
+
+    fn next_connection_mode(&mut self) -> ApiConnectionMode {
+        let access_method = {
+            let mut connection_modes = self.state.connection_modes.lock().unwrap();
+            connection_modes
+                .next()
+                .map(|access_method_setting| access_method_setting.access_method)
+                .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct))
+        };
+
+        let connection_mode = self.state.from(access_method);
+        log::info!("New API connection mode selected: {}", connection_mode);
+        connection_mode
+    }
+
+    fn on_update_access_methods(
+        &mut self,
+        tx: ResponseTx<()>,
+        values: Vec<AccessMethodSetting>,
+    ) -> Result<()> {
+        self.update_access_methods(values)?;
+        self.reply(tx, ())
+    }
+
+    fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) -> Result<()> {
+        let mut connection_modes = self.state.connection_modes.lock().unwrap();
+        connection_modes.update_access_methods(values);
+        Ok(())
+    }
+}
+
+type ResponseTx<T> = oneshot::Sender<Result<T>>;
+type Result<T> = std::result::Result<T, Error>;
 
 /// A stream that returns the next API connection mode to use for reaching the API.
 ///
@@ -38,43 +227,7 @@ pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
-    current_task: Option<Pin<Box<dyn Future<Output = ApiConnectionMode> + Send>>>,
     connection_modes: Arc<Mutex<ConnectionModesIterator>>,
-}
-
-impl Stream for ApiConnectionModeProvider {
-    type Item = ApiConnectionMode;
-
-    fn poll_next(
-        mut self: Pin<&mut Self>,
-        cx: &mut std::task::Context<'_>,
-    ) -> Poll<Option<Self::Item>> {
-        // Poll the current task
-        if let Some(task) = self.current_task.as_mut() {
-            return match task.as_mut().poll(cx) {
-                Poll::Ready(mode) => {
-                    self.current_task = None;
-                    Poll::Ready(Some(mode))
-                }
-                Poll::Pending => Poll::Pending,
-            };
-        }
-
-        let connection_mode = self.new_connection_mode();
-
-        let cache_dir = self.cache_dir.clone();
-        self.current_task = Some(Box::pin(async move {
-            if let Err(error) = connection_mode.save(&cache_dir).await {
-                log::debug!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to save API endpoint")
-                );
-            }
-            connection_mode
-        }));
-
-        self.poll_next(cx)
-    }
 }
 
 impl ApiConnectionModeProvider {
@@ -87,33 +240,8 @@ impl ApiConnectionModeProvider {
         Self {
             cache_dir,
             relay_selector,
-            current_task: None,
             connection_modes: Arc::new(Mutex::new(connection_modes_iterator)),
         }
-    }
-
-    /// Return a pointer to the underlying iterator over [`AccessMethod`].
-    /// Having access to this iterator allow you to influence , e.g. by calling
-    /// [`ConnectionModesIterator::set_access_method()`] or
-    /// [`ConnectionModesIterator::update_access_methods()`].
-    pub(crate) fn handle(&self) -> Arc<Mutex<ConnectionModesIterator>> {
-        self.connection_modes.clone()
-    }
-
-    /// Return a new connection mode to be used for the API connection.
-    fn new_connection_mode(&mut self) -> ApiConnectionMode {
-        log::debug!("Rotating Access mode!");
-        let access_method = {
-            let mut access_methods_picker = self.connection_modes.lock().unwrap();
-            access_methods_picker
-                .next()
-                .map(|access_method_setting| access_method_setting.access_method)
-                .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct))
-        };
-
-        let connection_mode = self.from(access_method);
-        log::info!("New API connection mode selected: {}", connection_mode);
-        connection_mode
     }
 
     /// Ad-hoc version of [`std::convert::From::from`], but since some
