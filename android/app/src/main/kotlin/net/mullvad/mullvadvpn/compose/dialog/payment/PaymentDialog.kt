@@ -51,7 +51,6 @@ private fun PreviewPaymentDialogPurchasePending() {
                 PaymentDialogData(
                     title = R.string.payment_pending_dialog_title,
                     message = R.string.payment_pending_dialog_message,
-                    icon = PaymentDialogIcon.SUCCESS,
                     confirmAction =
                         PaymentDialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
                     closeOnDismiss = true
@@ -280,7 +279,6 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
             PaymentDialogData(
                 title = R.string.payment_pending_dialog_title,
                 message = R.string.payment_pending_dialog_message,
-                icon = PaymentDialogIcon.SUCCESS,
                 confirmAction =
                     PaymentDialogAction(
                         message = R.string.got_it,
