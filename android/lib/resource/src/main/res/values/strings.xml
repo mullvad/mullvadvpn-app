@@ -240,4 +240,5 @@
     <string name="payment_status_verification_in_progress">We are verifying your payment</string>
     <string name="payment_pending_dialog_title">Purchase pending</string>
     <string name="payment_pending_dialog_message">Your payment is currently under process. Time will be added when the process is complete</string>
+    <string name="payment_in_progress_dialog_title">Payment in progress</string>
 </resources>
