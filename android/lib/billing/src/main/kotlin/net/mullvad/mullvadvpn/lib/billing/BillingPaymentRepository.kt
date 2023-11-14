@@ -84,11 +84,11 @@ class BillingPaymentRepository(
                             return@flow
                         }
                 if (purchase.purchaseState == Purchase.PurchaseState.PENDING) {
-                    emit(PurchaseResult.PurchasePending)
+                    emit(PurchaseResult.Completed.Pending)
                 } else {
                     emit(PurchaseResult.VerificationStarted)
                     if (verifyPurchase(event.purchases.first()) == PlayPurchaseVerifyResult.Ok) {
-                        emit(PurchaseResult.PurchaseCompleted)
+                        emit(PurchaseResult.Completed.Success)
                     } else {
                         emit(PurchaseResult.Error.VerificationError(null))
                     }

@@ -255,7 +255,7 @@ private fun ShowPaymentDialog(
 fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
     when (this) {
         // Idle states
-        PurchaseResult.PurchaseCancelled,
+        PurchaseResult.Completed.Cancelled,
         is PurchaseResult.Error.BillingError -> {
             // Show nothing
             null
@@ -276,7 +276,7 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 closeOnDismiss = false
             )
         // Pending state
-        PurchaseResult.PurchasePending ->
+        PurchaseResult.Completed.Pending ->
             PaymentDialogData(
                 title = R.string.payment_pending_dialog_title,
                 message = R.string.payment_pending_dialog_message,
@@ -288,7 +288,7 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                     )
             )
         // Success state
-        PurchaseResult.PurchaseCompleted ->
+        PurchaseResult.Completed.Success ->
             PaymentDialogData(
                 title = R.string.payment_completed_dialog_title,
                 message = R.string.payment_completed_dialog_message,

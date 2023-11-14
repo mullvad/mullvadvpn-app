@@ -7,11 +7,14 @@ sealed interface PurchaseResult {
 
     data object VerificationStarted : PurchaseResult
 
-    data object PurchaseCompleted : PurchaseResult
+    sealed interface Completed : PurchaseResult {
+        data object Success : Completed
 
-    data object PurchasePending : PurchaseResult
+        data object Cancelled : Completed
 
-    data object PurchaseCancelled : PurchaseResult
+        // This ends our part of the purchase flow. The rest is handled by Google and the api.
+        data object Pending : Completed
+    }
 
     sealed interface Error : PurchaseResult {
         data class TransactionIdError(val exception: Throwable?) : Error
@@ -21,6 +24,5 @@ sealed interface PurchaseResult {
         data class VerificationError(val exception: Throwable?) : Error
     }
 
-    fun isTerminatingState(): Boolean =
-        this is PurchaseCompleted || this is PurchaseCancelled || this is Error
+    fun isTerminatingState(): Boolean = this is Completed || this is Error
 }
