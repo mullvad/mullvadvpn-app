@@ -37,7 +37,7 @@ class WelcomeFragment : BaseFragment() {
                         onAccountClick = ::openAccountView,
                         openConnectScreen = ::advanceToConnectScreen,
                         onPurchaseBillingProductClick = vm::startBillingPayment,
-                        onRetryVerification = vm::verifyPurchases,
+                        onRetryVerification = vm::onRetryVerification,
                         onRetryFetchProducts = vm::onRetryFetchProducts,
                         onClosePurchaseResultDialog = vm::onClosePurchaseResultDialog,
                     )

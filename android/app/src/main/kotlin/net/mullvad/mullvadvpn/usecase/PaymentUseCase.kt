@@ -23,9 +23,11 @@ interface PaymentUseCase {
 
     suspend fun queryPaymentAvailability()
 
-    fun resetPurchaseResult()
+    suspend fun resetPurchaseResult()
 
-    suspend fun verifyPurchases(updatePurchaseResult: Boolean)
+    suspend fun verifyPurchases()
+
+    suspend fun verifyPurchasesAndUpdatePurchaseResult()
 }
 
 class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : PaymentUseCase {
@@ -47,24 +49,24 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
             .collect(_paymentAvailability)
     }
 
-    override fun resetPurchaseResult() {
-        _purchaseResult.tryEmit(null)
+    override suspend fun resetPurchaseResult() {
+        _purchaseResult.emit(null)
     }
 
-    override suspend fun verifyPurchases(updatePurchaseResult: Boolean) {
-        if (updatePurchaseResult) {
-            paymentRepository
-                .verifyPurchases()
-                .map(VerificationResult::toPurchaseResult)
-                .collect(_purchaseResult)
-        } else {
-            paymentRepository.verifyPurchases().collect {
-                if (it == VerificationResult.Success) {
-                    // Update the payment availability after a successful verification.
-                    queryPaymentAvailability()
-                }
+    override suspend fun verifyPurchases() {
+        paymentRepository.verifyPurchases().collect {
+            if (it == VerificationResult.Success) {
+                // Update the payment availability after a successful verification.
+                queryPaymentAvailability()
             }
         }
+    }
+
+    override suspend fun verifyPurchasesAndUpdatePurchaseResult() {
+        paymentRepository
+            .verifyPurchases()
+            .map(VerificationResult::toPurchaseResult)
+            .collect(_purchaseResult)
     }
 }
 
@@ -80,11 +82,15 @@ class EmptyPaymentUseCase : PaymentUseCase {
         // No op
     }
 
-    override fun resetPurchaseResult() {
+    override suspend fun resetPurchaseResult() {
         // No op
     }
 
-    override suspend fun verifyPurchases(updatePurchaseResult: Boolean) {
+    override suspend fun verifyPurchases() {
+        // No op
+    }
+
+    override suspend fun verifyPurchasesAndUpdatePurchaseResult() {
         // No op
     }
 }

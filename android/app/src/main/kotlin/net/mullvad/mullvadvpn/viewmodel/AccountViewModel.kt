@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -59,7 +58,7 @@ class AccountViewModel(
 
     init {
         updateAccountExpiry()
-        verifyPurchases(updatePurchaseResult = false)
+        verifyPurchases()
         fetchPaymentAvailability()
     }
 
@@ -85,14 +84,17 @@ class AccountViewModel(
         viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
-    fun verifyPurchases(updatePurchaseResult: Boolean = true) {
+    private fun verifyPurchases() {
         viewModelScope.launch {
-            paymentUseCase.verifyPurchases(updatePurchaseResult)
+            paymentUseCase.verifyPurchases()
             updateAccountExpiry()
         }
     }
 
-    @OptIn(FlowPreview::class)
+    fun onRetryVerification() {
+        viewModelScope.launch { paymentUseCase.verifyPurchasesAndUpdatePurchaseResult() }
+    }
+
     private fun fetchPaymentAvailability() {
         viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
     }
@@ -111,7 +113,9 @@ class AccountViewModel(
         } else {
             fetchPaymentAvailability()
         }
-        paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
+        viewModelScope.launch {
+            paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
+        }
     }
 
     private fun updateAccountExpiry() {
