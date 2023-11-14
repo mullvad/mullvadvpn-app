@@ -6,6 +6,9 @@ import com.android.billingclient.api.Purchase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import net.mullvad.mullvadvpn.lib.billing.extension.purchases
+import net.mullvad.mullvadvpn.lib.billing.extension.responseCode
+import net.mullvad.mullvadvpn.lib.billing.extension.toBillingException
 import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentAvailability
 import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentStatus
 import net.mullvad.mullvadvpn.lib.billing.extension.toPurchaseResult
@@ -101,31 +104,26 @@ class BillingPaymentRepository(
 
     override fun verifyPurchases(): Flow<VerificationResult> = flow {
         emit(VerificationResult.FetchingUnfinishedPurchases)
-        val purchases = billingRepository.queryPurchases()
-        when {
-            purchases.billingResult.responseCode == BillingResponseCode.OK &&
-                purchases.purchasesList.isNotEmpty() -> {
-                emit(VerificationResult.VerificationStarted)
-                val verificationResult = verifyPurchase(purchases.purchasesList.first())
-                emit(
-                    when (verificationResult) {
-                        is PlayPurchaseVerifyResult.Error ->
-                            VerificationResult.Error.VerificationError(null)
-                        PlayPurchaseVerifyResult.Ok -> VerificationResult.Success
-                    }
-                )
-            }
-            purchases.billingResult.responseCode == BillingResponseCode.OK ->
-                emit(VerificationResult.NoVerification)
-            else ->
-                emit(
-                    VerificationResult.Error.BillingError(
-                        BillingException(
-                            purchases.billingResult.responseCode,
-                            purchases.billingResult.debugMessage
-                        )
+        val purchasesResult = billingRepository.queryPurchases()
+        when (purchasesResult.responseCode()) {
+            BillingResponseCode.OK -> {
+                val purchases = purchasesResult.purchases()
+                if (purchases.isNotEmpty()) {
+                    emit(VerificationResult.VerificationStarted)
+                    val verificationResult = verifyPurchase(purchases.first())
+                    emit(
+                        when (verificationResult) {
+                            is PlayPurchaseVerifyResult.Error ->
+                                VerificationResult.Error.VerificationError(null)
+                            PlayPurchaseVerifyResult.Ok -> VerificationResult.Success
+                        }
                     )
-                )
+                } else {
+                    emit(VerificationResult.NothingToVerify)
+                }
+            }
+            else ->
+                emit(VerificationResult.Error.BillingError(purchasesResult.toBillingException()))
         }
     }
 
