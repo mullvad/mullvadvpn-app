@@ -81,7 +81,7 @@ service ManagementService {
   rpc SetApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
   rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
-  rpc TestApiAccessMethod(UUID) returns (google.protobuf.Empty) {}
+  rpc TestApiAccessMethod(UUID) returns (google.protobuf.BoolValue) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
