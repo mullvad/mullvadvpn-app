@@ -9,7 +9,7 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
-import class WireGuardKitTypes.PublicKey
+import WireGuardKitTypes
 
 /// An object that implements remote service used by `DeviceCheckOperation`.
 struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {

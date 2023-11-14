@@ -18,7 +18,7 @@ import RelayCache
 import RelaySelector
 import StoreKit
 import UIKit
-import class WireGuardKitTypes.PublicKey
+import WireGuardKitTypes
 
 /// Interval used for periodic polling of tunnel relay status when tunnel is establishing
 /// connection.

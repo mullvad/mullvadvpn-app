@@ -14,7 +14,7 @@ import MullvadREST
 import MullvadSettings
 import MullvadTransport
 import MullvadTypes
-import enum NetworkExtension.NEProviderStopReason
+import NetworkExtension
 import PacketTunnelCore
 import RelayCache
 import RelaySelector

@@ -6,7 +6,7 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import struct CoreLocation.CLLocationCoordinate2D
+import CoreLocation
 import Foundation
 
 public struct Location: Codable, Equatable {

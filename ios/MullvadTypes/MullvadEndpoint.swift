@@ -7,8 +7,7 @@
 //
 
 import Foundation
-import struct Network.IPv4Address
-import struct Network.IPv6Address
+import Network
 
 /// Contains server data needed to connect to a single mullvad endpoint.
 public struct MullvadEndpoint: Equatable, Codable {

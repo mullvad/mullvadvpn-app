@@ -10,9 +10,7 @@ import Foundation
 import MullvadTypes
 import Network
 
-import struct WireGuardKitTypes.IPAddressRange
-import class WireGuardKitTypes.PrivateKey
-import class WireGuardKitTypes.PublicKey
+import WireGuardKitTypes
 
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
 public protocol TunnelAdapterProtocol {

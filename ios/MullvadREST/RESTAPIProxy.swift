@@ -8,8 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import struct WireGuardKitTypes.IPAddressRange
-import class WireGuardKitTypes.PublicKey
+import WireGuardKitTypes
 
 public protocol APIQuerying {
     func getAddressList(

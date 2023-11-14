@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadTypes
-import struct Network.IPv4Address
+import Network
 
 /// A struct describing Mullvad DNS blocking options.
 public struct DNSBlockingOptions: OptionSet, Codable {

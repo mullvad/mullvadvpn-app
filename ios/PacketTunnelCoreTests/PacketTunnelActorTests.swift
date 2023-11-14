@@ -12,8 +12,7 @@ import MullvadTypes
 import Network
 @testable import PacketTunnelCore
 @testable import RelaySelector
-import struct WireGuardKitTypes.IPAddressRange
-import class WireGuardKitTypes.PrivateKey
+import WireGuardKitTypes
 import XCTest
 
 final class PacketTunnelActorTests: XCTestCase {

@@ -9,10 +9,8 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
-import struct Network.IPv4Address
-import struct WireGuardKitTypes.IPAddressRange
-import class WireGuardKitTypes.PrivateKey
-import class WireGuardKitTypes.PublicKey
+import Network
+import WireGuardKitTypes
 
 /// A struct that holds the configuration passed via `NETunnelProviderProtocol`.
 public struct TunnelSettingsV1: Codable, Equatable, TunnelSettings {

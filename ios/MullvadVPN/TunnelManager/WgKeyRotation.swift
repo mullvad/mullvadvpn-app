@@ -9,8 +9,7 @@
 import Foundation
 import MullvadSettings
 import MullvadTypes
-import class WireGuardKitTypes.PrivateKey
-import class WireGuardKitTypes.PublicKey
+import WireGuardKitTypes
 
 /**
  Implements manipulations related to marking the beginning and the completion of key rotation, private key creation and other tasks relevant to handling the state of

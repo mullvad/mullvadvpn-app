@@ -8,8 +8,7 @@
 
 import MullvadSettings
 import MullvadTypes
-import struct WireGuardKitTypes.IPAddressRange
-import class WireGuardKitTypes.PrivateKey
+import WireGuardKitTypes
 import XCTest
 
 final class WgKeyRotationTests: XCTestCase {
