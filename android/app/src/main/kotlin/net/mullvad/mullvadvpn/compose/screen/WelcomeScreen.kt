@@ -48,6 +48,7 @@ import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -83,7 +84,8 @@ private fun PreviewWelcomeScreen() {
             openConnectScreen = {},
             onPurchaseBillingProductClick = { _, _ -> },
             onRetryVerification = {},
-            onClosePurchaseResultDialog = {}
+            onClosePurchaseResultDialog = {},
+            onPaymentInfoClick = {}
         )
     }
 }
@@ -100,7 +102,8 @@ fun WelcomeScreen(
     openConnectScreen: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
     onRetryVerification: () -> Unit,
-    onClosePurchaseResultDialog: (success: Boolean) -> Unit
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit,
+    onPaymentInfoClick: (PaymentStatus?) -> Unit
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
@@ -170,7 +173,8 @@ fun WelcomeScreen(
                 billingPaymentState = uiState.billingPaymentState,
                 onSitePaymentClick = onSitePaymentClick,
                 onRedeemVoucherClick = onRedeemVoucherClick,
-                onPurchaseBillingProductClick = onPurchaseBillingProductClick
+                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                onPaymentInfoClick = onPaymentInfoClick
             )
         }
     }
@@ -305,7 +309,8 @@ private fun PaymentPanel(
     billingPaymentState: PaymentState?,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
-    onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit
+    onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
+    onPaymentInfoClick: (PaymentStatus?) -> Unit
 ) {
     val context = LocalContext.current
     Column(
@@ -321,6 +326,7 @@ private fun PaymentPanel(
                 onPurchaseBillingProductClick = { productId ->
                     onPurchaseBillingProductClick(productId) { context as Activity }
                 },
+                onInfoClick = onPaymentInfoClick,
                 modifier =
                     Modifier.padding(
                             start = Dimens.sideMargin,

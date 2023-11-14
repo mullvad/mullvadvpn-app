@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -104,7 +105,8 @@ fun OutOfTimeScreen(
     onPurchaseBillingProductClick: (ProductId, activityProvider: () -> Activity) -> Unit = { _, _ ->
     },
     onRetryVerification: () -> Unit = {},
-    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {}
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},
+    onPaymentInfoClick: (PaymentStatus?) -> Unit = {}
 ) {
     val context = LocalContext.current
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
@@ -215,6 +217,7 @@ fun OutOfTimeScreen(
                     onPurchaseBillingProductClick = { productId ->
                         onPurchaseBillingProductClick(productId) { context as Activity }
                     },
+                    onInfoClick = onPaymentInfoClick,
                     modifier =
                         Modifier.padding(
                                 start = Dimens.sideMargin,
