@@ -57,7 +57,7 @@ class BillingPaymentRepository(
 
         val result =
             billingRepository.startPurchaseFlow(
-                productId = productId.id,
+                productId = productId.value,
                 obfuscatedId = obfuscatedId,
                 activityProvider = activityProvider
             )
