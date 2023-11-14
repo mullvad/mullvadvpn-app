@@ -302,7 +302,7 @@ fun DeviceNameRow(deviceName: String?) {
 @Composable
 private fun PaymentPanel(
     showSitePayment: Boolean,
-    billingPaymentState: PaymentState,
+    billingPaymentState: PaymentState?,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit
@@ -315,19 +315,21 @@ private fun PaymentPanel(
                 .background(color = MaterialTheme.colorScheme.background)
     ) {
         Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
-        PlayPayment(
-            billingPaymentState = billingPaymentState,
-            onPurchaseBillingProductClick = { productId ->
-                onPurchaseBillingProductClick(productId) { context as Activity }
-            },
-            modifier =
-                Modifier.padding(
-                        start = Dimens.sideMargin,
-                        end = Dimens.sideMargin,
-                        bottom = Dimens.screenVerticalMargin
-                    )
-                    .align(Alignment.CenterHorizontally)
-        )
+        billingPaymentState?.let {
+            PlayPayment(
+                billingPaymentState = billingPaymentState,
+                onPurchaseBillingProductClick = { productId ->
+                    onPurchaseBillingProductClick(productId) { context as Activity }
+                },
+                modifier =
+                    Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.screenVerticalMargin
+                        )
+                        .align(Alignment.CenterHorizontally)
+            )
+        }
         if (showSitePayment) {
             SitePaymentButton(
                 onClick = onSitePaymentClick,

@@ -6,6 +6,6 @@ import net.mullvad.mullvadvpn.model.TunnelState
 data class OutOfTimeUiState(
     val tunnelState: TunnelState = TunnelState.Disconnected,
     val deviceName: String = "",
-    val billingPaymentState: PaymentState = PaymentState.NoPayment,
+    val billingPaymentState: PaymentState? = null,
     val purchaseResult: PurchaseResult? = null
 )
