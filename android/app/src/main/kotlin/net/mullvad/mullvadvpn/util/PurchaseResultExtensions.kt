@@ -33,7 +33,8 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 closeOnDismiss = false
             )
         // Pending state
-        PurchaseResult.Completed.Pending ->
+        PurchaseResult.Completed.Pending,
+        is PurchaseResult.Error.VerificationError ->
             PaymentDialogData(
                 title = R.string.payment_pending_dialog_title,
                 message = R.string.payment_pending_dialog_message,
@@ -73,22 +74,6 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                         onClick = PaymentClickAction.RETRY_PURCHASE
                     ),
                 productId = this.productId
-            )
-        is PurchaseResult.Error.VerificationError ->
-            PaymentDialogData(
-                title = R.string.payment_verification_error_dialog_title,
-                message = R.string.payment_verification_error_dialog_message,
-                icon = PaymentDialogIcon.FAIL,
-                confirmAction =
-                    PaymentDialogAction(
-                        message = R.string.cancel,
-                        onClick = PaymentClickAction.CLOSE
-                    ),
-                dismissAction =
-                    PaymentDialogAction(
-                        message = R.string.try_again,
-                        onClick = PaymentClickAction.RETRY_VERIFICATION
-                    )
             )
         is PurchaseResult.Error.FetchProductsError,
         is PurchaseResult.Error.NoProductFound -> {

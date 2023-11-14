@@ -20,7 +20,6 @@ data class PaymentDialogAction(
 
 enum class PaymentClickAction {
     CLOSE,
-    RETRY_VERIFICATION,
     RETRY_PURCHASE
 }
 

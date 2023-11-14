@@ -42,13 +42,13 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -83,9 +83,7 @@ private fun PreviewWelcomeScreen() {
             onAccountClick = {},
             openConnectScreen = {},
             onPurchaseBillingProductClick = { _, _ -> },
-            onRetryVerification = {},
-            onClosePurchaseResultDialog = {},
-            onPaymentInfoClick = {}
+            onClosePurchaseResultDialog = {}
         )
     }
 }
@@ -101,9 +99,7 @@ fun WelcomeScreen(
     onAccountClick: () -> Unit,
     openConnectScreen: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
-    onRetryVerification: () -> Unit,
-    onClosePurchaseResultDialog: (success: Boolean) -> Unit,
-    onPaymentInfoClick: (PaymentStatus?) -> Unit
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
@@ -116,11 +112,15 @@ fun WelcomeScreen(
         }
     }
 
+    var showVerificationPendingDialog by remember { mutableStateOf(false) }
+    if (showVerificationPendingDialog) {
+        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
+    }
+
     uiState.paymentDialogData?.let {
         PaymentDialog(
             paymentDialogData = uiState.paymentDialogData,
             retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
-            retryVerification = onRetryVerification,
             onCloseDialog = onClosePurchaseResultDialog
         )
     }
@@ -176,7 +176,7 @@ fun WelcomeScreen(
                 onSitePaymentClick = onSitePaymentClick,
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
-                onPaymentInfoClick = onPaymentInfoClick
+                onPaymentInfoClick = { showVerificationPendingDialog = false }
             )
         }
     }
@@ -312,7 +312,7 @@ private fun PaymentPanel(
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
-    onPaymentInfoClick: (PaymentStatus?) -> Unit
+    onPaymentInfoClick: () -> Unit
 ) {
     val context = LocalContext.current
     Column(

@@ -43,6 +43,7 @@ import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
@@ -106,9 +107,7 @@ fun AccountScreen(
         (productId: ProductId, activityProvider: () -> Activity) -> Unit =
         { _, _ ->
         },
-    onRetryVerification: () -> Unit = {},
     onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},
-    onPaymentInfoClick: (PaymentStatus?) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
@@ -118,6 +117,7 @@ fun AccountScreen(
     val backgroundColor = MaterialTheme.colorScheme.background
     val systemUiController = rememberSystemUiController()
     var showDeviceNameInfoDialog by remember { mutableStateOf(false) }
+    var showVerificationPendingDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         systemUiController.setNavigationBarColor(backgroundColor)
@@ -136,11 +136,14 @@ fun AccountScreen(
         DeviceNameInfoDialog { showDeviceNameInfoDialog = false }
     }
 
+    if (showVerificationPendingDialog) {
+        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
+    }
+
     uiState.paymentDialogData?.let {
         PaymentDialog(
             paymentDialogData = uiState.paymentDialogData,
             retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
-            retryVerification = onRetryVerification,
             onCloseDialog = onClosePurchaseResultDialog
         )
     }
@@ -177,7 +180,7 @@ fun AccountScreen(
                         onPurchaseBillingProductClick = { productId ->
                             onPurchaseBillingProductClick(productId) { context as Activity }
                         },
-                        onInfoClick = onPaymentInfoClick,
+                        onInfoClick = { showVerificationPendingDialog = true },
                         modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
                     )
                 }
