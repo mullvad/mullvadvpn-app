@@ -6,7 +6,8 @@ shopt -s nullglob
 CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-UPLOAD_DIR="$SCRIPT_DIR/upload"
+
+source "$SCRIPT_DIR/buildserver-config.sh"
 
 cd "$UPLOAD_DIR"
 
