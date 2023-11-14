@@ -107,7 +107,6 @@ fun AccountScreen(
         { _, _ ->
         },
     onRetryVerification: () -> Unit = {},
-    onRetryFetchProducts: () -> Unit = {},
     onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
@@ -138,8 +137,7 @@ fun AccountScreen(
 
     PaymentDialog(
         purchaseResult = uiState.purchaseResult,
-        paymentStateError = uiState.billingPaymentState as? PaymentState.Error,
-        retryFetchProducts = onRetryFetchProducts,
+        retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
         retryVerification = onRetryVerification,
         onCloseDialog = onClosePurchaseResultDialog
     )

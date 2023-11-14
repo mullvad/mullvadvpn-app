@@ -128,10 +128,6 @@ class OutOfTimeViewModel(
         viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
     }
 
-    fun onRetryFetchProducts() {
-        fetchPaymentAvailability()
-    }
-
     fun onClosePurchaseResultDialog(success: Boolean) {
         // We are closing the dialog without any action, this can happen either if an error occurred
         // during the purchase or the purchase ended successfully.

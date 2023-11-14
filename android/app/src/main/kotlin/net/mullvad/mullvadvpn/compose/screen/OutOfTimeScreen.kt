@@ -35,7 +35,6 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
-import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -104,10 +103,10 @@ fun OutOfTimeScreen(
     onAccountClick: () -> Unit = {},
     onPurchaseBillingProductClick: (ProductId, activityProvider: () -> Activity) -> Unit = { _, _ ->
     },
-    onRetryFetchProducts: () -> Unit = {},
     onRetryVerification: () -> Unit = {},
     onClosePurchaseResultDialog: (success: Boolean) -> Unit = {}
 ) {
+    val context = LocalContext.current
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     LaunchedEffect(key1 = Unit) {
         uiSideEffect.collect { uiSideEffect ->
@@ -121,8 +120,7 @@ fun OutOfTimeScreen(
 
     PaymentDialog(
         purchaseResult = uiState.purchaseResult,
-        paymentStateError = uiState.billingPaymentState as? PaymentState.Error,
-        retryFetchProducts = onRetryFetchProducts,
+        retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
         retryVerification = onRetryVerification,
         onCloseDialog = onClosePurchaseResultDialog
     )
@@ -154,7 +152,6 @@ fun OutOfTimeScreen(
         deviceName = uiState.deviceName,
         timeLeft = null
     ) {
-        val context = LocalContext.current
         Column(
             modifier =
                 Modifier.fillMaxSize()

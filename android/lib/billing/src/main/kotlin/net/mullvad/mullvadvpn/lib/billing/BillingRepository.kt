@@ -7,6 +7,7 @@ import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetailsResult
 import com.android.billingclient.api.PurchasesResult
 import com.android.billingclient.api.PurchasesUpdatedListener
@@ -25,9 +26,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
-import org.koin.core.component.KoinComponent
 
-class BillingRepository(context: Context) : KoinComponent {
+class BillingRepository(context: Context) {
 
     private val billingClient: BillingClient
 
@@ -114,28 +114,12 @@ class BillingRepository(context: Context) : KoinComponent {
     }
 
     suspend fun startPurchaseFlow(
-        productId: String,
+        productDetails: ProductDetails,
         obfuscatedId: String,
         activityProvider: () -> Activity
     ): BillingResult {
         return try {
             ensureConnected()
-
-            val productDetailsResult = queryProductDetails(listOf(productId))
-
-            val productDetails =
-                if (productDetailsResult.billingResult.responseCode == BillingResponseCode.OK) {
-                    productDetailsResult.productDetailsList?.firstOrNull()
-                        ?: throw BillingException(
-                            responseCode = productDetailsResult.billingResult.responseCode,
-                            message = productDetailsResult.billingResult.debugMessage
-                        )
-                } else {
-                    throw BillingException(
-                        responseCode = productDetailsResult.billingResult.responseCode,
-                        message = productDetailsResult.billingResult.debugMessage
-                    )
-                }
 
             val productDetailsParamsList =
                 listOf(

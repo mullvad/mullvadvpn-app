@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -114,10 +115,6 @@ fun PlayPayment(
     modifier: Modifier = Modifier
 ) {
     when (billingPaymentState) {
-        PaymentState.Error.Billing,
-        PaymentState.Error.Generic -> {
-            // We show some kind of dialog error at the top
-        }
         PaymentState.Loading -> {
             Column(modifier = modifier.fillMaxWidth()) {
                 MullvadCircularProgressIndicatorSmall(modifier = modifier)
@@ -155,6 +152,15 @@ fun PlayPayment(
                         isEnabled = product.status == null
                     )
                 }
+            }
+        }
+        // Show the button without the price
+        is PaymentState.Error -> {
+            Column(modifier = modifier) {
+                VariantButton(
+                    text = stringResource(id = R.string.add_30_days_time),
+                    onClick = { onPurchaseBillingProductClick(ProductId(ProductIds.OneMonth)) }
+                )
             }
         }
     }
