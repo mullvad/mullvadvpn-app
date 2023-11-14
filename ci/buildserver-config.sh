@@ -12,6 +12,8 @@ SUPPORTED_DEB_CODENAMES=("sid" "testing" "bookworm" "bullseye")
 SUPPORTED_DEB_CODENAMES+=("jammy" "focal" "lunar")
 export SUPPORTED_DEB_CODENAMES
 
+export SUPPORTED_RPM_ARCHITECTURES=("x86_64" "aarch64")
+
 # Servers to upload Linux deb/rpm repositories to
 export DEV_LINUX_REPOSITORY_SERVERS=("se-got-cdn-001.devmole.eu" "se-got-cdn-002.devmole.eu")
 export STAGING_LINUX_REPOSITORY_SERVERS=("se-got-cdn-001.stagemole.eu" "se-got-cdn-002.stagemole.eu")
