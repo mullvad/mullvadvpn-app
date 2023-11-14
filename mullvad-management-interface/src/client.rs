@@ -208,12 +208,13 @@ impl MullvadProxyClient {
             })
     }
 
-    pub async fn test_api_access_method(&mut self, id: access_method::Id) -> Result<()> {
-        self.0
+    pub async fn test_api_access_method(&mut self, id: access_method::Id) -> Result<bool> {
+        let result = self
+            .0
             .test_api_access_method(types::Uuid::from(id))
             .await
             .map_err(Error::Rpc)?;
-        Ok(())
+        Ok(result.into_inner())
     }
 
     pub async fn update_relay_locations(&mut self) -> Result<()> {

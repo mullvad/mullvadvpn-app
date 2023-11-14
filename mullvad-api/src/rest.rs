@@ -524,6 +524,10 @@ impl RequestFactory {
         self.request(path, Method::DELETE)
     }
 
+    pub fn head(&self, path: &str) -> Result<Request> {
+        self.request(path, Method::HEAD)
+    }
+
     pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<Request> {
         self.json_request(Method::POST, path, body)
     }
