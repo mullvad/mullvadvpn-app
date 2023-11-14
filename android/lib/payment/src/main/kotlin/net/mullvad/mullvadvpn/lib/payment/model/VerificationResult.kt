@@ -6,7 +6,7 @@ sealed interface VerificationResult {
     data object VerificationStarted : VerificationResult
 
     // No verification was needed as there is no purchases to verify
-    data object NoVerification : VerificationResult
+    data object NothingToVerify : VerificationResult
 
     data object Success : VerificationResult
 
