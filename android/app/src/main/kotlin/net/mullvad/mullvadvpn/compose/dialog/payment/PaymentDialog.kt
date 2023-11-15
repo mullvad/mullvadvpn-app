@@ -27,8 +27,7 @@ private fun PreviewPaymentDialogPurchaseCompleted() {
                     title = R.string.payment_completed_dialog_title,
                     message = R.string.payment_completed_dialog_message,
                     icon = PaymentDialogIcon.SUCCESS,
-                    confirmAction =
-                        PaymentDialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
+                    confirmAction = PaymentDialogAction.Close,
                     successfulPayment = true
                 ),
             retryPurchase = {},
@@ -46,8 +45,7 @@ private fun PreviewPaymentDialogPurchasePending() {
                 PaymentDialogData(
                     title = R.string.payment_pending_dialog_title,
                     message = R.string.payment_pending_dialog_message,
-                    confirmAction =
-                        PaymentDialogAction(message = R.string.got_it, PaymentClickAction.CLOSE),
+                    confirmAction = PaymentDialogAction.Close,
                     closeOnDismiss = true
                 ),
             retryPurchase = {},
@@ -66,11 +64,7 @@ private fun PreviewPaymentDialogGenericError() {
                     title = R.string.error_occurred,
                     message = R.string.try_again,
                     icon = PaymentDialogIcon.FAIL,
-                    confirmAction =
-                        PaymentDialogAction(
-                            message = R.string.cancel,
-                            onClick = PaymentClickAction.CLOSE
-                        )
+                    confirmAction = PaymentDialogAction.Close
                 ),
             retryPurchase = {},
             onCloseDialog = {}
@@ -105,16 +99,8 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
                     title = R.string.payment_billing_error_dialog_title,
                     message = R.string.payment_billing_error_dialog_message,
                     icon = PaymentDialogIcon.FAIL,
-                    confirmAction =
-                        PaymentDialogAction(
-                            message = R.string.cancel,
-                            onClick = PaymentClickAction.CLOSE
-                        ),
-                    dismissAction =
-                        PaymentDialogAction(
-                            message = R.string.try_again,
-                            onClick = PaymentClickAction.RETRY_PURCHASE
-                        )
+                    confirmAction = PaymentDialogAction.Close,
+                    dismissAction = PaymentDialogAction.RetryPurchase(productId = ProductId("test"))
                 ),
             retryPurchase = {},
             onCloseDialog = {}
@@ -128,10 +114,10 @@ fun PaymentDialog(
     retryPurchase: (ProductId) -> Unit,
     onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit
 ) {
-    val onClick: (Boolean, PaymentClickAction) -> Unit = { isPaymentSuccessful, action ->
-        when (action) {
-            PaymentClickAction.CLOSE -> onCloseDialog(isPaymentSuccessful)
-            PaymentClickAction.RETRY_PURCHASE -> retryPurchase(paymentDialogData.productId)
+    val clickResolver: (action: PaymentDialogAction) -> Unit = {
+        when (it) {
+            is PaymentDialogAction.RetryPurchase -> retryPurchase(it.productId)
+            is PaymentDialogAction.Close -> onCloseDialog(paymentDialogData.successfulPayment)
         }
     }
     AlertDialog(
@@ -177,14 +163,14 @@ fun PaymentDialog(
                 .compositeOver(MaterialTheme.colorScheme.background),
         onDismissRequest = {
             if (paymentDialogData.closeOnDismiss) {
-                onClick(paymentDialogData.successfulPayment, PaymentClickAction.CLOSE)
+                onCloseDialog(paymentDialogData.successfulPayment)
             }
         },
         dismissButton = {
             paymentDialogData.dismissAction?.let {
                 PrimaryButton(
                     text = stringResource(id = it.message),
-                    onClick = { onClick(paymentDialogData.successfulPayment, it.onClick) }
+                    onClick = { clickResolver(it) }
                 )
             }
         },
@@ -192,7 +178,7 @@ fun PaymentDialog(
             paymentDialogData.confirmAction?.let {
                 PrimaryButton(
                     text = stringResource(id = it.message),
-                    onClick = { onClick(paymentDialogData.successfulPayment, it.onClick) }
+                    onClick = { clickResolver(it) }
                 )
             }
         }
