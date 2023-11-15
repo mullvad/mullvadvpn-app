@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import { ICustomList, RelayLocation } from '../../../shared/daemon-rpc-types';
+import { hasValue } from '../../../shared/utils';
 import { searchMatch } from '../../lib/filter-locations';
 import { useSelector } from '../../redux/store';
 import { useDisabledLocation, useSelectedLocation } from './RelayListContext';
@@ -168,8 +169,4 @@ function updateRelay(relay: RelaySpecification, customList: string): RelaySpecif
     selected: false,
     visible: true,
   };
-}
-
-function hasValue<T>(value: T): value is NonNullable<T> {
-  return value !== undefined && value !== null;
 }
