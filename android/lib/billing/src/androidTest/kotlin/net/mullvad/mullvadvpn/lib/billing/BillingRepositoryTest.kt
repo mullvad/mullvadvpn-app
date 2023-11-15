@@ -45,7 +45,8 @@ class BillingRepositoryTest {
     private val mockBillingClientBuilder: BillingClient.Builder = mockk(relaxed = true)
     private val mockBillingClient: BillingClient = mockk()
 
-    private val listenerSlot: CapturingSlot<PurchasesUpdatedListener> = CapturingSlot()
+    private val purchaseUpdatedListenerSlot: CapturingSlot<PurchasesUpdatedListener> =
+        CapturingSlot()
 
     @Before
     fun setUp() {
@@ -57,7 +58,7 @@ class BillingRepositoryTest {
 
         every { BillingClient.newBuilder(any()) } returns mockBillingClientBuilder
         every { mockBillingClientBuilder.enablePendingPurchases() } returns mockBillingClientBuilder
-        every { mockBillingClientBuilder.setListener(capture(listenerSlot)) } returns
+        every { mockBillingClientBuilder.setListener(capture(purchaseUpdatedListenerSlot)) } returns
             mockBillingClientBuilder
         every { mockBillingClientBuilder.build() } returns mockBillingClient
 
@@ -266,7 +267,10 @@ class BillingRepositoryTest {
 
         // Act, Assert
         billingRepository.purchaseEvents.test {
-            listenerSlot.captured.onPurchasesUpdated(mockBillingResult, mockPurchaseList)
+            purchaseUpdatedListenerSlot.captured.onPurchasesUpdated(
+                mockBillingResult,
+                mockPurchaseList
+            )
             val result = awaitItem()
             assertIs<PurchaseEvent.Completed>(result)
             assertLists(mockPurchaseList, result.purchases)
@@ -282,7 +286,7 @@ class BillingRepositoryTest {
 
         // Act, Assert
         billingRepository.purchaseEvents.test {
-            listenerSlot.captured.onPurchasesUpdated(mockBillingResult, null)
+            purchaseUpdatedListenerSlot.captured.onPurchasesUpdated(mockBillingResult, null)
             val result = awaitItem()
             assertIs<PurchaseEvent.UserCanceled>(result)
         }
@@ -301,7 +305,7 @@ class BillingRepositoryTest {
 
         // Act, Assert
         billingRepository.purchaseEvents.test {
-            listenerSlot.captured.onPurchasesUpdated(mockBillingResult, null)
+            purchaseUpdatedListenerSlot.captured.onPurchasesUpdated(mockBillingResult, null)
             val result = awaitItem()
             assertIs<PurchaseEvent.Error>(result)
             assertEquals(expectedError.message, result.exception.message)
