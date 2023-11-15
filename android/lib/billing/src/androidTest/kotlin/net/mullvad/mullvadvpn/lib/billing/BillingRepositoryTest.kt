@@ -5,6 +5,7 @@ import android.content.Context
 import app.cash.turbine.test
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
+import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
@@ -17,12 +18,17 @@ import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import io.mockk.CapturingSlot
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
@@ -311,6 +317,66 @@ class BillingRepositoryTest {
             assertEquals(expectedError.message, result.exception.message)
         }
     }
+
+    @Test
+    fun testEnsureConnectedStartConnection() = runTest {
+        // Arrange
+        val mockStartConnectionResult: BillingResult = mockk()
+        every { mockBillingClient.isReady } returns false
+        every { mockBillingClient.connectionState } returns
+            BillingClient.ConnectionState.DISCONNECTED
+        every { mockBillingClient.startConnection(any()) } answers
+            {
+                firstArg<BillingClientStateListener>()
+                    .onBillingSetupFinished(mockStartConnectionResult)
+            }
+        every { mockStartConnectionResult.responseCode } returns BillingResponseCode.OK
+        coEvery { mockBillingClient.queryPurchasesAsync(any<QueryPurchasesParams>()) } returns
+            mockk(relaxed = true)
+
+        // Act
+        billingRepository.queryPurchases()
+
+        verify { mockBillingClient.startConnection(any()) }
+        coVerify { mockBillingClient.queryPurchasesAsync(any<QueryPurchasesParams>()) }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun testEnsureConnectedOnlyOneSuccessfulConnection() =
+        runTest(UnconfinedTestDispatcher()) {
+            // Arrange
+            var hasConnected = false
+            val mockStartConnectionResult: BillingResult = mockk()
+            every { mockBillingClient.isReady } answers { hasConnected }
+            every { mockBillingClient.connectionState } answers
+                {
+                    if (hasConnected) {
+                        BillingClient.ConnectionState.CONNECTED
+                    } else {
+                        BillingClient.ConnectionState.DISCONNECTED
+                    }
+                }
+            every { mockBillingClient.startConnection(any()) } answers
+                {
+                    hasConnected = true
+                    firstArg<BillingClientStateListener>()
+                        .onBillingSetupFinished(mockStartConnectionResult)
+                }
+            every { mockStartConnectionResult.responseCode } returns BillingResponseCode.OK
+            coEvery { mockBillingClient.queryPurchasesAsync(any<QueryPurchasesParams>()) } returns
+                mockk(relaxed = true)
+            coEvery { mockBillingClient.queryProductDetails(any()) } returns mockk(relaxed = true)
+
+            // Act
+            launch { billingRepository.queryPurchases() }
+            launch { billingRepository.queryProducts(listOf("MOCK")) }
+
+            // Assert
+            verify(exactly = 1) { mockBillingClient.startConnection(any()) }
+            coVerify { mockBillingClient.queryPurchasesAsync(any<QueryPurchasesParams>()) }
+            coVerify { mockBillingClient.queryProductDetails(any()) }
+        }
 
     companion object {
         private const val BILLING_CLIENT_CLASS = "com.android.billingclient.api.BillingClient"
