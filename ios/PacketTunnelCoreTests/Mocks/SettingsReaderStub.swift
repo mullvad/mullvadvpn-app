@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@testable import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
 import WireGuardKitTypes
@@ -27,7 +28,8 @@ extension SettingsReaderStub {
             privateKey: PrivateKey(),
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
             relayConstraints: RelayConstraints(),
-            dnsServers: .gateway
+            dnsServers: .gateway,
+            obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic)
         )
 
         return SettingsReaderStub {

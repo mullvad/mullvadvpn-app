@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 import NetworkExtension
+import TunnelObfuscation
 import WireGuardKitTypes
 
 /**
@@ -43,6 +44,7 @@ public actor PacketTunnelActor {
     let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
     let relaySelector: RelaySelectorProtocol
     let settingsReader: SettingsReaderProtocol
+    let protocolObfuscator: ProtocolObfuscation
 
     nonisolated let commandChannel = CommandChannel()
 
@@ -53,7 +55,8 @@ public actor PacketTunnelActor {
         defaultPathObserver: DefaultPathObserverProtocol,
         blockedStateErrorMapper: BlockedStateErrorMapperProtocol,
         relaySelector: RelaySelectorProtocol,
-        settingsReader: SettingsReaderProtocol
+        settingsReader: SettingsReaderProtocol,
+        protocolObfuscator: ProtocolObfuscation
     ) {
         self.timings = timings
         self.tunnelAdapter = tunnelAdapter
@@ -62,6 +65,7 @@ public actor PacketTunnelActor {
         self.blockedStateErrorMapper = blockedStateErrorMapper
         self.relaySelector = relaySelector
         self.settingsReader = settingsReader
+        self.protocolObfuscator = protocolObfuscator
 
         consumeCommands(channel: commandChannel)
     }
@@ -218,7 +222,10 @@ extension PacketTunnelActor {
          - nextRelay: which relay should be selected next.
          - reason: reason for reconnect
      */
-    private func tryStart(nextRelay: NextRelay = .random, reason: ReconnectReason = .userInitiated) async throws {
+    private func tryStart(
+        nextRelay: NextRelay = .random,
+        reason: ReconnectReason = .userInitiated
+    ) async throws {
         let settings: Settings = try settingsReader.read()
 
         guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason),
@@ -239,7 +246,13 @@ extension PacketTunnelActor {
             state = .reconnecting(connectionState)
         }
 
-        let endpoint = connectionState.selectedRelay.endpoint
+        var endpoint = connectionState.selectedRelay.endpoint
+        endpoint = protocolObfuscator.obfuscate(
+            endpoint,
+            settings: settings,
+            retryAttempts: connectionState.selectedRelay.retryAttempts
+        )
+
         let configurationBuilder = ConfigurationBuilder(
             privateKey: activeKey,
             interfaceAddresses: settings.interfaceAddresses,

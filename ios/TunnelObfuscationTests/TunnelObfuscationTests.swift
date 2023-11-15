@@ -20,7 +20,7 @@ final class TunnelObfuscationTests: XCTestCase {
         let tcpListener = try TCPUnsafeListener()
         try await tcpListener.start()
 
-        let obfuscator = TunnelObfuscator(remoteAddress: IPv4Address.loopback, tcpPort: tcpListener.listenPort)
+        let obfuscator = UDPOverTCPObfuscator(remoteAddress: IPv4Address.loopback, tcpPort: tcpListener.listenPort)
         obfuscator.start()
 
         // Accept incoming connections

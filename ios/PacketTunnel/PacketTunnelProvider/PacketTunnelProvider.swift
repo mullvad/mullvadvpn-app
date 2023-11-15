@@ -14,6 +14,7 @@ import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
 import RelayCache
+import TunnelObfuscation
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
@@ -73,6 +74,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let devicesProxy = proxyFactory.createDevicesProxy()
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
+        let obfuscator = ProtocolObfuscator<UDPOverTCPObfuscator>()
 
         actor = PacketTunnelActor(
             timings: PacketTunnelActorTimings(),
@@ -81,7 +83,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: RelaySelectorWrapper(relayCache: relayCache),
-            settingsReader: SettingsReader()
+            settingsReader: SettingsReader(),
+            protocolObfuscator: obfuscator
         )
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
