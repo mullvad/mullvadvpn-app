@@ -1,21 +1,25 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.foundation.layout.Column
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
@@ -31,7 +35,7 @@ import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 @Preview
 @Composable
 private fun PreviewViewLogsScreen() {
-    AppTheme { ViewLogsScreen(uiState = ViewLogsUiState("Lorem ipsum")) }
+    AppTheme { ViewLogsScreen(uiState = ViewLogsUiState(listOf("Lorem ipsum"))) }
 }
 
 @Preview
@@ -46,12 +50,18 @@ fun ViewLogsScreen(
     uiState: ViewLogsUiState,
     onBackClick: () -> Unit = {},
 ) {
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
             MullvadMediumTopBar(
                 title = stringResource(id = R.string.view_logs),
-                navigationIcon = { NavigateBackIconButton(onBackClick) }
+                navigationIcon = { NavigateBackIconButton(onBackClick) },
+                actions = {
+                    IconButton(onClick = { shareText(context, uiState.text()) }) {
+                        Icon(imageVector = Icons.Default.Share, contentDescription = null)
+                    }
+                }
             )
         }
     ) {
@@ -72,35 +82,33 @@ fun ViewLogsScreen(
                     color = MaterialTheme.colorScheme.primary
                 )
             } else {
-                SelectionContainer {
-                    val scrollState = rememberScrollState()
-                    Column(
-                        modifier =
-                            Modifier.drawVerticalScrollbar(
-                                scrollState,
-                                color =
-                                    MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar)
+                val state = rememberLazyListState()
+                LazyColumn(
+                    state = state,
+                    modifier =
+                        Modifier.drawVerticalScrollbar(
+                                state,
+                                MaterialTheme.colorScheme.primary.copy(alpha = AlphaScrollbar)
                             )
-                    ) {
-                        TextField(
-                            modifier =
-                                Modifier.verticalScroll(scrollState)
-                                    .padding(horizontal = Dimens.smallPadding),
-                            value = uiState.allLines,
-                            textStyle = MaterialTheme.typography.bodySmall,
-                            onValueChange = {},
-                            readOnly = true,
-                            colors =
-                                TextFieldDefaults.colors(
-                                    focusedTextColor = Color.Black,
-                                    unfocusedTextColor = Color.Black,
-                                    disabledTextColor = Color.Black,
-                                    cursorColor = MaterialTheme.colorScheme.background,
-                                )
-                        )
+                            .padding(horizontal = Dimens.smallPadding)
+                ) {
+                    items(uiState.allLines) {
+                        Text(text = it, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
         }
     }
+}
+
+private fun shareText(context: Context, text: String) {
+    val sendIntent: Intent =
+        Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, text)
+            type = "text/plain"
+        }
+    val shareIntent = Intent.createChooser(sendIntent, null)
+
+    context.startActivity(shareIntent)
 }

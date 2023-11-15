@@ -20,9 +20,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
-private const val EMPTY_STRING = ""
-private const val NEWLINE_STRING = "\n"
+import net.mullvad.mullvadvpn.constant.EMPTY_STRING
+import net.mullvad.mullvadvpn.constant.NEWLINE_STRING
 
 @Composable
 fun CustomTextField(
