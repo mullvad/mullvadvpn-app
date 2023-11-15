@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.app.Activity
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -9,13 +10,16 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
-import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -186,16 +190,17 @@ class OutOfTimeScreenTest {
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
-                uiState = OutOfTimeUiState(purchaseResult = PurchaseResult.PurchaseCompleted),
+                uiState =
+                    OutOfTimeUiState(
+                        paymentDialogData = PurchaseResult.Completed.Success.toPaymentDialogData()
+                    ),
                 uiSideEffect = MutableStateFlow(OutOfTimeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
                 openConnectScreen = {},
-                onPurchaseBillingProductClick = {},
-                onTryVerificationAgain = {},
-                onTryFetchProductsAgain = {}
+                onPurchaseBillingProductClick = { _, _ -> }
             )
         }
 
@@ -210,52 +215,51 @@ class OutOfTimeScreenTest {
             OutOfTimeScreen(
                 showSitePayment = true,
                 uiState =
-                    OutOfTimeUiState(purchaseResult = PurchaseResult.Error.VerificationError(null)),
+                    OutOfTimeUiState(
+                        paymentDialogData =
+                            PurchaseResult.Error.VerificationError(null).toPaymentDialogData()
+                    ),
                 uiSideEffect = MutableStateFlow(OutOfTimeViewModel.UiSideEffect.OpenConnectScreen),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
                 openConnectScreen = {},
-                onPurchaseBillingProductClick = {},
-                onTryVerificationAgain = {},
-                onTryFetchProductsAgain = {}
+                onPurchaseBillingProductClick = { _, _ -> }
             )
         }
 
         // Assert
-        composeTestRule.onNodeWithText("Payment was unsuccessful").assertExists()
+        composeTestRule.onNodeWithText("Verifying purchase").assertExists()
     }
 
     @Test
-    fun testShowBillingErrorDialog() {
+    fun testShowBillingErrorPaymentButton() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
                 showSitePayment = true,
-                uiState = OutOfTimeUiState(billingPaymentState = PaymentState.Error.Billing),
-                uiSideEffect = MutableStateFlow(OutOfTimeViewModel.UiSideEffect.OpenConnectScreen),
+                uiState = OutOfTimeUiState().copy(billingPaymentState = PaymentState.Error.Billing),
+                uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow(),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
                 onAccountClick = {},
                 openConnectScreen = {},
-                onPurchaseBillingProductClick = {},
-                onTryVerificationAgain = {},
-                onTryFetchProductsAgain = {}
+                onPurchaseBillingProductClick = { _, _ -> }
             )
         }
 
         // Assert
-        composeTestRule.onNodeWithText("Google Play services not available").assertExists()
+        composeTestRule.onNodeWithText("Add 30 days time").assertExists()
     }
 
     @Test
     fun testShowBillingPaymentAvailable() {
         // Arrange
         val mockPaymentProduct: PaymentProduct = mockk()
-        every { mockPaymentProduct.price } returns "$10"
-        every { mockPaymentProduct.status } returns PaymentStatus.AVAILABLE
+        every { mockPaymentProduct.price } returns ProductPrice("$10")
+        every { mockPaymentProduct.status } returns null
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
@@ -270,9 +274,7 @@ class OutOfTimeScreenTest {
                 onSettingsClick = {},
                 onAccountClick = {},
                 openConnectScreen = {},
-                onPurchaseBillingProductClick = {},
-                onTryVerificationAgain = {},
-                onTryFetchProductsAgain = {}
+                onPurchaseBillingProductClick = { _, _ -> }
             )
         }
 
@@ -283,11 +285,11 @@ class OutOfTimeScreenTest {
     @Test
     fun testOnPurchaseBillingProductClick() {
         // Arrange
-        val clickHandler: (String) -> Unit = mockk(relaxed = true)
+        val clickHandler: (ProductId, () -> Activity) -> Unit = mockk(relaxed = true)
         val mockPaymentProduct: PaymentProduct = mockk()
-        every { mockPaymentProduct.price } returns "$10"
-        every { mockPaymentProduct.productId } returns "PRODUCT_ID"
-        every { mockPaymentProduct.status } returns PaymentStatus.AVAILABLE
+        every { mockPaymentProduct.price } returns ProductPrice("$10")
+        every { mockPaymentProduct.productId } returns ProductId("PRODUCT_ID")
+        every { mockPaymentProduct.status } returns null
         composeTestRule.setContent {
             OutOfTimeScreen(
                 showSitePayment = true,
@@ -302,9 +304,7 @@ class OutOfTimeScreenTest {
                 onSettingsClick = {},
                 onAccountClick = {},
                 openConnectScreen = {},
-                onPurchaseBillingProductClick = clickHandler,
-                onTryVerificationAgain = {},
-                onTryFetchProductsAgain = {}
+                onPurchaseBillingProductClick = clickHandler
             )
         }
 
@@ -312,6 +312,6 @@ class OutOfTimeScreenTest {
         composeTestRule.onNodeWithText("Add 30 days time ($10)").performClick()
 
         // Assert
-        verify { clickHandler.invoke("PRODUCT_ID") }
+        verify { clickHandler(ProductId("PRODUCT_ID"), any()) }
     }
 }
