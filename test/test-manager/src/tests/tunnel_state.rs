@@ -6,14 +6,15 @@ use super::{ui, Error, TestContext};
 use crate::assert_tunnel_state;
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
 
-use mullvad_management_interface::{types, ManagementServiceClient};
+use mullvad_management_interface::ManagementServiceClient;
 use mullvad_types::relay_constraints::GeographicLocationConstraint;
+use mullvad_types::relay_list::{Relay, RelayEndpointData};
 use mullvad_types::CustomTunnelEndpoint;
 use mullvad_types::{
     relay_constraints::{Constraint, LocationConstraint, RelayConstraints, RelaySettings},
     states::TunnelState,
 };
-use std::net::{IpAddr, Ipv4Addr, SocketAddr};
+use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
 use test_macro::test_function;
 use test_rpc::{Interface, ServiceClient};
@@ -257,8 +258,8 @@ pub async fn test_connected_state(
 
     log::info!("Select relay");
 
-    let relay_filter = |relay: &types::Relay| {
-        relay.active && relay.endpoint_type == i32::from(types::relay::RelayType::Wireguard)
+    let relay_filter = |relay: &Relay| {
+        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
     };
 
     let relay = helpers::filter_relays(&mut mullvad_client, relay_filter)
@@ -306,7 +307,7 @@ pub async fn test_connected_state(
                 },
             ..
         } => {
-            assert_eq!(*addr.ip(), relay.ipv4_addr_in.parse::<Ipv4Addr>().unwrap());
+            assert_eq!(*addr.ip(), relay.ipv4_addr_in);
         }
         actual => panic!("unexpected tunnel state: {:?}", actual),
     }

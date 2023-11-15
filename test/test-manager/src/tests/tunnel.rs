@@ -1,6 +1,7 @@
-use super::helpers::{self, connect_and_wait, disconnect_and_wait, set_relay_settings};
+use super::helpers::{
+    self, connect_and_wait, disconnect_and_wait, set_bridge_settings, set_relay_settings,
+};
 use super::{Error, TestContext};
-use std::net::IpAddr;
 
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use mullvad_management_interface::{types, ManagementServiceClient};
@@ -9,6 +10,7 @@ use mullvad_types::relay_constraints::{
     OpenVpnConstraints, RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
     Udp2TcpObfuscationSettings, WireguardConstraints,
 };
+use mullvad_types::relay_list::{Relay, RelayEndpointData};
 use mullvad_types::wireguard;
 use pnet_packet::ip::IpNextHeaderProtocols;
 use talpid_types::net::{TransportProtocol, TunnelType};
@@ -200,21 +202,22 @@ pub async fn test_bridge(
     rpc: ServiceClient,
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
-    log::info!("Select relay");
-    let bridge_filter = |bridge: &types::Relay| {
-        bridge.active && bridge.endpoint_type == i32::from(types::relay::RelayType::Bridge)
-    };
-    let ovpn_filter = |relay: &types::Relay| {
-        relay.active && relay.endpoint_type == i32::from(types::relay::RelayType::Openvpn)
-    };
-    let entry = helpers::filter_relays(&mut mullvad_client, bridge_filter)
-        .await?
-        .pop()
-        .unwrap();
-    let exit = helpers::filter_relays(&mut mullvad_client, ovpn_filter)
-        .await?
-        .pop()
-        .unwrap();
+    let entry = helpers::relay(&mut mullvad_client, |bridge| {
+        bridge.active && matches!(bridge.endpoint_data, RelayEndpointData::Bridge)
+    })
+    .await?;
+    let exit = helpers::relay(&mut mullvad_client, |relay| {
+        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Openvpn)
+    })
+    .await?;
+
+    log::info!(
+        "Selected entry bridge {entry}:{entry_ip} & exit relay {exit}:{exit_ip}",
+        entry = entry.hostname,
+        entry_ip = entry.ipv4_addr_in.to_string(),
+        exit = exit.hostname,
+        exit_ip = exit.ipv4_addr_in.to_string()
+    );
 
     //
     // Enable bridge mode
@@ -227,13 +230,12 @@ pub async fn test_bridge(
         .await
         .expect("failed to enable bridge mode");
 
-    mullvad_client
-        .set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Normal(
-            BridgeConstraints {
-                location: helpers::into_constraint(&entry),
-                ..Default::default()
-            },
-        )))
+    let bridge_settings = BridgeSettings::Normal(BridgeConstraints {
+        location: helpers::into_constraint(&entry),
+        ..Default::default()
+    });
+
+    set_bridge_settings(&mut mullvad_client, bridge_settings)
         .await
         .expect("failed to update bridge settings");
 
@@ -254,7 +256,7 @@ pub async fn test_bridge(
     log::info!("Connect to OpenVPN relay via bridge");
 
     let monitor = start_packet_monitor(
-        move |packet| packet.destination.ip() == entry.ipv4_addr_in.parse::<IpAddr>().unwrap(),
+        move |packet| packet.destination.ip() == entry.ipv4_addr_in,
         MonitorOptions::default(),
     )
     .await;
@@ -278,6 +280,8 @@ pub async fn test_bridge(
     //
     // Verify exit IP
     //
+
+    log::info!("Verifying exit server");
 
     assert!(
         helpers::using_mullvad_exit(&rpc).await,
@@ -304,8 +308,8 @@ pub async fn test_multihop(
     //
 
     log::info!("Select relay");
-    let relay_filter = |relay: &types::Relay| {
-        relay.active && relay.endpoint_type == i32::from(types::relay::RelayType::Wireguard)
+    let relay_filter = |relay: &Relay| {
+        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
     };
     let (entry, exit) = helpers::random_entry_and_exit(&mut mullvad_client, relay_filter).await?;
     let exit_constraint = helpers::into_constraint(&exit);
@@ -331,7 +335,7 @@ pub async fn test_multihop(
 
     let monitor = start_packet_monitor(
         move |packet| {
-            packet.destination.ip() == entry.ipv4_addr_in.parse::<IpAddr>().unwrap()
+            packet.destination.ip() == entry.ipv4_addr_in
                 && packet.protocol == IpNextHeaderProtocols::Udp
         },
         MonitorOptions::default(),
@@ -565,9 +569,8 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
                 wireguard_constraints: WireguardConstraints {
                     use_multihop: true,
                     ..Default::default()
-                }
-                .into(),
-                tunnel_protocol: Constraint::Only(TunnelType::Wireguard).into(),
+                },
+                tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
                 ..Default::default()
             },
         )))

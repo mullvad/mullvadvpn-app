@@ -17,7 +17,10 @@ use test_rpc::ServiceClient;
 
 use futures::future::BoxFuture;
 
-use mullvad_management_interface::{types::Settings, ManagementServiceClient};
+use mullvad_management_interface::{
+    types::{self, Settings},
+    ManagementServiceClient,
+};
 use once_cell::sync::OnceCell;
 use std::time::Duration;
 
@@ -37,7 +40,7 @@ pub type TestWrapperFunction = Box<
     ) -> BoxFuture<'static, Result<(), Error>>,
 >;
 
-#[derive(err_derive::Error, Debug, PartialEq, Eq)]
+#[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "RPC call failed")]
     Rpc(#[source] test_rpc::Error),
@@ -56,6 +59,9 @@ pub enum Error {
 
     #[error(display = "The daemon returned an error: {}", _0)]
     DaemonError(String),
+
+    #[error(display = "Failed to parse gRPC response")]
+    InvalidGrpcResponse(#[error(source)] types::FromProtobufTypeError),
 
     #[error(display = "An error occurred: {}", _0)]
     Other(String),
