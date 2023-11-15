@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.dialog.payment
 
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 
 data class PaymentDialogData(
@@ -9,18 +10,13 @@ data class PaymentDialogData(
     val confirmAction: PaymentDialogAction? = null,
     val dismissAction: PaymentDialogAction? = null,
     val closeOnDismiss: Boolean = true,
-    val successfulPayment: Boolean = false,
-    val productId: ProductId = ProductId("")
+    val successfulPayment: Boolean = false
 )
 
-data class PaymentDialogAction(
-    val message: Int,
-    val onClick: PaymentClickAction,
-)
+sealed class PaymentDialogAction(val message: Int) {
+    data object Close : PaymentDialogAction(R.string.got_it)
 
-enum class PaymentClickAction {
-    CLOSE,
-    RETRY_PURCHASE
+    data class RetryPurchase(val productId: ProductId) : PaymentDialogAction(R.string.try_again)
 }
 
 enum class PaymentDialogIcon {
