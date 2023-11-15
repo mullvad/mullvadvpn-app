@@ -17,7 +17,7 @@ use talpid_types::net::{TransportProtocol, TunnelType};
 use test_macro::test_function;
 use test_rpc::meta::Os;
 use test_rpc::mullvad_daemon::ServiceStatus;
-use test_rpc::{Interface, ServiceClient};
+use test_rpc::ServiceClient;
 
 /// Set up an OpenVPN tunnel, UDP as well as TCP.
 /// This test fails if a working tunnel cannot be set up.
@@ -162,8 +162,12 @@ pub async fn test_udp2tcp_tunnel(
     // Set up packet monitor
     //
 
+    let non_tunnel_interface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to obtain non-tun interface");
     let guest_ip = rpc
-        .get_interface_ip(Interface::NonTunnel)
+        .get_interface_ip(non_tunnel_interface)
         .await
         .expect("failed to obtain inet interface IP");
 
@@ -473,7 +477,7 @@ pub async fn test_quantum_resistant_tunnel(
     //
 
     connect_and_wait(&mut mullvad_client).await?;
-    check_tunnel_psk(&rpc, false).await;
+    check_tunnel_psk(&rpc, &mullvad_client, false).await;
 
     log::info!("Setting tunnel protocol to WireGuard");
 
@@ -497,7 +501,7 @@ pub async fn test_quantum_resistant_tunnel(
     //
 
     connect_and_wait(&mut mullvad_client).await?;
-    check_tunnel_psk(&rpc, true).await;
+    check_tunnel_psk(&rpc, &mullvad_client, true).await;
 
     assert!(
         helpers::using_mullvad_exit(&rpc).await,
@@ -507,11 +511,14 @@ pub async fn test_quantum_resistant_tunnel(
     Ok(())
 }
 
-async fn check_tunnel_psk(rpc: &ServiceClient, should_have_psk: bool) {
+async fn check_tunnel_psk(
+    rpc: &ServiceClient,
+    mullvad_client: &ManagementServiceClient,
+    should_have_psk: bool,
+) {
     match rpc.get_os().await.expect("failed to get OS") {
         Os::Linux => {
-            let name = rpc
-                .get_interface_name(Interface::Tunnel)
+            let name = helpers::get_tunnel_interface(mullvad_client.clone())
                 .await
                 .expect("failed to get tun name");
             let output = rpc

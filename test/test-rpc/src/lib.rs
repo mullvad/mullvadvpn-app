@@ -55,12 +55,6 @@ pub enum Error {
     Timeout,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-pub enum Interface {
-    Tunnel,
-    NonTunnel,
-}
-
 /// Response from am.i.mullvad.net
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AmIMullvad {
@@ -128,29 +122,29 @@ mod service {
 
         /// Send TCP packet
         async fn send_tcp(
-            interface: Option<Interface>,
+            interface: Option<String>,
             bind_addr: SocketAddr,
             destination: SocketAddr,
         ) -> Result<(), Error>;
 
         /// Send UDP packet
         async fn send_udp(
-            interface: Option<Interface>,
+            interface: Option<String>,
             bind_addr: SocketAddr,
             destination: SocketAddr,
         ) -> Result<(), Error>;
 
         /// Send ICMP
-        async fn send_ping(interface: Option<Interface>, destination: IpAddr) -> Result<(), Error>;
+        async fn send_ping(interface: Option<String>, destination: IpAddr) -> Result<(), Error>;
 
         /// Fetch the current location.
         async fn geoip_lookup(mullvad_host: String) -> Result<AmIMullvad, Error>;
 
-        /// Returns the name of the given interface.
-        async fn get_interface_name(interface: Interface) -> Result<String, Error>;
-
         /// Returns the IP of the given interface.
-        async fn get_interface_ip(interface: Interface) -> Result<IpAddr, Error>;
+        async fn get_interface_ip(interface: String) -> Result<IpAddr, Error>;
+
+        /// Returns the name of the default interface.
+        async fn get_default_interface() -> Result<String, Error>;
 
         /// Perform DNS resolution.
         async fn resolve_hostname(hostname: String) -> Result<Vec<SocketAddr>, Error>;

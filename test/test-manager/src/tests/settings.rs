@@ -8,7 +8,7 @@ use mullvad_management_interface::ManagementServiceClient;
 use mullvad_types::states::TunnelState;
 use std::net::{IpAddr, SocketAddr};
 use test_macro::test_function;
-use test_rpc::{Interface, ServiceClient};
+use test_rpc::ServiceClient;
 
 /// Verify that traffic to private IPs is blocked when
 /// "local network sharing" is disabled, but not blocked
@@ -46,8 +46,13 @@ pub async fn test_lan(
 
     log::info!("Test whether outgoing LAN traffic is blocked");
 
-    let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), lan_destination).await?;
+    let default_interface = rpc.get_default_interface().await?;
+    let detected_probes = send_guest_probes(
+        rpc.clone(),
+        Some(default_interface.clone()),
+        lan_destination,
+    )
+    .await?;
     assert!(
         detected_probes.none(),
         "observed unexpected outgoing LAN packets"
@@ -71,7 +76,7 @@ pub async fn test_lan(
     log::info!("Test whether outgoing LAN traffic is blocked");
 
     let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), lan_destination).await?;
+        send_guest_probes(rpc.clone(), Some(default_interface), lan_destination).await?;
     assert!(
         detected_probes.all(),
         "did not observe all outgoing LAN packets"
@@ -133,12 +138,22 @@ pub async fn test_lockdown(
     // Ensure all destinations are unreachable
     //
 
-    let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), lan_destination).await?;
+    let default_interface = rpc.get_default_interface().await?;
+
+    let detected_probes = send_guest_probes(
+        rpc.clone(),
+        Some(default_interface.clone()),
+        lan_destination,
+    )
+    .await?;
     assert!(detected_probes.none(), "observed outgoing packets to LAN");
 
-    let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_destination).await?;
+    let detected_probes = send_guest_probes(
+        rpc.clone(),
+        Some(default_interface.clone()),
+        inet_destination,
+    )
+    .await?;
     assert!(
         detected_probes.none(),
         "observed outgoing packets to internet"
@@ -159,15 +174,23 @@ pub async fn test_lockdown(
     // Ensure private IPs are reachable, but not others
     //
 
-    let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), lan_destination).await?;
+    let detected_probes = send_guest_probes(
+        rpc.clone(),
+        Some(default_interface.clone()),
+        lan_destination,
+    )
+    .await?;
     assert!(
         detected_probes.all(),
         "did not observe some outgoing packets"
     );
 
-    let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_destination).await?;
+    let detected_probes = send_guest_probes(
+        rpc.clone(),
+        Some(default_interface.clone()),
+        inet_destination,
+    )
+    .await?;
     assert!(
         detected_probes.none(),
         "observed outgoing packets to internet"
@@ -191,7 +214,7 @@ pub async fn test_lockdown(
     // Send traffic outside the tunnel to sanity check that the internet is *not* reachable via non-
     // tunnel interfaces.
     let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_destination).await?;
+        send_guest_probes(rpc.clone(), Some(default_interface), inet_destination).await?;
     assert!(
         detected_probes.none(),
         "observed outgoing packets to internet"
