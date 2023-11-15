@@ -95,12 +95,15 @@ class MapConnectionStatusOperation: AsyncOperation {
             break
         default:
             interactor.updateTunnelStatus { tunnelStatus in
-                let isNetworkReachable = tunnelStatus.observedState.connectionState?.isNetworkReachable ?? false
-
-                tunnelStatus = TunnelStatus()
-                tunnelStatus.state = isNetworkReachable
-                    ? .disconnecting(.nothing)
-                    : .waitingForConnectivity(.noNetwork)
+                // Avoid displaying waiting for connectivity banners if the tunnel in a blocked state when disconnecting
+                if tunnelStatus.observedState.blockedState != nil {
+                    tunnelStatus.state = .disconnecting(.nothing)
+                } else {
+                    let isNetworkReachable = tunnelStatus.observedState.connectionState?.isNetworkReachable ?? false
+                    tunnelStatus.state = isNetworkReachable
+                        ? .disconnecting(.nothing)
+                        : .waitingForConnectivity(.noNetwork)
+                }
             }
         }
     }
