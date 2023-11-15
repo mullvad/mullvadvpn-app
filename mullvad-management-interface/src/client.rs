@@ -73,6 +73,10 @@ impl MullvadProxyClient {
         super::new_rpc_client().await.map(Self)
     }
 
+    pub fn from_rpc_client(client: crate::ManagementServiceClient) -> Self {
+        Self(client)
+    }
+
     pub async fn connect_tunnel(&mut self) -> Result<bool> {
         Ok(self
             .0

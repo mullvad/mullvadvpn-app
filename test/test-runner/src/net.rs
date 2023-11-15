@@ -2,27 +2,14 @@ use socket2::SockAddr;
 #[cfg(target_os = "macos")]
 use std::{ffi::CString, num::NonZeroU32};
 use std::{
+    io::Write,
     net::{IpAddr, SocketAddr},
     process::Output,
 };
-use test_rpc::Interface;
-use tokio::{
-    io::AsyncWriteExt,
-    net::{TcpStream, UdpSocket},
-    process::Command,
-};
-
-#[cfg(target_os = "linux")]
-const TUNNEL_INTERFACE: &str = "wg-mullvad";
-
-#[cfg(target_os = "windows")]
-const TUNNEL_INTERFACE: &str = "Mullvad";
-
-#[cfg(target_os = "macos")]
-const TUNNEL_INTERFACE: &str = "utun3";
+use tokio::process::Command;
 
 pub async fn send_tcp(
-    bind_interface: Option<Interface>,
+    bind_interface: Option<String>,
     bind_addr: SocketAddr,
     destination: SocketAddr,
 ) -> Result<(), test_rpc::Error> {
@@ -36,14 +23,7 @@ pub async fn send_tcp(
             test_rpc::Error::SendTcp
         })?;
 
-    sock.set_nonblocking(true).map_err(|error| {
-        log::error!("Failed to set non-blocking TCP socket: {error}");
-        test_rpc::Error::SendTcp
-    })?;
-
     if let Some(iface) = bind_interface {
-        let iface = get_interface_name(iface);
-
         #[cfg(target_os = "macos")]
         let interface_index = unsafe {
             let name = CString::new(iface).unwrap();
@@ -71,35 +51,32 @@ pub async fn send_tcp(
         log::trace!("Bind interface {iface} is ignored on Windows")
     }
 
-    sock.bind(&SockAddr::from(bind_addr)).map_err(|error| {
-        log::error!("Failed to bind TCP socket to {bind_addr}: {error}");
-        test_rpc::Error::SendTcp
-    })?;
-
     log::debug!("Connecting from {bind_addr} to {destination}/TCP");
 
-    sock.connect(&SockAddr::from(destination))
-        .map_err(|error| {
-            log::error!("Failed to connect to {destination}: {error}");
+    tokio::task::spawn_blocking(move || {
+        sock.bind(&SockAddr::from(bind_addr)).map_err(|error| {
+            log::error!("Failed to bind TCP socket to {bind_addr}: {error}");
             test_rpc::Error::SendTcp
         })?;
 
-    let std_stream = std::net::TcpStream::from(sock);
-    let mut stream = TcpStream::from_std(std_stream).map_err(|error| {
-        log::error!("Failed to convert to TCP stream to tokio stream: {error}");
-        test_rpc::Error::SendTcp
-    })?;
+        sock.connect(&SockAddr::from(destination))
+            .map_err(|error| {
+                log::error!("Failed to connect to {destination}: {error}");
+                test_rpc::Error::SendTcp
+            })?;
 
-    stream.write_all(b"hello").await.map_err(|error| {
-        log::error!("Failed to send message to {destination}: {error}");
-        test_rpc::Error::SendTcp
-    })?;
-
-    Ok(())
+        let mut stream = std::net::TcpStream::from(sock);
+        stream.write_all(b"hello").map_err(|error| {
+            log::error!("Failed to send message to {destination}: {error}");
+            test_rpc::Error::SendTcp
+        })
+    })
+    .await
+    .unwrap()
 }
 
 pub async fn send_udp(
-    bind_interface: Option<Interface>,
+    bind_interface: Option<String>,
     bind_addr: SocketAddr,
     destination: SocketAddr,
 ) -> Result<(), test_rpc::Error> {
@@ -113,14 +90,7 @@ pub async fn send_udp(
             test_rpc::Error::SendUdp
         })?;
 
-    sock.set_nonblocking(true).map_err(|error| {
-        log::error!("Failed to set non-blocking UDP socket: {error}");
-        test_rpc::Error::SendUdp
-    })?;
-
     if let Some(iface) = bind_interface {
-        let iface = get_interface_name(iface);
-
         #[cfg(target_os = "macos")]
         let interface_index = unsafe {
             let name = CString::new(iface).unwrap();
@@ -148,32 +118,28 @@ pub async fn send_udp(
         log::trace!("Bind interface {iface} is ignored on Windows")
     }
 
-    sock.bind(&SockAddr::from(bind_addr)).map_err(|error| {
-        log::error!("Failed to bind UDP socket to {bind_addr}: {error}");
-        test_rpc::Error::SendUdp
-    })?;
-
-    log::debug!("Send message from {bind_addr} to {destination}/UDP");
-
-    let std_socket = std::net::UdpSocket::from(sock);
-    let tokio_socket = UdpSocket::from_std(std_socket).map_err(|error| {
-        log::error!("Failed to convert to UDP socket to tokio socket: {error}");
-        test_rpc::Error::SendUdp
-    })?;
-
-    tokio_socket
-        .send_to(b"hello", destination)
-        .await
-        .map_err(|error| {
-            log::error!("Failed to send message to {destination}: {error}");
+    let _ = tokio::task::spawn_blocking(move || {
+        sock.bind(&SockAddr::from(bind_addr)).map_err(|error| {
+            log::error!("Failed to bind UDP socket to {bind_addr}: {error}");
             test_rpc::Error::SendUdp
         })?;
+
+        log::debug!("Send message from {bind_addr} to {destination}/UDP");
+
+        let std_socket = std::net::UdpSocket::from(sock);
+        std_socket.send_to(b"hello", destination).map_err(|error| {
+            log::error!("Failed to send message to {destination}: {error}");
+            test_rpc::Error::SendUdp
+        })
+    })
+    .await
+    .unwrap()?;
 
     Ok(())
 }
 
 pub async fn send_ping(
-    interface: Option<Interface>,
+    interface: Option<&str>,
     destination: IpAddr,
 ) -> Result<(), test_rpc::Error> {
     #[cfg(target_os = "windows")]
@@ -202,22 +168,8 @@ pub async fn send_ping(
     cmd.args(["-c", "1"]);
 
     match interface {
-        Some(Interface::Tunnel) => {
-            log::info!("Pinging {destination} in tunnel");
-
-            #[cfg(target_os = "windows")]
-            if let Some(source_ip) = source_ip {
-                cmd.args(["-S", &source_ip.to_string()]);
-            }
-
-            #[cfg(target_os = "windows")]
-            cmd.args(["-I", TUNNEL_INTERFACE]);
-
-            #[cfg(target_os = "macos")]
-            cmd.args(["-b", TUNNEL_INTERFACE]);
-        }
-        Some(Interface::NonTunnel) => {
-            log::info!("Pinging {destination} outside tunnel");
+        Some(interface) => {
+            log::info!("Pinging {destination} on interface {interface}");
 
             #[cfg(target_os = "windows")]
             if let Some(source_ip) = source_ip {
@@ -225,10 +177,10 @@ pub async fn send_ping(
             }
 
             #[cfg(target_os = "linux")]
-            cmd.args(["-I", non_tunnel_interface()]);
+            cmd.args(["-I", interface]);
 
             #[cfg(target_os = "macos")]
-            cmd.args(["-b", non_tunnel_interface()]);
+            cmd.args(["-b", interface]);
         }
         None => log::info!("Pinging {destination}"),
     }
@@ -250,18 +202,16 @@ pub async fn send_ping(
 }
 
 #[cfg(unix)]
-pub fn get_interface_ip(interface: Interface) -> Result<IpAddr, test_rpc::Error> {
+pub async fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
     // TODO: IPv6
     use std::net::Ipv4Addr;
-
-    let alias = get_interface_name(interface);
 
     let addrs = nix::ifaddrs::getifaddrs().map_err(|error| {
         log::error!("Failed to obtain interfaces: {}", error);
         test_rpc::Error::Syscall
     })?;
     for addr in addrs {
-        if addr.interface_name == alias {
+        if addr.interface_name == interface {
             if let Some(address) = addr.address {
                 if let Some(sockaddr) = address.as_sockaddr_in() {
                     return Ok(IpAddr::V4(Ipv4Addr::from(sockaddr.ip())));
@@ -274,15 +224,8 @@ pub fn get_interface_ip(interface: Interface) -> Result<IpAddr, test_rpc::Error>
     Err(test_rpc::Error::InterfaceNotFound)
 }
 
-pub fn get_interface_name(interface: Interface) -> &'static str {
-    match interface {
-        Interface::Tunnel => TUNNEL_INTERFACE,
-        Interface::NonTunnel => non_tunnel_interface(),
-    }
-}
-
 #[cfg(target_os = "windows")]
-pub fn get_interface_ip(interface: Interface) -> Result<IpAddr, test_rpc::Error> {
+pub async fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
     // TODO: IPv6
 
     get_interface_ip_for_family(interface, talpid_windows::net::AddressFamily::Ipv4)
@@ -292,24 +235,19 @@ pub fn get_interface_ip(interface: Interface) -> Result<IpAddr, test_rpc::Error>
 
 #[cfg(target_os = "windows")]
 fn get_interface_ip_for_family(
-    interface: Interface,
+    interface: &str,
     family: talpid_windows::net::AddressFamily,
 ) -> Result<Option<IpAddr>, ()> {
-    let interface = match interface {
-        Interface::NonTunnel => non_tunnel_interface(),
-        Interface::Tunnel => TUNNEL_INTERFACE,
-    };
-    let interface_alias = talpid_windows::net::luid_from_alias(interface).map_err(|error| {
+    let luid = talpid_windows::net::luid_from_alias(interface).map_err(|error| {
         log::error!("Failed to obtain interface LUID: {error}");
     })?;
-
-    talpid_windows::net::get_ip_address_for_interface(family, interface_alias).map_err(|error| {
+    talpid_windows::net::get_ip_address_for_interface(family, luid).map_err(|error| {
         log::error!("Failed to obtain interface IP: {error}");
     })
 }
 
 #[cfg(target_os = "windows")]
-fn non_tunnel_interface() -> &'static str {
+pub fn get_default_interface() -> &'static str {
     use once_cell::sync::OnceCell;
     use talpid_platform_metadata::WindowsVersion;
 
@@ -326,12 +264,12 @@ fn non_tunnel_interface() -> &'static str {
 }
 
 #[cfg(target_os = "linux")]
-fn non_tunnel_interface() -> &'static str {
+pub fn get_default_interface() -> &'static str {
     "ens3"
 }
 
 #[cfg(target_os = "macos")]
-fn non_tunnel_interface() -> &'static str {
+pub fn get_default_interface() -> &'static str {
     "en0"
 }
 

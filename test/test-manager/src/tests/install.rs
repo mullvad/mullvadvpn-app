@@ -11,7 +11,7 @@ use std::{
 };
 use test_macro::test_function;
 use test_rpc::meta::Os;
-use test_rpc::{mullvad_daemon::ServiceStatus, Interface, ServiceClient};
+use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
 
 /// Install the last stable version of the app and verify that it is running.
 #[test_function(priority = -200)]
@@ -102,10 +102,14 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     // Begin monitoring outgoing traffic and pinging
     //
 
-    let guest_ip = rpc
-        .get_interface_ip(Interface::NonTunnel)
+    let guest_iface = rpc
+        .get_default_interface()
         .await
-        .expect("failed to obtain tunnel IP");
+        .expect("failed to obtain default interface");
+    let guest_ip = rpc
+        .get_interface_ip(guest_iface)
+        .await
+        .expect("failed to obtain non-tun IP");
     log::debug!("Guest IP: {guest_ip}");
 
     log::debug!("Monitoring outgoing traffic");

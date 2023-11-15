@@ -9,9 +9,12 @@ use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::{relay_constraints::RelaySettings, ConnectionConfig, CustomTunnelEndpoint};
 use talpid_types::net::wireguard;
 use test_macro::test_function;
-use test_rpc::{Interface, ServiceClient};
+use test_rpc::ServiceClient;
 
-use super::{helpers::connect_and_wait, Error, TestContext};
+use super::{
+    helpers::{self, connect_and_wait, set_relay_settings},
+    Error, TestContext,
+};
 use crate::network_monitor::{
     start_packet_monitor_until, start_tunnel_packet_monitor_until, Direction, IpHeaderProtocols,
     MonitorOptions,
@@ -21,8 +24,6 @@ use crate::vm::network::{
     CUSTOM_TUN_REMOTE_PUBKEY, CUSTOM_TUN_REMOTE_REAL_ADDR, CUSTOM_TUN_REMOTE_REAL_PORT,
     CUSTOM_TUN_REMOTE_TUN_ADDR, NON_TUN_GATEWAY,
 };
-
-use super::helpers::set_relay_settings;
 
 /// How long to wait for expected "DNS queries" to appear
 const MONITOR_TIMEOUT: Duration = Duration::from_secs(5);
@@ -47,7 +48,7 @@ pub async fn test_dns_leak_default(
     leak_test_dns(
         &rpc,
         &mut mullvad_client,
-        Interface::Tunnel,
+        true,
         IpAddr::V4(CUSTOM_TUN_REMOTE_TUN_ADDR),
     )
     .await
@@ -82,7 +83,7 @@ pub async fn test_dns_leak_custom_public_ip(
         .await
         .expect("failed to configure DNS server");
 
-    leak_test_dns(&rpc, &mut mullvad_client, Interface::Tunnel, CONFIG_IP).await
+    leak_test_dns(&rpc, &mut mullvad_client, true, CONFIG_IP).await
 }
 
 /// Test whether DNS leaks can be produced when using a custom private IP. This test succeeds if and
@@ -114,7 +115,7 @@ pub async fn test_dns_leak_custom_private_ip(
         .await
         .expect("failed to configure DNS server");
 
-    leak_test_dns(&rpc, &mut mullvad_client, Interface::NonTunnel, CONFIG_IP).await
+    leak_test_dns(&rpc, &mut mullvad_client, false, CONFIG_IP).await
 }
 
 /// See whether it is possible to send "DNS queries" to a particular whitelisted destination on
@@ -124,11 +125,9 @@ pub async fn test_dns_leak_custom_private_ip(
 async fn leak_test_dns(
     rpc: &ServiceClient,
     mullvad_client: &mut ManagementServiceClient,
-    interface: Interface,
+    use_tun: bool,
     whitelisted_dest: IpAddr,
 ) -> Result<(), Error> {
-    let use_tun = interface == Interface::Tunnel;
-
     //
     // Connect to local wireguard relay
     //
@@ -137,24 +136,32 @@ async fn leak_test_dns(
         .await
         .expect("failed to connect to custom wg relay");
 
-    let guest_ip = rpc
-        .get_interface_ip(Interface::NonTunnel)
+    let nontun_iface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to find non-tun interface");
+    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client.clone())
+        .await
+        .expect("failed to find tunnel interface");
+
+    let nontun_ip = rpc
+        .get_interface_ip(nontun_iface.clone())
         .await
         .expect("failed to obtain guest IP");
     let tunnel_ip = rpc
-        .get_interface_ip(Interface::Tunnel)
+        .get_interface_ip(tunnel_iface.clone())
         .await
         .expect("failed to obtain tunnel IP");
 
     log::debug!("Tunnel (guest) IP: {tunnel_ip}");
-    log::debug!("Non-tunnel (guest) IP: {guest_ip}");
+    log::debug!("Non-tunnel (guest) IP: {nontun_ip}");
 
     //
     // Spoof DNS packets
     //
 
     let tun_bind_addr = SocketAddr::new(tunnel_ip, 0);
-    let guest_bind_addr = SocketAddr::new(guest_ip, 0);
+    let nontun_bind_addr = SocketAddr::new(nontun_ip, 0);
 
     let whitelisted_dest = SocketAddr::new(whitelisted_dest, 53);
     let blocked_dest_local = "10.64.100.100:53".parse().unwrap();
@@ -216,40 +223,35 @@ async fn leak_test_dns(
             // send to allowed dest
             spoof_packets(
                 &rpc,
-                Some(Interface::Tunnel),
+                Some(tunnel_iface.clone()),
                 tun_bind_addr,
                 whitelisted_dest,
             ),
             spoof_packets(
                 &rpc,
-                Some(Interface::NonTunnel),
-                guest_bind_addr,
+                Some(nontun_iface.clone()),
+                nontun_bind_addr,
                 whitelisted_dest,
             ),
             // send to blocked local dest
             spoof_packets(
                 &rpc,
-                Some(Interface::Tunnel),
+                Some(tunnel_iface.clone()),
                 tun_bind_addr,
                 blocked_dest_local,
             ),
             spoof_packets(
                 &rpc,
-                Some(Interface::NonTunnel),
-                guest_bind_addr,
+                Some(nontun_iface.clone()),
+                nontun_bind_addr,
                 blocked_dest_local,
             ),
             // send to blocked public dest
+            spoof_packets(&rpc, Some(tunnel_iface), tun_bind_addr, blocked_dest_public,),
             spoof_packets(
                 &rpc,
-                Some(Interface::Tunnel),
-                tun_bind_addr,
-                blocked_dest_public,
-            ),
-            spoof_packets(
-                &rpc,
-                Some(Interface::NonTunnel),
-                guest_bind_addr,
+                Some(nontun_iface),
+                nontun_bind_addr,
                 blocked_dest_public,
             ),
         )
@@ -578,17 +580,25 @@ async fn run_dns_config_test<
         }
     }
 
-    let guest_ip = rpc
-        .get_interface_ip(Interface::NonTunnel)
+    let nontun_iface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to find non-tun interface");
+    let tunnel_iface = helpers::get_tunnel_interface(mullvad_client.clone())
+        .await
+        .expect("failed to find tunnel interface");
+
+    let nontun_ip = rpc
+        .get_interface_ip(nontun_iface)
         .await
         .expect("failed to obtain guest IP");
     let tunnel_ip = rpc
-        .get_interface_ip(Interface::Tunnel)
+        .get_interface_ip(tunnel_iface)
         .await
         .expect("failed to obtain tunnel IP");
 
     log::debug!("Tunnel (guest) IP: {tunnel_ip}");
-    log::debug!("Non-tunnel (guest) IP: {guest_ip}");
+    log::debug!("Non-tunnel (guest) IP: {nontun_ip}");
 
     let monitor = create_monitor().await;
 
@@ -661,19 +671,21 @@ async fn connect_local_wg_relay(mullvad_client: &mut ManagementServiceClient) ->
 
 async fn spoof_packets(
     rpc: &ServiceClient,
-    interface: Option<Interface>,
+    interface: Option<String>,
     bind_addr: SocketAddr,
     dest: SocketAddr,
 ) {
     let tcp_rpc = rpc.clone();
+    let tcp_interface = interface.clone();
     let tcp_send = async move {
         log::debug!("sending to {}/tcp from {}", dest, bind_addr);
-        let _ = tcp_rpc.send_tcp(interface, bind_addr, dest).await;
+        let _ = tcp_rpc.send_tcp(tcp_interface, bind_addr, dest).await;
     };
     let udp_rpc = rpc.clone();
+    let udp_interface = interface.clone();
     let udp_send = async move {
         log::debug!("sending to {}/udp from {}", dest, bind_addr);
-        let _ = udp_rpc.send_udp(interface, bind_addr, dest).await;
+        let _ = udp_rpc.send_udp(udp_interface, bind_addr, dest).await;
     };
     let _ = tokio::join!(tcp_send, udp_send);
 }
