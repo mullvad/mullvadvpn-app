@@ -16,3 +16,13 @@ export SUPPORTED_DEB_CODENAMES
 export DEV_LINUX_REPOSITORY_SERVERS=("se-got-cdn-001.devmole.eu" "se-got-cdn-002.devmole.eu")
 export STAGING_LINUX_REPOSITORY_SERVERS=("se-got-cdn-001.stagemole.eu" "se-got-cdn-002.stagemole.eu")
 export PRODUCTION_LINUX_REPOSITORY_SERVERS=("se-got-cdn-111.mullvad.net" "se-mma-cdn-101.mullvad.net")
+
+# What container volumes cargo should put caches in.
+# Specify differently if running multiple builds in parallel on one machine,
+# so they don't use the same cache.
+export CARGO_TARGET_VOLUME_NAME="cargo-target"
+export CARGO_REGISTRY_VOLUME_NAME="cargo-registry"
+
+# Where buildserver-build.sh should move artifacts (on Linux) and where
+# buildserver-upload.sh should pick artifacts to upload
+export UPLOAD_DIR="PLEASE CONFIGURE ME"
