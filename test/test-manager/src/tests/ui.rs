@@ -1,8 +1,9 @@
 use super::config::TEST_CONFIG;
 use super::helpers;
 use super::{Error, TestContext};
-use mullvad_management_interface::{types, ManagementServiceClient};
+use mullvad_management_interface::ManagementServiceClient;
 use mullvad_types::relay_constraints::{RelayConstraints, RelaySettings};
+use mullvad_types::relay_list::{Relay, RelayEndpointData};
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -87,8 +88,8 @@ pub async fn test_ui_tunnel_settings(
 ) -> Result<(), Error> {
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
-    let entry = helpers::filter_relays(&mut mullvad_client, |relay: &types::Relay| {
-        relay.active && relay.endpoint_type == i32::from(types::relay::RelayType::Wireguard)
+    let entry = helpers::filter_relays(&mut mullvad_client, |relay: &Relay| {
+        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
     })
     .await?
     .pop()
@@ -109,7 +110,7 @@ pub async fn test_ui_tunnel_settings(
         &["tunnel-state.spec"],
         [
             ("HOSTNAME", entry.hostname.as_str()),
-            ("IN_IP", entry.ipv4_addr_in.as_str()),
+            ("IN_IP", &entry.ipv4_addr_in.to_string()),
             (
                 "CONNECTION_CHECK_URL",
                 &format!("https://am.i.{}", TEST_CONFIG.mullvad_host),

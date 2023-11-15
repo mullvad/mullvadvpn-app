@@ -3,11 +3,13 @@ use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use futures::StreamExt;
 use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::{
+    location::Location,
     relay_constraints::{
-        BridgeState, Constraint, GeographicLocationConstraint, LocationConstraint,
+        BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint, LocationConstraint,
         ObfuscationSettings, OpenVpnConstraints, RelayConstraints, RelaySettings,
         WireguardConstraints,
     },
+    relay_list::{Relay, RelayList},
     states::TunnelState,
 };
 use pnet_packet::ip::IpNextHeaderProtocols;
@@ -378,6 +380,19 @@ pub async fn set_relay_settings(
     Ok(())
 }
 
+pub async fn set_bridge_settings(
+    mullvad_client: &mut ManagementServiceClient,
+    bridge_settings: BridgeSettings,
+) -> Result<(), Error> {
+    let new_settings = types::BridgeSettings::from(bridge_settings);
+
+    mullvad_client
+        .set_bridge_settings(new_settings)
+        .await
+        .map_err(|error| Error::DaemonError(format!("Failed to set bridge settings: {}", error)))?;
+    Ok(())
+}
+
 pub async fn get_tunnel_state(mullvad_client: &mut ManagementServiceClient) -> TunnelState {
     let state = mullvad_client
         .get_tunnel_state(())
@@ -434,6 +449,25 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
     }
 }
 
+/// Find a relay from the daemon's relay list that matches `critera`.
+///
+/// * `mullvad_client` - An interface to the Mullvad daemon.
+/// * `critera` - A function used to determine which relays to include in random selection.
+pub async fn relay<Filter>(
+    mullvad_client: &mut ManagementServiceClient,
+    criteria: Filter,
+) -> Result<Relay, Error>
+where
+    Filter: Fn(&Relay) -> bool,
+{
+    filter_relays(mullvad_client, criteria)
+        .await?
+        .pop()
+        .ok_or(Error::Other(
+            "No mathing bridge was found in the relay list".to_string(),
+        ))
+}
+
 /// Randomly select an entry and exit node from the daemon's relay list.
 /// The exit node is distinct from the entry node.
 ///
@@ -442,9 +476,9 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
 pub async fn random_entry_and_exit<Filter>(
     mullvad_client: &mut ManagementServiceClient,
     criteria: Filter,
-) -> Result<(types::Relay, types::Relay), Error>
+) -> Result<(Relay, Relay), Error>
 where
-    Filter: Fn(&types::Relay) -> bool,
+    Filter: Fn(&Relay) -> bool,
 {
     use itertools::Itertools;
     // Pluck the first 2 relays and return them as a tuple.
@@ -465,30 +499,18 @@ where
 pub async fn filter_relays<Filter>(
     mullvad_client: &mut ManagementServiceClient,
     criteria: Filter,
-) -> Result<Vec<types::Relay>, Error>
+) -> Result<Vec<Relay>, Error>
 where
-    Filter: Fn(&types::Relay) -> bool,
+    Filter: Fn(&Relay) -> bool,
 {
-    let relaylist = mullvad_client
+    let relay_list: RelayList = mullvad_client
         .get_relay_locations(())
         .await
         .map_err(|error| Error::DaemonError(format!("Failed to obtain relay list: {}", error)))?
-        .into_inner();
+        .into_inner()
+        .try_into()?;
 
-    Ok(flatten_relaylist(relaylist)
-        .into_iter()
-        .filter(criteria)
-        .collect())
-}
-
-/// Dig out the [`Relay`]s contained in a [`RelayList`].
-pub fn flatten_relaylist(relays: types::RelayList) -> Vec<types::Relay> {
-    relays
-        .countries
-        .iter()
-        .flat_map(|country| country.cities.clone())
-        .flat_map(|city| city.relays)
-        .collect()
+    Ok(relay_list.relays().cloned().filter(criteria).collect())
 }
 
 /// Convenience function for constructing a constraint from a given [`Relay`].
@@ -496,12 +518,12 @@ pub fn flatten_relaylist(relays: types::RelayList) -> Vec<types::Relay> {
 /// # Panics
 ///
 /// The relay must have a location set.
-pub fn into_constraint(relay: &types::Relay) -> Constraint<LocationConstraint> {
+pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
     relay
         .location
         .as_ref()
         .map(
-            |types::Location {
+            |Location {
                  country_code,
                  city_code,
                  ..
