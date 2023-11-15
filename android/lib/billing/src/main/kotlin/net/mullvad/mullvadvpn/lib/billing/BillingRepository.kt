@@ -133,7 +133,7 @@ class BillingRepository(context: Context) {
                     .setProductDetailsParamsList(productDetailsParamsList)
                     .setObfuscatedAccountId(obfuscatedId)
                     .build()
-            
+
             val activity = activityProvider()
             // Launch the billing flow
             billingClient.launchBillingFlow(activity, billingFlowParams)
