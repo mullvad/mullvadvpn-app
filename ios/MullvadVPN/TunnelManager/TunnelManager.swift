@@ -823,16 +823,18 @@ final class TunnelManager: StorePaymentObserver {
 
     fileprivate func selectRelay() throws -> SelectedRelay {
         let cachedRelays = try relayCacheTracker.getCachedRelays()
+        let retryAttempts = tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
         let selectorResult = try RelaySelector.evaluate(
             relays: cachedRelays.relays,
             constraints: settings.relayConstraints,
-            numberOfFailedAttempts: tunnelStatus.observedState.connectionState?.connectionAttemptCount ?? 0
+            numberOfFailedAttempts: retryAttempts
         )
 
         return SelectedRelay(
             endpoint: selectorResult.endpoint,
             hostname: selectorResult.relay.hostname,
-            location: selectorResult.location
+            location: selectorResult.location,
+            retryAttempts: retryAttempts
         )
     }
 
@@ -992,7 +994,6 @@ final class TunnelManager: StorePaymentObserver {
             let updatedConstraints = updatedSettings.relayConstraints
             let selectNewRelay = currentConstraints != updatedConstraints
 
-            // TODO: Handle using an obfuscator here
             self.setSettings(updatedSettings, persist: true)
             self.reconnectTunnel(selectNewRelay: selectNewRelay, completionHandler: nil)
         }

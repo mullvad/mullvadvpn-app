@@ -14,6 +14,7 @@ import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
 import RelayCache
+import TunnelObfuscation
 
 class PacketTunnelProvider: NEPacketTunnelProvider {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")

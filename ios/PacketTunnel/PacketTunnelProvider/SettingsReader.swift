@@ -20,7 +20,8 @@ struct SettingsReader: SettingsReaderProtocol {
             privateKey: deviceData.wgKeyData.privateKey,
             interfaceAddresses: [deviceData.ipv4Address, deviceData.ipv6Address],
             relayConstraints: settings.relayConstraints,
-            dnsServers: settings.dnsSettings.selectedDNSServers
+            dnsServers: settings.dnsSettings.selectedDNSServers,
+            obfuscation: settings.wireGuardObfuscation
         )
     }
 }
