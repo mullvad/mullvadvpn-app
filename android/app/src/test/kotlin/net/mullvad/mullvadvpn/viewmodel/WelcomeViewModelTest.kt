@@ -152,13 +152,13 @@ class WelcomeViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 assertEquals(WelcomeUiState(), awaitItem())
+                serviceConnectionState.value =
+                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 deviceState.value =
                     DeviceState.LoggedIn(
                         accountAndDevice =
                             AccountAndDevice(account_token = expectedAccountNumber, device = device)
                     )
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 val result = awaitItem()
                 assertEquals(expectedAccountNumber, result.accountNumber)
             }
