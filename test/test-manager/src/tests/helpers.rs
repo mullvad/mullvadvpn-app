@@ -449,25 +449,6 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
     }
 }
 
-/// Find a relay from the daemon's relay list that matches `critera`.
-///
-/// * `mullvad_client` - An interface to the Mullvad daemon.
-/// * `critera` - A function used to determine which relays to include in random selection.
-pub async fn relay<Filter>(
-    mullvad_client: &mut ManagementServiceClient,
-    criteria: Filter,
-) -> Result<Relay, Error>
-where
-    Filter: Fn(&Relay) -> bool,
-{
-    filter_relays(mullvad_client, criteria)
-        .await?
-        .pop()
-        .ok_or(Error::Other(
-            "No mathing bridge was found in the relay list".to_string(),
-        ))
-}
-
 /// Randomly select an entry and exit node from the daemon's relay list.
 /// The exit node is distinct from the entry node.
 ///
