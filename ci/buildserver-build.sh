@@ -55,11 +55,11 @@ function publish_linux_repositories {
     echo "Preparing RPM repository in $rpm_repo_dir"
     "$SCRIPT_DIR/prepare-rpm-repository.sh" "$artifact_dir" "$version" "$rpm_repo_dir"
 
-    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version" "$deb_repo_dir" "$rpm_repo_dir"
+    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version" --deb "$deb_repo_dir" --rpm "$rpm_repo_dir"
     # If this is a release build, also push to staging.
     # Publishing to production is done manually.
     if [[ $version != *"-dev-"* ]]; then
-        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version" "$deb_repo_dir" "$rpm_repo_dir"
+        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version" --deb "$deb_repo_dir" --rpm "$rpm_repo_dir"
     fi
 }
 
