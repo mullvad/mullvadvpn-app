@@ -1,9 +1,7 @@
-package net.mullvad.mullvadvpn.ui.serviceconnection
+package net.mullvad.mullvadvpn.lib.ipc
 
 import kotlin.reflect.KClass
 import kotlinx.coroutines.flow.Flow
-import net.mullvad.mullvadvpn.lib.ipc.Event
-import net.mullvad.mullvadvpn.lib.ipc.Request
 
 interface MessageHandler {
     fun <R : Event> events(klass: KClass<R>): Flow<R>
