@@ -202,27 +202,9 @@ pub async fn test_bridge(
     rpc: ServiceClient,
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
-    let entry = helpers::relay(&mut mullvad_client, |bridge| {
-        bridge.active && matches!(bridge.endpoint_data, RelayEndpointData::Bridge)
-    })
-    .await?;
-    let exit = helpers::relay(&mut mullvad_client, |relay| {
-        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Openvpn)
-    })
-    .await?;
-
-    log::info!(
-        "Selected entry bridge {entry}:{entry_ip} & exit relay {exit}:{exit_ip}",
-        entry = entry.hostname,
-        entry_ip = entry.ipv4_addr_in.to_string(),
-        exit = exit.hostname,
-        exit_ip = exit.ipv4_addr_in.to_string()
-    );
-
     //
     // Enable bridge mode
     //
-
     log::info!("Updating bridge settings");
 
     mullvad_client
@@ -230,24 +212,22 @@ pub async fn test_bridge(
         .await
         .expect("failed to enable bridge mode");
 
-    let bridge_settings = BridgeSettings::Normal(BridgeConstraints {
-        location: helpers::into_constraint(&entry),
-        ..Default::default()
-    });
+    set_bridge_settings(
+        &mut mullvad_client,
+        BridgeSettings::Normal(BridgeConstraints::default()),
+    )
+    .await
+    .expect("failed to update bridge settings");
 
-    set_bridge_settings(&mut mullvad_client, bridge_settings)
-        .await
-        .expect("failed to update bridge settings");
-
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        location: helpers::into_constraint(&exit),
-        tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    set_relay_settings(
+        &mut mullvad_client,
+        RelaySettings::Normal(RelayConstraints {
+            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
+            ..Default::default()
+        }),
+    )
+    .await
+    .expect("failed to update relay settings");
 
     //
     // Connect to VPN
@@ -255,15 +235,43 @@ pub async fn test_bridge(
 
     log::info!("Connect to OpenVPN relay via bridge");
 
+    connect_and_wait(&mut mullvad_client)
+        .await
+        .expect("connect_and_wait");
+
+    let tunnel = helpers::get_tunnel_state(&mut mullvad_client).await;
+    let (entry, exit) = match tunnel {
+        mullvad_types::states::TunnelState::Connected { endpoint, .. } => {
+            log::info!("SELECTED {endpoint} AS TUNNEL");
+            (endpoint.proxy.unwrap().endpoint, endpoint.endpoint)
+        }
+        _ => return Err(Error::DaemonError("daemon entered error state".to_string())),
+    };
+
+    log::info!(
+        "Selected entry bridge {entry_ip:?} & exit relay {exit_ip:?}",
+        entry_ip = entry.address.ip().to_string(),
+        exit_ip = exit.address.ip().to_string()
+    );
+
+    // Start recording outgoing packets. Their destination will be verified
+    // against the bridge's IP address later.
     let monitor = start_packet_monitor(
-        move |packet| packet.destination.ip() == entry.ipv4_addr_in,
+        move |packet| packet.destination.ip() == entry.address.ip(),
         MonitorOptions::default(),
     )
     .await;
 
-    connect_and_wait(&mut mullvad_client)
-        .await
-        .expect("connect_and_wait");
+    //
+    // Verify exit IP
+    //
+
+    log::info!("Verifying exit server");
+
+    assert!(
+        helpers::using_mullvad_exit(&rpc).await,
+        "expected Mullvad exit IP"
+    );
 
     //
     // Verify entry IP
@@ -275,17 +283,6 @@ pub async fn test_bridge(
     assert!(
         !monitor_result.packets.is_empty(),
         "detected no traffic to entry server",
-    );
-
-    //
-    // Verify exit IP
-    //
-
-    log::info!("Verifying exit server");
-
-    assert!(
-        helpers::using_mullvad_exit(&rpc).await,
-        "expected Mullvad exit IP"
     );
 
     disconnect_and_wait(&mut mullvad_client).await?;
