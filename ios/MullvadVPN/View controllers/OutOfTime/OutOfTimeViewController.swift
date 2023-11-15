@@ -204,8 +204,8 @@ class OutOfTimeViewController: UIViewController, RootContainment {
               payment == event.payment else { return }
 
         switch event {
-        case .finished:
-            break
+        case let .finished(completion):
+            errorPresenter.showAlertForResponse(completion.serverResponse, context: .purchase)
 
         case let .failure(paymentFailure):
             switch paymentFailure.error {
