@@ -283,7 +283,8 @@ open class MainActivity : FragmentActivity() {
                 .filter { it is AccountExpiry.Available }
                 .map { it.date()?.isBeforeNow }
                 .first()
-        } ?: false
+        }
+            ?: false
     }
 
     private fun openLoginView() {
