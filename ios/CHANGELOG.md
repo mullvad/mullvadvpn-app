@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add filtering on ownership and provider to location selection view.
 - Add blocked state.
+- Show exit IP address in UI.
 
 
 ## [2023.6 - 2023-10-12]
