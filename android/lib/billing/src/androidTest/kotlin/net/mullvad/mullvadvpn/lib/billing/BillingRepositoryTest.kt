@@ -90,7 +90,7 @@ class BillingRepositoryTest {
         every { mockProductDetails.oneTimePurchaseOfferDetails?.formattedPrice } returns price
 
         // Act
-        val result = billingRepository.queryProducts()
+        val result = billingRepository.queryProducts(listOf(productId))
 
         // Assert
         assertEquals(expectedProductDetailsResult, result)
@@ -110,7 +110,7 @@ class BillingRepositoryTest {
         every { mockProductDetailsResult.productDetailsList } returns emptyList()
 
         // Act
-        val result = billingRepository.queryProducts()
+        val result = billingRepository.queryProducts(listOf("TEST"))
 
         // Assert
         assertEquals(mockProductDetailsResult, result)
@@ -130,7 +130,7 @@ class BillingRepositoryTest {
         every { mockProductDetailsResult.productDetailsList } returns emptyList()
 
         // Act
-        val result = billingRepository.queryProducts()
+        val result = billingRepository.queryProducts(listOf("TEST"))
 
         // Assert
         assertEquals(mockProductDetailsResult, result)
@@ -142,21 +142,23 @@ class BillingRepositoryTest {
         val mockProductBillingResult: BillingResult = mockk()
         val mockBillingResult: BillingResult = mockk()
         val transactionId = "MOCK22"
-        val productId = "TEST"
-        val mockProductDetailsResult: ProductDetailsResult = mockk()
         val mockProductDetails: ProductDetails = mockk(relaxed = true)
+        val mockActivityProvider: () -> Activity = mockk()
         every { mockBillingResult.responseCode } returns BillingResponseCode.OK
         every { mockBillingClient.isReady } returns true
         every { mockBillingClient.connectionState } returns BillingClient.ConnectionState.CONNECTED
         every { mockBillingClient.launchBillingFlow(any(), any()) } returns mockBillingResult
         every { BillingFlowParams.newBuilder() } returns mockk(relaxed = true)
-        coEvery { mockBillingClient.queryProductDetails(any()) } returns mockProductDetailsResult
-        every { mockProductDetailsResult.billingResult } returns mockProductBillingResult
-        every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
         every { mockProductBillingResult.responseCode } returns BillingResponseCode.OK
+        every { mockActivityProvider() } returns mockk()
 
         // Act
-        val result = billingRepository.startPurchaseFlow(productId, transactionId)
+        val result =
+            billingRepository.startPurchaseFlow(
+                mockProductDetails,
+                transactionId,
+                mockActivityProvider
+            )
 
         // Assert
         assertEquals(mockBillingResult, result)
@@ -165,24 +167,24 @@ class BillingRepositoryTest {
     @Test
     fun testStartPurchaseFlowBillingUnavailable() = runTest {
         // Arrange
-        val mockProductBillingResult: BillingResult = mockk()
         val mockBillingResult: BillingResult = mockk()
         val transactionId = "MOCK22"
-        val productId = "TEST"
-        val mockProductDetailsResult: ProductDetailsResult = mockk()
         val mockProductDetails: ProductDetails = mockk(relaxed = true)
+        val mockActivityProvider: () -> Activity = mockk()
         every { mockBillingResult.responseCode } returns BillingResponseCode.BILLING_UNAVAILABLE
         every { mockBillingClient.isReady } returns true
         every { mockBillingClient.connectionState } returns BillingClient.ConnectionState.CONNECTED
         every { mockBillingClient.launchBillingFlow(any(), any()) } returns mockBillingResult
         every { BillingFlowParams.newBuilder() } returns mockk(relaxed = true)
-        coEvery { mockBillingClient.queryProductDetails(any()) } returns mockProductDetailsResult
-        every { mockProductDetailsResult.billingResult } returns mockProductBillingResult
-        every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
-        every { mockProductBillingResult.responseCode } returns BillingResponseCode.OK
+        every { mockActivityProvider() } returns mockk()
 
         // Act
-        val result = billingRepository.startPurchaseFlow(productId, transactionId)
+        val result =
+            billingRepository.startPurchaseFlow(
+                mockProductDetails,
+                transactionId,
+                mockActivityProvider
+            )
 
         // Assert
         assertEquals(mockBillingResult, result)
@@ -266,7 +268,7 @@ class BillingRepositoryTest {
         billingRepository.purchaseEvents.test {
             listenerSlot.captured.onPurchasesUpdated(mockBillingResult, mockPurchaseList)
             val result = awaitItem()
-            assertIs<PurchaseEvent.PurchaseCompleted>(result)
+            assertIs<PurchaseEvent.Completed>(result)
             assertLists(mockPurchaseList, result.purchases)
         }
     }
