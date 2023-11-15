@@ -49,7 +49,7 @@ class ServiceEndpoint(
     val locationInfoCache = LocationInfoCache(this)
     val relayListListener = RelayListListener(this)
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
-    val voucherRedeemer = VoucherRedeemer(this)
+    val voucherRedeemer = VoucherRedeemer(this, accountCache)
 
     private val deviceRepositoryBackend = DaemonDeviceDataSource(this)
 
