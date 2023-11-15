@@ -53,8 +53,6 @@ class BillingPaymentRepositoryTest {
             )
     }
 
-    @After fun tearDown() {}
-
     @Test
     fun testQueryAvailablePaymentProductsAvailable() = runTest {
         // Arrange
