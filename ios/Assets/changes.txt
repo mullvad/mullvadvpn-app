@@ -1,2 +1,3 @@
 Add ability to filter relays by provider and ownership.
 Add blocked state.
+Show exit IP address in main view.
