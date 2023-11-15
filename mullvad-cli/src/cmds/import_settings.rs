@@ -49,7 +49,7 @@ fn read_settings_from_reader(mut reader: impl BufRead) -> Result<String> {
 
     let mut was_open = false;
     let mut close_after_newline = false;
-    let mut brace_count = 0;
+    let mut brace_count: usize = 0;
     let mut cursor_pos = 0;
 
     loop {
@@ -67,33 +67,29 @@ fn read_settings_from_reader(mut reader: impl BufRead) -> Result<String> {
         }
         cursor_pos += read_n;
 
+        let additional_bytes = &buf[prev_cursor_pos..cursor_pos];
+
         if !close_after_newline {
-            brace_count += buf[prev_cursor_pos..cursor_pos]
-                .iter()
-                .filter(|c| **c == b'{')
-                .count();
-
-            was_open |= brace_count > 0;
-
-            brace_count = brace_count
-                .checked_sub(
-                    buf[prev_cursor_pos..cursor_pos]
-                        .iter()
-                        .filter(|c| **c == b'}')
-                        .count(),
-                )
-                .with_context(|| {
-                    // exit: too many closing braces
-                    "syntax error: unexpected '}'"
-                })?;
-
+            for next in additional_bytes {
+                match next {
+                    b'{' => brace_count += 1,
+                    b'}' => {
+                        brace_count = brace_count.checked_sub(1).with_context(|| {
+                            // exit: too many closing braces
+                            "syntax error: unexpected '}'"
+                        })?
+                    }
+                    _ => (),
+                }
+                was_open |= brace_count > 0;
+            }
             if brace_count == 0 && was_open {
                 // complete settings
                 close_after_newline = true;
             }
         }
 
-        if close_after_newline && buf[prev_cursor_pos..cursor_pos].contains(&b'\n') {
+        if close_after_newline && additional_bytes.contains(&b'\n') {
             // done
             break;
         }
