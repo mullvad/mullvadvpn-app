@@ -28,7 +28,8 @@ struct RelaySelectorWrapper: RelaySelectorProtocol {
         return SelectedRelay(
             endpoint: selectorResult.endpoint,
             hostname: selectorResult.relay.hostname,
-            location: selectorResult.location
+            location: selectorResult.location,
+            retryAttempts: connectionAttemptFailureCount
         )
     }
 }

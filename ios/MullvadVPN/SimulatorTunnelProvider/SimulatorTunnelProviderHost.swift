@@ -170,7 +170,8 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         return SelectedRelay(
             endpoint: selectorResult.endpoint,
             hostname: selectorResult.relay.hostname,
-            location: selectorResult.location
+            location: selectorResult.location,
+            retryAttempts: 0
         )
     }
 

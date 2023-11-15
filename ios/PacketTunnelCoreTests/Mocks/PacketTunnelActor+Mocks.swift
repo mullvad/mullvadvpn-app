@@ -34,7 +34,8 @@ extension PacketTunnelActor {
             defaultPathObserver: defaultPathObserver,
             blockedStateErrorMapper: blockedStateErrorMapper,
             relaySelector: relaySelector,
-            settingsReader: settingsReader
+            settingsReader: settingsReader,
+            protocolObfuscator: ProtocolObfuscationStub()
         )
     }
 }
