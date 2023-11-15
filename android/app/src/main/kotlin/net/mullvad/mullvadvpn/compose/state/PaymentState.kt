@@ -7,7 +7,7 @@ sealed interface PaymentState {
 
     data object NoPayment : PaymentState
 
-    data object NoProductsFounds: PaymentState
+    data object NoProductsFounds : PaymentState
 
     data class PaymentAvailable(val products: List<PaymentProduct>) : PaymentState
 
