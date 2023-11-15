@@ -159,17 +159,14 @@ fn merge_relay_overrides(
         return Ok(patch.to_owned());
     }
 
-    let Some(patch_array) = patch.as_array() else {
-        return Err(Error::InvalidOrMissingValue(
-            "relay overrides must be array",
-        ));
-    };
-
-    let Some(current_array) = current_settings.as_array() else {
-        return Err(Error::InvalidOrMissingValue(
-            "existing overrides should be array",
-        ));
-    };
+    let patch_array = patch.as_array().ok_or(Error::InvalidOrMissingValue(
+        "relay overrides must be array",
+    ))?;
+    let current_array = current_settings
+        .as_array()
+        .ok_or(Error::InvalidOrMissingValue(
+            "existing overrides should be an array",
+        ))?;
     let mut new_array = current_array.clone();
 
     for patch_override in patch_array.iter().cloned() {
