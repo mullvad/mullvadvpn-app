@@ -225,7 +225,7 @@ fun OutOfTimeScreen(
                     onPurchaseBillingProductClick = { productId ->
                         onPurchaseBillingProductClick(productId) { context as Activity }
                     },
-                    onInfoClick = { showVerificationPendingDialog = false },
+                    onInfoClick = { showVerificationPendingDialog = true },
                     modifier =
                         Modifier.padding(
                                 start = Dimens.sideMargin,

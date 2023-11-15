@@ -176,7 +176,7 @@ fun WelcomeScreen(
                 onSitePaymentClick = onSitePaymentClick,
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
-                onPaymentInfoClick = { showVerificationPendingDialog = false }
+                onPaymentInfoClick = { showVerificationPendingDialog = true }
             )
         }
     }
