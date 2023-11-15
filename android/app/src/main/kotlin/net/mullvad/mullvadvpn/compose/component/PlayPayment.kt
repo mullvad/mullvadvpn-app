@@ -13,12 +13,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.compose.test.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
@@ -155,7 +157,10 @@ fun PlayPayment(
                                 text = statusMessage,
                                 modifier = Modifier.padding(bottom = Dimens.smallPadding)
                             )
-                            IconButton(onClick = onInfoClick) {
+                            IconButton(
+                                onClick = onInfoClick,
+                                modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG)
+                            ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.icon_info),
                                     contentDescription = null,

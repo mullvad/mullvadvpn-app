@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.app.Activity
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import io.mockk.MockKAnnotations
@@ -14,7 +15,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
+import net.mullvad.mullvadvpn.compose.test.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
@@ -211,7 +214,7 @@ class WelcomeScreenTest {
     @Test
     fun testShowPurchaseCompleteDialog() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState =
@@ -236,7 +239,7 @@ class WelcomeScreenTest {
     @Test
     fun testShowVerificationErrorDialog() {
         // Arrange
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState =
@@ -257,6 +260,34 @@ class WelcomeScreenTest {
 
         // Assert
         composeTestRule.onNodeWithText("Verifying purchase").assertExists()
+    }
+
+    @Test
+    fun testShowFetchProductsErrorDialog() {
+        // Arrange
+        composeTestRule.setContentWithTheme {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState =
+                    WelcomeUiState()
+                        .copy(
+                            paymentDialogData =
+                                PurchaseResult.Error.FetchProductsError(ProductId(""), null)
+                                    .toPaymentDialogData()
+                        ),
+                uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = { _, _ -> },
+                onClosePurchaseResultDialog = {}
+            )
+        }
+
+        // Assert
+        composeTestRule.onNodeWithText("Google Play unavailable").assertExists()
     }
 
     @Test
@@ -287,7 +318,7 @@ class WelcomeScreenTest {
         val mockPaymentProduct: PaymentProduct = mockk()
         every { mockPaymentProduct.price } returns ProductPrice("$10")
         every { mockPaymentProduct.status } returns null
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState =
@@ -311,6 +342,103 @@ class WelcomeScreenTest {
     }
 
     @Test
+    fun testShowPendingPayment() {
+        // Arrange
+        val mockPaymentProduct: PaymentProduct = mockk()
+        every { mockPaymentProduct.price } returns ProductPrice("$10")
+        every { mockPaymentProduct.status } returns PaymentStatus.PENDING
+        composeTestRule.setContentWithTheme {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState =
+                    WelcomeUiState()
+                        .copy(
+                            billingPaymentState =
+                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                        ),
+                uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = { _, _ -> },
+                onClosePurchaseResultDialog = {}
+            )
+        }
+
+        // Assert
+        composeTestRule.onNodeWithText("Google Play payment pending").assertExists()
+    }
+
+    @Test
+    fun testShowPendingPaymentInfoDialog() {
+        // Arrange
+        val mockPaymentProduct: PaymentProduct = mockk()
+        every { mockPaymentProduct.price } returns ProductPrice("$10")
+        every { mockPaymentProduct.status } returns PaymentStatus.PENDING
+        composeTestRule.setContentWithTheme {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState =
+                    WelcomeUiState()
+                        .copy(
+                            billingPaymentState =
+                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                        ),
+                uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = { _, _ -> },
+                onClosePurchaseResultDialog = {}
+            )
+        }
+
+        // Act
+        composeTestRule.onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
+
+        // Assert
+        composeTestRule
+            .onNodeWithText(
+                "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+            )
+            .assertExists()
+    }
+
+    @Test
+    fun testShowVerificationInProgress() {
+        // Arrange
+        val mockPaymentProduct: PaymentProduct = mockk()
+        every { mockPaymentProduct.price } returns ProductPrice("$10")
+        every { mockPaymentProduct.status } returns PaymentStatus.VERIFICATION_IN_PROGRESS
+        composeTestRule.setContentWithTheme {
+            WelcomeScreen(
+                showSitePayment = true,
+                uiState =
+                    WelcomeUiState()
+                        .copy(
+                            billingPaymentState =
+                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                        ),
+                uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
+                onSitePaymentClick = {},
+                onRedeemVoucherClick = {},
+                onSettingsClick = {},
+                onAccountClick = {},
+                openConnectScreen = {},
+                onPurchaseBillingProductClick = { _, _ -> },
+                onClosePurchaseResultDialog = {}
+            )
+        }
+
+        // Assert
+        composeTestRule.onNodeWithText("Verifying purchase").assertExists()
+    }
+
+    @Test
     fun testOnPurchaseBillingProductClick() {
         // Arrange
         val clickHandler: (ProductId, () -> Activity) -> Unit = mockk(relaxed = true)
@@ -318,7 +446,7 @@ class WelcomeScreenTest {
         every { mockPaymentProduct.price } returns ProductPrice("$10")
         every { mockPaymentProduct.productId } returns ProductId("PRODUCT_ID")
         every { mockPaymentProduct.status } returns null
-        composeTestRule.setContent {
+        composeTestRule.setContentWithTheme {
             WelcomeScreen(
                 showSitePayment = true,
                 uiState =

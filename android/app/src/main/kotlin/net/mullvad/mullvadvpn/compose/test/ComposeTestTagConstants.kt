@@ -26,4 +26,7 @@ const val LOCATION_INFO_TEST_TAG = "location_info_test_tag"
 const val NOTIFICATION_BANNER = "notification_banner"
 const val NOTIFICATION_BANNER_ACTION = "notification_banner_action"
 
+// PlayPayment
+const val  PLAY_PAYMENT_INFO_ICON_TEST_TAG = "play_payment_info_icon_test_tag"
+
 const val LOGIN_TITLE_TEST_TAG = "login_title_test_tag"
