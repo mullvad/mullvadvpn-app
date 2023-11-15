@@ -17,18 +17,22 @@ public protocol RelaySelectorProtocol {
 /// Struct describing the selected relay.
 public struct SelectedRelay: Equatable, Codable {
     /// Selected relay endpoint.
-    public var endpoint: MullvadEndpoint
+    public let endpoint: MullvadEndpoint
 
     /// Relay hostname.
-    public var hostname: String
+    public let hostname: String
 
     /// Relay geo location.
-    public var location: Location
+    public let location: Location
+
+    /// Number of retried attempts to connect to a relay.
+    public let retryAttempts: UInt
 
     /// Designated initializer.
-    public init(endpoint: MullvadEndpoint, hostname: String, location: Location) {
+    public init(endpoint: MullvadEndpoint, hostname: String, location: Location, retryAttempts: UInt) {
         self.endpoint = endpoint
         self.hostname = hostname
         self.location = location
+        self.retryAttempts = retryAttempts
     }
 }

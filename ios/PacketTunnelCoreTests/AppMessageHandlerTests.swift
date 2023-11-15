@@ -88,7 +88,8 @@ final class AppMessageHandlerTests: XCTestCase {
         let selectedRelay = SelectedRelay(
             endpoint: selectorResult.endpoint,
             hostname: selectorResult.relay.hostname,
-            location: selectorResult.location
+            location: selectorResult.location,
+            retryAttempts: 0
         )
 
         _ = try? await appMessageHandler.handleAppMessage(

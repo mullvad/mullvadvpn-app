@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 import MullvadTypes
 import Network
 import WireGuardKitTypes
@@ -36,16 +37,21 @@ public struct Settings {
     /// DNS servers selected by user.
     public var dnsServers: SelectedDNSServers
 
+    /// Obfuscation settings
+    public var obfuscation: WireGuardObfuscationSettings
+
     public init(
         privateKey: PrivateKey,
         interfaceAddresses: [IPAddressRange],
         relayConstraints: RelayConstraints,
-        dnsServers: SelectedDNSServers
+        dnsServers: SelectedDNSServers,
+        obfuscation: WireGuardObfuscationSettings
     ) {
         self.privateKey = privateKey
         self.interfaceAddresses = interfaceAddresses
         self.relayConstraints = relayConstraints
         self.dnsServers = dnsServers
+        self.obfuscation = obfuscation
     }
 }
 
