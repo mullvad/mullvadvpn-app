@@ -2,7 +2,7 @@
 #
 # Usage: ./publish-linux-repositories.sh [--production/--staging/--dev] <app version> <deb repository dir> <rpm repository dir>
 #
-# Rsyncs a locally prepared and stored apt repository to the dev/staging/production
+# Rsyncs a locally prepared and stored apt and rpm repository to the dev/staging/production
 # repository servers.
 
 set -eu
@@ -83,8 +83,13 @@ function generate_rpm_repository_configuration {
     local repository_dir=$1
     local stable_or_beta=$2
 
-    echo -e "[mullvad-rpm]
-name=Mullvad VPN
+    local repository_name="Mullvad VPN"
+    if [[ "$stable_or_beta" == "beta" ]]; then
+        repository_name+=" (beta)"
+    fi
+
+    echo -e "[mullvad-$stable_or_beta]
+name=$repository_name
 baseurl=$repository_server_url/rpm/$stable_or_beta/\$basearch
 type=rpm
 enabled=1
