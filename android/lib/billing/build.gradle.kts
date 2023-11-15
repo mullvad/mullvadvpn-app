@@ -54,6 +54,9 @@ dependencies {
     //IPC
     implementation(project(Dependencies.Mullvad.ipcLib))
 
+    //Payment library
+    implementation(project(Dependencies.Mullvad.paymentLib))
+
     // Test dependencies
     testImplementation(project(Dependencies.Mullvad.commonTestLib))
     testImplementation(Dependencies.Kotlin.test)

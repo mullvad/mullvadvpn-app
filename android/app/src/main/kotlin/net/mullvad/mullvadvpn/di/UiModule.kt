@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
-import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -23,10 +22,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
-import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
@@ -104,20 +100,8 @@ val uiModule = module {
 
     single { RelayListListener(get()) }
 
-    // Will be resolved using from either of the two PaymentModule.kt classes.
-    single { PaymentProvider(get()) }
-
-    single<PaymentUseCase> {
-        val paymentRepository = get<PaymentProvider>().paymentRepository
-        if (paymentRepository != null) {
-            PlayPaymentUseCase(paymentRepository = paymentRepository)
-        } else {
-            EmptyPaymentUseCase()
-        }
-    }
-
     // View models
-    viewModel { AccountViewModel(get(), get(), get(), get()) }
+    viewModel { AccountViewModel(get(), get(), get()) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
