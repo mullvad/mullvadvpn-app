@@ -52,7 +52,7 @@ class AccountRepository(
             .events<Event.AccountHistoryEvent>()
             .map { it.history }
             .onStart { fetchAccountHistory() }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, AccountHistory.Missing)
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, AccountHistory.Missing)
 
     private val loginEvents: SharedFlow<LoginResult> =
         messageHandler
