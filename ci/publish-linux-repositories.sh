@@ -15,12 +15,15 @@ while [ "$#" -gt 0 ]; do
     case "$1" in
         "--production")
             repository_servers=("${PRODUCTION_LINUX_REPOSITORY_SERVERS[@]}")
+            repository_server_url="$PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL"
             ;;
         "--staging")
             repository_servers=("${STAGING_LINUX_REPOSITORY_SERVERS[@]}")
+            repository_server_url="$STAGING_LINUX_REPOSITORY_PUBLIC_URL"
             ;;
         "--dev")
             repository_servers=("${DEV_LINUX_REPOSITORY_SERVERS[@]}")
+            repository_server_url="$DEV_LINUX_REPOSITORY_PUBLIC_URL"
             ;;
         -*)
             echo "Unknown option \"$1\"" >&2
@@ -71,6 +74,24 @@ function rsync_repo {
     done
 }
 
+# Writes the mullvad.repo config file to the repository
+# root. This needs to contain the absolute url and path
+# to the repository. As such, it depends on what server
+# we upload to as well as if it's stable or beta. That's
+# why we need to do it just before upload.
+function generate_rpm_repository_configuration {
+    local repository_dir=$1
+    local stable_or_beta=$2
+
+    echo -e "[mullvad-rpm]
+name=Mullvad VPN
+baseurl=$repository_server_url/rpm/$stable_or_beta/\$basearch
+type=rpm
+enabled=1
+gpgcheck=1
+gpgkey=$repository_server_url/rpm/mullvad-keyring.asc" > "$repository_dir/mullvad.repo"
+}
+
 if [[ ! -d "$deb_repo_dir" ]]; then
     echo "$deb_repo_dir does not exist" >&2
     exit 1
@@ -81,8 +102,14 @@ if [[ ! -d "$rpm_repo_dir" ]]; then
 fi
 
 rsync_repo "$deb_repo_dir" "deb/beta"
+
+generate_rpm_repository_configuration "$rpm_repo_dir" "beta"
+rsync_repo "$rpm_repo_dir" "rpm/beta"
+
 if [[ $version != *"-beta"* ]]; then
     rsync_repo "$deb_repo_dir" "deb/stable"
+
+    generate_rpm_repository_configuration "$rpm_repo_dir" "stable"
+    rsync_repo "$rpm_repo_dir" "rpm/stable"
 fi
 
-rsync_repo "$rpm_repo_dir" "rpm"

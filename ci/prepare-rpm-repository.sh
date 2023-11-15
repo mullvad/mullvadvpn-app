@@ -15,16 +15,6 @@ artifact_dir=$1
 version=$2
 repo_dir=$3
 
-function generate_repository_configuration {
-    echo -e "[mullvad-rpm]
-name=Mullvad VPN
-baseurl=https://repository.mullvad.net/rpm/\$basearch
-type=rpm
-enabled=1
-gpgcheck=1
-gpgkey=https://repository.mullvad.net/rpm/mullvad-keyring.asc"
-}
-
 function create_repository {
     local arch_repo_dir=$1
     local rpm_path=$2
@@ -53,5 +43,3 @@ for arch in "${SUPPORTED_RPM_ARCHITECTURES[@]}"; do
     fi
     create_repository "$repo_dir/$arch" "$rpm_path"
 done
-
-generate_repository_configuration > "$repo_dir/mullvad.repo"
