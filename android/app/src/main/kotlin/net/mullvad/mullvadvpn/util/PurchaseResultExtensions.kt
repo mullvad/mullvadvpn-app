@@ -37,7 +37,7 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
             PaymentDialogData(
                 title = R.string.payment_pending_dialog_title,
                 message = R.string.payment_pending_dialog_message,
-                confirmAction = PaymentDialogAction.Close()
+                confirmAction = PaymentDialogAction.Close
             )
         // Success state
         PurchaseResult.Completed.Success ->
@@ -45,7 +45,8 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 title = R.string.payment_completed_dialog_title,
                 message = R.string.payment_completed_dialog_message,
                 icon = PaymentDialogIcon.SUCCESS,
-                confirmAction = PaymentDialogAction.Close(successfulPayment = true)
+                confirmAction = PaymentDialogAction.Close,
+                successfulPayment = true
             )
         // Error states
         is PurchaseResult.Error.TransactionIdError ->
@@ -53,9 +54,8 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 title = R.string.payment_obfuscation_id_error_dialog_title,
                 message = R.string.payment_obfuscation_id_error_dialog_message,
                 icon = PaymentDialogIcon.FAIL,
-                confirmAction = PaymentDialogAction.Close(),
-                dismissAction = PaymentDialogAction.RetryPurchase,
-                productId = this.productId
+                confirmAction = PaymentDialogAction.Close,
+                dismissAction = PaymentDialogAction.RetryPurchase(productId = this.productId),
             )
         is PurchaseResult.Error.FetchProductsError,
         is PurchaseResult.Error.NoProductFound -> {
@@ -63,14 +63,16 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
                 title = R.string.payment_billing_error_dialog_title,
                 message = R.string.payment_billing_error_dialog_message,
                 icon = PaymentDialogIcon.FAIL,
-                confirmAction = PaymentDialogAction.Close(),
-                dismissAction = PaymentDialogAction.RetryPurchase,
-                productId =
-                    when (this) {
-                        is PurchaseResult.Error.FetchProductsError -> this.productId
-                        is PurchaseResult.Error.NoProductFound -> this.productId
-                        else -> ProductId("")
-                    }
+                confirmAction = PaymentDialogAction.Close,
+                dismissAction =
+                    PaymentDialogAction.RetryPurchase(
+                        productId =
+                            when (this) {
+                                is PurchaseResult.Error.FetchProductsError -> this.productId
+                                is PurchaseResult.Error.NoProductFound -> this.productId
+                                else -> ProductId("")
+                            }
+                    ),
             )
         }
     }
