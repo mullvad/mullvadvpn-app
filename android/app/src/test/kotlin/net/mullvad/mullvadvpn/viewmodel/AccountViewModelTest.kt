@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.viewmodel
 
+import android.app.Activity
 import app.cash.turbine.test
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -10,18 +11,17 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlin.test.assertNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.PaymentProvider
+import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialogData
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
-import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.model.AccountAndDevice
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.Device
@@ -31,6 +31,8 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.usecase.PaymentUseCase
+import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -43,16 +45,11 @@ class AccountViewModelTest {
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockAuthTokenCache: AuthTokenCache = mockk()
-    private val mockPaymentProvider: PaymentProvider = mockk()
-    private val mockPaymentRepository: PaymentRepository = mockk()
+    private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
     private val deviceState: MutableStateFlow<DeviceState> = MutableStateFlow(DeviceState.Initial)
-    private val purchaseResult =
-        MutableSharedFlow<PurchaseResult>(extraBufferCapacity = 1, replay = 1)
-    private val verifyResult =
-        MutableSharedFlow<VerificationResult>(extraBufferCapacity = 1, replay = 1)
-    private val paymentAvailability =
-        MutableSharedFlow<PaymentAvailability>(extraBufferCapacity = 1, replay = 1)
+    private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
+    private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
     private val accountExpiryState = MutableStateFlow(AccountExpiry.Missing)
 
     private val dummyAccountAndDevice: AccountAndDevice =
@@ -71,20 +68,19 @@ class AccountViewModelTest {
     @Before
     fun setUp() {
         mockkStatic(CACHE_EXTENSION_CLASS)
-        coEvery { mockPaymentRepository.verifyPurchases() } returns verifyResult
-        coEvery { mockPaymentRepository.queryPaymentAvailability() } returns paymentAvailability
-        every { mockPaymentProvider.paymentRepository } returns mockPaymentRepository
+        mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
         every { mockServiceConnectionManager.authTokenCache() } returns mockAuthTokenCache
         every { mockDeviceRepository.deviceState } returns deviceState
         every { mockAccountRepository.accountExpiryState } returns accountExpiryState
-        every { mockPaymentRepository.purchaseBillingProduct(any()) } returns purchaseResult
+        coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResult
+        coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
 
         viewModel =
             AccountViewModel(
                 accountRepository = mockAccountRepository,
                 serviceConnectionManager = mockServiceConnectionManager,
                 deviceRepository = mockDeviceRepository,
-                paymentProvider = mockPaymentProvider
+                paymentUseCase = mockPaymentUseCase
             )
     }
 
@@ -111,15 +107,6 @@ class AccountViewModelTest {
 
         // Assert
         verify { mockAccountRepository.logout() }
-    }
-
-    @Test
-    fun testVerifyPurchases() = runTest {
-        // Act
-        viewModel.verifyPurchases()
-
-        // Assert
-        coVerify { mockPaymentRepository.verifyPurchases() }
     }
 
     @Test
@@ -174,66 +161,69 @@ class AccountViewModelTest {
     }
 
     @Test
-    fun testBillingVerificationError() = runTest {
-        // Arrange
-        val mockProductId = "mockId"
-
-        // Act, Assert
-        viewModel.uiState.test {
-            // Default item
-            awaitItem()
-            viewModel.startBillingPayment(productId = mockProductId)
-            purchaseResult.tryEmit(PurchaseResult.Error.VerificationError(null))
-            val result = awaitItem().purchaseResult
-            assertIs<PurchaseResult.Error.VerificationError>(result)
-        }
-    }
-
-    @Test
     fun testBillingUserCancelled() = runTest {
         // Arrange
-        val mockProductId = "mockId"
+        val result = PurchaseResult.Completed.Cancelled
+        purchaseResult.value = result
+        every { result.toPaymentDialogData() } returns null
 
         // Act, Assert
-        viewModel.uiState.test {
-            // Default item
-            awaitItem()
-            viewModel.startBillingPayment(productId = mockProductId)
-            purchaseResult.tryEmit(PurchaseResult.PurchaseCancelled)
-            assertIs<PurchaseResult.PurchaseCancelled>(awaitItem().purchaseResult)
-        }
+        viewModel.uiState.test { assertNull(awaitItem().paymentDialogData) }
     }
 
     @Test
-    fun testBillingPurchaseCompleted() = runTest {
+    fun testBillingPurchaseSuccess() = runTest {
         // Arrange
-        val mockProductId = "mockId"
+        val result = PurchaseResult.Completed.Success
+        val expectedData: PaymentDialogData = mockk()
+        purchaseResult.value = result
+        every { result.toPaymentDialogData() } returns expectedData
 
         // Act, Assert
-        viewModel.uiState.test {
-            // Default item
-            awaitItem()
-            viewModel.startBillingPayment(productId = mockProductId)
-            purchaseResult.tryEmit(PurchaseResult.PurchaseCompleted)
-            val result = awaitItem().purchaseResult
-            assertIs<PurchaseResult.PurchaseCompleted>(result)
-        }
+        viewModel.uiState.test { assertEquals(expectedData, awaitItem().paymentDialogData) }
     }
 
     @Test
     fun testStartBillingPayment() {
         // Arrange
-        val mockProductId = "MOCK"
+        val mockProductId = ProductId("MOCK")
+        val mockActivityProvider = mockk<() -> Activity>()
 
         // Act
-        viewModel.startBillingPayment(mockProductId)
+        viewModel.startBillingPayment(mockProductId, mockActivityProvider)
 
         // Assert
-        coVerify { mockPaymentRepository.purchaseBillingProduct(mockProductId) }
+        coVerify { mockPaymentUseCase.purchaseProduct(mockProductId, mockActivityProvider) }
+    }
+
+    @Test
+    fun testOnClosePurchaseResultDialogSuccessful() {
+        // Arrange
+
+        // Act
+        viewModel.onClosePurchaseResultDialog(success = true)
+
+        // Assert
+        verify { mockAccountRepository.fetchAccountExpiry() }
+        coVerify { mockPaymentUseCase.resetPurchaseResult() }
+    }
+
+    @Test
+    fun testOnClosePurchaseResultDialogNotSuccessful() {
+        // Arrange
+
+        // Act
+        viewModel.onClosePurchaseResultDialog(success = false)
+
+        // Assert
+        coVerify { mockPaymentUseCase.queryPaymentAvailability() }
+        coVerify { mockPaymentUseCase.resetPurchaseResult() }
     }
 
     companion object {
         private const val CACHE_EXTENSION_CLASS = "net.mullvad.mullvadvpn.util.CacheExtensionsKt"
+        private const val PURCHASE_RESULT_EXTENSIONS_CLASS =
+            "net.mullvad.mullvadvpn.util.PurchaseResultExtensionsKt"
         private const val DUMMY_DEVICE_NAME = "fake_name"
     }
 }
