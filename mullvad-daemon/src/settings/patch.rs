@@ -51,9 +51,10 @@ impl From<Error> for mullvad_management_interface::Status {
             Error::InvalidOrMissingValue(_)
             | Error::UnknownOrProhibitedKey(_)
             | Error::ParsePatch(_)
-            | Error::DeserializePatched(_) => Status::invalid_argument(error.to_string()),
+            | Error::DeserializePatched(_)
+            | Error::RecursionLimit => Status::invalid_argument(error.to_string()),
             Error::Settings(error) => Status::from(error),
-            error => Status::unknown(error.to_string()),
+            Error::SerializeSettings(error) => Status::internal(error.to_string()),
         }
     }
 }
