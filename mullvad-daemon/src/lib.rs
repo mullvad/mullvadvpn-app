@@ -603,7 +603,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    connection_modes_handler: api::Ehandle,
+    connection_modes_handler: api::AccessModeSelectorHandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -690,8 +690,11 @@ where
                 .cloned()
                 .collect();
 
-        let connection_modes_handler =
-            api::Ehandle::new(cache_dir.clone(), relay_selector.clone(), connection_modes);
+        let connection_modes_handler = api::AccessModeSelectorHandle::new(
+            cache_dir.clone(),
+            relay_selector.clone(),
+            connection_modes,
+        );
 
         let api_handle = api_runtime
             .mullvad_rest_handle(
