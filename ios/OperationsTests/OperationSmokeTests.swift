@@ -28,7 +28,8 @@ class OperationSmokeTests: XCTestCase {
             return [parent, child]
         }
 
-        DispatchQueue.global().async {
+        let dispatchQueue = DispatchQueue(label: "com.OperationSmokeTests.testBatch")
+        dispatchQueue.async {
             operationQueue.addOperations(operations, waitUntilFinished: true)
             expect.fulfill()
         }
