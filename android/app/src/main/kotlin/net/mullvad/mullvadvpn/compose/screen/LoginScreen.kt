@@ -59,6 +59,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
@@ -183,6 +184,7 @@ private fun LoginContent(
                         right = FocusRequester.Cancel
                     }
                     .fillMaxWidth()
+                    .testTag(LOGIN_INPUT_TEST_TAG)
                     .let {
                         if (!expandedDropdown || uiState.lastUsedAccount == null) {
                             it.clip(MaterialTheme.shapes.small)
