@@ -138,6 +138,7 @@ function TransportProtocolSelector() {
     async (protocol: RelayProtocol | null) => {
       await relaySettingsUpdater((settings) => {
         settings.openvpnConstraints.protocol = wrapConstraint(protocol);
+        settings.openvpnConstraints.port = wrapConstraint<number>(undefined);
         return settings;
       });
     },
