@@ -38,6 +38,16 @@ pub enum Error {
     /// Oddly specific.
     #[error(display = "Very Generic error.")]
     Generic,
+    #[error(display = "{}", _0)]
+    Actor(#[error(source)] ActorError),
+}
+
+#[derive(err_derive::Error, Debug)]
+pub enum ActorError {
+    #[error(display = "AccessModeSelector is not receiving any messages.")]
+    SendFailed(#[error(source)] mpsc::TrySendError<Message>),
+    #[error(display = "AccessModeSelector is not responding.")]
+    NotRunning(#[error(source)] oneshot::Canceled),
 }
 
 #[derive(Clone)]
@@ -48,10 +58,10 @@ pub struct AccessModeSelectorHandle {
 impl AccessModeSelectorHandle {
     async fn send_command<T>(&self, make_cmd: impl FnOnce(ResponseTx<T>) -> Message) -> Result<T> {
         let (tx, rx) = oneshot::channel();
-        // TODO(markus): Error handling
-        self.cmd_tx.unbounded_send(make_cmd(tx)).unwrap();
-        // TODO(markus): Error handling
-        rx.await.unwrap()
+        self.cmd_tx
+            .unbounded_send(make_cmd(tx))
+            .map_err(ActorError::SendFailed)?;
+        rx.await.map_err(ActorError::NotRunning)?
     }
 
     pub async fn get_access_method(&self) -> Result<AccessMethodSetting> {
@@ -90,11 +100,12 @@ impl AccessModeSelectorHandle {
     pub fn as_stream(&self) -> impl Stream<Item = ApiConnectionMode> {
         let handle = self.clone();
         unfold(handle, |handle| async move {
-            let connection_mode = handle
-                .next()
-                .await
-                .expect("It should always be safe to `unwrap` a new API connection mode");
-            Some((connection_mode, handle))
+            match handle.next().await {
+                Ok(connection_mode) => Some((connection_mode, handle)),
+                // End this stream in case of failure in `next`. `next` should
+                // not fail if the actor is in a good state.
+                Err(_) => None,
+            }
         })
     }
 }
