@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,13 +37,20 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
+import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
+import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -56,13 +64,26 @@ private fun PreviewWelcomeScreen() {
     AppTheme {
         WelcomeScreen(
             showSitePayment = true,
-            uiState = WelcomeUiState(accountNumber = "4444555566667777", deviceName = "Happy Mole"),
+            uiState =
+                WelcomeUiState(
+                    accountNumber = "4444555566667777",
+                    deviceName = "Happy Mole",
+                    billingPaymentState =
+                        PaymentState.PaymentAvailable(
+                            products =
+                                listOf(
+                                    PaymentProduct(ProductId("product"), ProductPrice("$44"), null)
+                                )
+                        )
+                ),
             uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
             onSitePaymentClick = {},
             onRedeemVoucherClick = {},
             onSettingsClick = {},
             onAccountClick = {},
-            openConnectScreen = {}
+            openConnectScreen = {},
+            onPurchaseBillingProductClick = { _, _ -> },
+            onClosePurchaseResultDialog = {}
         )
     }
 }
@@ -76,7 +97,9 @@ fun WelcomeScreen(
     onRedeemVoucherClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
-    openConnectScreen: () -> Unit
+    openConnectScreen: () -> Unit,
+    onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit
 ) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
@@ -88,6 +111,20 @@ fun WelcomeScreen(
             }
         }
     }
+
+    var showVerificationPendingDialog by remember { mutableStateOf(false) }
+    if (showVerificationPendingDialog) {
+        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
+    }
+
+    uiState.paymentDialogData?.let {
+        PaymentDialog(
+            paymentDialogData = uiState.paymentDialogData,
+            retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
+            onCloseDialog = onClosePurchaseResultDialog
+        )
+    }
+
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -133,7 +170,14 @@ fun WelcomeScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             // Payment button area
-            PaymentPanel(showSitePayment, onSitePaymentClick, onRedeemVoucherClick)
+            PaymentPanel(
+                showSitePayment = showSitePayment,
+                billingPaymentState = uiState.billingPaymentState,
+                onSitePaymentClick = onSitePaymentClick,
+                onRedeemVoucherClick = onRedeemVoucherClick,
+                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                onPaymentInfoClick = { showVerificationPendingDialog = true }
+            )
         }
     }
 }
@@ -264,9 +308,13 @@ fun DeviceNameRow(deviceName: String?) {
 @Composable
 private fun PaymentPanel(
     showSitePayment: Boolean,
+    billingPaymentState: PaymentState?,
     onSitePaymentClick: () -> Unit,
-    onRedeemVoucherClick: () -> Unit
+    onRedeemVoucherClick: () -> Unit,
+    onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
+    onPaymentInfoClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Column(
         modifier =
             Modifier.fillMaxWidth()
@@ -274,6 +322,22 @@ private fun PaymentPanel(
                 .background(color = MaterialTheme.colorScheme.background)
     ) {
         Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
+        billingPaymentState?.let {
+            PlayPayment(
+                billingPaymentState = billingPaymentState,
+                onPurchaseBillingProductClick = { productId ->
+                    onPurchaseBillingProductClick(productId) { context as Activity }
+                },
+                onInfoClick = onPaymentInfoClick,
+                modifier =
+                    Modifier.padding(
+                            start = Dimens.sideMargin,
+                            end = Dimens.sideMargin,
+                            bottom = Dimens.screenVerticalMargin
+                        )
+                        .align(Alignment.CenterHorizontally)
+            )
+        }
         if (showSitePayment) {
             SitePaymentButton(
                 onClick = onSitePaymentClick,
