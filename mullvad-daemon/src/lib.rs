@@ -690,7 +690,7 @@ where
                 .cloned()
                 .collect();
 
-        let connection_modes_handler = api::AccessModeSelectorHandle::new(
+        let connection_modes_handler = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
             connection_modes,
