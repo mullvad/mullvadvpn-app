@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.app.Activity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -14,8 +15,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -27,10 +33,14 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
+import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
@@ -95,8 +105,12 @@ fun OutOfTimeScreen(
     onRedeemVoucherClick: () -> Unit = {},
     openConnectScreen: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
-    onAccountClick: () -> Unit = {}
+    onAccountClick: () -> Unit = {},
+    onPurchaseBillingProductClick: (ProductId, activityProvider: () -> Activity) -> Unit = { _, _ ->
+    },
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {}
 ) {
+    val context = LocalContext.current
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     LaunchedEffect(key1 = Unit) {
         uiSideEffect.collect { uiSideEffect ->
@@ -107,6 +121,20 @@ fun OutOfTimeScreen(
             }
         }
     }
+
+    var showVerificationPendingDialog by remember { mutableStateOf(false) }
+    if (showVerificationPendingDialog) {
+        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
+    }
+
+    uiState.paymentDialogData?.let {
+        PaymentDialog(
+            paymentDialogData = uiState.paymentDialogData,
+            retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
+            onCloseDialog = onClosePurchaseResultDialog
+        )
+    }
+
     val scrollState = rememberScrollState()
     ScaffoldWithTopBarAndDeviceName(
         topBarColor =
@@ -189,6 +217,22 @@ fun OutOfTimeScreen(
                             end = Dimens.sideMargin,
                             bottom = Dimens.buttonSpacing
                         )
+                )
+            }
+            uiState.billingPaymentState?.let {
+                PlayPayment(
+                    billingPaymentState = uiState.billingPaymentState,
+                    onPurchaseBillingProductClick = { productId ->
+                        onPurchaseBillingProductClick(productId) { context as Activity }
+                    },
+                    onInfoClick = { showVerificationPendingDialog = true },
+                    modifier =
+                        Modifier.padding(
+                                start = Dimens.sideMargin,
+                                end = Dimens.sideMargin,
+                                bottom = Dimens.screenVerticalMargin
+                            )
+                            .align(Alignment.CenterHorizontally)
                 )
             }
             if (showSitePayment) {

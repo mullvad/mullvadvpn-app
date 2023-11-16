@@ -32,7 +32,6 @@
     <string name="buy_credit">Kredi satın alın</string>
     <string name="buy_more_credit">Daha fazla kredi satın alın</string>
     <string name="cancel">İptal et</string>
-    <string name="changes_dialog_dismiss_button">Anladım!</string>
     <string name="changes_dialog_subtitle">Bu sürümdeki değişiklikler:</string>
     <string name="confirm_local_dns">Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz.</string>
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>
@@ -89,6 +88,7 @@
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
     <string name="go_to_login">Giriş sayfasına git</string>
+    <string name="got_it">Anladım!</string>
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
     <string name="hide_account_number">Hesap numarasını gizle</string>
     <string name="hint_default">Varsayılan</string>
@@ -133,6 +133,7 @@
     <string name="out_of_time">Süre doldu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
+    <string name="payment_completed_dialog_title">Süre başarıyla eklendi</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_title">Gizlilik</string>
     <string name="privacy_policy_label">Gizlilik politikası</string>

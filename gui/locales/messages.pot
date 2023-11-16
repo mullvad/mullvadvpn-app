@@ -1660,6 +1660,9 @@ msgstr ""
 msgid "%s was added to your account."
 msgstr ""
 
+msgid "30 days was added to your account."
+msgstr ""
+
 msgid "Account credit expires in a few minutes"
 msgstr ""
 
@@ -1667,6 +1670,12 @@ msgid "Account credit expires soon"
 msgstr ""
 
 msgid "Account time reminders"
+msgstr ""
+
+msgid "Add 30 days time"
+msgstr ""
+
+msgid "Add 30 days time (%s)"
 msgstr ""
 
 msgid "Add DNS server"
@@ -1694,6 +1703,9 @@ msgid "Blocking internet (device offline)"
 msgstr ""
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr ""
+
+msgid "Connecting..."
 msgstr ""
 
 msgid "Copied Mullvad account number to clipboard"
@@ -1729,6 +1741,12 @@ msgstr ""
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
+msgid "Google Play payment pending"
+msgstr ""
+
+msgid "Google Play unavailable"
+msgstr ""
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr ""
 
@@ -1739,6 +1757,9 @@ msgid "Manage account"
 msgstr ""
 
 msgid "Mullvad account number"
+msgstr ""
+
+msgid "Mullvad services unavailable"
 msgstr ""
 
 msgid "Preferences"
@@ -1825,10 +1846,25 @@ msgstr ""
 msgid "Valid ranges: %s"
 msgstr ""
 
+msgid "Verifying purchase"
+msgstr ""
+
+msgid "Verifying purchase..."
+msgstr ""
+
 msgid "Verifying voucher…"
 msgstr ""
 
 msgid "Virtual adapter error"
+msgstr ""
+
+msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr ""
+
+msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
+msgstr ""
+
+msgid "We were unable to start the payment process, please try again later."
 msgstr ""
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."

@@ -151,7 +151,6 @@
     <string name="show_account_number">Show account number</string>
     <string name="failed_to_remove_device">Failed to remove device</string>
     <string name="changes_dialog_subtitle">Changes in this version:</string>
-    <string name="changes_dialog_dismiss_button">Got it!</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN assigned to other app</string>
     <string name="always_on_vpn_error_notification_content">
         <![CDATA[Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN.]]>
@@ -229,4 +228,19 @@
     <string name="less_than_one_day">less than one day</string>
     <string name="top_bar_time_left">Time left: %s</string>
     <string name="top_bar_device_name">Device name: %s</string>
+    <string name="add_30_days_time_x">Add 30 days time (%s)</string>
+    <string name="add_30_days_time">Add 30 days time</string>
+    <string name="payment_completed_dialog_title">Time was successfully added</string>
+    <string name="payment_completed_dialog_message">30 days was added to your account.</string>
+    <string name="got_it">Got it!</string>
+    <string name="payment_billing_error_dialog_title">Google Play unavailable</string>
+    <string name="payment_billing_error_dialog_message">We were unable to start the payment process, please make sure you have the latest version of Google Play.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad services unavailable</string>
+    <string name="payment_obfuscation_id_error_dialog_message">We were unable to start the payment process, please try again later.</string>
+    <string name="payment_status_pending">Google Play payment pending</string>
+    <string name="payment_status_verification_in_progress">Verifying purchase</string>
+    <string name="payment_pending_dialog_title">Verifying purchase</string>
+    <string name="payment_pending_dialog_message">We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful.</string>
+    <string name="loading_connecting">Connecting...</string>
+    <string name="loading_verifying">Verifying purchase...</string>
 </resources>

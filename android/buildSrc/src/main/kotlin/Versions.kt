@@ -11,6 +11,7 @@ object Versions {
     const val mockk = "1.13.8"
     const val mockWebserver = "4.11.0"
     const val turbine = "1.0.0"
+    const val billingClient = "6.0.1"
 
     object Android {
         const val compileSdkVersion = 33

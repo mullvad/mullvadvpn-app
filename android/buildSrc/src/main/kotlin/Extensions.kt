@@ -13,3 +13,6 @@ fun String.isNonStableVersion(): Boolean {
 
 fun DependencyHandler.`leakCanaryImplementation`(dependencyNotation: Any): Dependency? =
     add("leakCanaryImplementation", dependencyNotation)
+
+fun DependencyHandler.`playImplementation`(dependencyNotation: Any): Dependency? =
+    add("playImplementation", dependencyNotation)

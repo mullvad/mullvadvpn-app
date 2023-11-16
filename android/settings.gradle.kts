@@ -11,7 +11,9 @@ include(
     ":lib:resource",
     ":lib:talpid",
     ":lib:theme",
-    ":lib:common-test"
+    ":lib:common-test",
+    ":lib:billing",
+    ":lib:payment"
 )
 include(
     ":test",

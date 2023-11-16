@@ -32,7 +32,6 @@
     <string name="buy_credit">Guthaben erwerben</string>
     <string name="buy_more_credit">Mehr Guthaben erwerben</string>
     <string name="cancel">Abbrechen</string>
-    <string name="changes_dialog_dismiss_button">Verstanden!</string>
     <string name="changes_dialog_subtitle">Änderungen in dieser Version:</string>
     <string name="confirm_local_dns">Der lokale DNS-Server wird nicht funktionieren, solange „Teilen im lokalen Netzwerk“ nicht in den Einstellungen aktiviert ist.</string>
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
@@ -89,6 +88,7 @@
     <string name="foreground_notification_channel_description">Zeigt den aktuellen Status des VPN-Tunnels an</string>
     <string name="foreground_notification_channel_name">Status des VPN-Tunnels</string>
     <string name="go_to_login">Zur Anmeldung</string>
+    <string name="got_it">Verstanden!</string>
     <string name="here_is_your_account_number">Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!</string>
     <string name="hide_account_number">Kontonummer verbergen</string>
     <string name="hint_default">Standard</string>
@@ -133,6 +133,7 @@
     <string name="out_of_time">Zeit abgelaufen</string>
     <string name="paid_until">Bezahlt bis</string>
     <string name="pay_to_start_using">Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen.</string>
+    <string name="payment_completed_dialog_title">Zeit erfolgreich hinzugefügt</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_title">Datenschutz</string>
     <string name="privacy_policy_label">Datenschutzrichtlinie</string>

@@ -32,7 +32,6 @@
     <string name="buy_credit">购买额度</string>
     <string name="buy_more_credit">购买更多额度</string>
     <string name="cancel">取消</string>
-    <string name="changes_dialog_dismiss_button">知道了！</string>
     <string name="changes_dialog_subtitle">此版本中的变更：</string>
     <string name="confirm_local_dns">除非您在“偏好设置”下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。</string>
     <string name="confirm_no_email">您即将发送问题报告，但没有提供让我们可以联系到您的方式。如果您希望获得回复，必须输入您的电子邮件地址。</string>
@@ -89,6 +88,7 @@
     <string name="foreground_notification_channel_description">显示当前的 VPN 隧道状态</string>
     <string name="foreground_notification_channel_name">VPN 隧道状态</string>
     <string name="go_to_login">前往登录</string>
+    <string name="got_it">知道了！</string>
     <string name="here_is_your_account_number">以下是您的帐号。请妥善保存！</string>
     <string name="hide_account_number">隐藏帐号</string>
     <string name="hint_default">默认</string>
@@ -133,6 +133,7 @@
     <string name="out_of_time">已没有时间</string>
     <string name="paid_until">到期时间</string>
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
+    <string name="payment_completed_dialog_title">时间已成功添加</string>
     <string name="port">端口</string>
     <string name="privacy_disclaimer_title">隐私</string>
     <string name="privacy_policy_label">隐私政策</string>
