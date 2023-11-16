@@ -9,7 +9,7 @@ sealed interface PaymentAvailability {
 
     data object NoProductsFounds : PaymentAvailability
 
-    sealed interface Error: PaymentAvailability {
+    sealed interface Error : PaymentAvailability {
         data object BillingUnavailable : Error
 
         data object ServiceUnavailable : Error
@@ -20,7 +20,6 @@ sealed interface PaymentAvailability {
 
         data object ItemUnavailable : Error
 
-        data class Other(val exception: Throwable) :
-            Error
+        data class Other(val exception: Throwable) : Error
     }
 }

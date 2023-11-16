@@ -25,7 +25,6 @@ import net.mullvad.mullvadvpn.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
