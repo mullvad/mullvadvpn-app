@@ -9,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.AccountScreen
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -27,12 +28,15 @@ class AccountFragment : BaseFragment() {
                 AppTheme {
                     val state = vm.uiState.collectAsState().value
                     AccountScreen(
+                        showSitePayment = IS_PLAY_BUILD.not(),
                         uiState = state,
                         uiSideEffect = vm.uiSideEffect,
                         enterTransitionEndAction = vm.enterTransitionEndAction,
                         onRedeemVoucherClick = { openRedeemVoucherFragment() },
                         onManageAccountClick = vm::onManageAccountClick,
                         onLogoutClick = vm::onLogoutClick,
+                        onPurchaseBillingProductClick = vm::startBillingPayment,
+                        onClosePurchaseResultDialog = vm::onClosePurchaseResultDialog,
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() }
                     )
                 }

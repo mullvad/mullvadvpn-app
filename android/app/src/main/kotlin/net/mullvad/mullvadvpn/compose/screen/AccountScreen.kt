@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.app.Activity
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,11 +39,19 @@ import net.mullvad.mullvadvpn.compose.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.compose.component.InformationView
 import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
+import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
+import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
+import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
-import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
+import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.toExpiryDateString
@@ -55,11 +65,27 @@ import org.joda.time.DateTime
 private fun PreviewAccountScreen() {
     AppTheme {
         AccountScreen(
+            showSitePayment = true,
             uiState =
                 AccountUiState(
                     deviceName = "Test Name",
                     accountNumber = "1234123412341234",
-                    accountExpiry = null
+                    accountExpiry = null,
+                    billingPaymentState =
+                        PaymentState.PaymentAvailable(
+                            listOf(
+                                PaymentProduct(
+                                    ProductId("productId"),
+                                    price = ProductPrice("34 SEK"),
+                                    status = null
+                                ),
+                                PaymentProduct(
+                                    ProductId("productId_pending"),
+                                    price = ProductPrice("34 SEK"),
+                                    status = PaymentStatus.PENDING
+                                )
+                            ),
+                        )
                 ),
             uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
             enterTransitionEndAction = MutableSharedFlow()
@@ -70,12 +96,18 @@ private fun PreviewAccountScreen() {
 @ExperimentalMaterial3Api
 @Composable
 fun AccountScreen(
+    showSitePayment: Boolean,
     uiState: AccountUiState,
     uiSideEffect: SharedFlow<AccountViewModel.UiSideEffect>,
     enterTransitionEndAction: SharedFlow<Unit>,
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
+    onPurchaseBillingProductClick:
+        (productId: ProductId, activityProvider: () -> Activity) -> Unit =
+        { _, _ ->
+        },
+    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
@@ -84,15 +116,36 @@ fun AccountScreen(
     val context = LocalContext.current
     val backgroundColor = MaterialTheme.colorScheme.background
     val systemUiController = rememberSystemUiController()
-
     var showDeviceNameInfoDialog by remember { mutableStateOf(false) }
+    var showVerificationPendingDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         systemUiController.setNavigationBarColor(backgroundColor)
         enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
     }
+    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
+    LaunchedEffect(Unit) {
+        uiSideEffect.collect { viewAction ->
+            if (viewAction is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser) {
+                openAccountPage(viewAction.token)
+            }
+        }
+    }
+
     if (showDeviceNameInfoDialog) {
         DeviceNameInfoDialog { showDeviceNameInfoDialog = false }
+    }
+
+    if (showVerificationPendingDialog) {
+        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
+    }
+
+    uiState.paymentDialogData?.let {
+        PaymentDialog(
+            paymentDialogData = uiState.paymentDialogData,
+            retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
+            onCloseDialog = onClosePurchaseResultDialog
+        )
     }
 
     LaunchedEffect(Unit) {
@@ -121,7 +174,18 @@ fun AccountScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             Column(modifier = Modifier.padding(bottom = Dimens.screenVerticalMargin)) {
-                if (IS_PLAY_BUILD.not()) {
+                uiState.billingPaymentState?.let {
+                    PlayPayment(
+                        billingPaymentState = uiState.billingPaymentState,
+                        onPurchaseBillingProductClick = { productId ->
+                            onPurchaseBillingProductClick(productId) { context as Activity }
+                        },
+                        onInfoClick = { showVerificationPendingDialog = true },
+                        modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
+                    )
+                }
+
+                if (showSitePayment) {
                     ExternalButton(
                         text = stringResource(id = R.string.manage_account),
                         onClick = onManageAccountClick,
