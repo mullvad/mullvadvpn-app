@@ -681,14 +681,7 @@ where
                 .set_config(new_selector_config(settings));
         });
 
-        let connection_modes: Vec<_> = settings
-                .api_access_methods
-                .access_method_settings
-                .iter()
-                // We only care about the access methods which are set to 'enabled' by the user.
-                .filter(|api_access_method| api_access_method.enabled())
-                .cloned()
-                .collect();
+        let connection_modes = settings.api_access_methods.collect_enabled();
 
         let connection_modes_handler = api::AccessModeSelector::spawn(
             cache_dir.clone(),

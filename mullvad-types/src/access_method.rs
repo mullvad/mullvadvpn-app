@@ -51,6 +51,14 @@ impl Settings {
     pub fn cloned(&self) -> Vec<AccessMethodSetting> {
         self.access_method_settings.clone()
     }
+
+    /// Retrieve all [`AccessMethodSetting`]s which are enabled.
+    pub fn collect_enabled(&self) -> Vec<AccessMethodSetting> {
+        self.cloned()
+            .into_iter()
+            .filter(|access_method| access_method.enabled)
+            .collect()
+    }
 }
 
 impl Default for Settings {
