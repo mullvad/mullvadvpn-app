@@ -322,12 +322,22 @@ impl<'a> PolicyBatch<'a> {
             }
         }
 
+        // Split tunneled processes have their PIDs added to a net_cls cgroup.
+        // This causes all packets sent by that process to be marked with the
+        // cgroups classid (`NET_CLS_CLASSID`). This rule checks incoming packets for that classid.
+        // If the packet has the classid set then the packet will have two new marks applied to it.
+        // The `split_tunnel::MARK` as a connection tracking mark and the `fwmark` as packet
+        // metadata.
         let mut rule = Rule::new(&self.mangle_chain);
         rule.add_expr(&nft_expr!(meta cgroup));
         rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
+        // Loads `split_tunnel::MARK` into first nftnl register
         rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+        // Sets `split_tunnel::MARK` as connection tracker mark
         rule.add_expr(&nft_expr!(ct mark set));
+        // Loads `fwmark` into first nftnl register
         rule.add_expr(&nft_expr!(immediate data fwmark));
+        // Sets `fwmark` as metadata mark for packet
         rule.add_expr(&nft_expr!(meta mark set));
         self.batch.add(&rule, nftnl::MsgType::Add);
 
@@ -441,6 +451,9 @@ impl<'a> PolicyBatch<'a> {
     }
 
     fn add_ndp_rules(&mut self) {
+        // The non-0 constants used are icmpv6 transport header types corresponding
+        // to the type of message that each block deals with.
+
         // Outgoing Router solicitation (part of NDP)
         for chain in &[&self.out_chain, &self.forward_chain] {
             let mut rule = Rule::new(chain);
@@ -596,6 +609,7 @@ impl<'a> PolicyBatch<'a> {
 
     fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint, fwmark: u32) {
         let mut prerouting_rule = Rule::new(&self.prerouting_chain);
+        // Mark incoming traffic from endpoint with fwmark
         check_endpoint(&mut prerouting_rule, End::Src, endpoint);
         prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
         prerouting_rule.add_expr(&nft_expr!(meta mark set));
@@ -609,14 +623,19 @@ impl<'a> PolicyBatch<'a> {
         let mut in_rule = Rule::new(&self.in_chain);
         check_endpoint(&mut in_rule, End::Src, endpoint);
 
-        in_rule.add_expr(&nft_expr!(ct state));
+        // Allow all incoming traffic from established connections to the endpoint
         let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
+        // bitwise mask will bitwise-and the allowed_states and the ct state. It will then xor it
+        // will 0 (which changes nothing). This means it works as a bitwise-and which checks that
+        // the ESTABLISHED bit is set in the connection state.
+        in_rule.add_expr(&nft_expr!(ct state));
         in_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32));
         in_rule.add_expr(&nft_expr!(cmp != 0u32));
         add_verdict(&mut in_rule, &Verdict::Accept);
 
         self.batch.add(&in_rule, nftnl::MsgType::Add);
 
+        // Allow any traffic to the endpoint which is marked with fwmark
         let mut out_rule = Rule::new(&self.out_chain);
         check_endpoint(&mut out_rule, End::Dst, endpoint);
         out_rule.add_expr(&nft_expr!(meta mark));
@@ -630,6 +649,7 @@ impl<'a> PolicyBatch<'a> {
     /// blocked states.
     fn add_allow_endpoint_rules(&mut self, endpoint: &AllowedEndpoint) {
         let mut in_rule = Rule::new(&self.in_chain);
+        // Allow incoming traffic from established connections to the endpoint
         check_endpoint(&mut in_rule, End::Src, &endpoint.endpoint);
         let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
         in_rule.add_expr(&nft_expr!(ct state));
@@ -781,6 +801,8 @@ impl<'a> PolicyBatch<'a> {
             nftnl::MsgType::Add,
         );
 
+        // Forward packets coming from the tunnel interface only if they are from established
+        // connections.
         let mut interface_rule = Rule::new(&self.forward_chain);
         check_iface(&mut interface_rule, Direction::In, tunnel_interface)?;
         interface_rule.add_expr(&nft_expr!(ct state));
@@ -939,6 +961,7 @@ fn check_net(rule: &mut Rule<'_>, end: End, net: impl Into<IpNetwork>) {
         (IpNetwork::V6(_), End::Src) => nft_expr!(payload ipv6 saddr),
         (IpNetwork::V6(_), End::Dst) => nft_expr!(payload ipv6 daddr),
     });
+    // Check that packet subnet is the same as `net`
     match net {
         IpNetwork::V4(_) => rule.add_expr(&nft_expr!(bitwise mask net.mask(), xor 0u32)),
         IpNetwork::V6(_) => rule.add_expr(&nft_expr!(bitwise mask net.mask(), xor &[0u16; 8][..])),
