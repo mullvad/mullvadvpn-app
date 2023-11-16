@@ -25,6 +25,7 @@ while [ ! -z "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
         BUILD_TYPE="debug"
         GRADLE_BUILD_TYPE="debug"
+        CARGO_ARGS=""
         GRADLE_TASKS=(createOssProdDebugDistApk)
         BUNDLE_TASKS=(createOssProdDebugDistBundle)
     elif [[ "${1:-""}" == "--fdroid" ]]; then
