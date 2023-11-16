@@ -17,7 +17,7 @@ protocol OutgoingConnectionHandling {
 }
 
 final class OutgoingConnectionProxy: OutgoingConnectionHandling {
-    private enum ExitIPVersion: String {
+    enum ExitIPVersion: String {
         case v4 = "ipv4", v6 = "ipv6"
 
         var host: String {
@@ -25,9 +25,9 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
         }
     }
 
-    let urlSession: URLSession
+    let urlSession: URLSessionProtocol
 
-    init(urlSession: URLSession) {
+    init(urlSession: URLSessionProtocol) {
         self.urlSession = urlSession
     }
 
@@ -74,7 +74,7 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
             cachePolicy: .useProtocolCachePolicy,
             timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval
         )
-        let (data, response) = try await urlSession.data(for: request)
+        let (data, response) = try await data(for: request)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw REST.Error.network(URLError(.badServerResponse))
         }
@@ -90,5 +90,11 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
         }
         let connectionData = try decoder.decode(T.self, from: data)
         return connectionData
+    }
+}
+
+extension OutgoingConnectionProxy: URLSessionProtocol {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        return try await urlSession.data(for: request)
     }
 }
