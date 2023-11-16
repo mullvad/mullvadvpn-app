@@ -46,21 +46,6 @@ pub struct AccessModeSelectorHandle {
 }
 
 impl AccessModeSelectorHandle {
-    pub fn new(
-        cache_dir: PathBuf,
-        relay_selector: RelaySelector,
-        connection_modes: Vec<AccessMethodSetting>,
-    ) -> Self {
-        let (cmd_tx, cmd_rx) = mpsc::unbounded();
-
-        let mut actor = AccessModeSelector {
-            cmd_rx,
-            state: ApiConnectionModeProvider::new(cache_dir, relay_selector, connection_modes),
-        };
-        tokio::spawn(async move { actor.run().await });
-        Self { cmd_tx }
-    }
-
     async fn send_command<T>(&self, make_cmd: impl FnOnce(ResponseTx<T>) -> Message) -> Result<T> {
         let (tx, rx) = oneshot::channel();
         // TODO(markus): Error handling
@@ -120,7 +105,22 @@ pub struct AccessModeSelector {
 }
 
 impl AccessModeSelector {
-    async fn run(&mut self) {
+    pub fn spawn(
+        cache_dir: PathBuf,
+        relay_selector: RelaySelector,
+        connection_modes: Vec<AccessMethodSetting>,
+    ) -> AccessModeSelectorHandle {
+        let (cmd_tx, cmd_rx) = mpsc::unbounded();
+
+        let selector = AccessModeSelector {
+            cmd_rx,
+            state: ApiConnectionModeProvider::new(cache_dir, relay_selector, connection_modes),
+        };
+        tokio::spawn(selector.into_future());
+        AccessModeSelectorHandle { cmd_tx }
+    }
+
+    async fn into_future(mut self) {
         while let Some(cmd) = self.cmd_rx.next().await {
             let _ = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
