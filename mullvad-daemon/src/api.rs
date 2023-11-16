@@ -152,13 +152,12 @@ impl AccessModeSelector {
     }
 
     fn on_get_access_method(&mut self, tx: ResponseTx<AccessMethodSetting>) -> Result<()> {
-        let value = self.get_access_method()?;
+        let value = self.get_access_method();
         self.reply(tx, value)
     }
 
-    fn get_access_method(&mut self) -> Result<AccessMethodSetting> {
-        let connections_modes = self.state.connection_modes.lock().unwrap();
-        Ok(connections_modes.peek())
+    fn get_access_method(&mut self) -> AccessMethodSetting {
+        self.state.connection_modes.peek()
     }
 
     fn on_set_access_method(
@@ -166,14 +165,12 @@ impl AccessModeSelector {
         tx: ResponseTx<()>,
         value: AccessMethodSetting,
     ) -> Result<()> {
-        self.set_access_method(value)?;
+        self.set_access_method(value);
         self.reply(tx, ())
     }
 
-    fn set_access_method(&mut self, value: AccessMethodSetting) -> Result<()> {
-        let mut connections_modes = self.state.connection_modes.lock().unwrap();
-        connections_modes.set_access_method(value);
-        Ok(())
+    fn set_access_method(&mut self, value: AccessMethodSetting) {
+        self.state.connection_modes.set_access_method(value);
     }
 
     fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
@@ -195,16 +192,18 @@ impl AccessModeSelector {
     }
 
     fn next_connection_mode(&mut self) -> ApiConnectionMode {
-        let access_method = {
-            let mut connection_modes = self.state.connection_modes.lock().unwrap();
-            connection_modes
-                .next()
-                .map(|access_method_setting| access_method_setting.access_method)
-                .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct))
-        };
+        let access_method = self
+            .state
+            .connection_modes
+            .next()
+            .map(|access_method_setting| access_method_setting.access_method)
+            .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct));
 
         let connection_mode = self.state.from(access_method);
-        log::info!("New API connection mode selected: {}", connection_mode);
+        log::info!(
+            "New API connection mode selected: {connection_mode}",
+            connection_mode = connection_mode
+        );
         connection_mode
     }
 
@@ -213,14 +212,12 @@ impl AccessModeSelector {
         tx: ResponseTx<()>,
         values: Vec<AccessMethodSetting>,
     ) -> Result<()> {
-        self.update_access_methods(values)?;
+        self.update_access_methods(values);
         self.reply(tx, ())
     }
 
-    fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) -> Result<()> {
-        let mut connection_modes = self.state.connection_modes.lock().unwrap();
-        connection_modes.update_access_methods(values);
-        Ok(())
+    fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) {
+        self.state.connection_modes.update_access_methods(values);
     }
 }
 
@@ -240,7 +237,7 @@ pub struct ApiConnectionModeProvider {
     cache_dir: PathBuf,
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
-    connection_modes: Arc<Mutex<ConnectionModesIterator>>,
+    connection_modes: ConnectionModesIterator,
 }
 
 impl ApiConnectionModeProvider {
@@ -253,7 +250,7 @@ impl ApiConnectionModeProvider {
         Self {
             cache_dir,
             relay_selector,
-            connection_modes: Arc::new(Mutex::new(connection_modes_iterator)),
+            connection_modes: connection_modes_iterator,
         }
     }
 
