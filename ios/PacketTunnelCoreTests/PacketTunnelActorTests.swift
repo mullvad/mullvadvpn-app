@@ -301,25 +301,28 @@ final class PacketTunnelActorTests: XCTestCase {
         await fulfillment(of: [disconnectedStateExpectation, didStopObserverExpectation], timeout: 1)
     }
 
-    // FIXME: Reconsider if this test should exist. As it stands currently, it
-    // relies the packet tunnel process processing app message calls and a
-    // `stopTunnel()` call in a particular, deterministic order, which makes it
-    // unreliable. In reality, we cannot guarantee the order between those
-    // calls, and it fails almost reliably on low core count VMs.
-    func setErrorStateGetsCancelledWhenStopping() async throws {
+    func testCannotEnterErrorStateWhenStopping() async throws {
         let actor = PacketTunnelActor.mock()
         let connectingStateExpectation = expectation(description: "Connecting state")
         let disconnectedStateExpectation = expectation(description: "Disconnected state")
         let errorStateExpectation = expectation(description: "Should not enter error state")
         errorStateExpectation.isInverted = true
 
+        /// Because of how commands are processed by the actor's `CommandChannel`
+        /// `start` and `stop` cannot be chained together, otherwise there is a risk that the `start` command
+        /// gets coalesced by the `stop` command, and leaves the actor in its `.initial` state.
+        /// Guarantee here that the actor reaches the `.connecting` state before moving on.
+        let expression: (ObservedState) -> Bool = { if case .connecting = $0 { true } else { false } }
+        await expect(expression, on: actor) {
+            connectingStateExpectation.fulfill()
+        }
+        actor.start(options: launchOptions)
+        await fulfillment(of: [connectingStateExpectation], timeout: 1)
+
         stateSink = await actor.$observedState
             .receive(on: DispatchQueue.main)
             .sink { newState in
                 switch newState {
-                case .connecting:
-                    actor.setErrorState(reason: .readSettings)
-                    connectingStateExpectation.fulfill()
                 case .error:
                     errorStateExpectation.fulfill()
                 case .disconnected:
@@ -329,10 +332,10 @@ final class PacketTunnelActorTests: XCTestCase {
                 }
             }
 
-        actor.start(options: launchOptions)
         actor.stop()
+        actor.setErrorState(reason: .readSettings)
 
-        await fulfillment(of: [connectingStateExpectation, disconnectedStateExpectation], timeout: 1)
+        await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
         await fulfillment(of: [errorStateExpectation], timeout: Duration.milliseconds(100).timeInterval)
     }
 
