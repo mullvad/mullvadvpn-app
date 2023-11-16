@@ -1,3 +1,8 @@
+//! This module is responsible for enabling custom [`AccessMethodSetting`]s to
+//! be used when connecting to the Mullvad API. In practice this means
+//! converting [`AccessMethodSetting`]s to connection details as encoded by
+//! [`ApiConnectionMode`], which in turn is used by `mullvad-api` for
+//! establishing connections when performing API requests.
 #[cfg(target_os = "android")]
 use crate::{DaemonCommand, DaemonEventSender};
 use futures::{
@@ -21,9 +26,6 @@ use talpid_core::mpsc::Sender;
 use talpid_core::tunnel_state_machine::TunnelCommand;
 use talpid_types::net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint};
 
-// TODO(markus): Remove text
-/// Here, a new agent was born.
-
 pub enum Message {
     Get(ResponseTx<AccessMethodSetting>),
     Set(ResponseTx<()>, AccessMethodSetting),
@@ -39,11 +41,11 @@ pub enum Error {
 }
 
 #[derive(Clone)]
-pub struct Ehandle {
+pub struct AccessModeSelectorHandle {
     cmd_tx: mpsc::UnboundedSender<Message>,
 }
 
-impl Ehandle {
+impl AccessModeSelectorHandle {
     pub fn new(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
@@ -51,7 +53,7 @@ impl Ehandle {
     ) -> Self {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let mut actor = EActor {
+        let mut actor = AccessModeSelector {
             cmd_rx,
             state: ApiConnectionModeProvider::new(cache_dir, relay_selector, connection_modes),
         };
@@ -112,12 +114,12 @@ impl Ehandle {
     }
 }
 
-pub struct EActor {
+pub struct AccessModeSelector {
     cmd_rx: mpsc::UnboundedReceiver<Message>,
     state: ApiConnectionModeProvider,
 }
 
-impl EActor {
+impl AccessModeSelector {
     async fn run(&mut self) {
         while let Some(cmd) = self.cmd_rx.next().await {
             let _ = match cmd {
