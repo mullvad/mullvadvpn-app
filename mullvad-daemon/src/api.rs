@@ -46,6 +46,8 @@ pub enum Error {
 pub enum ActorError {
     #[error(display = "AccessModeSelector is not receiving any messages.")]
     SendFailed(#[error(source)] mpsc::TrySendError<Message>),
+    #[error(display = "AccessModeSelector is not receiving any messages.")]
+    OneshotSendFailed,
     #[error(display = "AccessModeSelector is not responding.")]
     NotRunning(#[error(source)] oneshot::Canceled),
 }
@@ -144,22 +146,29 @@ impl AccessModeSelector {
 
     async fn into_future(mut self) {
         while let Some(cmd) = self.cmd_rx.next().await {
-            let _ = match cmd {
+            let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
                 Message::Set(tx, value) => self.on_set_access_method(tx, value),
                 Message::Next(tx) => self.on_next_connection_mode(tx),
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values),
+            };
+            match execution {
+                Ok(_) => (),
+                Err(err) => {
+                    log::trace!(
+                        "AccessModeSelector is going down due to {error}",
+                        error = err
+                    );
+                    break;
+                }
             }
-            .map_err(|err| {
-                log::error!("todo(markus): Some error occured {err}");
-                err
-            });
         }
     }
 
     fn reply<T>(&self, tx: ResponseTx<T>, value: T) -> Result<()> {
-        // TODO(markus): The error probably should come from the value/tx
-        tx.send(Ok(value)).map_err(|_| Error::Generic)
+        Ok(tx
+            .send(Ok(value))
+            .map_err(|_| ActorError::OneshotSendFailed)?)
     }
 
     fn on_get_access_method(&mut self, tx: ResponseTx<AccessMethodSetting>) -> Result<()> {
