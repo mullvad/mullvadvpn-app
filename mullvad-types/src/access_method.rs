@@ -61,6 +61,14 @@ impl Settings {
         let method = BuiltInAccessMethod::Bridge;
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
     }
+
+    /// Retrieve all [`AccessMethodSetting`]s which are enabled.
+    pub fn collect_enabled(&self) -> Vec<AccessMethodSetting> {
+        self.cloned()
+            .into_iter()
+            .filter(|access_method| access_method.enabled)
+            .collect()
+    }
 }
 
 impl Default for Settings {

@@ -112,10 +112,24 @@ impl AccessModeSelector {
     ) -> AccessModeSelectorHandle {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let selector = AccessModeSelector {
-            cmd_rx,
-            state: ApiConnectionModeProvider::new(cache_dir, relay_selector, connection_modes),
-        };
+        let state =
+            match ApiConnectionModeProvider::new(cache_dir, relay_selector, connection_modes) {
+                Ok(provider) => provider,
+                Err(api::Error::NoAccessMethods) => {
+                    // No settings seem to have been found. Default to using the the
+                    // direct access method.
+                    let default = mullvad_types::access_method::Settings::direct();
+                    api::ApiConnectionModeProvider::new(
+                    cache_dir.clone(),
+                    relay_selector.clone(),
+                    vec![default],
+                )
+                .expect(
+                    "Failed to create the data structure responsible for managing access methods",
+                )
+                }
+            };
+        let selector = AccessModeSelector { cmd_rx, state };
         tokio::spawn(selector.into_future());
         AccessModeSelectorHandle { cmd_tx }
     }
