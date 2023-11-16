@@ -691,7 +691,7 @@ where
 
         let api_handle = api_runtime
             .mullvad_rest_handle(
-                Box::pin(connection_modes_handler.as_stream()),
+                Box::pin(connection_modes_handler.clone().as_stream()),
                 endpoint_updater.callback(),
             )
             .await;

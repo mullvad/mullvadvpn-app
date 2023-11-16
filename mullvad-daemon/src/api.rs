@@ -50,6 +50,8 @@ pub enum ActorError {
     NotRunning(#[error(source)] oneshot::Canceled),
 }
 
+/// A channel for sending [`Message`] commands to a running
+/// [`AccessModeSelector`].
 #[derive(Clone)]
 pub struct AccessModeSelectorHandle {
     cmd_tx: mpsc::UnboundedSender<Message>,
@@ -96,10 +98,13 @@ impl AccessModeSelectorHandle {
         })
     }
 
-    /// Stream the connection modes of this actor.
-    pub fn as_stream(&self) -> impl Stream<Item = ApiConnectionMode> {
-        let handle = self.clone();
-        unfold(handle, |handle| async move {
+    /// Convert this handle to a [`Stream`] of [`ApiConnectionMode`] from the
+    /// associated [`AccessModeSelector`].
+    ///
+    /// Practically converts the handle to a listener for when the
+    /// currently valid connection modes changes.
+    pub fn as_stream(self) -> impl Stream<Item = ApiConnectionMode> {
+        unfold(self, |handle| async move {
             match handle.next().await {
                 Ok(connection_mode) => Some((connection_mode, handle)),
                 // End this stream in case of failure in `next`. `next` should
@@ -110,9 +115,11 @@ impl AccessModeSelectorHandle {
     }
 }
 
+/// A small actor which takes care of handling the logic around rotating
+/// connection modes to be used for Mullvad API request.
 pub struct AccessModeSelector {
     cmd_rx: mpsc::UnboundedReceiver<Message>,
-    state: ApiConnectionModeProvider,
+    connection_mode_provider: ApiConnectionModeProvider,
 }
 
 impl AccessModeSelector {
@@ -125,7 +132,11 @@ impl AccessModeSelector {
 
         let selector = AccessModeSelector {
             cmd_rx,
-            state: ApiConnectionModeProvider::new(cache_dir, relay_selector, connection_modes),
+            connection_mode_provider: ApiConnectionModeProvider::new(
+                cache_dir,
+                relay_selector,
+                connection_modes,
+            ),
         };
         tokio::spawn(selector.into_future());
         AccessModeSelectorHandle { cmd_tx }
@@ -157,7 +168,7 @@ impl AccessModeSelector {
     }
 
     fn get_access_method(&mut self) -> AccessMethodSetting {
-        self.state.connection_modes.peek()
+        self.connection_mode_provider.connection_modes.peek()
     }
 
     fn on_set_access_method(
@@ -170,14 +181,16 @@ impl AccessModeSelector {
     }
 
     fn set_access_method(&mut self, value: AccessMethodSetting) {
-        self.state.connection_modes.set_access_method(value);
+        self.connection_mode_provider
+            .connection_modes
+            .set_access_method(value);
     }
 
     fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
         let next = self.next_connection_mode();
         // Save the new connection mode to cache!
         {
-            let cache_dir = self.state.cache_dir.clone();
+            let cache_dir = self.connection_mode_provider.cache_dir.clone();
             let next = next.clone();
             tokio::spawn(async move {
                 if next.save(&cache_dir).await.is_err() {
@@ -193,13 +206,13 @@ impl AccessModeSelector {
 
     fn next_connection_mode(&mut self) -> ApiConnectionMode {
         let access_method = self
-            .state
+            .connection_mode_provider
             .connection_modes
             .next()
             .map(|access_method_setting| access_method_setting.access_method)
             .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct));
 
-        let connection_mode = self.state.from(access_method);
+        let connection_mode = self.connection_mode_provider.from(access_method);
         log::info!(
             "New API connection mode selected: {connection_mode}",
             connection_mode = connection_mode
@@ -217,7 +230,9 @@ impl AccessModeSelector {
     }
 
     fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) {
-        self.state.connection_modes.update_access_methods(values);
+        self.connection_mode_provider
+            .connection_modes
+            .update_access_methods(values);
     }
 }
 
