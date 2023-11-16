@@ -32,7 +32,6 @@
     <string name="buy_credit">Osta käyttöaikaa</string>
     <string name="buy_more_credit">Uudista tilaus</string>
     <string name="cancel">Peruuta</string>
-    <string name="changes_dialog_dismiss_button">Selvä!</string>
     <string name="changes_dialog_subtitle">Muutokset tässä versiossa:</string>
     <string name="confirm_local_dns">Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön asetuksissa.</string>
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
@@ -89,6 +88,7 @@
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
     <string name="go_to_login">Siirry kirjautumiseen</string>
+    <string name="got_it">Selvä!</string>
     <string name="here_is_your_account_number">Tässä tulee tilisi numero. Laita se talteen!</string>
     <string name="hide_account_number">Piilota tilin numero</string>
     <string name="hint_default">Oletus</string>
@@ -133,6 +133,7 @@
     <string name="out_of_time">Ei käyttöaikaa</string>
     <string name="paid_until">Maksu ennen</string>
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
+    <string name="payment_completed_dialog_title">Aika lisättiin onnistuneesti</string>
     <string name="port">Portti</string>
     <string name="privacy_disclaimer_title">Tietosuoja</string>
     <string name="privacy_policy_label">Tietosuojakäytäntö</string>
