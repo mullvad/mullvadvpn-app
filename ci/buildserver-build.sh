@@ -46,15 +46,24 @@ esac
 function publish_linux_repositories {
     local artifact_dir=$1
     local version=$2
-    local deb_repo_dir="$SCRIPT_DIR/deb/$version"
 
+    local deb_repo_dir="$SCRIPT_DIR/deb/$version"
+    echo "Preparing Apt repository in $deb_repo_dir"
     "$SCRIPT_DIR/prepare-apt-repository.sh" "$artifact_dir" "$version" "$deb_repo_dir"
 
-    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version" "$deb_repo_dir"
+    local rpm_repo_dir="$SCRIPT_DIR/rpm/$version"
+    echo "Preparing RPM repository in $rpm_repo_dir"
+    "$SCRIPT_DIR/prepare-rpm-repository.sh" "$artifact_dir" "$version" "$rpm_repo_dir"
+
+    "$SCRIPT_DIR/publish-linux-repositories.sh" --dev "$version" \
+        --deb "$deb_repo_dir" \
+        --rpm "$rpm_repo_dir"
     # If this is a release build, also push to staging.
     # Publishing to production is done manually.
     if [[ $version != *"-dev-"* ]]; then
-        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version" "$deb_repo_dir"
+        "$SCRIPT_DIR/publish-linux-repositories.sh" --staging "$version" \
+            --deb "$deb_repo_dir" \
+            --rpm "$rpm_repo_dir"
     fi
 }
 
@@ -226,7 +235,9 @@ function build_ref {
         fi
     fi
 
-    publish_linux_repositories "$artifact_dir" "$version"
+    if [[ "$(uname -s)" == "Linux" ]]; then
+        publish_linux_repositories "$artifact_dir" "$version"
+    fi
     (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
