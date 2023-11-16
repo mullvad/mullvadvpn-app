@@ -198,15 +198,7 @@ where
                 .notify_settings(self.settings.to_settings());
 
             let handle = self.connection_modes_handler.clone();
-            let new_access_methods = self
-                .settings
-                .api_access_methods
-                .access_method_settings
-                .iter()
-                .filter(|api_access_method| api_access_method.enabled())
-                .cloned()
-                .collect();
-
+            let new_access_methods = self.settings.api_access_methods.collect_enabled();
             tokio::spawn(async move {
                 match handle.update_access_methods(new_access_methods).await {
                     Ok(_) => (),
