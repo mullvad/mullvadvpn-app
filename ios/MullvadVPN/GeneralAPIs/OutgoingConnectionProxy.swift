@@ -25,9 +25,9 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
         }
     }
 
-    let urlSession: URLSession
+    let urlSession: URLSessionProtocol
 
-    init(urlSession: URLSession) {
+    init(urlSession: URLSessionProtocol) {
         self.urlSession = urlSession
     }
 
@@ -74,7 +74,7 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
             cachePolicy: .useProtocolCachePolicy,
             timeoutInterval: REST.defaultAPINetworkTimeout.timeInterval
         )
-        let (data, response) = try await urlSession.data(for: request)
+        let (data, response) = try await data(from: url)
         guard let httpResponse = response as? HTTPURLResponse else {
             throw REST.Error.network(URLError(.badServerResponse))
         }
@@ -90,5 +90,11 @@ final class OutgoingConnectionProxy: OutgoingConnectionHandling {
         }
         let connectionData = try decoder.decode(T.self, from: data)
         return connectionData
+    }
+}
+
+extension OutgoingConnectionProxy: URLSessionProtocol {
+    func data(from url: URL) async throws -> (Data, URLResponse) {
+        return try await urlSession.data(from: url)
     }
 }
