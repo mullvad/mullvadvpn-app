@@ -19,16 +19,13 @@ pub enum Error {
     /// Can not find access method
     #[error(display = "Cannot find custom access method {}", _0)]
     NoSuchMethod(access_method::Id),
-    /// Can not find *any* access method. This should never happen. If it does,
-    /// the user should do a factory reset.
-    #[error(display = "No access methods are configured")]
-    NoMethodsExist,
     /// Access method could not be rotate
     #[error(display = "Access method could not be rotated")]
     RotationError,
-    /// Daemon API error
-    #[error(display = "Daemon API handling error")]
-    Api(#[error(source)] api::Error),
+    /// Some error occured in the daemon's state of handling
+    /// [`AccessMethodSetting`]s & [`ApiConnectionMode`]s.
+    #[error(display = "Error occured when handling connection settings & details")]
+    ConnectionMode(#[error(source)] api::Error),
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
