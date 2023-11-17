@@ -149,8 +149,6 @@ enum Cli {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    env_logger::init();
-
     match Cli::parse() {
         Cli::Account(cmd) => cmd.handle().await,
         Cli::Bridge(cmd) => cmd.handle().await,

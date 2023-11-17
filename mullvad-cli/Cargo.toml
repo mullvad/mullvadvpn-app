@@ -17,7 +17,6 @@ path = "src/main.rs"
 anyhow = "1.0"
 chrono = { workspace = true }
 clap = { workspace = true }
-env_logger = { workspace = true }
 futures = "0.3"
 natord = "1.0.9"
 itertools = "0.10"
