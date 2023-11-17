@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -29,6 +30,7 @@ import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
+import net.mullvad.mullvadvpn.compose.test.VOUCHER_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
@@ -230,7 +232,8 @@ private fun EnterVoucherBody(
         keyboardType = KeyboardType.Password,
         placeholderText = stringResource(id = R.string.voucher_hint),
         visualTransformation = vouchersVisualTransformation(),
-        isDigitsOnlyAllowed = false
+        isDigitsOnlyAllowed = false,
+        modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG)
     )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(
