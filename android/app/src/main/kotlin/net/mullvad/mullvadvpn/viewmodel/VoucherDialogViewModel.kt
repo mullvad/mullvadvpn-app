@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
@@ -33,7 +32,7 @@ class VoucherDialogViewModel(
 ) : ViewModel() {
 
     private val vmState = MutableStateFlow<VoucherDialogState>(VoucherDialogState.Default)
-    private val voucherInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
+    private val voucherInput = MutableStateFlow("")
 
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
