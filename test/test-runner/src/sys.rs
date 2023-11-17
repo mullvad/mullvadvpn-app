@@ -193,14 +193,100 @@ ExecStart=/usr/bin/mullvad-daemon --disable-stdout-timestamps {verbosity}"#
         .await
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
 
+    restart_app().await?;
+    Ok(())
+}
+
+/// Restart the Mullvad VPN application.
+///
+/// This function waits for the app to successfully start again.
+#[cfg(target_os = "linux")]
+pub async fn restart_app() -> Result<(), test_rpc::Error> {
     tokio::process::Command::new("systemctl")
         .args(["restart", "mullvad-daemon"])
         .status()
         .await
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
-
     wait_for_service_state(ServiceState::Running).await?;
     Ok(())
+}
+
+/// Stop the Mullvad VPN application.
+///
+/// This function waits for the app to successfully shut down.
+#[cfg(target_os = "linux")]
+pub async fn stop_app() -> Result<(), test_rpc::Error> {
+    set_mullvad_daemon_service_state(false).await
+}
+
+/// Start the Mullvad VPN application.
+///
+/// This function waits for the app to successfully start again.
+#[cfg(target_os = "linux")]
+pub async fn start_app() -> Result<(), test_rpc::Error> {
+    set_mullvad_daemon_service_state(true).await
+}
+
+/// Restart the Mullvad VPN application.
+///
+/// This function waits for the app to successfully start again.
+#[cfg(target_os = "windows")]
+pub async fn restart_app() -> Result<(), test_rpc::Error> {
+    stop_app().await?;
+    start_app().await?;
+    Ok(())
+}
+
+/// Stop the Mullvad VPN application.
+///
+/// This function waits for the app to successfully shut down.
+#[cfg(target_os = "windows")]
+pub async fn stop_app() -> Result<(), test_rpc::Error> {
+    let _ = tokio::process::Command::new("net")
+        .args(["stop", "mullvadvpn"])
+        .status()
+        .await
+        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+    Ok(())
+}
+
+/// Start the Mullvad VPN application.
+///
+/// This function waits for the app to successfully start again.
+#[cfg(target_os = "windows")]
+pub async fn start_app() -> Result<(), test_rpc::Error> {
+    let _ = tokio::process::Command::new("net")
+        .args(["start", "mullvadvpn"])
+        .status()
+        .await
+        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+    Ok(())
+}
+
+/// Restart the Mullvad VPN application.
+///
+/// This function waits for the app to successfully start again.
+#[cfg(target_os = "macos")]
+pub async fn restart_app() -> Result<(), test_rpc::Error> {
+    stop_app().await?;
+    start_app().await?;
+    Ok(())
+}
+
+/// Stop the Mullvad VPN application.
+///
+/// This function waits for the app to successfully shut down.
+#[cfg(target_os = "macos")]
+pub async fn stop_app() -> Result<(), test_rpc::Error> {
+    set_mullvad_daemon_service_state(false).await
+}
+
+/// Start the Mullvad VPN application.
+///
+/// This function waits for the app to successfully start again.
+#[cfg(target_os = "macos")]
+pub async fn start_app() -> Result<(), test_rpc::Error> {
+    set_mullvad_daemon_service_state(true).await
 }
 
 #[cfg(target_os = "windows")]
@@ -226,6 +312,7 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
 
     // Stop the service
+    // TODO: Extract to separate function.
     service
         .stop()
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
@@ -266,6 +353,7 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
 
     // Start the service
+    // TODO: Extract to separate function.
     service
         .start::<String>(&[])
         .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
@@ -341,17 +429,8 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
     }
 
     // Restart service
-    tokio::process::Command::new("net")
-        .args(["stop", "mullvadvpn"])
-        .status()
-        .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
-
-    tokio::process::Command::new("net")
-        .args(["start", "mullvadvpn"])
-        .status()
-        .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+    stop_app().await?;
+    start_app().await?;
 
     Ok(())
 }

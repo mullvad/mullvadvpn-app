@@ -120,6 +120,8 @@ mod service {
         /// Returns all Mullvad app files, directories, and other data found on the system.
         async fn find_mullvad_app_traces() -> Result<Vec<AppTrace>, Error>;
 
+        async fn get_mullvad_app_cache_dir() -> Result<PathBuf, Error>;
+
         /// Send TCP packet
         async fn send_tcp(
             interface: Option<String>,
@@ -149,6 +151,15 @@ mod service {
         /// Perform DNS resolution.
         async fn resolve_hostname(hostname: String) -> Result<Vec<SocketAddr>, Error>;
 
+        /// Restart the Mullvad VPN application.
+        async fn restart_app() -> Result<(), Error>;
+
+        /// Stop the Mullvad VPN application.
+        async fn stop_app() -> Result<(), Error>;
+
+        /// Start the Mullvad VPN application.
+        async fn start_app() -> Result<(), Error>;
+
         /// Sets the log level of the daemon service, the verbosity level represents the number of
         /// `-v`s passed on the command line. This will restart the daemon system service.
         async fn set_daemon_log_level(
@@ -160,6 +171,9 @@ mod service {
 
         /// Copy a file from `src` to `dest` on the test runner.
         async fn copy_file(src: String, dest: String) -> Result<(), Error>;
+
+        /// Write arbitrary bytes to some file `dest` on the test runner.
+        async fn write_file(dest: String, bytes: Vec<u8>) -> Result<(), Error>;
 
         async fn reboot() -> Result<(), Error>;
 
