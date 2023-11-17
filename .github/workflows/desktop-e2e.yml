@@ -70,11 +70,10 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-tags: true
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
+          git fetch --tags --force
           ./test/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
@@ -140,11 +139,10 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-tags: true
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
+          git fetch --tags --force
           ./test/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
@@ -210,11 +208,10 @@ jobs:
           path: ~/Library/Caches/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-tags: true
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
+          git fetch --tags --force
           ./test/ci-runtests.sh ${{ matrix.os }}
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
