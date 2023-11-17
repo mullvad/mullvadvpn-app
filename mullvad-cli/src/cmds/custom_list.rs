@@ -112,12 +112,16 @@ impl CustomList {
         let location_constraint =
             resolve_location_constraint(&mut rpc, location_args, relay_filter).await?;
 
-        let mut list = find_list_by_name(&mut rpc, &name).await?;
         match location_constraint {
             Constraint::Any => bail!("\"any\" is not a valid location"),
             Constraint::Only(location) => {
-                list.locations.insert(location);
-                rpc.update_custom_list(list).await?;
+                let mut list = find_list_by_name(&mut rpc, &name).await?;
+                if list.locations.insert(location) {
+                    rpc.update_custom_list(list).await?;
+                    println!("Location added to custom-list")
+                } else {
+                    bail!("Provided location is already present in custom-list")
+                };
             }
         }
 
@@ -129,16 +133,21 @@ impl CustomList {
 
         // Don't filter out any hosts, i.e. allow adding even inactive ones
         let relay_filter = |_: &_| true;
-        let location = resolve_location_constraint(&mut rpc, location_args, relay_filter)
-            .await?
-            .option()
-            .ok_or(anyhow!("\"any\" is not a valid location"))?;
+        let location_constraint =
+            resolve_location_constraint(&mut rpc, location_args, relay_filter).await?;
 
-        let mut rpc = MullvadProxyClient::new().await?;
-
-        let mut list = find_list_by_name(&mut rpc, &name).await?;
-        list.locations.remove(&location);
-        rpc.update_custom_list(list).await?;
+        match location_constraint {
+            Constraint::Any => bail!("\"any\" is not a valid location"),
+            Constraint::Only(location) => {
+                let mut list = find_list_by_name(&mut rpc, &name).await?;
+                if list.locations.remove(&location) {
+                    rpc.update_custom_list(list).await?;
+                    println!("Location removed from custom-list")
+                } else {
+                    bail!("Provided location was not present in custom-list")
+                };
+            }
+        }
 
         Ok(())
     }
