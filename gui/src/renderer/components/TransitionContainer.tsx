@@ -179,7 +179,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
     if (candidate && this.state.currentItem) {
       // Update currentItem, nextItem, queuedItem depending on which the candidate matches.
       if (
-        !this.isTransitioning &&
+        !this.isCycling &&
         this.state.currentItem.view.props.routePath === candidate.props.routePath
       ) {
         // There's no transition in progress and the newest candidate has the same path as the
@@ -196,7 +196,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
           },
           () => (this.isCycling = false),
         );
-      } else if (!this.isTransitioning && this.state.nextItem) {
+      } else if (!this.isCycling && this.state.nextItem) {
         // There's no transition in progress but there is a next item. Abort the transition and add
         // the candidate to the queue. The app shouldn't start a transition if there is another view
         // to queue.

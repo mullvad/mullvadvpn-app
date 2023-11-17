@@ -61,6 +61,7 @@ Line wrap the file at 100 chars.                                              Th
 - Lower risk of being rate limited.
 - Fix error dialog when failing to write to console by handling the thrown error.
 - Fix error dialog displayed when the daemon was killed.
+- Fix desktop app freezing when navigations occur in very quick succession.
 
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
