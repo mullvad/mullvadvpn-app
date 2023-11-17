@@ -1817,7 +1817,6 @@ dependencies = [
  "chrono",
  "clap",
  "clap_complete",
- "env_logger 0.10.0",
  "futures",
  "itertools",
  "mullvad-management-interface",
