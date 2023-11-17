@@ -14,11 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +33,7 @@ import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.dialog.ReportProblemNoEmailDialog
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
+import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -94,16 +91,15 @@ fun ReportProblemScreen(
     onDismissNoEmailDialog: () -> Unit = {},
     onClearSendResult: () -> Unit = {},
     onNavigateToViewLogs: () -> Unit = {},
+    updateEmail: (String) -> Unit = {},
+    updateDescription: (String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    var email by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
-
     // Dialog to show confirm if no email was added
     if (uiState.showConfirmNoEmail) {
         ReportProblemNoEmailDialog(
             onDismiss = onDismissNoEmailDialog,
-            onConfirm = { onSendReport(email, description) }
+            onConfirm = { onSendReport(uiState.email, uiState.description) }
         )
     }
 
@@ -124,7 +120,10 @@ fun ReportProblemScreen(
                 when (uiState.sendingState) {
                     SendingReportUiState.Sending -> SendingContent()
                     is SendingReportUiState.Error ->
-                        ErrorContent({ onSendReport(email, description) }, onClearSendResult)
+                        ErrorContent(
+                            { onSendReport(uiState.email, uiState.description) },
+                            onClearSendResult
+                        )
                     is SendingReportUiState.Success -> SentContent(uiState.sendingState)
                 }
                 return@ScaffoldWithMediumTopBar
@@ -146,8 +145,8 @@ fun ReportProblemScreen(
 
             TextField(
                 modifier = Modifier.fillMaxWidth(),
-                value = email,
-                onValueChange = { email = it },
+                value = uiState.email,
+                onValueChange = updateEmail,
                 maxLines = 1,
                 singleLine = true,
                 placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
@@ -156,8 +155,8 @@ fun ReportProblemScreen(
 
             TextField(
                 modifier = Modifier.fillMaxWidth().weight(1f),
-                value = description,
-                onValueChange = { description = it },
+                value = uiState.description,
+                onValueChange = updateDescription,
                 placeholder = { Text(stringResource(R.string.user_message_hint)) },
                 colors = mullvadWhiteTextFieldColors()
             )
@@ -169,8 +168,8 @@ fun ReportProblemScreen(
                 )
                 Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 VariantButton(
-                    onClick = { onSendReport(email, description) },
-                    isEnabled = description.isNotEmpty(),
+                    onClick = { onSendReport(uiState.email, uiState.description) },
+                    isEnabled = uiState.description.isNotEmpty(),
                     text = stringResource(id = R.string.send)
                 )
             }
@@ -193,6 +192,7 @@ private fun ColumnScope.SendingContent() {
 
 @Composable
 private fun ColumnScope.SentContent(sendingState: SendingReportUiState.Success) {
+    SecureScreenWhileInView()
     Icon(
         painter = painterResource(id = R.drawable.icon_success),
         contentDescription = stringResource(id = R.string.sent),

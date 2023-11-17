@@ -5,12 +5,16 @@ import app.cash.turbine.test
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
+import net.mullvad.mullvadvpn.dataproxy.UserReport
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -20,6 +24,9 @@ class ReportProblemModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var mockMullvadProblemReport: MullvadProblemReport
+    @MockK(relaxed = true) private lateinit var mockProblemReportRepository: ProblemReportRepository
+
+    private val problemReportFlow = MutableStateFlow(UserReport("", ""))
 
     private lateinit var viewModel: ReportProblemViewModel
 
@@ -27,7 +34,8 @@ class ReportProblemModelTest {
     fun setUp() {
         MockKAnnotations.init(this)
         coEvery { mockMullvadProblemReport.collectLogs() } returns true
-        viewModel = ReportProblemViewModel(mockMullvadProblemReport)
+        coEvery { mockProblemReportRepository.problemReport } returns problemReportFlow
+        viewModel = ReportProblemViewModel(mockMullvadProblemReport, mockProblemReportRepository)
     }
 
     @After
@@ -112,6 +120,45 @@ class ReportProblemModelTest {
                 awaitItem(),
                 ReportProblemUiState(false, SendingReportUiState.Success(email))
             )
+        }
+    }
+
+    @Test
+    fun testUpdateEmail() = runTest {
+        // Arrange
+        val email = "my@email.com"
+
+        // Act
+        viewModel.updateEmail(email)
+
+        // Assert
+        verify { mockProblemReportRepository.setEmail(email) }
+    }
+
+    @Test
+    fun testUpdateDescription() = runTest {
+        // Arrange
+        val description = "My description"
+
+        // Act
+        viewModel.updateDescription(description)
+
+        // Assert
+        verify { mockProblemReportRepository.setDescription(description) }
+    }
+
+    @Test
+    fun testUpdateProblemReport() = runTest {
+        // Arrange
+        val userReport = UserReport("my@email.com", "My description")
+
+        // Act, Assert
+        viewModel.uiState.test {
+            awaitItem()
+            problemReportFlow.value = userReport
+            val result = awaitItem()
+            assertEquals(userReport.email, result.email)
+            assertEquals(userReport.description, result.description)
         }
     }
 }

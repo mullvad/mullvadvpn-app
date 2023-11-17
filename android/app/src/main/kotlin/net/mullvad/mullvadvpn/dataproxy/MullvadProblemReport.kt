@@ -19,7 +19,7 @@ sealed interface SendProblemReportResult {
     }
 }
 
-data class UserReport(val email: String?, val message: String)
+data class UserReport(val email: String?, val description: String)
 
 class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher = Dispatchers.IO) {
 
@@ -49,7 +49,7 @@ class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher
             withContext(dispatcher) {
                 sendProblemReport(
                     userReport.email ?: "",
-                    userReport.message,
+                    userReport.description,
                     logsPath.absolutePath,
                     cacheDirectory.absolutePath
                 )
