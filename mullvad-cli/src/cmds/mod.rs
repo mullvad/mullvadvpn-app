@@ -1,6 +1,5 @@
 use clap::builder::{PossibleValuesParser, TypedValueParser, ValueParser};
-use std::io::stdin;
-use std::ops::Deref;
+use std::{io::stdin, ops::Deref};
 
 pub mod account;
 pub mod api_access;
@@ -8,6 +7,7 @@ pub mod auto_connect;
 pub mod beta_program;
 pub mod bridge;
 pub mod custom_list;
+pub mod debug;
 pub mod dns;
 pub mod import_settings;
 pub mod lan;

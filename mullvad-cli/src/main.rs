@@ -31,6 +31,13 @@ enum Cli {
     #[clap(subcommand)]
     LockdownMode(lockdown::LockdownMode),
 
+    /// Debug commands used for internal testing of the app.
+    ///
+    /// These commands will likely set the app in an invalid state, which is
+    /// used to test security under various edge cases.
+    #[clap(subcommand, hide = true)]
+    Debug(debug::DebugCommands),
+
     /// Configure DNS servers to use when connected
     #[clap(subcommand)]
     Dns(dns::Dns),
@@ -70,7 +77,6 @@ enum Cli {
     /// Manage relay and tunnel constraints
     #[clap(subcommand)]
     Relay(relay::Relay),
-
     /// Manage Mullvad API access methods.
     ///
     /// Access methods are used to connect to the the Mullvad API via one of
@@ -148,6 +154,7 @@ async fn main() -> Result<()> {
         Cli::Bridge(cmd) => cmd.handle().await,
         Cli::Connect { wait } => tunnel_state::connect(wait).await,
         Cli::Reconnect { wait } => tunnel_state::reconnect(wait).await,
+        Cli::Debug(cmd) => cmd.handle().await,
         Cli::Disconnect { wait } => tunnel_state::disconnect(wait).await,
         Cli::AutoConnect(cmd) => cmd.handle().await,
         Cli::BetaProgram(cmd) => cmd.handle().await,
