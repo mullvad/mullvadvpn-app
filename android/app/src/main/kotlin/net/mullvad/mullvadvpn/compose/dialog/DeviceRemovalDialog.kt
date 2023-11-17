@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.model.Device
 @Preview
 @Composable
 private fun PreviewShowDeviceRemovalDialog() {
-    ShowDeviceRemovalDialog(
+    DeviceRemovalDialog(
         onDismiss = {},
         onConfirm = {},
         device = Device("test", "test", byteArrayOf(), "test")
@@ -36,7 +36,7 @@ private fun PreviewShowDeviceRemovalDialog() {
 }
 
 @Composable
-fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device: Device) {
+fun DeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device: Device) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -53,7 +53,7 @@ fun ShowDeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device
         },
         text = {
             val htmlFormattedDialogText =
-                textResource(id = R.string.max_devices_confirm_removal_description, device.name)
+                textResource(id = R.string.max_devices_confirm_removal_description, device.displayName())
 
             HtmlText(htmlFormattedString = htmlFormattedDialogText, textSize = 16.sp.value)
         },

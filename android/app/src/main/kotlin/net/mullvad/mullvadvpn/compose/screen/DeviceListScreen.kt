@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.ListItem
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
-import net.mullvad.mullvadvpn.compose.dialog.ShowDeviceRemovalDialog
+import net.mullvad.mullvadvpn.compose.dialog.DeviceRemovalDialog
 import net.mullvad.mullvadvpn.compose.state.DeviceListItemUiState
 import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.lib.common.util.parseAsDateTime
@@ -74,7 +74,7 @@ fun DeviceListScreen(
     onConfirmDeviceRemovalDialog: () -> Unit = {}
 ) {
     if (state.stagedDevice != null) {
-        ShowDeviceRemovalDialog(
+        DeviceRemovalDialog(
             onDismiss = onDismissDeviceRemovalDialog,
             onConfirmDeviceRemovalDialog,
             device = state.stagedDevice
