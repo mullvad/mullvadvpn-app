@@ -138,13 +138,16 @@ impl TunnelState for ErrorState {
         use self::EventConsequence::*;
 
         match runtime.block_on(commands.next()) {
-            Some(TunnelCommand::AllowLan(allow_lan)) => {
-                if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
-                    NewState(Self::enter(shared_values, error_state_cause))
-                } else {
-                    let _ = Self::set_firewall_policy(shared_values);
-                    SameState(self)
-                }
+            Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
+                let consequence =
+                    if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
+                        NewState(Self::enter(shared_values, error_state_cause))
+                    } else {
+                        let _ = Self::set_firewall_policy(shared_values);
+                        SameState(self)
+                    };
+                let _ = complete_tx.send(());
+                consequence
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.allowed_endpoint != endpoint {
@@ -163,15 +166,19 @@ impl TunnelState for ErrorState {
                 let _ = tx.send(());
                 SameState(self)
             }
-            Some(TunnelCommand::Dns(servers)) => {
-                if let Err(error_state_cause) = shared_values.set_dns_servers(servers) {
-                    NewState(Self::enter(shared_values, error_state_cause))
-                } else {
-                    SameState(self)
-                }
+            Some(TunnelCommand::Dns(servers, complete_tx)) => {
+                let consequence =
+                    if let Err(error_state_cause) = shared_values.set_dns_servers(servers) {
+                        NewState(Self::enter(shared_values, error_state_cause))
+                    } else {
+                        SameState(self)
+                    };
+                let _ = complete_tx.send(());
+                consequence
             }
-            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected, complete_tx)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
+                let _ = complete_tx.send(());
                 SameState(self)
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {

@@ -128,7 +128,7 @@ impl TunnelState for DisconnectedState {
         use self::EventConsequence::*;
 
         match runtime.block_on(commands.next()) {
-            Some(TunnelCommand::AllowLan(allow_lan)) => {
+            Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
                 if shared_values.allow_lan != allow_lan {
                     // The only platform that can fail is Android, but Android doesn't support the
                     // "block when disconnected" option, so the following call never fails.
@@ -138,6 +138,7 @@ impl TunnelState for DisconnectedState {
 
                     Self::set_firewall_policy(shared_values, false);
                 }
+                let _ = complete_tx.send(());
                 SameState(self)
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
@@ -148,15 +149,15 @@ impl TunnelState for DisconnectedState {
                 let _ = tx.send(());
                 SameState(self)
             }
-            Some(TunnelCommand::Dns(servers)) => {
+            Some(TunnelCommand::Dns(servers, complete_tx)) => {
                 // Same situation as allow LAN above.
                 shared_values
                     .set_dns_servers(servers)
                     .expect("Failed to reconnect after changing custom DNS servers");
-
+                let _ = complete_tx.send(());
                 SameState(self)
             }
-            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected, complete_tx)) => {
                 if shared_values.block_when_disconnected != block_when_disconnected {
                     shared_values.block_when_disconnected = block_when_disconnected;
                     Self::set_firewall_policy(shared_values, true);
@@ -178,6 +179,7 @@ impl TunnelState for DisconnectedState {
                         Self::reset_dns(shared_values);
                     }
                 }
+                let _ = complete_tx.send(());
                 SameState(self)
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {

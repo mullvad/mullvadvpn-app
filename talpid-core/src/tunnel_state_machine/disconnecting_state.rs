@@ -40,8 +40,9 @@ impl DisconnectingState {
 
         self.after_disconnect = match after_disconnect {
             AfterDisconnect::Nothing => match command {
-                Some(TunnelCommand::AllowLan(allow_lan)) => {
+                Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
@@ -49,12 +50,17 @@ impl DisconnectingState {
                     let _ = tx.send(());
                     AfterDisconnect::Nothing
                 }
-                Some(TunnelCommand::Dns(servers)) => {
+                Some(TunnelCommand::Dns(servers, complete_tx)) => {
                     let _ = shared_values.set_dns_servers(servers);
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Nothing
                 }
-                Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                Some(TunnelCommand::BlockWhenDisconnected(
+                    block_when_disconnected,
+                    complete_tx,
+                )) => {
                     shared_values.block_when_disconnected = block_when_disconnected;
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::IsOffline(is_offline)) => {
@@ -76,8 +82,9 @@ impl DisconnectingState {
                 }
             },
             AfterDisconnect::Block(reason) => match command {
-                Some(TunnelCommand::AllowLan(allow_lan)) => {
+                Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
@@ -85,12 +92,17 @@ impl DisconnectingState {
                     let _ = tx.send(());
                     AfterDisconnect::Block(reason)
                 }
-                Some(TunnelCommand::Dns(servers)) => {
+                Some(TunnelCommand::Dns(servers, complete_tx)) => {
                     let _ = shared_values.set_dns_servers(servers);
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Block(reason)
                 }
-                Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                Some(TunnelCommand::BlockWhenDisconnected(
+                    block_when_disconnected,
+                    complete_tx,
+                )) => {
                     shared_values.block_when_disconnected = block_when_disconnected;
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::IsOffline(is_offline)) => {
@@ -117,8 +129,9 @@ impl DisconnectingState {
                 None => AfterDisconnect::Block(reason),
             },
             AfterDisconnect::Reconnect(retry_attempt) => match command {
-                Some(TunnelCommand::AllowLan(allow_lan)) => {
+                Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
@@ -126,12 +139,17 @@ impl DisconnectingState {
                     let _ = tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                Some(TunnelCommand::Dns(servers)) => {
+                Some(TunnelCommand::Dns(servers, complete_tx)) => {
                     let _ = shared_values.set_dns_servers(servers);
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                Some(TunnelCommand::BlockWhenDisconnected(
+                    block_when_disconnected,
+                    complete_tx,
+                )) => {
                     shared_values.block_when_disconnected = block_when_disconnected;
+                    let _ = complete_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::IsOffline(is_offline)) => {

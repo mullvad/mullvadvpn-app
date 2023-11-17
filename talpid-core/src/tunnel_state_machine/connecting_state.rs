@@ -392,12 +392,14 @@ impl ConnectingState {
         use self::EventConsequence::*;
 
         match command {
-            Some(TunnelCommand::AllowLan(allow_lan)) => {
-                if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
+            Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
+                let consequence = if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
                 } else {
                     self.reset_firewall(shared_values)
-                }
+                };
+                let _ = complete_tx.send(());
+                consequence
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.allowed_endpoint != endpoint {
@@ -418,14 +420,19 @@ impl ConnectingState {
                 let _ = tx.send(());
                 SameState(self)
             }
-            Some(TunnelCommand::Dns(servers)) => match shared_values.set_dns_servers(servers) {
-                #[cfg(target_os = "android")]
-                Ok(true) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
-                Ok(_) => SameState(self),
-                Err(cause) => self.disconnect(shared_values, AfterDisconnect::Block(cause)),
-            },
-            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+            Some(TunnelCommand::Dns(servers, complete_tx)) => {
+                let consequence = match shared_values.set_dns_servers(servers) {
+                    #[cfg(target_os = "android")]
+                    Ok(true) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
+                    Ok(_) => SameState(self),
+                    Err(cause) => self.disconnect(shared_values, AfterDisconnect::Block(cause)),
+                };
+                let _ = complete_tx.send(());
+                consequence
+            }
+            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected, complete_tx)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
+                let _ = complete_tx.send(());
                 SameState(self)
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {

@@ -213,8 +213,8 @@ impl ConnectedState {
         use self::EventConsequence::*;
 
         match command {
-            Some(TunnelCommand::AllowLan(allow_lan)) => {
-                if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
+            Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
+                let consequence = if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
                 } else {
                     match self.set_firewall_policy(shared_values) {
@@ -230,43 +230,55 @@ impl ConnectedState {
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
                         ),
                     }
-                }
+                };
+                let _ = complete_tx.send(());
+                consequence
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 shared_values.allowed_endpoint = endpoint;
                 let _ = tx.send(());
                 SameState(self)
             }
-            Some(TunnelCommand::Dns(servers)) => match shared_values.set_dns_servers(servers) {
-                Ok(true) => {
-                    if let Err(error) = self.set_firewall_policy(shared_values) {
-                        return self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
-                        );
-                    }
-
-                    match self.set_dns(shared_values) {
-                        #[cfg(target_os = "android")]
-                        Ok(()) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
-                        #[cfg(not(target_os = "android"))]
-                        Ok(()) => SameState(self),
-                        Err(error) => {
-                            log::error!("{}", error.display_chain_with_msg("Failed to set DNS"));
-                            self.disconnect(
+            Some(TunnelCommand::Dns(servers, complete_tx)) => {
+                let consequence = match shared_values.set_dns_servers(servers) {
+                    Ok(true) => {
+                        if let Err(error) = self.set_firewall_policy(shared_values) {
+                            return self.disconnect(
                                 shared_values,
-                                AfterDisconnect::Block(ErrorStateCause::SetDnsError),
-                            )
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
+                                    error,
+                                )),
+                            );
+                        }
+
+                        match self.set_dns(shared_values) {
+                            #[cfg(target_os = "android")]
+                            Ok(()) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
+                            #[cfg(not(target_os = "android"))]
+                            Ok(()) => SameState(self),
+                            Err(error) => {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to set DNS")
+                                );
+                                self.disconnect(
+                                    shared_values,
+                                    AfterDisconnect::Block(ErrorStateCause::SetDnsError),
+                                )
+                            }
                         }
                     }
-                }
-                Ok(false) => SameState(self),
-                Err(error_cause) => {
-                    self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
-                }
-            },
-            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                    Ok(false) => SameState(self),
+                    Err(error_cause) => {
+                        self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+                    }
+                };
+                let _ = complete_tx.send(());
+                consequence
+            }
+            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected, complete_tx)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
+                let _ = complete_tx.send(());
                 SameState(self)
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {
