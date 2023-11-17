@@ -134,14 +134,21 @@ pub enum SetTunnelCommands {
         use_multihop: Option<BooleanOption>,
 
         #[clap(subcommand)]
-        entry_location: Option<EntryLocation>,
+        entry: Option<EntryCommands>,
     },
 }
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum EntryLocation {
-    /// Entry endpoint to use. This can be 'any' or any location that is valid with 'set location',
-    /// such as 'se got'.
+pub enum EntryCommands {
+    /// Set wireguard entry relay constraints
+    #[clap(subcommand)]
+    Entry(EntryArgs),
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum EntryArgs {
+    /// Location of entry relay. This can be 'any' or any location that is valid with 'set
+    /// location', such as 'se got'.
     #[command(
         override_usage = "mullvad relay set tunnel wireguard entry-location <COUNTRY> [CITY] [HOSTNAME] | <HOSTNAME>
 
@@ -161,7 +168,7 @@ pub enum EntryLocation {
 
 \tmullvad relay set tunnel wireguard entry-location se-got-wg-004"
     )]
-    EntryLocation(LocationArgs),
+    Location(LocationArgs),
     /// Name of custom list to use to pick entry endpoint.
     CustomList { custom_list_name: String },
 }
@@ -432,10 +439,10 @@ impl Relay {
                 port,
                 ip_version,
                 use_multihop,
-                entry_location,
+                entry,
             } => {
-                Self::set_wireguard_constraints(port, ip_version, use_multihop, entry_location)
-                    .await
+                let entry = entry.map(|EntryCommands::Entry(entry)| entry);
+                Self::set_wireguard_constraints(port, ip_version, use_multihop, entry).await
             }
         }
     }
@@ -646,7 +653,7 @@ impl Relay {
         port: Option<Constraint<u16>>,
         ip_version: Option<Constraint<IpVersion>>,
         use_multihop: Option<BooleanOption>,
-        entry_location: Option<EntryLocation>,
+        entry_location: Option<EntryArgs>,
     ) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let wireguard = rpc.get_relay_locations().await?.wireguard;
@@ -675,7 +682,7 @@ impl Relay {
             wireguard_constraints.use_multihop = *use_multihop;
         }
         match entry_location {
-            Some(EntryLocation::EntryLocation(location_args)) => {
+            Some(EntryArgs::Location(location_args)) => {
                 let relay_filter = |relay: &mullvad_types::relay_list::Relay| {
                     relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
                 };
@@ -685,7 +692,7 @@ impl Relay {
                 wireguard_constraints.entry_location =
                     location_constraint.map(LocationConstraint::from);
             }
-            Some(EntryLocation::CustomList { custom_list_name }) => {
+            Some(EntryArgs::CustomList { custom_list_name }) => {
                 let list_id = super::custom_list::find_list_by_name(&mut rpc, &custom_list_name)
                     .await?
                     .id;
