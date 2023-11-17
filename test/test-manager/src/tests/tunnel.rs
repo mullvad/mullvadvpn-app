@@ -1,6 +1,7 @@
-use super::helpers::{self, connect_and_wait, disconnect_and_wait, set_relay_settings};
+use super::helpers::{
+    self, connect_and_wait, disconnect_and_wait, set_bridge_settings, set_relay_settings,
+};
 use super::{Error, TestContext};
-use std::net::IpAddr;
 
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use mullvad_management_interface::{types, ManagementServiceClient};
@@ -9,6 +10,7 @@ use mullvad_types::relay_constraints::{
     OpenVpnConstraints, RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
     Udp2TcpObfuscationSettings, WireguardConstraints,
 };
+use mullvad_types::relay_list::{Relay, RelayEndpointData};
 use mullvad_types::wireguard;
 use pnet_packet::ip::IpNextHeaderProtocols;
 use talpid_types::net::{TransportProtocol, TunnelType};
@@ -200,26 +202,9 @@ pub async fn test_bridge(
     rpc: ServiceClient,
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
-    log::info!("Select relay");
-    let bridge_filter = |bridge: &types::Relay| {
-        bridge.active && bridge.endpoint_type == i32::from(types::relay::RelayType::Bridge)
-    };
-    let ovpn_filter = |relay: &types::Relay| {
-        relay.active && relay.endpoint_type == i32::from(types::relay::RelayType::Openvpn)
-    };
-    let entry = helpers::filter_relays(&mut mullvad_client, bridge_filter)
-        .await?
-        .pop()
-        .unwrap();
-    let exit = helpers::filter_relays(&mut mullvad_client, ovpn_filter)
-        .await?
-        .pop()
-        .unwrap();
-
     //
     // Enable bridge mode
     //
-
     log::info!("Updating bridge settings");
 
     mullvad_client
@@ -227,25 +212,22 @@ pub async fn test_bridge(
         .await
         .expect("failed to enable bridge mode");
 
-    mullvad_client
-        .set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Normal(
-            BridgeConstraints {
-                location: helpers::into_constraint(&entry),
-                ..Default::default()
-            },
-        )))
-        .await
-        .expect("failed to update bridge settings");
+    set_bridge_settings(
+        &mut mullvad_client,
+        BridgeSettings::Normal(BridgeConstraints::default()),
+    )
+    .await
+    .expect("failed to update bridge settings");
 
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        location: helpers::into_constraint(&exit),
-        tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    set_relay_settings(
+        &mut mullvad_client,
+        RelaySettings::Normal(RelayConstraints {
+            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
+            ..Default::default()
+        }),
+    )
+    .await
+    .expect("failed to update relay settings");
 
     //
     // Connect to VPN
@@ -253,15 +235,42 @@ pub async fn test_bridge(
 
     log::info!("Connect to OpenVPN relay via bridge");
 
+    connect_and_wait(&mut mullvad_client)
+        .await
+        .expect("connect_and_wait");
+
+    let tunnel = helpers::get_tunnel_state(&mut mullvad_client).await;
+    let (entry, exit) = match tunnel {
+        mullvad_types::states::TunnelState::Connected { endpoint, .. } => {
+            (endpoint.proxy.unwrap().endpoint, endpoint.endpoint)
+        }
+        _ => return Err(Error::DaemonError("daemon entered error state".to_string())),
+    };
+
+    log::info!(
+        "Selected entry bridge {entry_ip} & exit relay {exit_ip}",
+        entry_ip = entry.address.ip().to_string(),
+        exit_ip = exit.address.ip().to_string()
+    );
+
+    // Start recording outgoing packets. Their destination will be verified
+    // against the bridge's IP address later.
     let monitor = start_packet_monitor(
-        move |packet| packet.destination.ip() == entry.ipv4_addr_in.parse::<IpAddr>().unwrap(),
+        move |packet| packet.destination.ip() == entry.address.ip(),
         MonitorOptions::default(),
     )
     .await;
 
-    connect_and_wait(&mut mullvad_client)
-        .await
-        .expect("connect_and_wait");
+    //
+    // Verify exit IP
+    //
+
+    log::info!("Verifying exit server");
+
+    assert!(
+        helpers::using_mullvad_exit(&rpc).await,
+        "expected Mullvad exit IP"
+    );
 
     //
     // Verify entry IP
@@ -273,15 +282,6 @@ pub async fn test_bridge(
     assert!(
         !monitor_result.packets.is_empty(),
         "detected no traffic to entry server",
-    );
-
-    //
-    // Verify exit IP
-    //
-
-    assert!(
-        helpers::using_mullvad_exit(&rpc).await,
-        "expected Mullvad exit IP"
     );
 
     disconnect_and_wait(&mut mullvad_client).await?;
@@ -304,8 +304,8 @@ pub async fn test_multihop(
     //
 
     log::info!("Select relay");
-    let relay_filter = |relay: &types::Relay| {
-        relay.active && relay.endpoint_type == i32::from(types::relay::RelayType::Wireguard)
+    let relay_filter = |relay: &Relay| {
+        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
     };
     let (entry, exit) = helpers::random_entry_and_exit(&mut mullvad_client, relay_filter).await?;
     let exit_constraint = helpers::into_constraint(&exit);
@@ -331,7 +331,7 @@ pub async fn test_multihop(
 
     let monitor = start_packet_monitor(
         move |packet| {
-            packet.destination.ip() == entry.ipv4_addr_in.parse::<IpAddr>().unwrap()
+            packet.destination.ip() == entry.ipv4_addr_in
                 && packet.protocol == IpNextHeaderProtocols::Udp
         },
         MonitorOptions::default(),
@@ -565,9 +565,8 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
                 wireguard_constraints: WireguardConstraints {
                     use_multihop: true,
                     ..Default::default()
-                }
-                .into(),
-                tunnel_protocol: Constraint::Only(TunnelType::Wireguard).into(),
+                },
+                tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
                 ..Default::default()
             },
         )))
