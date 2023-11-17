@@ -19,12 +19,14 @@ import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
 import net.mullvad.mullvadvpn.compose.state.LoginState.*
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.constant.LOGIN_TIMEOUT_MILLIS
 import net.mullvad.mullvadvpn.model.AccountCreationResult
 import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.util.awaitWithTimeoutOrNull
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
 
@@ -81,7 +83,8 @@ class LoginViewModel(
             delay(MINIMUM_LOADING_SPINNER_TIME_MILLIS)
 
             val uiState =
-                when (val result = loginDeferred.await()) {
+                // If timed out will go to the else branch
+                when (val result = loginDeferred.awaitWithTimeoutOrNull(LOGIN_TIMEOUT_MILLIS)) {
                     LoginResult.Ok -> {
                         launch {
                             delay(1000)
