@@ -1,4 +1,4 @@
-use crate::{account_history, device, settings, DaemonCommand, DaemonCommandSender, EventListener};
+use crate::{account_history, device, DaemonCommand, DaemonCommandSender, EventListener};
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
@@ -177,10 +177,8 @@ impl ManagementService for ManagementServiceImpl {
 
         let message = DaemonCommand::SetRelaySettings(tx, constraints_update);
         self.send_command_to_daemon(message)?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn get_relay_locations(&self, _: Request<()>) -> ServiceResult<types::RelayList> {
@@ -215,10 +213,8 @@ impl ManagementService for ManagementServiceImpl {
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, settings))?;
-        let settings_result = self.wait_for_result(rx).await?;
-        settings_result
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_obfuscation_settings(
@@ -230,10 +226,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_obfuscation_settings({:?})", settings);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetObfuscationSettings(tx, settings))?;
-        let settings_result = self.wait_for_result(rx).await?;
-        settings_result
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_bridge_state(&self, request: Request<types::BridgeState>) -> ServiceResult<()> {
@@ -243,10 +237,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_bridge_state({:?})", bridge_state);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetBridgeState(tx, bridge_state))?;
-        let settings_result = self.wait_for_result(rx).await?;
-        settings_result
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     // Settings
@@ -266,10 +258,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_allow_lan({})", allow_lan);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetAllowLan(tx, allow_lan))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_show_beta_releases(&self, request: Request<bool>) -> ServiceResult<()> {
@@ -277,10 +267,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_show_beta_releases({})", enabled);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetShowBetaReleases(tx, enabled))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
@@ -291,10 +279,8 @@ impl ManagementService for ManagementServiceImpl {
             tx,
             block_when_disconnected,
         ))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_auto_connect(&self, request: Request<bool>) -> ServiceResult<()> {
@@ -302,10 +288,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_auto_connect({})", auto_connect);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetAutoConnect(tx, auto_connect))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_openvpn_mssfix(&self, request: Request<u32>) -> ServiceResult<()> {
@@ -318,10 +302,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_openvpn_mssfix({:?})", mssfix);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetOpenVpnMssfix(tx, mssfix))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_wireguard_mtu(&self, request: Request<u32>) -> ServiceResult<()> {
@@ -330,10 +312,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_wireguard_mtu({:?})", mtu);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetWireguardMtu(tx, mtu))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_enable_ipv6(&self, request: Request<bool>) -> ServiceResult<()> {
@@ -341,10 +321,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_enable_ipv6({})", enable_ipv6);
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetEnableIpv6(tx, enable_ipv6))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn set_quantum_resistant_tunnel(
@@ -357,10 +335,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_quantum_resistant_tunnel({state:?})");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetQuantumResistantTunnel(tx, state))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     #[cfg(not(target_os = "android"))]
@@ -370,10 +346,8 @@ impl ManagementService for ManagementServiceImpl {
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetDnsOptions(tx, options))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     #[cfg(target_os = "android")]
@@ -390,20 +364,16 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("set_relay_override");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetRelayOverride(tx, relay_override))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn clear_all_relay_overrides(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("clear_all_relay_overrides");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::ClearAllRelayOverrides(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     // Account management
@@ -571,20 +541,16 @@ impl ManagementService for ManagementServiceImpl {
             tx,
             Some(interval),
         ))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn reset_wireguard_rotation_interval(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("reset_wireguard_rotation_interval");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, None))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_settings_error)
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
     }
 
     async fn rotate_wireguard_key(&self, _: Request<()>) -> ServiceResult<()> {
@@ -929,6 +895,14 @@ impl ManagementService for ManagementServiceImpl {
     async fn check_volumes(&self, _: Request<()>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
+
+    async fn apply_json_settings(&self, blob: Request<String>) -> ServiceResult<()> {
+        log::debug!("apply_json_settings");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ApplyJsonSettings(tx, blob.into_inner()))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {
@@ -1061,7 +1035,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
 
     match error {
         DaemonError::RestError(error) => map_rest_error(&error),
-        DaemonError::SettingsError(error) => map_settings_error(error),
+        DaemonError::SettingsError(error) => Status::from(error),
         DaemonError::AlreadyLoggedIn => Status::already_exists(error.to_string()),
         DaemonError::LoginError(error) => map_device_error(&error),
         DaemonError::LogoutError(error) => map_device_error(&error),
@@ -1118,20 +1092,6 @@ fn map_rest_error(error: &RestError) -> Status {
         RestError::TimeoutError => Status::deadline_exceeded("API request timed out"),
         RestError::HyperError(_) => Status::unavailable("Cannot reach the API"),
         error => Status::unknown(format!("REST error: {error}")),
-    }
-}
-
-/// Converts an instance of [`mullvad_daemon::settings::Error`] into a tonic status.
-fn map_settings_error(error: settings::Error) -> Status {
-    match error {
-        settings::Error::DeleteError(..)
-        | settings::Error::WriteError(..)
-        | settings::Error::ReadError(..) => {
-            Status::new(Code::FailedPrecondition, error.to_string())
-        }
-        settings::Error::SerializeError(..) | settings::Error::ParseError(..) => {
-            Status::new(Code::Internal, error.to_string())
-        }
     }
 }
 

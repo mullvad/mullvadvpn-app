@@ -9,6 +9,7 @@ pub mod beta_program;
 pub mod bridge;
 pub mod custom_list;
 pub mod dns;
+pub mod import_settings;
 pub mod lan;
 pub mod lockdown;
 pub mod obfuscation;
