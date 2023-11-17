@@ -42,12 +42,11 @@ class RelayListListener(
         messageHandler.trySendRequest(Request.SetWireguardConstraints(value))
     }
 
-    fun updateSelectedOwnershipFilter(value: Constraint<Ownership>) {
-        messageHandler.trySendRequest(Request.SetOwnership(value))
-    }
-
-    fun updateSelectedProvidersFilter(value: Constraint<Providers>) {
-        messageHandler.trySendRequest(Request.SetProviders(value))
+    fun updateSelectedOwnershipAndProviderFilter(
+        ownership: Constraint<Ownership>,
+        providers: Constraint<Providers>
+    ) {
+        messageHandler.trySendRequest(Request.SetOwnershipAndProviders(ownership, providers))
     }
 
     private fun defaultRelayList() = RelayList(ArrayList(), WireguardEndpointData(ArrayList()))

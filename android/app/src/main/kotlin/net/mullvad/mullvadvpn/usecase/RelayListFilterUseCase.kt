@@ -15,12 +15,11 @@ class RelayListFilterUseCase(
     private val relayListListener: RelayListListener,
     private val settingsRepository: SettingsRepository
 ) {
-    fun updateOwnershipFilter(ownership: Constraint<Ownership>) {
-        relayListListener.updateSelectedOwnershipFilter(ownership)
-    }
-
-    fun updateProviderFilter(providers: Constraint<Providers>) {
-        relayListListener.updateSelectedProvidersFilter(providers)
+    fun updateOwnershipAndProviderFilter(
+        ownership: Constraint<Ownership>,
+        providers: Constraint<Providers>
+    ) {
+        relayListListener.updateSelectedOwnershipAndProviderFilter(ownership, providers)
     }
 
     fun selectedOwnership(): Flow<Constraint<Ownership>> =
