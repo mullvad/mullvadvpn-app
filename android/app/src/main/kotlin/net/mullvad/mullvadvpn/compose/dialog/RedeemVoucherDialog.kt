@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
-import net.mullvad.mullvadvpn.compose.textfield.GroupedTextField
+import net.mullvad.mullvadvpn.compose.textfield.CustomTextField
 import net.mullvad.mullvadvpn.compose.util.MAX_VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.compose.util.vouchersVisualTransformation
 import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
@@ -217,23 +217,20 @@ private fun EnterVoucherBody(
     onVoucherInputChange: (String) -> Unit = {},
     onRedeem: (voucherCode: String) -> Unit
 ) {
-    GroupedTextField(
+    CustomTextField(
         value = uiState.voucherInput,
         onSubmit = { input ->
             if (uiState.voucherInput.length == VOUCHER_LENGTH) {
                 onRedeem(input)
             }
         },
-        onValueChanged = { input -> onVoucherInputChange(input.uppercase()) },
+        onValueChanged = { input -> onVoucherInputChange(input) },
         isValidValue =
             uiState.voucherInput.isEmpty() || uiState.voucherInput.length == MAX_VOUCHER_LENGTH,
         keyboardType = KeyboardType.Password,
         placeholderText = stringResource(id = R.string.voucher_hint),
         visualTransformation = vouchersVisualTransformation(),
-        maxCharLength = VOUCHER_LENGTH,
-        isDigitsOnlyAllowed = false,
-        isEnabled = true,
-        validateRegex = "^[A-Za-z0-9]*$".toRegex()
+        isDigitsOnlyAllowed = false
     )
     Spacer(modifier = Modifier.height(Dimens.smallPadding))
     Row(
