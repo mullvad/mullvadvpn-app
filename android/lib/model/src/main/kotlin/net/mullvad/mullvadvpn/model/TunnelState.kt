@@ -6,6 +6,7 @@ import net.mullvad.talpid.net.TunnelEndpoint
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
+import net.mullvad.talpid.tunnel.FirewallPolicyError
 
 sealed class TunnelState : Parcelable {
     @Parcelize object Disconnected : TunnelState(), Parcelable
@@ -73,9 +74,20 @@ sealed class TunnelState : Parcelable {
                 DISCONNECTING -> Disconnecting(ActionAfterDisconnect.Nothing)
                 BLOCKING -> Error(ErrorState(ErrorStateCause.StartTunnelError, true))
                 ERROR -> {
-                    Error(ErrorState(ErrorStateCause.SetFirewallPolicyError, false))
+                    Error(
+                        ErrorState(
+                            ErrorStateCause.SetFirewallPolicyError(FirewallPolicyError.Generic),
+                            false
+                        )
+                    )
                 }
-                else -> Error(ErrorState(ErrorStateCause.SetFirewallPolicyError, false))
+                else ->
+                    Error(
+                        ErrorState(
+                            ErrorStateCause.SetFirewallPolicyError(FirewallPolicyError.Generic),
+                            false
+                        )
+                    )
             }
         }
     }

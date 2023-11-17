@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
+import net.mullvad.talpid.tunnel.FirewallPolicyError
 import org.joda.time.DateTime
 
 @Preview
@@ -61,7 +62,13 @@ private fun PreviewNotificationBanner() {
                         InAppNotification.TunnelStateBlocked,
                         InAppNotification.NewDevice("Courageous Turtle"),
                         InAppNotification.TunnelStateError(
-                            error = ErrorState(ErrorStateCause.SetFirewallPolicyError, true)
+                            error =
+                                ErrorState(
+                                    ErrorStateCause.SetFirewallPolicyError(
+                                        FirewallPolicyError.Generic
+                                    ),
+                                    true
+                                )
                         )
                     )
                     .map { it.toNotificationData({}, {}, {}) }

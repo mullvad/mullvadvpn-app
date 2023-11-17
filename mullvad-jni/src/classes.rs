@@ -95,5 +95,6 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/CreateTunResult$InvalidDnsServers",
     "net/mullvad/talpid/CreateTunResult$PermissionDenied",
     "net/mullvad/talpid/CreateTunResult$TunnelDeviceError",
+    "net/mullvad/talpid/tunnel/FirewallPolicyError",
     "net/mullvad/talpid/TalpidVpnService",
 ];

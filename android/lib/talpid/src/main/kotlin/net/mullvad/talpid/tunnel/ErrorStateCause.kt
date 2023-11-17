@@ -14,19 +14,23 @@ sealed class ErrorStateCause : Parcelable {
         }
     }
 
-    @Parcelize object Ipv6Unavailable : ErrorStateCause()
+    @Parcelize data object Ipv6Unavailable : ErrorStateCause()
 
-    @Parcelize object SetFirewallPolicyError : ErrorStateCause()
+    @Parcelize
+    data class SetFirewallPolicyError(val firewallPolicyError: FirewallPolicyError) :
+        ErrorStateCause()
 
-    @Parcelize object SetDnsError : ErrorStateCause()
+    @Parcelize data object SetDnsError : ErrorStateCause()
 
-    @Parcelize class InvalidDnsServers(val addresses: ArrayList<InetAddress>) : ErrorStateCause()
+    @Parcelize
+    data class InvalidDnsServers(val addresses: ArrayList<InetAddress>) : ErrorStateCause()
 
-    @Parcelize object StartTunnelError : ErrorStateCause()
+    @Parcelize data object StartTunnelError : ErrorStateCause()
 
-    @Parcelize class TunnelParameterError(val error: ParameterGenerationError) : ErrorStateCause()
+    @Parcelize
+    data class TunnelParameterError(val error: ParameterGenerationError) : ErrorStateCause()
 
-    @Parcelize object IsOffline : ErrorStateCause()
+    @Parcelize data object IsOffline : ErrorStateCause()
 
-    @Parcelize object VpnPermissionDenied : ErrorStateCause()
+    @Parcelize data object VpnPermissionDenied : ErrorStateCause()
 }
