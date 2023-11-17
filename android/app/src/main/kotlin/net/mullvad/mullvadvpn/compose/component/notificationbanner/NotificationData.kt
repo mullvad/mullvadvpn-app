@@ -113,8 +113,19 @@ private fun errorMessageBannerData(error: ErrorState) =
     error.getErrorNotificationResources(LocalContext.current).run {
         NotificationData(
             title = stringResource(id = titleResourceId),
-            message = optionalMessageArgument?.let { stringResource(id = messageResourceId, it) }
-                    ?: stringResource(id = messageResourceId),
+            message =
+                HtmlCompat.fromHtml(
+                        optionalMessageArgument?.let { stringResource(id = messageResourceId, it) }
+                            ?: stringResource(id = messageResourceId),
+                        HtmlCompat.FROM_HTML_MODE_COMPACT
+                    )
+                    .toAnnotatedString(
+                        boldSpanStyle =
+                            SpanStyle(
+                                color = MaterialTheme.colorScheme.onBackground,
+                                fontWeight = FontWeight.ExtraBold
+                            )
+                    ),
             statusLevel = StatusLevel.Error,
             action = null
         )
