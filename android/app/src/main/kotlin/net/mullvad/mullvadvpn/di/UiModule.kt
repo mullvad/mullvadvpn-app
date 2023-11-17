@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
+import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -116,6 +117,8 @@ val uiModule = module {
         }
     }
 
+    single { ProblemReportRepository() }
+
     // View models
     viewModel { AccountViewModel(get(), get(), get(), get()) }
     viewModel {
@@ -131,7 +134,7 @@ val uiModule = module {
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get()) }
-    viewModel { ReportProblemViewModel(get()) }
+    viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get()) }
 }

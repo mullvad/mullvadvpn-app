@@ -30,7 +30,9 @@ class ProblemReportFragment : BaseFragment() {
                         onSendReport = { email, description -> vm.sendReport(email, description) },
                         onDismissNoEmailDialog = vm::dismissConfirmNoEmail,
                         onClearSendResult = vm::clearSendResult,
-                        onNavigateToViewLogs = { showLogs() }
+                        onNavigateToViewLogs = { showLogs() },
+                        updateEmail = vm::updateEmail,
+                        updateDescription = vm::updateDescription
                     ) {
                         activity?.onBackPressed()
                     }
