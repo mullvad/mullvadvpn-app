@@ -45,7 +45,8 @@ fun ReportProblemNoEmailDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
             Text(
                 text = stringResource(id = R.string.confirm_no_email),
                 modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground
             )
         },
         dismissButton = {
