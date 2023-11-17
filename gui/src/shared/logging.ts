@@ -87,7 +87,6 @@ export class ConsoleOutput implements ILogOutput {
           break;
         case LogLevel.info:
           console.info(message);
-          throw new Error('Log failed');
           break;
         case LogLevel.verbose:
           console.log(message);
