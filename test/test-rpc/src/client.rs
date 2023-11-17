@@ -151,6 +151,13 @@ impl ServiceClient {
             .await?
     }
 
+    /// Returns path of Mullvad app cache directorie on the test runner.
+    pub async fn find_mullvad_app_cache_dir(&self) -> Result<PathBuf, Error> {
+        self.client
+            .get_mullvad_app_cache_dir(tarpc::context::current())
+            .await?
+    }
+
     /// Send TCP packet
     pub async fn send_tcp(
         &self,
@@ -213,6 +220,34 @@ impl ServiceClient {
             .await?
     }
 
+    pub async fn restart_app(&self) -> Result<(), Error> {
+        let _ = self.client.restart_app(tarpc::context::current()).await?;
+        Ok(())
+    }
+
+    /// Stop the app.
+    ///
+    /// Shuts down a running app, making it disconnect from any current tunnel
+    /// connection and making it write to caches.
+    ///
+    /// # Note
+    /// This function will return *after* the app has been stopped, thus
+    /// blocking execution until then.
+    pub async fn stop_app(&self) -> Result<(), Error> {
+        let _ = self.client.stop_app(tarpc::context::current()).await?;
+        Ok(())
+    }
+
+    /// Start the app.
+    ///
+    /// # Note
+    /// This function will return *after* the app has been start, thus
+    /// blocking execution until then.
+    pub async fn start_app(&self) -> Result<(), Error> {
+        let _ = self.client.start_app(tarpc::context::current()).await?;
+        Ok(())
+    }
+
     pub async fn set_daemon_log_level(
         &self,
         verbosity_level: mullvad_daemon::Verbosity,
@@ -244,6 +279,17 @@ impl ServiceClient {
         log::debug!("Copying \"{src}\" to \"{dest}\"");
         self.client
             .copy_file(tarpc::context::current(), src, dest)
+            .await?
+    }
+
+    pub async fn write_file(&self, dest: String, bytes: Vec<u8>) -> Result<(), Error> {
+        log::debug!(
+            "Writing {bytes} bytes to \"{file}\"",
+            bytes = bytes.len(),
+            file = dest
+        );
+        self.client
+            .write_file(tarpc::context::current(), dest, bytes)
             .await?
     }
 
