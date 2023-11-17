@@ -189,15 +189,15 @@ pub async fn spawn(
 /// Representation of external commands for the tunnel state machine.
 pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
-    AllowLan(bool),
+    AllowLan(bool, oneshot::Sender<()>),
     /// Endpoint that should never be blocked. `()` is sent to the
     /// channel after attempting to set the firewall policy, regardless
     /// of whether it succeeded.
     AllowEndpoint(AllowedEndpoint, oneshot::Sender<()>),
     /// Set DNS servers to use.
-    Dns(Option<Vec<IpAddr>>),
+    Dns(Option<Vec<IpAddr>>, oneshot::Sender<()>),
     /// Enable or disable the block_when_disconnected feature.
-    BlockWhenDisconnected(bool),
+    BlockWhenDisconnected(bool, oneshot::Sender<()>),
     /// Notify the state machine of the connectivity of the device.
     IsOffline(bool),
     /// Open tunnel connection.
