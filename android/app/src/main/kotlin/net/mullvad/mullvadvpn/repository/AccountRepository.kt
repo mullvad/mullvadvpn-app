@@ -91,7 +91,7 @@ class AccountRepository(
         messageHandler.trySendRequest(Request.ClearAccountHistory)
     }
 
-    private fun clearCreatedAccountCache() {
+    fun clearCreatedAccountCache() {
         _cachedCreatedAccount.value = null
     }
 }

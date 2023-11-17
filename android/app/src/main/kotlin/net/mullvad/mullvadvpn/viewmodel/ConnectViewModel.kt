@@ -133,6 +133,12 @@ class ConnectViewModel(
             .debounce(UI_STATE_DEBOUNCE_DURATION_MILLIS)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
+    init {
+        // The create account cache is no longer needed as we have successfully reached the connect
+        // screen
+        accountRepository.clearCreatedAccountCache()
+    }
+
     private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
         onNewLocation = { this.trySend(it) }
         awaitClose { onNewLocation = null }
