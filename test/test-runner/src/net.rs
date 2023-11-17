@@ -35,7 +35,7 @@ pub async fn send_tcp(
         };
 
         #[cfg(target_os = "macos")]
-        sock.bind_device_by_index(Some(interface_index))
+        sock.bind_device_by_index_v4(Some(interface_index))
             .map_err(|error| {
                 log::error!("Failed to set IP_BOUND_IF on socket: {error}");
                 test_rpc::Error::SendTcp
@@ -102,7 +102,7 @@ pub async fn send_udp(
         };
 
         #[cfg(target_os = "macos")]
-        sock.bind_device_by_index(Some(interface_index))
+        sock.bind_device_by_index_v4(Some(interface_index))
             .map_err(|error| {
                 log::error!("Failed to set IP_BOUND_IF on socket: {error}");
                 test_rpc::Error::SendUdp
