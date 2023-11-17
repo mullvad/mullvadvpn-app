@@ -20,18 +20,15 @@ impl From<LocationArgs> for Constraint<GeographicLocationConstraint> {
             return Constraint::Any;
         }
 
-        match (value.country, value.city, value.hostname) {
-            (country, None, None) => {
-                Constraint::Only(GeographicLocationConstraint::Country(country))
+        Constraint::Only(match (value.country, value.city, value.hostname) {
+            (country, None, None) => GeographicLocationConstraint::Country(country),
+            (country, Some(city), None) => GeographicLocationConstraint::City(country, city),
+            (country, Some(city), Some(hostname)) => {
+                GeographicLocationConstraint::Hostname(country, city, hostname)
             }
-            (country, Some(city), None) => {
-                Constraint::Only(GeographicLocationConstraint::City(country, city))
-            }
-            (country, Some(city), Some(hostname)) => Constraint::Only(
-                GeographicLocationConstraint::Hostname(country, city, hostname),
-            ),
+
             _ => unreachable!("invalid location arguments"),
-        }
+        })
     }
 }
 
