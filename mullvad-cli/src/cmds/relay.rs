@@ -9,7 +9,7 @@ use mullvad_types::{
         Match, OpenVpnConstraints, Ownership, Provider, Providers, RelayConstraints, RelayOverride,
         RelaySettings, TransportPort, WireguardConstraints,
     },
-    relay_list::{RelayEndpointData, RelayListCountry},
+    relay_list::{RelayEndpointData, RelayList, RelayListCountry},
     ConnectionConfig, CustomTunnelEndpoint,
 };
 use std::{
@@ -722,7 +722,8 @@ impl Relay {
         let settings = rpc.get_settings().await?;
 
         if warn_non_existent_hostname {
-            let countries = get_filtered_relays_with_client(&mut rpc).await?;
+            let relay_list = rpc.get_relay_locations().await?;
+            let countries = filter_relays(relay_list);
             if find_relay_by_hostname(&countries, hostname).is_none() {
                 eprintln!("Warning: Setting overrides for an unrecognized server");
             }
@@ -925,36 +926,35 @@ pub fn find_relay_by_hostname(
 /// Return a list of all active non-bridge relays
 pub async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
     let mut rpc = MullvadProxyClient::new().await?;
-    get_filtered_relays_with_client(&mut rpc).await
+    let relay_list = rpc.get_relay_locations().await?;
+    Ok(filter_relays(relay_list))
 }
 
 /// Return a list of all active non-bridge relays
-async fn get_filtered_relays_with_client(
-    rpc: &mut MullvadProxyClient,
-) -> Result<Vec<RelayListCountry>> {
-    let relay_list = rpc.get_relay_locations().await?;
-
-    let mut countries = vec![];
-
-    for mut country in relay_list.countries {
-        country.cities = country
-            .cities
-            .into_iter()
-            .filter_map(|mut city| {
-                city.relays.retain(|relay| {
-                    relay.active && relay.endpoint_data != RelayEndpointData::Bridge
-                });
-                if !city.relays.is_empty() {
-                    Some(city)
-                } else {
-                    None
-                }
-            })
-            .collect();
-        if !country.cities.is_empty() {
-            countries.push(country);
-        }
-    }
-
-    Ok(countries)
+fn filter_relays(relay_list: RelayList) -> Vec<RelayListCountry> {
+    relay_list
+        .countries
+        .into_iter()
+        .filter_map(|mut country| {
+            country.cities = country
+                .cities
+                .into_iter()
+                .filter_map(|mut city| {
+                    city.relays.retain(|relay| {
+                        relay.active && relay.endpoint_data != RelayEndpointData::Bridge
+                    });
+                    if !city.relays.is_empty() {
+                        Some(city)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            if !country.cities.is_empty() {
+                Some(country)
+            } else {
+                None
+            }
+        })
+        .collect_vec()
 }
