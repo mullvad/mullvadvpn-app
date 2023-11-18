@@ -10,7 +10,6 @@ use mullvad_types::relay_constraints::{
     OpenVpnConstraints, RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
     Udp2TcpObfuscationSettings, WireguardConstraints,
 };
-use mullvad_types::relay_list::{Relay, RelayEndpointData};
 use mullvad_types::wireguard;
 use pnet_packet::ip::IpNextHeaderProtocols;
 use talpid_types::net::{TransportProtocol, TunnelType};
@@ -123,18 +122,14 @@ pub async fn test_wireguard_tunnel(
     Ok(())
 }
 
-/// Use udp2tcp obfuscation. This test connects to a
-/// WireGuard relay over TCP. It fails if no outgoing TCP
-/// traffic to the relay is observed on the expected port.
+/// Use udp2tcp obfuscation. This test connects to a WireGuard relay over TCP. It fails if no
+/// outgoing TCP traffic to the relay is observed on the expected port.
 #[test_function]
 pub async fn test_udp2tcp_tunnel(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
-    // TODO: check if src <-> target / tcp is observed (only)
-    // TODO: ping a public IP on the fake network (not possible using real relay)
-
     mullvad_client
         .set_obfuscation_settings(types::ObfuscationSettings::from(ObfuscationSettings {
             selected_obfuscation: SelectedObfuscation::Udp2Tcp,
@@ -158,22 +153,19 @@ pub async fn test_udp2tcp_tunnel(
 
     connect_and_wait(&mut mullvad_client).await?;
 
+    let endpoint = match helpers::get_tunnel_state(&mut mullvad_client).await {
+        mullvad_types::states::TunnelState::Connected { endpoint, .. } => endpoint.endpoint,
+        _ => panic!("unexpected tunnel state"),
+    };
+
     //
     // Set up packet monitor
     //
 
-    let non_tunnel_interface = rpc
-        .get_default_interface()
-        .await
-        .expect("failed to obtain non-tun interface");
-    let guest_ip = rpc
-        .get_interface_ip(non_tunnel_interface)
-        .await
-        .expect("failed to obtain inet interface IP");
-
     let monitor = start_packet_monitor(
         move |packet| {
-            packet.source.ip() != guest_ip || (packet.protocol == IpNextHeaderProtocols::Tcp)
+            packet.destination.ip() == endpoint.address.ip()
+                && packet.protocol == IpNextHeaderProtocols::Tcp
         },
         MonitorOptions::default(),
     )
@@ -189,9 +181,10 @@ pub async fn test_udp2tcp_tunnel(
     );
 
     let monitor_result = monitor.into_result().await.unwrap();
-    assert_eq!(monitor_result.discarded_packets, 0);
-
-    disconnect_and_wait(&mut mullvad_client).await?;
+    assert!(
+        !monitor_result.packets.is_empty(),
+        "detected no tcp traffic",
+    );
 
     Ok(())
 }
@@ -239,22 +232,19 @@ pub async fn test_bridge(
 
     log::info!("Connect to OpenVPN relay via bridge");
 
-    connect_and_wait(&mut mullvad_client)
-        .await
-        .expect("connect_and_wait");
+    connect_and_wait(&mut mullvad_client).await?;
 
-    let tunnel = helpers::get_tunnel_state(&mut mullvad_client).await;
-    let (entry, exit) = match tunnel {
+    let (entry, exit) = match helpers::get_tunnel_state(&mut mullvad_client).await {
         mullvad_types::states::TunnelState::Connected { endpoint, .. } => {
             (endpoint.proxy.unwrap().endpoint, endpoint.endpoint)
         }
-        _ => return Err(Error::DaemonError("daemon entered error state".to_string())),
+        _ => panic!("unexpected tunnel state"),
     };
 
     log::info!(
-        "Selected entry bridge {entry_ip} & exit relay {exit_ip}",
-        entry_ip = entry.address.ip().to_string(),
-        exit_ip = exit.address.ip().to_string()
+        "Selected entry bridge {entry_addr} & exit relay {exit_addr}",
+        entry_addr = entry.address,
+        exit_addr = exit.address
     );
 
     // Start recording outgoing packets. Their destination will be verified
@@ -288,14 +278,11 @@ pub async fn test_bridge(
         "detected no traffic to entry server",
     );
 
-    disconnect_and_wait(&mut mullvad_client).await?;
-
     Ok(())
 }
 
 /// Test whether WireGuard multihop works. This fails if:
-/// * No outgoing traffic to the entry relay is
-///   observed from the SUT.
+/// * No outgoing traffic to the entry relay is observed from the SUT.
 /// * The conncheck reports an unexpected exit relay.
 #[test_function]
 pub async fn test_multihop(
@@ -303,24 +290,12 @@ pub async fn test_multihop(
     rpc: ServiceClient,
     mut mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
-    //
-    // Set relays to use
-    //
-
-    log::info!("Select relay");
-    let relay_filter = |relay: &Relay| {
-        relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-    };
-    let (entry, exit) = helpers::random_entry_and_exit(&mut mullvad_client, relay_filter).await?;
-    let exit_constraint = helpers::into_constraint(&exit);
     let wireguard_constraints = WireguardConstraints {
         use_multihop: true,
-        entry_location: helpers::into_constraint(&entry),
         ..Default::default()
     };
 
     let relay_settings = RelaySettings::Normal(RelayConstraints {
-        location: exit_constraint,
         wireguard_constraints,
         ..Default::default()
     });
@@ -333,25 +308,32 @@ pub async fn test_multihop(
     // Connect
     //
 
-    let monitor = start_packet_monitor(
-        move |packet| {
-            packet.destination.ip() == entry.ipv4_addr_in
-                && packet.protocol == IpNextHeaderProtocols::Udp
-        },
-        MonitorOptions::default(),
-    )
-    .await;
+    log::info!("Connect using WG multihop");
 
     connect_and_wait(&mut mullvad_client).await?;
 
+    let (entry, exit) = match helpers::get_tunnel_state(&mut mullvad_client).await {
+        mullvad_types::states::TunnelState::Connected { endpoint, .. } => {
+            (endpoint.entry_endpoint.unwrap(), endpoint.endpoint)
+        }
+        _ => panic!("unexpected tunnel state"),
+    };
+
+    log::info!(
+        "Selected entry {entry_addr} & exit relay {exit_addr}",
+        entry_addr = entry.address,
+        exit_addr = exit.address
+    );
+
     //
-    // Verify entry IP
+    // Record outgoing packets to the entry relay
     //
 
-    log::info!("Verifying entry server");
-
-    let monitor_result = monitor.into_result().await.unwrap();
-    assert!(!monitor_result.packets.is_empty(), "no matching packets",);
+    let monitor = start_packet_monitor(
+        move |packet| packet.destination.ip() == entry.address.ip(),
+        MonitorOptions::default(),
+    )
+    .await;
 
     //
     // Verify exit IP
@@ -362,7 +344,14 @@ pub async fn test_multihop(
         "expected Mullvad exit IP"
     );
 
-    disconnect_and_wait(&mut mullvad_client).await?;
+    //
+    // Verify entry IP
+    //
+
+    log::info!("Verifying entry server");
+
+    let monitor_result = monitor.into_result().await.unwrap();
+    assert!(!monitor_result.packets.is_empty(), "no matching packets",);
 
     Ok(())
 }
