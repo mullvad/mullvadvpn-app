@@ -163,14 +163,6 @@ pub async fn test_connecting_state(
 
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Connecting { .. });
 
-    //
-    // Disconnect
-    //
-
-    log::info!("Disconnecting");
-
-    disconnect_and_wait(&mut mullvad_client).await?;
-
     Ok(())
 }
 
@@ -256,14 +248,6 @@ pub async fn test_error_state(
             .none(),
         "observed unexpected outgoing packets (DNS, lan)"
     );
-
-    //
-    // Disconnect
-    //
-
-    log::info!("Disconnecting");
-
-    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }
@@ -358,15 +342,13 @@ pub async fn test_connected_state(
         send_guest_probes(rpc.clone(), Some(nontun_iface), inet_destination).await?;
     assert!(
         detected_probes.none(),
-        "observed unexpected outgoing packets"
+        "observed unexpected outgoing packets: {detected_probes:?}"
     );
 
     assert!(
         helpers::using_mullvad_exit(&rpc).await,
         "expected Mullvad exit IP"
     );
-
-    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }

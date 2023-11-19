@@ -55,7 +55,7 @@ pub async fn test_lan(
     .await?;
     assert!(
         detected_probes.none(),
-        "observed unexpected outgoing LAN packets"
+        "observed unexpected outgoing LAN packets: {detected_probes:?}"
     );
 
     //
@@ -79,10 +79,8 @@ pub async fn test_lan(
         send_guest_probes(rpc.clone(), Some(default_interface), lan_destination).await?;
     assert!(
         detected_probes.all(),
-        "did not observe all outgoing LAN packets"
+        "did not observe all outgoing LAN packets: {detected_probes:?}"
     );
-
-    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }
@@ -146,7 +144,10 @@ pub async fn test_lockdown(
         lan_destination,
     )
     .await?;
-    assert!(detected_probes.none(), "observed outgoing packets to LAN");
+    assert!(
+        detected_probes.none(),
+        "observed outgoing packets to LAN: {detected_probes:?}"
+    );
 
     let detected_probes = send_guest_probes(
         rpc.clone(),
@@ -156,7 +157,7 @@ pub async fn test_lockdown(
     .await?;
     assert!(
         detected_probes.none(),
-        "observed outgoing packets to internet"
+        "observed outgoing packets to internet: {detected_probes:?}"
     );
 
     //
@@ -182,7 +183,7 @@ pub async fn test_lockdown(
     .await?;
     assert!(
         detected_probes.all(),
-        "did not observe some outgoing packets"
+        "did not observe some outgoing packets: {detected_probes:?}"
     );
 
     let detected_probes = send_guest_probes(
@@ -193,7 +194,7 @@ pub async fn test_lockdown(
     .await?;
     assert!(
         detected_probes.none(),
-        "observed outgoing packets to internet"
+        "observed outgoing packets to internet: {detected_probes:?}"
     );
 
     //
@@ -217,7 +218,7 @@ pub async fn test_lockdown(
         send_guest_probes(rpc.clone(), Some(default_interface), inet_destination).await?;
     assert!(
         detected_probes.none(),
-        "observed outgoing packets to internet"
+        "observed outgoing packets to internet: {detected_probes:?}"
     );
 
     //
@@ -227,8 +228,6 @@ pub async fn test_lockdown(
         .set_block_when_disconnected(false)
         .await
         .expect("failed to disable lockdown mode");
-
-    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }
