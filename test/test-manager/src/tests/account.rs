@@ -107,11 +107,12 @@ pub async fn test_too_many_devices(
     )
     .await
     .unwrap();
-    assert!(ui_result.success());
 
     if let Err(error) = clear_devices(&device_client).await {
         log::error!("Failed to clear devices: {error}");
     }
+
+    assert!(ui_result.success());
 
     Ok(())
 }

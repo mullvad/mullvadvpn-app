@@ -2,14 +2,11 @@ use socket2::SockAddr;
 #[cfg(target_os = "macos")]
 use std::{ffi::CString, num::NonZeroU32};
 use std::{
+    io::Write,
     net::{IpAddr, SocketAddr},
     process::Output,
 };
-use tokio::{
-    io::AsyncWriteExt,
-    net::{TcpStream, UdpSocket},
-    process::Command,
-};
+use tokio::process::Command;
 
 pub async fn send_tcp(
     bind_interface: Option<String>,
@@ -25,11 +22,6 @@ pub async fn send_tcp(
             log::error!("Failed to create TCP socket: {error}");
             test_rpc::Error::SendTcp
         })?;
-
-    sock.set_nonblocking(true).map_err(|error| {
-        log::error!("Failed to set non-blocking TCP socket: {error}");
-        test_rpc::Error::SendTcp
-    })?;
 
     if let Some(iface) = bind_interface {
         #[cfg(target_os = "macos")]
@@ -59,31 +51,28 @@ pub async fn send_tcp(
         log::trace!("Bind interface {iface} is ignored on Windows")
     }
 
-    sock.bind(&SockAddr::from(bind_addr)).map_err(|error| {
-        log::error!("Failed to bind TCP socket to {bind_addr}: {error}");
-        test_rpc::Error::SendTcp
-    })?;
-
     log::debug!("Connecting from {bind_addr} to {destination}/TCP");
 
-    sock.connect(&SockAddr::from(destination))
-        .map_err(|error| {
-            log::error!("Failed to connect to {destination}: {error}");
+    tokio::task::spawn_blocking(move || {
+        sock.bind(&SockAddr::from(bind_addr)).map_err(|error| {
+            log::error!("Failed to bind TCP socket to {bind_addr}: {error}");
             test_rpc::Error::SendTcp
         })?;
 
-    let std_stream = std::net::TcpStream::from(sock);
-    let mut stream = TcpStream::from_std(std_stream).map_err(|error| {
-        log::error!("Failed to convert to TCP stream to tokio stream: {error}");
-        test_rpc::Error::SendTcp
-    })?;
+        sock.connect(&SockAddr::from(destination))
+            .map_err(|error| {
+                log::error!("Failed to connect to {destination}: {error}");
+                test_rpc::Error::SendTcp
+            })?;
 
-    stream.write_all(b"hello").await.map_err(|error| {
-        log::error!("Failed to send message to {destination}: {error}");
-        test_rpc::Error::SendTcp
-    })?;
-
-    Ok(())
+        let mut stream = std::net::TcpStream::from(sock);
+        stream.write_all(b"hello").map_err(|error| {
+            log::error!("Failed to send message to {destination}: {error}");
+            test_rpc::Error::SendTcp
+        })
+    })
+    .await
+    .unwrap()
 }
 
 pub async fn send_udp(
@@ -100,11 +89,6 @@ pub async fn send_udp(
             log::error!("Failed to create UDP socket: {error}");
             test_rpc::Error::SendUdp
         })?;
-
-    sock.set_nonblocking(true).map_err(|error| {
-        log::error!("Failed to set non-blocking UDP socket: {error}");
-        test_rpc::Error::SendUdp
-    })?;
 
     if let Some(iface) = bind_interface {
         #[cfg(target_os = "macos")]
@@ -134,26 +118,22 @@ pub async fn send_udp(
         log::trace!("Bind interface {iface} is ignored on Windows")
     }
 
-    sock.bind(&SockAddr::from(bind_addr)).map_err(|error| {
-        log::error!("Failed to bind UDP socket to {bind_addr}: {error}");
-        test_rpc::Error::SendUdp
-    })?;
-
-    log::debug!("Send message from {bind_addr} to {destination}/UDP");
-
-    let std_socket = std::net::UdpSocket::from(sock);
-    let tokio_socket = UdpSocket::from_std(std_socket).map_err(|error| {
-        log::error!("Failed to convert to UDP socket to tokio socket: {error}");
-        test_rpc::Error::SendUdp
-    })?;
-
-    tokio_socket
-        .send_to(b"hello", destination)
-        .await
-        .map_err(|error| {
-            log::error!("Failed to send message to {destination}: {error}");
+    let _ = tokio::task::spawn_blocking(move || {
+        sock.bind(&SockAddr::from(bind_addr)).map_err(|error| {
+            log::error!("Failed to bind UDP socket to {bind_addr}: {error}");
             test_rpc::Error::SendUdp
         })?;
+
+        log::debug!("Send message from {bind_addr} to {destination}/UDP");
+
+        let std_socket = std::net::UdpSocket::from(sock);
+        std_socket.send_to(b"hello", destination).map_err(|error| {
+            log::error!("Failed to send message to {destination}: {error}");
+            test_rpc::Error::SendUdp
+        })
+    })
+    .await
+    .unwrap()?;
 
     Ok(())
 }

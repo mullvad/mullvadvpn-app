@@ -1,6 +1,6 @@
 use super::helpers::{
-    self, connect_and_wait, disconnect_and_wait, get_tunnel_state, send_guest_probes,
-    set_relay_settings, unreachable_wireguard_tunnel, wait_for_tunnel_state,
+    self, connect_and_wait, get_tunnel_state, send_guest_probes, set_relay_settings,
+    unreachable_wireguard_tunnel, wait_for_tunnel_state,
 };
 use super::{ui, Error, TestContext};
 use crate::assert_tunnel_state;

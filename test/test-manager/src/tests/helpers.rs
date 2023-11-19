@@ -99,11 +99,13 @@ pub async fn send_guest_probes(
     interface: Option<String>,
     destination: SocketAddr,
 ) -> Result<ProbeResult, Error> {
+    const MONITOR_DURATION: Duration = Duration::from_secs(8);
+
     let pktmon = start_packet_monitor(
         move |packet| packet.destination.ip() == destination.ip(),
         MonitorOptions {
             direction: Some(crate::network_monitor::Direction::In),
-            timeout: Some(Duration::from_secs(3)),
+            timeout: Some(MONITOR_DURATION),
             ..Default::default()
         },
     )

@@ -1,5 +1,5 @@
 use super::helpers;
-use super::helpers::{connect_and_wait, disconnect_and_wait, get_tunnel_state, send_guest_probes};
+use super::helpers::{connect_and_wait, get_tunnel_state, send_guest_probes};
 use super::{Error, TestContext};
 use crate::assert_tunnel_state;
 use crate::vm::network::DUMMY_LAN_INTERFACE_IP;
