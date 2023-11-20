@@ -25,21 +25,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add CLI support for applying patches to the settings with `mullvad import-settings`.
 
-### Changed
-#### Android
-- Migrate welcome view to compose.
-- Migrate in app notifications to compose.
-- Move out of time evaluation to connect view model.
-- Migrate out of time view to compose.
-- Migrate login view to compose.
-- Add Social media to content blockers.
-- Migrate Report Problem view to compose.
-- Migrate View Logs view to compose.
-- Migrate voucher dialog to compose.
-- Add "New Device" in app notification & rework notification system
-- Add support for setting per-app language in system settings.
-- Add support for in app purchases for versions that are released on Google Play.
-
 #### Linux
 - Rename interface name from `wg-mullvad` to `wg0-mullvad`.
 
@@ -101,6 +86,20 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix possible privilege escalation by setting stricter permissions on mullvad directories such as
   the directory in ProgramData.
+
+
+## [android/2023.8-beta1] - 2023-11-20
+### Changed
+#### Android
+- Add Google Play in-app purchases to the build distributed via Google Play.
+- Add social media content blocker.
+- Add support for setting per-app language in system settings.
+- Improve device and expiry information throughout the app.
+- Migrate remaining views to Compose and MVVM (welcome, out-of-time, login, problem report, logs
+  voucher dialog, in-app notifications).
+- Add share button to the log view which can be used to copy or in other ways share the log text.
+  This was partially added to due to limitations in Compose which result in it not being possible to
+  select and copy text in the log view.
 
 
 ## [android/2023.7] - 2023-10-11
