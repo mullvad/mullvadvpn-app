@@ -152,36 +152,30 @@ jobs:
 
   build-macos:
     if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
-    runs-on: macos-latest
+    runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Checkout submodules
         run: git submodule update --init --depth=1
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18.5
       - name: Install Protoc
-        uses: arduino/setup-protoc@v1
+        uses: arduino/setup-protoc@v2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           node-version: 18
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: aarch64-apple-darwin
-          default: true
-      - name: Install Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.18.5
+          cache: 'npm'
+          cache-dependency-path: gui/package-lock.json
       - name: Build app
-        run: ./build.sh --universal
+        run: ./build.sh
       - name: Build test executable
-        run: ./gui/scripts/build-test-executable.sh aarch64-apple-darwin
-        # FIXME: This fails for some reason, but the artifact is built
-        continue-on-error: true
+        run: ./gui/scripts/build-test-executable.sh
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
         with:
