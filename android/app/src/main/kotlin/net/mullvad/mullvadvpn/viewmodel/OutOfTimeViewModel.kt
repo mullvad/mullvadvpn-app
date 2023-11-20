@@ -76,6 +76,8 @@ class OutOfTimeViewModel(
                     val tomorrow = DateTime.now().plusHours(20)
 
                     if (expiry.isAfter(tomorrow)) {
+                        // Reset purchase state
+                        paymentUseCase.resetPurchaseResult()
                         _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
                     }
                 }
