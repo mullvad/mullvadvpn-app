@@ -59,7 +59,7 @@ Line wrap the file at 100 chars.                                              Th
 - Remove wireguard-go (userspace WireGuard) support.
 
 ### Fixed
-- Validate that hostname matches correct server type type for CLI commands `mullvad relay set location`, `mullvad bridge set location` and `mullvad relay set tunnel wireguard entry location`
+- Validate that hostname matches correct server type for CLI commands `mullvad relay set location`, `mullvad bridge set location` and `mullvad relay set tunnel wireguard entry location`
 - Show correct endpoint in CLI for custom relays.
 - Lower risk of being rate limited.
 - Fix error dialog when failing to write to console by handling the thrown error.
