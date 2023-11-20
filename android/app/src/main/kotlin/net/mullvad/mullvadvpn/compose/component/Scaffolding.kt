@@ -144,7 +144,7 @@ fun ScaffoldWithMediumTopBar(
                 title = appBarTitle,
                 navigationIcon = navigationIcon,
                 actions,
-                scrollBehavior = if (canScroll) scrollBehavior else null
+                scrollBehavior = scrollBehavior
             )
         },
         content = {
@@ -180,12 +180,7 @@ fun ScaffoldWithMediumTopBar(
                 title = appBarTitle,
                 navigationIcon = navigationIcon,
                 actions,
-                scrollBehavior =
-                    if (canScroll) {
-                        scrollBehavior
-                    } else {
-                        null
-                    }
+                scrollBehavior = scrollBehavior
             )
         },
         content = {
