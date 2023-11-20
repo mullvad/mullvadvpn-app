@@ -87,13 +87,7 @@ class BillingRepository(context: Context) {
         billingClient.startConnection(
             object : BillingClientStateListener {
                 override fun onBillingServiceDisconnected() {
-                    // Maybe do something here?
-                    continuation.resumeWithException(
-                        BillingException(
-                            BillingResponseCode.SERVICE_DISCONNECTED,
-                            "Billing service disconnected"
-                        )
-                    )
+                    // We will reconnect on demand.
                 }
 
                 override fun onBillingSetupFinished(result: BillingResult) {
