@@ -99,6 +99,7 @@ pub struct RelaySelector {
 pub struct SelectorConfig {
     // Normal relay settings
     pub relay_settings: RelaySettings,
+    pub additional_constraints: AdditionalRelayConstraints,
     pub custom_lists: CustomListsSettings,
     pub relay_overrides: Vec<RelayOverride>,
     // Wireguard specific data
@@ -106,6 +107,20 @@ pub struct SelectorConfig {
     // OpenVPN specific data
     pub bridge_state: BridgeState,
     pub bridge_settings: BridgeSettings,
+}
+
+/// Extra relay constraints not specified in `relay_settings`.
+#[derive(Default, Debug, Clone, Eq, PartialEq)]
+pub struct AdditionalRelayConstraints {
+    pub wireguard: AdditionalWireguardConstraints,
+}
+
+/// Constraints to use when selecting WireGuard servers
+#[derive(Default, Debug, Clone, Eq, PartialEq)]
+pub struct AdditionalWireguardConstraints {
+    /// If true, select WireGuard relays that support DAITA. If false, select any
+    /// server.
+    pub daita: bool,
 }
 
 /// Values which affect the choice of relay but are only known at runtime.
@@ -169,6 +184,7 @@ enum SpecializedSelectorConfig<'a> {
 #[derive(Debug, Clone)]
 struct NormalSelectorConfig<'a> {
     user_preferences: &'a RelayConstraints,
+    additional_preferences: &'a AdditionalRelayConstraints,
     custom_lists: &'a CustomListsSettings,
     // Wireguard specific data
     obfuscation_settings: &'a ObfuscationSettings,
@@ -273,6 +289,7 @@ impl Default for SelectorConfig {
         let default_settings = Settings::default();
         SelectorConfig {
             relay_settings: default_settings.relay_settings,
+            additional_constraints: AdditionalRelayConstraints::default(),
             bridge_settings: default_settings.bridge_settings,
             obfuscation_settings: default_settings.obfuscation_settings,
             bridge_state: default_settings.bridge_state,
@@ -291,6 +308,7 @@ impl<'a> From<&'a SelectorConfig> for SpecializedSelectorConfig<'a> {
             RelaySettings::Normal(user_preferences) => {
                 SpecializedSelectorConfig::Normal(NormalSelectorConfig {
                     user_preferences,
+                    additional_preferences: &value.additional_constraints,
                     obfuscation_settings: &value.obfuscation_settings,
                     bridge_state: &value.bridge_state,
                     bridge_settings: &value.bridge_settings,
@@ -307,6 +325,7 @@ impl<'a> From<NormalSelectorConfig<'a>> for RelayQuery {
         /// Map the Wireguard-specific bits of `value` to [`WireguradRelayQuery`]
         fn wireguard_constraints(
             wireguard_constraints: WireguardConstraints,
+            additional_constraints: AdditionalWireguardConstraints,
             obfuscation_settings: ObfuscationSettings,
         ) -> WireguardRelayQuery {
             let WireguardConstraints {
@@ -315,6 +334,7 @@ impl<'a> From<NormalSelectorConfig<'a>> for RelayQuery {
                 use_multihop,
                 entry_location,
             } = wireguard_constraints;
+            let AdditionalWireguardConstraints { daita } = additional_constraints;
             WireguardRelayQuery {
                 port,
                 ip_version,
@@ -322,6 +342,7 @@ impl<'a> From<NormalSelectorConfig<'a>> for RelayQuery {
                 entry_location,
                 obfuscation: obfuscation_settings.selected_obfuscation,
                 udp2tcp_port: Constraint::Only(obfuscation_settings.udp2tcp.clone()),
+                daita: Constraint::Only(daita),
             }
         }
 
@@ -350,6 +371,7 @@ impl<'a> From<NormalSelectorConfig<'a>> for RelayQuery {
 
         let wireguard_constraints = wireguard_constraints(
             value.user_preferences.wireguard_constraints.clone(),
+            value.additional_preferences.wireguard.clone(),
             value.obfuscation_settings.clone(),
         );
         let openvpn_constraints = openvpn_constraints(
@@ -709,10 +731,19 @@ impl RelaySelector {
         // After we have our two queries (one for the exit relay & one for the entry relay),
         // we can query for all exit & entry candidates! All candidates are needed for the next
         // step.
-        let exit_candidates =
-            filter_matching_relay_list(query, parsed_relays.relays(), custom_lists);
-        let entry_candidates =
-            filter_matching_relay_list(&entry_relay_query, parsed_relays.relays(), custom_lists);
+        let mut exit_relay_query = query.clone();
+        // DAITA should only be enabled for the entry relay
+        exit_relay_query.wireguard_constraints.daita = Constraint::Only(false);
+        let exit_candidates = filter_matching_relay_list(
+            &exit_relay_query,
+            parsed_relays.relays(),
+            custom_lists,
+        );
+        let entry_candidates = filter_matching_relay_list(
+            &entry_relay_query,
+            parsed_relays.relays(),
+            custom_lists,
+        );
 
         fn pick_random_excluding<'a>(list: &'a [Relay], exclude: &'a Relay) -> Option<&'a Relay> {
             list.iter()

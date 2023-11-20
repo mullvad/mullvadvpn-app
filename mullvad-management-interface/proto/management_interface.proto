@@ -43,6 +43,7 @@ service ManagementService {
   rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
   rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
+  rpc SetDaitaSettings(DaitaSettings) returns (google.protobuf.Empty) {}
   rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
   rpc SetRelayOverride(RelayOverride) returns (google.protobuf.Empty) {}
   rpc ClearAllRelayOverrides(google.protobuf.Empty) returns (google.protobuf.Empty) {}
@@ -218,6 +219,7 @@ message TunnelEndpoint {
   ObfuscationEndpoint obfuscation = 6;
   Endpoint entry_endpoint = 7;
   TunnelMetadata tunnel_metadata = 8;
+  bool daita = 9;
 }
 
 enum ObfuscationType {
@@ -492,12 +494,15 @@ message QuantumResistantState {
   State state = 1;
 }
 
+message DaitaSettings { bool enabled = 1; }
+
 message TunnelOptions {
   message OpenvpnOptions { optional uint32 mssfix = 1; }
   message WireguardOptions {
     optional uint32 mtu = 1;
     google.protobuf.Duration rotation_interval = 2;
     QuantumResistantState quantum_resistant = 4;
+    DaitaSettings daita = 5;
   }
   message GenericOptions { bool enable_ipv6 = 1; }
 
@@ -582,7 +587,10 @@ message Relay {
   Location location = 11;
 }
 
-message WireguardRelayEndpointData { bytes public_key = 1; }
+message WireguardRelayEndpointData {
+  bytes public_key = 1;
+  bool daita = 2;
+}
 
 message Location {
   string country = 1;

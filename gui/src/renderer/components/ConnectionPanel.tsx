@@ -2,7 +2,7 @@ import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
+import { colors, strings } from '../../config.json';
 import {
   EndpointObfuscationType,
   ProxyType,
@@ -49,6 +49,7 @@ interface IProps {
   bridgeInfo?: IBridgeData;
   outAddress?: IOutAddress;
   obfuscationEndpoint?: IObfuscationData;
+  daita: boolean;
   onToggle: () => void;
   className?: string;
 }
@@ -147,13 +148,15 @@ export default class ConnectionPanel extends React.Component<IProps> {
   }
 
   private hostnameLine() {
+    let hostname = '';
+
     if (this.props.hostname && this.props.bridgeHostname) {
-      return sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
+      hostname = sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
         relay: this.props.hostname,
         entry: this.props.bridgeHostname,
       });
     } else if (this.props.hostname && this.props.entryHostname) {
-      return sprintf(
+      hostname = sprintf(
         // TRANSLATORS: The hostname line displayed below the country on the main screen
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(relay)s - the relay hostname
@@ -164,14 +167,27 @@ export default class ConnectionPanel extends React.Component<IProps> {
           entry: this.props.entryHostname,
         },
       );
-    } else if (this.props.bridgeInfo?.ip) {
-      return sprintf(messages.pgettext('connection-info', '%(relay)s via %(entry)s'), {
+    } else if (this.props.bridgeInfo !== undefined) {
+      hostname = sprintf(messages.pgettext('connection-info', '%(relay)s via Custom bridge'), {
         relay: this.props.hostname,
-        entry: this.props.bridgeInfo.ip,
       });
-    } else {
-      return this.props.hostname || '';
+    } else if (this.props.hostname) {
+      hostname = this.props.hostname;
     }
+
+    if (hostname !== '' && this.props.daita) {
+      hostname = sprintf(
+        // TRANSLATORS: %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+        // TRANSLATORS: %(daita)s - Will be replaced with "DAITA"
+        messages.pgettext('connection-info', '%(hostname)s using %(daita)s'),
+        {
+          hostname,
+          daita: strings.daita,
+        },
+      );
+    }
+
+    return hostname;
   }
 
   private transportLine() {

@@ -22,7 +22,7 @@ import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
-import { InfoIcon } from './InfoButton';
+import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
@@ -44,22 +44,14 @@ function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
 }
 
-export const StyledContent = styled.div({
+const StyledContent = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
   marginBottom: '2px',
 });
 
-export const StyledCellIcon = styled(Cell.UntintedIcon)({
-  marginRight: '8px',
-});
-
-export const StyledInfoIcon = styled(InfoIcon)({
-  marginRight: '16px',
-});
-
-export const StyledSelectorContainer = styled.div({
+const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
@@ -106,6 +98,12 @@ export default function WireguardSettings() {
                   <ObfuscationSettings />
                   <Udp2tcpPortSetting />
                 </Cell.Group>
+
+                {window.env.platform === 'win32' && (
+                  <Cell.Group>
+                    <DaitaSettings />
+                  </Cell.Group>
+                )}
 
                 <Cell.Group>
                   <QuantumResistantSetting />
@@ -555,6 +553,92 @@ function MtuSetting() {
         </AriaDescription>
       </Cell.CellFooter>
     </AriaInputGroup>
+  );
+}
+
+function DaitaSettings() {
+  const { setDaitaSettings } = useAppContext();
+  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
+
+  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
+
+  const setDaita = useCallback((value: boolean) => {
+    if (value) {
+      showConfirmationDialog();
+    } else {
+      void setDaitaSettings({ enabled: value });
+    }
+  }, []);
+
+  const confirmDaita = useCallback(() => {
+    void setDaitaSettings({ enabled: true });
+    hideConfirmationDialog();
+  }, []);
+
+  return (
+    <>
+      <AriaInputGroup>
+        <Cell.Container>
+          <AriaLabel>
+            <Cell.InputLabel>{strings.daita}</Cell.InputLabel>
+          </AriaLabel>
+          <InfoButton>
+            <ModalMessage>
+              {sprintf(
+                messages.pgettext(
+                  'wireguard-settings-view',
+                  '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size.',
+                ),
+                { daita: strings.daita, daitaFull: strings.daitaFull },
+              )}
+            </ModalMessage>
+            <ModalMessage>
+              {sprintf(
+                messages.pgettext(
+                  'wireguard-settings-view',
+                  'Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s.',
+                ),
+                { daita: strings.daita },
+              )}
+            </ModalMessage>
+          </InfoButton>
+          <AriaInput>
+            <Cell.Switch isOn={daita} onChange={setDaita} />
+          </AriaInput>
+        </Cell.Container>
+      </AriaInputGroup>
+      <ModalAlert
+        isOpen={confirmationDialogVisible}
+        type={ModalAlertType.caution}
+        buttons={[
+          <AppButton.BlueButton key="confirm" onClick={confirmDaita}>
+            {messages.gettext('Enable anyway')}
+          </AppButton.BlueButton>,
+          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
+            {messages.gettext('Back')}
+          </AppButton.BlueButton>,
+        ]}
+        close={hideConfirmationDialog}>
+        <ModalMessage>
+          {
+            // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
+            messages.pgettext(
+              'wireguard-settings-view',
+              "This feature isn't available on all servers. You might need to change location after enabling.",
+            )
+          }
+        </ModalMessage>
+        <ModalMessage>
+          {sprintf(
+            messages.pgettext(
+              'wireguard-settings-view',
+              'Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s.',
+            ),
+            { daita: strings.daita },
+          )}
+        </ModalMessage>
+      </ModalAlert>
+    </>
   );
 }
 

@@ -56,9 +56,6 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-msgid "BETA"
-msgstr ""
-
 msgid "BLOCKED CONNECTION"
 msgstr ""
 
@@ -613,6 +610,12 @@ msgstr ""
 
 msgctxt "connect-view"
 msgid "You’re all set!"
+msgstr ""
+
+#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
+#. %(daita)s - Will be replaced with "DAITA"
+msgctxt "connection-info"
+msgid "%(hostname)s using %(daita)s"
 msgstr ""
 
 #. The hostname line displayed below the country on the main screen
@@ -1316,6 +1319,10 @@ msgid "Relay"
 msgstr ""
 
 msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr ""
+
+msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
 msgstr ""
 
@@ -1927,10 +1934,18 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr ""
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr ""
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "%(wireguard)s settings"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -1990,6 +2005,11 @@ msgstr ""
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
+msgstr ""
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
 msgstr ""
 
 msgctxt "wireguard-settings-view"

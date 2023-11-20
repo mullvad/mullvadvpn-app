@@ -84,6 +84,9 @@ fn wireguard_singlehop_endpoint(
         allowed_ips: all_of_the_internet(),
         // This will be filled in later, not the relay selector's problem
         psk: None,
+        // This will be filled in later
+        #[cfg(target_os = "windows")]
+        constant_packet_size: false,
     };
     Ok(MullvadWireguardEndpoint {
         peer: peer_config,
@@ -122,6 +125,9 @@ fn wireguard_multihop_endpoint(
         allowed_ips: all_of_the_internet(),
         // This will be filled in later, not the relay selector's problem
         psk: None,
+        // This will be filled in later
+        #[cfg(target_os = "windows")]
+        constant_packet_size: false,
     };
 
     let entry_endpoint = {
@@ -137,6 +143,9 @@ fn wireguard_multihop_endpoint(
         allowed_ips: vec![IpNetwork::from(exit.endpoint.ip())],
         // This will be filled in later
         psk: None,
+        // This will be filled in later
+        #[cfg(target_os = "windows")]
+        constant_packet_size: false,
     };
 
     Ok(MullvadWireguardEndpoint {

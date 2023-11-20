@@ -1,6 +1,5 @@
-use pqc_kyber::{SecretKey, KYBER_CIPHERTEXTBYTES};
-
-pub use pqc_kyber::{keypair, KyberError};
+use pqc_kyber::KYBER_CIPHERTEXTBYTES;
+pub use pqc_kyber::{keypair, KyberError, SecretKey};
 
 /// Use the strongest variant of Kyber. It is fast and the keys are small, so there is no practical
 /// benefit of going with anything lower.

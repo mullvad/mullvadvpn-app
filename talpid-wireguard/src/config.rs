@@ -28,6 +28,10 @@ pub struct Config {
     pub enable_ipv6: bool,
     /// Obfuscator config to be used for reaching the relay.
     pub obfuscator_config: Option<ObfuscatorConfig>,
+    /// Enable quantum-resistant PSK exchange
+    pub quantum_resistant: bool,
+    /// Enable DAITA
+    pub daita: bool,
 }
 
 /// Configuration errors
@@ -92,6 +96,11 @@ impl Config {
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
             obfuscator_config: obfuscator_config.to_owned(),
+            quantum_resistant: wg_options.quantum_resistant,
+            #[cfg(target_os = "windows")]
+            daita: wg_options.daita,
+            #[cfg(not(target_os = "windows"))]
+            daita: false,
         };
 
         for peer in config.peers_mut() {

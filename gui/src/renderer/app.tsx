@@ -16,6 +16,7 @@ import {
   IAccountData,
   IAppVersionInfo,
   ICustomList,
+  IDaitaSettings,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -340,6 +341,8 @@ export default class AppRenderer {
     IpcRendererEventChannel.windowsSplitTunneling.forgetManuallyAddedApplication(application);
   public setObfuscationSettings = (obfuscationSettings: ObfuscationSettings) =>
     IpcRendererEventChannel.settings.setObfuscationSettings(obfuscationSettings);
+  public setDaitaSettings = (daitaSettings: IDaitaSettings) =>
+    IpcRendererEventChannel.settings.setDaitaSettings(daitaSettings);
   public collectProblemReport = (toRedact: string | undefined) =>
     IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
@@ -810,6 +813,7 @@ export default class AppRenderer {
     reduxSettings.updateWireguardQuantumResistant(
       newSettings.tunnelOptions.wireguard.quantumResistant,
     );
+    reduxSettings.updateWireguardDaita(newSettings.tunnelOptions.wireguard.daita);
     reduxSettings.updateBridgeState(newSettings.bridgeState);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);

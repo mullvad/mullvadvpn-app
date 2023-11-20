@@ -114,6 +114,10 @@ jobs:
       - name: Checkout submodules
         run: git submodule update --init --depth=1
 
+      - name: Checkout wireguard-nt
+        working-directory: dist-assets/binaries
+        run: git submodule update --init -- wireguard-nt
+
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:

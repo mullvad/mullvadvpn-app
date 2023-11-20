@@ -60,6 +60,10 @@ pub struct PeerConfig {
     /// ephemeral and living in memory only.
     #[serde(skip)]
     pub psk: Option<PresharedKey>,
+    /// Enable constant packet sizes for `entry_peer``
+    #[cfg(target_os = "windows")]
+    #[serde(skip)]
+    pub constant_packet_size: bool,
 }
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug)]
@@ -76,6 +80,9 @@ pub struct TunnelOptions {
     pub mtu: Option<u16>,
     /// Perform PQ-safe PSK exchange when connecting
     pub quantum_resistant: bool,
+    /// Enable DAITA during tunnel config
+    #[cfg(target_os = "windows")]
+    pub daita: bool,
 }
 
 /// Wireguard x25519 private key
