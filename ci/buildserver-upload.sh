@@ -41,7 +41,7 @@ while true; do
             file_upload_dir="$upload_path/$version"
             if [[ $platform == "desktop" && ! $file == MullvadVPN-* ]]; then
                 file_upload_dir="$file_upload_dir/additional-files"
-            elif [[ $platform == "android" && ! $file =~ MullvadVPN-"$version"(.apk|.play.aab) ]]; then
+            elif [[ $platform == "android" && ! $file =~ MullvadVPN-"$version"(.apk|.play.apk|.play.aab) ]]; then
                 file_upload_dir="$file_upload_dir/additional-files"
             fi
 

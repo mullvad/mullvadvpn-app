@@ -13,7 +13,7 @@ echo ""
 
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
-GRADLE_TASKS=(createOssProdReleaseDistApk createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
+GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
 CARGO_ARGS="--release"
 EXTRA_WGGO_ARGS=""
