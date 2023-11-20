@@ -358,20 +358,25 @@ final class PacketTunnelActorTests: XCTestCase {
     func testCannotReconnectAfterStopping() async throws {
         let actor = PacketTunnelActor.mock()
 
-        let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
-
-        await expect(.disconnected, on: actor) { disconnectedStateExpectation.fulfill() }
+        let connectedStateExpectation = expectation(description: "Expect connected state")
+        let connectedState: (ObservedState) -> Bool = { if case .connected = $0 { true } else { false } }
+        await expect(connectedState, on: actor) {
+            connectedStateExpectation.fulfill()
+        }
 
         actor.start(options: launchOptions)
-        actor.stop()
+        // Wait for the connected state to happen so it doesn't get coalesced immediately after the call to `actor.stop`
+        await fulfillment(of: [connectedStateExpectation], timeout: 1)
 
+        let disconnectedStateExpectation = expectation(description: "Expect disconnected state")
+        await expect(.disconnected, on: actor) { disconnectedStateExpectation.fulfill() }
+        actor.stop()
         await fulfillment(of: [disconnectedStateExpectation], timeout: 1)
 
-        let reconnectingStateExpectation = expectation(description: "Expect initial state")
+        let reconnectingStateExpectation = expectation(description: "Expect reconnecting state")
         reconnectingStateExpectation.isInverted = true
-        let expression: (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
-
-        await expect(expression, on: actor) { reconnectingStateExpectation.fulfill() }
+        let reconnectingState: (ObservedState) -> Bool = { if case .reconnecting = $0 { true } else { false } }
+        await expect(reconnectingState, on: actor) { reconnectingStateExpectation.fulfill() }
 
         actor.reconnect(to: .random)
         await fulfillment(
