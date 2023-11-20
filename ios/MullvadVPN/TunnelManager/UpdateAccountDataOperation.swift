@@ -36,8 +36,7 @@ class UpdateAccountDataOperation: ResultOperation<Void> {
             return
         }
 
-        task = accountsProxy.getAccountData(
-            accountNumber: accountData.number,
+        task = accountsProxy.getAccountData(accountNumber: accountData.number).execute(
             retryStrategy: .default
         ) { result in
             self.dispatchQueue.async {

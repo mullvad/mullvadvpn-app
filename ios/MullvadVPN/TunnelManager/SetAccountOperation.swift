@@ -239,26 +239,27 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     private func getAccount(accountNumber: String, completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
         logger.debug("Request account data...")
 
-        let task = accountsProxy
-            .getAccountData(accountNumber: accountNumber, retryStrategy: .default) { [self] result in
-                dispatchQueue.async { [self] in
-                    let result = result.inspectError { error in
-                        guard !error.isOperationCancellationError else { return }
+        let task = accountsProxy.getAccountData(accountNumber: accountNumber).execute(
+            retryStrategy: .default
+        ) { [self] result in
+            dispatchQueue.async { [self] in
+                let result = result.inspectError { error in
+                    guard !error.isOperationCancellationError else { return }
 
-                        logger.error(error: error, message: "Failed to receive account data.")
-                    }.map { accountData -> StoredAccountData in
-                        logger.debug("Received account data.")
+                    logger.error(error: error, message: "Failed to receive account data.")
+                }.map { accountData -> StoredAccountData in
+                    logger.debug("Received account data.")
 
-                        return StoredAccountData(
-                            identifier: accountData.id,
-                            number: accountNumber,
-                            expiry: accountData.expiry
-                        )
-                    }
-
-                    completion(result)
+                    return StoredAccountData(
+                        identifier: accountData.id,
+                        number: accountNumber,
+                        expiry: accountData.expiry
+                    )
                 }
+
+                completion(result)
             }
+        }
 
         tasks.append(task)
     }
