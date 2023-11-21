@@ -1,8 +1,5 @@
 package net.mullvad.mullvadvpn.compose.dialog.payment
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -20,13 +17,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.util.getActivity
 import net.mullvad.mullvadvpn.viewmodel.PaymentUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -221,12 +218,4 @@ fun PaymentDialog(
             }
         }
     )
-}
-
-private fun Context.getActivity(): Activity? {
-    return when (this) {
-        is Activity -> this
-        is ContextWrapper -> this.baseContext.getActivity()
-        else -> null
-    }
 }
