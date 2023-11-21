@@ -53,7 +53,7 @@ object Versions {
         // The androidAapt plugin version must be in sync with the android plugin version.
         // Required for Gradle metadata verification to work properly, see:
         // https://github.com/gradle/gradle/issues/19228
-        const val android = "8.1.0"
+        const val android = "8.1.4"
         const val androidAapt = "$android-10154469"
         const val playPublisher = "3.8.4"
         const val dependencyCheck = "8.3.1"
