@@ -5,7 +5,7 @@ object Versions {
     const val jvmTarget = "17"
     const val konsist = "0.13.0"
     const val kotlin = "1.9.20"
-    const val kotlinCompilerExtensionVersion = "1.5.3"
+    const val kotlinCompilerExtensionVersion = "1.5.4"
     const val kotlinx = "1.7.3"
     const val leakCanary = "2.12"
     const val mockk = "1.13.8"

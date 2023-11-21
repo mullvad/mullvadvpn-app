@@ -503,7 +503,8 @@ fun VpnSettingsScreen(
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 InformationComposeCell(
                     title = stringResource(R.string.obfuscation_title),
-                    onInfoClicked = navigateToObfuscationInfo
+                    onInfoClicked = navigateToObfuscationInfo,
+                    onCellClicked = navigateToObfuscationInfo
                 )
             }
             itemWithDivider {
@@ -517,7 +518,7 @@ fun VpnSettingsScreen(
                 SelectableCell(
                     title = stringResource(id = R.string.obfuscation_on_udp_over_tcp),
                     isSelected = uiState.selectedObfuscation == SelectedObfuscation.Udp2Tcp,
-                    onCellClicked = navigateUdp2TcpInfo
+                    onCellClicked = { onSelectObfuscationSetting(SelectedObfuscation.Udp2Tcp) }
                 )
             }
             itemWithDivider {
