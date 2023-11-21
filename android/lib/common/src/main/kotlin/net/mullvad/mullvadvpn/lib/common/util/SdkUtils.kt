@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.lib.common.util
 
 import android.Manifest
 import android.app.PendingIntent
-import android.app.PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager

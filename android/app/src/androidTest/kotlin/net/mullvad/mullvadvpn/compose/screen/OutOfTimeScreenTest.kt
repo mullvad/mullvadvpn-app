@@ -34,7 +34,6 @@ class OutOfTimeScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = false,
                 uiState = OutOfTimeUiState(deviceName = ""),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
@@ -60,8 +59,7 @@ class OutOfTimeScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
-                uiState = OutOfTimeUiState(deviceName = ""),
+                uiState = OutOfTimeUiState(deviceName = "", showSitePayment = true),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -80,8 +78,7 @@ class OutOfTimeScreenTest {
         val mockClickListener: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
-                uiState = OutOfTimeUiState(deviceName = ""),
+                uiState = OutOfTimeUiState(deviceName = "", showSitePayment = true),
                 onSitePaymentClick = mockClickListener,
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -103,8 +100,7 @@ class OutOfTimeScreenTest {
         val mockClickListener: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
-                uiState = OutOfTimeUiState(deviceName = ""),
+                uiState = OutOfTimeUiState(deviceName = "", showSitePayment = true),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = mockClickListener,
                 onSettingsClick = {},
@@ -126,11 +122,11 @@ class OutOfTimeScreenTest {
         val mockClickListener: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
                 uiState =
                     OutOfTimeUiState(
                         tunnelState = TunnelState.Connecting(null, null),
-                        deviceName = ""
+                        deviceName = "",
+                        showSitePayment = true
                     ),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
@@ -152,8 +148,11 @@ class OutOfTimeScreenTest {
         // Arrange
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
-                uiState = OutOfTimeUiState().copy(billingPaymentState = PaymentState.Error.Billing),
+                uiState =
+                    OutOfTimeUiState(
+                        showSitePayment = true,
+                        billingPaymentState = PaymentState.Error.Billing
+                    ),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},
                 onSettingsClick = {},
@@ -174,9 +173,9 @@ class OutOfTimeScreenTest {
         every { mockPaymentProduct.status } returns null
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
                 uiState =
                     OutOfTimeUiState(
+                        showSitePayment = true,
                         billingPaymentState =
                             PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                     ),
@@ -200,13 +199,12 @@ class OutOfTimeScreenTest {
         every { mockPaymentProduct.status } returns PaymentStatus.PENDING
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
                 uiState =
-                    OutOfTimeUiState()
-                        .copy(
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                        ),
+                    OutOfTimeUiState(
+                        showSitePayment = true,
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    ),
             )
         }
 
@@ -223,13 +221,12 @@ class OutOfTimeScreenTest {
         val mockNavigateToVerificationPending: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
                 uiState =
-                    OutOfTimeUiState()
-                        .copy(
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                        ),
+                    OutOfTimeUiState(
+                        showSitePayment = true,
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    ),
                 navigateToVerificationPendingDialog = mockNavigateToVerificationPending
             )
         }
@@ -249,13 +246,12 @@ class OutOfTimeScreenTest {
         every { mockPaymentProduct.status } returns PaymentStatus.VERIFICATION_IN_PROGRESS
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
                 uiState =
-                    OutOfTimeUiState()
-                        .copy(
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                        ),
+                    OutOfTimeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                        showSitePayment = true,
+                    )
             )
         }
 
@@ -273,11 +269,11 @@ class OutOfTimeScreenTest {
         every { mockPaymentProduct.status } returns null
         composeTestRule.setContentWithTheme {
             OutOfTimeScreen(
-                showSitePayment = true,
                 uiState =
                     OutOfTimeUiState(
                         billingPaymentState =
-                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                        showSitePayment = true,
                     ),
                 onSitePaymentClick = {},
                 onRedeemVoucherClick = {},

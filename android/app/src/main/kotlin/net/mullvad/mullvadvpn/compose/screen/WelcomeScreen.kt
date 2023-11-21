@@ -34,9 +34,6 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
@@ -86,12 +83,10 @@ private fun PreviewWelcomeScreen() {
                                 )
                         )
                 ),
-            uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
             onSitePaymentClick = {},
             onRedeemVoucherClick = {},
             onSettingsClick = {},
             onAccountClick = {},
-            openConnectScreen = {},
             onPurchaseBillingProductClick = { _ -> },
             navigateToDeviceInfoDialog = {},
             navigateToVerificationPendingDialog = {}
@@ -133,21 +128,30 @@ fun Welcome(
         }
     }
 
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        vm.uiSideEffect.collect { uiSideEffect ->
+            when (uiSideEffect) {
+                is WelcomeViewModel.UiSideEffect.OpenAccountView ->
+                    context.openAccountPageInBrowser(uiSideEffect.token)
+                WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
+                    navigator.navigate(ConnectDestination) {
+                        launchSingleTop = true
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
+
     WelcomeScreen(
         uiState = state,
-        uiSideEffect = vm.uiSideEffect,
         onSitePaymentClick = vm::onSitePaymentClick,
         onRedeemVoucherClick = {
             navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
         },
         onSettingsClick = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
         onAccountClick = { navigator.navigate(AccountDestination) { launchSingleTop = true } },
-        openConnectScreen = {
-            navigator.navigate(ConnectDestination) {
-                launchSingleTop = true
-                popUpTo(NavGraphs.root) { inclusive = true }
-            }
-        },
         navigateToDeviceInfoDialog = {
             navigator.navigate(DeviceNameInfoDialogDestination) { launchSingleTop = true }
         },
@@ -163,27 +167,14 @@ fun Welcome(
 @Composable
 fun WelcomeScreen(
     uiState: WelcomeUiState,
-    uiSideEffect: SharedFlow<WelcomeViewModel.UiSideEffect>,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
-    openConnectScreen: () -> Unit,
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
     navigateToDeviceInfoDialog: () -> Unit,
     navigateToVerificationPendingDialog: () -> Unit
 ) {
-    val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        uiSideEffect.collect { uiSideEffect ->
-            when (uiSideEffect) {
-                is WelcomeViewModel.UiSideEffect.OpenAccountView ->
-                    context.openAccountPageInBrowser(uiSideEffect.token)
-                WelcomeViewModel.UiSideEffect.OpenConnectScreen -> openConnectScreen()
-            }
-        }
-    }
-
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
 
