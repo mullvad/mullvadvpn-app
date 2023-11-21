@@ -69,7 +69,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
         if (uri != null) {
             contentResolver.openOutputStream(uri).use {
                 try {
-                    this.compress(Bitmap.CompressFormat.JPEG, 50, it)
+                    this.compress(Bitmap.CompressFormat.JPEG, 50, it!!)
                 } catch (e: IOException) {
                     Log.e(testTag, "Unable to store screenshot: ${e.message}")
                 }
