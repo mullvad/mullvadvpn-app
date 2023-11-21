@@ -8,14 +8,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.constant.EMPTY_STRING
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import org.apache.commons.validator.routines.InetAddressValidator
@@ -25,10 +25,13 @@ sealed interface DnsDialogSideEffect {
 }
 
 data class DnsDialogViewModelState(
-    val dnsOptions: DnsOptions,
     val customDnsList: List<InetAddress>,
     val isAllowLanEnabled: Boolean
-)
+) {
+    companion object {
+        fun default() = DnsDialogViewModelState(emptyList(), false)
+    }
+}
 
 data class DnsDialogViewState(
     val ipAddress: String,
@@ -59,39 +62,35 @@ class DnsDialogViewModel(
 
     private val _ipAddressInput = MutableStateFlow(initialValue ?: EMPTY_STRING)
 
-    private val vmState = runBlocking {
+    private val vmState =
         repository.settingsUpdates
             .filterNotNull()
             .map {
-                val dnsState = it.tunnelOptions.dnsOptions
                 val customDnsList = it.addresses()
                 val isAllowLanEnabled = it.allowLan
-
-                DnsDialogViewModelState(
-                    dnsState,
-                    customDnsList,
-                    isAllowLanEnabled = isAllowLanEnabled
-                )
+                DnsDialogViewModelState(customDnsList, isAllowLanEnabled = isAllowLanEnabled)
             }
-            .stateIn(viewModelScope)
-    }
+            .stateIn(viewModelScope, SharingStarted.Lazily, DnsDialogViewModelState.default())
 
-    // TODO Discuss runBlocking, when do we assume we have a value?
-    val uiState: StateFlow<DnsDialogViewState> = runBlocking {
-        combine(_ipAddressInput, vmState) { ipAddress, vmState ->
-                DnsDialogViewState(
-                    ipAddress,
-                    ipAddress.validateDnsEntry(index, vmState.customDnsList),
-                    ipAddress.isLocalAddress(),
-                    isAllowLanEnabled = vmState.isAllowLanEnabled,
-                    index == null
-                )
-            }
-            .stateIn(viewModelScope)
-    }
+    val uiState: StateFlow<DnsDialogViewState> =
+        combine(_ipAddressInput, vmState, ::createViewState)
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                createViewState(_ipAddressInput.value, vmState.value)
+            )
 
     private val _uiSideEffect = MutableSharedFlow<DnsDialogSideEffect>()
     val uiSideEffect: SharedFlow<DnsDialogSideEffect> = _uiSideEffect
+
+    private fun createViewState(ipAddress: String, vmState: DnsDialogViewModelState) =
+        DnsDialogViewState(
+            ipAddress,
+            ipAddress.validateDnsEntry(index, vmState.customDnsList),
+            ipAddress.isLocalAddress(),
+            isAllowLanEnabled = vmState.isAllowLanEnabled,
+            index == null
+        )
 
     private fun String.validateDnsEntry(
         index: Int?,
@@ -162,12 +161,6 @@ class DnsDialogViewModel(
                 entry == this
             }
         }
-
-    private fun List<InetAddress>.asStringAddressList(): List<CustomDnsItem> {
-        return map {
-            CustomDnsItem(address = it.hostAddress ?: EMPTY_STRING, isLocal = it.isLocalAddress())
-        }
-    }
 
     private fun Settings.addresses() = tunnelOptions.dnsOptions.customOptions.addresses
 

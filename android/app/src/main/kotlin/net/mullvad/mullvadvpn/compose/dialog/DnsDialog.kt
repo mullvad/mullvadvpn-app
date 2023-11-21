@@ -108,10 +108,10 @@ fun DnsDialog(
             }
         }
     }
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsState(null)
 
     DnsDialog(
-        state,
+        state ?: return,
         viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
