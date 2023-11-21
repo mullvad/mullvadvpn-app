@@ -10,13 +10,8 @@ import android.os.Build
 import android.service.quicksettings.Tile
 
 object SdkUtils {
-    // TODO Rework how pending intents work
     fun getSupportedPendingIntentFlags(): Int {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            PendingIntent.FLAG_UPDATE_CURRENT or
-                PendingIntent.FLAG_MUTABLE or
-                FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         } else {
             PendingIntent.FLAG_UPDATE_CURRENT
