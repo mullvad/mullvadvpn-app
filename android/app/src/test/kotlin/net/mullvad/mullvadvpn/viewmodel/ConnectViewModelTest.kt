@@ -100,7 +100,6 @@ class ConnectViewModelTest {
     private val selectedRelayFlow = MutableStateFlow<RelayItem?>(null)
 
     // Out Of Time Use Case
-
     private val outOfTimeUseCase: OutOfTimeUseCase = mockk()
     private val outOfTimeViewFlow = MutableStateFlow(false)
 
