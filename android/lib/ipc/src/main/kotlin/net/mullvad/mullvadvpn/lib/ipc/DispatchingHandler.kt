@@ -15,7 +15,8 @@ class DispatchingHandler<T : Any>(looper: Looper, private val extractor: (Messag
     private val handlers = HashMap<KClass<out T>, (T) -> Unit>()
     private val lock = ReentrantReadWriteLock()
 
-    private val _parsedMessages = MutableSharedFlow<T>(extraBufferCapacity = 1)
+    private val _parsedMessages =
+        MutableSharedFlow<T>(extraBufferCapacity = MESSAGES_BUFFER_CAPACITY)
     val parsedMessages = _parsedMessages.asSharedFlow()
 
     @Deprecated("Use parsedMessages instead.")
@@ -44,5 +45,9 @@ class DispatchingHandler<T : Any>(looper: Looper, private val extractor: (Messag
         lock.writeLock().withLock { handlers.clear() }
 
         removeCallbacksAndMessages(null)
+    }
+
+    companion object {
+        private const val MESSAGES_BUFFER_CAPACITY = 10
     }
 }
