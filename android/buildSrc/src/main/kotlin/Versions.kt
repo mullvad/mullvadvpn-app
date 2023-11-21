@@ -14,10 +14,10 @@ object Versions {
     const val billingClient = "6.0.1"
 
     object Android {
-        const val compileSdkVersion = 33
+        const val compileSdkVersion = 34
         const val material = "1.9.0"
         const val minSdkVersion = 26
-        const val targetSdkVersion = 33
+        const val targetSdkVersion = 34
         const val volley = "1.2.1"
     }
 
@@ -51,7 +51,7 @@ object Versions {
         // The androidAapt plugin version must be in sync with the android plugin version.
         // Required for Gradle metadata verification to work properly, see:
         // https://github.com/gradle/gradle/issues/19228
-        const val android = "8.1.0"
+        const val android = "8.1.4"
         const val androidAapt = "$android-10154469"
         const val playPublisher = "3.8.4"
         const val dependencyCheck = "8.3.1"

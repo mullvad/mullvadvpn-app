@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- https://developer.android.com/guide/components/fg-service-types#system-exempted -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
     <uses-feature android:name="android.hardware.touchscreen"
                   android:required="false" />
     <uses-feature android:name="android.hardware.faketouch"
@@ -49,11 +51,17 @@
             however as it's protected by the bind vpn permission
             (android.permission.BIND_VPN_SERVICE) it's protected against third party apps/services.
         -->
+        <!--
+            foregroundServiceType="systemExempted" is required in Android 14+
+            https://developer.android.com/guide/components/fg-service-types#system-exempted
+            -->
         <service android:name="net.mullvad.mullvadvpn.service.MullvadVpnService"
                  android:exported="true"
                  android:permission="android.permission.BIND_VPN_SERVICE"
                  android:process=":mullvadvpn_daemon"
-                 android:stopWithTask="false">
+                 android:stopWithTask="false"
+                 android:foregroundServiceType="systemExempted"
+                 tools:ignore="ForegroundServicePermission">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
