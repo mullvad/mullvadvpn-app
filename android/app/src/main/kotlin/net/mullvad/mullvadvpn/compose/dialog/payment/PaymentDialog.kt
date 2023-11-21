@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.ui.extension.getActivity
 import net.mullvad.mullvadvpn.viewmodel.PaymentUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -221,12 +222,4 @@ fun PaymentDialog(
             }
         }
     )
-}
-
-private fun Context.getActivity(): Activity? {
-    return when (this) {
-        is Activity -> this
-        is ContextWrapper -> this.baseContext.getActivity()
-        else -> null
-    }
 }
