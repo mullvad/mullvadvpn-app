@@ -61,8 +61,12 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewOutOfTimeScreenDisconnected() {
     AppTheme {
         OutOfTimeScreen(
-            showSitePayment = true,
-            uiState = OutOfTimeUiState(tunnelState = TunnelState.Disconnected, "Heroic Frog"),
+            uiState =
+                OutOfTimeUiState(
+                    tunnelState = TunnelState.Disconnected,
+                    "Heroic Frog",
+                    showSitePayment = true
+                ),
         )
     }
 }
@@ -72,9 +76,12 @@ private fun PreviewOutOfTimeScreenDisconnected() {
 private fun PreviewOutOfTimeScreenConnecting() {
     AppTheme {
         OutOfTimeScreen(
-            showSitePayment = true,
             uiState =
-                OutOfTimeUiState(tunnelState = TunnelState.Connecting(null, null), "Strong Rabbit"),
+                OutOfTimeUiState(
+                    tunnelState = TunnelState.Connecting(null, null),
+                    "Strong Rabbit",
+                    showSitePayment = true
+                ),
         )
     }
 }
@@ -84,14 +91,14 @@ private fun PreviewOutOfTimeScreenConnecting() {
 private fun PreviewOutOfTimeScreenError() {
     AppTheme {
         OutOfTimeScreen(
-            showSitePayment = true,
             uiState =
                 OutOfTimeUiState(
                     tunnelState =
                         TunnelState.Error(
                             ErrorState(cause = ErrorStateCause.IsOffline, isBlocking = true)
                         ),
-                    deviceName = "Stable Horse"
+                    deviceName = "Stable Horse",
+                    showSitePayment = true
                 ),
         )
     }
@@ -142,7 +149,6 @@ fun OutOfTime(
     }
 
     OutOfTimeScreen(
-        showSitePayment = IS_PLAY_BUILD.not(),
         uiState = state,
         onSitePaymentClick = vm::onSitePaymentClick,
         onRedeemVoucherClick = {
@@ -162,7 +168,6 @@ fun OutOfTime(
 
 @Composable
 fun OutOfTimeScreen(
-    showSitePayment: Boolean,
     uiState: OutOfTimeUiState,
     onDisconnectClick: () -> Unit = {},
     onSitePaymentClick: () -> Unit = {},
@@ -222,7 +227,7 @@ fun OutOfTimeScreen(
                 text =
                     buildString {
                         append(stringResource(R.string.account_credit_has_expired))
-                        if (showSitePayment) {
+                        if (uiState.showSitePayment) {
                             append(" ")
                             append(stringResource(R.string.add_time_to_account))
                         }
@@ -266,7 +271,7 @@ fun OutOfTimeScreen(
                             .align(Alignment.CenterHorizontally)
                 )
             }
-            if (showSitePayment) {
+            if (uiState.showSitePayment) {
                 SitePaymentButton(
                     onClick = onSitePaymentClick,
                     isEnabled = uiState.tunnelState.enableSitePaymentButton(),

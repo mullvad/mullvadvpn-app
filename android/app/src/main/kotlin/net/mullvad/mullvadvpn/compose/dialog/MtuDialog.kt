@@ -51,7 +51,7 @@ fun MtuDialog(mtuInitial: Int?, navigator: DestinationsNavigator) {
     }
     MtuDialog(
         mtuInitial = mtuInitial,
-        onSaveMtu = { mtu -> viewModel.onSaveClick(mtu) },
+        onSaveMtu = viewModel::onSaveClick,
         onResetMtu = viewModel::onRestoreClick,
         onDismiss = navigator::navigateUp
     )

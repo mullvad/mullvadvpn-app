@@ -102,8 +102,8 @@ fun RedeemVoucher(resultBackNavigator: ResultBackNavigator<Boolean>) {
     val vm = koinViewModel<VoucherDialogViewModel>()
     RedeemVoucherDialog(
         uiState = vm.uiState.collectAsState().value,
-        onVoucherInputChange = { vm.onVoucherInputChange(it) },
-        onRedeem = { vm.onRedeem(it) },
+        onVoucherInputChange = vm::onVoucherInputChange,
+        onRedeem = vm::onRedeem,
         onDismiss = { resultBackNavigator.navigateBack(result = it) }
     )
 }
