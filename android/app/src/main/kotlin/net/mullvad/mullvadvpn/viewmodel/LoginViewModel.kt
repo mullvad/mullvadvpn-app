@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.util.awaitWithTimeoutOrNull
+import net.mullvad.mullvadvpn.util.getOrDefault
 
 private const val MINIMUM_LOADING_SPINNER_TIME_MILLIS = 500L
 
@@ -101,8 +102,8 @@ class LoginViewModel(
                                     .first()
                             }
                             delay(1000)
-                            val outOfTime = isOutOfTimeDeferred.awaitWithTimeoutOrNull(200)
-                            if (outOfTime == true) {
+                            val isOutOfTime = isOutOfTimeDeferred.getOrDefault(false)
+                            if (isOutOfTime) {
                                 _uiSideEffect.emit(LoginUiSideEffect.NavigateToOutOfTime)
                             } else {
                                 _uiSideEffect.emit(LoginUiSideEffect.NavigateToConnect)
