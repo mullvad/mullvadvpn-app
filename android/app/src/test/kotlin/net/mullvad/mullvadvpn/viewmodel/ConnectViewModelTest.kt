@@ -39,6 +39,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.talpid.tunnel.ErrorState
@@ -89,6 +90,9 @@ class ConnectViewModelTest {
     // Relay list use case
     private val mockRelayListUseCase: RelayListUseCase = mockk()
 
+    // Out of time use case
+    private val mockOutOfTimeUseCase: OutOfTimeUseCase = mockk()
+
     // Captures
     private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
 
@@ -98,6 +102,7 @@ class ConnectViewModelTest {
 
     // Flows
     private val selectedRelayFlow = MutableStateFlow<RelayItem?>(null)
+    private val outOfTimeViewFlow = MutableStateFlow(false)
 
     @Before
     fun setup() {
@@ -131,6 +136,7 @@ class ConnectViewModelTest {
 
         // Flows
         every { mockRelayListUseCase.selectedRelayItem() } returns selectedRelayFlow
+        every { mockOutOfTimeUseCase.isOutOfTime() } returns outOfTimeViewFlow
 
         viewModel =
             ConnectViewModel(
@@ -139,7 +145,8 @@ class ConnectViewModelTest {
                 deviceRepository = mockDeviceRepository,
                 inAppNotificationController = mockInAppNotificationController,
                 relayListUseCase = mockRelayListUseCase,
-                newDeviceNotificationUseCase = mockk()
+                newDeviceNotificationUseCase = mockk(),
+                outOfTimeUseCase = mockOutOfTimeUseCase
             )
     }
 
@@ -347,7 +354,7 @@ class ConnectViewModelTest {
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 locationSlot.captured.invoke(mockLocation)
-                eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
+                outOfTimeViewFlow.value = true
                 awaitItem()
             }
 
