@@ -27,7 +27,7 @@ mod tunnel;
 pub mod version;
 mod version_check;
 
-use crate::target_state::PersistentTargetState;
+use crate::{geoip::get_geo_location, target_state::PersistentTargetState};
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -1346,12 +1346,7 @@ where
         use self::TunnelState::*;
 
         match &self.tunnel_state {
-            Disconnected => {
-                let location = self.get_geo_location().await;
-                tokio::spawn(async {
-                    Self::oneshot_send(tx, location.await.ok(), "current location");
-                });
-            }
+            Disconnected => self.update_and_send_geo_location(tx, None).await,
             Connecting { location, .. } => {
                 Self::oneshot_send(tx, location.clone(), "current location")
             }
@@ -1361,38 +1356,36 @@ where
                 "current location",
             ),
             Connected { location, .. } => {
-                let relay_location = location.clone();
-                let location_future = self.get_geo_location().await;
-                tokio::spawn(async {
-                    let location = location_future.await;
-                    Self::oneshot_send(
-                        tx,
-                        location.ok().map(|fetched_location| GeoIpLocation {
-                            ipv4: fetched_location.ipv4,
-                            ipv6: fetched_location.ipv6,
-                            ..relay_location.unwrap_or(fetched_location)
-                        }),
-                        "current location",
-                    );
-                });
+                self.update_and_send_geo_location(tx, location.clone())
+                    .await
             }
-            Error(_) => {
-                // We are not online at all at this stage so no location data is available.
-                Self::oneshot_send(tx, None, "current location");
-            }
-        }
+            // We are not online at all at this stage so no location data is available.
+            Error(_) => Self::oneshot_send(tx, None, "current location"),
+        };
     }
 
-    async fn get_geo_location(&mut self) -> impl Future<Output = Result<GeoIpLocation, ()>> {
+    /// Fetch the current `GeoIpLocation` and send it on the return channel,
+    /// in a non-blocking fashion. Optionally give a chached previous location.
+    async fn update_and_send_geo_location(
+        &mut self,
+        tx: oneshot::Sender<Option<GeoIpLocation>>,
+        current_relay_location: Option<GeoIpLocation>,
+    ) {
         let rest_service = self.api_runtime.rest_handle().await;
         let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
-        async move {
-            geoip::send_location_request(rest_service, use_ipv6)
-                .await
-                .map_err(|e| {
-                    log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-                })
-        }
+        let api_handle = self.api_handle.availability.clone();
+        tokio::spawn(async move {
+            let new_location = get_geo_location(rest_service, use_ipv6, api_handle).await;
+            Self::oneshot_send(
+                tx,
+                new_location.map(|fetched_location| GeoIpLocation {
+                    ipv4: fetched_location.ipv4,
+                    ipv6: fetched_location.ipv6,
+                    ..current_relay_location.unwrap_or(fetched_location)
+                }),
+                "current location",
+            );
+        });
     }
 
     fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
@@ -2588,8 +2581,8 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
     }
 }
 
-/// Consume a oneshot sender of `T1` and return a sender that takes a different type `T2`. `forwarder` should map `T1` back to `T2` and
-/// send the result back to the original receiver.
+/// Consume a oneshot sender of `T1` and return a sender that takes a different type `T2`.
+/// `forwarder` should map `T1` back to `T2` and send the result back to the original receiver.
 fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
     tx: oneshot::Sender<T1>,
     forwarder: impl Fn(oneshot::Sender<T1>, T2) + Send + 'static,

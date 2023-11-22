@@ -1,11 +1,18 @@
+use std::time::Duration;
+
 use futures::join;
 use mullvad_api::{
     self,
+    availability::ApiAvailabilityHandle,
     rest::{Error, RequestServiceHandle},
 };
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
 use once_cell::sync::Lazy;
+use talpid_core::future_retry::{retry_future, ConstantInterval};
 use talpid_types::ErrorExt;
+
+/// Retry interval for fetching location
+const RETRY_LOCATION_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 
 // Define the Mullvad connection checking api endpoint.
 //
@@ -36,7 +43,32 @@ static MULLVAD_CONNCHECK_HOST: Lazy<String> = Lazy::new(|| {
     host.to_string()
 });
 
-pub async fn send_location_request(
+/// Fetch the current `GeoIpLocation` with retrys
+pub async fn get_geo_location(
+    rest_service: RequestServiceHandle,
+    use_ipv6: bool,
+    api_handle: ApiAvailabilityHandle,
+) -> Option<GeoIpLocation> {
+    log::debug!("Fetching GeoIpLocation");
+    match retry_future(
+        move || send_location_request(rest_service.clone(), use_ipv6),
+        move |result| match result {
+            Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
+            _ => false,
+        },
+        RETRY_LOCATION_STRATEGY,
+    )
+    .await
+    {
+        Ok(loc) => Some(loc),
+        Err(e) => {
+            log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+            None
+        }
+    }
+}
+
+async fn send_location_request(
     request_sender: RequestServiceHandle,
     use_ipv6: bool,
 ) -> Result<GeoIpLocation, Error> {
