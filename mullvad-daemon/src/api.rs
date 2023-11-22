@@ -10,7 +10,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
+use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
 use std::{
     path::PathBuf,
     pin::Pin,
@@ -82,14 +82,14 @@ impl ApiConnectionModeProvider {
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
-    ) -> Self {
-        let connection_modes_iterator = ConnectionModesIterator::new(connection_modes);
-        Self {
+    ) -> Result<Self, Error> {
+        let connection_modes_iterator = ConnectionModesIterator::new(connection_modes)?;
+        Ok(Self {
             cache_dir,
             relay_selector,
             current_task: None,
             connection_modes: Arc::new(Mutex::new(connection_modes_iterator)),
-        }
+        })
     }
 
     /// Return a pointer to the underlying iterator over [`AccessMethod`].
@@ -121,7 +121,6 @@ impl ApiConnectionModeProvider {
     /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
     /// can not be implemented.
     fn from(&mut self, access_method: AccessMethod) -> ApiConnectionMode {
-        use mullvad_types::access_method;
         match access_method {
             AccessMethod::BuiltIn(access_method) => match access_method {
                 BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
@@ -173,14 +172,20 @@ pub struct ConnectionModesIterator {
     current: AccessMethodSetting,
 }
 
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    #[error(display = "No access methods were provided.")]
+    NoAccessMethods,
+}
+
 impl ConnectionModesIterator {
-    pub fn new(access_methods: Vec<AccessMethodSetting>) -> ConnectionModesIterator {
-        let mut iterator = Self::cycle(access_methods);
-        Self {
+    pub fn new(access_methods: Vec<AccessMethodSetting>) -> Result<ConnectionModesIterator, Error> {
+        let mut iterator = Self::new_iterator(access_methods)?;
+        Ok(Self {
             next: None,
-            current: iterator.next().unwrap(),
+            current: iterator.next().ok_or(Error::NoAccessMethods)?,
             available_modes: iterator,
-        }
+        })
     }
 
     /// Set the next [`AccessMethod`] to be returned from this iterator.
@@ -189,14 +194,26 @@ impl ConnectionModesIterator {
     }
     /// Update the collection of [`AccessMethod`] which this iterator will
     /// return.
-    pub fn update_access_methods(&mut self, access_methods: Vec<AccessMethodSetting>) {
-        self.available_modes = Self::cycle(access_methods)
+    pub fn update_access_methods(
+        &mut self,
+        access_methods: Vec<AccessMethodSetting>,
+    ) -> Result<(), Error> {
+        self.available_modes = Self::new_iterator(access_methods)?;
+        Ok(())
     }
 
-    fn cycle(
+    /// Create a cyclic iterator of [`AccessMethodSetting`]s.
+    ///
+    /// If the `access_methods` argument is an empty vector, an [`Error`] is
+    /// returned.
+    fn new_iterator(
         access_methods: Vec<AccessMethodSetting>,
-    ) -> Box<dyn Iterator<Item = AccessMethodSetting> + Send> {
-        Box::new(access_methods.into_iter().cycle())
+    ) -> Result<Box<dyn Iterator<Item = AccessMethodSetting> + Send>, Error> {
+        if access_methods.is_empty() {
+            Err(Error::NoAccessMethods)
+        } else {
+            Ok(Box::new(access_methods.into_iter().cycle()))
+        }
     }
 
     /// Look at the currently active [`AccessMethod`]
