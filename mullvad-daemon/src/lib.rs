@@ -680,7 +680,7 @@ where
                 .set_config(new_selector_config(settings));
         });
 
-        let proxy_provider = api::ApiConnectionModeProvider::new(
+        let proxy_provider = match api::ApiConnectionModeProvider::new(
             cache_dir.clone(),
             relay_selector.clone(),
             settings
@@ -691,7 +691,18 @@ where
                 .filter(|api_access_method| api_access_method.enabled())
                 .cloned()
                 .collect(),
-        );
+        ) {
+            Ok(provider) => provider,
+            Err(api::Error::NoSettings) => {
+                // No settings seem to have been found. Reset the original access methods settings.
+                api::ApiConnectionModeProvider::new(
+                    cache_dir.clone(),
+                    relay_selector.clone(),
+                    mullvad_types::access_method::Settings::default().access_method_settings,
+                )
+                .expect("There to be at least one access method")
+            }
+        };
 
         let connection_modes = proxy_provider.handle();
 
