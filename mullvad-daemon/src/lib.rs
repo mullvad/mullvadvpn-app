@@ -34,6 +34,7 @@ use futures::{
     future::{abortable, AbortHandle, Future, LocalBoxFuture},
     StreamExt,
 };
+use mullvad_api::{availability::ApiAvailabilityHandle, rest::RequestServiceHandle};
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
@@ -72,6 +73,7 @@ use std::{
 #[cfg(any(target_os = "linux", windows))]
 use talpid_core::split_tunnel;
 use talpid_core::{
+    future_retry::{retry_future, ConstantInterval},
     mpsc::Sender,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
@@ -90,6 +92,9 @@ use tokio::io;
 
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
+
+/// Retry interval for fetching location
+const RETRY_LOCATION_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
@@ -1347,9 +1352,15 @@ where
 
         match &self.tunnel_state {
             Disconnected => {
-                let location = self.get_geo_location().await;
-                tokio::spawn(async {
-                    Self::oneshot_send(tx, location.await.ok(), "current location");
+                let rest_service = self.api_runtime.rest_handle().await;
+                let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
+                let api_handle = self.api_handle.availability.clone();
+                log::debug!("Fetching GeoIpLocation");
+
+                tokio::spawn(async move {
+                    let geo_location =
+                        Self::get_geo_location(rest_service, use_ipv6, api_handle).await;
+                    Self::oneshot_send(tx, geo_location, "current location");
                 });
             }
             Connecting { location, .. } => {
@@ -1361,16 +1372,18 @@ where
                 "current location",
             ),
             Connected { location, .. } => {
-                let relay_location = location.clone();
-                let location_future = self.get_geo_location().await;
-                tokio::spawn(async {
-                    let location = location_future.await;
+                let current_relay_location = location.clone();
+                let rest_service = self.api_runtime.rest_handle().await;
+                let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
+                let api_handle = self.api_handle.availability.clone();
+                tokio::spawn(async move {
+                    let location = Self::get_geo_location(rest_service, use_ipv6, api_handle).await;
                     Self::oneshot_send(
                         tx,
-                        location.ok().map(|fetched_location| GeoIpLocation {
+                        location.map(|fetched_location| GeoIpLocation {
                             ipv4: fetched_location.ipv4,
                             ipv6: fetched_location.ipv6,
-                            ..relay_location.unwrap_or(fetched_location)
+                            ..current_relay_location.unwrap_or(fetched_location)
                         }),
                         "current location",
                     );
@@ -1383,15 +1396,28 @@ where
         }
     }
 
-    async fn get_geo_location(&mut self) -> impl Future<Output = Result<GeoIpLocation, ()>> {
-        let rest_service = self.api_runtime.rest_handle().await;
-        let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
-        async move {
-            geoip::send_location_request(rest_service, use_ipv6)
-                .await
-                .map_err(|e| {
-                    log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-                })
+    /// Fetch the current `GeoIpLocation` with retrys
+    async fn get_geo_location(
+        rest_service: RequestServiceHandle,
+        use_ipv6: bool,
+        api_handle: ApiAvailabilityHandle,
+    ) -> Option<GeoIpLocation> {
+        log::debug!("Fetching GeoIpLocation");
+        match retry_future(
+            move || geoip::send_location_request(rest_service.clone(), use_ipv6),
+            move |result| match result {
+                Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
+                _ => false,
+            },
+            RETRY_LOCATION_STRATEGY,
+        )
+        .await
+        {
+            Ok(loc) => Some(loc),
+            Err(e) => {
+                log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+                None
+            }
         }
     }
 
@@ -2588,8 +2614,8 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
     }
 }
 
-/// Consume a oneshot sender of `T1` and return a sender that takes a different type `T2`. `forwarder` should map `T1` back to `T2` and
-/// send the result back to the original receiver.
+/// Consume a oneshot sender of `T1` and return a sender that takes a different type `T2`.
+/// `forwarder` should map `T1` back to `T2` and send the result back to the original receiver.
 fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
     tx: oneshot::Sender<T1>,
     forwarder: impl Fn(oneshot::Sender<T1>, T2) + Send + 'static,

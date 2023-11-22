@@ -352,7 +352,7 @@ impl Runtime {
     }
 
     /// Returns a new request service handle
-    pub async fn rest_handle(&mut self) -> rest::RequestServiceHandle {
+    pub async fn rest_handle(&self) -> rest::RequestServiceHandle {
         self.new_request_service(
             None,
             ApiConnectionMode::Direct.into_repeat(),
