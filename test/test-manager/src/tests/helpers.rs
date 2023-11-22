@@ -96,7 +96,7 @@ pub async fn get_tunnel_interface(rpc: ManagementServiceClient) -> Option<String
 /// Sends a number of probes and returns the number of observed packets (UDP, TCP, or ICMP)
 pub async fn send_guest_probes(
     rpc: ServiceClient,
-    interface: Option<String>,
+    interface: String,
     destination: SocketAddr,
 ) -> Result<ProbeResult, Error> {
     const MONITOR_DURATION: Duration = Duration::from_secs(8);
@@ -113,7 +113,7 @@ pub async fn send_guest_probes(
 
     let send_handle = tokio::spawn(send_guest_probes_without_monitor(
         rpc,
-        interface,
+        Some(interface),
         destination,
     ));
 

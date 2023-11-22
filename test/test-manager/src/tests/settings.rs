@@ -47,12 +47,8 @@ pub async fn test_lan(
     log::info!("Test whether outgoing LAN traffic is blocked");
 
     let default_interface = rpc.get_default_interface().await?;
-    let detected_probes = send_guest_probes(
-        rpc.clone(),
-        Some(default_interface.clone()),
-        lan_destination,
-    )
-    .await?;
+    let detected_probes =
+        send_guest_probes(rpc.clone(), default_interface.clone(), lan_destination).await?;
     assert!(
         detected_probes.none(),
         "observed unexpected outgoing LAN packets: {detected_probes:?}"
@@ -138,23 +134,15 @@ pub async fn test_lockdown(
 
     let default_interface = rpc.get_default_interface().await?;
 
-    let detected_probes = send_guest_probes(
-        rpc.clone(),
-        Some(default_interface.clone()),
-        lan_destination,
-    )
-    .await?;
+    let detected_probes =
+        send_guest_probes(rpc.clone(), default_interface.clone(), lan_destination).await?;
     assert!(
         detected_probes.none(),
         "observed outgoing packets to LAN: {detected_probes:?}"
     );
 
-    let detected_probes = send_guest_probes(
-        rpc.clone(),
-        Some(default_interface.clone()),
-        inet_destination,
-    )
-    .await?;
+    let detected_probes =
+        send_guest_probes(rpc.clone(), default_interface.clone(), inet_destination).await?;
     assert!(
         detected_probes.none(),
         "observed outgoing packets to internet: {detected_probes:?}"
@@ -175,23 +163,15 @@ pub async fn test_lockdown(
     // Ensure private IPs are reachable, but not others
     //
 
-    let detected_probes = send_guest_probes(
-        rpc.clone(),
-        Some(default_interface.clone()),
-        lan_destination,
-    )
-    .await?;
+    let detected_probes =
+        send_guest_probes(rpc.clone(), default_interface.clone(), lan_destination).await?;
     assert!(
         detected_probes.all(),
         "did not observe some outgoing packets: {detected_probes:?}"
     );
 
-    let detected_probes = send_guest_probes(
-        rpc.clone(),
-        Some(default_interface.clone()),
-        inet_destination,
-    )
-    .await?;
+    let detected_probes =
+        send_guest_probes(rpc.clone(), default_interface.clone(), inet_destination).await?;
     assert!(
         detected_probes.none(),
         "observed outgoing packets to internet: {detected_probes:?}"
