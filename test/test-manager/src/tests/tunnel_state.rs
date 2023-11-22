@@ -1,6 +1,6 @@
 use super::helpers::{
-    self, connect_and_wait, disconnect_and_wait, get_tunnel_state, send_guest_probes,
-    set_relay_settings, unreachable_wireguard_tunnel, wait_for_tunnel_state,
+    self, connect_and_wait, get_tunnel_state, send_guest_probes, set_relay_settings,
+    unreachable_wireguard_tunnel, wait_for_tunnel_state,
 };
 use super::{ui, Error, TestContext};
 use crate::assert_tunnel_state;
@@ -17,7 +17,7 @@ use mullvad_types::{
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType};
 use test_macro::test_function;
-use test_rpc::{Interface, ServiceClient};
+use test_rpc::ServiceClient;
 
 /// Verify that outgoing TCP, UDP, and ICMP packets can be observed
 /// in the disconnected state. The purpose is mostly to rule prevent
@@ -40,8 +40,13 @@ pub async fn test_disconnected_state(
 
     log::info!("Sending packets to {inet_destination}");
 
+    let non_tunnel_interface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to obtain non-tun interface");
+
     let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_destination).await?;
+        send_guest_probes(rpc.clone(), non_tunnel_interface, inet_destination).await?;
     assert!(
         detected_probes.all(),
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
@@ -118,40 +123,37 @@ pub async fn test_connecting_state(
     // Leak test
     //
 
+    let non_tunnel_interface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to obtain non-tun interface");
+
     assert!(
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_destination)
+        send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), inet_destination)
             .await?
             .none(),
         "observed unexpected outgoing packets (inet)"
     );
     assert!(
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), lan_destination)
+        send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), lan_destination)
             .await?
             .none(),
         "observed unexpected outgoing packets (lan)"
     );
     assert!(
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_dns)
+        send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), inet_dns)
             .await?
             .none(),
         "observed unexpected outgoing packets (DNS, inet)"
     );
     assert!(
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), lan_dns)
+        send_guest_probes(rpc.clone(), non_tunnel_interface, lan_dns)
             .await?
             .none(),
         "observed unexpected outgoing packets (DNS, lan)"
     );
 
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Connecting { .. });
-
-    //
-    // Disconnect
-    //
-
-    log::info!("Disconnecting");
-
-    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }
@@ -201,38 +203,35 @@ pub async fn test_error_state(
     // Leak test
     //
 
+    let default_interface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to obtain non-tun interface");
+
     assert!(
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_destination)
+        send_guest_probes(rpc.clone(), default_interface.clone(), inet_destination)
             .await?
             .none(),
         "observed unexpected outgoing packets (inet)"
     );
     assert!(
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), lan_destination)
+        send_guest_probes(rpc.clone(), default_interface.clone(), lan_destination)
             .await?
             .none(),
         "observed unexpected outgoing packets (lan)"
     );
     assert!(
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_dns)
+        send_guest_probes(rpc.clone(), default_interface.clone(), inet_dns)
             .await?
             .none(),
         "observed unexpected outgoing packets (DNS, inet)"
     );
     assert!(
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), lan_dns)
+        send_guest_probes(rpc.clone(), default_interface, lan_dns)
             .await?
             .none(),
         "observed unexpected outgoing packets (DNS, lan)"
     );
-
-    //
-    // Disconnect
-    //
-
-    log::info!("Disconnecting");
-
-    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }
@@ -318,19 +317,21 @@ pub async fn test_connected_state(
 
     log::info!("Test whether outgoing non-tunnel traffic is blocked");
 
-    let detected_probes =
-        send_guest_probes(rpc.clone(), Some(Interface::NonTunnel), inet_destination).await?;
+    let nontun_iface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to find non-tun interface");
+
+    let detected_probes = send_guest_probes(rpc.clone(), nontun_iface, inet_destination).await?;
     assert!(
         detected_probes.none(),
-        "observed unexpected outgoing packets"
+        "observed unexpected outgoing packets: {detected_probes:?}"
     );
 
     assert!(
         helpers::using_mullvad_exit(&rpc).await,
         "expected Mullvad exit IP"
     );
-
-    disconnect_and_wait(&mut mullvad_client).await?;
 
     Ok(())
 }

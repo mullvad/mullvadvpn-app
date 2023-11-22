@@ -17,8 +17,6 @@ pub struct ServiceClient {
     client: service::ServiceClient,
 }
 
-// TODO: implement wrapper methods using macro on Service trait
-
 impl ServiceClient {
     pub fn new(
         connection_handle: transport::ConnectionHandle,
@@ -156,7 +154,7 @@ impl ServiceClient {
     /// Send TCP packet
     pub async fn send_tcp(
         &self,
-        interface: Option<Interface>,
+        interface: Option<String>,
         bind_addr: SocketAddr,
         destination: SocketAddr,
     ) -> Result<(), Error> {
@@ -168,7 +166,7 @@ impl ServiceClient {
     /// Send UDP packet
     pub async fn send_udp(
         &self,
-        interface: Option<Interface>,
+        interface: Option<String>,
         bind_addr: SocketAddr,
         destination: SocketAddr,
     ) -> Result<(), Error> {
@@ -180,7 +178,7 @@ impl ServiceClient {
     /// Send ICMP
     pub async fn send_ping(
         &self,
-        interface: Option<Interface>,
+        interface: Option<String>,
         destination: IpAddr,
     ) -> Result<(), Error> {
         self.client
@@ -196,16 +194,16 @@ impl ServiceClient {
     }
 
     /// Returns the IP of the given interface.
-    pub async fn get_interface_name(&self, interface: Interface) -> Result<String, Error> {
+    pub async fn get_interface_ip(&self, interface: String) -> Result<IpAddr, Error> {
         self.client
-            .get_interface_name(tarpc::context::current(), interface)
+            .get_interface_ip(tarpc::context::current(), interface)
             .await?
     }
 
-    /// Returns the IP of the given interface.
-    pub async fn get_interface_ip(&self, interface: Interface) -> Result<IpAddr, Error> {
+    /// Returns the name of the default non-tunnel interface
+    pub async fn get_default_interface(&self) -> Result<String, Error> {
         self.client
-            .get_interface_ip(tarpc::context::current(), interface)
+            .get_default_interface(tarpc::context::current())
             .await?
     }
 
