@@ -1,8 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <application
-        android:icon="@mipmap/ic_launcher"
-        android:label="Stagemole VPN"
-        tools:replace="android:label" />
+          xmlns:tools="http://schemas.android.com/tools">
+    <application android:icon="@mipmap/ic_launcher"
+                 android:label="Stagemole VPN"
+                 tools:replace="android:label" />
 </manifest>
