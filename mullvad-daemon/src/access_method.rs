@@ -135,6 +135,11 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
+        // We have to be a bit careful. If we are about to disable the last
+        // remaining enabled access method, we would case an inconsistent state
+        // in the daemon's settings. Therefore, we have to safe guard against
+        // this by explicitly checking for & disallow any update which would
+        // case the last enabled access method to become disabled.
         let current = self.get_current_access_method()?;
         let mut command = Command::Nothing;
         let settings_update = |settings: &mut Settings| {
