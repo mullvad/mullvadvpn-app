@@ -72,7 +72,7 @@ pub async fn test_lan(
     log::info!("Test whether outgoing LAN traffic is blocked");
 
     let detected_probes =
-        send_guest_probes(rpc.clone(), Some(default_interface), lan_destination).await?;
+        send_guest_probes(rpc.clone(), default_interface, lan_destination).await?;
     assert!(
         detected_probes.all(),
         "did not observe all outgoing LAN packets: {detected_probes:?}"
@@ -195,7 +195,7 @@ pub async fn test_lockdown(
     // Send traffic outside the tunnel to sanity check that the internet is *not* reachable via non-
     // tunnel interfaces.
     let detected_probes =
-        send_guest_probes(rpc.clone(), Some(default_interface), inet_destination).await?;
+        send_guest_probes(rpc.clone(), default_interface, inet_destination).await?;
     assert!(
         detected_probes.none(),
         "observed outgoing packets to internet: {detected_probes:?}"
