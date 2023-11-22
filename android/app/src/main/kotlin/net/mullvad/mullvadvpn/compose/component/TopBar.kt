@@ -302,8 +302,7 @@ fun MullvadTopBarWithDeviceName(
                 text =
                     deviceName?.let {
                         stringResource(id = R.string.top_bar_device_name, deviceName)
-                    }
-                        ?: "",
+                    } ?: "",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodySmall,
@@ -314,11 +313,15 @@ fun MullvadTopBarWithDeviceName(
                     text =
                         stringResource(
                             id = R.string.top_bar_time_left,
-                            pluralStringResource(
-                                id = R.plurals.days,
-                                daysLeftUntilExpiry,
-                                daysLeftUntilExpiry
-                            )
+                            if (daysLeftUntilExpiry >= 0) {
+                                pluralStringResource(
+                                    id = R.plurals.days,
+                                    daysLeftUntilExpiry,
+                                    daysLeftUntilExpiry
+                                )
+                            } else {
+                                stringResource(id = R.string.expired)
+                            }
                         ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaTopBar)
