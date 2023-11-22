@@ -72,6 +72,7 @@ use std::{
 #[cfg(any(target_os = "linux", windows))]
 use talpid_core::split_tunnel;
 use talpid_core::{
+    future_retry::{retry_future, ConstantInterval},
     mpsc::Sender,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
@@ -90,6 +91,10 @@ use tokio::io;
 
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
+
+/// Retry interval for fetching location
+const RETRY_LOCATION_STRATEGY: ConstantInterval =
+    ConstantInterval::new(Duration::from_millis(100), Some(10));
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
@@ -1385,12 +1390,19 @@ where
     async fn get_geo_location(&mut self) -> Result<GeoIpLocation, ()> {
         let rest_service = self.api_runtime.rest_handle().await;
         let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
-
-        geoip::send_location_request(rest_service, use_ipv6)
-            .await
-            .map_err(|e| {
-                log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-            })
+        let api_handle = self.api_handle.availability.clone();
+        retry_future(
+            move || geoip::send_location_request(rest_service.clone(), use_ipv6),
+            move |result| match result {
+                Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
+                _ => false,
+            },
+            RETRY_LOCATION_STRATEGY,
+        )
+        .await
+        .map_err(|e| {
+            log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+        })
     }
 
     fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
