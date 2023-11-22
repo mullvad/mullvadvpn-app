@@ -24,4 +24,4 @@ jobs:
       - name: Scan code
         uses: MobSF/mobsfscan@main
         with:
-          args: '--type android --config android/config/config.mobsf android'
+          args: '--type android --config android/config/config.mobsf --exit-warning android'
