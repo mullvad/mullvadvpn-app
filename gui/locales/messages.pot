@@ -1738,6 +1738,9 @@ msgstr ""
 msgid "Excluded applications"
 msgstr ""
 
+msgid "Expired"
+msgstr ""
+
 msgid "Going to login will unblock the internet on this device."
 msgstr ""
 
