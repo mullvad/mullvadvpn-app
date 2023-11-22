@@ -680,7 +680,7 @@ where
                 .set_config(new_selector_config(settings));
         });
 
-        let proxy_provider = api::ApiConnectionModeProvider::new(
+        let proxy_provider = match api::ApiConnectionModeProvider::new(
             cache_dir.clone(),
             relay_selector.clone(),
             settings
@@ -691,7 +691,22 @@ where
                 .filter(|api_access_method| api_access_method.enabled())
                 .cloned()
                 .collect(),
-        );
+        ) {
+            Ok(provider) => provider,
+            Err(api::Error::NoAccessMethods) => {
+                // No settings seem to have been found. Default to using the the
+                // direct access method.
+                let default = mullvad_types::access_method::Settings::direct();
+                api::ApiConnectionModeProvider::new(
+                    cache_dir.clone(),
+                    relay_selector.clone(),
+                    vec![default],
+                )
+                .expect(
+                    "Failed to create the data structure responsible for managing access methods",
+                )
+            }
+        };
 
         let connection_modes = proxy_provider.handle();
 
