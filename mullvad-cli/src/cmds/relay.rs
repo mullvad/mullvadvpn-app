@@ -342,7 +342,7 @@ impl Relay {
     }
 
     async fn list() -> Result<()> {
-        let mut countries = get_active_non_bridge_relays().await?;
+        let mut countries = get_active_relays().await?;
         countries.sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
         for mut country in countries {
             country
@@ -782,7 +782,7 @@ impl Relay {
                 }
 
                 let mut countries_with_overrides = vec![];
-                for country in get_active_non_bridge_relays().await? {
+                for country in get_active_relays().await? {
                     let mut country_with_overrides = Country {
                         name: country.name,
                         code: country.code,
@@ -932,7 +932,7 @@ fn relay_to_geographical_constraint(
 
 /// Parses the [`LocationArgs`] into a [`Constraint<GeographicLocationConstraint>`].
 ///
-/// See the documentation of [SetCommands] (`mullvad relay set location`) for a description
+/// See the documentation of [`mullvad relay set location`](SetCommands) for a description
 /// of what arguments are valid.
 ///
 /// Usually, only a subset of relays are relevant, e.g. only active server of a certain type.
@@ -964,7 +964,7 @@ pub async fn resolve_location_constraint(
         let location_constraint: Constraint<GeographicLocationConstraint> =
             Constraint::from(location_constraint_args);
 
-        // If the location constraint was not "any", the validate the country/city
+        // If the location constraint was not "any", then validate the country/city
         if let Constraint::Only(constraint) = &location_constraint {
             let found = relay_iter.clone().any(|relay| constraint.matches(&relay));
 
@@ -978,7 +978,7 @@ pub async fn resolve_location_constraint(
 }
 
 /// Return a list of all relays that are active and not bridges
-pub async fn get_active_non_bridge_relays() -> Result<Vec<RelayListCountry>> {
+pub async fn get_active_relays() -> Result<Vec<RelayListCountry>> {
     let mut rpc = MullvadProxyClient::new().await?;
     let relay_list = rpc.get_relay_locations().await?;
     Ok(relay_list
