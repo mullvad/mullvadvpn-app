@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import MullvadTypes
+import Network
 import WireGuardKitTypes
 
 extension PacketTunnelActor {
@@ -114,7 +116,15 @@ extension PacketTunnelActor {
                 privateKey: PrivateKey(),
                 interfaceAddresses: []
             )
-            try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
+            var config = try configurationBuilder.makeConfiguration()
+            config.dns = [IPv4Address.loopback]
+            config.interfaceAddresses = [IPAddressRange(from: "10.64.0.1/8")!]
+            config.peer = TunnelPeer(
+                endpoint: .ipv4(IPv4Endpoint(string: "127.0.0.1:9090")!),
+                publicKey: PrivateKey().publicKey
+            )
+            try? await tunnelAdapter.stop()
+            try await tunnelAdapter.start(configuration: config)
         } catch {
             logger.error(error: error, message: "Unable to configure the tunnel for error state.")
         }
