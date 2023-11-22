@@ -2,11 +2,13 @@ import { GetTextTranslations } from 'gettext-parser';
 
 import { ILinuxSplitTunnelingApplication, IWindowsApplication } from './application-types';
 import {
+  AccessMethodSetting,
   AccountDataError,
   AccountToken,
   BridgeSettings,
   BridgeState,
   CustomListError,
+  CustomProxy,
   DeviceEvent,
   DeviceState,
   IAccountData,
@@ -17,6 +19,7 @@ import {
   IDnsOptions,
   IRelayListWithEndpointData,
   ISettings,
+  NewAccessMethodSetting,
   ObfuscationSettings,
   RelaySettings,
   TunnelState,
@@ -71,6 +74,7 @@ export interface IAppStateSnapshot {
   changelog: IChangelog;
   forceShowChanges: boolean;
   navigationHistory?: IHistoryObject;
+  currentApiAccessMethod?: AccessMethodSetting;
 }
 
 // The different types of requests are:
@@ -160,6 +164,7 @@ export const ipcSchema = {
   },
   settings: {
     '': notifyRenderer<ISettings>(),
+    apiAccessMethodSettingChange: notifyRenderer<AccessMethodSetting>(),
     setAllowLan: invoke<boolean, void>(),
     setShowBetaReleases: invoke<boolean, void>(),
     setEnableIpv6: invoke<boolean, void>(),
@@ -172,6 +177,12 @@ export const ipcSchema = {
     updateBridgeSettings: invoke<BridgeSettings, void>(),
     setDnsOptions: invoke<IDnsOptions, void>(),
     setObfuscationSettings: invoke<ObfuscationSettings, void>(),
+    addApiAccessMethod: invoke<NewAccessMethodSetting, string>(),
+    updateApiAccessMethod: invoke<AccessMethodSetting, void>(),
+    removeApiAccessMethod: invoke<string, void>(),
+    setApiAccessMethod: invoke<string, void>(),
+    testApiAccessMethodById: invoke<string, boolean>(),
+    testCustomApiAccessMethod: invoke<CustomProxy, boolean>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),

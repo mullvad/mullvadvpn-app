@@ -1,5 +1,7 @@
 import { IWindowsApplication } from '../../../shared/application-types';
 import {
+  AccessMethodSetting,
+  ApiAccessMethodSettings,
   BridgeState,
   BridgeType,
   CustomLists,
@@ -107,6 +109,8 @@ export interface ISettingsReduxState {
   splitTunnelingApplications: IWindowsApplication[];
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
+  apiAccessMethods: ApiAccessMethodSettings;
+  currentApiAccessMethod?: AccessMethodSetting;
 }
 
 const initialState: ISettingsReduxState = {
@@ -173,6 +177,8 @@ const initialState: ISettingsReduxState = {
     },
   },
   customLists: [],
+  apiAccessMethods: [],
+  currentApiAccessMethod: undefined,
 };
 
 export default function (
@@ -301,6 +307,18 @@ export default function (
       return {
         ...state,
         customLists: action.customLists,
+      };
+
+    case 'SET_API_ACCESS_METHODS':
+      return {
+        ...state,
+        apiAccessMethods: action.accessMethods,
+      };
+
+    case 'SET_CURRENT_API_ACCESS_METHOD':
+      return {
+        ...state,
+        currentApiAccessMethod: action.accessMethod,
       };
 
     default:

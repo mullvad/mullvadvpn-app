@@ -71,5 +71,6 @@ export function getDefaultSettings(): ISettings {
       },
     },
     customLists: [],
+    apiAccessMethods: [],
   };
 }
