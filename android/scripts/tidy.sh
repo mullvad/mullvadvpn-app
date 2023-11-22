@@ -33,7 +33,7 @@ function format {
         --indent-attributes yes \
         --indent-spaces 4 \
         --literal-attributes yes \
-        ../**/src/main/AndroidManifest.xml \
+        ../**/src/*/AndroidManifest.xml \
         ../lib/resource/src/main/res/anim*/*.xml \
         ../lib/resource/src/main/res/drawable*/*.xml \
         ../app/src/main/res/layout*/*.xml
