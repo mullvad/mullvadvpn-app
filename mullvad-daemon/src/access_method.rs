@@ -135,6 +135,11 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
+        // We have to be a bit careful. If we are about to disable the last
+        // remaining enabled access method, we would case an inconsistent state
+        // in the daemon's settings. Therefore, we have to safe guard against
+        // this by explicitly checking for & disallow any update which would
+        // case the last enabled access method to become disabled.
         let current = self.get_current_access_method()?;
         let mut command = Command::Nothing;
         let settings_update = |settings: &mut Settings| {
@@ -184,16 +189,28 @@ where
             self.event_listener
                 .notify_settings(self.settings.to_settings());
 
+            let access_methods: Vec<_> = self
+                .settings
+                .api_access_methods
+                .access_method_settings
+                .iter()
+                .filter(|api_access_method| api_access_method.enabled())
+                .cloned()
+                .collect();
+
             let mut connection_modes = self.connection_modes.lock().unwrap();
-            connection_modes.update_access_methods(
-                self.settings
-                    .api_access_methods
-                    .access_method_settings
-                    .iter()
-                    .filter(|api_access_method| api_access_method.enabled())
-                    .cloned()
-                    .collect(),
-            )
+            match connection_modes.update_access_methods(access_methods) {
+                Ok(_) => (),
+                Err(crate::api::Error::NoSettings) => {
+                    // `access_methods` was empty! This implies that the user
+                    // disabled all access methods. If we ever get into this
+                    // state, we should default to using the direct access
+                    // method.
+                    connection_modes
+                        .update_access_methods(vec![access_method::Settings::direct()])
+                        .expect("There to be at least one access method");
+                }
+            }
         };
         self
     }
