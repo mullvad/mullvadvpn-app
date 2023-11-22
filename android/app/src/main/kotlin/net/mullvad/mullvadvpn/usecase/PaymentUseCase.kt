@@ -20,7 +20,7 @@ interface PaymentUseCase {
 
     suspend fun resetPurchaseResult()
 
-    suspend fun verifyPurchases()
+    suspend fun verifyPurchases(onSuccessfulVerification: () -> Unit = {})
 }
 
 class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : PaymentUseCase {
@@ -42,11 +42,12 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
         _purchaseResult.emit(null)
     }
 
-    override suspend fun verifyPurchases() {
+    override suspend fun verifyPurchases(onSuccessfulVerification: () -> Unit) {
         paymentRepository.verifyPurchases().collect {
             if (it == VerificationResult.Success) {
                 // Update the payment availability after a successful verification.
                 queryPaymentAvailability()
+                onSuccessfulVerification()
             }
         }
     }
@@ -68,7 +69,7 @@ class EmptyPaymentUseCase : PaymentUseCase {
         // No op
     }
 
-    override suspend fun verifyPurchases() {
+    override suspend fun verifyPurchases(onSuccessfulVerification: () -> Unit) {
         // No op
     }
 }

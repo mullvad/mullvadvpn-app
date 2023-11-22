@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.combine
@@ -49,7 +50,8 @@ class ConnectViewModel(
     private val deviceRepository: DeviceRepository,
     private val inAppNotificationController: InAppNotificationController,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
-    private val relayListUseCase: RelayListUseCase
+    private val relayListUseCase: RelayListUseCase,
+    private val paymentUseCase: PaymentUseCase
 ) : ViewModel() {
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
     val uiSideEffect = _uiSideEffect.asSharedFlow()
@@ -137,6 +139,9 @@ class ConnectViewModel(
         // The create account cache is no longer needed as we have successfully reached the connect
         // screen
         accountRepository.clearCreatedAccountCache()
+        viewModelScope.launch {
+            paymentUseCase.verifyPurchases { accountRepository.fetchAccountExpiry() }
+        }
     }
 
     private fun LocationInfoCache.locationCallbackFlow() = callbackFlow {
