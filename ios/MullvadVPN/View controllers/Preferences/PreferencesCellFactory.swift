@@ -108,6 +108,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 }
             }
 
+        #if DEBUG
         case .wireGuardObfuscationAutomatic:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
@@ -156,6 +157,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityHint = nil
             cell.applySubCellStyling()
+        #endif
         }
     }
 }

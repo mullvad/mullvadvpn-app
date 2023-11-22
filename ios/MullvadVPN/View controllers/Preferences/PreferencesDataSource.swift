@@ -19,8 +19,10 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case dnsSettings
         case wireGuardPort
         case wireGuardCustomPort
+        #if DEBUG
         case wireGuardObfuscation
         case wireGuardObfuscationPort
+        #endif
         var reusableViewClass: AnyClass {
             switch self {
             case .dnsSettings:
@@ -29,10 +31,12 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return SelectableSettingsCell.self
             case .wireGuardCustomPort:
                 return SettingsInputCell.self
+            #if DEBUG
             case .wireGuardObfuscation:
                 return SelectableSettingsCell.self
             case .wireGuardObfuscationPort:
                 return SelectableSettingsCell.self
+            #endif
             }
         }
     }
@@ -48,18 +52,22 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
     enum Section: String, Hashable, CaseIterable {
         case dnsSettings
         case wireGuardPorts
+        #if DEBUG
         case wireGuardObfuscation
         case wireGuardObfuscationPort
+        #endif
     }
 
     enum Item: Hashable {
         case dnsSettings
         case wireGuardPort(_ port: UInt16?)
         case wireGuardCustomPort
+        #if DEBUG
         case wireGuardObfuscationAutomatic
         case wireGuardObfuscationOn
         case wireGuardObfuscationOff
         case wireGuardObfuscationPort(_ port: UInt16)
+        #endif
 
         static var wireGuardPorts: [Item] {
             let defaultPorts = PreferencesViewModel.defaultWireGuardPorts.map {
@@ -68,6 +76,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             return [.wireGuardPort(nil)] + defaultPorts + [.wireGuardCustomPort]
         }
 
+        #if DEBUG
         static var wireGuardObfuscation: [Item] {
             [.wireGuardObfuscationAutomatic, .wireGuardObfuscationOn, wireGuardObfuscationOff]
         }
@@ -75,7 +84,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         static var wireGuardObfuscationPort: [Item] {
             [.wireGuardObfuscationPort(0), wireGuardObfuscationPort(80), wireGuardObfuscationPort(5001)]
         }
-
+        #endif
         var accessibilityIdentifier: String {
             switch self {
             case .dnsSettings:
@@ -88,6 +97,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 }
             case .wireGuardCustomPort:
                 return "wireGuardCustomPort"
+            #if DEBUG
             case .wireGuardObfuscationAutomatic:
                 return "Automatic"
             case .wireGuardObfuscationOn:
@@ -99,6 +109,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                     return "Automatic"
                 }
                 return "\(port)"
+            #endif
             }
         }
 
@@ -110,10 +121,12 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
                 return .wireGuardPort
             case .wireGuardCustomPort:
                 return .wireGuardCustomPort
+            #if DEBUG
             case .wireGuardObfuscationAutomatic, .wireGuardObfuscationOn, .wireGuardObfuscationOff:
                 return .wireGuardObfuscation
             case .wireGuardObfuscationPort:
                 return .wireGuardObfuscationPort
+            #endif
             }
         }
     }
@@ -131,6 +144,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             ? .wireGuardPort(viewModel.wireGuardPort)
             : .wireGuardCustomPort
 
+        #if DEBUG
         let obfuscationStateItem: Item = switch viewModel.obfuscationState {
         case .automatic: .wireGuardObfuscationAutomatic
         case .off: .wireGuardObfuscationOff
@@ -144,6 +158,11 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             indexPath(for: obfuscationStateItem),
             indexPath(for: obfuscationPortItem),
         ].compactMap { $0 }
+        #else
+        return [
+            indexPath(for: wireGuardPortItem),
+        ].compactMap { $0 }
+        #endif
     }
 
     init(tableView: UITableView) {
@@ -235,6 +254,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case .wireGuardCustomPort:
             getCustomPortCell()?.textField.becomeFirstResponder()
 
+        #if DEBUG
         case .wireGuardObfuscationAutomatic:
             selectObfuscationState(.automatic)
             delegate?.didChangeViewModel(viewModel)
@@ -247,7 +267,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         case let .wireGuardObfuscationPort(port):
             selectObfuscationPort(port)
             delegate?.didChangeViewModel(viewModel)
-
+        #endif
         default:
             break
         }
@@ -279,13 +299,14 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             configureWireguardPortsHeader(view)
             return view
 
+        #if DEBUG
         case .wireGuardObfuscation:
             configureObfuscationHeader(view)
             return view
         case .wireGuardObfuscationPort:
             configureObfuscationPortHeader(view)
             return view
-
+        #endif
         default:
             return nil
         }
@@ -412,6 +433,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    #if DEBUG
     private func configureObfuscationHeader(_ header: SettingsHeaderView) {
         let title = NSLocalizedString(
             "OBFUSCATION_HEADER_LABEL",
@@ -467,6 +489,7 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             self.map { $0.delegate?.showInfo(for: .wireGuardObfuscationPort) }
         }
     }
+    #endif
 
     private func selectRow(at indexPath: IndexPath?, animated: Bool = false) {
         tableView?.selectRow(at: indexPath, animated: animated, scrollPosition: .none)
