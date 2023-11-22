@@ -2,5 +2,6 @@
           xmlns:tools="http://schemas.android.com/tools">
     <application android:icon="@mipmap/ic_launcher"
                  android:label="Devmole VPN"
-                 tools:replace="android:label" />
+                 tools:replace="android:label"
+                 android:allowBackup="false" />
 </manifest>
