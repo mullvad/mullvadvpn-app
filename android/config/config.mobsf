@@ -1,0 +1,28 @@
+---
+- ignore-rules:
+  # Sensitive data isn't logged. There's also an external issue to scan log calls (DROID-527).
+  - android_kotlin_logging
+
+  # The kotlin code isn't responsible for any external API communication and therefore the risk for
+  # including sensitive credentials is very small. This check also caused many false-positives since
+  # the keyword "key" is used throughout the app to for arguments, bundles and preferences.
+  - android_kotlin_hardcoded
+
+  # Intentially not prevented due to a technical user base. We might however want to inform users,
+  # which is something we'll review in an externally tracked issue (DROID-528).
+  - android_root_detection
+  - android_safetynet
+
+  # The backend API communication is done by the Mullvad Daemon which is built in rust.
+  - android_ssl_pinning
+  - android_certificate_pinning
+  - android_certificate_transparency
+
+  # Sensitive screens currently prevent screenshots.
+  - android_prevent_screenshot
+
+  # Will be investigate in the externally tracked issue DROID-529.
+  - android_tapjacking
+
+  # We've currently decided to support Android 8.
+  - android_manifest_insecure_minsdk
