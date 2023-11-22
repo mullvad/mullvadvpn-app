@@ -110,13 +110,13 @@ extension REST {
                     }
                 }
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "get-device",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completion
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
 
         /// Fetch a list of created devices.
@@ -145,13 +145,13 @@ extension REST {
                 with: responseDecoder
             )
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "get-devices",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completion
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
 
         /// Create new device.
@@ -184,13 +184,13 @@ extension REST {
                 with: responseDecoder
             )
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "create-device",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completion
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
 
         /// Delete device by identifier.
@@ -247,13 +247,13 @@ extension REST {
                     }
                 }
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "delete-device",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completion
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
 
         /// Rotate device key
@@ -300,13 +300,13 @@ extension REST {
                 with: responseDecoder
             )
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "rotate-device-key",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completion
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
     }
 

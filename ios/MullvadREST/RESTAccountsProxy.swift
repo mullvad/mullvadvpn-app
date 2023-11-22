@@ -17,12 +17,6 @@ public protocol RESTAccountHandling {
 
     func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account>
 
-    func getAccountData(
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Account>
-    ) -> Cancellable
-
     func deleteAccount(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
@@ -61,13 +55,13 @@ extension REST {
                 with: responseDecoder
             )
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "create-account",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completion
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
 
         public func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account> {
@@ -95,18 +89,6 @@ extension REST {
                 name: "get-my-account",
                 requestHandler: requestHandler,
                 responseHandler: responseHandler
-            )
-        }
-
-        @available(*, deprecated, message: "Use getAccountData(accountNumber:) instead")
-        public func getAccountData(
-            accountNumber: String,
-            retryStrategy: REST.RetryStrategy,
-            completion: @escaping ProxyCompletionHandler<Account>
-        ) -> Cancellable {
-            return getAccountData(accountNumber: accountNumber).execute(
-                retryStrategy: retryStrategy,
-                completionHandler: completion
             )
         }
 
@@ -143,13 +125,13 @@ extension REST {
                 }
             }
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "delete-my-account",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completion
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
     }
 

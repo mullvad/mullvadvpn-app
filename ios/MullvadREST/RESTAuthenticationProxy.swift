@@ -47,13 +47,13 @@ extension REST {
                 with: responseDecoder
             )
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "get-access-token",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completion
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completion)
         }
     }
 

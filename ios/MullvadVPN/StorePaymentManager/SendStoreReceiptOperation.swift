@@ -132,9 +132,8 @@ class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse
     private func sendReceipt(_ receiptData: Data) {
         submitReceiptTask = apiProxy.createApplePayment(
             accountNumber: accountNumber,
-            receiptString: receiptData,
-            retryStrategy: .noRetry
-        ) { result in
+            receiptString: receiptData
+        ).execute(retryStrategy: .noRetry) { result in
             switch result {
             case let .success(response):
                 self.logger.info(
