@@ -1,0 +1,27 @@
+---
+name: Android - Static analysis
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/android-static-analysis.yml
+      - android/**
+  schedule:
+    # At 06:20 UTC every day.
+    # Notifications for scheduled workflows are sent to the user who last modified the cron
+    # syntax in the workflow file. If you update this you must have notifications for
+    # Github Actions enabled, so these don't go unnoticed.
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
+    - cron: '20 6 * * *'
+jobs:
+  mobsfscan:
+    name: Code scanning using mobsfscan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Scan code
+        uses: MobSF/mobsfscan@main
+        with:
+          args: '--type android android'
