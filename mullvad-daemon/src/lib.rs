@@ -1349,7 +1349,7 @@ where
             Disconnected => {
                 let location = self.get_geo_location().await;
                 tokio::spawn(async {
-                    Self::oneshot_send(tx, location.await.ok(), "current location");
+                    Self::oneshot_send(tx, location.ok(), "current location");
                 });
             }
             Connecting { location, .. } => {
@@ -1362,12 +1362,11 @@ where
             ),
             Connected { location, .. } => {
                 let relay_location = location.clone();
-                let location_future = self.get_geo_location().await;
+                let geo_location = self.get_geo_location().await;
                 tokio::spawn(async {
-                    let location = location_future.await;
                     Self::oneshot_send(
                         tx,
-                        location.ok().map(|fetched_location| GeoIpLocation {
+                        geo_location.ok().map(|fetched_location| GeoIpLocation {
                             ipv4: fetched_location.ipv4,
                             ipv6: fetched_location.ipv6,
                             ..relay_location.unwrap_or(fetched_location)
@@ -1383,16 +1382,15 @@ where
         }
     }
 
-    async fn get_geo_location(&mut self) -> impl Future<Output = Result<GeoIpLocation, ()>> {
+    async fn get_geo_location(&mut self) -> Result<GeoIpLocation, ()> {
         let rest_service = self.api_runtime.rest_handle().await;
         let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
-        async move {
-            geoip::send_location_request(rest_service, use_ipv6)
-                .await
-                .map_err(|e| {
-                    log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-                })
-        }
+
+        geoip::send_location_request(rest_service, use_ipv6)
+            .await
+            .map_err(|e| {
+                log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+            })
     }
 
     fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
