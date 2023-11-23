@@ -94,7 +94,7 @@ const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
 
 /// Retry interval for fetching location
 const RETRY_LOCATION_STRATEGY: ConstantInterval =
-    ConstantInterval::new(Duration::from_millis(100), Some(10));
+    ConstantInterval::new(Duration::from_secs(2), Some(3));
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
@@ -2598,8 +2598,8 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
     }
 }
 
-/// Consume a oneshot sender of `T1` and return a sender that takes a different type `T2`. `forwarder` should map `T1` back to `T2` and
-/// send the result back to the original receiver.
+/// Consume a oneshot sender of `T1` and return a sender that takes a different type `T2`.
+/// `forwarder` should map `T1` back to `T2` and send the result back to the original receiver.
 fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
     tx: oneshot::Sender<T1>,
     forwarder: impl Fn(oneshot::Sender<T1>, T2) + Send + 'static,
