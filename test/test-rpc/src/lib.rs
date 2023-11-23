@@ -173,7 +173,7 @@ mod service {
         async fn copy_file(src: String, dest: String) -> Result<(), Error>;
 
         /// Write arbitrary bytes to some file `dest` on the test runner.
-        async fn write_file(dest: String, bytes: Vec<u8>) -> Result<(), Error>;
+        async fn write_file(dest: PathBuf, bytes: Vec<u8>) -> Result<(), Error>;
 
         async fn reboot() -> Result<(), Error>;
 
