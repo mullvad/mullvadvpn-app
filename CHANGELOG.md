@@ -22,6 +22,23 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+#### Android
+- Migrate welcome view to compose.
+- Migrate in app notifications to compose.
+- Move out of time evaluation to connect view model.
+- Migrate out of time view to compose.
+- Migrate login view to compose.
+- Add Social media to content blockers.
+- Migrate Report Problem view to compose.
+- Migrate View Logs view to compose.
+- Migrate voucher dialog to compose.
+- Add "New Device" in app notification & rework notification system
+- Add support for setting per-app language in system settings.
+- Add support for in app purchases for versions that are released on Google Play.
+
+
+## [2023.6-beta1] - 2023-11-23
 ### Added
 - Add customizable relay lists to the CLI on desktop. Custom lists can be managed through `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
 - Add custom lists to location selector in desktop app.
@@ -36,20 +53,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Update Electron from 25.2.0 to 26.3.0.
 - CLI command `mullvad relay set tunnel wireguard entry-location` changed to `mullvad relay set tunnel wireguard entry location`, as the `location` subcommand can now be swapped for `custom-list` to select entry relays using a custom list.
-
-#### Android
-- Migrate welcome view to compose.
-- Migrate in app notifications to compose.
-- Move out of time evaluation to connect view model.
-- Migrate out of time view to compose.
-- Migrate login view to compose.
-- Add Social media to content blockers.
-- Migrate Report Problem view to compose.
-- Migrate View Logs view to compose.
-- Migrate voucher dialog to compose.
-- Add "New Device" in app notification & rework notification system
-- Add support for setting per-app language in system settings.
-- Add support for in app purchases for versions that are released on Google Play.
 
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.
@@ -73,6 +76,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix possible privilege escalation by setting stricter permissions on mullvad directories such as
   the directory in ProgramData.
+
 
 ## [android/2023.7] - 2023-10-11
 ### Changed
