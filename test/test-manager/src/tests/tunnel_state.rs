@@ -353,15 +353,51 @@ pub async fn test_connecting_state_when_corrupted_state_cache(
 
     // Stopping the app should write to the state target cache.
     log::info!("Stopping the app");
-    rpc.restart_app().await?;
+    rpc.stop_app().await?;
 
-    // Intentionally corrupt the state cache
-    todo!("Intentionally corrupt the state cache");
-    // Start a leak monitor
-    todo!("Start a leak monitor");
+    // Intentionally corrupt the state cache. Note that we can not simply remove
+    // the cache, as this will put the app in the default target state which is
+    // 'unsecured'.
+    log::info!("Figuring out where state cache resides on test runner ..");
+    let state_cache = rpc
+        .find_mullvad_app_cache_dir()
+        .await?
+        .join("target-start-state.json");
+    log::info!(
+        "Intentionally writing garbage to the state cache {file}",
+        file = state_cache.display()
+    );
+    rpc.write_file(state_cache, "cookie was here".into())
+        .await?;
+
     // Start the app & make sure that we start in the 'connecting state'. The
     // side-effect of this is that no network traffic is allowed to leak.
-    todo!("Start the app");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Connecting { .. });
+    log::info!("Starting the app back up again");
+    rpc.start_app().await?;
+
+    let new_state = wait_for_tunnel_state(mullvad_client.clone(), |state| {
+        matches!(
+            state,
+            TunnelState::Connecting { .. } | TunnelState::Connected { .. } | TunnelState::Error(..)
+        )
+    })
+    .await
+    .map_err(|err| {
+        log::error!("App did not start in an expected state.");
+        err
+    })?;
+
+    assert!(
+        matches!(
+            new_state,
+            TunnelState::Connecting { .. } | TunnelState::Connected { .. }
+        ),
+        "App is not in either `Connecting` or `Connected` state after starting with corrupt state cache! There is a possibility of leaks during app startup"
+    );
+
+    log::info!(
+        "App started successfully! It successfully recovered from a corrupt tunnel state cache."
+    );
+
     Ok(())
 }
