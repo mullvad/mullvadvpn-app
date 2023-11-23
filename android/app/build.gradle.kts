@@ -1,8 +1,9 @@
+
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
-import java.io.FileInputStream
-import java.util.*
 import org.gradle.configurationcache.extensions.capitalized
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     id(Dependencies.Plugin.androidApplicationId)

@@ -22,8 +22,8 @@ class FilterFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_filter, container, false).apply {
-            findViewById<ComposeView>(R.id.filter_layout).setContent {
+        return inflater.inflate(R.layout.fragment_compose, container, false).apply {
+            findViewById<ComposeView>(R.id.compose_view).setContent {
                 AppTheme {
                     val state = vm.uiState.collectAsState().value
                     FilterScreen(
