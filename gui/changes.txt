@@ -1,5 +1,4 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-[macOS, Windows, linux] To make an entry platform specific, start the line with an angle bracket enclosed comma separated list of platforms to show the entry on.
-Only point out the major changes.
+You can now create custom location lists, containing your favorite locations, in the select location view.
+A new social media blocking setting is now available in the VPN settings view.
+Added support in CLI for custom proxies for Mullvad API communication.
+Added support in CLI to specify custom IPs for VPN servers in order to circumvent IPs being blocked.
