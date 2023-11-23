@@ -7,6 +7,8 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -31,8 +33,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
 
 class SelectLocationViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
@@ -50,8 +50,8 @@ class SelectLocationViewModelTest {
     fun setup() {
 
         every { mockRelayListFilterUseCase.selectedOwnership() } returns selectedOwnership
-        every { mockRelayListFilterUseCase.selectedProviders()} returns selectedProvider
-        every { mockRelayListFilterUseCase.availableProviders() } returns  allProvider
+        every { mockRelayListFilterUseCase.selectedProviders() } returns selectedProvider
+        every { mockRelayListFilterUseCase.availableProviders() } returns allProvider
         every { mockRelayListUseCase.relayListWithSelection() } returns relayListWithSelectionFlow
 
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)

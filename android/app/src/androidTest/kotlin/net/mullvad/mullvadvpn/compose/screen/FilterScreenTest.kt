@@ -133,7 +133,7 @@ class FilterScreenTest {
                     RelayFilterState(
                         allProviders = listOf(),
                         selectedOwnership = null,
-                        selectedProviders = listOf( Provider("31173", true)),
+                        selectedProviders = listOf(Provider("31173", true)),
                     ),
                 uiCloseAction = MutableSharedFlow(),
                 onSelectedProviders = { _, _ -> },

@@ -182,7 +182,7 @@ open class MainActivity : FragmentActivity() {
                 R.anim.do_nothing,
                 R.anim.fragment_exit_to_right
             )
-            replace(R.id.select_location_fragment, FilterFragment())
+            replace(R.id.main_fragment, FilterFragment())
             addToBackStack(null)
             commitAllowingStateLoss()
         }
