@@ -35,7 +35,7 @@ class SelectLocationFragment : BaseFragment() {
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() },
                         removeOwnershipFilter = vm::removeOwnerFilter,
                         removeProviderFilter = vm::removeProviderFilter,
-                        onFilterClick = ::openFilterView,
+                        onFilterClick = ::openFilterView
                     )
                 }
             }

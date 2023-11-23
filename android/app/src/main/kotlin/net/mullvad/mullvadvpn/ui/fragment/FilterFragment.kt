@@ -33,7 +33,7 @@ class FilterFragment : Fragment() {
                         onSelectedProviders = vm::setSelectedProvider,
                         uiCloseAction = vm.uiCloseAction,
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() },
-                        onApplyClick = vm::onApplyButtonClicked,
+                        onApplyClick = vm::onApplyButtonClicked
                     )
                 }
             }

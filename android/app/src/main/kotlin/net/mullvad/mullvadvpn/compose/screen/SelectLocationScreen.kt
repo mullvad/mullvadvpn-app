@@ -34,7 +34,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.core.text.HtmlCompat
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -65,13 +64,13 @@ private fun PreviewSelectLocationScreen() {
             countries = listOf(RelayCountry("Country 1", "Code 1", false, emptyList())),
             selectedRelay = null,
             selectedOwnership = null,
-            selectedProvidersCount = 0,
+            selectedProvidersCount = 0
         )
     AppTheme {
         SelectLocationScreen(
             uiState = state,
             uiCloseAction = MutableSharedFlow(),
-            enterTransitionEndAction = MutableSharedFlow(),
+            enterTransitionEndAction = MutableSharedFlow()
         )
     }
 }
@@ -87,7 +86,7 @@ fun SelectLocationScreen(
     onBackClick: () -> Unit = {},
     onFilterClick: () -> Unit = {},
     removeOwnershipFilter: () -> Unit = {},
-    removeProviderFilter: () -> Unit = {},
+    removeProviderFilter: () -> Unit = {}
 ) {
 
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -100,15 +99,15 @@ fun SelectLocationScreen(
 
     val (backFocus, listFocus, searchBarFocus) = remember { FocusRequester.createRefs() }
     Column(
-        modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight(),
+        modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight()
     ) {
         Row(
             modifier =
                 Modifier.padding(
                         horizontal = Dimens.selectLocationTitlePadding,
-                        vertical = Dimens.selectLocationTitlePadding,
+                        vertical = Dimens.selectLocationTitlePadding
                     )
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_back),
@@ -122,7 +121,7 @@ fun SelectLocationScreen(
                         }
                         .size(Dimens.titleIconSize)
                         .rotate(270f)
-                        .clickable { onBackClick() },
+                        .clickable { onBackClick() }
             )
             Text(
                 text = stringResource(id = R.string.select_location),
@@ -131,13 +130,13 @@ fun SelectLocationScreen(
                         .weight(weight = 1f)
                         .padding(end = Dimens.titleIconSize),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleSmall.copy(fontSize = 20.sp),
-                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onPrimary
             )
             Image(
                 painter = painterResource(id = R.drawable.icons_more_circle),
                 contentDescription = null,
-                modifier = Modifier.size(Dimens.titleIconSize).clickable { onFilterClick() },
+                modifier = Modifier.size(Dimens.titleIconSize).clickable { onFilterClick() }
             )
         }
         when (uiState) {
@@ -148,7 +147,7 @@ fun SelectLocationScreen(
                         ownershipFilter = uiState.selectedOwnership,
                         selectedProviderFilter = uiState.selectedProvidersCount,
                         removeOwnershipFilter = removeOwnershipFilter,
-                        removeProviderFilter = removeProviderFilter,
+                        removeProviderFilter = removeProviderFilter
                     )
                 }
             }
@@ -160,7 +159,7 @@ fun SelectLocationScreen(
                     .focusRequester(searchBarFocus)
                     .focusProperties { next = backFocus }
                     .height(Dimens.searchFieldHeight)
-                    .padding(horizontal = Dimens.searchFieldHorizontalPadding),
+                    .padding(horizontal = Dimens.searchFieldHorizontalPadding)
         ) { searchString ->
             onSearchTermInput.invoke(searchString)
         }
@@ -172,7 +171,7 @@ fun SelectLocationScreen(
                     .fillMaxSize()
                     .drawVerticalScrollbar(
                         lazyListState,
-                        MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+                        MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
                     ),
             state = lazyListState,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -181,7 +180,7 @@ fun SelectLocationScreen(
                 SelectLocationUiState.Loading -> {
                     item(contentType = ContentType.PROGRESS) {
                         MullvadCircularProgressIndicatorLarge(
-                            Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR),
+                            Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
                         )
                     }
                 }
@@ -192,9 +191,9 @@ fun SelectLocationScreen(
                                 HtmlCompat.fromHtml(
                                         textResource(
                                             id = R.string.select_location_empty_text_first_row,
-                                            uiState.searchTerm,
+                                            uiState.searchTerm
                                         ),
-                                        HtmlCompat.FROM_HTML_MODE_COMPACT,
+                                        HtmlCompat.FROM_HTML_MODE_COMPACT
                                     )
                                     .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
                             val secondRow =
@@ -202,9 +201,9 @@ fun SelectLocationScreen(
                             Column(
                                 modifier =
                                     Modifier.padding(
-                                        horizontal = Dimens.selectLocationTitlePadding,
+                                        horizontal = Dimens.selectLocationTitlePadding
                                     ),
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
                                     text = firstRow,
@@ -212,13 +211,13 @@ fun SelectLocationScreen(
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.colorScheme.onSecondary,
                                     maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                                 Text(
                                     text = secondRow,
                                     style = MaterialTheme.typography.labelMedium,
                                     textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    color = MaterialTheme.colorScheme.onSecondary
                                 )
                             }
                         }
@@ -226,14 +225,14 @@ fun SelectLocationScreen(
                         items(
                             count = uiState.countries.size,
                             key = { index -> uiState.countries[index].hashCode() },
-                            contentType = { ContentType.ITEM },
+                            contentType = { ContentType.ITEM }
                         ) { index ->
                             val country = uiState.countries[index]
                             RelayLocationCell(
                                 relay = country,
                                 selectedItem = uiState.selectedRelay,
                                 onSelectRelay = onSelectRelay,
-                                modifier = Modifier.animateContentSize(),
+                                modifier = Modifier.animateContentSize()
                             )
                         }
                     }

@@ -13,7 +13,7 @@ sealed interface SelectLocationUiState {
         val countries: List<RelayCountry>,
         val selectedRelay: RelayItem?,
         val selectedOwnership: Ownership?,
-        val selectedProvidersCount: Int?,
+        val selectedProvidersCount: Int?
     ) : SelectLocationUiState {
         val hasFilter: Boolean = (selectedProvidersCount != null || selectedOwnership != null)
     }

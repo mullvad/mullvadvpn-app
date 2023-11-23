@@ -114,11 +114,11 @@ fun SearchTextField(
                             unfocusedIndicatorColor = Color.Transparent,
                             cursorColor = MaterialTheme.colorScheme.onSecondary,
                             focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary
                         ),
                     contentPadding = PaddingValues(),
                 )
             },
-        modifier = modifier,
+        modifier = modifier
     )
 }

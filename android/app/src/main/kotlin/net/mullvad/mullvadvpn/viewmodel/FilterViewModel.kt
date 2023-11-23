@@ -54,7 +54,7 @@ class FilterViewModel(
                 RelayFilterState(
                     selectedOwnership = selectedOwnership,
                     allProviders = allProviders,
-                    selectedProviders = selectedProviders,
+                    selectedProviders = selectedProviders
                 )
             }
             .stateIn(
@@ -63,7 +63,7 @@ class FilterViewModel(
                 RelayFilterState(
                     allProviders = emptyList(),
                     selectedOwnership = null,
-                    selectedProviders = emptyList(),
+                    selectedProviders = emptyList()
                 ),
             )
 
@@ -99,7 +99,7 @@ class FilterViewModel(
         viewModelScope.launch {
             relayListFilterUseCase.updateOwnershipAndProviderFilter(
                 newSelectedOwnership,
-                newSelectedProviders,
+                newSelectedProviders
             )
             _closeAction.emit(Unit)
         }

@@ -32,7 +32,7 @@ fun List<Provider>.toConstraintProviders(allProviders: List<Provider>): Constrai
     } else {
         Constraint.Only(
             Providers(
-                map { provider -> provider.name }.toHashSet(),
-            ),
+                map { provider -> provider.name }.toHashSet()
+            )
         )
     }

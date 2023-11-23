@@ -71,7 +71,13 @@ data class Dimensions(
     val verticalSpace: Dp = 20.dp,
     val verticalSpacer: Dp = 1.dp,
     val smallIconSize: Dp = 16.dp,
+    val checkBoxSize: Dp = 24.dp,
+    val checkBoxCornerShape: Dp = 4.dp,
+    val textTopPadding: Dp = 14.dp,
+    val textBottomPadding: Dp = 10.dp,
+    val chipCornerShape: Dp = 8.dp,
+    val verticalPadding: Dp = 3.dp,
+    val boxTopPadding: Dp = 18.dp,
 )
-
 val defaultDimensions = Dimensions()
 // Add more configurations here if needed

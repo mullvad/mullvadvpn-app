@@ -18,8 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -31,7 +29,7 @@ private fun PreviewMullvadFilterChip() {
     AppTheme {
         MullvadFilterChip(
             text = stringResource(id = R.string.number_of_providers),
-            onRemoveClick = {},
+            onRemoveClick = {}
         )
     }
 }
@@ -40,16 +38,16 @@ private fun PreviewMullvadFilterChip() {
 @Composable
 fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
     FilterChip(
-        modifier = Modifier.padding(vertical = 3.dp),
-        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.padding(vertical = Dimens.verticalPadding),
+        shape = RoundedCornerShape(Dimens.chipCornerShape),
         colors =
             FilterChipDefaults.filterChipColors(
-                containerColor = MullvadBlue,
+                containerColor = MullvadBlue
             ),
         border =
             FilterChipDefaults.filterChipBorder(
                 borderColor = Color.Transparent,
-                disabledBorderColor = Color.Transparent,
+                disabledBorderColor = Color.Transparent
             ),
         selected = false,
         onClick = {},
@@ -57,14 +55,14 @@ fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
             Text(
                 text = text,
                 color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 12.sp),
+                style = MaterialTheme.typography.labelMedium
             )
             Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
             Image(
                 painter = painterResource(id = R.drawable.icon_close),
                 contentDescription = null,
-                modifier = Modifier.size(Dimens.smallIconSize).clickable { onRemoveClick() },
+                modifier = Modifier.size(Dimens.smallIconSize).clickable { onRemoveClick() }
             )
-        },
+        }
     )
 }

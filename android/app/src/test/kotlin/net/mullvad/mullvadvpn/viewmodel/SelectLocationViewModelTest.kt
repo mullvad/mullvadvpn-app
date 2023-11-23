@@ -7,8 +7,6 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -33,6 +31,8 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class SelectLocationViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
@@ -60,7 +60,7 @@ class SelectLocationViewModelTest {
             SelectLocationViewModel(
                 mockServiceConnectionManager,
                 mockRelayListUseCase,
-                mockRelayListFilterUseCase,
+                mockRelayListFilterUseCase
             )
     }
 
@@ -190,7 +190,7 @@ class SelectLocationViewModelTest {
         val mockSelectedProviders: Constraint<Providers> = mockk()
         every { mockRelayListFilterUseCase.selectedProviders() } returns
             MutableStateFlow(
-                mockSelectedProviders,
+                mockSelectedProviders
             )
 
         // Act
@@ -199,7 +199,7 @@ class SelectLocationViewModelTest {
         verify {
             mockRelayListFilterUseCase.updateOwnershipAndProviderFilter(
                 any<Constraint.Any<Ownership>>(),
-                mockSelectedProviders,
+                mockSelectedProviders
             )
         }
     }
@@ -210,7 +210,7 @@ class SelectLocationViewModelTest {
         val mockSelectedOwnership: Constraint<Ownership> = mockk()
         every { mockRelayListFilterUseCase.selectedOwnership() } returns
             MutableStateFlow(
-                mockSelectedOwnership,
+                mockSelectedOwnership
             )
 
         // Act
@@ -219,7 +219,7 @@ class SelectLocationViewModelTest {
         verify {
             mockRelayListFilterUseCase.updateOwnershipAndProviderFilter(
                 mockSelectedOwnership,
-                any<Constraint.Any<Providers>>(),
+                any<Constraint.Any<Providers>>()
             )
         }
     }

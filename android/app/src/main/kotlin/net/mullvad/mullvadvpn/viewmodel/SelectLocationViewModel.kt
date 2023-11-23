@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 class SelectLocationViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val relayListUseCase: RelayListUseCase,
-    private val relayListFilterUseCase: RelayListFilterUseCase,
+    private val relayListFilterUseCase: RelayListFilterUseCase
 ) : ViewModel() {
 
     private val _closeAction = MutableSharedFlow<Unit>()
@@ -39,13 +39,13 @@ class SelectLocationViewModel(
                 _searchTerm,
                 relayListFilterUseCase.selectedOwnership(),
                 relayListFilterUseCase.availableProviders(),
-                relayListFilterUseCase.selectedProviders(),
+                relayListFilterUseCase.selectedProviders()
             ) {
                 (relayCountries, relayItem),
                 searchTerm,
                 selectedOwnership,
                 allProviders,
-                selectedConstraintProviders,
+                selectedConstraintProviders
                 ->
                 val selectedProviders =
                     selectedConstraintProviders.toSelectedProviders(allProviders)
@@ -53,13 +53,13 @@ class SelectLocationViewModel(
                 val selectedProvidersByOwnershipList =
                     filterSelectedProvidersByOwnership(
                         selectedProviders,
-                        selectedOwnership.toNullableOwnership(),
+                        selectedOwnership.toNullableOwnership()
                     )
 
                 val allProvidersByOwnershipListList =
                     filterAllProvidersByOwnership(
                         allProviders,
-                        selectedOwnership.toNullableOwnership(),
+                        selectedOwnership.toNullableOwnership()
                     )
 
                 val filteredRelayCountries =
@@ -75,13 +75,13 @@ class SelectLocationViewModel(
                                 allProvidersByOwnershipListList.size
                         )
                             null
-                        else selectedProvidersByOwnershipList.size,
+                        else selectedProvidersByOwnershipList.size
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                SelectLocationUiState.Loading,
+                SelectLocationUiState.Loading
             )
 
     @Suppress("konsist.ensure public properties use permitted names")
@@ -130,7 +130,7 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             relayListFilterUseCase.updateOwnershipAndProviderFilter(
                 Constraint.Any(),
-                relayListFilterUseCase.selectedProviders().first(),
+                relayListFilterUseCase.selectedProviders().first()
             )
         }
     }
@@ -139,7 +139,7 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             relayListFilterUseCase.updateOwnershipAndProviderFilter(
                 relayListFilterUseCase.selectedOwnership().first(),
-                Constraint.Any(),
+                Constraint.Any()
             )
         }
     }

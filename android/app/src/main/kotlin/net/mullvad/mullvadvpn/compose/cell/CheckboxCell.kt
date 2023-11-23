@@ -22,8 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
@@ -35,7 +33,7 @@ fun CheckboxCellPreview() {
         CheckboxCell(
             providerName = "",
             checked = false,
-            onCheckedChange = {},
+            onCheckedChange = {}
         )
     }
 }
@@ -49,7 +47,7 @@ internal fun CheckboxCell(
     background: Color = MaterialTheme.colorScheme.secondaryContainer,
     startPadding: Dp = Dimens.cellStartPadding,
     endPadding: Dp = Dimens.cellEndPadding,
-    minHeight: Dp = Dimens.cellHeight,
+    minHeight: Dp = Dimens.cellHeight
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -60,10 +58,11 @@ internal fun CheckboxCell(
                 .defaultMinSize(minHeight = minHeight)
                 .fillMaxWidth()
                 .background(background)
-                .padding(start = startPadding, end = endPadding),
+                .padding(start = startPadding, end = endPadding)
     ) {
         Box(
-            modifier = Modifier.size(24.dp).background(Color.White, RoundedCornerShape(4.dp)),
+            modifier = Modifier.size(Dimens.checkBoxSize).background(Color.White, RoundedCornerShape(
+                Dimens.checkBoxCornerShape))
         ) {
             Checkbox(
                 modifier = Modifier.fillMaxSize(),
@@ -73,19 +72,18 @@ internal fun CheckboxCell(
                     CheckboxDefaults.colors(
                         checkedColor = Color.Transparent,
                         uncheckedColor = Color.Transparent,
-                        checkmarkColor = MullvadGreen,
+                        checkmarkColor = MullvadGreen
                     ),
             )
         }
 
-        Spacer(modifier = Modifier.size(16.dp))
+        Spacer(modifier = Modifier.size(Dimens.mediumPadding))
 
         Text(
             text = providerName,
-            fontSize = 15.sp,
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSecondary,
-            modifier = Modifier.weight(1f).padding(top = 14.dp, bottom = 10.dp),
+            modifier = Modifier.weight(1f).padding(top = Dimens.textTopPadding, bottom = Dimens.textBottomPadding)
         )
     }
 }

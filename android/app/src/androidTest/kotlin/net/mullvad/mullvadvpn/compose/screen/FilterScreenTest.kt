@@ -32,7 +32,7 @@ class FilterScreenTest {
                         selectedProviders = DUMMY_SELECTED_PROVIDERS,
                     ),
                 uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> },
+                onSelectedProviders = { _, _ -> }
             )
         }
         composeTestRule.apply {
@@ -49,10 +49,10 @@ class FilterScreenTest {
                     RelayFilterState(
                         allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = null,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS
                     ),
                 uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> },
+                onSelectedProviders = { _, _ -> }
             )
         }
         composeTestRule.apply {
@@ -69,10 +69,10 @@ class FilterScreenTest {
                     RelayFilterState(
                         allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Ownership.MullvadOwned,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS
                     ),
                 uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> },
+                onSelectedProviders = { _, _ -> }
             )
         }
         composeTestRule.apply {
@@ -89,10 +89,10 @@ class FilterScreenTest {
                     RelayFilterState(
                         allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Ownership.Rented,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS
                     ),
                 uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> },
+                onSelectedProviders = { _, _ -> }
             )
         }
         composeTestRule.apply {
@@ -109,10 +109,10 @@ class FilterScreenTest {
                     RelayFilterState(
                         allProviders = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = null,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS
                     ),
                 uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> },
+                onSelectedProviders = { _, _ -> }
             )
         }
 
@@ -133,7 +133,7 @@ class FilterScreenTest {
                     RelayFilterState(
                         allProviders = listOf(),
                         selectedOwnership = null,
-                        selectedProviders = listOf(Provider("31173", true)),
+                        selectedProviders = listOf(Provider("31173", true))
                     ),
                 uiCloseAction = MutableSharedFlow(),
                 onSelectedProviders = { _, _ -> },
@@ -164,7 +164,7 @@ class FilterScreenTest {
                 Provider("Quadranet", false),
                 Provider("techfutures", false),
                 Provider("Tzulo", false),
-                Provider("xtom", false),
+                Provider("xtom", false)
             )
 
         private val DUMMY_SELECTED_PROVIDERS =
@@ -185,7 +185,7 @@ class FilterScreenTest {
                 Provider("Quadranet", false),
                 Provider("techfutures", false),
                 Provider("Tzulo", false),
-                Provider("xtom", false),
+                Provider("xtom", false)
             )
     }
 }
