@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    path::Path,
     time::{Duration, SystemTime},
 };
 
@@ -51,7 +52,7 @@ impl ServiceClient {
         self.client.uninstall_app(ctx, env).await?
     }
 
-    /// Execute a program.
+    /// Execute a program with additional environment-variables set.
     pub async fn exec_env<
         I: IntoIterator<Item = T>,
         M: IntoIterator<Item = (K, T)>,
@@ -282,14 +283,18 @@ impl ServiceClient {
             .await?
     }
 
-    pub async fn write_file(&self, dest: String, bytes: Vec<u8>) -> Result<(), Error> {
+    pub async fn write_file(&self, dest: impl AsRef<Path>, bytes: Vec<u8>) -> Result<(), Error> {
         log::debug!(
             "Writing {bytes} bytes to \"{file}\"",
             bytes = bytes.len(),
-            file = dest
+            file = dest.as_ref().display()
         );
         self.client
-            .write_file(tarpc::context::current(), dest, bytes)
+            .write_file(
+                tarpc::context::current(),
+                dest.as_ref().to_path_buf(),
+                bytes,
+            )
             .await?
     }
 
