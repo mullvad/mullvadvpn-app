@@ -1,7 +1,11 @@
 package net.mullvad.mullvadvpn.tile
 
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
+import android.net.VpnService
+import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import android.util.Log
@@ -17,7 +21,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
+import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
 import net.mullvad.mullvadvpn.model.ServiceResult
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -74,7 +80,27 @@ class MullvadTileService : TileService() {
         scope?.cancel()
     }
 
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun toggleTunnel() {
+        val isSetup = VpnService.prepare(applicationContext) == null
+        // TODO This logic should be more advanced, we should ensure user has an account setup etc.
+        if (!isSetup) {
+            Log.d("MullvadTileService", "VPN service not setup, starting main activity")
+
+            val intent =
+                Intent().apply {
+                    setClassName(applicationContext.packageName, MAIN_ACTIVITY_CLASS)
+                    flags =
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                            Intent.FLAG_ACTIVITY_SINGLE_TOP or
+                            Intent.FLAG_ACTIVITY_NEW_TASK
+                    action = Intent.ACTION_MAIN
+                }
+            startActivityAndCollapseCompat(intent)
+            return
+        } else {
+            Log.d("MullvadTileService", "VPN service is setup")
+        }
         val intent =
             Intent().apply {
                 setClassName(applicationContext.packageName, VPN_SERVICE_CLASS)
@@ -88,6 +114,22 @@ class MullvadTileService : TileService() {
 
         // Always start as foreground in case tile is out-of-sync.
         startForegroundService(intent)
+    }
+
+    @SuppressLint("StartActivityAndCollapseDeprecated")
+    private fun MullvadTileService.startActivityAndCollapseCompat(intent: Intent) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            val pendingIntent =
+                PendingIntent.getActivity(
+                    applicationContext,
+                    0,
+                    intent,
+                    SdkUtils.getSupportedPendingIntentFlags()
+                )
+            startActivityAndCollapse(pendingIntent)
+        } else {
+            startActivityAndCollapse(intent)
+        }
     }
 
     @OptIn(FlowPreview::class)

@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.service
 
 import android.app.Service
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+import android.net.VpnService
+import android.os.Build
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -90,11 +93,22 @@ class ForegroundNotificationManager(
         }
 
     fun showOnForeground() {
-        service.startForeground(
-            TunnelStateNotification.NOTIFICATION_ID,
-            tunnelStateNotification.build()
-        )
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            if (VpnService.prepare(service) == null) {
+                service.startForeground(
+                    TunnelStateNotification.NOTIFICATION_ID,
+                    tunnelStateNotification.build(),
+                    FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+                )
+            } else {
+                return
+            }
+        } else {
+            service.startForeground(
+                TunnelStateNotification.NOTIFICATION_ID,
+                tunnelStateNotification.build(),
+            )
+        }
         onForeground = true
     }
 
