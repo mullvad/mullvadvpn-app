@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,11 +52,11 @@ fun FilterCell(
                 .fillMaxWidth(),
     ) {
         Text(
+            modifier = Modifier.padding(end = Dimens.textEndPadding),
             text = stringResource(id = R.string.filtered),
             color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.labelMedium
         )
-        Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
 
         if (selectedProviderFilter != null) {
             MullvadFilterChip(
@@ -65,18 +64,17 @@ fun FilterCell(
                 onRemoveClick = removeProviderFilter
             )
         }
-        Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-
+        Spacer(modifier = Modifier.size(Dimens.chipSpace))
         if (ownershipFilter != null) {
             MullvadFilterChip(
-                text = stringResource(ownershipFilter.getStringResources()),
+                text = stringResource(ownershipFilter.stringResources()),
                 onRemoveClick = removeOwnershipFilter
             )
         }
     }
 }
 
-private fun Ownership.getStringResources(): Int =
+private fun Ownership.stringResources(): Int =
     when (this) {
         Ownership.MullvadOwned -> R.string.owned
         Ownership.Rented -> R.string.rented

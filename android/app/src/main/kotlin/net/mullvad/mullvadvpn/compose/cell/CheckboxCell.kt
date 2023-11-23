@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -28,7 +27,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
 
 @Preview
 @Composable
-fun CheckboxCellPreview() {
+private fun CheckboxCellPreview() {
     AppTheme {
         CheckboxCell(
             providerName = "",
@@ -54,7 +53,6 @@ internal fun CheckboxCell(
         modifier =
             modifier
                 .clickable { onCheckedChange(!checked) }
-                .wrapContentHeight()
                 .defaultMinSize(minHeight = minHeight)
                 .fillMaxWidth()
                 .background(background)

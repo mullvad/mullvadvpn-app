@@ -78,6 +78,9 @@ data class Dimensions(
     val chipCornerShape: Dp = 8.dp,
     val verticalPadding: Dp = 3.dp,
     val boxTopPadding: Dp = 18.dp,
-)
+    val textEndPadding: Dp = 5.dp,
+    val chipSpace: Dp = 10.dp,
+
+    )
 val defaultDimensions = Dimensions()
 // Add more configurations here if needed

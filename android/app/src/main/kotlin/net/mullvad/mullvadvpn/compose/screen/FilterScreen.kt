@@ -44,7 +44,7 @@ import net.mullvad.mullvadvpn.relaylist.Provider
 
 @Preview
 @Composable
-fun PreviewFilterScreen() {
+private fun PreviewFilterScreen() {
     val state =
         RelayFilterState(
             selectedOwnership = null,
