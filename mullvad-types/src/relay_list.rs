@@ -36,12 +36,20 @@ impl RelayList {
             .find(|country| country.code == country_code)
     }
 
-    /// Return a flat iterator with all relays
+    /// Return a flat iterator of all [`Relay`]s
     pub fn relays(&self) -> impl Iterator<Item = &Relay> + Clone + '_ {
         self.countries
             .iter()
             .flat_map(|country| country.cities.iter())
             .flat_map(|city| city.relays.iter())
+    }
+
+    /// Return a consuming flat iterator of all [`Relay`]s
+    pub fn into_relays(self) -> impl Iterator<Item = Relay> + Clone {
+        self.countries
+            .into_iter()
+            .flat_map(|country| country.cities)
+            .flat_map(|city| city.relays)
     }
 }
 

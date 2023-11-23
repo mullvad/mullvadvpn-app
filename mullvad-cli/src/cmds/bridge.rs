@@ -11,7 +11,7 @@ use mullvad_types::{
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
-use super::{relay::find_relay_by_hostname, relay_constraints::LocationArgs};
+use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs};
 
 #[derive(Subcommand, Debug)]
 pub enum Bridge {
@@ -160,16 +160,15 @@ impl Bridge {
                 println!("Updated bridge state");
                 Ok(())
             }
-            SetCommands::Location(location) => {
-                let countries = rpc.get_relay_locations().await?.countries;
-                let location =
-                    if let Some(relay) = find_relay_by_hostname(&countries, &location.country) {
-                        Constraint::Only(relay)
-                    } else {
-                        Constraint::from(location)
-                    };
-                let location = location.map(LocationConstraint::Location);
-                Self::update_bridge_settings(&mut rpc, Some(location), None, None).await
+            SetCommands::Location(location_constraint_args) => {
+                let relay_filter = |relay: &mullvad_types::relay_list::Relay| {
+                    relay.active && relay.endpoint_data == RelayEndpointData::Bridge
+                };
+                let location_constraint =
+                    resolve_location_constraint(&mut rpc, location_constraint_args, relay_filter)
+                        .await?
+                        .map(LocationConstraint::from);
+                Self::update_bridge_settings(&mut rpc, Some(location_constraint), None, None).await
             }
             SetCommands::CustomList { custom_list_name } => {
                 let list =

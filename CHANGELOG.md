@@ -23,8 +23,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add customizable relay lists to the CLI on desktop. Custom lists can be managed through
-  `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
+- Add customizable relay lists to the CLI on desktop. Custom lists can be managed through `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
 - Add custom lists to location selector in desktop app.
 - Add custom API access methods to the CLI on desktop. Custom API access methods allow the user to
   proxy API traffic through a peer before connecting to a tunnel. They are managed through
@@ -36,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 25.2.0 to 26.3.0.
+- CLI command `mullvad relay set tunnel wireguard entry-location` changed to `mullvad relay set tunnel wireguard entry location`, as the `location` subcommand can now be swapped for `custom-list` to select entry relays using a custom list.
 
 #### Android
 - Migrate welcome view to compose.
@@ -59,6 +59,7 @@ Line wrap the file at 100 chars.                                              Th
 - Remove wireguard-go (userspace WireGuard) support.
 
 ### Fixed
+- Validate that hostname matches correct server type for CLI commands `mullvad relay set location`, `mullvad bridge set location` and `mullvad relay set tunnel wireguard entry location`
 - Show correct endpoint in CLI for custom relays.
 - Lower risk of being rate limited.
 - Fix error dialog when failing to write to console by handling the thrown error.
