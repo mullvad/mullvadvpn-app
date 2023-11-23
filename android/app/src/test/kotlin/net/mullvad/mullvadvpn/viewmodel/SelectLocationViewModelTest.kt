@@ -7,15 +7,17 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeographicLocationConstraint
+import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.model.Providers
+import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
@@ -23,30 +25,43 @@ import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class SelectLocationViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
 
+    private val mockRelayListFilterUseCase: RelayListFilterUseCase = mockk(relaxed = true)
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private lateinit var viewModel: SelectLocationViewModel
-
     private val relayListWithSelectionFlow = MutableStateFlow(RelayList(emptyList(), null))
-
     private val mockRelayListUseCase: RelayListUseCase = mockk()
+    private val selectedOwnership = MutableStateFlow<Constraint<Ownership>>(Constraint.Any())
+    private val selectedProvider = MutableStateFlow<Constraint<Providers>>(Constraint.Any())
+    private val allProvider = MutableStateFlow<List<Provider>>(emptyList())
 
     @Before
     fun setup() {
+
+        every { mockRelayListFilterUseCase.selectedOwnership() } returns selectedOwnership
+        every { mockRelayListFilterUseCase.selectedProviders()} returns selectedProvider
+        every { mockRelayListFilterUseCase.availableProviders() } returns  allProvider
         every { mockRelayListUseCase.relayListWithSelection() } returns relayListWithSelectionFlow
 
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(RELAY_LIST_EXTENSIONS)
-
-        viewModel = SelectLocationViewModel(mockServiceConnectionManager, mockRelayListUseCase)
+        viewModel =
+            SelectLocationViewModel(
+                mockServiceConnectionManager,
+                mockRelayListUseCase,
+                mockRelayListFilterUseCase,
+            )
     }
 
     @After
@@ -164,8 +179,48 @@ class SelectLocationViewModelTest {
 
             // Assert
             val actualState = awaitItem()
-            assertIs<SelectLocationUiState.NoSearchResultFound>(actualState)
+            assertIs<SelectLocationUiState.ShowData>(actualState)
             assertEquals(mockSearchString, actualState.searchTerm)
+        }
+    }
+
+    @Test
+    fun testRemoveOwnerFilter() = runTest {
+        // Arrange
+        val mockSelectedProviders: Constraint<Providers> = mockk()
+        every { mockRelayListFilterUseCase.selectedProviders() } returns
+            MutableStateFlow(
+                mockSelectedProviders,
+            )
+
+        // Act
+        viewModel.removeOwnerFilter()
+        // Assert
+        verify {
+            mockRelayListFilterUseCase.updateOwnershipAndProviderFilter(
+                any<Constraint.Any<Ownership>>(),
+                mockSelectedProviders,
+            )
+        }
+    }
+
+    @Test
+    fun testRemoveProviderFilter() = runTest {
+        // Arrange
+        val mockSelectedOwnership: Constraint<Ownership> = mockk()
+        every { mockRelayListFilterUseCase.selectedOwnership() } returns
+            MutableStateFlow(
+                mockSelectedOwnership,
+            )
+
+        // Act
+        viewModel.removeProviderFilter()
+        // Assert
+        verify {
+            mockRelayListFilterUseCase.updateOwnershipAndProviderFilter(
+                mockSelectedOwnership,
+                any<Constraint.Any<Providers>>(),
+            )
         }
     }
 

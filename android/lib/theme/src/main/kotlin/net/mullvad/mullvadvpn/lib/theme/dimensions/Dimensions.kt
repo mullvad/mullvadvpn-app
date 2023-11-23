@@ -58,6 +58,7 @@ data class Dimensions(
     val searchFieldHorizontalPadding: Dp = 22.dp,
     val searchIconSize: Dp = 24.dp,
     val selectLocationTitlePadding: Dp = 12.dp,
+    val selectFilterTitlePadding: Dp = 12.dp,
     val selectableCellTextMargin: Dp = 12.dp,
     val sideMargin: Dp = 22.dp,
     val smallPadding: Dp = 8.dp,
@@ -69,6 +70,7 @@ data class Dimensions(
     val verticalDividerPadding: Dp = 12.dp,
     val verticalSpace: Dp = 20.dp,
     val verticalSpacer: Dp = 1.dp,
+    val smallIconSize: Dp = 16.dp,
 )
 
 val defaultDimensions = Dimensions()

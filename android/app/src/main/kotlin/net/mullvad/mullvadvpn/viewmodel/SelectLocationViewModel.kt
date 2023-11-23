@@ -7,46 +7,86 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
+import net.mullvad.mullvadvpn.compose.state.toNullableOwnership
+import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
+import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.Ownership
+import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 
 class SelectLocationViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
-    private val relayListUseCase: RelayListUseCase
+    private val relayListUseCase: RelayListUseCase,
+    private val relayListFilterUseCase: RelayListFilterUseCase,
 ) : ViewModel() {
+
     private val _closeAction = MutableSharedFlow<Unit>()
     private val _enterTransitionEndAction = MutableSharedFlow<Unit>()
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
     val uiState =
-        combine(relayListUseCase.relayListWithSelection(), _searchTerm) {
+        combine(
+                relayListUseCase.relayListWithSelection(),
+                _searchTerm,
+                relayListFilterUseCase.selectedOwnership(),
+                relayListFilterUseCase.availableProviders(),
+                relayListFilterUseCase.selectedProviders(),
+            ) {
                 (relayCountries, relayItem),
-                searchTerm ->
+                searchTerm,
+                selectedOwnership,
+                allProviders,
+                selectedConstraintProviders,
+                ->
+                val selectedProviders =
+                    selectedConstraintProviders.toSelectedProviders(allProviders)
+
+                val selectedProvidersByOwnershipList =
+                    filterSelectedProvidersByOwnership(
+                        selectedProviders,
+                        selectedOwnership.toNullableOwnership(),
+                    )
+
+                val allProvidersByOwnershipListList =
+                    filterAllProvidersByOwnership(
+                        allProviders,
+                        selectedOwnership.toNullableOwnership(),
+                    )
+
                 val filteredRelayCountries =
                     relayCountries.filterOnSearchTerm(searchTerm, relayItem)
-                if (searchTerm.isNotEmpty() && filteredRelayCountries.isEmpty()) {
-                    SelectLocationUiState.NoSearchResultFound(searchTerm = searchTerm)
-                } else {
-                    SelectLocationUiState.ShowData(
-                        countries = filteredRelayCountries,
-                        selectedRelay = relayItem
-                    )
-                }
+                SelectLocationUiState.ShowData(
+                    searchTerm = searchTerm,
+                    countries = filteredRelayCountries,
+                    selectedRelay = relayItem,
+                    selectedOwnership = selectedOwnership.toNullableOwnership(),
+                    selectedProvidersCount =
+                        if (
+                            selectedProvidersByOwnershipList.size ==
+                                allProvidersByOwnershipListList.size
+                        )
+                            null
+                        else selectedProvidersByOwnershipList.size,
+                )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                SelectLocationUiState.Loading
+                SelectLocationUiState.Loading,
             )
 
     @Suppress("konsist.ensure public properties use permitted names")
     val uiCloseAction = _closeAction.asSharedFlow()
+
     @Suppress("konsist.ensure public properties use permitted names")
     val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
@@ -62,6 +102,46 @@ class SelectLocationViewModel(
 
     fun onSearchTermInput(searchTerm: String) {
         viewModelScope.launch { _searchTerm.emit(searchTerm) }
+    }
+
+    private fun filterSelectedProvidersByOwnership(
+        selectedProviders: List<Provider>,
+        selectedOwnership: Ownership?
+    ): List<Provider> {
+        return when (selectedOwnership) {
+            Ownership.MullvadOwned -> selectedProviders.filter { it.mullvadOwned }
+            Ownership.Rented -> selectedProviders.filterNot { it.mullvadOwned }
+            else -> selectedProviders
+        }
+    }
+
+    private fun filterAllProvidersByOwnership(
+        allProviders: List<Provider>,
+        selectedOwnership: Ownership?
+    ): List<Provider> {
+        return when (selectedOwnership) {
+            Ownership.MullvadOwned -> allProviders.filter { it.mullvadOwned }
+            Ownership.Rented -> allProviders.filterNot { it.mullvadOwned }
+            else -> allProviders
+        }
+    }
+
+    fun removeOwnerFilter() {
+        viewModelScope.launch {
+            relayListFilterUseCase.updateOwnershipAndProviderFilter(
+                Constraint.Any(),
+                relayListFilterUseCase.selectedProviders().first(),
+            )
+        }
+    }
+
+    fun removeProviderFilter() {
+        viewModelScope.launch {
+            relayListFilterUseCase.updateOwnershipAndProviderFilter(
+                relayListFilterUseCase.selectedOwnership().first(),
+                Constraint.Any(),
+            )
+        }
     }
 
     companion object {

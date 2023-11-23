@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.textfield
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -80,14 +81,27 @@ fun SearchTextField(
                             modifier =
                                 Modifier.size(
                                     width = Dimens.searchIconSize,
-                                    height = Dimens.searchIconSize
+                                    height = Dimens.searchIconSize,
                                 ),
                             colorFilter =
-                                ColorFilter.tint(color = MaterialTheme.colorScheme.onSecondary)
+                                ColorFilter.tint(color = MaterialTheme.colorScheme.onSecondary),
                         )
                     },
                     placeholder = {
                         Text(text = placeHolder, style = MaterialTheme.typography.labelLarge)
+                    },
+                    trailingIcon = {
+                        if (searchTerm.isNotEmpty()) {
+                            Image(
+                                modifier =
+                                    Modifier.size(Dimens.smallIconSize).clickable {
+                                        searchTerm = ""
+                                        onValueChange.invoke(searchTerm)
+                                    },
+                                painter = painterResource(id = R.drawable.icon_close),
+                                contentDescription = null,
+                            )
+                        }
                     },
                     shape = MaterialTheme.shapes.medium,
                     colors =
@@ -100,11 +114,11 @@ fun SearchTextField(
                             unfocusedIndicatorColor = Color.Transparent,
                             cursorColor = MaterialTheme.colorScheme.onSecondary,
                             focusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
-                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary
+                            unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSecondary,
                         ),
                     contentPadding = PaddingValues(),
                 )
             },
-        modifier = modifier
+        modifier = modifier,
     )
 }

@@ -9,6 +9,7 @@ plugins {
     id(Dependencies.Plugin.playPublisherId)
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
+    id("org.jetbrains.kotlin.android")
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath

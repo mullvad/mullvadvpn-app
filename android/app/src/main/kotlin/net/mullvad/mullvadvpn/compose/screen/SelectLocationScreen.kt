@@ -30,9 +30,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.core.text.HtmlCompat
@@ -40,6 +40,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.cell.FilterCell
 import net.mullvad.mullvadvpn.compose.cell.RelayLocationCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
@@ -60,14 +61,17 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 private fun PreviewSelectLocationScreen() {
     val state =
         SelectLocationUiState.ShowData(
+            searchTerm = "",
             countries = listOf(RelayCountry("Country 1", "Code 1", false, emptyList())),
-            selectedRelay = null
+            selectedRelay = null,
+            selectedOwnership = null,
+            selectedProvidersCount = 0,
         )
     AppTheme {
         SelectLocationScreen(
             uiState = state,
             uiCloseAction = MutableSharedFlow(),
-            enterTransitionEndAction = MutableSharedFlow()
+            enterTransitionEndAction = MutableSharedFlow(),
         )
     }
 }
@@ -80,8 +84,12 @@ fun SelectLocationScreen(
     enterTransitionEndAction: SharedFlow<Unit>,
     onSelectRelay: (item: RelayItem) -> Unit = {},
     onSearchTermInput: (searchTerm: String) -> Unit = {},
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    onFilterClick: () -> Unit = {},
+    removeOwnershipFilter: () -> Unit = {},
+    removeProviderFilter: () -> Unit = {},
 ) {
+
     val backgroundColor = MaterialTheme.colorScheme.background
     val systemUiController = rememberSystemUiController()
 
@@ -91,14 +99,16 @@ fun SelectLocationScreen(
     }
 
     val (backFocus, listFocus, searchBarFocus) = remember { FocusRequester.createRefs() }
-    Column(modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight()) {
+    Column(
+        modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight(),
+    ) {
         Row(
             modifier =
                 Modifier.padding(
                         horizontal = Dimens.selectLocationTitlePadding,
-                        vertical = Dimens.selectLocationTitlePadding
+                        vertical = Dimens.selectLocationTitlePadding,
                     )
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
         ) {
             Image(
                 painter = painterResource(id = R.drawable.icon_back),
@@ -112,7 +122,7 @@ fun SelectLocationScreen(
                         }
                         .size(Dimens.titleIconSize)
                         .rotate(270f)
-                        .clickable { onBackClick() }
+                        .clickable { onBackClick() },
             )
             Text(
                 text = stringResource(id = R.string.select_location),
@@ -121,17 +131,36 @@ fun SelectLocationScreen(
                         .weight(weight = 1f)
                         .padding(end = Dimens.titleIconSize),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineSmall.copy(fontSize = 20.sp),
-                color = MaterialTheme.colorScheme.onPrimary
+                style = MaterialTheme.typography.titleSmall.copy(fontSize = 20.sp),
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
+            Image(
+                painter = painterResource(id = R.drawable.icons_more_circle),
+                contentDescription = null,
+                modifier = Modifier.size(Dimens.titleIconSize).clickable { onFilterClick() },
             )
         }
+        when (uiState) {
+            SelectLocationUiState.Loading -> {}
+            is SelectLocationUiState.ShowData -> {
+                if (uiState.hasFilter) {
+                    FilterCell(
+                        ownershipFilter = uiState.selectedOwnership,
+                        selectedProviderFilter = uiState.selectedProvidersCount,
+                        removeOwnershipFilter = removeOwnershipFilter,
+                        removeProviderFilter = removeProviderFilter,
+                    )
+                }
+            }
+        }
+
         SearchTextField(
             modifier =
                 Modifier.fillMaxWidth()
                     .focusRequester(searchBarFocus)
                     .focusProperties { next = backFocus }
                     .height(Dimens.searchFieldHeight)
-                    .padding(horizontal = Dimens.searchFieldHorizontalPadding)
+                    .padding(horizontal = Dimens.searchFieldHorizontalPadding),
         ) { searchString ->
             onSearchTermInput.invoke(searchString)
         }
@@ -143,59 +172,70 @@ fun SelectLocationScreen(
                     .fillMaxSize()
                     .drawVerticalScrollbar(
                         lazyListState,
-                        MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar)
+                        MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
                     ),
             state = lazyListState,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when (uiState) {
                 SelectLocationUiState.Loading -> {
                     item(contentType = ContentType.PROGRESS) {
                         MullvadCircularProgressIndicatorLarge(
-                            Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR)
+                            Modifier.testTag(CIRCULAR_PROGRESS_INDICATOR),
                         )
                     }
                 }
                 is SelectLocationUiState.ShowData -> {
-                    items(
-                        count = uiState.countries.size,
-                        key = { index -> uiState.countries[index].hashCode() },
-                        contentType = { ContentType.ITEM }
-                    ) { index ->
-                        val country = uiState.countries[index]
-                        RelayLocationCell(
-                            relay = country,
-                            selectedItem = uiState.selectedRelay,
-                            onSelectRelay = onSelectRelay,
-                            modifier = Modifier.animateContentSize()
-                        )
-                    }
-                }
-                is SelectLocationUiState.NoSearchResultFound -> {
-                    item(contentType = ContentType.EMPTY_TEXT) {
-                        val firstRow =
-                            HtmlCompat.fromHtml(
-                                    textResource(
-                                        id = R.string.select_location_empty_text_first_row,
-                                        uiState.searchTerm
-                                    ),
-                                    HtmlCompat.FROM_HTML_MODE_COMPACT
-                                )
-                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
-                        Text(
-                            text =
-                                buildAnnotatedString {
-                                    append(firstRow)
-                                    appendLine()
-                                    append(
+                    if (uiState.countries.isEmpty()) {
+                        item(contentType = ContentType.EMPTY_TEXT) {
+                            val firstRow =
+                                HtmlCompat.fromHtml(
                                         textResource(
-                                            id = R.string.select_location_empty_text_second_row
-                                        )
+                                            id = R.string.select_location_empty_text_first_row,
+                                            uiState.searchTerm,
+                                        ),
+                                        HtmlCompat.FROM_HTML_MODE_COMPACT,
                                     )
-                                },
-                            style = MaterialTheme.typography.labelMedium,
-                            textAlign = TextAlign.Center
-                        )
+                                    .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                            val secondRow =
+                                textResource(id = R.string.select_location_empty_text_second_row)
+                            Column(
+                                modifier =
+                                    Modifier.padding(
+                                        horizontal = Dimens.selectLocationTitlePadding,
+                                    ),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    text = firstRow,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Text(
+                                    text = secondRow,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                )
+                            }
+                        }
+                    } else {
+                        items(
+                            count = uiState.countries.size,
+                            key = { index -> uiState.countries[index].hashCode() },
+                            contentType = { ContentType.ITEM },
+                        ) { index ->
+                            val country = uiState.countries[index]
+                            RelayLocationCell(
+                                relay = country,
+                                selectedItem = uiState.selectedRelay,
+                                onSelectRelay = onSelectRelay,
+                                modifier = Modifier.animateContentSize(),
+                            )
+                        }
                     }
                 }
             }
