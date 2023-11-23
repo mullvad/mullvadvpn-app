@@ -228,12 +228,12 @@ fn merge_patch_to_value(
             match (&permitted_key.key_type, current_value, patch_value) {
                 // Append or replace keys to objects
                 (
-                    PermittedKeyValue::Object(sub_permitteds),
+                    PermittedKeyValue::Object(sub_permitted),
                     serde_json::Value::Object(ref mut current),
                     serde_json::Value::Object(ref patch),
                 ) => {
                     for (k, sub_patch) in patch {
-                        let Some((_, sub_permitted)) = sub_permitteds
+                        let Some((_, sub_permitted)) = sub_permitted
                             .iter()
                             .find(|(permitted_key, _)| k == permitted_key)
                         else {
@@ -311,7 +311,7 @@ fn test_permitted_value() {
     let patch = r#"{"key": [ {"a": "test" } ] }"#;
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
 
-    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap();
+    validate_patch_value(PERMITTED_SUBKEYS, &patch, 0).unwrap();
 }
 
 #[test]
@@ -324,12 +324,12 @@ fn test_prohibited_value() {
     let patch = r#"{"keyx": [] }"#;
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
 
-    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap_err();
+    validate_patch_value(PERMITTED_SUBKEYS, &patch, 0).unwrap_err();
 
     let patch = r#"{"key": { "b": 1 } }"#;
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
 
-    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap_err();
+    validate_patch_value(PERMITTED_SUBKEYS, &patch, 0).unwrap_err();
 }
 
 #[test]
@@ -347,7 +347,7 @@ fn test_merge_append_to_object() {
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
     let expected: serde_json::Value = serde_json::from_str(expected).unwrap();
 
-    merge_patch_to_value(&PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
+    merge_patch_to_value(PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
 
     assert_eq!(current, expected);
 }
@@ -370,7 +370,7 @@ fn test_merge_replace_in_object() {
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
     let expected: serde_json::Value = serde_json::from_str(expected).unwrap();
 
-    merge_patch_to_value(&PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
+    merge_patch_to_value(PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
 
     assert_eq!(current, expected);
 }
@@ -395,7 +395,7 @@ fn test_overflow() {
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
 
     assert!(matches!(
-        validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0),
+        validate_patch_value(PERMITTED_SUBKEYS, &patch, 0),
         Err(Error::RecursionLimit)
     ));
 }
@@ -416,7 +416,7 @@ fn test_patch_relay_override() {
     //
     let patch = r#"{ "relay_overrides": [ { "invalid": 0 } ] }"#;
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
-    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap_err();
+    validate_patch_value(PERMITTED_SUBKEYS, &patch, 0).unwrap_err();
 
     // If there are no overrides, append new override
     //
@@ -428,8 +428,8 @@ fn test_patch_relay_override() {
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
     let expected: serde_json::Value = serde_json::from_str(expected).unwrap();
 
-    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap();
-    merge_patch_to_value(&PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
+    validate_patch_value(PERMITTED_SUBKEYS, &patch, 0).unwrap();
+    merge_patch_to_value(PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
 
     assert_eq!(current, expected);
 
@@ -443,8 +443,8 @@ fn test_patch_relay_override() {
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
     let expected: serde_json::Value = serde_json::from_str(expected).unwrap();
 
-    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap();
-    merge_patch_to_value(&PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
+    validate_patch_value(PERMITTED_SUBKEYS, &patch, 0).unwrap();
+    merge_patch_to_value(PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
 
     assert_eq!(current, expected);
 
@@ -458,8 +458,8 @@ fn test_patch_relay_override() {
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
     let expected: serde_json::Value = serde_json::from_str(expected).unwrap();
 
-    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap();
-    merge_patch_to_value(&PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
+    validate_patch_value(PERMITTED_SUBKEYS, &patch, 0).unwrap();
+    merge_patch_to_value(PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
 
     assert_eq!(current, expected);
 
@@ -474,8 +474,8 @@ fn test_patch_relay_override() {
     let patch: serde_json::Value = serde_json::from_str(patch).unwrap();
     let expected: serde_json::Value = serde_json::from_str(expected).unwrap();
 
-    validate_patch_value(&PERMITTED_SUBKEYS, &patch, 0).unwrap();
-    merge_patch_to_value(&PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
+    validate_patch_value(PERMITTED_SUBKEYS, &patch, 0).unwrap();
+    merge_patch_to_value(PERMITTED_SUBKEYS, &mut current, &patch, 0).unwrap();
 
     assert_eq!(current, expected);
 }
