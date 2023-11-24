@@ -6,7 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,7 +38,6 @@ import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.Provider
 
@@ -111,12 +110,7 @@ fun FilterScreen(
                         .padding(top = Dimens.boxTopPadding)
                         .clickable(enabled = false, onClick = onApplyClick)
                         .background(
-                            color =
-                                if (uiState.isApplyButtonEnabled) {
-                                    backgroundColor
-                                } else {
-                                    backgroundColor.copy(alpha = AlphaScrollbar)
-                                },
+                            color =backgroundColor
                         ),
                 contentAlignment = Alignment.BottomCenter
             ) {
@@ -137,8 +131,7 @@ fun FilterScreen(
             modifier =
                 Modifier.padding(contentPadding)
                     .background(backgroundColor)
-                    .fillMaxWidth()
-                    .fillMaxHeight()
+                    .fillMaxSize()
         ) {
             LazyColumn() {
                 item {

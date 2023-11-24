@@ -4,9 +4,9 @@ import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.relaylist.Provider
 
 data class RelayFilterState(
-    val selectedOwnership: Ownership?,
-    val allProviders: List<Provider>,
-    val selectedProviders: List<Provider>
+    val selectedOwnership: Ownership? = null,
+    val allProviders: List<Provider> = emptyList(),
+    val selectedProviders: List<Provider> = allProviders
 ) {
     val isApplyButtonEnabled = selectedProviders.isNotEmpty()
 

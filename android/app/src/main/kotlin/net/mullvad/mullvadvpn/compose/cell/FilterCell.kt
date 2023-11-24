@@ -63,8 +63,9 @@ fun FilterCell(
                 text = stringResource(id = R.string.number_of_providers, selectedProviderFilter),
                 onRemoveClick = removeProviderFilter
             )
+            Spacer(modifier = Modifier.size(Dimens.chipSpace))
         }
-        Spacer(modifier = Modifier.size(Dimens.chipSpace))
+
         if (ownershipFilter != null) {
             MullvadFilterChip(
                 text = stringResource(ownershipFilter.stringResources()),
