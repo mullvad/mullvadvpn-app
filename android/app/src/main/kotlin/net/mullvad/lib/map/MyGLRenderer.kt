@@ -3,9 +3,9 @@ package net.mullvad.lib.map
 import android.content.Context
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import net.mullvad.lib.map.shapes.Globe
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import net.mullvad.lib.map.shapes.Globe
 import net.mullvad.lib.map.shapes.Triangle
 
 class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
@@ -20,12 +20,14 @@ class MyGLRenderer(val context: Context) : GLSurfaceView.Renderer {
         globe = Globe(context)
     }
 
-    override fun onDrawFrame(unused: GL10) {
+    override fun onDrawFrame(gl10: GL10) {
         // Redraw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
         mTriangle.draw()
-        globe.draw()
-
+        globe.draw(
+            floatArrayOf(1f, 1f, 1f),
+            floatArrayOf(1f, 1f, 1f),
+        )
     }
 
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
