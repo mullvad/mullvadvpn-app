@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
-import GLMap, { ConnectionState, Coordinate, MapData } from '../lib/map/3dmap';
+import GLMap, { ConnectionState, Coordinate } from '../lib/map/3dmap';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 
@@ -21,6 +21,8 @@ interface MapParams {
   location: Coordinate;
   connectionState: ConnectionState;
 }
+
+type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 
 export default function Map() {
   const connection = useSelector((state) => state.connection);
@@ -52,11 +54,13 @@ export default function Map() {
 
 function MapInner(props: MapParams) {
   const { getMapData } = useAppContext();
+
   // Callback that should be passed to requestAnimationFrame. This is initialized after the canvas
   // has been rendered.
-  const frameCallback = useRef<(now: number) => void>();
+  const animationFrameCallback = useRef<AnimationFrameCallback>();
   // When location or connection state changes it's stored here until passed to 3dmap
   const newParams = useRef<MapParams>();
+
   // This is set to true when rendering should be paused
   const pause = useRef<boolean>(false);
 
@@ -77,40 +81,48 @@ function MapInner(props: MapParams) {
     setCanvasHeight(canvasRect.height);
   }, []);
 
-  // Called when the canvas has been rendered
-  const canvasCallback = useCallback(
-    async (canvas: HTMLCanvasElement | null) => {
-      if (!canvas) {
-        return;
+  // This is called when the canvas has been rendered the first time and initializes the gl context
+  // and the map.
+  const canvasCallback = useCallback(async (canvas: HTMLCanvasElement | null) => {
+    if (!canvas) {
+      return;
+    }
+
+    updateCanvasSize(canvas);
+
+    const gl = canvas.getContext('webgl2', { antialias: true })!;
+    setGlOptions(gl);
+
+    const projectionMatrix = getProjectionMatrix(gl);
+
+    const map = new GLMap(
+      gl,
+      await getMapData(),
+      props.location,
+      props.connectionState,
+      () => (pause.current = true),
+    );
+
+    // Function to be used when calling requestAnimationFrame
+    animationFrameCallback.current = (now: number) => {
+      now *= 0.001; // convert to seconds
+
+      // Propagate location change to the map
+      if (newParams.current) {
+        map.setLocation(newParams.current.location, newParams.current.connectionState, now);
+        newParams.current = undefined;
       }
 
-      updateCanvasSize(canvas);
+      drawScene(gl, map, projectionMatrix, now);
 
-      const innerFrameCallback = getAnimationFrameCallback(
-        canvas,
-        await getMapData(),
-        props.location,
-        props.connectionState,
-        () => (pause.current = true),
-      );
+      // Stops rendering if pause is true. This happens when there is no ongoing movements
+      if (!pause.current) {
+        requestAnimationFrame(animationFrameCallback.current!);
+      }
+    };
 
-      frameCallback.current = (now: number) => {
-        innerFrameCallback(now, newParams.current);
-        // Clear new params to avoid setting them multiple times
-        newParams.current = undefined;
-
-        // Stops recursively requesting to be called the next frame when it should be paused
-        if (!pause.current) {
-          requestAnimationFrame(frameCallback.current!);
-        }
-      };
-
-      requestAnimationFrame(frameCallback.current);
-    },
-    [updateCanvasSize],
-  );
-
-  const combinedCanvasRef = useCombinedRefs(canvasRef, canvasCallback);
+    requestAnimationFrame(animationFrameCallback.current);
+  }, []);
 
   // Set new params when the location or connection state has changed, and unpause if paused
   useEffect(() => {
@@ -121,12 +133,13 @@ function MapInner(props: MapParams) {
 
     if (pause.current) {
       pause.current = false;
-      if (frameCallback.current) {
-        requestAnimationFrame(frameCallback.current);
+      if (animationFrameCallback.current) {
+        requestAnimationFrame(animationFrameCallback.current);
       }
     }
   }, [props.location, props.connectionState]);
 
+  // Resize canvas if window size changes
   useEffect(() => {
     const resizeCallback = () => {
       if (canvasRef.current) {
@@ -138,9 +151,10 @@ function MapInner(props: MapParams) {
     return () => removeEventListener('resize', resizeCallback);
   }, [updateCanvasSize]);
 
-  useEffect(() => {
-    log.verbose('Canvas scale factor:', scaleFactor);
-  }, [scaleFactor]);
+  // Log new scale factor if it changes
+  useEffect(() => log.verbose('Map canvas scale factor:', scaleFactor), [scaleFactor]);
+
+  const combinedCanvasRef = useCombinedRefs(canvasRef, canvasCallback);
 
   return (
     <StyledCanvas
@@ -150,47 +164,6 @@ function MapInner(props: MapParams) {
       height={Math.floor(canvasHeight * scaleFactor)}
     />
   );
-}
-
-type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
-
-function getAnimationFrameCallback(
-  canvas: HTMLCanvasElement,
-  data: MapData,
-  startingCoordinate: Coordinate,
-  connectionState: ConnectionState,
-  animationEndListener: () => void,
-): AnimationFrameCallback {
-  const gl = canvas.getContext('webgl2', { antialias: true })!;
-  setGlOptions(gl);
-
-  const projectionMatrix = getProjectionMatrix(gl);
-
-  const map = new GLMap(gl, data, startingCoordinate, connectionState, animationEndListener);
-
-  const drawScene = (now: number) => {
-    gl.clearColor(10 / 255, 25 / 255, 35 / 255, 1); // Clear to black, fully opaque
-    gl.clearDepth(1.0); // Clear everything
-    gl.enable(gl.DEPTH_TEST); // Enable depth testing
-    gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-
-    // Clear the canvas before we start drawing on it.
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    map.draw(projectionMatrix, now);
-  };
-
-  const frameCallback = (now: number, newParams?: MapParams) => {
-    now *= 0.001; // convert to seconds
-
-    if (newParams) {
-      map.setLocation(newParams.location, newParams.connectionState, now);
-    }
-
-    drawScene(now);
-  };
-
-  return frameCallback;
 }
 
 function setGlOptions(gl: WebGL2RenderingContext) {
@@ -220,4 +193,16 @@ function getProjectionMatrix(gl: WebGL2RenderingContext): mat4 {
   mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
   return projectionMatrix;
+}
+
+function drawScene(gl: WebGL2RenderingContext, map: GLMap, projectionMatrix: mat4, now: number) {
+  gl.clearColor(10 / 255, 25 / 255, 35 / 255, 1); // Clear to black, fully opaque
+  gl.clearDepth(1.0); // Clear everything
+  gl.enable(gl.DEPTH_TEST); // Enable depth testing
+  gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+
+  // Clear the canvas before we start drawing on it.
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  map.draw(projectionMatrix, now);
 }
