@@ -12,6 +12,8 @@ import TunnelObfuscation
 
 public protocol ProtocolObfuscation {
     func obfuscate(_ endpoint: MullvadEndpoint, settings: Settings, retryAttempts: UInt) -> MullvadEndpoint
+    var transportLayer: TransportLayer? { get }
+    var remotePort: UInt16 { get }
 }
 
 public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscation {
@@ -28,8 +30,15 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     ///   - settings: Whether obfuscation should be used or not.
     ///   - retryAttempts: The number of times a connection was attempted to `endpoint`
     /// - Returns: `endpoint` if obfuscation is disabled, or an obfuscated endpoint otherwise.
+    public var transportLayer: TransportLayer? {
+        return tunnelObfuscator?.transportLayer
+    }
+
+    private(set) public var remotePort: UInt16 = 0
+
     public func obfuscate(_ endpoint: MullvadEndpoint, settings: Settings, retryAttempts: UInt = 0) -> MullvadEndpoint {
         var obfuscatedEndpoint = endpoint
+        remotePort = endpoint.ipv4Relay.port
         let shouldObfuscate = switch settings.obfuscation.state {
         case .automatic:
             retryAttempts % 4 == 2 || retryAttempts % 4 == 3
@@ -51,6 +60,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
             remoteAddress: obfuscatedEndpoint.ipv4Relay.ip,
             tcpPort: tcpPort.portValue
         )
+        remotePort = tcpPort.portValue
         obfuscator.start()
         tunnelObfuscator = obfuscator
 

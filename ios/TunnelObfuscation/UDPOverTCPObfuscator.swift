@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import Network
 import TunnelObfuscatorProxy
 
@@ -15,6 +16,9 @@ public protocol TunnelObfuscation {
     func start()
     func stop()
     var localUdpPort: UInt16 { get }
+    var remotePort: UInt16 { get }
+
+    var transportLayer: TransportLayer { get }
 }
 
 /// Class that implements UDP over TCP obfuscation by accepting traffic on a local UDP port and proxying it over TCP to the remote endpoint.
@@ -31,6 +35,10 @@ public final class UDPOverTCPObfuscator: TunnelObfuscation {
     public var localUdpPort: UInt16 {
         return stateLock.withLock { proxyHandle.port }
     }
+
+    public var remotePort: UInt16 { tcpPort }
+
+    public var transportLayer: TransportLayer { .tcp }
 
     /// Initialize tunnel obfuscator with remote server address and TCP port where udp2tcp is running.
     public init(remoteAddress: IPAddress, tcpPort: UInt16) {

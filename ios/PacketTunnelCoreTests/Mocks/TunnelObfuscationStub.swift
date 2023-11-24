@@ -7,10 +7,13 @@
 //
 
 import Foundation
+@testable import MullvadTypes
 import Network
 @testable import TunnelObfuscation
 
 struct TunnelObfuscationStub: TunnelObfuscation {
+    var transportLayer: TransportLayer { .udp }
+
     let remotePort: UInt16
     init(remoteAddress: IPAddress, tcpPort: UInt16) {
         remotePort = tcpPort
