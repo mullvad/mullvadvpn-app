@@ -1,9 +1,9 @@
 package net.mullvad.lib.map.shapes
 
 import android.content.Context
-import android.opengl.GLES20
-import android.os.Build
+import android.opengl.GLES31
 import android.util.Log
+import java.lang.RuntimeException
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import net.mullvad.mullvadvpn.R
@@ -11,204 +11,203 @@ import net.mullvad.mullvadvpn.R
 class Globe(context: Context) {
     private val vertexShaderCode =
         """
-attribute vec3 aVertexPosition;
-uniform vec4 uColor;
-uniform mat4 uModelViewMatrix;
-uniform mat4 uProjectionMatrix;
-varying lowp vec4 vColor;
-void main(void) {
-    gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
-    vColor = uColor;
-}
+    attribute vec3 aVertexPosition;
+    uniform vec4 uColor;
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+    varying lowp vec4 vColor;
+    void main(void) {
+      gl_Position = uProjectionMatrix * uModelViewMatrix * vec4(aVertexPosition, 1.0);
+      vColor = uColor;
+    }
         """
             .trimIndent()
 
     private val fragmentShaderCode =
         """
-varying lowp vec4 vColor;
-void main(void) {
-    gl_FragColor = vColor;
-}
+    varying lowp vec4 vColor;
+    void main(void) {
+      gl_FragColor = vColor;
+    }
         """
             .trimIndent()
 
-    private val shaderProgram: Int
-    private val vertexShader: Int
-    private val fragmentShader: Int
+    private var shaderProgram: Int = 0
+    private var vertexShader: Int = 0
+    private var fragmentShader: Int = 0
 
-    private val attribLocations: AttribLocations
-    private val uniformLocation: UniformLocation
+    private lateinit var attribLocations: AttribLocations
+    private lateinit var uniformLocation: UniformLocation
 
     data class AttribLocations(val vertexPosition: Int)
 
     data class UniformLocation(val color: Int, val projectionMatrix: Int, val modelViewMatrix: Int)
 
-    data class IndexBuffer(val indexBuffer: Int, val length: Int)
+    data class IndexBufferWithLength(val indexBuffer: Int, val length: Int)
 
     val landColor: FloatArray = floatArrayOf(0.16f, 0.302f, 0.45f, 1.0f)
-//    val oceanColor: FloatArray = floatArrayOf(0.098f, 0.18f, 0.271f, 1.0f)
-    val landIndices: IndexBuffer
-    val landPosBuffer: Int
+    //    val oceanColor: FloatArray = floatArrayOf(0.098f, 0.18f, 0.271f, 1.0f)
+    val landIndices: IndexBufferWithLength
+    val landPositionBuffer: Int
 
     init {
-        vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode)
-        fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode)
 
-        // create empty OpenGL ES Program
-        shaderProgram =
-            GLES20.glCreateProgram().also {
-
-                // add the vertex shader to program
-                GLES20.glAttachShader(it, vertexShader)
-
-                // add the fragment shader to program
-                GLES20.glAttachShader(it, fragmentShader)
-
-                // creates OpenGL ES program executables
-                GLES20.glLinkProgram(it)
-            }
-        Log.d("mullvad", "AAA Globe init $shaderProgram")
-
-        val buffer = IntArray(2)
-        GLES20.glGenBuffers(2, buffer, 0)
-
-        // Load land vertex
         val landPosStream = context.resources.openRawResource(R.raw.land_positions)
-        val landPosByteArray =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                landPosStream.readAllBytes()
-            } else {
-                TODO("VERSION.SDK_INT < TIRAMISU")
-            }
-
-        if(landPosByteArray == null) {
-            throw Exception("landPosByteArray null!")
-        } else {
-            Log.d("mullvad", "landPosByteArray not null")
-        }
-
-        val landPosBufferData = ByteBuffer.wrap(landPosByteArray).asFloatBuffer()
-        if(landPosBufferData == null) {
-            throw Exception("landPosByteArray null!")
-        } else {
-            Log.d("mullvad", "bufferData not null")
-        }
-        landPosBuffer = buffer[0]
-        initArrayBuffer(buffer[0], landPosBufferData)
-
-        Log.d("mullvad", "landPosBufferData loaded")
-        // Load triangles
-        val landTriangleIndicesStream =
-            context.resources.openRawResource(R.raw.land_triangle_indices)
-
-        val landTriangleIndicesByteArray =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                landTriangleIndicesStream.readAllBytes()
-            } else {
-                TODO("VERSION.SDK_INT < TIRAMISU")
-            }
-        val landTriangleIndicesBuffer = ByteBuffer.wrap(landTriangleIndicesByteArray)
-        landIndices = initIndexBuffer(buffer[1], landTriangleIndicesBuffer)
+        val landPosByteArray = landPosStream.use { it.readBytes() }
+        val landPosByteBuffer = ByteBuffer.wrap(landPosByteArray)
 
         Log.d("mullvad", "landTriangleIndices loaded")
-        attribLocations =
-            AttribLocations(GLES20.glGetAttribLocation(shaderProgram, "aVertexPosition"))
+
+        landPositionBuffer = initArrayBuffer(landPosByteBuffer)
+
+        val landTriangleIndicesStream =
+            context.resources.openRawResource(R.raw.land_triangle_indices)
+        val landTriangleIndicesByteArray = landTriangleIndicesStream.use { it.readBytes() }
+
+        // Load triangles
+        val landTriangleIndicesBuffer = ByteBuffer.wrap(landTriangleIndicesByteArray)
+        landIndices = initIndexBuffer(landTriangleIndicesBuffer)
+        // create empty OpenGL ES Program
+        shaderProgram = initShaderProgram(vertexShaderCode, fragmentShaderCode)
+
+
+        attribLocations = AttribLocations(GLES31.glGetAttribLocation(shaderProgram, "aVertexPosition"))
         uniformLocation =
             UniformLocation(
-                color = GLES20.glGetUniformLocation(shaderProgram, "uColor"),
-                projectionMatrix = GLES20.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
-                modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
+                color = GLES31.glGetUniformLocation(shaderProgram, "uColor"),
+                projectionMatrix = GLES31.glGetUniformLocation(shaderProgram, "uProjectionMatrix"),
+                modelViewMatrix = GLES31.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
             )
     }
 
-    fun initArrayBuffer(bufferIndex: Int, dataBuffer: Buffer) {
-        Log.d("mullvad", "AAA initArrayBuffer ${dataBuffer.capacity()}")
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, bufferIndex)
-        Log.d("mullvad", "AAA initArrayBuffer times 4: ${dataBuffer.capacity()*4}")
-        GLES20.glBufferData(
-            GLES20.GL_ARRAY_BUFFER,
-            dataBuffer.capacity() * 4,
-            dataBuffer,
-            GLES20.GL_STATIC_DRAW
-        )
-        Log.d("mullvad", "Post")
+    fun initShaderProgram(vsSource: String, fsSource: String): Int {
+        vertexShader = loadShader(GLES31.GL_VERTEX_SHADER, vsSource)
+        if (vertexShader == -1) {
+            throw Exception("vertexShader == -1")
+        }
+        fragmentShader = loadShader(GLES31.GL_FRAGMENT_SHADER, fsSource)
+        if (fragmentShader == -1) {
+            throw Exception("fragmentShader == -1")
+        }
+
+        val program = GLES31.glCreateProgram()
+        if (program == 0) throw RuntimeException("Could not create program $program")
+
+        // add the vertex shader to program
+        GLES31.glAttachShader(program, vertexShader)
+
+        // add the fragment shader to program
+        GLES31.glAttachShader(program, fragmentShader)
+
+        // creates OpenGL ES program executables
+        GLES31.glLinkProgram(program)
+
+        val linked = IntArray(1)
+        GLES31.glGetProgramiv(program, GLES31.GL_LINK_STATUS, linked, 0)
+        if (linked[0] == GLES31.GL_FALSE) {
+            val infoLog = GLES31.glGetProgramInfoLog(program)
+            Log.e("mullvad", "Could not link program: $infoLog")
+            GLES31.glDeleteProgram(program)
+            return -1
+        }
+
+        return program
     }
 
-    fun initIndexBuffer(bufferIndex: Int, dataBuffer: Buffer): IndexBuffer {
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, bufferIndex)
-        GLES20.glBufferData(
-            GLES20.GL_ELEMENT_ARRAY_BUFFER,
+    fun initArrayBuffer(dataBuffer: Buffer): Int {
+        val buffer = IntArray(1)
+        GLES31.glGenBuffers(1, buffer, 0)
+
+        GLES31.glBindBuffer(GLES31.GL_ARRAY_BUFFER, buffer[0])
+        GLES31.glBufferData(
+            GLES31.GL_ARRAY_BUFFER,
             dataBuffer.capacity(),
             dataBuffer,
-            GLES20.GL_STATIC_DRAW
+            GLES31.GL_STATIC_DRAW
+        )
+        return buffer[0]
+    }
+
+    fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
+
+        val buffer = IntArray(1)
+        GLES31.glGenBuffers(1, buffer, 0)
+
+        GLES31.glBindBuffer(GLES31.GL_ELEMENT_ARRAY_BUFFER, buffer[0])
+        GLES31.glBufferData(
+            GLES31.GL_ELEMENT_ARRAY_BUFFER,
+            dataBuffer.capacity(),
+            dataBuffer,
+            GLES31.GL_STATIC_DRAW
         )
 
-        return IndexBuffer(indexBuffer = bufferIndex, length = dataBuffer.capacity() / 4)
+        return IndexBufferWithLength(indexBuffer = buffer[0], length = dataBuffer.capacity() / 4)
     }
 
     fun loadShader(type: Int, shaderCode: String): Int {
 
-        // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
-        // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
-        return GLES20.glCreateShader(type).also { shader ->
+        // create a vertex shader type (GLES31.GL_VERTEX_SHADER)
+        // or a fragment shader type (GLES31.GL_FRAGMENT_SHADER)
+        val shader = GLES31.glCreateShader(type)
 
-            // add the source code to the shader and compile it
-            GLES20.glShaderSource(shader, shaderCode)
-            GLES20.glCompileShader(shader)
+        if (shader == 0) {
+            return -1
         }
+        // add the source code to the shader and compile it
+        GLES31.glShaderSource(shader, shaderCode)
+        GLES31.glCompileShader(shader)
+
+        val compiled = IntArray(1)
+        GLES31.glGetShaderiv(shader, GLES31.GL_COMPILE_STATUS, compiled, 0)
+        if (compiled[0] == GLES31.GL_FALSE) {
+            val infoLog = GLES31.glGetShaderInfoLog(shader)
+            Log.e("mullvad", "Could not compile shader $type:$infoLog")
+            GLES31.glDeleteShader(shader)
+            return -1
+        }
+
+        return shader
     }
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray) {
         val globeViewMatrix = viewMatrix.clone()
 
         // Add program to OpenGL ES environment
-        GLES20.glUseProgram(shaderProgram)
+        GLES31.glUseProgram(shaderProgram)
 
         drawBufferElements(
-            GLES20.GL_TRIANGLES,
-            landPosBuffer,
+            projectionMatrix,
+            globeViewMatrix,
+            landPositionBuffer,
             landIndices,
             landColor,
-            projectionMatrix,
-            globeViewMatrix
+            GLES31.GL_TRIANGLES,
         )
     }
 
     fun drawBufferElements(
-        mode: Int,
-        positionBuffer: Int,
-        indexBuffer: IndexBuffer,
-        color: FloatArray,
         projectionMatrix: FloatArray,
         modelViewMatrix: FloatArray,
+        positionBuffer: Int,
+        indexBuffer: IndexBufferWithLength,
+        color: FloatArray,
+        mode: Int,
     ) {
-        GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, positionBuffer)
-        GLES20.glVertexAttribPointer(
+        GLES31.glBindBuffer(GLES31.GL_ARRAY_BUFFER, positionBuffer)
+        GLES31.glVertexAttribPointer(
             attribLocations.vertexPosition,
             3, // Num components
-            GLES20.GL_FLOAT,
+            GLES31.GL_FLOAT,
             false,
             0,
             0,
         )
-        GLES20.glEnableVertexAttribArray(attribLocations.vertexPosition)
+        GLES31.glEnableVertexAttribArray(attribLocations.vertexPosition)
 
-        GLES20.glBindBuffer(GLES20.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.indexBuffer)
-        GLES20.glUniform4fv(uniformLocation.color, color.size, color, 0)
-        GLES20.glUniformMatrix4fv(
-            uniformLocation.projectionMatrix,
-            projectionMatrix.size,
-            false,
-            projectionMatrix,
-            0
-        )
-        GLES20.glUniformMatrix4fv(
-            uniformLocation.modelViewMatrix,
-            modelViewMatrix.size,
-            false,
-            modelViewMatrix,
-            0
-        )
-        GLES20.glDrawElements(mode, indexBuffer.length, GLES20.GL_UNSIGNED_INT, 0)
+        GLES31.glBindBuffer(GLES31.GL_ELEMENT_ARRAY_BUFFER, indexBuffer.indexBuffer)
+        GLES31.glUniform4fv(uniformLocation.color, 1, color, 0)
+        GLES31.glUniformMatrix4fv(uniformLocation.projectionMatrix, 1, false, projectionMatrix, 0)
+        GLES31.glUniformMatrix4fv(uniformLocation.modelViewMatrix, 1, false, modelViewMatrix, 0)
+        GLES31.glDrawElements(mode, indexBuffer.length, GLES31.GL_UNSIGNED_INT, 0)
     }
 }
