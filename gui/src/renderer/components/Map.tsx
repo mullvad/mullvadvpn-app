@@ -86,7 +86,7 @@ function MapInner(props: MapParams) {
 
       updateCanvasSize(canvas);
 
-      const innerFrameCallback = getAnimationFramCallback(
+      const innerFrameCallback = getAnimationFrameCallback(
         canvas,
         await getMapData(),
         props.location,
@@ -154,7 +154,7 @@ function MapInner(props: MapParams) {
 
 type AnimationFrameCallback = (now: number, newParams?: MapParams) => void;
 
-function getAnimationFramCallback(
+function getAnimationFrameCallback(
   canvas: HTMLCanvasElement,
   data: MapData,
   startingCoordinate: Coordinate,

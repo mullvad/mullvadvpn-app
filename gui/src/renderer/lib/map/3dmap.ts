@@ -92,8 +92,7 @@ export class Coordinate {
   }
 }
 
-// Class for drawing earth. Relies on a global constant `landData` being defined.
-// It also relies on a global constant `oceanData` with the following format:
+// Class for drawing earth.
 class Globe {
   private static vsSource = `
     attribute vec3 aVertexPosition;
