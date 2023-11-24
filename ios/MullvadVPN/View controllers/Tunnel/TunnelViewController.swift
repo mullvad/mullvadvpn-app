@@ -16,6 +16,7 @@ class TunnelViewController: UIViewController, RootContainment {
     private let interactor: TunnelViewControllerInteractor
     private let contentView = TunnelControlView(frame: CGRect(x: 0, y: 0, width: 320, height: 480))
     private var tunnelState: TunnelState = .disconnected
+    private var viewModel = TunnelControlViewModel.empty
 
     var shouldShowSelectLocationPicker: (() -> Void)?
     var shouldShowCancelTunnelAlert: (() -> Void)?
@@ -61,10 +62,11 @@ class TunnelViewController: UIViewController, RootContainment {
 
         interactor.didUpdateTunnelStatus = { [weak self] tunnelStatus in
             self?.setTunnelState(tunnelStatus.state, animated: true)
+            self?.updateViewModel(tunnelStatus: tunnelStatus)
         }
 
         interactor.didGetOutGoingAddress = { [weak self] outgoingConnectionInfo in
-            self?.contentView.update(from: outgoingConnectionInfo)
+            self?.updateViewModel(outgoingConnectionInfo: outgoingConnectionInfo)
         }
 
         contentView.actionHandler = { [weak self] action in
@@ -94,8 +96,21 @@ class TunnelViewController: UIViewController, RootContainment {
         addContentView()
 
         tunnelState = interactor.tunnelStatus.state
-        updateContentView(animated: false)
         updateMap(animated: false)
+        updateViewModel(tunnelStatus: interactor.tunnelStatus)
+    }
+
+    func updateViewModel(
+        tunnelStatus: TunnelStatus? = nil,
+        outgoingConnectionInfo: OutgoingConnectionInfo? = nil
+    ) {
+        if let tunnelStatus {
+            viewModel = viewModel.update(status: tunnelStatus)
+        }
+        if let outgoingConnectionInfo {
+            viewModel = viewModel.update(outgoingConnectionInfo: outgoingConnectionInfo)
+        }
+        contentView.update(with: viewModel)
     }
 
     override func viewWillTransition(
@@ -104,9 +119,7 @@ class TunnelViewController: UIViewController, RootContainment {
     ) {
         super.viewWillTransition(to: size, with: coordinator)
 
-        coordinator.animate(alongsideTransition: nil, completion: { context in
-            self.updateContentView(animated: context.isAnimated)
-        })
+        contentView.update(with: viewModel)
     }
 
     func setMainContentHidden(_ isHidden: Bool, animated: Bool) {
@@ -129,7 +142,6 @@ class TunnelViewController: UIViewController, RootContainment {
 
         guard isViewLoaded else { return }
 
-        updateContentView(animated: animated)
         updateMap(animated: animated)
     }
 
@@ -165,10 +177,6 @@ class TunnelViewController: UIViewController, RootContainment {
             contentView.setAnimatingActivity(false)
             mapViewController.setCenter(nil, animated: animated)
         }
-    }
-
-    private func updateContentView(animated: Bool) {
-        contentView.update(from: tunnelState, animated: animated)
     }
 
     private func addMapController() {

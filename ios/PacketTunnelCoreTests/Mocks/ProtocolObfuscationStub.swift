@@ -14,4 +14,6 @@ struct ProtocolObfuscationStub: ProtocolObfuscation {
     func obfuscate(_ endpoint: MullvadEndpoint, settings: Settings, retryAttempts: UInt) -> MullvadEndpoint {
         endpoint
     }
+
+    var transportLayer: TransportLayer? { .udp }
 }

@@ -127,6 +127,11 @@ struct ConnectionState {
         let (value, isOverflow) = connectionAttemptCount.addingReportingOverflow(1)
         connectionAttemptCount = isOverflow ? 0 : value
     }
+
+    /// The actual endpoint fed to WireGuard, can be a local endpoint if obfuscation is used.
+    public let connectedEndpoint: MullvadEndpoint
+    /// Via which transport protocol was the connection made to the relay
+    public let transportLayer: TransportLayer
 }
 
 /// Data associated with error state.

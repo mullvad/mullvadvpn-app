@@ -12,6 +12,7 @@ import TunnelObfuscation
 
 public protocol ProtocolObfuscation {
     func obfuscate(_ endpoint: MullvadEndpoint, settings: Settings, retryAttempts: UInt) -> MullvadEndpoint
+    var transportLayer: TransportLayer? { get }
 }
 
 public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscation {
@@ -28,6 +29,11 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     ///   - settings: Whether obfuscation should be used or not.
     ///   - retryAttempts: The number of times a connection was attempted to `endpoint`
     /// - Returns: `endpoint` if obfuscation is disabled, or an obfuscated endpoint otherwise.
+    public var transportLayer: TransportLayer? {
+        guard let tunnelObfuscator else { return nil }
+        return tunnelObfuscator.transportLayer
+    }
+
     public func obfuscate(_ endpoint: MullvadEndpoint, settings: Settings, retryAttempts: UInt = 0) -> MullvadEndpoint {
         var obfuscatedEndpoint = endpoint
         let shouldObfuscate = switch settings.obfuscation.state {

@@ -8,6 +8,7 @@
 
 import MapKit
 import MullvadTypes
+import PacketTunnelCore
 import UIKit
 
 enum TunnelControlAction {
@@ -99,7 +100,7 @@ final class TunnelControlView: UIView {
     }()
 
     private var traitConstraints = [NSLayoutConstraint]()
-    private var tunnelState: TunnelState = .disconnected
+    private var viewModel: TunnelControlViewModel?
 
     var actionHandler: ((TunnelControlAction) -> Void)?
 
@@ -135,24 +136,41 @@ final class TunnelControlView: UIView {
 
         if previousTraitCollection?.userInterfaceIdiom != traitCollection.userInterfaceIdiom ||
             previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass {
-            updateActionButtons()
+            if let viewModel {
+                updateActionButtons(tunnelState: viewModel.tunnelStatus.state)
+            }
         }
     }
 
-    func update(from tunnelState: TunnelState, animated: Bool) {
-        self.tunnelState = tunnelState
+    func update(with model: TunnelControlViewModel) {
+        viewModel = model
+        let tunnelState = model.tunnelStatus.state
+        connectionPanel.dataSource = model.connectionPanel
+        secureLabel.text = model.secureLabelText
+        secureLabel.textColor = tunnelState.textColorForSecureLabel
+        selectLocationButtonBlurView.isEnabled = model.enableButtons
+        connectButtonBlurView.isEnabled = model.enableButtons
+        cityLabel.attributedText = attributedStringForLocation(string: model.city)
+        countryLabel.attributedText = attributedStringForLocation(string: model.country)
+        connectionPanel.connectedRelayName = model.connectedRelayName
 
-        updateSecureLabel()
-        updateActionButtons()
-        updateTunnelRelay()
-    }
-
-    func update(from outgoingConnectionInfo: OutgoingConnectionInfo) {
-        if let tunnelRelay = tunnelState.relay {
+        if let tunnelRelay = model.tunnelStatus.state.relay {
+            var protocolLayer = ""
+            if case let .connected(state) = model.tunnelStatus.observedState {
+                protocolLayer = state.transportLayer == .tcp ? "TCP" : "UDP"
+            }
             connectionPanel.dataSource = ConnectionPanelData(
-                inAddress: "\(tunnelRelay.endpoint.ipv4Relay) UDP",
-                outAddress: outgoingConnectionInfo.outAddress
+                inAddress: "\(tunnelRelay.endpoint.ipv4Relay) \(protocolLayer)",
+                outAddress: model.connectionPanel.outAddress
             )
+        }
+
+        updateSecureLabel(tunnelState: tunnelState)
+        updateActionButtons(tunnelState: tunnelState)
+        if tunnelState.isSecured {
+            updateTunnelRelay(tunnelRelay: tunnelState.relay)
+        } else {
+            updateTunnelRelay(tunnelRelay: nil)
         }
     }
 
@@ -164,21 +182,21 @@ final class TunnelControlView: UIView {
         }
     }
 
-    private func updateActionButtons() {
+    private func updateActionButtons(tunnelState: TunnelState) {
         let actionButtons = tunnelState.actionButtons(traitCollection: traitCollection)
         let views = actionButtons.map { self.view(forActionButton: $0) }
 
-        updateButtonTitles()
-        updateButtonEnabledStates()
+        updateButtonTitles(tunnelState: tunnelState)
+        updateButtonEnabledStates(shouldEnableButtons: tunnelState.shouldEnableButtons)
         setArrangedButtons(views)
     }
 
-    private func updateSecureLabel() {
+    private func updateSecureLabel(tunnelState: TunnelState) {
         secureLabel.text = tunnelState.localizedTitleForSecureLabel.uppercased()
         secureLabel.textColor = tunnelState.textColorForSecureLabel
     }
 
-    private func updateButtonTitles() {
+    private func updateButtonTitles(tunnelState: TunnelState) {
         connectButton.setTitle(
             NSLocalizedString(
                 "CONNECT_BUTTON_TITLE",
@@ -215,15 +233,13 @@ final class TunnelControlView: UIView {
         )
     }
 
-    private func updateButtonEnabledStates() {
-        let shouldEnableButtons = tunnelState.shouldEnableButtons
-
+    private func updateButtonEnabledStates(shouldEnableButtons: Bool) {
         selectLocationButtonBlurView.isEnabled = shouldEnableButtons
         connectButtonBlurView.isEnabled = shouldEnableButtons
     }
 
-    private func updateTunnelRelay() {
-        if let tunnelRelay = tunnelState.relay {
+    private func updateTunnelRelay(tunnelRelay: SelectedRelay?) {
+        if let tunnelRelay {
             cityLabel.attributedText = attributedStringForLocation(
                 string: tunnelRelay.location.city
             )
@@ -231,11 +247,6 @@ final class TunnelControlView: UIView {
                 string: tunnelRelay.location.country
             )
 
-            connectionPanel.dataSource = ConnectionPanelData(
-                // TODO: - UDP shouldn't  be hardcoded after tunnel obfuscation
-                inAddress: "\(tunnelRelay.endpoint.ipv4Relay) UDP",
-                outAddress: nil
-            )
             connectionPanel.isHidden = false
             connectionPanel.connectedRelayName = tunnelRelay.hostname
         } else {
@@ -245,7 +256,7 @@ final class TunnelControlView: UIView {
             connectionPanel.isHidden = true
         }
 
-        locationContainerView.accessibilityLabel = tunnelState.localizedAccessibilityLabel
+        locationContainerView.accessibilityLabel = viewModel?.tunnelStatus.state.localizedAccessibilityLabel
     }
 
     // MARK: - Private

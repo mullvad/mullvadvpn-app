@@ -28,6 +28,7 @@ public struct ObservedConnectionState: Equatable, Codable {
     public var relayConstraints: RelayConstraints
     public var networkReachability: NetworkReachability
     public var connectionAttemptCount: UInt
+    public var transportLayer: TransportLayer
     public var lastKeyRotation: Date?
 
     public var isNetworkReachable: Bool {
@@ -39,12 +40,14 @@ public struct ObservedConnectionState: Equatable, Codable {
         relayConstraints: RelayConstraints,
         networkReachability: NetworkReachability,
         connectionAttemptCount: UInt,
+        transportLayer: TransportLayer,
         lastKeyRotation: Date? = nil
     ) {
         self.selectedRelay = selectedRelay
         self.relayConstraints = relayConstraints
         self.networkReachability = networkReachability
         self.connectionAttemptCount = connectionAttemptCount
+        self.transportLayer = transportLayer
         self.lastKeyRotation = lastKeyRotation
     }
 }
@@ -85,6 +88,7 @@ extension ConnectionState {
             relayConstraints: relayConstraints,
             networkReachability: networkReachability,
             connectionAttemptCount: connectionAttemptCount,
+            transportLayer: transportLayer,
             lastKeyRotation: lastKeyRotation
         )
     }

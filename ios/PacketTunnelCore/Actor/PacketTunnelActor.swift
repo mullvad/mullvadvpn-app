@@ -228,7 +228,7 @@ extension PacketTunnelActor {
     ) async throws {
         let settings: Settings = try settingsReader.read()
 
-        guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason),
+        guard let connectionState = try obfuscateConnection(nextRelay: nextRelay, settings: settings, reason: reason),
               let targetState = state.targetStateForReconnect else { return }
 
         let activeKey: PrivateKey
@@ -246,18 +246,11 @@ extension PacketTunnelActor {
             state = .reconnecting(connectionState)
         }
 
-        var endpoint = connectionState.selectedRelay.endpoint
-        endpoint = protocolObfuscator.obfuscate(
-            endpoint,
-            settings: settings,
-            retryAttempts: connectionState.selectedRelay.retryAttempts
-        )
-
         let configurationBuilder = ConfigurationBuilder(
             privateKey: activeKey,
             interfaceAddresses: settings.interfaceAddresses,
             dns: settings.dnsServers,
-            endpoint: endpoint
+            endpoint: connectionState.connectedEndpoint
         )
 
         /*
@@ -276,7 +269,7 @@ extension PacketTunnelActor {
         try await tunnelAdapter.start(configuration: configurationBuilder.makeConfiguration())
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
-        tunnelMonitor.start(probeAddress: endpoint.ipv4Gateway)
+        tunnelMonitor.start(probeAddress: connectionState.selectedRelay.endpoint.ipv4Gateway)
     }
 
     /**
@@ -343,6 +336,34 @@ extension PacketTunnelActor {
         }
     }
 
+    private func obfuscateConnection(
+        nextRelay: NextRelay,
+        settings: Settings,
+        reason: ReconnectReason
+    ) throws -> ConnectionState? {
+        guard let connectionState = try makeConnectionState(nextRelay: nextRelay, settings: settings, reason: reason)
+        else { return nil }
+
+        let obfuscatedEndpoint = protocolObfuscator.obfuscate(
+            connectionState.selectedRelay.endpoint,
+            settings: settings,
+            retryAttempts: connectionState.selectedRelay.retryAttempts
+        )
+
+        let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
+        return ConnectionState(
+            selectedRelay: connectionState.selectedRelay,
+            relayConstraints: connectionState.relayConstraints,
+            currentKey: settings.privateKey,
+            keyPolicy: connectionState.keyPolicy,
+            networkReachability: connectionState.networkReachability,
+            connectionAttemptCount: connectionState.connectionAttemptCount,
+            lastKeyRotation: connectionState.lastKeyRotation,
+            connectedEndpoint: obfuscatedEndpoint,
+            transportLayer: transportLayer
+        )
+    }
+
     /**
      Create a connection state when `State` is either `.inital` or `.error`.
 
@@ -365,19 +386,22 @@ extension PacketTunnelActor {
         let relayConstraints = settings.relayConstraints
         let privateKey = settings.privateKey
 
+        let selectedRelay = try selectRelay(
+            nextRelay: nextRelay,
+            relayConstraints: relayConstraints,
+            currentRelay: nil,
+            connectionAttemptCount: 0
+        )
         return ConnectionState(
-            selectedRelay: try selectRelay(
-                nextRelay: nextRelay,
-                relayConstraints: relayConstraints,
-                currentRelay: nil,
-                connectionAttemptCount: 0
-            ),
+            selectedRelay: selectedRelay,
             relayConstraints: relayConstraints,
             currentKey: privateKey,
             keyPolicy: keyPolicy,
             networkReachability: networkReachability,
             connectionAttemptCount: 0,
-            lastKeyRotation: lastKeyRotation
+            lastKeyRotation: lastKeyRotation,
+            connectedEndpoint: selectedRelay.endpoint,
+            transportLayer: .udp
         )
     }
 
