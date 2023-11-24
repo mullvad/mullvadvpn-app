@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
+import net.mullvad.lib.map.MullvadMap
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
@@ -182,12 +182,13 @@ fun ConnectScreen(
         deviceName = uiState.deviceName,
         timeLeft = uiState.daysLeftUntilExpiry
     ) {
+        MullvadMap()
         Column(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.Start,
             modifier =
-                Modifier.background(color = MaterialTheme.colorScheme.primary)
-                    .padding(it)
+                Modifier.padding(it)
+                    // .background(color = MaterialTheme.colorScheme.primary)
                     .fillMaxHeight()
                     .drawVerticalScrollbar(
                         scrollState,
