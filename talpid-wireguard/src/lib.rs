@@ -880,6 +880,10 @@ impl WireguardMonitor {
 
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
 
+        #[cfg(target_os = "linux")]
+        let gateway_routes =
+            gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
+
         let routes = gateway_routes.chain(
             Self::get_tunnel_destinations(config)
                 .filter(|allowed_ip| allowed_ip.prefix() != 0)
@@ -916,6 +920,29 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "linux")]
         iter.map(|route| route.use_main_table(false))
+            .map(|route| Self::apply_route_mtu_for_multihop(route, config))
+    }
+
+    #[cfg(target_os = "linux")]
+    fn apply_route_mtu_for_multihop(route: RequiredRoute, config: &Config) -> RequiredRoute {
+        if config.peers.len() == 1 {
+            route
+        } else {
+            // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU.
+            // NOTE: Somewhat incorrect since it doesn't account for packet padding/alignment?
+            // TODO: Move consts to shared location
+            const IPV4_HEADER_SIZE: u16 = 20;
+            const IPV6_HEADER_SIZE: u16 = 40;
+            const WIREGUARD_HEADER_SIZE: u16 = 40;
+
+            let ip_overhead = match route.prefix.is_ipv4() {
+                true => IPV4_HEADER_SIZE,
+                false => IPV6_HEADER_SIZE,
+            };
+            let mtu = config.mtu - ip_overhead - WIREGUARD_HEADER_SIZE;
+
+            route.mtu(mtu)
+        }
     }
 
     /// Return routes for all allowed IPs.
