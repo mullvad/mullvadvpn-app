@@ -811,12 +811,12 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
         listen_port: 0,
         private_key: config.tunnel.private_key.to_bytes(),
         public_key: [0u8; WIREGUARD_KEY_LENGTH],
-        peers_count: u32::try_from(config.peers.len()).unwrap(),
+        peers_count: u32::try_from(config.peers().count()).unwrap(),
     };
 
     buffer.extend(as_uninit_byte_slice(&header));
 
-    for peer in &config.peers {
+    for peer in config.peers() {
         let flags = if peer.psk.is_some() {
             WgPeerFlag::HAS_PRESHARED_KEY | WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT
         } else {
