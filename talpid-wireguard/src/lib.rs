@@ -93,10 +93,6 @@ pub enum Error {
     #[error(display = "Failed to negotiate PQ PSK")]
     PskNegotiationError(#[error(source)] talpid_tunnel_config_client::Error),
 
-    /// Too many peers in the config
-    #[error(display = "There are too many peers in the tunnel config")]
-    TooManyPeers,
-
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
     #[error(display = "Failed to set up IP interfaces")]
@@ -256,7 +252,7 @@ impl WireguardMonitor {
         // properly so fragmentation does not happen.
         let init_tunnel_config = if cfg!(target_os = "macos") {
             let mut init_tunnel_config = config.clone();
-            if psk_negotiation && config.peers.len() > 1 {
+            if psk_negotiation && config.is_multihop() {
                 const MH_PQ_HANDSHAKE_MTU: u16 = 1280;
                 init_tunnel_config.mtu = MH_PQ_HANDSHAKE_MTU;
             }
@@ -457,7 +453,7 @@ impl WireguardMonitor {
             talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
             TransportProtocol::Tcp,
         );
-        let allowed_traffic = if config.peers.len() > 1 {
+        let allowed_traffic = if config.is_multihop() {
             // NOTE: We need to let traffic meant for the exit IP through the firewall. This
             // should not allow any non-PQ traffic to leak since you can only reach the
             // exit peer with these rules and not the broader internet.
@@ -480,10 +476,7 @@ impl WireguardMonitor {
 
         let mut entry_psk = None;
 
-        if config.peers.len() > 1 {
-            if config.peers.len() != 2 {
-                return Err(CloseMsg::TooManyPeers);
-            }
+        if config.is_multihop() {
             // Set up tunnel to lead to entry
             let mut entry_tun_config = config.clone();
             entry_tun_config
@@ -700,7 +693,7 @@ impl WireguardMonitor {
         const MIN_IPV4_MTU: u16 = 576;
         const MIN_IPV6_MTU: u16 = 1280;
 
-        if config.peers.len() == 1 {
+        if !config.is_multihop() {
             return None;
         }
 
@@ -800,7 +793,6 @@ impl WireguardMonitor {
             Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
             Ok(CloseMsg::SetupError(error)) => Err(error),
             Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
-            Ok(CloseMsg::TooManyPeers) => Err(Error::TooManyPeers),
             Err(_) => Ok(()),
         };
 
@@ -925,7 +917,7 @@ impl WireguardMonitor {
 
     #[cfg(target_os = "linux")]
     fn apply_route_mtu_for_multihop(route: RequiredRoute, config: &Config) -> RequiredRoute {
-        if config.peers.len() == 1 {
+        if !config.is_multihop() {
             route
         } else {
             // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU.
@@ -989,7 +981,6 @@ enum CloseMsg {
     SetupError(Error),
     ObfuscatorExpired,
     ObfuscatorFailed(Error),
-    TooManyPeers,
 }
 
 pub(crate) trait Tunnel: Send {

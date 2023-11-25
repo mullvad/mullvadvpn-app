@@ -154,6 +154,15 @@ impl Config {
         let bytes = wg_conf.into_config();
         CString::new(bytes).expect("null bytes inside config")
     }
+
+    /// Return whether the config connects to an exit peer from another remote peer.
+    ///
+    /// This relies on the assumption that multiple peers imply that multihop is used. This is
+    /// misguided in principle but happens to work given that normally only one peer will be
+    /// present.
+    pub fn is_multihop(&self) -> bool {
+        self.peers.len() > 1
+    }
 }
 
 enum ConfValue<'a> {
