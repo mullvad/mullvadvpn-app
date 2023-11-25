@@ -130,7 +130,7 @@ fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
     );
     wireguard_config.insert("private-key-flags".into(), Variant(Box::new(0x0u32)));
 
-    for peer in config.peers.iter() {
+    for peer in config.peers() {
         let mut peer_config: VariantMap = HashMap::new();
         let allowed_ips = peer
             .allowed_ips

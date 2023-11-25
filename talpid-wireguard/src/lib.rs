@@ -93,10 +93,6 @@ pub enum Error {
     #[error(display = "Failed to negotiate PQ PSK")]
     PskNegotiationError(#[error(source)] talpid_tunnel_config_client::Error),
 
-    /// Too many peers in the config
-    #[error(display = "There are too many peers in the tunnel config")]
-    TooManyPeers,
-
     /// Failed to set up IP interfaces.
     #[cfg(windows)]
     #[error(display = "Failed to set up IP interfaces")]
@@ -171,10 +167,6 @@ async fn maybe_create_obfuscator(
     config: &mut Config,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
 ) -> Result<Option<ObfuscatorHandle>> {
-    // There are one or two peers.
-    // The first one is always the entry relay.
-    let first_peer = config.peers.get_mut(0).expect("missing peer");
-
     if let Some(ref obfuscator_config) = config.obfuscator_config {
         match obfuscator_config {
             ObfuscatorConfig::Udp2Tcp { endpoint } => {
@@ -190,7 +182,7 @@ async fn maybe_create_obfuscator(
                 let endpoint = obfuscator.endpoint();
 
                 log::trace!("Patching first WireGuard peer to become {:?}", endpoint);
-                first_peer.endpoint = endpoint;
+                config.entry_peer.endpoint = endpoint;
 
                 #[cfg(target_os = "android")]
                 let remote_socket_fd = obfuscator.remote_socket_fd();
@@ -238,8 +230,7 @@ impl WireguardMonitor {
     ) -> Result<WireguardMonitor> {
         let on_event = args.on_event.clone();
 
-        let endpoint_addrs: Vec<IpAddr> =
-            config.peers.iter().map(|peer| peer.endpoint.ip()).collect();
+        let endpoint_addrs: Vec<IpAddr> = config.peers().map(|peer| peer.endpoint.ip()).collect();
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         let obfuscator = args.runtime.block_on(maybe_create_obfuscator(
@@ -256,7 +247,7 @@ impl WireguardMonitor {
         // properly so fragmentation does not happen.
         let init_tunnel_config = if cfg!(target_os = "macos") {
             let mut init_tunnel_config = config.clone();
-            if psk_negotiation && config.peers.len() > 1 {
+            if psk_negotiation && config.is_multihop() {
                 const MH_PQ_HANDSHAKE_MTU: u16 = 1280;
                 init_tunnel_config.mtu = MH_PQ_HANDSHAKE_MTU;
             }
@@ -457,13 +448,16 @@ impl WireguardMonitor {
             talpid_tunnel_config_client::CONFIG_SERVICE_PORT,
             TransportProtocol::Tcp,
         );
-        let allowed_traffic = if config.peers.len() > 1 {
+        let allowed_traffic = if config.is_multihop() {
             // NOTE: We need to let traffic meant for the exit IP through the firewall. This
             // should not allow any non-PQ traffic to leak since you can only reach the
             // exit peer with these rules and not the broader internet.
             AllowedTunnelTraffic::Two(
                 allowed_traffic,
-                Endpoint::from_socket_address(config.peers[1].endpoint, TransportProtocol::Udp),
+                Endpoint::from_socket_address(
+                    config.exit_peer_mut().endpoint,
+                    TransportProtocol::Udp,
+                ),
             )
         } else {
             AllowedTunnelTraffic::One(allowed_traffic)
@@ -478,18 +472,11 @@ impl WireguardMonitor {
 
         log::debug!("Successfully exchanged PSK with exit peer");
 
-        let mut entry_psk = None;
-
-        if config.peers.len() > 1 {
-            if config.peers.len() != 2 {
-                return Err(CloseMsg::TooManyPeers);
-            }
+        if config.is_multihop() {
             // Set up tunnel to lead to entry
             let mut entry_tun_config = config.clone();
             entry_tun_config
-                .peers
-                .get_mut(0)
-                .expect("entry peer not found")
+                .entry_peer
                 .allowed_ips
                 .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());
 
@@ -503,7 +490,7 @@ impl WireguardMonitor {
                 &tun_provider,
             )
             .await?;
-            entry_psk = Some(
+            let entry_psk = Some(
                 Self::perform_psk_negotiation(
                     retry_attempt,
                     &entry_config,
@@ -513,18 +500,13 @@ impl WireguardMonitor {
                 .await?,
             );
             log::debug!("Successfully exchanged PSK with entry peer");
+
+            config.entry_peer.psk = entry_psk;
         }
 
-        // Set new priv key and psks
+        config.exit_peer_mut().psk = Some(exit_psk);
+
         config.tunnel.private_key = wg_psk_privkey;
-        if let Some(entry_psk) = entry_psk {
-            // The first peer is the entry peer and there is guaranteed to be a second peer
-            // which is the exit
-            config.peers.get_mut(0).expect("entry peer not found").psk = Some(entry_psk);
-            config.peers.get_mut(1).expect("exit peer not found").psk = Some(exit_psk);
-        } else {
-            config.peers.get_mut(0).expect("peer not found").psk = Some(exit_psk);
-        }
 
         *config = Self::reconfigure_tunnel(
             tunnel,
@@ -596,7 +578,7 @@ impl WireguardMonitor {
             let gateway_net_v6 = config
                 .ipv6_gateway
                 .map(|net| ipnetwork::IpNetwork::from(IpAddr::from(net)));
-            for peer in &mut patched_config.peers {
+            for peer in patched_config.peers_mut() {
                 peer.allowed_ips = peer
                     .allowed_ips
                     .iter()
@@ -700,7 +682,7 @@ impl WireguardMonitor {
         const MIN_IPV4_MTU: u16 = 576;
         const MIN_IPV6_MTU: u16 = 1280;
 
-        if config.peers.len() == 1 {
+        if !config.is_multihop() {
             return None;
         }
 
@@ -800,7 +782,6 @@ impl WireguardMonitor {
             Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
             Ok(CloseMsg::SetupError(error)) => Err(error),
             Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
-            Ok(CloseMsg::TooManyPeers) => Err(Error::TooManyPeers),
             Err(_) => Ok(()),
         };
 
@@ -925,7 +906,7 @@ impl WireguardMonitor {
 
     #[cfg(target_os = "linux")]
     fn apply_route_mtu_for_multihop(route: RequiredRoute, config: &Config) -> RequiredRoute {
-        if config.peers.len() == 1 {
+        if !config.is_multihop() {
             route
         } else {
             // Set route MTU by subtracting the WireGuard overhead from the tunnel MTU.
@@ -948,8 +929,7 @@ impl WireguardMonitor {
     /// Return routes for all allowed IPs.
     fn get_tunnel_destinations(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
         config
-            .peers
-            .iter()
+            .peers()
             .flat_map(|peer| peer.allowed_ips.iter())
             .cloned()
     }
@@ -989,7 +969,6 @@ enum CloseMsg {
     SetupError(Error),
     ObfuscatorExpired,
     ObfuscatorFailed(Error),
-    TooManyPeers,
 }
 
 pub(crate) trait Tunnel: Send {
