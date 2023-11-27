@@ -134,7 +134,7 @@ pub async fn merge_validate_patch(
     let mut settings_value: serde_json::Value =
         serde_json::to_value(settings.to_settings()).map_err(Error::SerializeSettings)?;
 
-    let patch_value = friendly_parse_json(json_patch)?;
+    let patch_value = fixup_patch(json_patch)?;
 
     validate_patch_value(PERMITTED_SUBKEYS, &patch_value, 0)?;
     merge_patch_to_value(PERMITTED_SUBKEYS, &mut settings_value, &patch_value, 0)?;
@@ -151,92 +151,26 @@ pub async fn merge_validate_patch(
 }
 
 /// Parse JSON input with some extra leniency.
-fn friendly_parse_json(json_patch: &str) -> Result<serde_json::Value, Error> {
-    let mut patch_value: serde_json::Value =
-        serde_json::from_str(&trim_json(json_patch)).map_err(Error::ParsePatch)?;
-    replace_expected_arrays_with_arrays(PERMITTED_SUBKEYS, &mut patch_value, 0)?;
-    Ok(patch_value)
+fn fixup_patch(json_patch: &str) -> Result<serde_json::Value, Error> {
+    let fixed_patch = add_missing_braces(&remove_comments(json_patch));
+    serde_json::from_str(&fixed_patch).map_err(Error::ParsePatch)
 }
 
-/// Wrap any value expected to be in an array if it's not already an array.
-fn replace_expected_arrays_with_arrays(
-    permitted_key: &'static PermittedKey,
-    patch: &mut serde_json::Value,
-    recurse_level: usize,
-) -> Result<(), Error> {
-    if recurse_level >= RECURSE_LIMIT {
-        return Err(Error::RecursionLimit);
-    }
-
-    match permitted_key.key_type {
-        PermittedKeyValue::Object(subkeys) => {
-            let map = patch.as_object_mut().ok_or(Error::InvalidOrMissingValue(
-                "expected JSON object in patch",
-            ))?;
-            for (k, v) in map.iter_mut() {
-                let Some((_, subkey)) =
-                    subkeys.iter().find(|(permitted_key, _)| k == permitted_key)
-                else {
-                    return Err(Error::UnknownOrProhibitedKey(k.to_owned()));
-                };
-                replace_expected_arrays_with_arrays(subkey, v, recurse_level + 1)?;
-            }
-            Ok(())
-        }
-        PermittedKeyValue::Array(subkey) => {
-            if !patch.is_array() {
-                *patch = serde_json::Value::Array(vec![patch.clone()]);
-            }
-            let values = patch.as_array_mut().unwrap();
-            for v in values {
-                replace_expected_arrays_with_arrays(subkey, v, recurse_level + 1)?;
-            }
-            Ok(())
-        }
-        PermittedKeyValue::Any => Ok(()),
-    }
-}
-
-fn trim_json(json_patch: &str) -> String {
-    // Remove commented lines
-    let mut patch = json_patch
+/// Remove lines beginning with '#'
+fn remove_comments(json_patch: &str) -> String {
+    json_patch
         .lines()
         .filter(|line| !line.trim_start().starts_with('#'))
         .collect::<Vec<_>>()
-        .join("\n");
-    patch = patch.trim_start().to_owned();
+        .join("\n")
+}
 
-    // Add missing outer braces
+/// Wrap input in {} if it isn't already
+fn add_missing_braces(json_patch: &str) -> String {
+    let mut patch = json_patch.trim_start().to_owned();
     if patch.get(0..1) != Some("{") {
         patch = format!("{{\n{patch}\n}}");
     }
-
-    // Removing trailing commas
-    let mut trailing_commas_positions = vec![];
-    let mut quoting = false;
-    let mut escaping = false;
-    for (index, c) in patch.char_indices() {
-        if !escaping && c == '\\' {
-            escaping = true;
-        } else if escaping {
-            escaping = false;
-        } else if c == '"' {
-            quoting = !quoting;
-        } else if c == ',' && !quoting {
-            let remaining_str: &str = &patch[index..];
-            if let Some(c) = remaining_str.chars().skip(1).find(|c| !c.is_whitespace()) {
-                const STOP_PARENS: &str = "]}";
-                if STOP_PARENS.contains(c) {
-                    trailing_commas_positions.push(index);
-                }
-            }
-        }
-    }
-
-    for index in trailing_commas_positions.into_iter().rev() {
-        patch.remove(index);
-    }
-
     patch
 }
 
@@ -392,17 +326,15 @@ fn validate_patch_value(
 }
 
 #[test]
-fn test_trimmed_json() {
+fn test_braces_json() {
     let input = r#"
-        # This is a comment!
-
         "a": [
             {
                 "b": 1,
-                "c": 2,
+                "c": 2
             },
-            {},
-        ],
+            {}
+        ]
     "#;
     let expected = r#"
         {
@@ -416,50 +348,28 @@ fn test_trimmed_json() {
         }
     "#;
 
-    let trimmed = trim_json(input);
+    let fixed_json = add_missing_braces(input);
 
     let expected_parsed: serde_json::Value = serde_json::from_str(expected).unwrap();
-    let trimmed_parsed: serde_json::Value = serde_json::from_str(&trimmed).unwrap();
+    let trimmed_parsed: serde_json::Value = serde_json::from_str(&fixed_json).unwrap();
 
     assert_eq!(trimmed_parsed, expected_parsed);
 }
 
 #[test]
-fn test_implicit_array() {
-    const PERMITTED_SUBKEYS: &PermittedKey = &PermittedKey::object(&[(
-        "relay_overrides",
-        PermittedKey::array(&PermittedKey::object(&[
-            ("hostname", PermittedKey::any()),
-            ("ipv4_addr_in", PermittedKey::any()),
-            ("ipv6_addr_in", PermittedKey::any()),
-        ]))
-        .merge_strategy(MergeStrategy::Custom(merge_relay_overrides)),
-    )]);
+fn test_comment_json() {
     let input = r#"
-        {
-            "relay_overrides": {
-                "hostname": "test",
-                "ipv4_addr_in": "1.2.3.4"
-            }
-        }
+        # This is a comment!
+        {}
     "#;
-    let expected = r#"
-        {
-            "relay_overrides": [
-                {
-                    "hostname": "test",
-                    "ipv4_addr_in": "1.2.3.4"
-                }
-            ]
-        }
-    "#;
+    let expected = "{}";
 
-    let mut input_val: serde_json::Value = serde_json::from_str(input).unwrap();
-    let expected_val: serde_json::Value = serde_json::from_str(expected).unwrap();
+    let fixed_json = remove_comments(input);
 
-    replace_expected_arrays_with_arrays(PERMITTED_SUBKEYS, &mut input_val, 0).unwrap();
+    let expected_parsed: serde_json::Value = serde_json::from_str(expected).unwrap();
+    let trimmed_parsed: serde_json::Value = serde_json::from_str(&fixed_json).unwrap();
 
-    assert_eq!(input_val, expected_val);
+    assert_eq!(trimmed_parsed, expected_parsed);
 }
 
 #[test]
