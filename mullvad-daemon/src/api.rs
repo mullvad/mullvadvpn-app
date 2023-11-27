@@ -105,7 +105,7 @@ impl AccessModeSelectorHandle {
     ///
     /// Practically converts the handle to a listener for when the
     /// currently valid connection modes changes.
-    pub fn as_stream(self) -> impl Stream<Item = ApiConnectionMode> {
+    pub fn into_stream(self) -> impl Stream<Item = ApiConnectionMode> {
         unfold(self, |handle| async move {
             match handle.next().await {
                 Ok(connection_mode) => Some((connection_mode, handle)),
