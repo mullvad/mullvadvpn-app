@@ -78,7 +78,7 @@ class ConnectViewModelTest {
     private val mockLocation: GeoIpLocation = mockk(relaxed = true)
 
     // Account Repository
-    private val mockAccountRepository: AccountRepository = mockk()
+    private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
 
     // Device Repository
     private val mockDeviceRepository: DeviceRepository = mockk()
