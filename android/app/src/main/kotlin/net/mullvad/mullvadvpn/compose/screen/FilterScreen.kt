@@ -88,7 +88,7 @@ fun FilterScreen(
                 Image(
                     painter = painterResource(id = R.drawable.icon_back),
                     contentDescription = null,
-                    modifier = Modifier.size(Dimens.titleIconSize).clickable { onBackClick() }
+                    modifier = Modifier.size(Dimens.titleIconSize).clickable(onClick = onBackClick)
                 )
                 Text(
                     text = stringResource(R.string.filter),
