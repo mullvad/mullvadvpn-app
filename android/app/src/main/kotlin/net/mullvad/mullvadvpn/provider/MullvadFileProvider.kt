@@ -15,7 +15,7 @@ import org.joda.time.format.ISODateTimeFormat
 class MullvadFileProvider : FileProvider(R.xml.provider_paths) {
     companion object {
         fun uriForFile(context: Context, file: File): Uri {
-            return getUriForFile(context, "net.mullvad.mullvadvpn.FileProvider", file)
+            return getUriForFile(context, "${context.packageName}.FileProvider", file)
         }
     }
 }
