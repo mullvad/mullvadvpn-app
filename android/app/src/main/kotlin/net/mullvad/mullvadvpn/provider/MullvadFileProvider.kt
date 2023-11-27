@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.core.content.FileProvider
+import net.mullvad.mullvadvpn.BuildConfig
 import java.io.File
 import net.mullvad.mullvadvpn.R
 import org.joda.time.DateTime
@@ -15,7 +16,7 @@ import org.joda.time.format.ISODateTimeFormat
 class MullvadFileProvider : FileProvider(R.xml.provider_paths) {
     companion object {
         fun uriForFile(context: Context, file: File): Uri {
-            return getUriForFile(context, "net.mullvad.mullvadvpn.FileProvider", file)
+            return getUriForFile(context, "${context.packageName}.FileProvider", file)
         }
     }
 }
