@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
@@ -59,8 +58,9 @@ internal fun CheckboxCell(
                 .padding(start = startPadding, end = endPadding)
     ) {
         Box(
-            modifier = Modifier.size(Dimens.checkBoxSize).background(Color.White, RoundedCornerShape(
-                Dimens.checkBoxCornerShape))
+            modifier = Modifier
+                .size(Dimens.checkBoxSize)
+                .background(Color.White, MaterialTheme.shapes.small)
         ) {
             Checkbox(
                 modifier = Modifier.fillMaxSize(),

@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -39,7 +38,7 @@ private fun PreviewMullvadFilterChip() {
 fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
     FilterChip(
         modifier = Modifier.padding(vertical = Dimens.verticalPadding),
-        shape = RoundedCornerShape(Dimens.chipCornerShape),
+        shape = MaterialTheme.shapes.small,
         colors =
             FilterChipDefaults.filterChipColors(
                 containerColor = MullvadBlue
