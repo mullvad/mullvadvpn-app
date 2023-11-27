@@ -56,7 +56,10 @@ class SelectLocationScreenTest {
                 uiState =
                     SelectLocationUiState.ShowData(
                         countries = DUMMY_RELAY_COUNTRIES,
-                        selectedRelay = null
+                        selectedRelay = null,
+                        selectedOwnership = null,
+                        selectedProvidersCount = 0,
+                        searchTerm = ""
                     ),
                 uiCloseAction = MutableSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
@@ -93,7 +96,10 @@ class SelectLocationScreenTest {
                 uiState =
                     SelectLocationUiState.ShowData(
                         countries = updatedDummyList,
-                        selectedRelay = updatedDummyList[0].cities[0].relays[0]
+                        selectedRelay = updatedDummyList[0].cities[0].relays[0],
+                        selectedOwnership = null,
+                        selectedProvidersCount = 0,
+                        searchTerm = ""
                     ),
                 uiCloseAction = MutableSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
@@ -118,7 +124,13 @@ class SelectLocationScreenTest {
         composeTestRule.setContentWithTheme {
             SelectLocationScreen(
                 uiState =
-                    SelectLocationUiState.ShowData(countries = emptyList(), selectedRelay = null),
+                    SelectLocationUiState.ShowData(
+                        countries = emptyList(),
+                        selectedRelay = null,
+                        selectedOwnership = null,
+                        selectedProvidersCount = 0,
+                        searchTerm = ""
+                    ),
                 uiCloseAction = MutableSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onSearchTermInput = mockedSearchTermInput
@@ -140,7 +152,14 @@ class SelectLocationScreenTest {
         val mockSearchString = "SEARCH"
         composeTestRule.setContentWithTheme {
             SelectLocationScreen(
-                uiState = SelectLocationUiState.NoSearchResultFound(searchTerm = mockSearchString),
+                uiState =
+                    SelectLocationUiState.ShowData(
+                        countries = emptyList(),
+                        selectedRelay = null,
+                        selectedOwnership = null,
+                        selectedProvidersCount = 0,
+                        searchTerm = mockSearchString
+                    ),
                 uiCloseAction = MutableSharedFlow(),
                 enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onSearchTermInput = mockedSearchTermInput
@@ -187,7 +206,7 @@ class SelectLocationScreenTest {
         private val DUMMY_RELAY_COUNTRIES =
             RelayList(
                     arrayListOf(DUMMY_RELAY_COUNTRY_1, DUMMY_RELAY_COUNTRY_2),
-                    DUMMY_WIREGUARD_ENDPOINT_DATA
+                    DUMMY_WIREGUARD_ENDPOINT_DATA,
                 )
                 .toRelayCountries(ownership = Constraint.Any(), providers = Constraint.Any())
     }
