@@ -39,6 +39,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
 import net.mullvad.talpid.tunnel.ErrorState
@@ -88,6 +89,9 @@ class ConnectViewModelTest {
 
     // Relay list use case
     private val mockRelayListUseCase: RelayListUseCase = mockk()
+
+    // Payment use case
+    private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
     // Captures
     private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
@@ -139,7 +143,8 @@ class ConnectViewModelTest {
                 deviceRepository = mockDeviceRepository,
                 inAppNotificationController = mockInAppNotificationController,
                 relayListUseCase = mockRelayListUseCase,
-                newDeviceNotificationUseCase = mockk()
+                newDeviceNotificationUseCase = mockk(),
+                paymentUseCase = mockPaymentUseCase
             )
     }
 
