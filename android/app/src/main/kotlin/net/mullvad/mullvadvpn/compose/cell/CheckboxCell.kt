@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
 
 @Preview
 @Composable
-private fun CheckboxCellPreview() {
+private fun PreviewCheckboxCell() {
     AppTheme { CheckboxCell(providerName = "", checked = false, onCheckedChange = {}) }
 }
 

@@ -31,7 +31,7 @@ class FilterFragment : Fragment() {
                         onSelectedOwnership = vm::setSelectedOwnership,
                         onAllProviderCheckChange = vm::setAllProviders,
                         onSelectedProviders = vm::setSelectedProvider,
-                        uiCloseAction = vm.uiCloseAction,
+                        uiCloseAction = vm.uiSideEffect,
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() },
                         onApplyClick = vm::onApplyButtonClicked
                     )

@@ -23,8 +23,8 @@ import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 class FilterViewModel(
     private val relayListFilterUseCase: RelayListFilterUseCase,
 ) : ViewModel() {
-    private val _closeAction = MutableSharedFlow<Unit>()
-    val uiCloseAction = _closeAction.asSharedFlow()
+    private val _uiSideEffect = MutableSharedFlow<Unit>()
+    val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     private val selectedOwnership = MutableStateFlow<Ownership?>(null)
     private val selectedProviders = MutableStateFlow<List<Provider>>(emptyList())
@@ -101,7 +101,7 @@ class FilterViewModel(
                 newSelectedOwnership,
                 newSelectedProviders
             )
-            _closeAction.emit(Unit)
+            _uiSideEffect.emit(Unit)
         }
     }
 }
