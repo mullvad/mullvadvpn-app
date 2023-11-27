@@ -4,42 +4,11 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
     inputs:
-      macos12:
-        type: boolean
-        default: true
-      macos13:
-        type: boolean
-        default: true
-      macos14:
-        type: boolean
-        default: true
-      debian11:
-        type: boolean
-        default: true
-      debian12:
-        type: boolean
-        default: true
-      ubuntu2004:
-        type: boolean
-        default: true
-      ubuntu2204:
-        type: boolean
-        default: true
-      fedora38:
-        type: boolean
-        default: true
-      fedora37:
-        type: boolean
-        default: true
-      fedora36:
-        type: boolean
-        default: true
-      windows10:
-        type: boolean
-        default: true
-      windows11:
-        type: boolean
-        default: true
+      oses:
+        description: 'List of OSes to run tests on, e.g. "debian11 debian12"'
+        default: ''
+        required: false
+        type: string
 jobs:
   prepare-matrices:
     runs-on: ubuntu-latest
@@ -47,31 +16,42 @@ jobs:
       - name: Generate matrix for Linux builds
         shell: bash
         run: |
-          matrix=()
-          [[ "${{ github.event.inputs.debian11 }}" =~ ^(true|)$ ]] && matrix+=("debian11")
-          [[ "${{ github.event.inputs.debian12 }}" =~ ^(true|)$ ]] && matrix+=("debian12")
-          [[ "${{ github.event.inputs.ubuntu2004 }}" =~ ^(true|)$ ]] && matrix+=("ubuntu2004")
-          [[ "${{ github.event.inputs.ubuntu2204 }}" =~ ^(true|)$ ]] && matrix+=("ubuntu2204")
-          [[ "${{ github.event.inputs.ubuntu2304 }}" =~ ^(true|)$ ]] && matrix+=("ubuntu2304")
-          [[ "${{ github.event.inputs.fedora38 }}" =~ ^(true|)$ ]] && matrix+=("fedora38")
-          [[ "${{ github.event.inputs.fedora37 }}" =~ ^(true|)$ ]] && matrix+=("fedora37")
-          [[ "${{ github.event.inputs.fedora36 }}" =~ ^(true|)$ ]] && matrix+=("fedora36")
-          echo "linux_matrix="$( jq -c -n '$ARGS.positional' --args "${matrix[@]}" )"" >> $GITHUB_ENV
+          all='["debian11","debian12","ubuntu2004","ubuntu2204","ubuntu2304","fedora38","fedora37","fedora36"]'
+          oses="${{ github.event.inputs.oses }}"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$all"
+          else
+            oses=$(printf '%s\n' "$oses" | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "linux_matrix=$selected" >> $GITHUB_ENV
       - name: Generate matrix for Windows builds
         shell: bash
         run: |
-          matrix=()
-          [[ "${{ github.event.inputs.windows10 }}" =~ ^(true|)$ ]] && matrix+=("windows10")
-          [[ "${{ github.event.inputs.windows11 }}" =~ ^(true|)$ ]] && matrix+=("windows11")
-          echo "windows_matrix="$( jq -c -n '$ARGS.positional' --args "${matrix[@]}" )"" >> $GITHUB_ENV
+          all='["windows10","windows11"]'
+          oses="${{ github.event.inputs.oses }}"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$all"
+          else
+            oses=$(printf '%s\n' "$oses" | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "windows_matrix=$selected" >> $GITHUB_ENV
       - name: Generate matrix for macOS builds
         shell: bash
         run: |
-          matrix=()
-          [[ "${{ github.event.inputs.macos12 }}" =~ ^(true|)$ ]] && matrix+=("macos12")
-          [[ "${{ github.event.inputs.macos13 }}" =~ ^(true|)$ ]] && matrix+=("macos13")
-          [[ "${{ github.event.inputs.macos14 }}" =~ ^(true|)$ ]] && matrix+=("macos14")
-          echo "macos_matrix="$( jq -c -n '$ARGS.positional' --args "${matrix[@]}" )"" >> $GITHUB_ENV
+          all='["macos12","macos13","macos14"]'
+          oses="${{ github.event.inputs.oses }}"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$all"
+          else
+            oses=$(printf '%s\n' "$oses" | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "macos_matrix=$selected" >> $GITHUB_ENV
     outputs:
       linux_matrix: ${{ env.linux_matrix }}
       windows_matrix: ${{ env.windows_matrix }}
@@ -80,7 +60,7 @@ jobs:
   prepare-linux:
     needs: prepare-matrices
     if: |
-      fromJson(needs.prepare-matrices.outputs.linux_matrix) != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
       !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -137,7 +117,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.prepare-matrices.outputs.linux_matrix) }}
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
       - uses: actions/download-artifact@v3
         if: ${{ needs.build-linux.result == 'success' }}
@@ -160,7 +140,7 @@ jobs:
   build-windows:
     needs: prepare-matrices
     if: |
-      fromJson(needs.prepare-matrices.outputs.windows_matrix) != '[]' &&
+      needs.prepare-matrices.outputs.windows_matrix != '[]' &&
       !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     runs-on: windows-latest
     steps:
@@ -209,7 +189,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.prepare-matrices.outputs.windows_matrix) }}
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
     steps:
       - uses: actions/download-artifact@v3
         if: ${{ needs.build-windows.result == 'success' }}
@@ -230,9 +210,10 @@ jobs:
           path: ./test/.ci-logs/${{ matrix.os }}_report
 
   build-macos:
+    needs: prepare-matrices
     if: |
-      fromJson(needs.prepare-matrices.outputs.macos_matrix) != '[]' &&
-      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
+      needs.prepare-matrices.outputs.macos_matrix != '[]' &&
+      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
     steps:
       - name: Checkout repository
@@ -274,7 +255,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJson(needs.prepare-matrices.outputs.macos_matrix) }}
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.macos_matrix) }}
     steps:
       - uses: actions/download-artifact@v3
         if: ${{ needs.build-macos.result == 'success' }}
