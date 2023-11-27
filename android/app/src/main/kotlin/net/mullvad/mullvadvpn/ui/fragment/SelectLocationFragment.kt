@@ -32,9 +32,26 @@ class SelectLocationFragment : BaseFragment() {
                         onSelectRelay = vm::selectRelay,
                         onSearchTermInput = vm::onSearchTermInput,
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() },
+                        removeOwnershipFilter = vm::removeOwnerFilter,
+                        removeProviderFilter = vm::removeProviderFilter,
+                        onFilterClick = ::openFilter
                     )
                 }
             }
+        }
+    }
+
+    private fun openFilter() {
+        parentFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.do_nothing,
+                R.anim.do_nothing,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, FilterFragment())
+            addToBackStack(null)
+            commitAllowingStateLoss()
         }
     }
 

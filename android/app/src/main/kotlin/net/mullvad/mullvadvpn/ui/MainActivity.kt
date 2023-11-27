@@ -55,7 +55,6 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogDialogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
-import org.koin.dsl.bind
 
 open class MainActivity : FragmentActivity() {
     private val requestNotificationPermissionLauncher =
