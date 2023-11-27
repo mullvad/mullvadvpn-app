@@ -106,7 +106,7 @@ fun FilterScreen(
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
-                        .padding(top = Dimens.boxTopPadding)
+                        .padding(top = Dimens.screenVerticalMargin)
                         .clickable(enabled = false, onClick = onApplyClick)
                         .background(
                             color =backgroundColor

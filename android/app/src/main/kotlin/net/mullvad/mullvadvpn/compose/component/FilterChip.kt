@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadBlue
+import net.mullvad.mullvadvpn.lib.theme.shape.chipShape
 
 @Preview
 @Composable
@@ -37,8 +38,8 @@ private fun PreviewMullvadFilterChip() {
 @Composable
 fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
     FilterChip(
-        modifier = Modifier.padding(vertical = Dimens.verticalPadding),
-        shape = MaterialTheme.shapes.small,
+        modifier = Modifier.padding(vertical = Dimens.chipVerticalPadding),
+        shape = MaterialTheme.shapes.chipShape,
         colors =
             FilterChipDefaults.filterChipColors(
                 containerColor = MullvadBlue

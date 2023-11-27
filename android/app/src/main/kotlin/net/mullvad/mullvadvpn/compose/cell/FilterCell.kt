@@ -52,7 +52,7 @@ fun FilterCell(
                 .fillMaxWidth(),
     ) {
         Text(
-            modifier = Modifier.padding(end = Dimens.textEndPadding),
+            modifier = Modifier.padding(end = Dimens.filterTittlePadding),
             text = stringResource(id = R.string.filtered),
             color = MaterialTheme.colorScheme.onPrimary,
             style = MaterialTheme.typography.labelMedium

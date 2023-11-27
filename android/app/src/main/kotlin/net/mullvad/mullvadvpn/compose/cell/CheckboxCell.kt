@@ -81,7 +81,7 @@ internal fun CheckboxCell(
             text = providerName,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSecondary,
-            modifier = Modifier.weight(1f).padding(top = Dimens.textTopPadding, bottom = Dimens.textBottomPadding)
+            modifier = Modifier.weight(1f).padding(top = Dimens.mediumPadding, bottom = Dimens.mediumPadding)
         )
     }
 }
