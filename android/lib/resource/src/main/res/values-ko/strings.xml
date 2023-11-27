@@ -12,10 +12,13 @@
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
     <string name="agree_and_continue">동의하고 계속하기</string>
     <string name="all_applications">모든 애플리케이션</string>
+    <string name="all_providers">모든 제공업체</string>
     <string name="allow_lan_footer">공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
     <string name="always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 &lt;b&gt;%1$s&lt;/b&gt;에 대한 상시 접속 VPN을 비활성화하세요.</string>
     <string name="always_on_vpn_error_notification_title">상시 접속 VPN이 다른 앱에 할당됨</string>
+    <string name="any">모두</string>
     <string name="app_version">앱 버전</string>
+    <string name="apply">적용</string>
     <string name="auth_failed">계정을 인증할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="auto_connect">자동 연결</string>
     <string name="auto_connect_footer">앱이 시작되면 자동으로 서버에 연결합니다.</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">전송하지 못함</string>
     <string name="failed_to_send_details">양식을 종료한 후 나중에 다시 시도해도 이미 입력한 정보는 그대로 유지됩니다.</string>
     <string name="faqs_and_guides">FAQ 및 가이드</string>
+    <string name="filter">필터</string>
+    <string name="filtered">필터링됨:</string>
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
     <string name="foreground_notification_channel_name">VPN 터널 상태</string>
     <string name="go_to_login">로그인하기</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다.</string>
     <string name="max_devices_warning_title">장치가 너무 많음</string>
     <string name="mullvad_account_number">Mullvad 계정 번호</string>
+    <string name="mullvad_owned_only">Mullvad 소유만</string>
     <string name="new_device_notification_message">환영합니다! 이제 이 장치의 이름은 &lt;b&gt;%1$s&lt;/b&gt;입니다. 자세한 내용을 보려면 계정의 정보 버튼을 누르세요.</string>
     <string name="new_device_notification_title">새 장치가 생성됨</string>
     <string name="no_matching_relay">설정과 일치하는 서버가 없습니다. 서버 또는 기타 설정을 변경해 보세요.</string>
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_blocking_internet">네트워크 트래픽이 유출될 수 있습니다.</string>
+    <string name="number_of_providers">제공업체: %1$d</string>
     <string name="obfuscation_info">난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다.</string>
     <string name="obfuscation_on_udp_over_tcp">켜기(UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard 난독화</string>
@@ -131,6 +138,8 @@
     <string name="on">켜기</string>
     <string name="out_address">아웃</string>
     <string name="out_of_time">시간 초과</string>
+    <string name="owned">소유</string>
+    <string name="ownership">소유권</string>
     <string name="paid_until">유효 기간</string>
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
     <string name="payment_completed_dialog_title">시간이 성공적으로 추가되었습니다.</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">개인 정보 보호</string>
     <string name="privacy_policy_label">개인정보 보호정책</string>
     <string name="problem_report_description">보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
+    <string name="providers">제공업체</string>
     <string name="quantum_creating_secure_connection">양자 보안 연결 생성 중</string>
     <string name="quantum_resistant_info_first_paragaph">이 기능은 WireGuard 터널이 양자 컴퓨터의 잠재적인 공격에 맞서도록 합니다.</string>
     <string name="quantum_resistant_info_second_paragaph">이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다.</string>
@@ -147,6 +157,8 @@
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
     <string name="remove_button">제거</string>
+    <string name="rented">대여</string>
+    <string name="rented_only">대여만</string>
     <string name="report_a_problem">문제 신고</string>
     <string name="reset_to_default_button">기본값으로 재설정</string>
     <string name="search_placeholder">검색...</string>

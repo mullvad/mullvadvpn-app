@@ -12,10 +12,13 @@
     <string name="add_time_to_account">Acquista credito sul nostro sito web o riscatta un voucher.</string>
     <string name="agree_and_continue">Accetta e continua</string>
     <string name="all_applications">Tutte le applicazioni</string>
+    <string name="all_providers">Tutti i fornitori</string>
     <string name="allow_lan_footer">Consenti l\'accesso ad altri dispositivi sulla stessa rete per condividere, stampare e altro.</string>
     <string name="always_on_vpn_error_notification_content">Impossibile avviare la connessione tunnel. Disabilita VPN sempre attiva per &lt;b&gt;%1$s&lt;/b&gt; prima di utilizzare Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN sempre attiva assegnata a un\'altra app</string>
+    <string name="any">Qualsiasi</string>
     <string name="app_version">Versione app</string>
+    <string name="apply">Applica</string>
     <string name="auth_failed">Impossibile autenticare l\'account. Invia una segnalazione del problema.</string>
     <string name="auto_connect">Connessione automatica</string>
     <string name="auto_connect_footer">Connettiti automaticamente al server all\'avvio dell\'app.</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">Impossibile inviare</string>
     <string name="failed_to_send_details">Se esci dal modulo e riprovi più tardi, le informazioni già inserite saranno ancora qui.</string>
     <string name="faqs_and_guides">FAQ e guide</string>
+    <string name="filter">Filtra</string>
+    <string name="filtered">Filtrato:</string>
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>
     <string name="foreground_notification_channel_name">Stato del tunnel VPN</string>
     <string name="go_to_login">Vai al login</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">Disconnettiti da almeno un dispositivo rimuovendolo dall\'elenco seguente. Puoi trovare il nome del dispositivo corrispondente nelle impostazioni dell\'account del dispositivo.</string>
     <string name="max_devices_warning_title">Troppi dispositivi</string>
     <string name="mullvad_account_number">Numero di account Mullvad</string>
+    <string name="mullvad_owned_only">Solo di proprietà di Mullvad</string>
     <string name="new_device_notification_message">Benvenuto, questo dispositivo ora si chiama &lt;b&gt;%1$s&lt;/b&gt;. Per maggiori dettagli, premi il pulsante delle informazioni in Account.</string>
     <string name="new_device_notification_title">NUOVO DISPOSITIVO CREATO</string>
     <string name="no_matching_relay">Nessun server corrispondente alle tue impostazioni, prova a cambiare server o impostazioni.</string>
     <string name="no_wireguard_key">Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate.</string>
     <string name="not_blocking_internet">POSSIBILI PERDITE NEL TRAFFICO DI RETE</string>
+    <string name="number_of_providers">Fornitori: %1$d</string>
     <string name="obfuscation_info">L\'offuscamento nasconde il traffico WireGuard all\'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata.</string>
     <string name="obfuscation_on_udp_over_tcp">On (UDP-over-TCP)</string>
     <string name="obfuscation_title">Offuscamento WireGuard</string>
@@ -131,6 +138,8 @@
     <string name="on">On</string>
     <string name="out_address">Invio</string>
     <string name="out_of_time">Scaduto</string>
+    <string name="owned">Di proprietà</string>
+    <string name="ownership">Proprietà</string>
     <string name="paid_until">Pagato fino al</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
     <string name="payment_completed_dialog_title">L\'ora è stata aggiunta correttamente</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Informativa sulla privacy</string>
     <string name="problem_report_description">Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato.</string>
+    <string name="providers">Fornitori</string>
     <string name="quantum_creating_secure_connection">CREAZIONE CONNESSIONE QUANTISTICA PROTETTA</string>
     <string name="quantum_resistant_info_first_paragaph">Questa funzionalità rende il tunnel WireGuard resistente ai potenziali attacchi dei computer quantistici.</string>
     <string name="quantum_resistant_info_second_paragaph">L\'operazione viene effettuata eseguendo uno scambio di chiavi aggiuntivo con un algoritmo di sicurezza quantistica e mescolando il risultato nella normale crittografia di WireGuard. Questo passaggio aggiuntivo utilizza circa 500 kiB di traffico ogni volta che viene stabilito un nuovo tunnel.</string>
@@ -147,6 +157,8 @@
     <string name="redeem">Riscatta</string>
     <string name="redeem_voucher">Riscatta voucher</string>
     <string name="remove_button">Rimuovi</string>
+    <string name="rented">Noleggiato</string>
+    <string name="rented_only">Solo noleggiati</string>
     <string name="report_a_problem">Segnala un problema</string>
     <string name="reset_to_default_button">Ripristina predefiniti</string>
     <string name="search_placeholder">Cerca...</string>
