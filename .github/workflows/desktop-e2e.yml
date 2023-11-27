@@ -3,9 +3,65 @@ on:
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      oses:
+        description: 'List of OSes to run tests on, e.g. "debian11 debian12"'
+        default: ''
+        required: false
+        type: string
 jobs:
+  prepare-matrices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate matrix for Linux builds
+        shell: bash
+        run: |
+          all='["debian11","debian12","ubuntu2004","ubuntu2204","ubuntu2304","fedora38","fedora37","fedora36"]'
+          oses="${{ github.event.inputs.oses }}"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$all"
+          else
+            oses=$(printf '%s\n' "$oses" | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "linux_matrix=$selected" >> $GITHUB_ENV
+      - name: Generate matrix for Windows builds
+        shell: bash
+        run: |
+          all='["windows10","windows11"]'
+          oses="${{ github.event.inputs.oses }}"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$all"
+          else
+            oses=$(printf '%s\n' "$oses" | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "windows_matrix=$selected" >> $GITHUB_ENV
+      - name: Generate matrix for macOS builds
+        shell: bash
+        run: |
+          all='["macos12","macos13","macos14"]'
+          oses="${{ github.event.inputs.oses }}"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$all"
+          else
+            oses=$(printf '%s\n' "$oses" | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "macos_matrix=$selected" >> $GITHUB_ENV
+    outputs:
+      linux_matrix: ${{ env.linux_matrix }}
+      windows_matrix: ${{ env.windows_matrix }}
+      macos_matrix: ${{ env.macos_matrix }}
+
   prepare-linux:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
+    needs: prepare-matrices
+    if: |
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -54,14 +110,14 @@ jobs:
 
   e2e-test-linux:
     name: Linux end-to-end tests
-    needs: build-linux
+    needs: [prepare-matrices, build-linux]
     if: '!cancelled()'
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     timeout-minutes: 240
     strategy:
       fail-fast: false
       matrix:
-        os: [debian11, debian12, ubuntu2004, ubuntu2204, ubuntu2304, fedora38, fedora37, fedora36]
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
       - uses: actions/download-artifact@v3
         if: ${{ needs.build-linux.result == 'success' }}
@@ -82,7 +138,10 @@ jobs:
           path: ./test/.ci-logs/${{ matrix.os }}_report
 
   build-windows:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
+    needs: prepare-matrices
+    if: |
+      needs.prepare-matrices.outputs.windows_matrix != '[]' &&
+      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -122,7 +181,7 @@ jobs:
           path: .\dist\*.exe
 
   e2e-test-windows:
-    needs: build-windows
+    needs: [prepare-matrices, build-windows]
     if: '!cancelled()'
     name: Windows end-to-end tests
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
@@ -130,7 +189,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows10, windows11]
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
     steps:
       - uses: actions/download-artifact@v3
         if: ${{ needs.build-windows.result == 'success' }}
@@ -151,7 +210,10 @@ jobs:
           path: ./test/.ci-logs/${{ matrix.os }}_report
 
   build-macos:
-    if: ${{ !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main' }}
+    needs: prepare-matrices
+    if: |
+      needs.prepare-matrices.outputs.macos_matrix != '[]' &&
+      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
     steps:
       - name: Checkout repository
@@ -185,7 +247,7 @@ jobs:
             ./dist/app-e2e-*
 
   e2e-test-macos:
-    needs: build-macos
+    needs: [prepare-matrices, build-macos]
     if: '!cancelled()'
     name: macOS end-to-end tests
     runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
@@ -193,7 +255,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, macos-13, macos-12]
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.macos_matrix) }}
     steps:
       - uses: actions/download-artifact@v3
         if: ${{ needs.build-macos.result == 'success' }}
