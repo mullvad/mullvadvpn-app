@@ -13,8 +13,8 @@ echo ""
 
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
-GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
-BUNDLE_TASKS=(createPlayProdReleaseDistBundle createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
+GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
+BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
 CARGO_ARGS="--release"
 EXTRA_WGGO_ARGS=""
 BUILD_BUNDLE="no"
@@ -58,6 +58,8 @@ if [[ "$BUILD_TYPE" == "release" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     CARGO_ARGS+=" --locked"
 else
     CARGO_ARGS+=" --features api-override"
+    GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
+    BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
 fi
 
 pushd "$SCRIPT_DIR/android"
