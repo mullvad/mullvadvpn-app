@@ -12,10 +12,13 @@
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
     <string name="agree_and_continue">Accepter og fortsæt</string>
     <string name="all_applications">Alle applikationer</string>
+    <string name="all_providers">Alle udbydere</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="always_on_vpn_error_notification_title">Altid-til VPN tildelt en anden app</string>
+    <string name="any">Enhver</string>
     <string name="app_version">App-version</string>
+    <string name="apply">Anvend</string>
     <string name="auth_failed">Kan ikke godkende konto. Indsend en problemrapport.</string>
     <string name="auto_connect">Auto-tilslutning</string>
     <string name="auto_connect_footer">Opret automatisk forbindelse til en server, når appen starter.</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Hvis du lukker formularen og prøver igen senere, vil de oplysninger, du allerede har indtastet, stadig være her.</string>
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
+    <string name="filter">Filter</string>
+    <string name="filtered">Filtreret:</string>
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til login</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">Log ud af mindst én ved at fjerne den fra listen nedenfor. Du kan finde det tilsvarende enhedsnavn under enhedens kontoindstillinger.</string>
     <string name="max_devices_warning_title">For mange enheder</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
+    <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
     <string name="new_device_notification_message">Velkommen! Denne enhed hedder nu &lt;b&gt;%1$s&lt;/b&gt;. Se info-knappen i Konto for at flere oplysninger.</string>
     <string name="new_device_notification_title">NY ENHED OPRETTET</string>
     <string name="no_matching_relay">Ingen servere matcher dine indstillinger. Prøv at ændre server eller andre indstillinger.</string>
     <string name="no_wireguard_key">Gyldig WireGuard-nøgle mangler. Administrer nøgler under Avancerede indstillinger.</string>
     <string name="not_blocking_internet">DU LÆKKER MÅSKE NETVÆRKSTRAFIK</string>
+    <string name="number_of_providers">Udbydere: %1$d</string>
     <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret.</string>
     <string name="obfuscation_on_udp_over_tcp">Til (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard-tilsløring</string>
@@ -131,6 +138,8 @@
     <string name="on">Til</string>
     <string name="out_address">Ud</string>
     <string name="out_of_time">Tid udløbet</string>
+    <string name="owned">Ejet</string>
+    <string name="ownership">Ejerskab</string>
     <string name="paid_until">Betalt indtil</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
     <string name="payment_completed_dialog_title">Tid blev tilføjet</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">Privatliv</string>
     <string name="privacy_policy_label">Fortrolighedspolitik</string>
     <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>
+    <string name="providers">Udbydere</string>
     <string name="quantum_creating_secure_connection">OPRETTER KVANTESIKKER FORBINDELSE</string>
     <string name="quantum_resistant_info_first_paragaph">Denne funktion gør WireGuard-tunnelen modstandsdygtig over for potentielle angreb fra kvantecomputere.</string>
     <string name="quantum_resistant_info_second_paragaph">Det gør den ved at udføre en ekstra nøgleudveksling ved hjælp af en kvantesikker algoritme og blande resultatet med WireGuards almindelige kryptering. Dette ekstra trin bruger cirka 500 kB trafik, hver gang en ny tunnel etableres.</string>
@@ -147,6 +157,8 @@
     <string name="redeem">Indløs</string>
     <string name="redeem_voucher">Indløs kupon</string>
     <string name="remove_button">Fjern</string>
+    <string name="rented">Lejet</string>
+    <string name="rented_only">Kun lejet</string>
     <string name="report_a_problem">Rapporter et problem</string>
     <string name="reset_to_default_button">Nulstil til standard</string>
     <string name="search_placeholder">Søg efter...</string>

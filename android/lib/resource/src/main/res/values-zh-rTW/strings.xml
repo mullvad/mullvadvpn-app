@@ -12,10 +12,13 @@
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
     <string name="agree_and_continue">同意並繼續</string>
     <string name="all_applications">所有應用程式</string>
+    <string name="all_providers">所有供應商</string>
     <string name="allow_lan_footer">允許存取同一網路上的其他裝置，以進行分享、列印等。</string>
     <string name="always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 &lt;b&gt;%1$s&lt;/b&gt; 停用「始終啟用 VPN」。</string>
     <string name="always_on_vpn_error_notification_title">「始終啟用 VPN」已指派給其他應用程式</string>
+    <string name="any">任何</string>
     <string name="app_version">應用程式版本</string>
+    <string name="apply">套用</string>
     <string name="auth_failed">無法驗證帳戶。請傳送問題回報。</string>
     <string name="auto_connect">自動連線</string>
     <string name="auto_connect_footer">啟動應用程式時，自動連線伺服器。</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">無法傳送</string>
     <string name="failed_to_send_details">如果您關閉表格後再重新嘗試，所輸入的資訊仍會出現在這裡。</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
+    <string name="filter">篩選</string>
+    <string name="filtered">已篩選：</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
     <string name="go_to_login">前往登入</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</string>
     <string name="max_devices_warning_title">裝置過多</string>
     <string name="mullvad_account_number">Mullvad 帳號</string>
+    <string name="mullvad_owned_only">僅 Mullvad 自有</string>
     <string name="new_device_notification_message">歡迎，此裝置現在稱為 &lt;b&gt;%1$s&lt;/b&gt;。如需詳細資訊，請點按「帳戶」中的資訊按鈕。</string>
     <string name="new_device_notification_title">已建立新裝置</string>
     <string name="no_matching_relay">沒有與您的設定相符的伺服器，請嘗試變更伺服器或其他設定。</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_blocking_internet">您的網路流量可能正在洩露</string>
+    <string name="number_of_providers">供應商：%1$d</string>
     <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
     <string name="obfuscation_on_udp_over_tcp">開 (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard 混淆</string>
@@ -131,6 +138,8 @@
     <string name="on">開啟</string>
     <string name="out_address">出境</string>
     <string name="out_of_time">逾時</string>
+    <string name="owned">自有</string>
+    <string name="ownership">所有權狀態</string>
     <string name="paid_until">支付至</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
     <string name="payment_completed_dialog_title">已成功新增時間</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">隱私權</string>
     <string name="privacy_policy_label">隱私權政策</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
+    <string name="providers">供應商</string>
     <string name="quantum_creating_secure_connection">正在建立量子安全連線</string>
     <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 通道便能夠抵抗可能從量子電腦發起的攻擊。</string>
     <string name="quantum_resistant_info_second_paragaph">實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。</string>
@@ -147,6 +157,8 @@
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
     <string name="remove_button">移除</string>
+    <string name="rented">租用</string>
+    <string name="rented_only">僅租用</string>
     <string name="report_a_problem">回報問題</string>
     <string name="reset_to_default_button">重設為預設值</string>
     <string name="search_placeholder">搜尋…</string>

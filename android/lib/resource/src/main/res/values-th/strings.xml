@@ -12,10 +12,13 @@
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
     <string name="agree_and_continue">ยอมรับและดำเนินการต่อ</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
+    <string name="all_providers">ผู้ให้บริการทั้งหมด</string>
     <string name="allow_lan_footer">อนุญาตให้เข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายเดียวกัน เพื่อแชร์ พิมพ์ ฯลฯ</string>
     <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว</string>
+    <string name="any">อะไรก็ได้</string>
     <string name="app_version">เวอร์ชันแอป</string>
+    <string name="apply">ใช้</string>
     <string name="auth_failed">ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา</string>
     <string name="auto_connect">เชื่อมต่ออัตโนมัติ</string>
     <string name="auto_connect_footer">เชื่อมต่อเซิร์ฟเวอร์โดยอัตโนมัติทันทีที่เปิดแอป</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">ไม่สามารถส่งได้</string>
     <string name="failed_to_send_details">หากคุณออกจากแบบฟอร์มแล้วเข้ามาใหม่ในภายหลัง ข้อมูลที่คุณกรอกไว้จะยังคงอยู่ที่นี่ดังเดิม</string>
     <string name="faqs_and_guides">คำถามที่พบบ่อยและคำแนะนำ</string>
+    <string name="filter">ตัวกรอง</string>
+    <string name="filtered">กรอง:</string>
     <string name="foreground_notification_channel_description">แสดงสถานะอุโมงค์ VPN ในปัจจุบัน</string>
     <string name="foreground_notification_channel_name">สถานะอุโมงค์ VPN</string>
     <string name="go_to_login">ไปเข้าสู่ระบบ</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์</string>
     <string name="max_devices_warning_title">มีอุปกรณ์มากเกินไป</string>
     <string name="mullvad_account_number">หมายเลขบัญชี Mullvad</string>
+    <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="new_device_notification_message">ยินดีต้อนรับ ขณะนี้อุปกรณ์นี้จะมีชื่อว่า &lt;b&gt;%1$s&lt;/b&gt; สำหรับข้อมูลเพิ่มเติม โปรดกดปุ่มข้อมูลในบัญชี</string>
     <string name="new_device_notification_title">สร้างอุปกรณ์ใหม่แล้ว</string>
     <string name="no_matching_relay">ไม่มีเซิร์ฟเวอร์ที่ตรงกับการตั้งค่าของคุณ โปรดลองเปลี่ยนเซิร์ฟเวอร์ หรือการตั้งค่าอื่นๆ</string>
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_blocking_internet">คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่</string>
+    <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
     <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิง จะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
     <string name="obfuscation_on_udp_over_tcp">เปิด (UDP-ผ่าน-TCP)</string>
     <string name="obfuscation_title">การทำให้ข้อมูลยุ่งเหยิงของ WireGuard</string>
@@ -131,6 +138,8 @@
     <string name="on">เปิด</string>
     <string name="out_address">ออก</string>
     <string name="out_of_time">หมดเวลา</string>
+    <string name="owned">เป็นเจ้าของ</string>
+    <string name="ownership">ความเป็นเจ้าของ</string>
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
     <string name="payment_completed_dialog_title">เพิ่มเวลาสำเร็จแล้ว</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">ความเป็นส่วนตัว</string>
     <string name="privacy_policy_label">นโยบายความเป็นส่วนตัว</string>
     <string name="problem_report_description">ไฟล์บันทึกล็อกของแอปของคุณจะถูกแนบไปกับข้อความนี้ เพื่อที่เราจะช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เนื่องจากจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</string>
+    <string name="providers">ผู้ให้บริการ</string>
     <string name="quantum_creating_secure_connection">กำลังสร้างการเชื่อมต่อควอนตัมที่ปลอดภัย</string>
     <string name="quantum_resistant_info_first_paragaph">ฟีเจอร์นี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้</string>
     <string name="quantum_resistant_info_second_paragaph">ระบบจะดำเนินการสิ่งนี้ผ่านการแลกเปลี่ยนคีย์เพิ่มเติม โดยการใช้อัลกอริทึมแบบควอนตัมที่ปลอดภัย และผสมผลลัพธ์เข้ากับการเข้ารหัสตามปกติของ WireGuard และขั้นตอนพิเศษนี้ใช้การรับส่งข้อมูลประมาณ 500 kiB ในทุกครั้งที่สร้างช่องทางใหม่</string>
@@ -147,6 +157,8 @@
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>
+    <string name="rented">เช่า</string>
+    <string name="rented_only">เช่าเท่านั้น</string>
     <string name="report_a_problem">รายงานปัญหา</string>
     <string name="reset_to_default_button">รีเซ็ตเป็นค่าเริ่มต้น</string>
     <string name="search_placeholder">ค้นหา…</string>
