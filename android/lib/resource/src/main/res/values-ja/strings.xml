@@ -12,10 +12,13 @@
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
     <string name="agree_and_continue">同意して続行</string>
     <string name="all_applications">すべてのアプリケーション</string>
+    <string name="all_providers">すべてのプロバイダ</string>
     <string name="allow_lan_footer">共有や印刷などのため、同一ネットワーク上の他のデバイスへのアクセスを許可します。</string>
     <string name="always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前に&lt;b&gt;%1$s&lt;/b&gt;のAlways-on VPNを無効にしてください。</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPNは他のアプリに割り当てられています</string>
+    <string name="any">すべて</string>
     <string name="app_version">アプリのバージョン</string>
+    <string name="apply">適用</string>
     <string name="auth_failed">アカウントを認証できません。問題の報告を送信してください。</string>
     <string name="auto_connect">自動接続</string>
     <string name="auto_connect_footer">アプリ起動時に自動的にサーバーに接続します。</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">送信に失敗しました</string>
     <string name="failed_to_send_details">フォームを終了して後で再試行しても、入力済みの情報は引き続きここに表示されます。</string>
     <string name="faqs_and_guides">よくある質問とガイド</string>
+    <string name="filter">絞り込み</string>
+    <string name="filtered">絞り込み結果:</string>
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>
     <string name="go_to_login">ログインに進む</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。</string>
     <string name="max_devices_warning_title">デバイスが多すぎます</string>
     <string name="mullvad_account_number">Mullvadアカウント番号</string>
+    <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="new_device_notification_message">ようこそ。このデバイスの名前は&lt;b&gt;%1$s&lt;/b&gt;です。詳細はアカウントの情報ボタンで確認してください。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
     <string name="no_matching_relay">設定に一致するサーバーはありません。サーバーまたは他の設定を変更してみてください。</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_blocking_internet">ネットワーク通信が漏洩している可能性があります</string>
+    <string name="number_of_providers">プロバイダ数: %1$d</string>
     <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
     <string name="obfuscation_on_udp_over_tcp">オン (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuardの難読化</string>
@@ -131,6 +138,8 @@
     <string name="on">オン</string>
     <string name="out_address">外側</string>
     <string name="out_of_time">時間切れ</string>
+    <string name="owned">自社サーバー</string>
+    <string name="ownership">所有権</string>
     <string name="paid_until">次の日時まで支払い済み</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="payment_completed_dialog_title">時間を正常に追加しました</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">プライバシー</string>
     <string name="privacy_policy_label">プライバシーポリシー</string>
     <string name="problem_report_description">さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。</string>
+    <string name="providers">プロバイダ</string>
     <string name="quantum_creating_secure_connection">量子セキュア保護接続を確立中</string>
     <string name="quantum_resistant_info_first_paragaph">この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。</string>
     <string name="quantum_resistant_info_second_paragaph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
@@ -147,6 +157,8 @@
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>
+    <string name="rented">レンタルサーバー</string>
+    <string name="rented_only">レンタルサーバーのみ</string>
     <string name="report_a_problem">問題を報告する</string>
     <string name="reset_to_default_button">デフォルトにリセット</string>
     <string name="search_placeholder">検索...</string>

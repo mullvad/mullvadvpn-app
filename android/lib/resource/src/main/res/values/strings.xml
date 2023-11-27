@@ -51,6 +51,17 @@
     <string name="privacy_policy_label">Privacy policy</string>
     <string name="account_number">Account number</string>
     <string name="device_name">Device name</string>
+    <string name="apply">Apply</string>
+    <string name="ownership">Ownership</string>
+    <string name="providers">Providers</string>
+    <string name="any">Any</string>
+    <string name="owned">Owned</string>
+    <string name="rented">Rented</string>
+    <string name="number_of_providers">Providers: %d</string>
+    <string name="filtered">Filtered:</string>
+    <string name="mullvad_owned_only">Mullvad owned only</string>
+    <string name="all_providers">All providers</string>
+    <string name="rented_only">Rented only</string>
     <string name="device_name_info_first_paragraph">This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website.</string>
     <string name="device_name_info_second_paragraph">You can have up to 5 devices logged in on one Mullvad account.</string>
     <string name="device_name_info_third_paragraph">If you log out, the device and the device name is removed. When you log back in again, the device will get a new name.</string>
@@ -120,6 +131,7 @@
     <string name="unsupported_version_without_upgrade">You are running an unsupported app version.</string>
     <string name="account_credit_expires_soon">Account credit expires soon</string>
     <string name="select_location">Select location</string>
+    <string name="filter">Filter</string>
     <string name="select_location_description">While connected, your real location is masked with a private and secure location in the selected region.</string>
     <string name="split_tunneling_description">Choose the apps you want to exclude from the VPN tunnel.</string>
     <string name="enable">Enable</string>
