@@ -1711,6 +1711,9 @@ msgstr ""
 msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
+msgid "Copied logs to clipboard"
+msgstr ""
+
 msgid "Copied to clipboard"
 msgstr ""
 

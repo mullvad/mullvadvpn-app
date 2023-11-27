@@ -243,4 +243,5 @@
     <string name="payment_pending_dialog_message">We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful.</string>
     <string name="loading_connecting">Connecting...</string>
     <string name="loading_verifying">Verifying purchase...</string>
+    <string name="copied_logs_to_clipboard">Copied logs to clipboard</string>
 </resources>
