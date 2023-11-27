@@ -56,6 +56,10 @@ msgstr "벨기에"
 msgid "Belgrade"
 msgstr "베오그라드"
 
+#. DE BER
+msgid "Berlin"
+msgstr "베를린"
+
 #. CO BOG
 msgid "Bogota"
 msgstr "보고타"
@@ -91,6 +95,10 @@ msgstr "부다페스트"
 #. BG
 msgid "Bulgaria"
 msgstr "불가리아"
+
+#. CA YYC
+msgid "Calgary"
+msgstr "캘거리"
 
 #. CA
 msgid "Canada"
@@ -240,6 +248,10 @@ msgstr "요하네스버그"
 msgid "Kiev"
 msgstr "키예프"
 
+#. UA IEV
+msgid "Kyiv"
+msgstr "키예프"
+
 #. LV
 msgid "Latvia"
 msgstr "라트비아"
@@ -283,6 +295,10 @@ msgstr "마르세이유"
 #. AU MEL
 msgid "Melbourne"
 msgstr "멜버른"
+
+#. MX
+msgid "Mexico"
+msgstr "멕시코"
 
 #. US MIA
 msgid "Miami, FL"
@@ -383,6 +399,10 @@ msgstr "프라하"
 #. IN PNQ
 msgid "Pune"
 msgstr "푸네"
+
+#. MX QRO
+msgid "Queretaro"
+msgstr "케레타로"
 
 #. US RAG
 msgid "Raleigh, NC"
@@ -551,4 +571,3 @@ msgstr "자그레브"
 #. CH ZRH
 msgid "Zurich"
 msgstr "취리히"
-
