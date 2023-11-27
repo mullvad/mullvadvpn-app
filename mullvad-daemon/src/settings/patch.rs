@@ -211,32 +211,6 @@ fn trim_json(json_patch: &str) -> String {
         patch = format!("{{\n{patch}\n}}");
     }
 
-    // Removing trailing commas
-    let mut trailing_commas_positions = vec![];
-    let mut quoting = false;
-    let mut escaping = false;
-    for (index, c) in patch.char_indices() {
-        if !escaping && c == '\\' {
-            escaping = true;
-        } else if escaping {
-            escaping = false;
-        } else if c == '"' {
-            quoting = !quoting;
-        } else if c == ',' && !quoting {
-            let remaining_str: &str = &patch[index..];
-            if let Some(c) = remaining_str.chars().skip(1).find(|c| !c.is_whitespace()) {
-                const STOP_PARENS: &str = "]}";
-                if STOP_PARENS.contains(c) {
-                    trailing_commas_positions.push(index);
-                }
-            }
-        }
-    }
-
-    for index in trailing_commas_positions.into_iter().rev() {
-        patch.remove(index);
-    }
-
     patch
 }
 
@@ -399,10 +373,10 @@ fn test_trimmed_json() {
         "a": [
             {
                 "b": 1,
-                "c": 2,
+                "c": 2
             },
-            {},
-        ],
+            {}
+        ]
     "#;
     let expected = r#"
         {
