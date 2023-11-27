@@ -1,6 +1,5 @@
-Add Google Play in-app purchases to the build distributed via Google Play.
-Add social media content blocker.
-Add support for setting per-app language in system settings.
-Add share button to the log view.
-Improve device and expiry information throughout the app.
-Migrate remaining views to the new UI framework (Compose).
+Fix top bar flickering in some scrollable views.
+Fix welcome screen sometimes showing on app restart after buying time.
+Fix inconsistencies with the account history in the login view.
+Improve log sharing behavior by sharing the log as a file rather as plain-text to avoid OS crashes.
+Improve in-app purchase and verification flow in some circumstances.
