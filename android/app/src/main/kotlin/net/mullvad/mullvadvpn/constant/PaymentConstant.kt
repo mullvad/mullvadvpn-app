@@ -1,0 +1,5 @@
+package net.mullvad.mullvadvpn.constant
+
+const val VERIFICATION_MAX_ATTEMPTS = 4
+const val VERIFICATION_INITIAL_BACK_OFF_MILLISECONDS = 3000L
+const val VERIFICATION_BACK_OFF_FACTOR = 3L
