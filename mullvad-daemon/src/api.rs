@@ -35,15 +35,8 @@ pub enum Message {
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    /// Oddly specific.
-    #[error(display = "Very Generic error.")]
-    Generic,
-    #[error(display = "{}", _0)]
-    Actor(#[error(source)] ActorError),
-}
-
-#[derive(err_derive::Error, Debug)]
-pub enum ActorError {
+    #[error(display = "No access methods were provided.")]
+    NoAccessMethods,
     #[error(display = "AccessModeSelector is not receiving any messages.")]
     SendFailed(#[error(source)] mpsc::TrySendError<Message>),
     #[error(display = "AccessModeSelector is not receiving any messages.")]
@@ -51,6 +44,9 @@ pub enum ActorError {
     #[error(display = "AccessModeSelector is not responding.")]
     NotRunning(#[error(source)] oneshot::Canceled),
 }
+
+type ResponseTx<T> = oneshot::Sender<Result<T>>;
+type Result<T> = std::result::Result<T, Error>;
 
 /// A channel for sending [`Message`] commands to a running
 /// [`AccessModeSelector`].
@@ -64,8 +60,8 @@ impl AccessModeSelectorHandle {
         let (tx, rx) = oneshot::channel();
         self.cmd_tx
             .unbounded_send(make_cmd(tx))
-            .map_err(ActorError::SendFailed)?;
-        rx.await.map_err(ActorError::NotRunning)?
+            .map_err(Error::SendFailed)?;
+        rx.await.map_err(Error::NotRunning)?
     }
 
     pub async fn get_access_method(&self) -> Result<AccessMethodSetting> {
@@ -105,7 +101,7 @@ impl AccessModeSelectorHandle {
     ///
     /// Practically converts the handle to a listener for when the
     /// currently valid connection modes changes.
-    pub fn as_stream(self) -> impl Stream<Item = ApiConnectionMode> {
+    pub fn into_stream(self) -> impl Stream<Item = ApiConnectionMode> {
         unfold(self, |handle| async move {
             match handle.next().await {
                 Ok(connection_mode) => Some((connection_mode, handle)),
@@ -146,7 +142,7 @@ impl AccessModeSelector {
 
         let connection_modes = match ConnectionModesIterator::new(connection_modes) {
             Ok(provider) => provider,
-            Err(Error::NoAccessMethods) => {
+            Err(Error::NoAccessMethods) | Err(_) => {
                 // No settings seem to have been found. Default to using the the
                 // direct access method.
                 let default = mullvad_types::access_method::Settings::direct();
@@ -187,9 +183,8 @@ impl AccessModeSelector {
     }
 
     fn reply<T>(&self, tx: ResponseTx<T>, value: T) -> Result<()> {
-        Ok(tx
-            .send(Ok(value))
-            .map_err(|_| ActorError::OneshotSendFailed)?)
+        tx.send(Ok(value)).map_err(|_| Error::OneshotSendFailed)?;
+        Ok(())
     }
 
     fn on_get_access_method(&mut self, tx: ResponseTx<AccessMethodSetting>) -> Result<()> {
@@ -252,12 +247,12 @@ impl AccessModeSelector {
         tx: ResponseTx<()>,
         values: Vec<AccessMethodSetting>,
     ) -> Result<()> {
-        self.update_access_methods(values);
+        self.update_access_methods(values)?;
         self.reply(tx, ())
     }
 
-    fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) {
-        self.connection_modes.update_access_methods(values);
+    fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) -> Result<()> {
+        self.connection_modes.update_access_methods(values)
     }
 
     /// Ad-hoc version of [`std::convert::From::from`], but since some
@@ -302,9 +297,6 @@ impl AccessModeSelector {
     }
 }
 
-type ResponseTx<T> = oneshot::Sender<Result<T>>;
-type Result<T> = std::result::Result<T, Error>;
-
 /// An iterator which will always produce an [`AccessMethod`].
 ///
 /// Safety: It is always safe to [`unwrap`] after calling [`next`] on a
@@ -319,14 +311,10 @@ pub struct ConnectionModesIterator {
     current: AccessMethodSetting,
 }
 
-#[derive(err_derive::Error, Debug)]
-pub enum Error {
-    #[error(display = "No access methods were provided.")]
-    NoAccessMethods,
-}
-
 impl ConnectionModesIterator {
-    pub fn new(access_methods: Vec<AccessMethodSetting>) -> Result<ConnectionModesIterator, Error> {
+    pub fn new(
+        access_methods: Vec<AccessMethodSetting>,
+    ) -> std::result::Result<ConnectionModesIterator, Error> {
         let mut iterator = Self::new_iterator(access_methods)?;
         Ok(Self {
             next: None,
@@ -344,7 +332,7 @@ impl ConnectionModesIterator {
     pub fn update_access_methods(
         &mut self,
         access_methods: Vec<AccessMethodSetting>,
-    ) -> Result<(), Error> {
+    ) -> std::result::Result<(), Error> {
         self.available_modes = Self::new_iterator(access_methods)?;
         Ok(())
     }
@@ -355,7 +343,7 @@ impl ConnectionModesIterator {
     /// returned.
     fn new_iterator(
         access_methods: Vec<AccessMethodSetting>,
-    ) -> Result<Box<dyn Iterator<Item = AccessMethodSetting> + Send>, Error> {
+    ) -> std::result::Result<Box<dyn Iterator<Item = AccessMethodSetting> + Send>, Error> {
         if access_methods.is_empty() {
             Err(Error::NoAccessMethods)
         } else {
