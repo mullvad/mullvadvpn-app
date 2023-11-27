@@ -119,9 +119,21 @@ impl AccessModeSelectorHandle {
 
 /// A small actor which takes care of handling the logic around rotating
 /// connection modes to be used for Mullvad API request.
+///
+/// When `mullvad-api` fails to contact the API, it will request a new
+/// connection mode. The API can be connected to either directly (i.e.,
+/// [`ApiConnectionMode::Direct`]) via a bridge ([`ApiConnectionMode::Proxied`])
+/// or via any supported custom proxy protocol
+/// ([`api_access_methods::ObfuscationProtocol`]).
+///
+/// The strategy for determining the next [`ApiConnectionMode`] is handled by
+/// [`ConnectionModesIterator`].
 pub struct AccessModeSelector {
     cmd_rx: mpsc::UnboundedReceiver<Message>,
-    connection_mode_provider: ApiConnectionModeProvider,
+    cache_dir: PathBuf,
+    /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
+    relay_selector: RelaySelector,
+    connection_modes: ConnectionModesIterator,
 }
 
 impl AccessModeSelector {
@@ -134,11 +146,9 @@ impl AccessModeSelector {
 
         let selector = AccessModeSelector {
             cmd_rx,
-            connection_mode_provider: ApiConnectionModeProvider::new(
-                cache_dir,
-                relay_selector,
-                connection_modes,
-            ),
+            cache_dir,
+            relay_selector,
+            connection_modes: ConnectionModesIterator::new(connection_modes),
         };
         tokio::spawn(selector.into_future());
         AccessModeSelectorHandle { cmd_tx }
@@ -177,7 +187,7 @@ impl AccessModeSelector {
     }
 
     fn get_access_method(&mut self) -> AccessMethodSetting {
-        self.connection_mode_provider.connection_modes.peek()
+        self.connection_modes.peek()
     }
 
     fn on_set_access_method(
@@ -190,16 +200,14 @@ impl AccessModeSelector {
     }
 
     fn set_access_method(&mut self, value: AccessMethodSetting) {
-        self.connection_mode_provider
-            .connection_modes
-            .set_access_method(value);
+        self.connection_modes.set_access_method(value);
     }
 
     fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
         let next = self.next_connection_mode();
         // Save the new connection mode to cache!
         {
-            let cache_dir = self.connection_mode_provider.cache_dir.clone();
+            let cache_dir = self.cache_dir.clone();
             let next = next.clone();
             tokio::spawn(async move {
                 if next.save(&cache_dir).await.is_err() {
@@ -215,13 +223,12 @@ impl AccessModeSelector {
 
     fn next_connection_mode(&mut self) -> ApiConnectionMode {
         let access_method = self
-            .connection_mode_provider
             .connection_modes
             .next()
             .map(|access_method_setting| access_method_setting.access_method)
             .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct));
 
-        let connection_mode = self.connection_mode_provider.from(access_method);
+        let connection_mode = self.from(access_method);
         log::info!(
             "New API connection mode selected: {connection_mode}",
             connection_mode = connection_mode
@@ -239,43 +246,7 @@ impl AccessModeSelector {
     }
 
     fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) {
-        self.connection_mode_provider
-            .connection_modes
-            .update_access_methods(values);
-    }
-}
-
-type ResponseTx<T> = oneshot::Sender<Result<T>>;
-type Result<T> = std::result::Result<T, Error>;
-
-/// A stream that returns the next API connection mode to use for reaching the API.
-///
-/// When `mullvad-api` fails to contact the API, it requests a new connection
-/// mode. The API can be connected to either directly (i.e.,
-/// [`ApiConnectionMode::Direct`]) via a bridge ([`ApiConnectionMode::Proxied`])
-/// or via any supported custom proxy protocol ([`api_access_methods::ObfuscationProtocol`]).
-///
-/// The strategy for determining the next [`ApiConnectionMode`] is handled by
-/// [`ConnectionModesIterator`].
-pub struct ApiConnectionModeProvider {
-    cache_dir: PathBuf,
-    /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
-    relay_selector: RelaySelector,
-    connection_modes: ConnectionModesIterator,
-}
-
-impl ApiConnectionModeProvider {
-    pub(crate) fn new(
-        cache_dir: PathBuf,
-        relay_selector: RelaySelector,
-        connection_modes: Vec<AccessMethodSetting>,
-    ) -> Self {
-        let connection_modes_iterator = ConnectionModesIterator::new(connection_modes);
-        Self {
-            cache_dir,
-            relay_selector,
-            connection_modes: connection_modes_iterator,
-        }
+        self.connection_modes.update_access_methods(values);
     }
 
     /// Ad-hoc version of [`std::convert::From::from`], but since some
@@ -320,6 +291,9 @@ impl ApiConnectionModeProvider {
         }
     }
 }
+
+type ResponseTx<T> = oneshot::Sender<Result<T>>;
+type Result<T> = std::result::Result<T, Error>;
 
 /// An iterator which will always produce an [`AccessMethod`].
 ///
