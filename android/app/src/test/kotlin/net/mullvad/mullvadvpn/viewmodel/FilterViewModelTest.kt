@@ -6,6 +6,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -23,7 +24,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class FilterViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
@@ -31,7 +31,7 @@ class FilterViewModelTest {
     private lateinit var viewModel: FilterViewModel
     private val selectedOwnership =
         MutableStateFlow<Constraint<Ownership>>(Constraint.Only(Ownership.MullvadOwned))
-    private val mockAllProviders =
+    private val dummyListOfAllProviders =
         listOf(
             Provider("31173", true),
             Provider("100TB", false),
@@ -57,7 +57,8 @@ class FilterViewModelTest {
     @Before
     fun setup() {
         every { mockRelayListFilterUseCase.selectedOwnership() } returns selectedOwnership
-        every { mockRelayListFilterUseCase.availableProviders() } returns flowOf(mockAllProviders)
+        every { mockRelayListFilterUseCase.availableProviders() } returns
+            flowOf(dummyListOfAllProviders)
         every { mockRelayListFilterUseCase.selectedProviders() } returns
             flowOf(Constraint.Only(Providers(mockSelectedProviders.map { it.name }.toHashSet())))
         viewModel = FilterViewModel(mockRelayListFilterUseCase)
@@ -99,7 +100,7 @@ class FilterViewModelTest {
     @Test
     fun testSetAllProviders() = runTest {
         // Arrange
-        val mockProvidersList = mockAllProviders
+        val mockProvidersList = dummyListOfAllProviders
         // Act
         viewModel.setAllProviders(true)
         // Assert
@@ -113,7 +114,8 @@ class FilterViewModelTest {
     fun testOnApplyButtonClicked() = runTest {
         // Arrange
         val mockOwnership = Ownership.MullvadOwned.toOwnershipConstraint()
-        val mockSelectedProviders = mockSelectedProviders.toConstraintProviders(mockAllProviders)
+        val mockSelectedProviders =
+            mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders)
         // Act
         viewModel.onApplyButtonClicked()
         // Assert
