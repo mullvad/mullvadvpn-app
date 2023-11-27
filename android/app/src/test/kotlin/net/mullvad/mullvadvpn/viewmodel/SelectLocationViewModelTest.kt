@@ -7,6 +7,8 @@ import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -31,8 +33,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
 
 class SelectLocationViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
@@ -189,9 +189,7 @@ class SelectLocationViewModelTest {
         // Arrange
         val mockSelectedProviders: Constraint<Providers> = mockk()
         every { mockRelayListFilterUseCase.selectedProviders() } returns
-            MutableStateFlow(
-                mockSelectedProviders
-            )
+            MutableStateFlow(mockSelectedProviders)
 
         // Act
         viewModel.removeOwnerFilter()
@@ -209,9 +207,7 @@ class SelectLocationViewModelTest {
         // Arrange
         val mockSelectedOwnership: Constraint<Ownership> = mockk()
         every { mockRelayListFilterUseCase.selectedOwnership() } returns
-            MutableStateFlow(
-                mockSelectedOwnership
-            )
+            MutableStateFlow(mockSelectedOwnership)
 
         // Act
         viewModel.removeProviderFilter()

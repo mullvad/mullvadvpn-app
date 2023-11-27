@@ -98,9 +98,7 @@ fun SelectLocationScreen(
     }
 
     val (backFocus, listFocus, searchBarFocus) = remember { FocusRequester.createRefs() }
-    Column(
-        modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight()
-    ) {
+    Column(modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight()) {
         Row(
             modifier =
                 Modifier.padding(

@@ -40,10 +40,7 @@ fun MullvadFilterChip(text: String, onRemoveClick: () -> Unit) {
     FilterChip(
         modifier = Modifier.padding(vertical = Dimens.chipVerticalPadding),
         shape = MaterialTheme.shapes.chipShape,
-        colors =
-            FilterChipDefaults.filterChipColors(
-                containerColor = MullvadBlue
-            ),
+        colors = FilterChipDefaults.filterChipColors(containerColor = MullvadBlue),
         border =
             FilterChipDefaults.filterChipBorder(
                 borderColor = Color.Transparent,

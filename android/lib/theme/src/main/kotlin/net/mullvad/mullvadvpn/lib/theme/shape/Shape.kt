@@ -6,9 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
-
 val Shapes.chipShape: Shape
-@Composable
-get() {
-    return RoundedCornerShape(8.dp)
-}
+    @Composable
+    get() {
+        return RoundedCornerShape(8.dp)
+    }

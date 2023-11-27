@@ -6,6 +6,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import kotlin.test.assertEquals
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -23,7 +24,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.test.assertEquals
 
 class FilterViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
@@ -52,11 +52,7 @@ class FilterViewModelTest {
             Provider("xtom", false)
         )
     private val mockSelectedProviders: List<Provider> =
-        listOf(
-            Provider("31173", true),
-            Provider("Blix", true),
-            Provider("Creanova", true)
-        )
+        listOf(Provider("31173", true), Provider("Blix", true), Provider("Creanova", true))
 
     @Before
     fun setup() {
@@ -109,10 +105,7 @@ class FilterViewModelTest {
         // Assert
         viewModel.uiState.test {
             val state = awaitItem()
-            assertEquals(
-                mockProvidersList,
-                state.selectedProviders
-            )
+            assertEquals(mockProvidersList, state.selectedProviders)
         }
     }
 

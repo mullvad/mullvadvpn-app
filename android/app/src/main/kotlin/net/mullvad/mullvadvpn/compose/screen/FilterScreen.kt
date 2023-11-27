@@ -108,9 +108,7 @@ fun FilterScreen(
                     Modifier.fillMaxWidth()
                         .padding(top = Dimens.screenVerticalMargin)
                         .clickable(enabled = false, onClick = onApplyClick)
-                        .background(
-                            color =backgroundColor
-                        ),
+                        .background(color = backgroundColor),
                 contentAlignment = Alignment.BottomCenter
             ) {
                 ApplyButton(
@@ -126,68 +124,65 @@ fun FilterScreen(
             }
         },
     ) { contentPadding ->
-            LazyColumn(
-                modifier =
-                Modifier.padding(contentPadding)
-                    .background(backgroundColor)
-                    .fillMaxSize()
-            ) {
+        LazyColumn(
+            modifier = Modifier.padding(contentPadding).background(backgroundColor).fillMaxSize()
+        ) {
+            item {
+                Divider()
+                ExpandableComposeCell(
+                    title = stringResource(R.string.ownership),
+                    isExpanded = ownershipExpanded,
+                    isEnabled = true,
+                    onInfoClicked = null,
+                    onCellClicked = { ownershipExpanded = !ownershipExpanded }
+                )
+            }
+            if (ownershipExpanded) {
                 item {
-                    Divider()
-                    ExpandableComposeCell(
-                        title = stringResource(R.string.ownership),
-                        isExpanded = ownershipExpanded,
-                        isEnabled = true,
-                        onInfoClicked = null,
-                        onCellClicked = { ownershipExpanded = !ownershipExpanded }
+                    SelectableCell(
+                        title = stringResource(id = R.string.any),
+                        isSelected = uiState.selectedOwnership == null,
+                        onCellClicked = { onSelectedOwnership(null) }
                     )
                 }
-                if (ownershipExpanded) {
-                    item {
-                        SelectableCell(
-                            title = stringResource(id = R.string.any),
-                            isSelected = uiState.selectedOwnership == null,
-                            onCellClicked = { onSelectedOwnership(null) }
-                        )
-                    }
-                    items(uiState.filteredOwnershipByProviders) { ownership ->
-                        Divider()
-                        SelectableCell(
-                            title = stringResource(id = ownership.stringResource()),
-                            isSelected = ownership == uiState.selectedOwnership,
-                            onCellClicked = { onSelectedOwnership(ownership) }
-                        )
-                    }
-                }
-                item {
+                items(uiState.filteredOwnershipByProviders) { ownership ->
                     Divider()
-                    ExpandableComposeCell(
-                        title = stringResource(R.string.providers),
-                        isExpanded = providerExpanded,
-                        isEnabled = true,
-                        onInfoClicked = null,
-                        onCellClicked = { providerExpanded = !providerExpanded }
+                    SelectableCell(
+                        title = stringResource(id = ownership.stringResource()),
+                        isSelected = ownership == uiState.selectedOwnership,
+                        onCellClicked = { onSelectedOwnership(ownership) }
                     )
-                }
-                if (providerExpanded) {
-                    item {
-                        Divider()
-                        CheckboxCell(
-                            providerName = stringResource(R.string.all_providers),
-                            checked = uiState.isAllProvidersChecked,
-                            onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) }
-                        )
-                    }
-                    items(uiState.filteredProvidersByOwnership) { provider ->
-                        Divider()
-                        CheckboxCell(
-                            providerName = provider.name,
-                            checked = provider in uiState.selectedProviders,
-                            onCheckedChange = { checked -> onSelectedProviders(checked, provider) }
-                        )
-                    }
                 }
             }
+            item {
+                Divider()
+                ExpandableComposeCell(
+                    title = stringResource(R.string.providers),
+                    isExpanded = providerExpanded,
+                    isEnabled = true,
+                    onInfoClicked = null,
+                    onCellClicked = { providerExpanded = !providerExpanded }
+                )
+            }
+            if (providerExpanded) {
+                item {
+                    Divider()
+                    CheckboxCell(
+                        providerName = stringResource(R.string.all_providers),
+                        checked = uiState.isAllProvidersChecked,
+                        onCheckedChange = { isChecked -> onAllProviderCheckChange(isChecked) }
+                    )
+                }
+                items(uiState.filteredProvidersByOwnership) { provider ->
+                    Divider()
+                    CheckboxCell(
+                        providerName = provider.name,
+                        checked = provider in uiState.selectedProviders,
+                        onCheckedChange = { checked -> onSelectedProviders(checked, provider) }
+                    )
+                }
+            }
+        }
     }
 }
 

@@ -75,6 +75,7 @@ data class Dimensions(
     val verticalDividerPadding: Dp = 12.dp,
     val verticalSpace: Dp = 20.dp,
     val verticalSpacer: Dp = 1.dp,
-    )
+)
+
 val defaultDimensions = Dimensions()
 // Add more configurations here if needed

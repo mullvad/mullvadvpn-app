@@ -30,9 +30,5 @@ fun List<Provider>.toConstraintProviders(allProviders: List<Provider>): Constrai
     if (size == allProviders.size) {
         Constraint.Any()
     } else {
-        Constraint.Only(
-            Providers(
-                map { provider -> provider.name }.toHashSet()
-            )
-        )
+        Constraint.Only(Providers(map { provider -> provider.name }.toHashSet()))
     }

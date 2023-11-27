@@ -45,8 +45,7 @@ class SelectLocationViewModel(
                 searchTerm,
                 selectedOwnership,
                 allProviders,
-                selectedConstraintProviders
-                ->
+                selectedConstraintProviders ->
                 val selectedProviders =
                     selectedConstraintProviders.toSelectedProviders(allProviders)
 

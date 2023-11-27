@@ -27,13 +27,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.MullvadGreen
 @Preview
 @Composable
 private fun CheckboxCellPreview() {
-    AppTheme {
-        CheckboxCell(
-            providerName = "",
-            checked = false,
-            onCheckedChange = {}
-        )
-    }
+    AppTheme { CheckboxCell(providerName = "", checked = false, onCheckedChange = {}) }
 }
 
 @Composable
@@ -58,9 +52,9 @@ internal fun CheckboxCell(
                 .padding(start = startPadding, end = endPadding)
     ) {
         Box(
-            modifier = Modifier
-                .size(Dimens.checkBoxSize)
-                .background(Color.White, MaterialTheme.shapes.small)
+            modifier =
+                Modifier.size(Dimens.checkBoxSize)
+                    .background(Color.White, MaterialTheme.shapes.small)
         ) {
             Checkbox(
                 modifier = Modifier.fillMaxSize(),
@@ -81,7 +75,9 @@ internal fun CheckboxCell(
             text = providerName,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSecondary,
-            modifier = Modifier.weight(1f).padding(top = Dimens.mediumPadding, bottom = Dimens.mediumPadding)
+            modifier =
+                Modifier.weight(1f)
+                    .padding(top = Dimens.mediumPadding, bottom = Dimens.mediumPadding)
         )
     }
 }

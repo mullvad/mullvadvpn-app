@@ -22,7 +22,7 @@ class FilterScreenTest {
     }
 
     @Test
-    fun testDefaultState () {
+    fun testDefaultState() {
         composeTestRule.setContentWithTheme {
             FilterScreen(
                 uiState =
