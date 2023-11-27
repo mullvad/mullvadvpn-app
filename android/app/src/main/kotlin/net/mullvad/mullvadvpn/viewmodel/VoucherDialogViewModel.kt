@@ -15,25 +15,25 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
+import net.mullvad.mullvadvpn.constant.VOUCHER_LENGTH
 import net.mullvad.mullvadvpn.model.VoucherSubmissionError
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
+import net.mullvad.mullvadvpn.ui.serviceconnection.voucherRedeemer
+import net.mullvad.mullvadvpn.util.VoucherRegexHelper
 
 class VoucherDialogViewModel(
-    serviceConnectionManager: ServiceConnectionManager,
+    private val serviceConnectionManager: ServiceConnectionManager,
     private val resources: Resources
 ) : ViewModel() {
 
     private val vmState = MutableStateFlow<VoucherDialogState>(VoucherDialogState.Default)
-    private val voucherInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
+    private val voucherInput = MutableStateFlow("")
 
-    private lateinit var voucherRedeemer: VoucherRedeemer
     private val _shared: SharedFlow<ServiceConnectionContainer> =
         serviceConnectionManager.connectionState
             .flatMapLatest { state ->
@@ -47,8 +47,7 @@ class VoucherDialogViewModel(
 
     var uiState =
         _shared
-            .flatMapLatest { serviceConnection ->
-                voucherRedeemer = serviceConnection.voucherRedeemer
+            .flatMapLatest {
                 combine(vmState, voucherInput) { state, input ->
                     VoucherDialogUiState(voucherInput = input, voucherViewModelState = state)
                 }
@@ -58,7 +57,7 @@ class VoucherDialogViewModel(
     fun onRedeem(voucherCode: String) {
         vmState.update { VoucherDialogState.Verifying }
         viewModelScope.launch {
-            when (val result = voucherRedeemer.submit(voucherCode)) {
+            when (val result = serviceConnectionManager.voucherRedeemer()?.submit(voucherCode)) {
                 is VoucherSubmissionResult.Ok -> handleAddedTime(result.submission.timeAdded)
                 is VoucherSubmissionResult.Error -> setError(result.error)
                 else -> {
@@ -69,7 +68,13 @@ class VoucherDialogViewModel(
     }
 
     fun onVoucherInputChange(voucherString: String) {
-        voucherInput.value = voucherString
+        if (VoucherRegexHelper.validate(voucherString)) {
+            val trimmedVoucher = VoucherRegexHelper.trim(voucherString)
+            voucherInput.value =
+                trimmedVoucher
+                    .substring(0, Integer.min(VOUCHER_LENGTH, trimmedVoucher.length))
+                    .uppercase()
+        }
     }
 
     private fun handleAddedTime(timeAdded: Long) {
