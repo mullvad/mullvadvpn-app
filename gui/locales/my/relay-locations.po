@@ -56,6 +56,10 @@ msgstr "ဘယ်လ်ဂျီယံ"
 msgid "Belgrade"
 msgstr "ဘဲလ်ဂရိတ်"
 
+#. DE BER
+msgid "Berlin"
+msgstr ""
+
 #. CO BOG
 msgid "Bogota"
 msgstr "ဘိုဂိုတာ"
@@ -91,6 +95,10 @@ msgstr "ဘူဒါပက်"
 #. BG
 msgid "Bulgaria"
 msgstr "ဘူလ်ဂေးရီးယား"
+
+#. CA YYC
+msgid "Calgary"
+msgstr ""
 
 #. CA
 msgid "Canada"
@@ -240,6 +248,10 @@ msgstr "ဂျိုဟန်နက်စ်ဘတ်"
 msgid "Kiev"
 msgstr "ကိယက်ဗ်"
 
+#. UA IEV
+msgid "Kyiv"
+msgstr ""
+
 #. LV
 msgid "Latvia"
 msgstr "လတ်ဗီးယား"
@@ -283,6 +295,10 @@ msgstr "မာဆေး"
 #. AU MEL
 msgid "Melbourne"
 msgstr "မဲလ်ဘုန်း"
+
+#. MX
+msgid "Mexico"
+msgstr ""
 
 #. US MIA
 msgid "Miami, FL"
@@ -383,6 +399,10 @@ msgstr "ပရာ့ဂ်"
 #. IN PNQ
 msgid "Pune"
 msgstr "ပူနာ"
+
+#. MX QRO
+msgid "Queretaro"
+msgstr ""
 
 #. US RAG
 msgid "Raleigh, NC"
@@ -551,4 +571,3 @@ msgstr "ဇက်ဂ်ရက်ဘ်"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ဇူးရစ်ချ်"
-
