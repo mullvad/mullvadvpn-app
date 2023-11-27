@@ -59,6 +59,16 @@ Line wrap the file at 100 chars.                                              Th
   the directory in ProgramData.
 
 
+## [android/2023.8-beta2] - 2023-11-27
+### Fixed
+#### Android
+- Fix top bar flickering in some scrollable views.
+- Fix welcome screen sometimes showing on app restart after adding time.
+- Fix inconsistencies with the account history in the login view.
+- Fix OS crash when sharing long logs by instead sharing the log content as a file.
+- Improve in-app purchase and verification flow in some circumstances.
+
+
 ## [android/2023.8-beta1] - 2023-11-20
 ### Changed
 #### Android
