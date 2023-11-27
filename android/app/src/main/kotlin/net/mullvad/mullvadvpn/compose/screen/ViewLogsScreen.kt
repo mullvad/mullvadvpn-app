@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,21 +14,30 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
+import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.provider.getLogsShareIntent
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
 
 @Preview
@@ -52,13 +60,31 @@ fun ViewLogsScreen(
 ) {
     val context = LocalContext.current
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val clipboardHandle = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
+            )
+        },
         topBar = {
             MullvadMediumTopBar(
                 title = stringResource(id = R.string.view_logs),
                 navigationIcon = { NavigateBackIconButton(onBackClick) },
                 actions = {
-                    IconButton(onClick = { shareText(context, uiState.text()) }) {
+                    val clipboardToastMessage = stringResource(R.string.copied_logs_to_clipboard)
+                    IconButton(
+                        onClick = { clipboardHandle(uiState.text(), clipboardToastMessage) }
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.icon_copy),
+                            contentDescription = null
+                        )
+                    }
+                    IconButton(onClick = { scope.launch { shareText(context, uiState.text()) } }) {
                         Icon(imageVector = Icons.Default.Share, contentDescription = null)
                     }
                 }
@@ -101,14 +127,7 @@ fun ViewLogsScreen(
     }
 }
 
-private fun shareText(context: Context, text: String) {
-    val sendIntent: Intent =
-        Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, text)
-            type = "text/plain"
-        }
-    val shareIntent = Intent.createChooser(sendIntent, null)
-
+private fun shareText(context: Context, logContent: String) {
+    val shareIntent = context.getLogsShareIntent("Share logs", logContent)
     context.startActivity(shareIntent)
 }
