@@ -4,11 +4,15 @@ import android.app.Activity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import net.mullvad.mullvadvpn.constant.VERIFICATION_BACK_OFF_FACTOR
+import net.mullvad.mullvadvpn.constant.VERIFICATION_INITIAL_BACK_OFF_MILLISECONDS
+import net.mullvad.mullvadvpn.constant.VERIFICATION_MAX_ATTEMPTS
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
+import net.mullvad.mullvadvpn.util.retryWhen
 
 interface PaymentUseCase {
     val paymentAvailability: Flow<PaymentAvailability?>
@@ -43,13 +47,22 @@ class PlayPaymentUseCase(private val paymentRepository: PaymentRepository) : Pay
     }
 
     override suspend fun verifyPurchases(onSuccessfulVerification: () -> Unit) {
-        paymentRepository.verifyPurchases().collect {
-            if (it == VerificationResult.Success) {
-                // Update the payment availability after a successful verification.
-                queryPaymentAvailability()
-                onSuccessfulVerification()
+        paymentRepository
+            .verifyPurchases()
+            .retryWhen(
+                maxAttempts = VERIFICATION_MAX_ATTEMPTS,
+                initialBackOffDelay = VERIFICATION_INITIAL_BACK_OFF_MILLISECONDS,
+                backOffDelayFactor = VERIFICATION_BACK_OFF_FACTOR
+            ) {
+                it is VerificationResult.Error
             }
-        }
+            .collect {
+                if (it == VerificationResult.Success) {
+                    // Update the payment availability after a successful verification.
+                    queryPaymentAvailability()
+                    onSuccessfulVerification()
+                }
+            }
     }
 }
 
