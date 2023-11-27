@@ -693,7 +693,7 @@ where
 
         let api_handle = api_runtime
             .mullvad_rest_handle(
-                Box::pin(connection_modes_handler.clone().as_stream()),
+                Box::pin(connection_modes_handler.clone().into_stream()),
                 endpoint_updater.callback(),
             )
             .await;
@@ -2369,13 +2369,6 @@ where
         });
     }
 
-    /// Try to reach the Mullvad API using a specific access method, returning
-    /// an [`Error`] in the case where the test fails to reach the API.
-    ///
-    /// Ephemerally sets a new access method (associated with `access_method`)
-    /// to be used for subsequent API calls, before performing an API call and
-    /// switching back to the previously active access method. The previous
-    /// access method is *always* reset.
     async fn on_test_api_access_method(
         &mut self,
         tx: ResponseTx<bool, Error>,
@@ -2387,105 +2380,24 @@ where
         // access method.
         let api_handle = self.api_handle.clone();
         let handle = self.connection_modes_handler.clone();
-        let access_method = self.get_api_access_method(access_method);
-        // TODO(markus): Clean up this error handling
-        let new_access_method = if let Ok(access_method) = access_method {
-            access_method
-        } else {
-            Self::oneshot_send(
-                tx,
-                access_method
-                    .map(|_| false)
-                    .map_err(Error::AccessMethodError),
-                "on_test_api_access_method response",
-            );
-            return;
-        };
+        let access_method_lookup = self
+            .get_api_access_method(access_method)
+            .map_err(Error::AccessMethodError);
 
-        let fut = async move {
-            // Setup test
-            let previous_access_method = handle
-                .get_access_method()
-                .await
-                .map_err(Error::ApiConnectionModeError)
-                // TODO(markus): Do not unwrap!
-                .unwrap();
-
-            let x = new_access_method.clone();
-            handle.set_access_method(new_access_method)
-                .await
-                .map_err(Error::ApiConnectionModeError)
-                // TODO(markus): Do not unwrap!
-                .unwrap();
-
-            // We need to perform a rotation of API endpoint after a set action
-            let rotation_handle = api_handle.clone();
-            rotation_handle
-                .service()
-                .next_api_endpoint()
-                .await
-                .map_err(|err| {
-                    log::error!("Failed to rotate API endpoint: {err}");
-                    err
-                })
-                // TODO(markus): Error handling
-                .unwrap();
-
-            // Set up the reset
-            //
-            // In case the API call fails, the next API endpoint will
-            // automatically be selected, which means that we need to set up
-            // with the previous API endpoint beforehand.
-            handle
-                .set_access_method(previous_access_method)
-                .await
-                .map_err(|err| {
-                    log::error!(
-                        "Could not reset to previous access
-            method after API reachability test was carried out. This should only
-            happen if the previous access method was removed in the meantime."
-                    );
-                    err
-                })
-                // TODO(markus): Do not unwrap!
-                .unwrap();
-
-            // Perform test
-            //
-            // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
-            // request because we are *only* concerned with if we get a reply from
-            // the API, and not with the actual data that the endpoint returns.
-            let result = mullvad_api::ApiProxy::new(api_handle)
-                .api_addrs_available()
-                .await
-                .map_err(Error::RestError);
-
-            // We need to perform a rotation of API endpoint after a set action
-            // Note that this will be done automatically if the API call fails,
-            // so it only has to be done if the call succeeded ..
-            if result.as_ref().is_ok_and(|&succeeded| succeeded) {
-                rotation_handle
-                .service()
-                .next_api_endpoint()
-                .await
-                .map_err(|err| {
-                    log::error!("Failed to rotate API endpoint: {err}");
-                    err
-                })
-                // TODO(markus): Error handling
-                .unwrap();
+        match access_method_lookup {
+            Ok(access_method) => {
+                tokio::spawn(async move {
+                    let result =
+                        access_method::test_access_method(access_method, handle, api_handle)
+                            .await
+                            .map_err(Error::AccessMethodError);
+                    Self::oneshot_send(tx, result, "on_test_api_access_method response");
+                });
             }
-
-            log::info!(
-                "The result of testing {method:?} is {result:?}",
-                method = x.access_method,
-                result = result
-            );
-
-            Self::oneshot_send(tx, result, "on_test_api_access_method response");
-        };
-
-        tokio::spawn(fut);
+            Err(err) => {
+                Self::oneshot_send(tx, Err(err), "on_test_api_access_method response");
+            }
+        }
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
