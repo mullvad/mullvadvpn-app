@@ -27,13 +27,6 @@ public protocol APIQuerying {
         receiptString: Data
     ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
 
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
-    ) -> Cancellable
-
     func sendProblemReport(
         _ body: REST.ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
@@ -79,13 +72,13 @@ extension REST {
                 with: responseDecoder
             )
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "get-api-addrs",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
         }
 
         public func getRelays(
@@ -136,13 +129,13 @@ extension REST {
                     }
                 }
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "get-relays",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
         }
 
         public func createApplePayment(
@@ -202,19 +195,6 @@ extension REST {
             )
         }
 
-        @available(*, deprecated, message: "Use createApplePayment(accountNumber:, receiptString:) instead")
-        public func createApplePayment(
-            accountNumber: String,
-            receiptString: Data,
-            retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<CreateApplePaymentResponse>
-        ) -> Cancellable {
-            return createApplePayment(accountNumber: accountNumber, receiptString: receiptString).execute(
-                retryStrategy: retryStrategy,
-                completionHandler: completionHandler
-            )
-        }
-
         public func sendProblemReport(
             _ body: ProblemReportRequest,
             retryStrategy: REST.RetryStrategy,
@@ -246,13 +226,13 @@ extension REST {
                     }
                 }
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "send-problem-report",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
         }
 
         public func submitVoucher(
@@ -290,13 +270,13 @@ extension REST {
                 }
             }
 
-            return addOperation(
+            let executor = makeRequestExecutor(
                 name: "submit-voucher",
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
-                responseHandler: responseHandler,
-                completionHandler: completionHandler
+                responseHandler: responseHandler
             )
+
+            return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
         }
     }
 

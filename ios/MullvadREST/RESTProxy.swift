@@ -43,23 +43,6 @@ extension REST {
             self.responseDecoder = responseDecoder
         }
 
-        @available(*, deprecated, message: "Use makeRequestExecutor() instead")
-        func addOperation<Success>(
-            name: String,
-            retryStrategy: REST.RetryStrategy,
-            requestHandler: RESTRequestHandler,
-            responseHandler: some RESTResponseHandler<Success>,
-            completionHandler: @escaping ProxyCompletionHandler<Success>
-        ) -> Cancellable {
-            let executor = makeRequestExecutor(
-                name: name,
-                requestHandler: requestHandler,
-                responseHandler: responseHandler
-            )
-
-            return executor.execute(retryStrategy: retryStrategy, completionHandler: completionHandler)
-        }
-
         func makeRequestExecutor<Success>(
             name: String,
             requestHandler: RESTRequestHandler,

@@ -1,7 +1,7 @@
 use super::{config::TEST_CONFIG, Error, PING_TIMEOUT, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use futures::StreamExt;
-use mullvad_management_interface::{types, ManagementServiceClient};
+use mullvad_management_interface::{types, ManagementServiceClient, MullvadProxyClient};
 use mullvad_types::{
     location::Location,
     relay_constraints::{
@@ -19,7 +19,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
-use test_rpc::{package::Package, AmIMullvad, Interface, ServiceClient};
+use test_rpc::{package::Package, AmIMullvad, ServiceClient};
 use tokio::time::timeout;
 
 #[macro_export]
@@ -82,17 +82,30 @@ pub async fn using_mullvad_exit(rpc: &ServiceClient) -> bool {
         .mullvad_exit_ip
 }
 
+/// Get VPN tunnel interface name
+pub async fn get_tunnel_interface(rpc: ManagementServiceClient) -> Option<String> {
+    let mut client = MullvadProxyClient::from_rpc_client(rpc);
+    match client.get_tunnel_state().await.ok()? {
+        TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. } => {
+            endpoint.tunnel_interface
+        }
+        _ => None,
+    }
+}
+
 /// Sends a number of probes and returns the number of observed packets (UDP, TCP, or ICMP)
 pub async fn send_guest_probes(
     rpc: ServiceClient,
-    interface: Option<Interface>,
+    interface: String,
     destination: SocketAddr,
 ) -> Result<ProbeResult, Error> {
+    const MONITOR_DURATION: Duration = Duration::from_secs(8);
+
     let pktmon = start_packet_monitor(
         move |packet| packet.destination.ip() == destination.ip(),
         MonitorOptions {
             direction: Some(crate::network_monitor::Direction::In),
-            timeout: Some(Duration::from_secs(3)),
+            timeout: Some(MONITOR_DURATION),
             ..Default::default()
         },
     )
@@ -100,7 +113,7 @@ pub async fn send_guest_probes(
 
     let send_handle = tokio::spawn(send_guest_probes_without_monitor(
         rpc,
-        interface,
+        Some(interface),
         destination,
     ));
 
@@ -132,12 +145,12 @@ pub async fn send_guest_probes(
 /// Send one probe per transport protocol to `destination` without running a packet monitor
 pub async fn send_guest_probes_without_monitor(
     rpc: ServiceClient,
-    interface: Option<Interface>,
+    interface: Option<String>,
     destination: SocketAddr,
 ) {
-    let bind_addr = if let Some(interface) = interface {
+    let bind_addr = if let Some(ref interface) = interface {
         SocketAddr::new(
-            rpc.get_interface_ip(interface)
+            rpc.get_interface_ip(interface.clone())
                 .await
                 .expect("failed to obtain interface IP"),
             0,
@@ -147,9 +160,19 @@ pub async fn send_guest_probes_without_monitor(
     };
 
     let tcp_rpc = rpc.clone();
-    let tcp_send = async move { tcp_rpc.send_tcp(interface, bind_addr, destination).await };
+    let tcp_interface = interface.clone();
+    let tcp_send = async move {
+        tcp_rpc
+            .send_tcp(tcp_interface, bind_addr, destination)
+            .await
+    };
     let udp_rpc = rpc.clone();
-    let udp_send = async move { udp_rpc.send_udp(interface, bind_addr, destination).await };
+    let udp_interface = interface.clone();
+    let udp_send = async move {
+        udp_rpc
+            .send_udp(udp_interface, bind_addr, destination)
+            .await
+    };
     let icmp = async move { ping_with_timeout(&rpc, destination.ip(), interface).await };
     let _ = tokio::join!(tcp_send, udp_send, icmp);
 }
@@ -157,7 +180,7 @@ pub async fn send_guest_probes_without_monitor(
 pub async fn ping_with_timeout(
     rpc: &ServiceClient,
     dest: IpAddr,
-    interface: Option<Interface>,
+    interface: Option<String>,
 ) -> Result<(), Error> {
     timeout(PING_TIMEOUT, rpc.send_ping(interface, dest))
         .await
@@ -447,30 +470,6 @@ pub fn unreachable_wireguard_tunnel() -> talpid_types::net::wireguard::Connectio
         #[cfg(target_os = "linux")]
         fwmark: None,
     }
-}
-
-/// Randomly select an entry and exit node from the daemon's relay list.
-/// The exit node is distinct from the entry node.
-///
-/// * `mullvad_client` - An interface to the Mullvad daemon.
-/// * `critera` - A function used to determine which relays to include in random selection.
-pub async fn random_entry_and_exit<Filter>(
-    mullvad_client: &mut ManagementServiceClient,
-    criteria: Filter,
-) -> Result<(Relay, Relay), Error>
-where
-    Filter: Fn(&Relay) -> bool,
-{
-    use itertools::Itertools;
-    // Pluck the first 2 relays and return them as a tuple.
-    // This will fail if there are less than 2 relays in the relay list.
-    filter_relays(mullvad_client, criteria)
-        .await?
-        .into_iter()
-        .next_tuple()
-        .ok_or(Error::Other(
-            "failed to randomly select two relays from daemon's relay list".to_string(),
-        ))
 }
 
 /// Return a filtered version of the daemon's relay list.

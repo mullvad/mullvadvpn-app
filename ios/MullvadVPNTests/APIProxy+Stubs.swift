@@ -36,15 +36,6 @@ struct APIProxyStub: APIQuerying {
         })
     }
 
-    func createApplePayment(
-        accountNumber: String,
-        receiptString: Data,
-        retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<REST.CreateApplePaymentResponse>
-    ) -> Cancellable {
-        AnyCancellable()
-    }
-
     func sendProblemReport(
         _ body: REST.ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,

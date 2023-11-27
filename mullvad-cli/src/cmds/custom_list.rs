@@ -1,8 +1,5 @@
-use super::{
-    relay::{find_relay_by_hostname, get_filtered_relays},
-    relay_constraints::LocationArgs,
-};
-use anyhow::{anyhow, Result};
+use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs};
+use anyhow::{anyhow, bail, Result};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
@@ -108,31 +105,49 @@ impl CustomList {
     }
 
     async fn add_location(name: String, location_args: LocationArgs) -> Result<()> {
-        let countries = get_filtered_relays().await?;
-        let location = find_relay_by_hostname(&countries, &location_args.country)
-            .map_or(Constraint::from(location_args), Constraint::Only)
-            .option()
-            .ok_or(anyhow!("\"any\" is not a valid location"))?;
-
         let mut rpc = MullvadProxyClient::new().await?;
 
-        let mut list = find_list_by_name(&mut rpc, &name).await?;
-        list.locations.insert(location);
-        rpc.update_custom_list(list).await?;
+        // Don't filter out any hosts, i.e. allow adding even inactive ones
+        let relay_filter = |_: &_| true;
+        let location_constraint =
+            resolve_location_constraint(&mut rpc, location_args, relay_filter).await?;
+
+        match location_constraint {
+            Constraint::Any => bail!("\"any\" is not a valid location"),
+            Constraint::Only(location) => {
+                let mut list = find_list_by_name(&mut rpc, &name).await?;
+                if list.locations.insert(location) {
+                    rpc.update_custom_list(list).await?;
+                    println!("Location added to custom-list")
+                } else {
+                    bail!("Provided location is already present in custom-list")
+                };
+            }
+        }
 
         Ok(())
     }
 
     async fn remove_location(name: String, location_args: LocationArgs) -> Result<()> {
-        let location = Constraint::<GeographicLocationConstraint>::from(location_args)
-            .option()
-            .ok_or(anyhow!("\"any\" is not a valid location"))?;
-
         let mut rpc = MullvadProxyClient::new().await?;
 
-        let mut list = find_list_by_name(&mut rpc, &name).await?;
-        list.locations.remove(&location);
-        rpc.update_custom_list(list).await?;
+        // Don't filter out any hosts, i.e. allow adding even inactive ones
+        let relay_filter = |_: &_| true;
+        let location_constraint =
+            resolve_location_constraint(&mut rpc, location_args, relay_filter).await?;
+
+        match location_constraint {
+            Constraint::Any => bail!("\"any\" is not a valid location"),
+            Constraint::Only(location) => {
+                let mut list = find_list_by_name(&mut rpc, &name).await?;
+                if list.locations.remove(&location) {
+                    rpc.update_custom_list(list).await?;
+                    println!("Location removed from custom-list")
+                } else {
+                    bail!("Provided location was not present in custom-list")
+                };
+            }
+        }
 
         Ok(())
     }

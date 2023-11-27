@@ -24,14 +24,6 @@ struct AccountsProxyStub: RESTAccountHandling {
         })
     }
 
-    func getAccountData(
-        accountNumber: String,
-        retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Account>
-    ) -> Cancellable {
-        AnyCancellable()
-    }
-
     func deleteAccount(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,

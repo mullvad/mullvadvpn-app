@@ -13,7 +13,7 @@ use test_rpc::{
     mullvad_daemon::{ServiceStatus, SOCKET_PATH},
     package::Package,
     transport::GrpcForwarder,
-    AppTrace, Interface, Service,
+    AppTrace, Service,
 };
 use tokio::sync::broadcast::error::TryRecvError;
 use tokio::{
@@ -117,7 +117,7 @@ impl Service for TestServer {
     async fn send_tcp(
         self,
         _: context::Context,
-        interface: Option<Interface>,
+        interface: Option<String>,
         bind_addr: SocketAddr,
         destination: SocketAddr,
     ) -> Result<(), test_rpc::Error> {
@@ -127,7 +127,7 @@ impl Service for TestServer {
     async fn send_udp(
         self,
         _: context::Context,
-        interface: Option<Interface>,
+        interface: Option<String>,
         bind_addr: SocketAddr,
         destination: SocketAddr,
     ) -> Result<(), test_rpc::Error> {
@@ -137,10 +137,10 @@ impl Service for TestServer {
     async fn send_ping(
         self,
         _: context::Context,
-        interface: Option<Interface>,
+        interface: Option<String>,
         destination: IpAddr,
     ) -> Result<(), test_rpc::Error> {
-        net::send_ping(interface, destination).await
+        net::send_ping(interface.as_ref().map(String::as_str), destination).await
     }
 
     async fn geoip_lookup(
@@ -165,20 +165,16 @@ impl Service for TestServer {
             .collect())
     }
 
-    async fn get_interface_name(
-        self,
-        _: context::Context,
-        interface: Interface,
-    ) -> Result<String, test_rpc::Error> {
-        Ok(net::get_interface_name(interface).to_owned())
-    }
-
     async fn get_interface_ip(
         self,
         _: context::Context,
-        interface: Interface,
+        interface: String,
     ) -> Result<IpAddr, test_rpc::Error> {
-        net::get_interface_ip(interface)
+        net::get_interface_ip(&interface).await
+    }
+
+    async fn get_default_interface(self, _: context::Context) -> Result<String, test_rpc::Error> {
+        Ok(net::get_default_interface().to_owned())
     }
 
     async fn poll_output(

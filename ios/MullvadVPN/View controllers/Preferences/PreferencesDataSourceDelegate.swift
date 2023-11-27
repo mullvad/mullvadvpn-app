@@ -9,18 +9,8 @@
 import Foundation
 
 protocol PreferencesDataSourceDelegate: AnyObject {
-    func preferencesDataSource(
-        _ dataSource: PreferencesDataSource,
-        didChangeViewModel viewModel: PreferencesViewModel
-    )
-
-    func preferencesDataSource(
-        _ dataSource: PreferencesDataSource,
-        showInfo for: PreferencesDataSource.InfoButtonItem?
-    )
-
-    func preferencesDataSource(
-        _ dataSource: PreferencesDataSource,
-        didSelectPort port: UInt16?
-    )
+    func didChangeViewModel(_ viewModel: PreferencesViewModel)
+    func showInfo(for: PreferencesInfoButtonItem)
+    func showDNSSettings()
+    func didSelectWireGuardPort(_ port: UInt16?)
 }

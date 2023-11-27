@@ -22,21 +22,7 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-### Added
-- Add customizable relay lists to the CLI on desktop. Custom lists can be managed through
-  `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
-- Add custom lists to location selector in desktop app.
-- Add custom API access methods to the CLI on desktop. Custom API access methods allow the user to
-  proxy API traffic through a peer before connecting to a tunnel. They are managed through
-  `mullvad api-access`, and the initially supported network protocols are `Shadowsocks` and
-  `SOCKS5`.
-- Add social media content blocker.
-- Add ability to override server IPs to the CLI.
-- Add CLI support for applying patches to the settings with `mullvad import-settings`.
-
 ### Changed
-- Update Electron from 25.2.0 to 26.3.0.
-
 #### Android
 - Migrate welcome view to compose.
 - Migrate in app notifications to compose.
@@ -51,6 +37,23 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for setting per-app language in system settings.
 - Add support for in app purchases for versions that are released on Google Play.
 
+
+## [2023.6-beta1] - 2023-11-23
+### Added
+- Add customizable relay lists to the CLI on desktop. Custom lists can be managed through `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
+- Add custom lists to location selector in desktop app.
+- Add custom API access methods to the CLI on desktop. Custom API access methods allow the user to
+  proxy API traffic through a peer before connecting to a tunnel. They are managed through
+  `mullvad api-access`, and the initially supported network protocols are `Shadowsocks` and
+  `SOCKS5`.
+- Add social media content blocker.
+- Add ability to override server IPs to the CLI.
+- Add CLI support for applying patches to the settings with `mullvad import-settings`.
+
+### Changed
+- Update Electron from 25.2.0 to 26.3.0.
+- CLI command `mullvad relay set tunnel wireguard entry-location` changed to `mullvad relay set tunnel wireguard entry location`, as the `location` subcommand can now be swapped for `custom-list` to select entry relays using a custom list.
+
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.
 
@@ -59,6 +62,7 @@ Line wrap the file at 100 chars.                                              Th
 - Remove wireguard-go (userspace WireGuard) support.
 
 ### Fixed
+- Validate that hostname matches correct server type for CLI commands `mullvad relay set location`, `mullvad bridge set location` and `mullvad relay set tunnel wireguard entry location`
 - Show correct endpoint in CLI for custom relays.
 - Lower risk of being rate limited.
 - Fix error dialog when failing to write to console by handling the thrown error.
@@ -72,6 +76,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix possible privilege escalation by setting stricter permissions on mullvad directories such as
   the directory in ProgramData.
+
 
 ## [android/2023.7] - 2023-10-11
 ### Changed

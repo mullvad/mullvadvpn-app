@@ -63,6 +63,7 @@ pub enum Error {
     #[error(display = "Failed to parse gRPC response")]
     InvalidGrpcResponse(#[error(source)] types::FromProtobufTypeError),
 
+    #[cfg(target_os = "macos")]
     #[error(display = "An error occurred: {}", _0)]
     Other(String),
 }

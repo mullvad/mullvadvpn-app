@@ -680,7 +680,7 @@ where
                 .set_config(new_selector_config(settings));
         });
 
-        let proxy_provider = api::ApiConnectionModeProvider::new(
+        let proxy_provider = match api::ApiConnectionModeProvider::new(
             cache_dir.clone(),
             relay_selector.clone(),
             settings
@@ -691,7 +691,22 @@ where
                 .filter(|api_access_method| api_access_method.enabled())
                 .cloned()
                 .collect(),
-        );
+        ) {
+            Ok(provider) => provider,
+            Err(api::Error::NoAccessMethods) => {
+                // No settings seem to have been found. Default to using the the
+                // direct access method.
+                let default = mullvad_types::access_method::Settings::direct();
+                api::ApiConnectionModeProvider::new(
+                    cache_dir.clone(),
+                    relay_selector.clone(),
+                    vec![default],
+                )
+                .expect(
+                    "Failed to create the data structure responsible for managing access methods",
+                )
+            }
+        };
 
         let connection_modes = proxy_provider.handle();
 
@@ -1884,9 +1899,15 @@ where
             .await
         {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_allow_lan response");
                 if settings_changed {
-                    self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
+                    self.send_tunnel_command(TunnelCommand::AllowLan(
+                        allow_lan,
+                        oneshot_map(tx, |tx, ()| {
+                            Self::oneshot_send(tx, Ok(()), "set_allow_lan response");
+                        }),
+                    ));
+                } else {
+                    Self::oneshot_send(tx, Ok(()), "set_allow_lan response");
                 }
             }
             Err(e) => {
@@ -1931,11 +1952,15 @@ where
             .await
         {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
                 if settings_changed {
                     self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(
                         block_when_disconnected,
+                        oneshot_map(tx, |tx, ()| {
+                            Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
+                        }),
                     ));
+                } else {
+                    Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
                 }
             }
             Err(e) => {
@@ -2133,12 +2158,18 @@ where
             .await
         {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_dns_options response");
                 if settings_changed {
                     let settings = self.settings.to_settings();
                     let resolvers =
                         dns::addresses_from_options(&settings.tunnel_options.dns_options);
-                    self.send_tunnel_command(TunnelCommand::Dns(resolvers));
+                    self.send_tunnel_command(TunnelCommand::Dns(
+                        resolvers,
+                        oneshot_map(tx, |tx, ()| {
+                            Self::oneshot_send(tx, Ok(()), "set_dns_options response");
+                        }),
+                    ));
+                } else {
+                    Self::oneshot_send(tx, Ok(()), "set_dns_options response");
                 }
             }
             Err(e) => {
@@ -2381,7 +2412,8 @@ where
             && (*self.target_state == TargetState::Secured || self.settings.auto_connect)
         {
             log::debug!("Blocking firewall during shutdown since system is going down");
-            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+            let (tx, _rx) = oneshot::channel();
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
         }
 
         self.state.shutdown(&self.tunnel_state);
@@ -2393,7 +2425,8 @@ where
         //       without causing the service to be restarted.
 
         if *self.target_state == TargetState::Secured {
-            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+            let (tx, _rx) = oneshot::channel();
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true, tx));
         }
         self.target_state.lock();
     }
@@ -2553,4 +2586,20 @@ fn new_selector_config(settings: &Settings) -> SelectorConfig {
         custom_lists: settings.custom_lists.clone(),
         relay_overrides: settings.relay_overrides.clone(),
     }
+}
+
+/// Consume a oneshot sender of `T1` and return a sender that takes a different type `T2`. `forwarder` should map `T1` back to `T2` and
+/// send the result back to the original receiver.
+fn oneshot_map<T1: Send + 'static, T2: Send + 'static>(
+    tx: oneshot::Sender<T1>,
+    forwarder: impl Fn(oneshot::Sender<T1>, T2) + Send + 'static,
+) -> oneshot::Sender<T2> {
+    let (new_tx, new_rx) = oneshot::channel();
+    tokio::spawn(async move {
+        match new_rx.await {
+            Ok(result) => forwarder(tx, result),
+            Err(oneshot::Canceled) => (),
+        }
+    });
+    new_tx
 }

@@ -564,6 +564,16 @@ final class TunnelManager: StorePaymentObserver {
         )
     }
 
+    func setObfuscationSettings(_ newSettings: WireGuardObfuscationSettings) {
+        scheduleSettingsUpdate(
+            taskName: "Set obfuscation settings",
+            modificationBlock: { settings in
+                settings.wireGuardObfuscation = newSettings
+            },
+            completionHandler: nil
+        )
+    }
+
     // MARK: - Tunnel observeration
 
     /// Add tunnel observer.
@@ -982,6 +992,7 @@ final class TunnelManager: StorePaymentObserver {
             let updatedConstraints = updatedSettings.relayConstraints
             let selectNewRelay = currentConstraints != updatedConstraints
 
+            // TODO: Handle using an obfuscator here
             self.setSettings(updatedSettings, persist: true)
             self.reconnectTunnel(selectNewRelay: selectNewRelay, completionHandler: nil)
         }

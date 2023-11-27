@@ -95,6 +95,9 @@ struct PreferencesViewModel: Equatable {
     var customDNSDomains: [DNSServerEntry]
     var availableWireGuardPortRanges: [[UInt16]] = []
 
+    private(set) var obfuscationState: WireGuardObfuscationState
+    private(set) var obfuscationPort: WireGuardObfuscationPort
+
     static let defaultWireGuardPorts: [UInt16] = [51820, 53]
 
     mutating func setBlockAdvertising(_ newValue: Bool) {
@@ -135,6 +138,14 @@ struct PreferencesViewModel: Equatable {
 
     mutating func setWireGuardPort(_ newValue: UInt16?) {
         wireGuardPort = newValue
+    }
+
+    mutating func setWireGuardObfuscationState(_ newState: WireGuardObfuscationState) {
+        obfuscationState = newState
+    }
+
+    mutating func setWireGuardObfuscationPort(_ newPort: WireGuardObfuscationPort) {
+        obfuscationPort = newPort
     }
 
     /// Precondition for enabling Custom DNS.
@@ -179,6 +190,9 @@ struct PreferencesViewModel: Equatable {
             DNSServerEntry(identifier: UUID(), address: "\(ipAddress)")
         }
         wireGuardPort = tunnelSettings.relayConstraints.port.value
+
+        obfuscationState = tunnelSettings.wireGuardObfuscation.state
+        obfuscationPort = tunnelSettings.wireGuardObfuscation.port
     }
 
     /// Produce merged view model keeping entry `identifier` for matching DNS entries.

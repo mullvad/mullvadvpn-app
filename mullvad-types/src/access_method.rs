@@ -51,21 +51,22 @@ impl Settings {
     pub fn cloned(&self) -> Vec<AccessMethodSetting> {
         self.access_method_settings.clone()
     }
+
+    pub fn direct() -> AccessMethodSetting {
+        let method = BuiltInAccessMethod::Direct;
+        AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
+    }
+
+    pub fn mullvad_bridges() -> AccessMethodSetting {
+        let method = BuiltInAccessMethod::Bridge;
+        AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
+    }
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            access_method_settings: vec![BuiltInAccessMethod::Direct, BuiltInAccessMethod::Bridge]
-                .into_iter()
-                .map(|built_in| {
-                    AccessMethodSetting::new(
-                        built_in.canonical_name(),
-                        true,
-                        AccessMethod::from(built_in),
-                    )
-                })
-                .collect(),
+            access_method_settings: vec![Settings::direct(), Settings::mullvad_bridges()],
         }
     }
 }
