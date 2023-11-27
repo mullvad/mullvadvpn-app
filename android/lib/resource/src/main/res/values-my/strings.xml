@@ -12,10 +12,13 @@
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
     <string name="agree_and_continue">သဘောတူပြီး ဆက်လုပ်ရန်</string>
     <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
+    <string name="all_providers">ပံ့ပိုးသူအားလုံး</string>
     <string name="allow_lan_footer">ဝေမျှရန်၊ ပရင့်ထုတ်ရန်စသည်တို့အတွက် တူညီသည့် ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပြုပေးပါသည်။</string>
     <string name="always_on_vpn_error_notification_content">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ Mullvad VPN ကို မသုံးမီ &lt;b&gt;%1$s&lt;/b&gt; အတွက် VPN အမြဲဖွင့်ထားမှုကို ပိတ်ပေးပါ။</string>
     <string name="always_on_vpn_error_notification_title">အမြဲဖွင့် VPN ကို အခြားအက်ပ်တစ်ခုသို့ သတ်မှတ်ထားပါသည်</string>
+    <string name="any">တစ်ခုခု</string>
     <string name="app_version">အက်ပ်ဗားရှင်း</string>
+    <string name="apply">သုံးရန်</string>
     <string name="auth_failed">အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
     <string name="auto_connect">အော်တို ချိတ်ဆက်မှု</string>
     <string name="auto_connect_footer">အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">ပို့ရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_send_details">ဖောင်မှ ထွက်ပြီး နောက်မှ ထပ်ကြိုးစားကြည့်ပါ၊ သင်ဖြည့်ထားသည့် အချက်အလက်များသည် ဤတွင် ဆက်ရှိနေပါမည်။</string>
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
+    <string name="filter">စစ်ထုတ်မှု</string>
+    <string name="filtered">စစ်ထုတ်ထားသော-</string>
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>
     <string name="go_to_login">ဝင်ရောက်ရန် သွားပါ</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</string>
     <string name="max_devices_warning_title">စက်များလွန်းနေသည်</string>
     <string name="mullvad_account_number">Mullvad အကောင့်နံပါတ်</string>
+    <string name="mullvad_owned_only">Mullvad ပိုင်ဆိုင်သည်များသာ</string>
     <string name="new_device_notification_message">ကြိုဆိုပါသည်၊ ယခုမှစ၍ ဤစက်ကို &lt;b&gt;%1$s&lt;/b&gt; ဟု ခေါ်ဆိုပါမည်။ နောက်ထပ်အသေးစိတ်တို့အတွက် အကောင့်တွင် အချက်အလက် ခလုတ်ကို နှိပ်၍ ကြည့်နိုင်သည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="no_matching_relay">သင့်ဆက်တင်နှင့် ကိုက်ညီသော ဆာဗာများ မရှိပါ၊ ဆာဗာ သို့မဟုတ် အခြားဆက်တင်တို့ကို ပြောင်းလဲရန် ကြိုးစားကြည့်ပါ။</string>
     <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
     <string name="not_blocking_internet">ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်</string>
+    <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ဤသည်ကို သုံးနိုင်ပါသည်။</string>
     <string name="obfuscation_on_udp_over_tcp">ဖွင့် (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard Obfuscation\\n</string>
@@ -131,6 +138,8 @@
     <string name="on">ဖွင့်</string>
     <string name="out_address">အထွက်</string>
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
+    <string name="owned">အပိုင်</string>
+    <string name="ownership">ပိုင်ဆိုင်မှု</string>
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
     <string name="payment_completed_dialog_title">အချိန်ကို အောင်မြင်စွာ ပေါင်းထည့်ပြီးပြီ</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">ကိုယ်ရေးအချက်အလက် လုံခြုံရေး</string>
     <string name="privacy_policy_label">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
+    <string name="providers">ပံ့ပိုးသူများ</string>
     <string name="quantum_creating_secure_connection">QUANTUM လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးခြင်း</string>
     <string name="quantum_resistant_info_first_paragaph">ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။</string>
     <string name="quantum_resistant_info_second_paragaph">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</string>
@@ -147,6 +157,8 @@
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
+    <string name="rented">အငှား</string>
+    <string name="rented_only">အငှားသီးသန့်</string>
     <string name="report_a_problem">ပြဿနာ ရီပို့တ်လုပ်ရန်</string>
     <string name="reset_to_default_button">ပုံသေသို့ ပြန်လည်သတ်မှတ်ရန်</string>
     <string name="search_placeholder">ရှာရန်...</string>

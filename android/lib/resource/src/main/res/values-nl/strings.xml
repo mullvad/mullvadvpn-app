@@ -12,10 +12,13 @@
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
     <string name="all_applications">Alle toepassingen</string>
+    <string name="all_providers">Alle aanbieders</string>
     <string name="allow_lan_footer">Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke</string>
     <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
     <string name="always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere app</string>
+    <string name="any">Elke</string>
     <string name="app_version">Appversie</string>
+    <string name="apply">Toevoegen</string>
     <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
     <string name="auto_connect">Automatisch verbinden</string>
     <string name="auto_connect_footer">Automatisch verbinden met een server wanneer de app wordt gestart.</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">Verzenden mislukt</string>
     <string name="failed_to_send_details">Als u het formulier verlaat en het later opnieuw probeert, is de reeds ingevoerde informatie er nog.</string>
     <string name="faqs_and_guides">Veelgestelde vragen en gidsen</string>
+    <string name="filter">Filter</string>
+    <string name="filtered">Gefilterd:</string>
     <string name="foreground_notification_channel_description">Toont de huidige status van de VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
     <string name="go_to_login">Ga naar aanmelden</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">Meld u bij minstens één apparaat af door het te verwijderen uit de onderstaande lijst. U kunt de bijbehorende apparaatnaam vinden in de accountinstellingen van het apparaat.</string>
     <string name="max_devices_warning_title">Te veel apparaten</string>
     <string name="mullvad_account_number">Mullvad-accountnummer</string>
+    <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="new_device_notification_message">Welkom, dit apparaat heet nu &lt;b&gt;%1$s&lt;/b&gt;. Zie voor meer informatie de infoknop in Account.</string>
     <string name="new_device_notification_title">NIEUW APPARAAT GEMAAKT</string>
     <string name="no_matching_relay">Er zijn geen servers die overeenkomen met uw instellingen. Probeer een andere server of andere instellingen.</string>
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
     <string name="not_blocking_internet">U LEKT MOGELIJK NETWERKVERKEER</string>
+    <string name="number_of_providers">Providers: %1$d</string>
     <string name="obfuscation_info">Obfuscatie verbergt het WireGuard-verkeer in een ander protocol. Het kan worden gebruikt om censuur en andere soorten filtering te omzeilen, waar een gewone WireGuard-verbinding zou worden geblokkeerd.</string>
     <string name="obfuscation_on_udp_over_tcp">Aan (UDP-over-TCP)</string>
     <string name="obfuscation_title">WireGuard-obfuscatie</string>
@@ -131,6 +138,8 @@
     <string name="on">Aan</string>
     <string name="out_address">Uit</string>
     <string name="out_of_time">Geen tijd meer</string>
+    <string name="owned">In eigendom</string>
+    <string name="ownership">Eigendom</string>
     <string name="paid_until">Betaald tot</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
     <string name="payment_completed_dialog_title">Tijd is toegevoegd</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
+    <string name="providers">Aanbieders</string>
     <string name="quantum_creating_secure_connection">BEVEILIGDE QUANTUMVERBINDING AANMAKEN</string>
     <string name="quantum_resistant_info_first_paragaph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
     <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
@@ -147,6 +157,8 @@
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
     <string name="remove_button">Verwijderen</string>
+    <string name="rented">Gehuurd</string>
+    <string name="rented_only">Alleen gehuurde</string>
     <string name="report_a_problem">Een probleem rapporteren</string>
     <string name="reset_to_default_button">Standaardwaarde herstellen</string>
     <string name="search_placeholder">Zoeken naar...</string>
