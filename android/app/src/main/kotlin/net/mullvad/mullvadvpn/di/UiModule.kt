@@ -29,6 +29,7 @@ import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PlayPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
+import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
@@ -39,6 +40,7 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
+import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
@@ -103,6 +105,7 @@ val uiModule = module {
 
     single<IChangelogDataProvider> { ChangelogDataProvider(get()) }
 
+    single { RelayListFilterUseCase(get(), get()) }
     single { RelayListListener(get()) }
 
     // Will be resolved using from either of the two PaymentModule.kt classes.
@@ -129,7 +132,7 @@ val uiModule = module {
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
-    viewModel { SelectLocationViewModel(get(), get()) }
+    viewModel { SelectLocationViewModel(get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
@@ -137,6 +140,7 @@ val uiModule = module {
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get()) }
+    viewModel { FilterViewModel(get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
