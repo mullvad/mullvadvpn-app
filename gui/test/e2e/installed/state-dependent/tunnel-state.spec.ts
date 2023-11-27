@@ -135,7 +135,7 @@ test('App should show bridge mode', async () => {
 });
 
 test('App should enter blocked state', async () => {
-  await exec('mullvad relay set location xx');
+  await exec('mullvad debug block-connection');
   await expectError(page);
 
   await exec(`mullvad relay set location ${process.env.HOSTNAME}`);
