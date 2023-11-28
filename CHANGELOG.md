@@ -59,6 +59,10 @@ Line wrap the file at 100 chars.                                              Th
   the directory in ProgramData.
 
 
+## [android/2023.8] - 2023-11-28
+Identical to `android/2023.8-beta2`.
+
+
 ## [android/2023.8-beta2] - 2023-11-27
 ### Fixed
 #### Android
