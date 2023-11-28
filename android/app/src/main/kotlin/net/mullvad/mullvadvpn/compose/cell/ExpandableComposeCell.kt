@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -82,20 +83,13 @@ private fun ExpandableComposeCellBody(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (onInfoClicked != null) {
-            Icon(
-                modifier =
-                    Modifier.clickable { onInfoClicked() }
-                        .padding(
-                            start = Dimens.mediumPadding,
-                            end = Dimens.mediumPadding,
-                            top = Dimens.infoButtonVerticalPadding,
-                            bottom = Dimens.infoButtonVerticalPadding
-                        )
-                        .align(Alignment.CenterVertically),
-                painter = painterResource(id = R.drawable.icon_info),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
+            IconButton(modifier = Modifier.padding(horizontal = Dimens.miniPadding).align(Alignment.CenterVertically), onClick = onInfoClicked) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_info),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
 
         ChevronView(
