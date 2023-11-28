@@ -59,6 +59,7 @@ data class Dimensions(
     val searchIconSize: Dp = 24.dp,
     val selectLocationTitlePadding: Dp = 12.dp,
     val selectableCellTextMargin: Dp = 12.dp,
+    val miniPadding: Dp = 4.dp,
     val sideMargin: Dp = 22.dp,
     val smallPadding: Dp = 8.dp,
     val spacingAboveButton: Dp = 22.dp,
