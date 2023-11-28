@@ -1,12 +1,12 @@
 package net.mullvad.mullvadvpn.compose.cell
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,7 +17,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import androidx.core.text.HtmlCompat.FROM_HTML_MODE_COMPACT
 import net.mullvad.mullvadvpn.R
@@ -144,27 +143,23 @@ fun SwitchCellView(
     onSwitchClicked: ((Boolean) -> Unit)? = null,
     onInfoClicked: (() -> Unit)? = null
 ) {
-    val horizontalPadding = Dimens.mediumPadding
-    val verticalPadding = 13.dp
     Row(
         modifier = modifier.wrapContentWidth().wrapContentHeight(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (onInfoClicked != null) {
-            Icon(
+            IconButton(
                 modifier =
-                    Modifier.clickable { onInfoClicked() }
-                        .padding(
-                            start = horizontalPadding,
-                            end = horizontalPadding,
-                            top = verticalPadding,
-                            bottom = verticalPadding
-                        )
-                        .align(Alignment.CenterVertically),
-                painter = painterResource(id = R.drawable.icon_info),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
+                    Modifier.align(Alignment.CenterVertically)
+                        .padding(horizontal = Dimens.miniPadding),
+                onClick = onInfoClicked
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_info),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
 
         MullvadSwitch(checked = isToggled, enabled = isEnabled, onCheckedChange = onSwitchClicked)
