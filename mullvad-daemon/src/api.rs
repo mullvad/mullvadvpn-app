@@ -235,10 +235,7 @@ impl AccessModeSelector {
             .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct));
 
         let connection_mode = self.from(access_method);
-        log::info!(
-            "New API connection mode selected: {connection_mode}",
-            connection_mode = connection_mode
-        );
+        log::info!("New API connection mode selected: {connection_mode}");
         connection_mode
     }
 
