@@ -7,7 +7,6 @@ use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     custom_list::{CustomList, Id},
     device::{Device, DeviceEvent, DeviceId, DeviceState, RemoveDeviceEvent},
-    location::GeoIpLocation,
     relay_constraints::{
         BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
     },
@@ -234,16 +233,6 @@ impl MullvadProxyClient {
             .await
             .map_err(Error::Rpc)?;
         Ok(())
-    }
-
-    pub async fn get_current_location(&mut self) -> Result<GeoIpLocation> {
-        let location = self
-            .0
-            .get_current_location(())
-            .await
-            .map_err(map_location_error)?
-            .into_inner();
-        GeoIpLocation::try_from(location).map_err(Error::InvalidResponse)
     }
 
     pub async fn set_bridge_settings(&mut self, settings: BridgeSettings) -> Result<()> {
@@ -573,10 +562,9 @@ impl MullvadProxyClient {
     /// Set the [`AccessMethod`] which [`ApiConnectionModeProvider`] should
     /// pick.
     ///
-    /// - `access_method`: If `Some(access_method)`, [`ApiConnectionModeProvider`] will skip
-    ///     ahead and return `access_method` when asked for a new access method.
-    ///     If `None`, [`ApiConnectionModeProvider`] will pick the next access
-    ///     method "randomly"
+    /// - `access_method`: If `Some(access_method)`, [`ApiConnectionModeProvider`] will skip ahead
+    ///   and return `access_method` when asked for a new access method. If `None`,
+    ///   [`ApiConnectionModeProvider`] will pick the next access method "randomly"
     ///
     /// [`ApiConnectionModeProvider`]: mullvad_daemon::api::ApiConnectionModeProvider
     pub async fn set_access_method(&mut self, api_access_method: access_method::Id) -> Result<()> {
@@ -694,13 +682,6 @@ fn map_device_error(status: Status) -> Error {
         Code::Unauthenticated => Error::InvalidAccount,
         Code::AlreadyExists => Error::AlreadyLoggedIn,
         Code::NotFound => Error::DeviceNotFound,
-        _other => Error::Rpc(status),
-    }
-}
-
-fn map_location_error(status: Status) -> Error {
-    match status.code() {
-        Code::NotFound => Error::NoLocationData,
         _other => Error::Rpc(status),
     }
 }
