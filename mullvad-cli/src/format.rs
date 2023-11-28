@@ -37,8 +37,31 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
         }
-        Disconnected => println!("Disconnected"),
+        Disconnected(_) => {
+            println!("Disconnected");
+        }
         Disconnecting(_) => println!("Disconnecting..."),
+    }
+}
+
+pub fn print_location(state: &TunnelState) {
+    let location = match state {
+        TunnelState::Disconnected(location) => location,
+        TunnelState::Connected { location, .. } => location,
+        _ => return,
+    };
+    if let Some(location) = location {
+        print!("Your connection appears from: {}", location.country);
+        if let Some(city) = &location.city {
+            print!(", {}", city);
+        }
+        if let Some(ipv4) = location.ipv4 {
+            print!(". IPv4: {ipv4}");
+        }
+        if let Some(ipv6) = location.ipv6 {
+            print!(", IPv6: {ipv6}");
+        }
+        println!();
     }
 }
 
