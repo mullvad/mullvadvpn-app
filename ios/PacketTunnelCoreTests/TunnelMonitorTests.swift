@@ -117,7 +117,6 @@ extension TunnelMonitorTests {
             eventQueue: .main,
             pinger: pinger,
             tunnelDeviceInfo: TunnelDeviceInfoStub(networkStatsProviding: networkCounters),
-            defaultPathObserver: DefaultPathObserverFake(),
             timings: timings
         )
     }

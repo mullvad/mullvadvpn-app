@@ -38,4 +38,7 @@ public protocol TunnelMonitorProtocol: AnyObject {
     /// Cancels internal timers and time dependent data in preparation for device sleep.
     /// Call this method when packet tunnel provider receives a sleep event.
     func onSleep()
+
+    /// Handle changes in network path, eg. update connection state and monitoring.
+    func handleNetworkPathUpdate(_ networkPath: NetworkPath)
 }
