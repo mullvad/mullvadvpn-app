@@ -98,12 +98,13 @@ class AccountViewModel(
     fun onClosePurchaseResultDialog(success: Boolean) {
         // We are closing the dialog without any action, this can happen either if an error occurred
         // during the purchase or the purchase ended successfully.
-        // In those cases we want to update the both the payment availability and the account
-        // expiry.
+        // If the payment was successful we want to update the account expiry. If not successful we
+        // should check payment availability and verify any purchases to handle potential errors.
         if (success) {
             updateAccountExpiry()
         } else {
             fetchPaymentAvailability()
+            verifyPurchases() // Attempt to verify again
         }
         viewModelScope.launch {
             paymentUseCase.resetPurchaseResult() // So that we do not show the dialog again.
