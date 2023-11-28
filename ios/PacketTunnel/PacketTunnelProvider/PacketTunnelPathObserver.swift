@@ -6,17 +6,19 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import Combine
 import NetworkExtension
 import PacketTunnelCore
 
 final class PacketTunnelPathObserver: DefaultPathObserverProtocol {
     private weak var packetTunnelProvider: NEPacketTunnelProvider?
     private let stateLock = NSLock()
-    private var observationToken: NSKeyValueObservation?
+    private var pathUpdatePublisher: AnyCancellable?
+    private let eventQueue: DispatchQueue
 
-    init(packetTunnelProvider: NEPacketTunnelProvider) {
+    init(packetTunnelProvider: NEPacketTunnelProvider, eventQueue: DispatchQueue) {
         self.packetTunnelProvider = packetTunnelProvider
+        self.eventQueue = eventQueue
     }
 
     var defaultPath: NetworkPath? {
@@ -25,22 +27,26 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol {
 
     func start(_ body: @escaping (NetworkPath) -> Void) {
         stateLock.withLock {
-            observationToken?.invalidate()
+            pathUpdatePublisher?.cancel()
 
             // Normally packet tunnel provider should exist throughout the network extension lifetime.
-            observationToken = packetTunnelProvider?.observe(\.defaultPath, options: [.new]) { _, change in
-                let nwPath = change.newValue.flatMap { $0 }
-                if let nwPath {
-                    body(nwPath)
+            pathUpdatePublisher = packetTunnelProvider?.publisher(for: \.defaultPath)
+                .removeDuplicates(by: { oldPath, newPath in
+                    oldPath?.status == newPath?.status
+                })
+                .throttle(for: .seconds(2), scheduler: eventQueue, latest: true)
+                .sink { change in
+                    if let change {
+                        body(change)
+                    }
                 }
-            }
         }
     }
 
     func stop() {
         stateLock.withLock {
-            observationToken?.invalidate()
-            observationToken = nil
+            pathUpdatePublisher?.cancel()
+            pathUpdatePublisher = nil
         }
     }
 }
