@@ -2,7 +2,7 @@ use anyhow::Result;
 use clap::{Args, Subcommand};
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
-use mullvad_types::{device::DeviceState, states::TunnelState};
+use mullvad_types::{device::DeviceState, location::GeoIpLocation, states::TunnelState};
 
 use crate::format;
 
@@ -38,13 +38,17 @@ impl Status {
                         format::print_state(&new_state, args.verbose);
                     }
 
-                    match new_state {
-                        TunnelState::Connected { .. } | TunnelState::Disconnected => {
-                            if args.location {
-                                print_location(&mut rpc).await?;
+                    if args.location {
+                        match new_state {
+                            TunnelState::Connected {
+                                location: Some(location),
+                                ..
                             }
+                            | TunnelState::Disconnected(Some(location)) => {
+                                print_location(&location)
+                            }
+                            _ => (),
                         }
-                        _ => {}
                     }
                 }
                 DaemonEvent::Settings(settings) => {
@@ -88,11 +92,8 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     if args.debug {
         println!("Tunnel state: {state:#?}");
     } else {
+        // TODO: respect location arg?
         format::print_state(&state, args.verbose);
-    }
-
-    if args.location {
-        print_location(&mut rpc).await?;
     }
 
     if cmd == Some(Status::Listen) {
@@ -101,17 +102,7 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     Ok(())
 }
 
-async fn print_location(rpc: &mut MullvadProxyClient) -> Result<()> {
-    let location = match rpc.get_current_location().await {
-        Ok(location) => location,
-        Err(error) => match &error {
-            mullvad_management_interface::Error::NoLocationData => {
-                println!("Location data unavailable");
-                return Ok(());
-            }
-            _ => return Err(error.into()),
-        },
-    };
+pub fn print_location(location: &GeoIpLocation) {
     if let Some(ipv4) = location.ipv4 {
         println!("IPv4: {ipv4}");
     }
@@ -123,7 +114,6 @@ async fn print_location(rpc: &mut MullvadProxyClient) -> Result<()> {
         "Position: {:.5}°N, {:.5}°W",
         location.latitude, location.longitude
     );
-    Ok(())
 }
 
 fn print_account_loggedout(state: &TunnelState, device: &DeviceState) {
@@ -137,6 +127,6 @@ fn print_account_loggedout(state: &TunnelState, device: &DeviceState) {
                 DeviceState::LoggedIn(_) => (),
             }
         }
-        TunnelState::Disconnected | TunnelState::Disconnecting(_) => (),
+        TunnelState::Disconnected(_) | TunnelState::Disconnecting(_) => (),
     }
 }
