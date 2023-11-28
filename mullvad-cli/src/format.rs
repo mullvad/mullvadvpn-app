@@ -4,6 +4,8 @@ use talpid_types::{
     tunnel::ErrorState,
 };
 
+use crate::cmds::status::print_location;
+
 #[macro_export]
 macro_rules! print_option {
     ($value:expr $(,)?) => {{
@@ -37,7 +39,12 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
         }
-        Disconnected => println!("Disconnected"),
+        Disconnected(disconnected_location) => {
+            println!("Disconnected");
+            if let Some(disconnected_location) = disconnected_location {
+                print_location(disconnected_location);
+            }
+        }
         Disconnecting(_) => println!("Disconnecting..."),
     }
 }

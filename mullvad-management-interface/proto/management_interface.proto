@@ -28,7 +28,6 @@ service ManagementService {
   // Relays and tunnel constraints
   rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetRelayLocations(google.protobuf.Empty) returns (RelayList) {}
-  rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
   rpc SetRelaySettings(RelaySettings) returns (google.protobuf.Empty) {}
   rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
   rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}
@@ -172,7 +171,7 @@ message ErrorState {
 }
 
 message TunnelState {
-  message Disconnected {}
+  message Disconnected { GeoIpLocation disconnected_location = 1; }
   message Connecting { TunnelStateRelayInfo relay_info = 1; }
   message Connected { TunnelStateRelayInfo relay_info = 1; }
   message Disconnecting { AfterDisconnect after_disconnect = 1; }
