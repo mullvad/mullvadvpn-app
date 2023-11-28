@@ -61,7 +61,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             eventQueue: internalQueue,
             pinger: Pinger(replyQueue: internalQueue),
             tunnelDeviceInfo: adapter,
-            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self),
+            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             timings: TunnelMonitorTimings()
         )
 
@@ -78,7 +78,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             timings: PacketTunnelActorTimings(),
             tunnelAdapter: adapter,
             tunnelMonitor: tunnelMonitor,
-            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self),
+            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: RelaySelectorWrapper(relayCache: relayCache),
             settingsReader: SettingsReader()
