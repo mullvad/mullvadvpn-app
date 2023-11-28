@@ -9,9 +9,9 @@ const val CUSTOM_ENDPOINT_HTTPS_PORT = 443
 data class CustomApiEndpointConfiguration(
     val hostname: String,
     val port: Int,
-    val disableAddressCache: Boolean = false,
+    val disableAddressCache: Boolean = true,
     val disableTls: Boolean = false,
-    val forceDirectConnection: Boolean = false
+    val forceDirectConnection: Boolean = true
 ) : ApiEndpointConfiguration {
     override fun apiEndpoint() =
         ApiEndpoint(
