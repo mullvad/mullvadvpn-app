@@ -364,10 +364,13 @@ final class TunnelManager: StorePaymentObserver {
             MutuallyExclusive(category: OperationCategory.settingsUpdate.category)
         )
 
-        // Unsetting the account (ie. logging out) should cancel all other currently ongoing
-        // activity.
-        if case .unset = action {
+        // Unsetting (ie. logging out) or deleting the account should cancel all other
+        // currently ongoing activity.
+        switch action {
+        case .unset, .delete:
             operationQueue.cancelAllOperations()
+        default:
+            break
         }
 
         operationQueue.addOperation(operation)
@@ -437,43 +440,10 @@ final class TunnelManager: StorePaymentObserver {
     func deleteAccount(
         accountNumber: String,
         completion: ((Error?) -> Void)? = nil
-    ) -> Cancellable {
-        let operation = DeleteAccountOperation(
-            dispatchQueue: internalQueue,
-            accountsProxy: accountsProxy,
-            accessTokenManager: accessTokenManager,
-            accountNumber: accountNumber
-        )
-
-        operation.completionQueue = .main
-        operation.completionHandler = { [weak self] result in
-            switch result {
-            case .success:
-                self?.unsetTunnelConfiguration {
-                    self?.operationQueue.cancelAllOperations()
-                    self?.wipeAllUserData()
-                    self?.setDeviceState(.loggedOut, persist: true)
-                    DispatchQueue.main.async {
-                        completion?(nil)
-                    }
-                }
-            case let .failure(error):
-                completion?(error)
-            }
+    ) {
+        setAccount(action: .delete(accountNumber)) { result in
+            completion?(result.error)
         }
-
-        operation.addObserver(
-            BackgroundObserver(
-                application: application,
-                name: "Delete account",
-                cancelUponExpiration: true
-            )
-        )
-
-        operation.addCondition(MutuallyExclusive(category: OperationCategory.deviceStateUpdate.category))
-
-        operationQueue.addOperation(operation)
-        return operation
     }
 
     func updateDeviceData(_ completionHandler: ((Error?) -> Void)? = nil) {
@@ -1092,7 +1062,7 @@ final class TunnelManager: StorePaymentObserver {
         isRunningPeriodicPrivateKeyRotation = false
     }
 
-    private func wipeAllUserData() {
+    fileprivate func removeLastUsedAccount() {
         do {
             try SettingsManager.setLastUsedAccount(nil)
         } catch {
@@ -1121,7 +1091,7 @@ final class TunnelManager: StorePaymentObserver {
             unsetTunnelConfiguration {
                 self.setDeviceState(.revoked, persist: true)
                 self.operationQueue.cancelAllOperations()
-                self.wipeAllUserData()
+                self.removeLastUsedAccount()
             }
         default:
             break
@@ -1305,6 +1275,10 @@ private struct TunnelInteractorProxy: TunnelInteractor {
 
     func setDeviceState(_ deviceState: DeviceState, persist: Bool) {
         tunnelManager.setDeviceState(deviceState, persist: persist)
+    }
+
+    func removeLastUsedAccount() {
+        tunnelManager.removeLastUsedAccount()
     }
 
     func startTunnel() {

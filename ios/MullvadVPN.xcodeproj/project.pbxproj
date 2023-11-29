@@ -576,7 +576,6 @@
 		A9A5FA0F2ACB05160083449F /* StoreSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846227026E229F20035F7C2 /* StoreSubscription.swift */; };
 		A9A5FA102ACB05160083449F /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
 		A9A5FA112ACB05160083449F /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
-		A9A5FA122ACB05160083449F /* DeleteAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */; };
 		A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */; };
 		A9A5FA142ACB05160083449F /* MapConnectionStatusOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */; };
 		A9A5FA152ACB05160083449F /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
@@ -672,7 +671,6 @@
 		F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
 		F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */; };
-		F0C6FA812A66E23300F521F0 /* DeleteAccountOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */; };
 		F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */; };
 		F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D8825A2B04F53600D3EF9A /* OutgoingConnectionData.swift */; };
 		F0D8825C2B04F70E00D3EF9A /* OutgoingConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D8825A2B04F53600D3EF9A /* OutgoingConnectionData.swift */; };
@@ -1683,7 +1681,6 @@
 		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
 		F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewConfiguration.swift; sourceTree = "<group>"; };
-		F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountOperation.swift; sourceTree = "<group>"; };
 		F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseInteractor.swift; sourceTree = "<group>"; };
 		F0D8825A2B04F53600D3EF9A /* OutgoingConnectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionData.swift; sourceTree = "<group>"; };
 		F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryRow.swift; sourceTree = "<group>"; };
@@ -2014,7 +2011,6 @@
 		5823FA5726CE4A4100283BF8 /* TunnelManager */ = {
 			isa = PBXGroup;
 			children = (
-				F0C6FA802A66E23300F521F0 /* DeleteAccountOperation.swift */,
 				588527B1276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift */,
 				58F2E147276A307400A79513 /* MapConnectionStatusOperation.swift */,
 				F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */,
@@ -4217,7 +4213,6 @@
 				A9A5FA0F2ACB05160083449F /* StoreSubscription.swift in Sources */,
 				A9A5FA102ACB05160083449F /* PacketTunnelTransport.swift in Sources */,
 				A9A5FA112ACB05160083449F /* TransportMonitor.swift in Sources */,
-				A9A5FA122ACB05160083449F /* DeleteAccountOperation.swift in Sources */,
 				A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */,
 				A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */,
 				A9A5FA142ACB05160083449F /* MapConnectionStatusOperation.swift in Sources */,
@@ -4519,7 +4514,6 @@
 				7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */,
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */,
-				F0C6FA812A66E23300F521F0 /* DeleteAccountOperation.swift in Sources */,
 				F07CFF2029F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */,

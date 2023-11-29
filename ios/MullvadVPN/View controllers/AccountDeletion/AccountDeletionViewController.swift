@@ -15,7 +15,6 @@ protocol AccountDeletionViewControllerDelegate: AnyObject {
 }
 
 class AccountDeletionViewController: UIViewController {
-    private var task: Cancellable?
     private lazy var contentView: AccountDeletionContentView = {
         let view = AccountDeletionContentView()
         view.delegate = self
@@ -63,7 +62,7 @@ class AccountDeletionViewController: UIViewController {
 
     private func submit(accountNumber: String) {
         contentView.state = .loading
-        task = interactor.delete(accountNumber: accountNumber) { [weak self] error in
+        interactor.delete(accountNumber: accountNumber) { [weak self] error in
             guard let self else { return }
             guard let error else {
                 self.contentView.state = .initial
@@ -78,7 +77,6 @@ class AccountDeletionViewController: UIViewController {
 extension AccountDeletionViewController: AccountDeletionContentViewDelegate {
     func didTapCancelButton(contentView: AccountDeletionContentView, button: AppButton) {
         contentView.isEditing = false
-        task?.cancel()
         delegate?.deleteAccountDidCancel(controller: self)
     }
 

@@ -33,6 +33,7 @@ protocol TunnelInteractor {
     func setConfigurationLoaded()
     func setSettings(_ settings: LatestTunnelSettings, persist: Bool)
     func setDeviceState(_ deviceState: DeviceState, persist: Bool)
+    func removeLastUsedAccount()
     func handleRestError(_ error: Error)
 
     func startTunnel()
