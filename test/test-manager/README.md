@@ -49,4 +49,5 @@ test_manager::tests::ui::run_test(&rpc, &["gui-test.spec"]).await.unwrap()
 # Configuring `test-manager`
 
 `test-manager` uses a configuration file to keep track of available virtual machines it can use for testing purposes.
-TODO: Continue
+
+More details can be found in [this configuration format document](./docs/config.md).
