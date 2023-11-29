@@ -17,7 +17,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
-import net.mullvad.mullvadvpn.compose.state.LoginState.*
+import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
+import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
+import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.constant.LOGIN_TIMEOUT_MILLIS
 import net.mullvad.mullvadvpn.model.AccountCreationResult
@@ -25,6 +27,7 @@ import net.mullvad.mullvadvpn.model.AccountToken
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.util.awaitWithTimeoutOrNull
 
@@ -42,6 +45,7 @@ class LoginViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
+    private val connectivityUseCase: ConnectivityUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
@@ -75,6 +79,10 @@ class LoginViewModel(
     }
 
     fun login(accountToken: String) {
+        if (!isInternetAvailable()) {
+            _loginState.value = Idle(LoginError.NoInternetConnection)
+            return
+        }
         _loginState.value = Loading.LoggingIn
         viewModelScope.launch(dispatcher) {
             // Ensure we always take at least MINIMUM_LOADING_SPINNER_TIME_MILLIS to show the
@@ -134,5 +142,9 @@ class LoginViewModel(
         } else {
             Idle(LoginError.UnableToCreateAccount)
         }
+    }
+
+    private fun isInternetAvailable(): Boolean {
+        return connectivityUseCase.isInternetAvailable()
     }
 }

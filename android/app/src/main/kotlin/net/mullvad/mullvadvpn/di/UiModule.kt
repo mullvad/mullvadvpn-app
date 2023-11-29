@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.usecase.AccountExpiryNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
@@ -100,6 +101,7 @@ val uiModule = module {
     single { NewDeviceNotificationUseCase(get()) }
     single { PortRangeUseCase(get()) }
     single { RelayListUseCase(get(), get()) }
+    single { ConnectivityUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), MainScope()) }
 
@@ -130,7 +132,7 @@ val uiModule = module {
     viewModel { ConnectViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
-    viewModel { LoginViewModel(get(), get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
     viewModel { SelectLocationViewModel(get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get()) }

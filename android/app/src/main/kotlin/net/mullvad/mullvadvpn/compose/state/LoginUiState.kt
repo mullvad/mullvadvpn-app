@@ -37,4 +37,6 @@ sealed class LoginError {
     data object InvalidCredentials : LoginError()
 
     data class Unknown(val reason: String) : LoginError()
+
+    data object NoInternetConnection : LoginError()
 }

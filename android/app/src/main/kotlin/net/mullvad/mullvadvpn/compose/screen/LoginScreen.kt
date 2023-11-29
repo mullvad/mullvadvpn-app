@@ -295,6 +295,7 @@ private fun LoginState.supportingText(): String? {
                 when (loginError) {
                     LoginError.InvalidCredentials -> R.string.login_fail_description
                     LoginError.UnableToCreateAccount -> R.string.failed_to_create_account
+                    LoginError.NoInternetConnection -> R.string.no_internet_connection
                     is LoginError.Unknown -> R.string.error_occurred
                     null -> return null
                 }
