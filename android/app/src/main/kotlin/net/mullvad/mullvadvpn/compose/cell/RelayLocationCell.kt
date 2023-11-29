@@ -163,7 +163,7 @@ fun RelayLocationCell(
             RelayItemType.City -> Dimens.cityRowPadding
             RelayItemType.Relay -> Dimens.relayRowPadding
         }
-    val selected = selectedItem == relay
+    val selected = selectedItem?.code == relay.code
     val expanded = remember(key1 = relay.expanded.toString()) { mutableStateOf(relay.expanded) }
     val backgroundColor =
         when {
