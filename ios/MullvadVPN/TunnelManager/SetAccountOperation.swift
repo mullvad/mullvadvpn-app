@@ -24,11 +24,15 @@ enum SetAccountAction {
     /// Unset account.
     case unset
 
+    /// Delete account.
+    case delete(String)
+
     var taskName: String {
         switch self {
         case .new: "Set new account"
         case .existing: "Set existing account"
         case .unset: "Unset account"
+        case .delete: "Delete account"
         }
     }
 }
@@ -78,6 +82,11 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
             case .unset:
                 finish(result: .success(nil))
+
+            case let .delete(accountNumber):
+                startDeleteAccountFlow(accountNumber: accountNumber) { [self] result in
+                    finish(result: result.map { .none })
+                }
             }
         }
     }
@@ -138,6 +147,22 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     ) {
         getAccount(accountNumber: accountNumber) { [self] result in
             continueLoginFlow(result, completion: completion)
+        }
+    }
+
+    /**
+     Begin delete flow of an existing account by performing the following steps:
+
+     1. Delete existing account with the API.
+     2. Reset tunnel settings to default.
+     */
+    private func startDeleteAccountFlow(
+        accountNumber: String,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        deleteAccount(accountNumber: accountNumber) { [self] result in
+            interactor.setSettings(LatestTunnelSettings(), persist: true)
+            completion(result)
         }
     }
 
@@ -255,6 +280,28 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
                         number: accountNumber,
                         expiry: accountData.expiry
                     )
+                }
+
+                completion(result)
+            }
+        }
+
+        tasks.append(task)
+    }
+
+    /// Delete account.
+    private func deleteAccount(accountNumber: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        logger.debug("Delete account...")
+
+        let task = accountsProxy.deleteAccount(
+            accountNumber: accountNumber,
+            retryStrategy: .default
+        ) { [self] result in
+            dispatchQueue.async { [self] in
+                let result = result.inspectError { error in
+                    guard !error.isOperationCancellationError else { return }
+
+                    logger.error(error: error, message: "Failed to delete account.")
                 }
 
                 completion(result)
@@ -398,3 +445,5 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
         var device: Device
     }
 }
+
+// swiftlint:disable:this file_length
