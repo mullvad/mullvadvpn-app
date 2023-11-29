@@ -10,6 +10,7 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 import Network
+import NetworkExtension
 
 /// Tunnel monitor.
 public final class TunnelMonitor: TunnelMonitorProtocol {
@@ -203,7 +204,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     private let timings: TunnelMonitorTimings
 
     private var pinger: PingerProtocol
-    private var defaultPathObserver: DefaultPathObserverProtocol
     private var isObservingDefaultPath = false
     private var timer: DispatchSourceTimer?
 
@@ -230,12 +230,10 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         eventQueue: DispatchQueue,
         pinger: PingerProtocol,
         tunnelDeviceInfo: TunnelDeviceInfoProtocol,
-        defaultPathObserver: DefaultPathObserverProtocol,
         timings: TunnelMonitorTimings
     ) {
         self.eventQueue = eventQueue
         self.tunnelDeviceInfo = tunnelDeviceInfo
-        self.defaultPathObserver = defaultPathObserver
 
         self.timings = timings
         state = State(timings: timings)
@@ -272,7 +270,7 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         self.probeAddress = probeAddress
         state.connectionState = .pendingStart
 
-        addDefaultPathObserver()
+        startMonitoring()
     }
 
     public func stop() {
@@ -291,12 +289,8 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         switch state.connectionState {
         case .connecting, .connected:
             startConnectivityCheckTimer()
-            addDefaultPathObserver()
 
-        case .waitingConnectivity, .pendingStart:
-            addDefaultPathObserver()
-
-        case .stopped, .recovering:
+        case .waitingConnectivity, .pendingStart, .stopped, .recovering:
             break
         }
     }
@@ -308,7 +302,40 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         logger.trace("Prepare to sleep.")
 
         stopConnectivityCheckTimer()
-        removeDefaultPathObserver()
+    }
+
+    public func handleNetworkPathUpdate(_ networkPath: NetworkPath) {
+        nslock.withLock {
+            let pathStatus = networkPath.status
+            let isReachable = pathStatus == .satisfiable || pathStatus == .satisfied
+
+            switch state.connectionState {
+            case .pendingStart:
+                if isReachable {
+                    logger.debug("Start monitoring connection.")
+                    startMonitoring()
+                } else {
+                    logger.debug("Wait for network to become reachable before starting monitoring.")
+                    state.connectionState = .waitingConnectivity
+                }
+
+            case .waitingConnectivity:
+                guard isReachable else { return }
+
+                logger.debug("Network is reachable. Resume monitoring.")
+                startMonitoring()
+
+            case .connecting, .connected:
+                guard !isReachable else { return }
+
+                logger.debug("Network is unreachable. Pause monitoring.")
+                state.connectionState = .waitingConnectivity
+                stopMonitoring(resetRetryAttempt: true)
+
+            case .stopped, .recovering:
+                break
+            }
+        }
     }
 
     // MARK: - Private
@@ -324,40 +351,9 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
 
         probeAddress = nil
 
-        removeDefaultPathObserver()
         stopMonitoring(resetRetryAttempt: !forRestart)
 
         state.connectionState = .stopped
-    }
-
-    private func addDefaultPathObserver() {
-        defaultPathObserver.stop()
-
-        logger.trace("Add default path observer.")
-
-        isObservingDefaultPath = true
-
-        defaultPathObserver.start { [weak self] nwPath in
-            guard let self else { return }
-
-            nslock.withLock {
-                self.handleNetworkPathUpdate(nwPath)
-            }
-        }
-
-        if let currentPath = defaultPathObserver.defaultPath {
-            handleNetworkPathUpdate(currentPath)
-        }
-    }
-
-    private func removeDefaultPathObserver() {
-        guard isObservingDefaultPath else { return }
-
-        logger.trace("Remove default path observer.")
-
-        defaultPathObserver.stop()
-
-        isObservingDefaultPath = false
     }
 
     private func checkConnectivity() {
@@ -429,7 +425,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     #endif
 
     private func startConnectionRecovery() {
-        removeDefaultPathObserver()
         stopMonitoring(resetRetryAttempt: false)
 
         state.retryAttempt = state.retryAttempt.saturatingAddition(1)
@@ -447,38 +442,6 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             logger.trace("Send ping icmp_seq=\(sendResult.sequenceNumber).")
         } catch {
             logger.error(error: error, message: "Failed to send ping.")
-        }
-    }
-
-    private func handleNetworkPathUpdate(_ networkPath: NetworkPath) {
-        let pathStatus = networkPath.status
-        let isReachable = pathStatus == .satisfiable || pathStatus == .satisfied
-
-        switch state.connectionState {
-        case .pendingStart:
-            if isReachable {
-                logger.debug("Start monitoring connection.")
-                startMonitoring()
-            } else {
-                logger.debug("Wait for network to become reachable before starting monitoring.")
-                state.connectionState = .waitingConnectivity
-            }
-
-        case .waitingConnectivity:
-            guard isReachable else { return }
-
-            logger.debug("Network is reachable. Resume monitoring.")
-            startMonitoring()
-
-        case .connecting, .connected:
-            guard !isReachable else { return }
-
-            logger.debug("Network is unreachable. Pause monitoring.")
-            state.connectionState = .waitingConnectivity
-            stopMonitoring(resetRetryAttempt: true)
-
-        case .stopped, .recovering:
-            break
         }
     }
 

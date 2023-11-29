@@ -61,7 +61,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             eventQueue: internalQueue,
             pinger: Pinger(replyQueue: internalQueue),
             tunnelDeviceInfo: adapter,
-            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
             timings: TunnelMonitorTimings()
         )
 
