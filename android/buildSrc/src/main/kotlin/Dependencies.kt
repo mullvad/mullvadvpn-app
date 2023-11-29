@@ -1,5 +1,4 @@
 object Dependencies {
-    const val androidMaterial = "com.google.android.material:material:${Versions.Android.material}"
     const val androidVolley = "com.android.volley:volley:${Versions.Android.volley}"
     const val commonsValidator = "commons-validator:commons-validator:${Versions.commonsValidator}"
     const val jodaTime = "joda-time:joda-time:${Versions.jodaTime}"
@@ -14,22 +13,11 @@ object Dependencies {
         const val appcompat = "androidx.appcompat:appcompat:${Versions.AndroidX.appcompat}"
         const val constraintlayout =
             "androidx.constraintlayout:constraintlayout:${Versions.AndroidX.constraintlayout}"
-        const val coordinatorlayout =
-            "androidx.coordinatorlayout:coordinatorlayout:${Versions.AndroidX.coordinatorlayout}"
         const val coreKtx = "androidx.core:core-ktx:${Versions.AndroidX.coreKtx}"
-        const val fragmentKtx = "androidx.fragment:fragment-ktx:${Versions.AndroidX.fragment}"
-        const val fragmentTestning =
-            "androidx.fragment:fragment-testing:${Versions.AndroidX.fragment}"
         const val lifecycleRuntimeKtx =
             "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.AndroidX.lifecycle}"
         const val lifecycleViewmodelKtx =
             "androidx.lifecycle:lifecycle-viewmodel-ktx:${Versions.AndroidX.lifecycle}"
-        const val recyclerview =
-            "androidx.recyclerview:recyclerview:${Versions.AndroidX.recyclerview}"
-        const val espressoCore =
-            "androidx.test.espresso:espresso-core:${Versions.AndroidX.espresso}"
-        const val espressoContrib =
-            "androidx.test.espresso:espresso-contrib:${Versions.AndroidX.espresso}"
         const val testCore =
             "androidx.test:core:${Versions.AndroidX.test}"
         const val testMonitor =
@@ -50,8 +38,6 @@ object Dependencies {
         const val foundation =
             "androidx.compose.foundation:foundation:${Versions.Compose.foundation}"
         const val junit = "androidx.compose.ui:ui-test-junit4:${Versions.Compose.base}"
-        const val viewModelLifecycle =
-            "androidx.lifecycle:lifecycle-viewmodel-compose:${Versions.Compose.viewModelLifecycle}"
         const val material3 = "androidx.compose.material3:material3:${Versions.Compose.material3}"
         const val testManifest = "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
         const val uiController =

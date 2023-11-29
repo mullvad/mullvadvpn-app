@@ -181,8 +181,7 @@ android {
 
         val enableInAppVersionNotifications =
             gradleLocalProperties(rootProject.projectDir)
-                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS")
-                ?: "true"
+                .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
 
         buildConfigField(
             "boolean",
@@ -320,19 +319,13 @@ dependencies {
     // Play implementation
     playImplementation(project(Dependencies.Mullvad.billingLib))
 
-    implementation(Dependencies.androidMaterial)
     implementation(Dependencies.commonsValidator)
-    implementation(Dependencies.AndroidX.appcompat)
     implementation(Dependencies.AndroidX.constraintlayout)
-    implementation(Dependencies.AndroidX.coordinatorlayout)
     implementation(Dependencies.AndroidX.coreKtx)
-    implementation(Dependencies.AndroidX.fragmentKtx)
     implementation(Dependencies.AndroidX.lifecycleRuntimeKtx)
     implementation(Dependencies.AndroidX.lifecycleViewmodelKtx)
-    implementation(Dependencies.AndroidX.recyclerview)
     implementation(Dependencies.Compose.constrainLayout)
     implementation(Dependencies.Compose.foundation)
-    implementation(Dependencies.Compose.viewModelLifecycle)
     implementation(Dependencies.Compose.material3)
     implementation(Dependencies.Compose.uiController)
     implementation(Dependencies.Compose.ui)
@@ -354,7 +347,6 @@ dependencies {
 
     // Test dependencies
     testImplementation(project(Dependencies.Mullvad.commonTestLib))
-    testImplementation(Dependencies.Koin.test)
     testImplementation(Dependencies.Kotlin.test)
     testImplementation(Dependencies.KotlinX.coroutinesTest)
     testImplementation(Dependencies.MockK.core)
@@ -362,12 +354,9 @@ dependencies {
     testImplementation(Dependencies.turbine)
 
     // UI test dependencies
-    debugImplementation(Dependencies.AndroidX.fragmentTestning)
     // Fixes: https://github.com/android/android-test/issues/1589
     debugImplementation(Dependencies.AndroidX.testMonitor)
     debugImplementation(Dependencies.Compose.testManifest)
-    androidTestImplementation(Dependencies.AndroidX.espressoContrib)
-    androidTestImplementation(Dependencies.AndroidX.espressoCore)
     androidTestImplementation(Dependencies.Compose.junit)
     androidTestImplementation(Dependencies.Koin.test)
     androidTestImplementation(Dependencies.Kotlin.test)
