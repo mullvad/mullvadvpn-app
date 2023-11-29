@@ -16,7 +16,7 @@ jobs:
       - name: Generate matrix for Linux builds
         shell: bash
         run: |
-          all='["debian11","debian12","ubuntu2004","ubuntu2204","ubuntu2304","fedora38","fedora37","fedora36"]'
+          all='["debian11","debian12","ubuntu2004","ubuntu2204","ubuntu2304","ubuntu2310","fedora38","fedora37","fedora36"]'
           oses="${{ github.event.inputs.oses }}"
           echo "OSES: $oses"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
