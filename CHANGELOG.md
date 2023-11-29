@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add CLI support for applying patches to the settings with `mullvad import-settings`.
+
 ### Changed
 #### Android
 - Migrate welcome view to compose.
@@ -51,7 +54,6 @@ Line wrap the file at 100 chars.                                              Th
   `SOCKS5`.
 - Add social media content blocker.
 - Add ability to override server IPs to the CLI.
-- Add CLI support for applying patches to the settings with `mullvad import-settings`.
 
 ### Changed
 - Update Electron from 25.2.0 to 26.3.0.
