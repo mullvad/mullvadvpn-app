@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.cell
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -83,7 +82,12 @@ private fun ExpandableComposeCellBody(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (onInfoClicked != null) {
-            IconButton(modifier = Modifier.padding(horizontal = Dimens.miniPadding).align(Alignment.CenterVertically), onClick = onInfoClicked) {
+            IconButton(
+                modifier =
+                    Modifier.padding(horizontal = Dimens.miniPadding)
+                        .align(Alignment.CenterVertically),
+                onClick = onInfoClicked
+            ) {
                 Icon(
                     painter = painterResource(id = R.drawable.icon_info),
                     contentDescription = null,
