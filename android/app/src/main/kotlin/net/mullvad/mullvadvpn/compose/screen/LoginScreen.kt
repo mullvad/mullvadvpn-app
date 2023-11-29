@@ -57,7 +57,9 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
-import net.mullvad.mullvadvpn.compose.state.LoginState.*
+import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
+import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
+import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
@@ -291,6 +293,7 @@ private fun LoginState.supportingText(): String? {
                 when (loginError) {
                     LoginError.InvalidCredentials -> R.string.login_fail_description
                     LoginError.UnableToCreateAccount -> R.string.failed_to_create_account
+                    LoginError.NoInternetConnection -> R.string.no_internet_connection
                     is LoginError.Unknown -> R.string.error_occurred
                     null -> return null
                 }
