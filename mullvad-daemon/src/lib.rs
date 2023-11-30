@@ -1135,7 +1135,7 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
-            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method).await,
+            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2369,7 +2369,7 @@ where
         });
     }
 
-    async fn on_test_api_access_method(
+    fn on_test_api_access_method(
         &mut self,
         tx: ResponseTx<bool, Error>,
         access_method: mullvad_types::access_method::Id,
