@@ -360,7 +360,8 @@ extension PacketTunnelActor {
             connectionAttemptCount: connectionState.connectionAttemptCount,
             lastKeyRotation: connectionState.lastKeyRotation,
             connectedEndpoint: obfuscatedEndpoint,
-            transportLayer: transportLayer
+            transportLayer: transportLayer,
+            remotePort: protocolObfuscator.remotePort
         )
     }
 
@@ -401,7 +402,8 @@ extension PacketTunnelActor {
             connectionAttemptCount: 0,
             lastKeyRotation: lastKeyRotation,
             connectedEndpoint: selectedRelay.endpoint,
-            transportLayer: .udp
+            transportLayer: .udp,
+            remotePort: selectedRelay.endpoint.ipv4Relay.port
         )
     }
 

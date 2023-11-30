@@ -185,7 +185,8 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                     relayConstraints: try SettingsManager.readSettings().relayConstraints,
                     networkReachability: .reachable,
                     connectionAttemptCount: 0,
-                    transportLayer: .udp
+                    transportLayer: .udp,
+                    remotePort: selectedRelay.endpoint.ipv4Relay.port
                 )
             )
         } catch {

@@ -11,6 +11,8 @@ import Foundation
 @testable import PacketTunnelCore
 
 struct ProtocolObfuscationStub: ProtocolObfuscation {
+    var remotePort: UInt16 { 42 }
+
     func obfuscate(_ endpoint: MullvadEndpoint, settings: Settings, retryAttempts: UInt) -> MullvadEndpoint {
         endpoint
     }

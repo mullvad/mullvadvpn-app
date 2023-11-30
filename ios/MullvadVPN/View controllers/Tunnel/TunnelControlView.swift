@@ -153,17 +153,7 @@ final class TunnelControlView: UIView {
         cityLabel.attributedText = attributedStringForLocation(string: model.city)
         countryLabel.attributedText = attributedStringForLocation(string: model.country)
         connectionPanel.connectedRelayName = model.connectedRelayName
-
-        if let tunnelRelay = model.tunnelStatus.state.relay {
-            var protocolLayer = ""
-            if case let .connected(state) = model.tunnelStatus.observedState {
-                protocolLayer = state.transportLayer == .tcp ? "TCP" : "UDP"
-            }
-            connectionPanel.dataSource = ConnectionPanelData(
-                inAddress: "\(tunnelRelay.endpoint.ipv4Relay) \(protocolLayer)",
-                outAddress: model.connectionPanel.outAddress
-            )
-        }
+        connectionPanel.dataSource = model.connectionPanel
 
         updateSecureLabel(tunnelState: tunnelState)
         updateActionButtons(tunnelState: tunnelState)
