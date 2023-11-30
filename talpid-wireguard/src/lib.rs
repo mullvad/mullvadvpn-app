@@ -480,8 +480,7 @@ impl WireguardMonitor {
             // Set up tunnel to lead to entry
             let mut entry_tun_config = config.clone();
             entry_tun_config
-                .peers
-                .get_mut(0)
+                .entry_peer_mut()
                 .expect("entry peer not found")
                 .allowed_ips
                 .push(IpNetwork::new(IpAddr::V4(config.ipv4_gateway), 32).unwrap());

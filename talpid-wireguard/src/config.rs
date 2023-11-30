@@ -161,7 +161,12 @@ impl Config {
     /// misguided in principle but happens to work given that normally only one peer will be
     /// present.
     pub fn is_multihop(&self) -> bool {
-        self.peers.len() > 1
+        self.peers.len() == 2
+    }
+
+    /// Return the entry peer. This happens to be the first peer.
+    pub fn entry_peer_mut(&mut self) -> Option<&mut wireguard::PeerConfig> {
+        self.peers.get_mut(0)
     }
 }
 
