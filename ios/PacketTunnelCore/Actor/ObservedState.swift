@@ -29,6 +29,7 @@ public struct ObservedConnectionState: Equatable, Codable {
     public var networkReachability: NetworkReachability
     public var connectionAttemptCount: UInt
     public var transportLayer: TransportLayer
+    public var remotePort: UInt16
     public var lastKeyRotation: Date?
 
     public var isNetworkReachable: Bool {
@@ -41,6 +42,7 @@ public struct ObservedConnectionState: Equatable, Codable {
         networkReachability: NetworkReachability,
         connectionAttemptCount: UInt,
         transportLayer: TransportLayer,
+        remotePort: UInt16,
         lastKeyRotation: Date? = nil
     ) {
         self.selectedRelay = selectedRelay
@@ -48,6 +50,7 @@ public struct ObservedConnectionState: Equatable, Codable {
         self.networkReachability = networkReachability
         self.connectionAttemptCount = connectionAttemptCount
         self.transportLayer = transportLayer
+        self.remotePort = remotePort
         self.lastKeyRotation = lastKeyRotation
     }
 }
@@ -89,6 +92,7 @@ extension ConnectionState {
             networkReachability: networkReachability,
             connectionAttemptCount: connectionAttemptCount,
             transportLayer: transportLayer,
+            remotePort: remotePort,
             lastKeyRotation: lastKeyRotation
         )
     }

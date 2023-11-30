@@ -35,18 +35,6 @@ struct TunnelControlViewModel {
         self.connectedRelayName = connectedRelayName
     }
 
-    init(from other: TunnelControlViewModel) {
-        self.init(
-            tunnelStatus: other.tunnelStatus,
-            secureLabelText: other.secureLabelText,
-            connectionPanel: other.connectionPanel,
-            enableButtons: other.enableButtons,
-            city: other.city,
-            country: other.country,
-            connectedRelayName: other.connectedRelayName
-        )
-    }
-
     func update(status: TunnelStatus) -> TunnelControlViewModel {
         TunnelControlViewModel(
             tunnelStatus: status,
@@ -60,13 +48,25 @@ struct TunnelControlViewModel {
     }
 
     func update(outgoingConnectionInfo: OutgoingConnectionInfo) -> TunnelControlViewModel {
-        TunnelControlViewModel(
+        let inPort = tunnelStatus.observedState.connectionState?.remotePort ?? 0
+
+        var connectionPanelData = ConnectionPanelData(inAddress: "")
+        if let tunnelRelay = tunnelStatus.state.relay {
+            var protocolLayer = ""
+            if case let .connected(state) = tunnelStatus.observedState {
+                protocolLayer = state.transportLayer == .tcp ? "TCP" : "UDP"
+            }
+
+            connectionPanelData = ConnectionPanelData(
+                inAddress: "\(tunnelRelay.endpoint.ipv4Relay.ip):\(inPort) \(protocolLayer)",
+                outAddress: outgoingConnectionInfo.outAddress
+            )
+        }
+
+        return TunnelControlViewModel(
             tunnelStatus: tunnelStatus,
             secureLabelText: secureLabelText,
-            connectionPanel: ConnectionPanelData(
-                inAddress: "\(tunnelStatus.state.relay?.endpoint.ipv4Relay.description ?? "no info")",
-                outAddress: outgoingConnectionInfo.outAddress
-            ),
+            connectionPanel: connectionPanelData,
             enableButtons: enableButtons,
             city: city,
             country: country,

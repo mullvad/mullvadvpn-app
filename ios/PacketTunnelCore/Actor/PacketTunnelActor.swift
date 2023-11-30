@@ -287,53 +287,56 @@ extension PacketTunnelActor {
         settings: Settings,
         reason: ReconnectReason
     ) throws -> ConnectionState? {
+        var keyPolicy: KeyPolicy = .useCurrent
+        var networkReachability = defaultPathObserver.defaultPath?.networkReachability ?? .undetermined
+        var lastKeyRotation: Date?
+
+        let callRelaySelector = { [self] maybeCurrentRelay, connectionCount in
+            try self.selectRelay(
+                nextRelay: nextRelay,
+                relayConstraints: settings.relayConstraints,
+                currentRelay: maybeCurrentRelay,
+                connectionAttemptCount: connectionCount
+            )
+        }
+
         switch state {
         case .initial:
-            return try makeConnectionStateInner(
-                nextRelay: nextRelay,
-                settings: settings,
-                keyPolicy: .useCurrent,
-                networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
-                lastKeyRotation: nil
-            )
-
-        case var .connecting(connState), var .reconnecting(connState):
-            switch reason {
-            case .connectionLoss:
-                // Increment attempt counter when reconnection is requested due to connectivity loss.
-                connState.incrementAttemptCount()
-            case .userInitiated:
-                break
+            break
+        case var .connecting(connectionState), var .reconnecting(connectionState):
+            if reason == .connectionLoss {
+                connectionState.incrementAttemptCount()
             }
-            // Explicit fallthrough
             fallthrough
-
-        case var .connected(connState):
-            let relayConstraints = settings.relayConstraints
-
-            connState.selectedRelay = try selectRelay(
-                nextRelay: nextRelay,
-                relayConstraints: relayConstraints,
-                currentRelay: connState.selectedRelay,
-                connectionAttemptCount: connState.connectionAttemptCount
+        case var .connected(connectionState):
+            let selectedRelay = try callRelaySelector(
+                connectionState.selectedRelay,
+                connectionState.connectionAttemptCount
             )
-            connState.relayConstraints = relayConstraints
-            connState.currentKey = settings.privateKey
-
-            return connState
-
+            connectionState.selectedRelay = selectedRelay
+            connectionState.relayConstraints = settings.relayConstraints
+            connectionState.currentKey = settings.privateKey
+            return connectionState
         case let .error(blockedState):
-            return try makeConnectionStateInner(
-                nextRelay: nextRelay,
-                settings: settings,
-                keyPolicy: blockedState.keyPolicy,
-                networkReachability: blockedState.networkReachability,
-                lastKeyRotation: blockedState.lastKeyRotation
-            )
-
+            keyPolicy = blockedState.keyPolicy
+            lastKeyRotation = blockedState.lastKeyRotation
+            networkReachability = blockedState.networkReachability
         case .disconnecting, .disconnected:
             return nil
         }
+        let selectedRelay = try callRelaySelector(nil, 0)
+        return ConnectionState(
+            selectedRelay: selectedRelay,
+            relayConstraints: settings.relayConstraints,
+            currentKey: settings.privateKey,
+            keyPolicy: keyPolicy,
+            networkReachability: networkReachability,
+            connectionAttemptCount: 0,
+            lastKeyRotation: lastKeyRotation,
+            connectedEndpoint: selectedRelay.endpoint,
+            transportLayer: .udp,
+            remotePort: selectedRelay.endpoint.ipv4Relay.port
+        )
     }
 
     private func obfuscateConnection(
@@ -360,48 +363,8 @@ extension PacketTunnelActor {
             connectionAttemptCount: connectionState.connectionAttemptCount,
             lastKeyRotation: connectionState.lastKeyRotation,
             connectedEndpoint: obfuscatedEndpoint,
-            transportLayer: transportLayer
-        )
-    }
-
-    /**
-     Create a connection state when `State` is either `.inital` or `.error`.
-
-     - Parameters:
-         - nextRelay: Next relay to connect to.
-         - settings: Current settings.
-         - keyPolicy: Current key that should be used by the tunnel.
-         - networkReachability: Network connectivity outside of tunnel.
-         - lastKeyRotation: Last time packet tunnel rotated the key.
-
-     - Returns: New connection state, or `nil` if new relay cannot be selected.
-     */
-    private func makeConnectionStateInner(
-        nextRelay: NextRelay,
-        settings: Settings,
-        keyPolicy: KeyPolicy,
-        networkReachability: NetworkReachability,
-        lastKeyRotation: Date?
-    ) throws -> ConnectionState? {
-        let relayConstraints = settings.relayConstraints
-        let privateKey = settings.privateKey
-
-        let selectedRelay = try selectRelay(
-            nextRelay: nextRelay,
-            relayConstraints: relayConstraints,
-            currentRelay: nil,
-            connectionAttemptCount: 0
-        )
-        return ConnectionState(
-            selectedRelay: selectedRelay,
-            relayConstraints: relayConstraints,
-            currentKey: privateKey,
-            keyPolicy: keyPolicy,
-            networkReachability: networkReachability,
-            connectionAttemptCount: 0,
-            lastKeyRotation: lastKeyRotation,
-            connectedEndpoint: selectedRelay.endpoint,
-            transportLayer: .udp
+            transportLayer: transportLayer,
+            remotePort: protocolObfuscator.remotePort
         )
     }
 
@@ -444,5 +407,4 @@ extension PacketTunnelActor {
 }
 
 extension PacketTunnelActor: PacketTunnelActorProtocol {}
-
 // swiftlint:disable:this file_length
