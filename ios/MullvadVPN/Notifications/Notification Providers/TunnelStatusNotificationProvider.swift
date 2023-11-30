@@ -56,13 +56,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
     // MARK: - Private
 
     private func handleTunnelStatus(_ tunnelStatus: TunnelStatus) {
-        let invalidateForTunnelError: Bool
-        if case let .error(blockStateReason) = tunnelStatus.state, blockStateReason != .accountExpired {
-            invalidateForTunnelError = updateLastTunnelError(blockStateReason)
-        } else {
-            invalidateForTunnelError = updateLastTunnelError(nil)
-        }
-
+        let invalidateForTunnelError = updateLastTunnelError(tunnelStatus.state)
         let invalidateForManagerError = updateTunnelManagerError(tunnelStatus.state)
         let invalidateForConnectivity = updateConnectivity(tunnelStatus.state)
         let invalidateForNetwork = updateNetwork(tunnelStatus.state)
@@ -72,7 +66,9 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         }
     }
 
-    private func updateLastTunnelError(_ lastTunnelError: BlockedStateReason?) -> Bool {
+    private func updateLastTunnelError(_ tunnelState: TunnelState) -> Bool {
+        let lastTunnelError = tunnelError(from: tunnelState)
+
         if packetTunnelError != lastTunnelError {
             packetTunnelError = lastTunnelError
 
@@ -119,6 +115,19 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         }
 
         return false
+    }
+
+    // Extracts the blocked state reason from tunnel state with a few exceptions.
+    // We already have dedicated screens for .accountExpired and .deviceRevoked,
+    // so no need to show banners as well.
+    private func tunnelError(from tunnelState: TunnelState) -> BlockedStateReason? {
+        let errorsToIgnore: [BlockedStateReason] = [.accountExpired, .deviceRevoked]
+
+        if case let .error(blockedStateReason) = tunnelState, !errorsToIgnore.contains(blockedStateReason) {
+            return blockedStateReason
+        }
+
+        return nil
     }
 
     private func notificationDescription(for packetTunnelError: BlockedStateReason) -> InAppNotificationDescriptor {
@@ -231,7 +240,7 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
             errorString = "No servers match your settings, try changing server or other settings."
         case .invalidAccount:
             errorString = "You are logged in with an invalid account number. Please log out and try another one."
-        case .deviceRevoked, .deviceLoggedOut:
+        case .deviceLoggedOut:
             errorString = "Unable to authenticate account. Please log out and log back in."
         default:
             errorString = "Unable to start tunnel connection. Please send a problem report."
