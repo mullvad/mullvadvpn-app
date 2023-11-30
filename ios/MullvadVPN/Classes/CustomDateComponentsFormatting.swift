@@ -22,7 +22,7 @@ extension CustomDateComponentsFormatting {
     static func localizedString(
         from start: Date,
         to end: Date,
-        calendar: Calendar = Calendar.current,
+        calendar: Calendar = Calendar.autoupdatingCurrent,
         unitsStyle: DateComponentsFormatter.UnitsStyle
     ) -> String? {
         let dateComponents = calendar.dateComponents([.year, .day], from: start, to: max(start, end))

@@ -1175,7 +1175,7 @@ extension TunnelManager {
         case active
 
         fileprivate var date: Date? {
-            let calendar = Calendar.current
+            let calendar = Calendar.autoupdatingCurrent
             let now = Date()
 
             switch self {

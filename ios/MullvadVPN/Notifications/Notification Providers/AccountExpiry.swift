@@ -14,7 +14,7 @@ struct AccountExpiry {
     var triggerDate: Date? {
         guard let expiryDate else { return nil }
 
-        return Calendar.current.date(
+        return Calendar.autoupdatingCurrent.date(
             byAdding: .day,
             value: -NotificationConfiguration.closeToExpiryTriggerInterval,
             to: expiryDate

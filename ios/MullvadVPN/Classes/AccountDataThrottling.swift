@@ -47,7 +47,7 @@ struct AccountDataThrottling {
             break
 
         case .whenCloseToExpiryAndBeyond:
-            guard let closeToExpiry = Calendar.current.date(
+            guard let closeToExpiry = Calendar.autoupdatingCurrent.date(
                 byAdding: .day,
                 value: Self.closeToExpiryDays * -1,
                 to: accountData.expiry

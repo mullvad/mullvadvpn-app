@@ -82,7 +82,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
     private var trigger: UNNotificationTrigger? {
         guard let accountExpiry else { return nil }
 
-        guard let triggerDate = Calendar.current.date(
+        guard let triggerDate = Calendar.autoupdatingCurrent.date(
             byAdding: .day,
             value: -NotificationConfiguration.closeToExpiryTriggerInterval,
             to: accountExpiry
@@ -92,7 +92,7 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
         guard triggerDate > Date() else { return nil }
 
         // Create date components for calendar trigger
-        let dateComponents = Calendar.current.dateComponents(
+        let dateComponents = Calendar.autoupdatingCurrent.dateComponents(
             [.second, .minute, .hour, .day, .month, .year],
             from: triggerDate
         )

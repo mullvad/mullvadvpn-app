@@ -25,7 +25,7 @@ class AccountExpiryTests: XCTestCase {
     }
 
     func testDateWithinTriggerIntervalReturnsDuration() {
-        let date = Calendar.current.date(
+        let date = Calendar.autoupdatingCurrent.date(
             byAdding: .day,
             value: NotificationConfiguration.closeToExpiryTriggerInterval - 1,
             to: Date()
@@ -36,7 +36,7 @@ class AccountExpiryTests: XCTestCase {
     }
 
     func testDateNotWithinTriggerIntervalReturnsNoDuration() {
-        let date = Calendar.current.date(
+        let date = Calendar.autoupdatingCurrent.date(
             byAdding: .day,
             value: NotificationConfiguration.closeToExpiryTriggerInterval + 1,
             to: Date()
