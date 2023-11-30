@@ -16,6 +16,7 @@ public protocol TunnelObfuscation {
     func start()
     func stop()
     var localUdpPort: UInt16 { get }
+    var remotePort: UInt16 { get }
 
     var transportLayer: TransportLayer { get }
 }
@@ -34,6 +35,8 @@ public final class UDPOverTCPObfuscator: TunnelObfuscation {
     public var localUdpPort: UInt16 {
         return stateLock.withLock { proxyHandle.port }
     }
+
+    public var remotePort: UInt16 { tcpPort }
 
     public var transportLayer: TransportLayer { .tcp }
 
