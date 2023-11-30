@@ -10,8 +10,10 @@ use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, GenericTunnelO
 pub struct Config {
     /// Contains tunnel endpoint specific config
     pub tunnel: wireguard::TunnelConfig,
-    /// List of peer configurations
-    pub peers: Vec<wireguard::PeerConfig>,
+    /// Entry peer
+    pub entry_peer: wireguard::PeerConfig,
+    /// Multihop exit peer
+    pub exit_peer: Option<wireguard::PeerConfig>,
     /// IPv4 gateway
     pub ipv4_gateway: Ipv4Addr,
     /// IPv6 gateway
@@ -46,59 +48,28 @@ pub enum Error {
     /// Peer has no valid IPs
     #[error(display = "Supplied peer has no valid IPs")]
     InvalidPeerIpError,
-
-    /// Parameters don't contain any peers
-    #[error(display = "No peers supplied")]
-    NoPeersSuppliedError,
 }
 
 impl Config {
     /// Constructs a Config from parameters
     pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config, Error> {
-        let tunnel = params.connection.tunnel.clone();
-        let mut peers = vec![params.connection.peer.clone()];
-        if let Some(exit_peer) = &params.connection.exit_peer {
-            peers.push(exit_peer.clone());
-        }
         Self::new(
-            tunnel,
-            peers,
-            params.connection.ipv4_gateway,
-            params.connection.ipv6_gateway,
+            &params.connection,
             &params.options,
             &params.generic_options,
-            params.obfuscation.clone(),
-            #[cfg(target_os = "linux")]
-            params.connection.fwmark,
+            &params.obfuscation,
         )
     }
 
     /// Constructs a new Config struct
     fn new(
-        mut tunnel: wireguard::TunnelConfig,
-        mut peers: Vec<wireguard::PeerConfig>,
-        ipv4_gateway: Ipv4Addr,
-        ipv6_gateway: Option<Ipv6Addr>,
+        connection: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
-        obfuscator_config: Option<ObfuscatorConfig>,
-        #[cfg(target_os = "linux")] fwmark: Option<u32>,
+        obfuscator_config: &Option<ObfuscatorConfig>,
     ) -> Result<Config, Error> {
-        if peers.is_empty() {
-            return Err(Error::NoPeersSuppliedError);
-        }
+        let mut tunnel = connection.tunnel.clone();
         let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
-        for peer in &mut peers {
-            peer.allowed_ips = peer
-                .allowed_ips
-                .iter()
-                .cloned()
-                .filter(|ip| ip.is_ipv4() || generic_options.enable_ipv6)
-                .collect();
-            if peer.allowed_ips.is_empty() {
-                return Err(Error::InvalidPeerIpError);
-            }
-        }
 
         if tunnel.addresses.is_empty() {
             return Err(Error::InvalidTunnelIpError);
@@ -107,20 +78,33 @@ impl Config {
             .addresses
             .retain(|ip| ip.is_ipv4() || generic_options.enable_ipv6);
 
-        let ipv6_gateway = ipv6_gateway.filter(|_opt| generic_options.enable_ipv6);
+        let ipv6_gateway = connection
+            .ipv6_gateway
+            .filter(|_opt| generic_options.enable_ipv6);
 
-        Ok(Config {
+        let mut config = Config {
             tunnel,
-            peers,
-            ipv4_gateway,
+            entry_peer: connection.peer.clone(),
+            exit_peer: connection.exit_peer.clone(),
+            ipv4_gateway: connection.ipv4_gateway,
             ipv6_gateway,
             mtu,
             #[cfg(target_os = "linux")]
-            fwmark,
+            fwmark: connection.fwmark,
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
-            obfuscator_config,
-        })
+            obfuscator_config: obfuscator_config.to_owned(),
+        };
+
+        for peer in config.peers_mut() {
+            peer.allowed_ips
+                .retain(|ip| ip.is_ipv4() || generic_options.enable_ipv6);
+            if peer.allowed_ips.is_empty() {
+                return Err(Error::InvalidPeerIpError);
+            }
+        }
+
+        Ok(config)
     }
 
     /// Returns a CString with the appropriate config for WireGuard-go
@@ -139,7 +123,7 @@ impl Config {
 
         wg_conf.add("replace_peers", "true");
 
-        for peer in &self.peers {
+        for peer in self.peers() {
             wg_conf
                 .add("public_key", peer.public_key.as_bytes().as_ref())
                 .add("endpoint", peer.endpoint.to_string().as_str())
@@ -157,17 +141,32 @@ impl Config {
     }
 
     /// Return whether the config connects to an exit peer from another remote peer.
-    ///
-    /// This relies on the assumption that multiple peers imply that multihop is used. This is
-    /// misguided in principle but happens to work given that normally only one peer will be
-    /// present.
     pub fn is_multihop(&self) -> bool {
-        self.peers.len() == 2
+        self.exit_peer.is_some()
     }
 
-    /// Return the entry peer. This happens to be the first peer.
-    pub fn entry_peer_mut(&mut self) -> Option<&mut wireguard::PeerConfig> {
-        self.peers.get_mut(0)
+    /// Return the exit peer. `exit_peer` if it is set, otherwise `entry_peer`.
+    pub fn exit_peer_mut(&mut self) -> &mut wireguard::PeerConfig {
+        if let Some(ref mut peer) = self.exit_peer {
+            return peer;
+        }
+        &mut self.entry_peer
+    }
+
+    /// Return an iterator over all peers.
+    pub fn peers(&self) -> impl Iterator<Item = &wireguard::PeerConfig> {
+        self.exit_peer
+            .as_ref()
+            .into_iter()
+            .chain(std::iter::once(&self.entry_peer))
+    }
+
+    /// Return a mutable iterator over all peers.
+    pub fn peers_mut(&mut self) -> impl Iterator<Item = &mut wireguard::PeerConfig> {
+        self.exit_peer
+            .as_mut()
+            .into_iter()
+            .chain(std::iter::once(&mut self.entry_peer))
     }
 }
 

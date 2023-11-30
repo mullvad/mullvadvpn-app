@@ -816,7 +816,7 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
 
     buffer.extend(as_uninit_byte_slice(&header));
 
-    for peer in &config.peers {
+    for peer in config.peers() {
         let flags = if peer.psk.is_some() {
             WgPeerFlag::HAS_PRESHARED_KEY | WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT
         } else {
