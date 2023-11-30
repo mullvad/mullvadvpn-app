@@ -7,7 +7,7 @@
 //
 
 import Combine
-import MullvadSettings
+@testable import MullvadSettings
 import MullvadTypes
 import Network
 @testable import PacketTunnelCore
@@ -206,7 +206,8 @@ final class PacketTunnelActorTests: XCTestCase {
                     privateKey: PrivateKey(),
                     interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
                     relayConstraints: RelayConstraints(),
-                    dnsServers: .gateway
+                    dnsServers: .gateway,
+                    obfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic)
                 )
             }
         }

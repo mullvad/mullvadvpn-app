@@ -44,7 +44,7 @@ extension RelaySelectorStub {
                     cityCode: "got",
                     latitude: 0,
                     longitude: 0
-                )
+                ), retryAttempts: 0
             )
         }
     }
