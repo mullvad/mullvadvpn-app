@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -105,8 +104,7 @@ fun SelectLocationScreen(
                     painter = painterResource(id = R.drawable.icon_back),
                     contentDescription = null,
                     tint = Color.Unspecified,
-                    modifier =
-                        Modifier.size(Dimens.titleIconSize).rotate(270f).clickable { onBackClick() }
+                    modifier = Modifier.size(Dimens.titleIconSize).rotate(270f)
                 )
             }
             Text(
