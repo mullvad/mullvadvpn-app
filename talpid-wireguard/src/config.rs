@@ -63,21 +63,26 @@ impl Config {
         Self::new(
             tunnel,
             peers,
-            &params.connection,
+            params.connection.ipv4_gateway,
+            params.connection.ipv6_gateway,
             &params.options,
             &params.generic_options,
             params.obfuscation.clone(),
+            #[cfg(target_os = "linux")]
+            params.connection.fwmark,
         )
     }
 
     /// Constructs a new Config struct
-    pub fn new(
+    fn new(
         mut tunnel: wireguard::TunnelConfig,
         mut peers: Vec<wireguard::PeerConfig>,
-        connection_config: &wireguard::ConnectionConfig,
+        ipv4_gateway: Ipv4Addr,
+        ipv6_gateway: Option<Ipv6Addr>,
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
         obfuscator_config: Option<ObfuscatorConfig>,
+        #[cfg(target_os = "linux")] fwmark: Option<u32>,
     ) -> Result<Config, Error> {
         if peers.is_empty() {
             return Err(Error::NoPeersSuppliedError);
@@ -102,20 +107,16 @@ impl Config {
             .addresses
             .retain(|ip| ip.is_ipv4() || generic_options.enable_ipv6);
 
-        let ipv6_gateway = if generic_options.enable_ipv6 {
-            connection_config.ipv6_gateway
-        } else {
-            None
-        };
+        let ipv6_gateway = ipv6_gateway.filter(|_opt| generic_options.enable_ipv6);
 
         Ok(Config {
             tunnel,
             peers,
-            ipv4_gateway: connection_config.ipv4_gateway,
+            ipv4_gateway,
             ipv6_gateway,
             mtu,
             #[cfg(target_os = "linux")]
-            fwmark: connection_config.fwmark,
+            fwmark,
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
             obfuscator_config,
