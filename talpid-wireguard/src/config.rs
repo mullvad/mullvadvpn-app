@@ -26,6 +26,8 @@ pub struct Config {
     pub enable_ipv6: bool,
     /// Obfuscator config to be used for reaching the relay.
     pub obfuscator_config: Option<ObfuscatorConfig>,
+    /// Whether this is a multihop config
+    is_multihop: bool,
 }
 
 /// Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless
@@ -46,47 +48,39 @@ pub enum Error {
     /// Peer has no valid IPs
     #[error(display = "Supplied peer has no valid IPs")]
     InvalidPeerIpError,
-
-    /// Parameters don't contain any peers
-    #[error(display = "No peers supplied")]
-    NoPeersSuppliedError,
 }
 
 impl Config {
     /// Constructs a Config from parameters
     pub fn from_parameters(params: &wireguard::TunnelParameters) -> Result<Config, Error> {
-        let tunnel = params.connection.tunnel.clone();
-        let mut peers = vec![params.connection.peer.clone()];
-        if let Some(exit_peer) = &params.connection.exit_peer {
-            peers.push(exit_peer.clone());
-        }
         Self::new(
-            tunnel,
-            peers,
-            params.connection.ipv4_gateway,
-            params.connection.ipv6_gateway,
+            &params.connection,
             &params.options,
             &params.generic_options,
-            params.obfuscation.clone(),
-            #[cfg(target_os = "linux")]
-            params.connection.fwmark,
+            &params.obfuscation,
         )
     }
 
     /// Constructs a new Config struct
     fn new(
-        mut tunnel: wireguard::TunnelConfig,
-        mut peers: Vec<wireguard::PeerConfig>,
-        ipv4_gateway: Ipv4Addr,
-        ipv6_gateway: Option<Ipv6Addr>,
+        connection: &wireguard::ConnectionConfig,
         wg_options: &wireguard::TunnelOptions,
         generic_options: &GenericTunnelOptions,
-        obfuscator_config: Option<ObfuscatorConfig>,
-        #[cfg(target_os = "linux")] fwmark: Option<u32>,
+        obfuscator_config: &Option<ObfuscatorConfig>,
     ) -> Result<Config, Error> {
-        if peers.is_empty() {
-            return Err(Error::NoPeersSuppliedError);
-        }
+        let mut tunnel = connection.tunnel.clone();
+        let entry_peer = connection.peer.clone();
+        let exit_peer = connection.exit_peer.clone();
+        let ipv4_gateway = connection.ipv4_gateway;
+        let ipv6_gateway = connection.ipv6_gateway;
+
+        let mut peers = vec![entry_peer];
+        let is_multihop = if let Some(exit_peer) = exit_peer {
+            peers.push(exit_peer);
+            true
+        } else {
+            false
+        };
         let mtu = wg_options.mtu.unwrap_or(DEFAULT_MTU);
         for peer in &mut peers {
             peer.allowed_ips = peer
@@ -116,10 +110,11 @@ impl Config {
             ipv6_gateway,
             mtu,
             #[cfg(target_os = "linux")]
-            fwmark,
+            fwmark: connection.fwmark,
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
-            obfuscator_config,
+            obfuscator_config: obfuscator_config.to_owned(),
+            is_multihop,
         })
     }
 
@@ -157,16 +152,22 @@ impl Config {
     }
 
     /// Return whether the config connects to an exit peer from another remote peer.
-    ///
-    /// This relies on the assumption that multiple peers imply that multihop is used. This is
-    /// misguided in principle but happens to work given that normally only one peer will be
-    /// present.
     pub fn is_multihop(&self) -> bool {
-        self.peers.len() == 2
+        self.is_multihop
     }
 
-    /// Return the entry peer. This happens to be the first peer.
+    /// Return the entry peer.
     pub fn entry_peer_mut(&mut self) -> Option<&mut wireguard::PeerConfig> {
+        // The order is determined by the constructor
+        self.peers.get_mut(0)
+    }
+
+    /// Return the exit peer.
+    pub fn exit_peer_mut(&mut self) -> Option<&mut wireguard::PeerConfig> {
+        // The order is determined by the constructor
+        if self.is_multihop {
+            return self.peers.get_mut(1);
+        }
         self.peers.get_mut(0)
     }
 }

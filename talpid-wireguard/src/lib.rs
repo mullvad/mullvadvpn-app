@@ -459,7 +459,10 @@ impl WireguardMonitor {
             // exit peer with these rules and not the broader internet.
             AllowedTunnelTraffic::Two(
                 allowed_traffic,
-                Endpoint::from_socket_address(config.peers[1].endpoint, TransportProtocol::Udp),
+                Endpoint::from_socket_address(
+                    config.exit_peer_mut().unwrap().endpoint,
+                    TransportProtocol::Udp,
+                ),
             )
         } else {
             AllowedTunnelTraffic::One(allowed_traffic)
@@ -473,8 +476,6 @@ impl WireguardMonitor {
                 .await?;
 
         log::debug!("Successfully exchanged PSK with exit peer");
-
-        let mut entry_psk = None;
 
         if config.is_multihop() {
             // Set up tunnel to lead to entry
@@ -495,7 +496,7 @@ impl WireguardMonitor {
                 &tun_provider,
             )
             .await?;
-            entry_psk = Some(
+            let entry_psk = Some(
                 Self::perform_psk_negotiation(
                     retry_attempt,
                     &entry_config,
@@ -505,18 +506,13 @@ impl WireguardMonitor {
                 .await?,
             );
             log::debug!("Successfully exchanged PSK with entry peer");
+
+            config.entry_peer_mut().expect("entry peer not found").psk = entry_psk;
         }
 
-        // Set new priv key and psks
+        config.exit_peer_mut().expect("exit peer not found").psk = Some(exit_psk);
+
         config.tunnel.private_key = wg_psk_privkey;
-        if let Some(entry_psk) = entry_psk {
-            // The first peer is the entry peer and there is guaranteed to be a second peer
-            // which is the exit
-            config.peers.get_mut(0).expect("entry peer not found").psk = Some(entry_psk);
-            config.peers.get_mut(1).expect("exit peer not found").psk = Some(exit_psk);
-        } else {
-            config.peers.get_mut(0).expect("peer not found").psk = Some(exit_psk);
-        }
 
         *config = Self::reconfigure_tunnel(
             tunnel,
