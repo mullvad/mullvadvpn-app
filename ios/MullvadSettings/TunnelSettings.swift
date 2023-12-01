@@ -10,7 +10,7 @@ import Foundation
 import MullvadREST
 
 /// Alias to the latest version of the `TunnelSettings`.
-public typealias LatestTunnelSettings = TunnelSettingsV3
+public typealias LatestTunnelSettings = TunnelSettingsV4
 
 /// Protocol all TunnelSettings must adhere to, for upgrade purposes.
 public protocol TunnelSettings: Codable {
@@ -28,11 +28,16 @@ public enum SchemaVersion: Int, Equatable {
     /// V2 format with WireGuard obfuscation options, stored as `TunnelSettingsV3`.
     case v3 = 3
 
+    /// V3 format with support for WireGuard obfuscation options with UInt16 port backing values,
+    /// stored as `TunnelSettingsV4`.
+    case v4 = 4
+
     var settingsType: any TunnelSettings.Type {
         switch self {
         case .v1: return TunnelSettingsV1.self
         case .v2: return TunnelSettingsV2.self
         case .v3: return TunnelSettingsV3.self
+        case .v4: return TunnelSettingsV4.self
         }
     }
 
@@ -40,10 +45,11 @@ public enum SchemaVersion: Int, Equatable {
         switch self {
         case .v1: return .v2
         case .v2: return .v3
-        case .v3: return .v3
+        case .v3: return .v4
+        case .v4: return .v4
         }
     }
 
     /// Current schema version.
-    public static let current = SchemaVersion.v3
+    public static let current = SchemaVersion.v4
 }

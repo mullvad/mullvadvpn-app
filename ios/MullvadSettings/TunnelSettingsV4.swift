@@ -1,8 +1,8 @@
 //
-//  TunnelSettingsV3.swift
-//  MullvadVPN
+//  TunnelSettingsV4.swift
+//  MullvadSettings
 //
-//  Created by Marco Nikic on 2023-10-17.
+//  Created by Jon Petersson on 2023-12-01.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
@@ -10,7 +10,7 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-public struct TunnelSettingsV3: Codable, Equatable, TunnelSettings {
+public struct TunnelSettingsV4: Codable, Equatable, TunnelSettings {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 
@@ -31,10 +31,6 @@ public struct TunnelSettingsV3: Codable, Equatable, TunnelSettings {
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        return TunnelSettingsV4(
-            relayConstraints: relayConstraints,
-            dnsSettings: dnsSettings,
-            wireGuardObfuscation: wireGuardObfuscation
-        )
+        self
     }
 }

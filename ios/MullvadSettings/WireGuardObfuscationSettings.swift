@@ -50,4 +50,12 @@ public struct WireGuardObfuscationSettings: Codable, Equatable {
         self.state = state
         self.port = port
     }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // Added in 2023.8
+        state = try container.decodeIfPresent(WireGuardObfuscationState.self, forKey: .state) ?? .automatic
+        port = (try? container.decodeIfPresent(WireGuardObfuscationPort.self, forKey: .port)) ?? .automatic
+    }
 }

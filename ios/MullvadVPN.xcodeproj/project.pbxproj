@@ -482,6 +482,7 @@
 		7ABCA5B42A9349F20044A708 /* Routing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7ABCA5B72A9353C60044A708 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
 		7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */; };
+		7AC543D62B1A178B00E6690B /* TunnelSettingsV4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC543D52B1A178B00E6690B /* TunnelSettingsV4.swift */; };
 		7AC8A3AE2ABC6FBB00DC4939 /* SettingsHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */; };
 		7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */; };
 		7AD0AA1C2AD6A63F00119E10 /* PacketTunnelActorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA1B2AD6A63F00119E10 /* PacketTunnelActorStub.swift */; };
@@ -1601,6 +1602,7 @@
 		7A9FA1412A2E3306000B728D /* CheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxView.swift; sourceTree = "<group>"; };
 		7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckableSettingsCell.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
+		7AC543D52B1A178B00E6690B /* TunnelSettingsV4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV4.swift; sourceTree = "<group>"; };
 		7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
 		7AD0AA192AD69B6E00119E10 /* PacketTunnelActorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorProtocol.swift; sourceTree = "<group>"; };
 		7AD0AA1B2AD6A63F00119E10 /* PacketTunnelActorStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorStub.swift; sourceTree = "<group>"; };
@@ -2614,6 +2616,7 @@
 				587AD7C523421D7000E93A53 /* TunnelSettingsV1.swift */,
 				580F8B8228197881002E0998 /* TunnelSettingsV2.swift */,
 				A988DF282ADE880300D807EF /* TunnelSettingsV3.swift */,
+				7AC543D52B1A178B00E6690B /* TunnelSettingsV4.swift */,
 				A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */,
 			);
 			path = MullvadSettings;
@@ -4272,6 +4275,7 @@
 			files = (
 				58B2FDEE2AA72098003EB5C6 /* ApplicationConfiguration.swift in Sources */,
 				58B2FDE52AA71D5C003EB5C6 /* TunnelSettingsV2.swift in Sources */,
+				7AC543D62B1A178B00E6690B /* TunnelSettingsV4.swift in Sources */,
 				A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */,
 				58B2FDE32AA71D5C003EB5C6 /* StoredDeviceData.swift in Sources */,
 				58B2FDDF2AA71D5C003EB5C6 /* DNSSettings.swift in Sources */,
