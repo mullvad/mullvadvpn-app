@@ -65,6 +65,9 @@ extension PacketTunnelActor {
         case var .reconnecting(connState):
             if mutateConnectionState(&connState) {
                 state = .reconnecting(connState)
+                Task {
+                    await blockAllTrafficUntilDeviceIsConnected()
+                }
             }
 
         case var .disconnecting(connState):
