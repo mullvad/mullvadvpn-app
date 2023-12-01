@@ -43,7 +43,7 @@ extension PacketTunnelActor {
 
         if let blockedState = makeBlockedState(reason: reason) {
             state = .error(blockedState)
-            await configureAdapterForErrorState()
+            await blockAllTrafficUntilDeviceIsConnected(shouldStopTunnel: true)
         }
     }
 
@@ -110,7 +110,7 @@ extension PacketTunnelActor {
     /**
      Configure tunnel with empty WireGuard configuration that consumes all traffic on device emulating a firewall blocking all traffic.
      */
-    private func configureAdapterForErrorState() async {
+    func blockAllTrafficUntilDeviceIsConnected(shouldStopTunnel: Bool = false) async {
         do {
             let configurationBuilder = ConfigurationBuilder(
                 privateKey: PrivateKey(),
@@ -123,7 +123,9 @@ extension PacketTunnelActor {
                 endpoint: .ipv4(IPv4Endpoint(string: "127.0.0.1:9090")!),
                 publicKey: PrivateKey().publicKey
             )
-            try? await tunnelAdapter.stop()
+            if shouldStopTunnel {
+                try? await tunnelAdapter.stop()
+            }
             try await tunnelAdapter.start(configuration: config)
         } catch {
             logger.error(error: error, message: "Unable to configure the tunnel for error state.")
