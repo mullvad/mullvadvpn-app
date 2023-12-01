@@ -25,6 +25,11 @@ export const smallText = {
   color: colors.white80,
 };
 
+export const smallNormalText = {
+  ...smallText,
+  fontWeight: 'normal',
+};
+
 export const normalText = {
   ...openSans,
   fontSize: '15px',
