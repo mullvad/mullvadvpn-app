@@ -20,7 +20,7 @@ public enum WireGuardObfuscationState: Codable {
 /// The port to select when using UDP-over-TCP obfuscation
 ///
 /// `.automatic` means an algorith will decide between using `port80` or `port5001`
-public enum WireGuardObfuscationPort: UInt16, Codable {
+public enum WireGuardObfuscationPort: UInt16, Codable, CaseIterable {
     case automatic = 0
     case port80 = 80
     case port5001 = 5001
@@ -39,6 +39,14 @@ public enum WireGuardObfuscationPort: UInt16, Codable {
             self = .port5001
         default: self = .automatic
         }
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let decodedValue = try? container.decode(UInt16.self)
+
+        let port = WireGuardObfuscationPort.allCases.first(where: { $0.rawValue == decodedValue })
+        self = port ?? .automatic
     }
 }
 
