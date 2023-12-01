@@ -37,6 +37,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for setting per-app language in system settings.
 - Add support for in app purchases for versions that are released on Google Play.
 
+#### Linux
+- Rename interface name from `wg-mullvad` to `wg0-mullvad`.
+
 
 ## [2023.6-beta1] - 2023-11-23
 ### Added
