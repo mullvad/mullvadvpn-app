@@ -19,7 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -163,8 +163,9 @@ fun RelayLocationCell(
             RelayItemType.City -> Dimens.cityRowPadding
             RelayItemType.Relay -> Dimens.relayRowPadding
         }
-    val selected = selectedItem == relay
-    val expanded = remember(key1 = relay.expanded.toString()) { mutableStateOf(relay.expanded) }
+    val selected = selectedItem?.code == relay.code
+    val expanded =
+        rememberSaveable(key = relay.expanded.toString()) { mutableStateOf(relay.expanded) }
     val backgroundColor =
         when {
             selected -> MaterialTheme.colorScheme.inversePrimary
