@@ -26,6 +26,7 @@ data class Dimensions(
     val circularProgressBarSmallSize: Dp = 24.dp,
     val circularProgressBarSmallStrokeWidth: Dp = 3.dp,
     val cityRowPadding: Dp = 34.dp,
+    val connectButtonExtraPadding: Dp = 4.dp,
     val countryRowPadding: Dp = 18.dp,
     val customPortBoxMinWidth: Dp = 80.dp,
     val dialogIconHeight: Dp = 44.dp,
