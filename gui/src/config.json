@@ -7,6 +7,7 @@
     "download": "https://mullvad.net/download/vpn/"
   },
   "colors": {
+    "darkerBlue": "rgba(25, 38, 56, 0.95)",
     "darkBlue": "rgb(25, 46, 69)",
     "blue": "rgb(41, 77, 115)",
     "darkGreen": "rgb(32, 84, 37)",
@@ -18,6 +19,7 @@
     "white": "rgb(255, 255, 255)",
     "white80": "rgba(255, 255, 255, 0.8)",
     "white60": "rgba(255, 255, 255, 0.6)",
+    "white50": "rgba(255, 255, 255, 0.5)",
     "white40": "rgba(255, 255, 255, 0.4)",
     "white20": "rgba(255, 255, 255, 0.2)",
     "white10": "rgba(255, 255, 255, 0.1)",
