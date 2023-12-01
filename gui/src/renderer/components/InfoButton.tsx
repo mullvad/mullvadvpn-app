@@ -33,7 +33,7 @@ export function InfoIcon(props: IInfoIconProps) {
 }
 
 interface IInfoButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
-  message?: string;
+  message?: string | Array<string>;
   children?: React.ReactNode;
   size?: number;
 }
