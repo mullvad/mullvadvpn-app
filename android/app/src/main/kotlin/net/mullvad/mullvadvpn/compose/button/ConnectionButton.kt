@@ -135,7 +135,9 @@ private fun ConnectionButton(
     modifier: Modifier = Modifier,
     reconnectButtonTestTag: String = ""
 ) {
-    ConstraintLayout(modifier = modifier.fillMaxWidth()) {
+    ConstraintLayout(
+        modifier = modifier.padding(vertical = Dimens.connectButtonExtraPadding).fillMaxWidth()
+    ) {
         // initial height set at 0.dp
         var componentHeight by remember { mutableStateOf(0.dp) }
 
