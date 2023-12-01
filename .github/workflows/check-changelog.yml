@@ -1,0 +1,18 @@
+---
+name: Check changelog format
+on:
+  pull_request:
+    paths:
+      - 'CHANGELOG.md'
+env:
+  LINE_LIMIT: 100
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: No lines must exceed ${{ env.LINE_LIMIT }} characters
+        run: |
+          awk 'length($0) > '$LINE_LIMIT' { print NR ": Line exceeds '$LINE_LIMIT' chars: " $0; found=1 } \
+            END { if(found) exit 1 }' CHANGELOG.md

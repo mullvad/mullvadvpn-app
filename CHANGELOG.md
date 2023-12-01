@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add CLI support for applying patches to the settings with `mullvad import-settings`.
+
 ### Changed
 #### Android
 - Migrate welcome view to compose.
@@ -43,7 +46,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [2023.6-beta1] - 2023-11-23
 ### Added
-- Add customizable relay lists to the CLI on desktop. Custom lists can be managed through `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
+- Add customizable relay lists to the CLI on desktop. Custom lists can be managed through
+  `mullvad custom-lists` and can be selected through `mullvad relay set` and `mullvad bridge set`.
 - Add custom lists to location selector in desktop app.
 - Add custom API access methods to the CLI on desktop. Custom API access methods allow the user to
   proxy API traffic through a peer before connecting to a tunnel. They are managed through
@@ -51,11 +55,12 @@ Line wrap the file at 100 chars.                                              Th
   `SOCKS5`.
 - Add social media content blocker.
 - Add ability to override server IPs to the CLI.
-- Add CLI support for applying patches to the settings with `mullvad import-settings`.
 
 ### Changed
 - Update Electron from 25.2.0 to 26.3.0.
-- CLI command `mullvad relay set tunnel wireguard entry-location` changed to `mullvad relay set tunnel wireguard entry location`, as the `location` subcommand can now be swapped for `custom-list` to select entry relays using a custom list.
+- CLI command `mullvad relay set tunnel wireguard entry-location` changed to
+  `mullvad relay set tunnel wireguard entry location`, as the `location` subcommand can now be
+  swapped for `custom-list` to select entry relays using a custom list.
 
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.
@@ -65,7 +70,8 @@ Line wrap the file at 100 chars.                                              Th
 - Remove wireguard-go (userspace WireGuard) support.
 
 ### Fixed
-- Validate that hostname matches correct server type for CLI commands `mullvad relay set location`, `mullvad bridge set location` and `mullvad relay set tunnel wireguard entry location`
+- Validate that hostname matches correct server type for CLI commands `mullvad relay set location`,
+  `mullvad bridge set location`, and `mullvad relay set tunnel wireguard entry location`.
 - Show correct endpoint in CLI for custom relays.
 - Lower risk of being rate limited.
 - Fix error dialog when failing to write to console by handling the thrown error.
@@ -487,8 +493,8 @@ Identical to android/2022.2-beta2 except for updated translations.
 
 ### Security
 - When the system service is being shut down and the target state is _secured_, maintain the
-  blocking firewall rules. Unless it's possible to deduce that the system isn't shutting down and the
-  system service is being stopped by the user intentionally. This is to prevent leaks that might
+  blocking firewall rules. Unless it's possible to deduce that the system isn't shutting down and
+  the system service is being stopped by the user intentionally. This is to prevent leaks that might
   occur during system shutdown. Fixes 2022 Mullvad app audit issue item `MUL22-02`.
 
 #### Windows
@@ -899,8 +905,8 @@ properly after initialization.
 - Move window after dragging tray icon to new position.
 
 #### Linux
-- Greatly simplify behavior around custom DNS when using systemd-resolved, by not setting DNS config on interfaces other
-  than our tunnel interface.
+- Greatly simplify behavior around custom DNS when using systemd-resolved, by not setting DNS config
+  on interfaces other than our tunnel interface.
 
 
 ## [2021.5] - 2021-10-25
@@ -1350,7 +1356,8 @@ This release is for Android only.
 - Fix issues managing DNS when dnsmasq is used with NetworkManager.
 - Fix issues with managing kernel WireGuard device via NetworkManager.
 - Disable NetworkManager's connectivity check before applying firewall rules to avoid triggering
-  NetworkManager's [bug](https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/312#note_453724)
+  NetworkManager's
+  [bug](https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/312#note_453724)
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
