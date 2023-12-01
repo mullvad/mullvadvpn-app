@@ -156,7 +156,7 @@ const ModalAlertButtonContainer = styled.div({
 interface IModalAlertProps {
   type?: ModalAlertType;
   iconColor?: string;
-  message?: string;
+  message?: string | Array<string>;
   buttons: React.ReactNode[];
   children?: React.ReactNode;
   close?: () => void;
@@ -252,6 +252,9 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
   }
 
   private renderModal() {
+    const messages =
+      typeof this.props.message === 'string' ? [this.props.message] : this.props.message;
+
     return (
       <BackAction action={this.close}>
         <ModalBackground $visible={this.state.visible && !this.props.closing}>
@@ -268,7 +271,8 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
                 {this.props.type && (
                   <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
                 )}
-                {this.props.message && <ModalMessage>{this.props.message}</ModalMessage>}
+                {messages &&
+                  messages.map((message) => <ModalMessage key={message}>{message}</ModalMessage>)}
                 {this.props.children}
               </StyledCustomScrollbars>
 
