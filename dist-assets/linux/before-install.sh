@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-if which systemctl &> /dev/null; then
+if which systemctl &> /dev/null && systemctl is-system-running | grep -vq offline &> /dev/null; then
     if systemctl status mullvad-daemon &> /dev/null; then
         /opt/Mullvad\ VPN/resources/mullvad-setup prepare-restart || true
         systemctl stop mullvad-daemon.service
