@@ -67,6 +67,16 @@ export default function ApiAccessMethods() {
   const methods = useSelector((state) => state.settings.apiAccessMethods);
   const currentMethod = useSelector((state) => state.settings.currentApiAccessMethod);
 
+  const navigateToEdit = useCallback(
+    (id?: string) => {
+      const path = generateRoutePath(RoutePath.editApiAccessMethods, { id });
+      history.push(path);
+    },
+    [history],
+  );
+
+  const navigateToNew = useCallback(() => navigateToEdit(), [navigateToEdit]);
+
   return (
     <BackAction action={history.pop}>
       <Layout>
@@ -125,7 +135,7 @@ export default function ApiAccessMethods() {
                   </Cell.Group>
 
                   <SmallButtonGroup $noMarginTop>
-                    <SmallButton>{messages.pgettext('api-access-methods-view', 'Add')}</SmallButton>
+                    <SmallButton onClick={navigateToNew}>{messages.gettext('Add')}</SmallButton>
                   </SmallButtonGroup>
                 </StyledSettingsContent>
               </StyledContent>
@@ -279,7 +289,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
             {messages.gettext('Cancel')}
           </SmallButton>,
           <SmallButton key="confirm" onClick={confirmRemove} color={SmallButtonColor.red}>
-            {messages.pgettext('in-app-notifications', 'Delete')}
+            {messages.gettext('Delete')}
           </SmallButton>,
         ]}
         close={hideRemoveConfirmation}
