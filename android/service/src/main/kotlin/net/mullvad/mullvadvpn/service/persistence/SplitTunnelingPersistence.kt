@@ -29,9 +29,6 @@ class SplitTunnelingPersistence(context: Context) {
         }
 
     private fun loadExcludedApps(): Set<String> {
-        return when {
-            appListFile.exists() -> appListFile.readLines().toSet()
-            else -> emptySet()
-        }
+        return if (appListFile.exists()) appListFile.readLines().toSet() else emptySet()
     }
 }
