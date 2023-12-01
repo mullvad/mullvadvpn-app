@@ -42,7 +42,6 @@ import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.fragment.AccountFragment
 import net.mullvad.mullvadvpn.ui.fragment.ConnectFragment
 import net.mullvad.mullvadvpn.ui.fragment.DeviceRevokedFragment
-import net.mullvad.mullvadvpn.ui.fragment.FilterFragment
 import net.mullvad.mullvadvpn.ui.fragment.LoadingFragment
 import net.mullvad.mullvadvpn.ui.fragment.LoginFragment
 import net.mullvad.mullvadvpn.ui.fragment.OutOfTimeFragment
@@ -169,20 +168,6 @@ open class MainActivity : FragmentActivity() {
                 R.anim.fragment_exit_to_bottom
             )
             replace(R.id.main_fragment, SettingsFragment())
-            addToBackStack(null)
-            commitAllowingStateLoss()
-        }
-    }
-
-    fun openFilter() {
-        supportFragmentManager.beginTransaction().apply {
-            setCustomAnimations(
-                R.anim.fragment_enter_from_right,
-                R.anim.do_nothing,
-                R.anim.do_nothing,
-                R.anim.fragment_exit_to_right
-            )
-            replace(R.id.main_fragment, FilterFragment())
             addToBackStack(null)
             commitAllowingStateLoss()
         }

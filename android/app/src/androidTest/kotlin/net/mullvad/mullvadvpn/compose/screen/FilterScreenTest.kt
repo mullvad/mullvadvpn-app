@@ -77,7 +77,7 @@ class FilterScreenTest {
         }
         composeTestRule.apply {
             onNodeWithText("Ownership").performClick()
-            onNodeWithText("Mullvad owned only").performClick()
+            onNodeWithText("Mullvad owned only").assertExists()
         }
     }
 
