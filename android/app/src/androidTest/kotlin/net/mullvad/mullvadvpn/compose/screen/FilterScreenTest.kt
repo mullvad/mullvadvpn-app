@@ -6,7 +6,6 @@ import androidx.compose.ui.test.performClick
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableSharedFlow
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.RelayFilterState
 import net.mullvad.mullvadvpn.model.Ownership
@@ -31,8 +30,7 @@ class FilterScreenTest {
                         selectedOwnership = null,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS,
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> }
+                onSelectedProvider = { _, _ -> }
             )
         }
         composeTestRule.apply {
@@ -51,8 +49,7 @@ class FilterScreenTest {
                         selectedOwnership = null,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> }
+                onSelectedProvider = { _, _ -> }
             )
         }
         composeTestRule.apply {
@@ -71,8 +68,7 @@ class FilterScreenTest {
                         selectedOwnership = Ownership.MullvadOwned,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> }
+                onSelectedProvider = { _, _ -> }
             )
         }
         composeTestRule.apply {
@@ -91,8 +87,7 @@ class FilterScreenTest {
                         selectedOwnership = Ownership.Rented,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> }
+                onSelectedProvider = { _, _ -> }
             )
         }
         composeTestRule.apply {
@@ -111,8 +106,7 @@ class FilterScreenTest {
                         selectedOwnership = null,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> }
+                onSelectedProvider = { _, _ -> }
             )
         }
 
@@ -135,8 +129,7 @@ class FilterScreenTest {
                         selectedOwnership = null,
                         selectedProviders = listOf(Provider("31173", true))
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                onSelectedProviders = { _, _ -> },
+                onSelectedProvider = { _, _ -> },
                 onApplyClick = mockClickListener
             )
         }

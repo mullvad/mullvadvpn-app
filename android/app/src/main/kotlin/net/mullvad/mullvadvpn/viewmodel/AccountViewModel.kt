@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialogData
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -20,7 +20,6 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import net.mullvad.mullvadvpn.util.toPaymentState
 import org.joda.time.DateTime
 
@@ -32,29 +31,23 @@ class AccountViewModel(
 ) : ViewModel() {
 
     private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
-    private val _enterTransitionEndAction = MutableSharedFlow<Unit>()
-
     val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     val uiState: StateFlow<AccountUiState> =
         combine(
                 deviceRepository.deviceState,
                 accountRepository.accountExpiryState,
-                paymentUseCase.purchaseResult,
                 paymentUseCase.paymentAvailability
-            ) { deviceState, accountExpiry, purchaseResult, paymentAvailability ->
+            ) { deviceState, accountExpiry, paymentAvailability ->
                 AccountUiState(
                     deviceName = deviceState.deviceName() ?: "",
                     accountNumber = deviceState.token() ?: "",
                     accountExpiry = accountExpiry.date(),
-                    paymentDialogData = purchaseResult?.toPaymentDialogData(),
+                    showSitePayment = !IS_PLAY_BUILD,
                     billingPaymentState = paymentAvailability?.toPaymentState()
                 )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), AccountUiState.default())
-
-    @Suppress("konsist.ensure public properties use permitted names")
-    val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
 
     init {
         updateAccountExpiry()
@@ -74,10 +67,11 @@ class AccountViewModel(
 
     fun onLogoutClick() {
         accountRepository.logout()
+        viewModelScope.launch { _uiSideEffect.emit(UiSideEffect.NavigateToLogin) }
     }
 
-    fun onTransitionAnimationEnd() {
-        viewModelScope.launch { _enterTransitionEndAction.emit(Unit) }
+    fun onCopyAccountNumber(accountNumber: String) {
+        viewModelScope.launch { _uiSideEffect.emit(UiSideEffect.CopyAccountNumber(accountNumber)) }
     }
 
     fun startBillingPayment(productId: ProductId, activityProvider: () -> Activity) {
@@ -116,7 +110,11 @@ class AccountViewModel(
     }
 
     sealed class UiSideEffect {
+        data object NavigateToLogin : UiSideEffect()
+
         data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect()
+
+        data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
     }
 }
 
@@ -124,8 +122,8 @@ data class AccountUiState(
     val deviceName: String?,
     val accountNumber: String?,
     val accountExpiry: DateTime?,
+    val showSitePayment: Boolean,
     val billingPaymentState: PaymentState? = null,
-    val paymentDialogData: PaymentDialogData? = null
 ) {
     companion object {
         fun default() =
@@ -133,8 +131,8 @@ data class AccountUiState(
                 deviceName = DeviceState.Unknown.deviceName(),
                 accountNumber = DeviceState.Unknown.token(),
                 accountExpiry = AccountExpiry.Missing.date(),
+                showSitePayment = false,
                 billingPaymentState = PaymentState.Loading,
-                paymentDialogData = null,
             )
     }
 }

@@ -14,6 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,20 +28,29 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.button.VariantButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.dialog.ReportProblemNoEmailDialog
+import net.mullvad.mullvadvpn.compose.destinations.ReportProblemNoEmailDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.ViewLogsDestination
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.viewmodel.ReportProblemSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemUiState
+import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.SendingReportUiState
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -50,14 +62,10 @@ private fun PreviewReportProblemScreen() {
 @Composable
 private fun PreviewReportProblemSendingScreen() {
     AppTheme {
-        ReportProblemScreen(uiState = ReportProblemUiState(false, SendingReportUiState.Sending))
+        ReportProblemScreen(
+            uiState = ReportProblemUiState(sendingState = SendingReportUiState.Sending),
+        )
     }
-}
-
-@Preview
-@Composable
-private fun PreviewReportProblemConfirmNoEmailScreen() {
-    AppTheme { ReportProblemScreen(uiState = ReportProblemUiState(true)) }
 }
 
 @Preview
@@ -65,7 +73,8 @@ private fun PreviewReportProblemConfirmNoEmailScreen() {
 private fun PreviewReportProblemSuccessScreen() {
     AppTheme {
         ReportProblemScreen(
-            uiState = ReportProblemUiState(false, SendingReportUiState.Success("email@mail.com"))
+            uiState =
+                ReportProblemUiState(sendingState = SendingReportUiState.Success("email@mail.com")),
         )
     }
 }
@@ -77,37 +86,67 @@ private fun PreviewReportProblemErrorScreen() {
         ReportProblemScreen(
             uiState =
                 ReportProblemUiState(
-                    false,
-                    SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog)
+                    sendingState =
+                        SendingReportUiState.Error(SendProblemReportResult.Error.CollectLog)
                 )
         )
     }
 }
 
+@Destination(style = SlideInFromRightTransition::class)
 @Composable
-fun ReportProblemScreen(
+fun ReportProblem(
+    navigator: DestinationsNavigator,
+    noEmailConfirmResultRecipent: ResultRecipient<ReportProblemNoEmailDialogDestination, Boolean>
+) {
+    val vm = koinViewModel<ReportProblemViewModel>()
+    val uiState by vm.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        vm.uiSideEffect.collect {
+            when (it) {
+                is ReportProblemSideEffect.ShowConfirmNoEmail -> {
+                    navigator.navigate(ReportProblemNoEmailDialogDestination)
+                }
+            }
+        }
+    }
+
+    noEmailConfirmResultRecipent.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {}
+            is NavResult.Value -> vm.sendReport(uiState.email, uiState.description, true)
+        }
+    }
+
+    ReportProblemScreen(
+        uiState,
+        onSendReport = { vm.sendReport(uiState.email, uiState.description) },
+        onClearSendResult = vm::clearSendResult,
+        onNavigateToViewLogs = {
+            navigator.navigate(ViewLogsDestination()) { launchSingleTop = true }
+        },
+        onEmailChanged = vm::updateEmail,
+        onDescriptionChanged = vm::updateDescription,
+        onBackClick = navigator::navigateUp,
+    )
+}
+
+@Composable
+private fun ReportProblemScreen(
     uiState: ReportProblemUiState,
-    onSendReport: (String, String) -> Unit = { _, _ -> },
-    onDismissNoEmailDialog: () -> Unit = {},
+    onSendReport: () -> Unit = {},
     onClearSendResult: () -> Unit = {},
     onNavigateToViewLogs: () -> Unit = {},
-    updateEmail: (String) -> Unit = {},
-    updateDescription: (String) -> Unit = {},
+    onEmailChanged: (String) -> Unit = {},
+    onDescriptionChanged: (String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
-    // Dialog to show confirm if no email was added
-    if (uiState.showConfirmNoEmail) {
-        ReportProblemNoEmailDialog(
-            onDismiss = onDismissNoEmailDialog,
-            onConfirm = { onSendReport(uiState.email, uiState.description) }
-        )
-    }
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.report_a_problem),
         navigationIcon = { NavigateBackIconButton(onBackClick) }
     ) { modifier ->
-
         // Show sending states
         if (uiState.sendingState != null) {
             Column(
@@ -119,11 +158,7 @@ fun ReportProblemScreen(
             ) {
                 when (uiState.sendingState) {
                     SendingReportUiState.Sending -> SendingContent()
-                    is SendingReportUiState.Error ->
-                        ErrorContent(
-                            { onSendReport(uiState.email, uiState.description) },
-                            onClearSendResult
-                        )
+                    is SendingReportUiState.Error -> ErrorContent(onSendReport, onClearSendResult)
                     is SendingReportUiState.Success -> SentContent(uiState.sendingState)
                 }
                 return@ScaffoldWithMediumTopBar
@@ -146,7 +181,7 @@ fun ReportProblemScreen(
             TextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = uiState.email,
-                onValueChange = updateEmail,
+                onValueChange = onEmailChanged,
                 maxLines = 1,
                 singleLine = true,
                 placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
@@ -156,7 +191,7 @@ fun ReportProblemScreen(
             TextField(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 value = uiState.description,
-                onValueChange = updateDescription,
+                onValueChange = onDescriptionChanged,
                 placeholder = { Text(stringResource(R.string.user_message_hint)) },
                 colors = mullvadWhiteTextFieldColors()
             )
@@ -168,7 +203,7 @@ fun ReportProblemScreen(
                 )
                 Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
                 VariantButton(
-                    onClick = { onSendReport(uiState.email, uiState.description) },
+                    onClick = onSendReport,
                     isEnabled = uiState.description.isNotEmpty(),
                     text = stringResource(id = R.string.send)
                 )

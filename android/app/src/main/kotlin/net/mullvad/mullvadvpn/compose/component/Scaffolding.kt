@@ -19,33 +19,25 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
 @Composable
 fun ScaffoldWithTopBar(
     topBarColor: Color,
-    statusBarColor: Color,
-    navigationBarColor: Color,
     modifier: Modifier = Modifier,
     iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
     onSettingsClicked: (() -> Unit)?,
     onAccountClicked: (() -> Unit)?,
     isIconAndLogoVisible: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    enabled: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val systemUiController = rememberSystemUiController()
-    LaunchedEffect(key1 = statusBarColor, key2 = navigationBarColor) {
-        systemUiController.setStatusBarColor(statusBarColor)
-        systemUiController.setNavigationBarColor(navigationBarColor)
-    }
 
     Scaffold(
         modifier = modifier,
@@ -55,7 +47,8 @@ fun ScaffoldWithTopBar(
                 iconTintColor = iconTintColor,
                 onSettingsClicked = onSettingsClicked,
                 onAccountClicked = onAccountClicked,
-                isIconAndLogoVisible = isIconAndLogoVisible
+                isIconAndLogoVisible = isIconAndLogoVisible,
+                enabled = enabled,
             )
         },
         snackbarHost = {
@@ -71,8 +64,6 @@ fun ScaffoldWithTopBar(
 @Composable
 fun ScaffoldWithTopBarAndDeviceName(
     topBarColor: Color,
-    statusBarColor: Color,
-    navigationBarColor: Color?,
     modifier: Modifier = Modifier,
     iconTintColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaTopBar),
     onSettingsClicked: (() -> Unit)?,
@@ -83,14 +74,6 @@ fun ScaffoldWithTopBarAndDeviceName(
     timeLeft: Int?,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val systemUiController = rememberSystemUiController()
-    LaunchedEffect(key1 = statusBarColor, key2 = navigationBarColor) {
-        systemUiController.setStatusBarColor(statusBarColor)
-        if (navigationBarColor != null) {
-            systemUiController.setNavigationBarColor(navigationBarColor)
-        }
-    }
-
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -130,6 +113,7 @@ fun ScaffoldWithMediumTopBar(
     actions: @Composable RowScope.() -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit
 ) {
 
@@ -145,6 +129,12 @@ fun ScaffoldWithMediumTopBar(
                 navigationIcon = navigationIcon,
                 actions,
                 scrollBehavior = scrollBehavior
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) }
             )
         },
         content = {
