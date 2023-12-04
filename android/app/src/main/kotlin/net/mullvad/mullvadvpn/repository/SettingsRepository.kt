@@ -51,6 +51,31 @@ class SettingsRepository(
             )
     }
 
+    fun setDnsState(
+        state: DnsState,
+    ) {
+        updateDnsSettings { it.copy(state = state) }
+    }
+
+    fun updateCustomDnsList(update: (List<InetAddress>) -> List<InetAddress>) {
+        updateDnsSettings { dnsOptions ->
+            val newDnsList = ArrayList(update(dnsOptions.customOptions.addresses.map { it }))
+            dnsOptions.copy(
+                state = if (newDnsList.isEmpty()) DnsState.Default else DnsState.Custom,
+                customOptions =
+                    CustomDnsOptions(
+                        addresses = newDnsList,
+                    )
+            )
+        }
+    }
+
+    private fun updateDnsSettings(lambda: (DnsOptions) -> DnsOptions) {
+        settingsUpdates.value?.tunnelOptions?.dnsOptions?.let {
+            serviceConnectionManager.customDns()?.setDnsOptions(lambda(it))
+        }
+    }
+
     fun setWireguardMtu(value: Int?) {
         serviceConnectionManager.settingsListener()?.wireguardMtu = value
     }

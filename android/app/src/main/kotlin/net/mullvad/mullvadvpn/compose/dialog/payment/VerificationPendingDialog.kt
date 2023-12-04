@@ -7,6 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -16,6 +19,12 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 @Composable
 private fun PreviewVerificationPendingDialog() {
     AppTheme { VerificationPendingDialog(onClose = {}) }
+}
+
+@Destination(style = DestinationStyle.Dialog::class)
+@Composable
+fun VerificationPendingDialog(navigator: DestinationsNavigator) {
+    VerificationPendingDialog(onClose = navigator::navigateUp)
 }
 
 @Composable

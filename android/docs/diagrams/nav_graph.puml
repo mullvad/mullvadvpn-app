@@ -1,0 +1,32 @@
+@startuml
+[*] --> splash
+splash --> privacy_policy
+splash --> login
+splash --> connect
+splash --> revoked
+
+
+revoked --> login
+privacy_policy --> login
+
+login --> welcome
+login --> too_many_devices
+login --> settings
+login --> connect
+
+too_many_devices --> login
+
+welcome --> connect
+
+connect --> revoked
+connect --> settings
+connect --> account
+connect --> switch_location
+
+settings --> vpn_settings
+settings --> split_tunneling
+settings --> report_problem
+
+report_problem --> view_logs
+
+@enduml
