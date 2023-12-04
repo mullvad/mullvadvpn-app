@@ -10,6 +10,7 @@
     <string name="add_a_server">ဆာဗာ ပေါင်းထည့်ရန်</string>
     <string name="add_dns_server_dialog_title">DNS ဆာဗာကို ပေါင်းထည့်ရန်</string>
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
+    <string name="added_to_your_account">သင့်အကောင့်ထဲသို့ %1$s ပေါင်းထည့်ပြီးပါပြီ။</string>
     <string name="agree_and_continue">သဘောတူပြီး ဆက်လုပ်ရန်</string>
     <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
     <string name="allow_lan_footer">ဝေမျှရန်၊ ပရင့်ထုတ်ရန်စသည်တို့အတွက် တူညီသည့် ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပြုပေးပါသည်။</string>
@@ -25,6 +26,7 @@
     <string name="block_adult_content_title">လူကြီး အကြောင်းအရာ</string>
     <string name="block_gambling_title">လောင်းကစား</string>
     <string name="block_malware_title">မဲလ်ဝဲရ်</string>
+    <string name="block_social_media_title">လူမှုမီဒီယာ</string>
     <string name="block_trackers_title">ခြေရာခံများ</string>
     <string name="blocked_connection">ပိတ်ဆို့ထားသည့် ချိတ်ဆက်မှု</string>
     <string name="blocking_internet">အင်တာနက် ပိတ်ဆို့နေပါသည်</string>
@@ -53,6 +55,11 @@
     <string name="custom_dns_disable_mode_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အထက်ရှိ &lt;b&gt;%1$s&lt;/b&gt; အားလုံးကို ပိတ်ပါ။</string>
     <string name="custom_dns_footer">အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။</string>
     <string name="custom_dns_hint">IP ဖြည့်ပါ</string>
+    <string name="custom_port_dialog_placeholder">ပေါ့တ် ရိုက်ထည့်ရန်</string>
+    <string name="custom_port_dialog_remove">စိတ်ကြိုက် ပေါ့တ်ကို ဖယ်ရှားရန်</string>
+    <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
+    <string name="custom_port_dialog_title">စိတ်ကြိုက် WireGuard ပေါ့တ်</string>
+    <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြားများ- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
     <string name="device_inactive_description">ဤစက်ကို ဖယ်ရှားပြီး ဖြစ်သည်။ ထပ်မံချိတ်ဆက်ရန်အတွက် ပြန်လည် ဝင်ရောက်ရန် လိုပါသည်။</string>
     <string name="device_inactive_title">စက်သည် သက်ဝင်လုပ်ဆောင်မှု မရှိပါ</string>
@@ -99,6 +106,7 @@
     <string name="is_offline">သင့်စက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။ သင့်စက် အွန်လိုင်း ပြန်ဖြစ်သည်နှင့် Tunnel သည် အော်တို ချိတ်ဆက်သွားပါမည်။</string>
     <string name="less_than_a_day_left">တစ်ရက်အောက်သာ ကျန်တော့သည်</string>
     <string name="less_than_a_minute_ago">လွန်ခဲ့သော စက္ကန့်ပိုင်း</string>
+    <string name="less_than_one_day">တစ်ရက်အောက် နည်းသည်။</string>
     <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
     <string name="local_network_sharing_additional_info">ဒေသတွင်း Multicast နှင့် Broadcast အပိုင်းအခြားများဆီသို့ သာမက ဤသီးသန့် IP အပိုင်းအခြားများထံမှနှင့် ၎င်းတို့ဆီသို့ Tunnel ပြင်ပ ကွန်ရက် ဆက်သွယ်မှုကို ခွင့်ပြုခြင်းဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။</string>
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
@@ -134,6 +142,8 @@
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
     <string name="port">ပေါ့တ်</string>
+    <string name="privacy_disclaimer_body_first_paragraph">အလုံခြုံဆုံး ဗားရှင်းကို ရရှိကြောင်း သေချာစေရန်နှင့် လုပ်ဆောင်နေသည့် လက်ရှိဗားရှင်းနှင့်ပတ်သက်သော ပြဿနာများအကြောင်း သင့်အား အသိပေးရန် အက်ပ်သည် ဗားရှင်း စစ်ဆေးမှုများကို အော်တိုလုပ်ဆောင်ပါသည်။ ၎င်းသည် Mullvad ဆာဗာများသို့ အက်ပ် ဗားရှင်းနှင့် Android စနစ်ဗားရှင်းတို့ကို ပေးပို့ပါသည်။ အသုံးပြုထားသည့် အက်ပ် ဗားရှင်းများနှင့် Android ဗားရှင်းများ၏ အရေအတွက်ကို Mullvad က ရေတွက်ထားပါသည်။ ဒေတာကို မည်သည့်အခါမျှ မသိမ်းဆည်းထားပါ သို့မဟုတ် သင့်အား ခွဲခြားဖော်ထုတ်နိုင်သော မည်သည့်နည်းလမ်းတွင်မျှ အသုံးမပြုထားပါ။</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Split Tunneling လုပ်ဆောင်ချက်ကို အသုံးပြုထားပါက အက်ပ်သည် ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများအားလုံး၏ စာရင်းကို မေးမြန်းပါသည်။ ဤစာရင်းကို Split Tunneling ပြသမှုတွင်သာ ပြန်ရယူပါသည်။ ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများ၏ စာရင်းကို စက်မှ မည်သည့်အခါမျှ မပေးပို့ပါ။</string>
     <string name="privacy_disclaimer_title">ကိုယ်ရေးအချက်အလက် လုံခြုံရေး</string>
     <string name="privacy_policy_label">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</string>
     <string name="problem_report_description">သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။</string>
@@ -193,6 +203,7 @@
     <string name="update_dns_server_dialog_title">DNS ဆာဗာကို အပ်ဒိတ်လုပ်ရန်</string>
     <string name="user_email_hint">သင့်အီးမေးလ် (မဖြည့်လည်း ရပါသည်)</string>
     <string name="user_message_hint">သင့်အား ပို၍ အကူအညီပေးနိုင်ရန် အင်္ဂလိပ်ဘာသာ သို့မဟုတ် ဆွီဒင်ဘာသာဖြင့် ရေးပြီး မည်သည့်နိုင်ငံမှ သင်ချိတ်ဆက်နေသည်ကို ထည့်သွင်းဖော်ပြပါ။</string>
+    <string name="verifying_voucher">ဘောက်ချာကို စစ်ဆေးနေဆဲ…</string>
     <string name="view_logs">အက်ပ်မှတ်တမ်းများ ကြည့်ရန်</string>
     <string name="virtual_adapter_problem">စက်တွင်း အဒက်တာ ချို့ယွင်းချက်</string>
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
@@ -206,4 +217,5 @@
     <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %1$d - %2$d ။</string>
     <string name="wireguard_port_info_description">အော်တိုဆက်တင်သည် အောက်တွင် ဖော်ပြထားသည့် အကျုံးဝင် ပေါ့တ် အပိုင်းအခြားများထဲမှ ကျပန်းရွေးချယ်ပါမည်။</string>
     <string name="wireguard_port_info_port_range">စိတ်ကြိုက်ပေါ့တ်သည် အကျုံးဝင် အပိုင်းအခြားများထဲမှ မည်သည့်တန်ဖိုးမဆို ဖြစ်နိုင်ပါသည်- %1$s ။</string>
+    <string name="wireguard_port_title">WireGuard ပေါ့တ်</string>
 </resources>

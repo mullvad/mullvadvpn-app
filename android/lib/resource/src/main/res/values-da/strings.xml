@@ -10,6 +10,7 @@
     <string name="add_a_server">Tilføj en server</string>
     <string name="add_dns_server_dialog_title">Tilføj DNS-server</string>
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
+    <string name="added_to_your_account">%1$s blev føjet til din konto.</string>
     <string name="agree_and_continue">Accepter og fortsæt</string>
     <string name="all_applications">Alle applikationer</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
@@ -25,6 +26,7 @@
     <string name="block_adult_content_title">Voksenindhold</string>
     <string name="block_gambling_title">Hasardspil</string>
     <string name="block_malware_title">Malware</string>
+    <string name="block_social_media_title">Sociale medier</string>
     <string name="block_trackers_title">Trackere</string>
     <string name="blocked_connection">FORBINDELSE BLOKERET</string>
     <string name="blocking_internet">Blokerer internettet</string>
@@ -53,6 +55,11 @@
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;%1$s&lt;/b&gt; ovenfor for at aktivere denne indstilling.</string>
     <string name="custom_dns_footer">Aktiver for at tilføje mindst én DNS-server.</string>
     <string name="custom_dns_hint">Indtast IP</string>
+    <string name="custom_port_dialog_placeholder">Indtast port</string>
+    <string name="custom_port_dialog_remove">Fjern brugerdefineret port</string>
+    <string name="custom_port_dialog_submit">Indstil port</string>
+    <string name="custom_port_dialog_title">Brugerdefineret WireGuard-port</string>
+    <string name="custom_port_dialog_valid_ranges">Gyldige intervaller: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
     <string name="device_inactive_description">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</string>
     <string name="device_inactive_title">Enheden er inaktiv</string>
@@ -99,6 +106,7 @@
     <string name="is_offline">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</string>
     <string name="less_than_a_day_left">mindre end én dag tilbage</string>
     <string name="less_than_a_minute_ago">mindre end et minut siden</string>
+    <string name="less_than_one_day">mindre end én dag</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
     <string name="local_network_sharing_additional_info">Det opnås ved at tillade netværkskommunikation uden for tunnelen til lokale multicast- og broadcast-områder samt til og fra disse private IP-intervaller:</string>
     <string name="local_network_sharing_info">Denne funktion giver adgang til andre enheder på det lokale netværk, såsom til deling, udskrivning, streaming osv.</string>
@@ -134,6 +142,8 @@
     <string name="paid_until">Betalt indtil</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
     <string name="port">Port</string>
+    <string name="privacy_disclaimer_body_first_paragraph">For at sørge for, at du har den mest sikre version og for at informere dig om eventuelle problemer med den aktuelle version, der kører, udfører appen automatisk versionstjek. Dette sender app-versionen og Android-systemversionen til Mullvad-servere. Mullvad holder tal på antallet af brugte app-versioner og Android-versioner. Dataene bliver aldrig opbevaret eller brugt på nogen måde, der kan identificere dig.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Hvis funktionen split tunneling bruges, beder appen dit system om en liste over alle installerede programmer. Denne liste hentes kun i split tunnel-visningen. Listen over installerede programmer sendes aldrig fra enheden.</string>
     <string name="privacy_disclaimer_title">Privatliv</string>
     <string name="privacy_policy_label">Fortrolighedspolitik</string>
     <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>
@@ -193,6 +203,7 @@
     <string name="update_dns_server_dialog_title">Opdater DNS-server</string>
     <string name="user_email_hint">Din e-mail (valgfrit)</string>
     <string name="user_message_hint">For at vi bedre kan hjælpe dig, bedes du skrive på engelsk eller svensk og nævne hvilket land, du befinder dig i.</string>
+    <string name="verifying_voucher">Bekræfter kupon…</string>
     <string name="view_logs">Se app-logfiler</string>
     <string name="virtual_adapter_problem">Fejl ved virtuel adapter</string>
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
@@ -206,4 +217,5 @@
     <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor.</string>
     <string name="wireguard_port_info_port_range">Den brugerdefinerede port kan være en hvilken som helst værdi inden for de gyldige intervaller: %1$s.</string>
+    <string name="wireguard_port_title">WireGuard-port</string>
 </resources>

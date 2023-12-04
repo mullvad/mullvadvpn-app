@@ -10,6 +10,7 @@
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_dns_server_dialog_title">DNS サーバーを追加</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
+    <string name="added_to_your_account">アカウントに%1$s分が追加されました。</string>
     <string name="agree_and_continue">同意して続行</string>
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="allow_lan_footer">共有や印刷などのため、同一ネットワーク上の他のデバイスへのアクセスを許可します。</string>
@@ -25,6 +26,7 @@
     <string name="block_adult_content_title">アダルトコンテンツ</string>
     <string name="block_gambling_title">ギャンブル</string>
     <string name="block_malware_title">マルウェア</string>
+    <string name="block_social_media_title">ソーシャルメディア</string>
     <string name="block_trackers_title">トラッカー</string>
     <string name="blocked_connection">ブロックされた接続</string>
     <string name="blocking_internet">インターネットをブロック中</string>
@@ -53,6 +55,11 @@
     <string name="custom_dns_disable_mode_subtitle">この設定を有効にするには、上記のすべての&lt;b&gt;%1$s&lt;/b&gt;を無効にしてください。</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加するには有効にしてください。</string>
     <string name="custom_dns_hint">IPを入力</string>
+    <string name="custom_port_dialog_placeholder">ポートを入力してください</string>
+    <string name="custom_port_dialog_remove">カスタムポートを削除</string>
+    <string name="custom_port_dialog_submit">ポートを設定</string>
+    <string name="custom_port_dialog_title">WireGuardカスタムポート</string>
+    <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
     <string name="device_inactive_description">このデバイスを削除しました。再度接続するには、ログインし直す必要があります。</string>
     <string name="device_inactive_title">デバイスが無効です</string>
@@ -99,6 +106,7 @@
     <string name="is_offline">デバイスがオフラインになっています。トンネルはデバイスがオンラインに戻ると自動的に接続されます。</string>
     <string name="less_than_a_day_left">残り1日未満</string>
     <string name="less_than_a_minute_ago">1分未満前</string>
+    <string name="less_than_one_day">1日未満</string>
     <string name="local_network_sharing">ローカルネットワーク共有</string>
     <string name="local_network_sharing_additional_info">これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。</string>
     <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
@@ -134,6 +142,8 @@
     <string name="paid_until">次の日時まで支払い済み</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="port">ポート</string>
+    <string name="privacy_disclaimer_body_first_paragraph">このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。</string>
+    <string name="privacy_disclaimer_body_second_paragraph">スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。</string>
     <string name="privacy_disclaimer_title">プライバシー</string>
     <string name="privacy_policy_label">プライバシーポリシー</string>
     <string name="problem_report_description">さらに効率よく問題解決できるよう、お使いのアプリのログファイルがこのメッセージに添付されます。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全は確保され、公開されることはありません。</string>
@@ -193,6 +203,7 @@
     <string name="update_dns_server_dialog_title">DNS サーバーを更新</string>
     <string name="user_email_hint">あなたのメールアドレス (任意)</string>
     <string name="user_message_hint">最適なサポートを提供するため、英語またはスウェーデン語でご入力ください。また、接続元の国をお知らせください。</string>
+    <string name="verifying_voucher">バウチャーを確認中…</string>
     <string name="view_logs">アプリのログを表示</string>
     <string name="virtual_adapter_problem">仮想アダプタのエラー</string>
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
@@ -206,4 +217,5 @@
     <string name="wireguard_mtu_footer">WireGuard MTUの値を設定します。有効範囲: %1$d ～ %2$d</string>
     <string name="wireguard_port_info_description">自動設定では、以下の有効なポート範囲からランダムに選択されます。</string>
     <string name="wireguard_port_info_port_range">カスタムポートは次の有効範囲内の任意の値に設定できます: %1$s。</string>
+    <string name="wireguard_port_title">WireGuardポート</string>
 </resources>

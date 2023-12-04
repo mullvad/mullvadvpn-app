@@ -10,6 +10,7 @@
     <string name="add_a_server">Lägg till en server</string>
     <string name="add_dns_server_dialog_title">Lägg till DNS-server</string>
     <string name="add_time_to_account">Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong.</string>
+    <string name="added_to_your_account">%1$s har lagts till i ditt konto.</string>
     <string name="agree_and_continue">Godkänn och fortsätt</string>
     <string name="all_applications">Alla applikationer</string>
     <string name="allow_lan_footer">Tillåter åtkomst till andra enheter på samma nätverk för delning, utskrift osv.</string>
@@ -25,6 +26,7 @@
     <string name="block_adult_content_title">Vuxet innehåll</string>
     <string name="block_gambling_title">Hasardspel</string>
     <string name="block_malware_title">Skadlig kod</string>
+    <string name="block_social_media_title">Sociala medier</string>
     <string name="block_trackers_title">Spårare</string>
     <string name="blocked_connection">ANSLUTNINGEN BLOCKERAD</string>
     <string name="blocking_internet">Blockerar internet</string>
@@ -53,6 +55,11 @@
     <string name="custom_dns_disable_mode_subtitle">Inaktivera alla &lt;b&gt;%1$s&lt;/b&gt; ovan för att aktivera inställningen.</string>
     <string name="custom_dns_footer">Aktivera för att lägga till minst en DNS-server.</string>
     <string name="custom_dns_hint">Ange IP</string>
+    <string name="custom_port_dialog_placeholder">Ange port</string>
+    <string name="custom_port_dialog_remove">Ta bort anpassad port</string>
+    <string name="custom_port_dialog_submit">Ställ in port</string>
+    <string name="custom_port_dialog_title">Anpassad WireGuard-port</string>
+    <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
     <string name="device_inactive_description">Du har tagit bort den här enheten. Du måste logga in igen för att återansluta.</string>
     <string name="device_inactive_title">Enheten är inaktiv</string>
@@ -99,6 +106,7 @@
     <string name="is_offline">Din enhet är offline. Tunneln ansluts automatiskt när din enhet är online igen.</string>
     <string name="less_than_a_day_left">mindre än en dag kvar</string>
     <string name="less_than_a_minute_ago">mindre än en minut sedan</string>
+    <string name="less_than_one_day">mindre än en dag</string>
     <string name="local_network_sharing">Lokal nätverksdelning</string>
     <string name="local_network_sharing_additional_info">Den gör det genom att tillåta nätverkskommunikation utanför tunneln till lokala multicast- och sändningsintervall, samt till och från dessa privata IP-intervall:</string>
     <string name="local_network_sharing_info">Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv.</string>
@@ -134,6 +142,8 @@
     <string name="paid_until">Betalat till</string>
     <string name="pay_to_start_using">Om du vill börja använda appen måste du först lägga till tid i ditt konto.</string>
     <string name="port">Port</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Appen genomför automatiska versionskontroller för att se till att du har den säkraste versionen och för att informera dig om problem med den nuvarande versionen. Appversionen och Android-systemversionen skickas till Mullvad-servrarna. Mullvad registrerar antalet använda appversioner och Android-versioner. Dessa data lagras aldrig och används inte på något sätt som kan identifiera dig.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Om delade tunnlar används, frågar appen ditt system om en lista med alla installerade applikationer. Listan hämtas bara i vyn för delade tunnlar. Listan med installerade applikationer skickas aldrig från enheten.</string>
     <string name="privacy_disclaimer_title">Sekretess</string>
     <string name="privacy_policy_label">Sekretesspolicy</string>
     <string name="problem_report_description">För att hjälpa dig mer effektivt kommer appens loggfil att bifogas i detta meddelande. Dina uppgifter förblir säkra och privata, eftersom de anonymiseras innan de skickas över en krypterad kanal.</string>
@@ -193,6 +203,7 @@
     <string name="update_dns_server_dialog_title">Uppdatera DNS-server</string>
     <string name="user_email_hint">Din e-postadress (valfritt)</string>
     <string name="user_message_hint">Skriv på engelska eller svenska och ange från vilket land du är ansluten så att vi kan hjälpa dig bättre.</string>
+    <string name="verifying_voucher">Verifierar kupong …</string>
     <string name="view_logs">Visa appens loggar</string>
     <string name="virtual_adapter_problem">Fel med virtuell adapter</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
@@ -206,4 +217,5 @@
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Den automatiska inställningen väljer slumpmässigt från giltiga portintervall som visas nedan.</string>
     <string name="wireguard_port_info_port_range">Den anpassade porten kan vara ett värde inom de giltiga intervallen: %1$s.</string>
+    <string name="wireguard_port_title">WireGuard-port</string>
 </resources>

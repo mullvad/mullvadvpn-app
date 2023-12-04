@@ -10,6 +10,7 @@
     <string name="add_a_server">Adicionar um servidor</string>
     <string name="add_dns_server_dialog_title">Adicionar servidor DNS</string>
     <string name="add_time_to_account">Compre crédito no nosso sítio da web ou reclame um voucher.</string>
+    <string name="added_to_your_account">%1$s adicionado(s) à sua conta.</string>
     <string name="agree_and_continue">Concordar e continuar</string>
     <string name="all_applications">Todas as aplicações</string>
     <string name="allow_lan_footer">Permite o acesso a outros dispositivos na mesma rede para partilha, impressão, etc.</string>
@@ -25,6 +26,7 @@
     <string name="block_adult_content_title">Conteúdo para adultos</string>
     <string name="block_gambling_title">Jogos de azar</string>
     <string name="block_malware_title">Malware</string>
+    <string name="block_social_media_title">Redes sociais</string>
     <string name="block_trackers_title">Trackers</string>
     <string name="blocked_connection">LIGAÇÃO BLOQUEADA</string>
     <string name="blocking_internet">A bloquear a Internet</string>
@@ -53,6 +55,11 @@
     <string name="custom_dns_disable_mode_subtitle">Desative todos os &lt;b&gt;%1$s&lt;/b&gt; abaixo para ativar esta definição.</string>
     <string name="custom_dns_footer">Ativar para adicionar pelo menos um servidor DNS.</string>
     <string name="custom_dns_hint">Introduzir IP</string>
+    <string name="custom_port_dialog_placeholder">Introduzir porta</string>
+    <string name="custom_port_dialog_remove">Remover porta personalizada</string>
+    <string name="custom_port_dialog_submit">Definir porta</string>
+    <string name="custom_port_dialog_title">Porta personalizada WireGuard</string>
+    <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
     <string name="device_inactive_description">Removeu este dispositivo. Para voltar a ligar o dispositivo, terá de voltar a iniciar a sessão.</string>
     <string name="device_inactive_title">O dispositivo está desativado</string>
@@ -99,6 +106,7 @@
     <string name="is_offline">O seu dispositivo está offline. O túnel irá ligar-se automaticamente assim que o seu dispositivo estiver novamente online.</string>
     <string name="less_than_a_day_left">menos de um dia restante</string>
     <string name="less_than_a_minute_ago">há menos de um minuto</string>
+    <string name="less_than_one_day">menos de um dia</string>
     <string name="local_network_sharing">Partilha de rede local</string>
     <string name="local_network_sharing_additional_info">Para tal, permite a comunicação de rede fora do túnel para intervalos locais de multicast e difusão, bem como de e para estes intervalos de IPs privados:</string>
     <string name="local_network_sharing_info">Esta funcionalidade permite o acesso a outros dispositivos na rede local, por exemplo, para partilha, impressão, streaming, etc.</string>
@@ -134,6 +142,8 @@
     <string name="paid_until">Pago até</string>
     <string name="pay_to_start_using">Para começar a utilizar a aplicação, primeiro tem de adicionar tempo à sua conta.</string>
     <string name="port">Porta</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Para se certificar de que tem a versão mais segura e para o informar de quaisquer problemas com a versão atual em execução, a app efetua verificações de versão automaticamente. Esta envia a versão da app e a versão do sistema Android para os servidores da Mullvad. A Mullvad mantém um registo do número de versões da app e de versões do Android utilizadas. Os dados nunca são armazenados ou utilizados de forma a identificar o utilizador.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Se for utilizada a funcionalidade de divisão do túnel, a app consulta o seu sistema para obter uma lista de todas as aplicações instaladas. Esta lista só é recuperada na vista de divisão do túnel. A lista de aplicações instaladas nunca é enviada pelo dispositivo.</string>
     <string name="privacy_disclaimer_title">Privacidade</string>
     <string name="privacy_policy_label">Política de privacidade</string>
     <string name="problem_report_description">Para ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
@@ -193,6 +203,7 @@
     <string name="update_dns_server_dialog_title">Atualizar servidor DNS</string>
     <string name="user_email_hint">O seu email (opcional)</string>
     <string name="user_message_hint">Para o ajudar melhor, escreva em inglês ou sueco e indique o país de onde está a efetuar a ligação.</string>
+    <string name="verifying_voucher">A verificar voucher…</string>
     <string name="view_logs">Ver os registos da app</string>
     <string name="virtual_adapter_problem">Erro de adaptador virtual</string>
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
@@ -206,4 +217,5 @@
     <string name="wireguard_mtu_footer">Definir o valor WireGuard MTU. Intervalo válido: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">A definição automática escolherá aleatoriamente a partir do intervalo de portas válido apresentado abaixo.</string>
     <string name="wireguard_port_info_port_range">A porta personalizada pode ser qualquer valor dentro dos intervalos válidos: %1$s.</string>
+    <string name="wireguard_port_title">Porta WireGuard</string>
 </resources>

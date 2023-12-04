@@ -10,6 +10,7 @@
     <string name="add_a_server">Server hinzufügen</string>
     <string name="add_dns_server_dialog_title">DNS-Server hinzufügen</string>
     <string name="add_time_to_account">Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein.</string>
+    <string name="added_to_your_account">%1$s wurde(n) zu Ihrem Konto hinzugefügt.</string>
     <string name="agree_and_continue">Akzeptieren und weiter</string>
     <string name="all_applications">Alle Anwendungen</string>
     <string name="allow_lan_footer">Ermöglicht den Zugriff auf andere Geräte im selben Netzwerk zum Teilen von Dateien, Drucken etc.</string>
@@ -25,6 +26,7 @@
     <string name="block_adult_content_title">Inhalte für Erwachsene</string>
     <string name="block_gambling_title">Glücksspiel</string>
     <string name="block_malware_title">Malware</string>
+    <string name="block_social_media_title">Social Media</string>
     <string name="block_trackers_title">Tracker</string>
     <string name="blocked_connection">GESPERRTE VERBINDUNG</string>
     <string name="blocking_internet">Internet wird gesperrt</string>
@@ -53,6 +55,11 @@
     <string name="custom_dns_disable_mode_subtitle">Deaktivieren Sie oben alle &lt;b&gt;%1$s&lt;/b&gt;, um diese Einstellung zu aktivieren.</string>
     <string name="custom_dns_footer">Aktivieren, um mindestens einen DNS-Server hinzuzufügen.</string>
     <string name="custom_dns_hint">IP eingeben</string>
+    <string name="custom_port_dialog_placeholder">Port eingeben</string>
+    <string name="custom_port_dialog_remove">Eigenen Port entfernen</string>
+    <string name="custom_port_dialog_submit">Port festlegen</string>
+    <string name="custom_port_dialog_title">Eigener WireGuard-Port</string>
+    <string name="custom_port_dialog_valid_ranges">Gültige Bereiche: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
     <string name="device_inactive_description">Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden.</string>
     <string name="device_inactive_title">Gerät ist inaktiv</string>
@@ -99,6 +106,7 @@
     <string name="is_offline">Ihr Gerät ist offline. Der Tunnel wird automatisch verbunden, sobald Ihr Gerät wieder online ist.</string>
     <string name="less_than_a_day_left">weniger als ein Tag übrig</string>
     <string name="less_than_a_minute_ago">vor weniger als einer Minute</string>
+    <string name="less_than_one_day">weniger als ein Tag</string>
     <string name="local_network_sharing">Teilen im lokalen Netzwerk</string>
     <string name="local_network_sharing_additional_info">Das geschieht, indem die Netzwerkkommunikation außerhalb des Tunnels zu lokalen Multicast- und Broadcast-Bereichen sowie zu und von diesen privaten IP-Bereichen zugelassen wird:</string>
     <string name="local_network_sharing_info">Diese Funktion ermöglicht den Zugriff auf andere Geräte im lokalen Netzwerk, z. B. zum Teilen, Drucken, Streamen usw.</string>
@@ -134,6 +142,8 @@
     <string name="paid_until">Bezahlt bis</string>
     <string name="pay_to_start_using">Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen.</string>
     <string name="port">Port</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Um zu gewährleisten, dass Sie die sicherste Version haben und um Sie über eventuelle Probleme mit der aktuellen Version zu informieren, führt die App automatisch Versionsprüfungen durch. Dabei werden die App-Version und die Android-Systemversion an die Mullvad-Server gesendet. Mullvad führt Zähler für die Anzahl der verwendeten App-Versionen und Android-Versionen. Die Daten werden niemals gespeichert oder in einer Weise verwendet, die Sie identifizieren könnte.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Wenn Split Tunneling verwendet wird, fragt die App Ihr System nach einer Liste aller installierten Anwendungen ab. Diese Liste wird nur in der Split-Tunneling-Ansicht abgerufen. Die Liste der installierten Anwendungen wird nie vom Gerät gesendet.</string>
     <string name="privacy_disclaimer_title">Datenschutz</string>
     <string name="privacy_policy_label">Datenschutzrichtlinie</string>
     <string name="problem_report_description">Damit wir Ihnen besser helfen können, wird die Protokolldatei Ihrer App an diese Nachricht angehängt. Ihre Daten bleiben sicher und privat, da sie vor dem Senden über einen verschlüsselten Kanal anonymisiert werden.</string>
@@ -193,6 +203,7 @@
     <string name="update_dns_server_dialog_title">DNS-Server aktualisieren</string>
     <string name="user_email_hint">Ihre E-Mail-Adresse (optional)</string>
     <string name="user_message_hint">Um Ihnen besser weiterhelfen zu können, schreiben Sie uns bitte auf Englisch oder Schwedisch und geben Sie an, aus welchem Land Sie die Verbindung herstellen.</string>
+    <string name="verifying_voucher">Gutschein verifizieren …</string>
     <string name="view_logs">App-Protokolle anzeigen</string>
     <string name="virtual_adapter_problem">Virtueller Adapterfehler</string>
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>
@@ -206,4 +217,5 @@
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d – %2$d.</string>
     <string name="wireguard_port_info_description">Die automatische Einstellung wählt zufällig aus den unten gezeigten gültigen Portbereichen.</string>
     <string name="wireguard_port_info_port_range">Der benutzerdefinierte Port kann ein beliebiger Wert innerhalb dieser gültigen Bereiche sein: %1$s.</string>
+    <string name="wireguard_port_title">WireGuard-Port</string>
 </resources>
