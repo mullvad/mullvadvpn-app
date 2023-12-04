@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)sが追加され、アカウントは%(expiry)sまでに支払われます。"
@@ -173,6 +173,9 @@ msgstr "終了"
 
 msgid "Reconnect"
 msgstr "再接続"
+
+msgid "Save"
+msgstr "保存"
 
 msgid "Search for..."
 msgstr "検索..."
@@ -485,11 +488,6 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。"
 
-#. Confirmation button when logging out
-msgctxt "device-management"
-msgid "Log out anyway"
-msgstr "ログアウトする"
-
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "以下のリストから少なくとも1つを削除してログアウトしてください。対応するデバイス名はデバイスのアカウント設定で確認できます。"
@@ -500,19 +498,9 @@ msgctxt "device-management"
 msgid "Super!"
 msgstr "素晴らしい！"
 
-#. This is is a further explanation of what happens when logging out.
-msgctxt "device-management"
-msgid "The ports forwarded to this device will be deleted if you log out."
-msgstr "ログアウトするとこのデバイスに転送されたポートが削除されます。"
-
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
 msgstr "これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。"
-
-#. Further information about consequences of logging out device.
-msgctxt "device-management"
-msgid "This will delete all forwarded ports. Local settings will be saved."
-msgstr "これにより、転送されたポートがすべて削除されます。ローカル設定は保存されます。"
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
@@ -1015,6 +1003,10 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "場所を選択する"
 
+msgctxt "select-location-view"
+msgid "(Added)"
+msgstr "(追加済み)"
+
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
 #. Available placeholders:
@@ -1023,6 +1015,33 @@ msgstr "場所を選択する"
 msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "select-location-view"
+msgid "Add <b>%(locationType)s</b> to list"
+msgstr "<b>%(locationType)s</b>をリストに追加します"
+
+msgctxt "select-location-view"
+msgid "All locations"
+msgstr "すべての場所"
+
+msgctxt "select-location-view"
+msgid "City"
+msgstr "都市"
+
+msgctxt "select-location-view"
+msgid "Country"
+msgstr "国"
+
+msgctxt "select-location-view"
+msgid "Custom lists"
+msgstr "カスタムリスト"
+
+msgctxt "select-location-view"
+msgid "Edit list name"
+msgstr "リスト名を編集します"
 
 msgctxt "select-location-view"
 msgid "Entry"
@@ -1037,8 +1056,20 @@ msgid "Filtered:"
 msgstr "絞り込み結果:"
 
 msgctxt "select-location-view"
+msgid "List names must be unique."
+msgstr "リスト名は一意である必要があります。"
+
+msgctxt "select-location-view"
+msgid "Name is already taken."
+msgstr "名前はすでに使用されています。"
+
+msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "プロバイダ数: %(numberOfProviders)d"
+
+msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgid "Relay"
+msgstr "中継サーバー"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
@@ -1418,10 +1449,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6を有効にする"
 
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr "トンネル経由のIPv6通信を有効にする"
-
 #. The label next to the multihop settings toggle.
 msgctxt "vpn-settings-view"
 msgid "Enable multihop"
@@ -1448,6 +1475,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "トラフィックをある%(wireguard)sサーバーから別サーバーにルーティングすることで匿名性を高め、追跡を困難にします。"
 
 msgctxt "vpn-settings-view"
+msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
+msgstr "IPv4は常に有効であり、Webサイトとアプリケーションの大半がこのプロトコルを使用しています。必要であることがわかっていない限り、IPv6を有効にすることはお勧めしません。"
+
+msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
 msgstr "これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。"
 
@@ -1471,6 +1502,11 @@ msgstr "ロックダウンモード"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "マルウェア"
+
+#. Label for settings that enables block of social media.
+msgctxt "vpn-settings-view"
+msgid "Social media"
+msgstr "ソーシャルメディア"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1532,6 +1568,10 @@ msgstr "警告: マルウェアブロッカーはウィルス対策ではあり�
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。"
+
+msgctxt "vpn-settings-view"
+msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
+msgstr "この機能が有効である場合、VPNトンネルにIPv6とIPv4を併用してインターネットサービスと通信できます。"
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1621,6 +1661,13 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。"
 
+msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgid "%s was added to your account."
+msgstr "アカウントに%s分が追加されました。"
+
+msgid "30 days was added to your account."
+msgstr "アカウントに30日分が追加されました。"
+
 msgid "Account credit expires in a few minutes"
 msgstr "アカウントのクレジットが数分後に無効になります"
 
@@ -1629,6 +1676,12 @@ msgstr "アカウントのクレジットがもうすぐ無効になります"
 
 msgid "Account time reminders"
 msgstr "アカウント時間のリマインダー"
+
+msgid "Add 30 days time"
+msgstr "30日分を追加する"
+
+msgid "Add 30 days time (%s)"
+msgstr "30日分を追加する (%s)"
 
 msgid "Add DNS server"
 msgstr "DNS サーバーを追加"
@@ -1657,6 +1710,9 @@ msgstr "インターネットをブロック中 (デバイスがオフライン)
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。"
 
+msgid "Connecting..."
+msgstr "接続中..."
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvadアカウント番号をクリップボードにコピーしました"
 
@@ -1681,11 +1737,24 @@ msgstr "有効にする"
 msgid "Enter MTU"
 msgstr "MTU を入力"
 
+msgctxt "Placeholder in port number input field."
+msgid "Enter port"
+msgstr "ポートを入力してください"
+
 msgid "Excluded applications"
 msgstr "除外対象アプリケーション"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "ログインに進むと、このデバイスのインターネットのブロックが解除されます。"
+
+msgid "Google Play payment pending"
+msgstr "Google Playの決済は未完了です"
+
+msgid "Google Play unavailable"
+msgstr "Google Playを使用できません"
+
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN (%s) をインストールして常に最新の状態を保ちましょう"
@@ -1695,6 +1764,9 @@ msgstr "アカウントを管理する"
 
 msgid "Mullvad account number"
 msgstr "Mullvadアカウント番号"
+
+msgid "Mullvad services unavailable"
+msgstr "Mullvadサービスを使用できません"
 
 msgid "Preferences"
 msgstr "環境設定"
@@ -1708,6 +1780,9 @@ msgstr "プライバシーポリシー"
 msgid "Remove"
 msgstr "削除"
 
+msgid "Remove custom port"
+msgstr "カスタムポートを削除"
+
 msgid "Reset to default"
 msgstr "デフォルトにリセット"
 
@@ -1717,6 +1792,9 @@ msgstr "セキュリティ保護されています"
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTUの値を設定します。有効範囲: %d ～ %d"
 
+msgid "Set port"
+msgstr "ポートを設定"
+
 msgid "Show system apps"
 msgstr "システムアプリの表示"
 
@@ -1725,9 +1803,6 @@ msgstr "現在のVPNトンネルのステータスを表示します"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "アカウントの期限切れが迫っているときにリマインダーを表示します"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "スプリットトンネリングを使用すると、VPNトンネル経由でルーティングしないアプリケーションを選択できます。"
 
 msgid "Submit"
 msgstr "送信"
@@ -1741,8 +1816,8 @@ msgstr "このアドレスは入力済みです。"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "これにより、特定のWebサイト、サービス、アプリで問題が発生する可能性があります。"
 
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を報告できるよう、バージョンチェックを自動的に実行します。これにより、アプリのバージョンと Android システムのバージョンが Mullvad サーバーに送信されます。Mullvad は使用されているアプリのバージョンと Android のバージョンの数を継続的にカウントしています。このデータは保管されることも、ユーザーを特定する目的で使用されることもありません。\\n\\nスプリットトンネル機能が使用される場合、アプリはシステムにインストールされている全アプリケーションのリストを照会します。このリストはスプリットトンネルビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。"
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
+msgstr "このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。"
 
 msgid "Toggle VPN"
 msgstr "VPNの切り替え"
@@ -1774,8 +1849,30 @@ msgstr "VPNトンネルのステータス"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。"
 
+msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgid "Valid ranges: %s"
+msgstr "有効な範囲: %s"
+
+msgid "Verifying purchase"
+msgstr "購入を確認中"
+
+msgid "Verifying purchase..."
+msgstr "購入を確認中..."
+
+msgid "Verifying voucher…"
+msgstr "バウチャーを確認中…"
+
 msgid "Virtual adapter error"
 msgstr "仮想アダプタのエラー"
+
+msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "購入を確認中です。これにはしばらく時間がかかる場合があります。正常に確認されると、この時間が追加されます。"
+
+msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
+msgstr "決済処理を開始できませんでした。最新バージョンのGoogle Playを使用していることを確認してください。"
+
+msgid "We were unable to start the payment process, please try again later."
+msgstr "決済処理を開始できませんでした。後でもう一度お試しください。"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "接続中、あなたの実際の場所は選択した地域内の非公開かつセキュリティ保護された場所で隠されます。"
@@ -1783,8 +1880,14 @@ msgstr "接続中、あなたの実際の場所は選択した地域内の非公
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard custom port"
+msgstr "WireGuardカスタムポート"
+
 msgid "WireGuard obfuscation"
 msgstr "WireGuardの難読化"
+
+msgid "WireGuard port"
+msgstr "WireGuardポート"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "ネットワーク通信が漏洩している可能性があります"
@@ -1794,6 +1897,17 @@ msgstr "サポート対象外バージョンのアプリを実行しています
 
 msgid "less than a minute ago"
 msgstr "1分未満前"
+
+msgid "less than one day"
+msgstr "1日未満"
+
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d日"
+
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] "%dヶ月"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

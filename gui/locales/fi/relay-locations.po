@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -56,6 +56,10 @@ msgstr "Belgia"
 msgid "Belgrade"
 msgstr "Belgrad"
 
+#. DE BER
+msgid "Berlin"
+msgstr "Berliini"
+
 #. CO BOG
 msgid "Bogota"
 msgstr "Bogota"
@@ -91,6 +95,10 @@ msgstr "Budapest"
 #. BG
 msgid "Bulgaria"
 msgstr "Bulgaria"
+
+#. CA YYC
+msgid "Calgary"
+msgstr "Calgary"
 
 #. CA
 msgid "Canada"
@@ -240,6 +248,10 @@ msgstr "Johannesburg"
 msgid "Kiev"
 msgstr "Kiova"
 
+#. UA IEV
+msgid "Kyiv"
+msgstr "Kiova"
+
 #. LV
 msgid "Latvia"
 msgstr "Latvia"
@@ -283,6 +295,10 @@ msgstr "Marseille"
 #. AU MEL
 msgid "Melbourne"
 msgstr "Melbourne"
+
+#. MX
+msgid "Mexico"
+msgstr "Meksiko"
 
 #. US MIA
 msgid "Miami, FL"
@@ -383,6 +399,10 @@ msgstr "Praha"
 #. IN PNQ
 msgid "Pune"
 msgstr "Pune"
+
+#. MX QRO
+msgid "Queretaro"
+msgstr "Queretaro"
 
 #. US RAG
 msgid "Raleigh, NC"

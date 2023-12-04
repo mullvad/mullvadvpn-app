@@ -7,9 +7,12 @@
     <string name="account_number">帐号</string>
     <string name="account_time_notification_channel_description">在帐户时间即将到期时显示提醒</string>
     <string name="account_time_notification_channel_name">帐户时间提醒</string>
+    <string name="add_30_days_time">增加 30 天</string>
+    <string name="add_30_days_time_x">增加 30 天 (%1$s)</string>
     <string name="add_a_server">添加服务器</string>
     <string name="add_dns_server_dialog_title">添加 DNS 服务器</string>
     <string name="add_time_to_account">在我们的网站上购买额度或兑换优惠券。</string>
+    <string name="added_to_your_account">已向您的帐户增加 %1$s。</string>
     <string name="agree_and_continue">同意并继续</string>
     <string name="all_applications">所有应用程序</string>
     <string name="all_providers">所有提供商</string>
@@ -28,6 +31,7 @@
     <string name="block_adult_content_title">成人内容</string>
     <string name="block_gambling_title">博彩</string>
     <string name="block_malware_title">恶意软件</string>
+    <string name="block_social_media_title">社交媒体</string>
     <string name="block_trackers_title">跟踪器</string>
     <string name="blocked_connection">已阻止连接</string>
     <string name="blocking_internet">正在阻止网络</string>
@@ -55,6 +59,11 @@
     <string name="custom_dns_disable_mode_subtitle">禁用上方的所有 &lt;b&gt;%1$s&lt;/b&gt;以激活此设置。</string>
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
+    <string name="custom_port_dialog_placeholder">输入端口</string>
+    <string name="custom_port_dialog_remove">移除自定义端口</string>
+    <string name="custom_port_dialog_submit">设置端口</string>
+    <string name="custom_port_dialog_title">WireGuard 自定义端口</string>
+    <string name="custom_port_dialog_valid_ranges">有效范围：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义隧道的主机。请尝试更改您的设置。</string>
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>
@@ -104,6 +113,9 @@
     <string name="is_offline">您的设备已离线。在您的设备重新上线后，隧道将自动连接。</string>
     <string name="less_than_a_day_left">剩余时间不足 1 天</string>
     <string name="less_than_a_minute_ago">不到 1 分钟前</string>
+    <string name="less_than_one_day">不足 1 天</string>
+    <string name="loading_connecting">正在连接…</string>
+    <string name="loading_verifying">正在验证购买…</string>
     <string name="local_network_sharing">本地网络共享</string>
     <string name="local_network_sharing_additional_info">此功能通过允许隧道以外到本地组播和广播范围以及与以下私有 IP 范围的网络通信来实现访问。</string>
     <string name="local_network_sharing_info">此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等</string>
@@ -142,8 +154,18 @@
     <string name="ownership">所有权</string>
     <string name="paid_until">到期时间</string>
     <string name="pay_to_start_using">要开始使用本应用，您首先需要向帐户中充入时间。</string>
+    <string name="payment_billing_error_dialog_message">我们无法启动付款流程，请确保拥有最新版本的 Google Play。</string>
+    <string name="payment_billing_error_dialog_title">Google Play 不可用</string>
+    <string name="payment_completed_dialog_message">已向您的帐户增加 30 天。</string>
     <string name="payment_completed_dialog_title">时间已成功添加</string>
+    <string name="payment_obfuscation_id_error_dialog_message">我们无法启动付款流程，请稍后再试。</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服务不可用</string>
+    <string name="payment_pending_dialog_message">我们目前正在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将增加。</string>
+    <string name="payment_pending_dialog_title">正在验证购买</string>
+    <string name="payment_status_pending">Google Play 付款待处理</string>
     <string name="port">端口</string>
+    <string name="privacy_disclaimer_body_first_paragraph">为确保您使用的是最安全的版本并通知您当前运行的版本存在的任何问题，应用会自动执行版本检查。此操作会将应用版本和 Android 系统版本发送到 Mullvad 服务器。Mullvad 会统计使用的应用版本和 Android 版本。数据永远不会通过任何可以识别您身份的方式存储或使用。</string>
+    <string name="privacy_disclaimer_body_second_paragraph">如果使用拆分隧道功能，应用会向您的系统查询所有已安装应用程序的列表。此列表仅在拆分隧道视图中检索。有关已安装应用程序的信息永远不会离开设备。</string>
     <string name="privacy_disclaimer_title">隐私</string>
     <string name="privacy_policy_label">隐私政策</string>
     <string name="problem_report_description">为了更有效地帮助您，您应用的日志文件将被附加到此消息。您的数据将保持安全和私密，因为所有数据在发送之前都将通过加密通道进行匿名处理。</string>
@@ -206,6 +228,7 @@
     <string name="update_dns_server_dialog_title">更新 DNS 服务器</string>
     <string name="user_email_hint">您的电子邮件（可选）</string>
     <string name="user_message_hint">为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。</string>
+    <string name="verifying_voucher">正在验证优惠券…</string>
     <string name="view_logs">查看应用日志</string>
     <string name="virtual_adapter_problem">虚拟适配器错误</string>
     <string name="voucher_already_used">该优惠券码已被使用。</string>
@@ -219,4 +242,5 @@
     <string name="wireguard_mtu_footer">设置 WireGuard MTU 值。有效范围：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自动设置将从下方显示的有效端口范围中随机选择。</string>
     <string name="wireguard_port_info_port_range">自定义端口可以是有效范围内的任何值：%1$s。</string>
+    <string name="wireguard_port_title">WireGuard 端口</string>
 </resources>

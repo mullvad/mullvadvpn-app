@@ -7,9 +7,12 @@
     <string name="account_number">Numer konta</string>
     <string name="account_time_notification_channel_description">Pokazuje przypomnienia, gdy kończy się czas na koncie</string>
     <string name="account_time_notification_channel_name">Przypomnienia o czasie na koncie</string>
+    <string name="add_30_days_time">Dodaj 30 dni</string>
+    <string name="add_30_days_time_x">Dodaj 30 dni (%1$s)</string>
     <string name="add_a_server">Dodaj serwer</string>
     <string name="add_dns_server_dialog_title">Dodaj serwer DNS</string>
     <string name="add_time_to_account">Doładuj w naszej witrynie internetowej lub zrealizuj kupon.</string>
+    <string name="added_to_your_account">Do konta dodano %1$s.</string>
     <string name="agree_and_continue">Zaakceptuj i kontynuuj</string>
     <string name="all_applications">Wszystkie aplikacje</string>
     <string name="all_providers">Wszyscy dostawcy</string>
@@ -28,6 +31,7 @@
     <string name="block_adult_content_title">Treści dla dorosłych</string>
     <string name="block_gambling_title">Hazard</string>
     <string name="block_malware_title">Złośliwe oprogramowanie</string>
+    <string name="block_social_media_title">Media społecznościowe</string>
     <string name="block_trackers_title">Trackery</string>
     <string name="blocked_connection">ZABLOKOWANE POŁĄCZENIE</string>
     <string name="blocking_internet">Blokowanie Internetu</string>
@@ -55,6 +59,11 @@
     <string name="custom_dns_disable_mode_subtitle">Aby aktywować to ustawienie, wyłącz powyżej wszystkie &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
+    <string name="custom_port_dialog_placeholder">Wprowadź port</string>
+    <string name="custom_port_dialog_remove">Usuń port niestandardowy</string>
+    <string name="custom_port_dialog_submit">Ustaw port</string>
+    <string name="custom_port_dialog_title">Niestandardowy port WireGuard</string>
+    <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
     <string name="device_inactive_description">Urządzenie usunięto. Aby połączyć się ponownie, musisz się ponownie zalogować.</string>
     <string name="device_inactive_title">Urządzenie nieaktywne</string>
@@ -104,6 +113,9 @@
     <string name="is_offline">Twoje urządzenie jest offline. Tunel zostanie automatycznie połączony, gdy urządzenie ponownie przejdzie w tryb online.</string>
     <string name="less_than_a_day_left">pozostał mniej niż jeden dzień</string>
     <string name="less_than_a_minute_ago">mniej niż minutę temu</string>
+    <string name="less_than_one_day">mniej niż jeden dzień</string>
+    <string name="loading_connecting">Łączenie...</string>
+    <string name="loading_verifying">Weryfikowanie zakupu...</string>
     <string name="local_network_sharing">Udostępnianie sieci lokalnej</string>
     <string name="local_network_sharing_additional_info">Zapewnia to poprzez umożliwienie komunikacji sieciowej poza tunelem do lokalnych zakresów adresów IP multiemisji i emisji, a także do i z następujących prywatnych zakresów adresów IP:</string>
     <string name="local_network_sharing_info">Funkcja ta umożliwia dostęp do innych urządzeń w sieci lokalnej, np. w celu udostępniania, drukowania, transmisji strumieniowej itd.</string>
@@ -142,8 +154,18 @@
     <string name="ownership">Własność</string>
     <string name="paid_until">Płatne do</string>
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
+    <string name="payment_billing_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Upewnij się, że masz najnowszą wersję aplikacji Google Play.</string>
+    <string name="payment_billing_error_dialog_title">Sklep Google Play jest niedostępny</string>
+    <string name="payment_completed_dialog_message">Do konta dodano 30 dni.</string>
     <string name="payment_completed_dialog_title">Dodano czas</string>
+    <string name="payment_obfuscation_id_error_dialog_message">Nie mogliśmy rozpocząć procesu płatności. Spróbuj ponownie później.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Usługi Mullvad są niedostępne</string>
+    <string name="payment_pending_dialog_message">Weryfikujemy zakup. Może to zająć trochę czasu. Jeśli weryfikacja powiedzie się, czas zostanie dodany.</string>
+    <string name="payment_pending_dialog_title">Weryfikowanie zakupu</string>
+    <string name="payment_status_pending">Oczekiwanie na płatność Google Play</string>
     <string name="port">Port</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Aby upewnić się, że masz najbezpieczniejszą wersję i poinformować Cię o wszelkich problemach z aktualnie uruchomioną wersją, aplikacja automatycznie sprawdza wersję. Powoduje to wysłanie wersji aplikacji i wersji systemu Android na serwery Mullvad. Mullvad prowadzi liczniki używanych wersji aplikacji i wersji systemu Android. Dane te nigdy nie są przechowywane ani wykorzystywane w żaden sposób, który umożliwiłby zidentyfikowanie Ciebie jako osoby.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Jeśli używana jest funkcja dzielonego tunelowania, aplikacja wysyła do systemu zapytanie o listę wszystkich zainstalowanych aplikacji. Lista ta jest pobierana wyłącznie w widoku dzielonego tunelowania. Lista zainstalowanych aplikacji nigdy nie jest wysyłana z urządzenia.</string>
     <string name="privacy_disclaimer_title">Prywatność</string>
     <string name="privacy_policy_label">Polityka prywatności</string>
     <string name="problem_report_description">Aby można było pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dziennika aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
@@ -206,6 +228,7 @@
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="user_email_hint">Twój adres e-mail (opcjonalnie)</string>
     <string name="user_message_hint">Abyśmy mogli lepiej Ci pomóc, napisz w języku angielskim lub szwedzkim i podaj kraj, z którego się łączysz.</string>
+    <string name="verifying_voucher">Weryfikowanie kuponu…</string>
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
     <string name="virtual_adapter_problem">Błąd wirtualnej karty sieciowej</string>
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
@@ -219,4 +242,5 @@
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Ustawienie automatyczne skutkuje wyborem losowym prawidłowego zakresu portów spośród zakresów przedstawionych poniżej.</string>
     <string name="wireguard_port_info_port_range">Port niestandardowy może mieć dowolną wartość z następujących prawidłowych zakresów: %1$s.</string>
+    <string name="wireguard_port_title">Port WireGuard</string>
 </resources>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -56,6 +56,10 @@ msgstr "เบลเยียม"
 msgid "Belgrade"
 msgstr "เบลเกรด"
 
+#. DE BER
+msgid "Berlin"
+msgstr "เบอร์ลิน"
+
 #. CO BOG
 msgid "Bogota"
 msgstr "โบโกตา"
@@ -91,6 +95,10 @@ msgstr "บูดาเปสต์"
 #. BG
 msgid "Bulgaria"
 msgstr "บัลแกเรีย"
+
+#. CA YYC
+msgid "Calgary"
+msgstr "แคลกะรี"
 
 #. CA
 msgid "Canada"
@@ -240,6 +248,10 @@ msgstr "โจฮันเนสเบิร์ก"
 msgid "Kiev"
 msgstr "เคียฟ"
 
+#. UA IEV
+msgid "Kyiv"
+msgstr "เคียฟ"
+
 #. LV
 msgid "Latvia"
 msgstr " ลัตเวีย"
@@ -283,6 +295,10 @@ msgstr "มาร์แซย์"
 #. AU MEL
 msgid "Melbourne"
 msgstr "เมลเบิร์น"
+
+#. MX
+msgid "Mexico"
+msgstr "เม็กซิโก"
 
 #. US MIA
 msgid "Miami, FL"
@@ -383,6 +399,10 @@ msgstr "ปราก"
 #. IN PNQ
 msgid "Pune"
 msgstr "ปูเน"
+
+#. MX QRO
+msgid "Queretaro"
+msgstr "เกเรตาโร"
 
 #. US RAG
 msgid "Raleigh, NC"

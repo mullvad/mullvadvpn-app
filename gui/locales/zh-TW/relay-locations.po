@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -56,6 +56,10 @@ msgstr "比利時"
 msgid "Belgrade"
 msgstr "貝爾格勒"
 
+#. DE BER
+msgid "Berlin"
+msgstr "柏林"
+
 #. CO BOG
 msgid "Bogota"
 msgstr "波哥大"
@@ -91,6 +95,10 @@ msgstr "布達佩斯"
 #. BG
 msgid "Bulgaria"
 msgstr "保加利亞"
+
+#. CA YYC
+msgid "Calgary"
+msgstr "卡加利"
 
 #. CA
 msgid "Canada"
@@ -240,6 +248,10 @@ msgstr "約翰尼斯堡"
 msgid "Kiev"
 msgstr "基輔"
 
+#. UA IEV
+msgid "Kyiv"
+msgstr "基輔"
+
 #. LV
 msgid "Latvia"
 msgstr "拉脫維亞"
@@ -283,6 +295,10 @@ msgstr "馬賽"
 #. AU MEL
 msgid "Melbourne"
 msgstr "墨爾本"
+
+#. MX
+msgid "Mexico"
+msgstr "墨西哥"
 
 #. US MIA
 msgid "Miami, FL"
@@ -383,6 +399,10 @@ msgstr "布拉格"
 #. IN PNQ
 msgid "Pune"
 msgstr "浦那"
+
+#. MX QRO
+msgid "Queretaro"
+msgstr "克雷塔羅"
 
 #. US RAG
 msgid "Raleigh, NC"

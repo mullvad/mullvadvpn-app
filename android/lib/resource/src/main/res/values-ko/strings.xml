@@ -7,9 +7,12 @@
     <string name="account_number">계정 번호</string>
     <string name="account_time_notification_channel_description">계정 시간이 만료되려고 할 때 알림 표시</string>
     <string name="account_time_notification_channel_name">계정 시간 알림</string>
+    <string name="add_30_days_time">30일 시간 추가</string>
+    <string name="add_30_days_time_x">30일 시간 추가(%1$s)</string>
     <string name="add_a_server">서버 추가</string>
     <string name="add_dns_server_dialog_title">DNS 서버 추가</string>
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
+    <string name="added_to_your_account">%1$s이(가) 귀하의 계정에 추가되었습니다.</string>
     <string name="agree_and_continue">동의하고 계속하기</string>
     <string name="all_applications">모든 애플리케이션</string>
     <string name="all_providers">모든 제공업체</string>
@@ -28,6 +31,7 @@
     <string name="block_adult_content_title">성인 콘텐츠</string>
     <string name="block_gambling_title">도박</string>
     <string name="block_malware_title">맬웨어</string>
+    <string name="block_social_media_title">소셜 미디어</string>
     <string name="block_trackers_title">트래커</string>
     <string name="blocked_connection">연결 차단됨</string>
     <string name="blocking_internet">인터넷 차단</string>
@@ -55,6 +59,11 @@
     <string name="custom_dns_disable_mode_subtitle">이 설정을 활성화하려면 위의 모든 &lt;b&gt;%1$s&lt;/b&gt;을(를) 비활성화하세요.</string>
     <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가하려면 활성화합니다.</string>
     <string name="custom_dns_hint">IP 입력</string>
+    <string name="custom_port_dialog_placeholder">포트 입력</string>
+    <string name="custom_port_dialog_remove">사용자 지정 포트 제거</string>
+    <string name="custom_port_dialog_submit">포트 설정</string>
+    <string name="custom_port_dialog_title">WireGuard 사용자 지정 포트</string>
+    <string name="custom_port_dialog_valid_ranges">유효한 범위: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
     <string name="device_inactive_description">이 장치를 제거했습니다. 다시 연결하려면 다시 로그인해야 합니다.</string>
     <string name="device_inactive_title">장치가 비활성 상태입니다.</string>
@@ -104,6 +113,9 @@
     <string name="is_offline">장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다.</string>
     <string name="less_than_a_day_left">1일 이내</string>
     <string name="less_than_a_minute_ago">1분 이내</string>
+    <string name="less_than_one_day">1일 미만</string>
+    <string name="loading_connecting">연결 중...</string>
+    <string name="loading_verifying">구매 확인 중...</string>
     <string name="local_network_sharing">로컬 네트워크 공유</string>
     <string name="local_network_sharing_additional_info">이를 위해 터널 외부에서 로컬 멀티캐스트 및 브로드캐스트 범위는 물론 다음 개인 IP 범위와의 네트워크 통신을 허용합니다.</string>
     <string name="local_network_sharing_info">이 기능을 사용하면 공유, 인쇄, 스트리밍 등을 위해 로컬 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
@@ -142,8 +154,18 @@
     <string name="ownership">소유권</string>
     <string name="paid_until">유효 기간</string>
     <string name="pay_to_start_using">앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다.</string>
+    <string name="payment_billing_error_dialog_message">결제 프로세스를 시작할 수 없습니다. Google Play가 최신 버전인지 확인하세요.</string>
+    <string name="payment_billing_error_dialog_title">Google Play 사용 불가</string>
+    <string name="payment_completed_dialog_message">귀하의 계정에 30일이 추가되었습니다.</string>
     <string name="payment_completed_dialog_title">시간이 성공적으로 추가되었습니다.</string>
+    <string name="payment_obfuscation_id_error_dialog_message">결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad 서비스 사용 불가</string>
+    <string name="payment_pending_dialog_message">구매를 현재 확인하는 중이므로 다소 시간이 걸릴 수 있습니다. 확인을 성공적으로 마치면 시간이 추가됩니다.</string>
+    <string name="payment_pending_dialog_title">구매 확인 중</string>
+    <string name="payment_status_pending">Google Play 결제 보류 중</string>
     <string name="port">포트</string>
+    <string name="privacy_disclaimer_body_first_paragraph">가장 안전한 버전인지 확인하고 현재 실행 중인 버전에 문제가 있으면 알려드리기 위해 앱에서 자동으로 버전 확인을 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전 및 Android 버전 수에 대한 카운터를 유지합니다. 이 데이터는 귀하를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다.</string>
     <string name="privacy_disclaimer_title">개인 정보 보호</string>
     <string name="privacy_policy_label">개인정보 보호정책</string>
     <string name="problem_report_description">보다 효과적인 문제 해결을 위해 앱의 로그 파일이 이 메시지에 첨부됩니다. 사용자 데이터는 암호화된 채널을 통해 전송되기 전에 익명 처리되므로 안전하고 비공개로 유지됩니다.</string>
@@ -206,6 +228,7 @@
     <string name="update_dns_server_dialog_title">DNS 서버 업데이트</string>
     <string name="user_email_hint">이메일(선택 사항)</string>
     <string name="user_message_hint">더 나은 지원을 위해 영어 또는 스웨덴어로 메시지를 작성하고 연결 국가를 포함하세요.</string>
+    <string name="verifying_voucher">바우처 확인 중…</string>
     <string name="view_logs">앱 로그 보기</string>
     <string name="virtual_adapter_problem">가상 어댑터 오류</string>
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
@@ -219,4 +242,5 @@
     <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d</string>
     <string name="wireguard_port_info_description">자동 설정은 아래 표시된 유효한 포트 범위에서 임의로 선택합니다.</string>
     <string name="wireguard_port_info_port_range">사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수 있습니다: %1$s</string>
+    <string name="wireguard_port_title">WireGuard 포트</string>
 </resources>
