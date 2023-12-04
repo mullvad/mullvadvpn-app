@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performTextInput
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
+import net.mullvad.mullvadvpn.compose.dialog.RedeemVoucherDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
@@ -30,7 +31,7 @@ class RedeemVoucherDialogTest {
         // Arrange
         val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
-            RedeemVoucherDialogScreen(
+            RedeemVoucherDialog(
                 uiState = VoucherDialogUiState.INITIAL,
                 onVoucherInputChange = {},
                 onRedeem = {},
@@ -50,7 +51,7 @@ class RedeemVoucherDialogTest {
         // Arrange
         val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
-            RedeemVoucherDialogScreen(
+            RedeemVoucherDialog(
                 uiState =
                     VoucherDialogUiState(voucherViewModelState = VoucherDialogState.Success(0)),
                 onVoucherInputChange = {},
@@ -71,7 +72,7 @@ class RedeemVoucherDialogTest {
         // Arrange
         val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
-            RedeemVoucherDialogScreen(
+            RedeemVoucherDialog(
                 uiState = VoucherDialogUiState(),
                 onVoucherInputChange = mockedClickHandler,
                 onRedeem = {},
@@ -90,7 +91,7 @@ class RedeemVoucherDialogTest {
     fun testVerifyingState() {
         // Arrange
         composeTestRule.setContentWithTheme {
-            RedeemVoucherDialogScreen(
+            RedeemVoucherDialog(
                 uiState =
                     VoucherDialogUiState(voucherViewModelState = VoucherDialogState.Verifying),
                 onVoucherInputChange = {},
@@ -107,7 +108,7 @@ class RedeemVoucherDialogTest {
     fun testSuccessState() {
         // Arrange
         composeTestRule.setContentWithTheme {
-            RedeemVoucherDialogScreen(
+            RedeemVoucherDialog(
                 uiState =
                     VoucherDialogUiState(voucherViewModelState = VoucherDialogState.Success(0)),
                 onVoucherInputChange = {},
@@ -124,7 +125,7 @@ class RedeemVoucherDialogTest {
     fun testErrorState() {
         // Arrange
         composeTestRule.setContentWithTheme {
-            RedeemVoucherDialogScreen(
+            RedeemVoucherDialog(
                 uiState =
                     VoucherDialogUiState(
                         voucherViewModelState = VoucherDialogState.Error(ERROR_MESSAGE)

@@ -9,15 +9,11 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.state.VpnSettingsDialog
-import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Port
 import net.mullvad.mullvadvpn.model.PortRange
@@ -31,7 +27,6 @@ import net.mullvad.mullvadvpn.model.WireguardTunnelOptions
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.usecase.PortRangeUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
-import org.apache.commons.validator.routines.InetAddressValidator
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -41,7 +36,6 @@ class VpnSettingsViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockInetAddressValidator: InetAddressValidator = mockk()
     private val mockResources: Resources = mockk()
     private val mockPortRangeUseCase: PortRangeUseCase = mockk()
     private val mockRelayListUseCase: RelayListUseCase = mockk()
@@ -59,7 +53,6 @@ class VpnSettingsViewModelTest {
         viewModel =
             VpnSettingsViewModel(
                 repository = mockSettingsRepository,
-                inetAddressValidator = mockInetAddressValidator,
                 resources = mockResources,
                 portRangeUseCase = mockPortRangeUseCase,
                 relayListUseCase = mockRelayListUseCase,
@@ -133,6 +126,7 @@ class VpnSettingsViewModelTest {
         viewModel.uiState.test {
             assertIs<Constraint.Any<Port>>(awaitItem().selectedWireguardPort)
             mockSettingsUpdate.value = mockSettings
+            assertEquals(expectedPort, awaitItem().customWireguardPort)
             assertEquals(expectedPort, awaitItem().selectedWireguardPort)
         }
     }
@@ -150,25 +144,6 @@ class VpnSettingsViewModelTest {
         // Assert
         verify(exactly = 1) {
             mockRelayListUseCase.updateSelectedWireguardConstraints(wireguardConstraints)
-        }
-    }
-
-    @Test
-    fun test_update_port_range_state() = runTest {
-        // Arrange
-        val expectedPortRange = listOf<PortRange>(mockk(), mockk())
-        val mockSettings: Settings = mockk(relaxed = true)
-
-        every { mockSettings.relaySettings } returns mockk<RelaySettings.Normal>(relaxed = true)
-        portRangeFlow.value = expectedPortRange
-
-        // Act, Assert
-        viewModel.uiState.test {
-            assertIs<VpnSettingsUiState>(awaitItem())
-            viewModel.onWireguardPortInfoClicked()
-            val state = awaitItem()
-            assertTrue { state.dialog is VpnSettingsDialog.WireguardPortInfo }
-            assertLists(expectedPortRange, state.availablePortRanges)
         }
     }
 }

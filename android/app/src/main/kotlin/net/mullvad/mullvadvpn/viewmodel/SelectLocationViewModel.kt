@@ -2,12 +2,13 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
@@ -28,9 +29,6 @@ class SelectLocationViewModel(
     private val relayListUseCase: RelayListUseCase,
     private val relayListFilterUseCase: RelayListFilterUseCase
 ) : ViewModel() {
-
-    private val _closeAction = MutableSharedFlow<Unit>()
-    private val _enterTransitionEndAction = MutableSharedFlow<Unit>()
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
     val uiState =
@@ -83,20 +81,13 @@ class SelectLocationViewModel(
                 SelectLocationUiState.Loading
             )
 
-    @Suppress("konsist.ensure public properties use permitted names")
-    val uiCloseAction = _closeAction.asSharedFlow()
-
-    @Suppress("konsist.ensure public properties use permitted names")
-    val enterTransitionEndAction = _enterTransitionEndAction.asSharedFlow()
+    private val _uiSideEffect = Channel<SelectLocationSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun selectRelay(relayItem: RelayItem) {
         relayListUseCase.updateSelectedRelayLocation(relayItem.location)
         serviceConnectionManager.connectionProxy()?.connect()
-        viewModelScope.launch { _closeAction.emit(Unit) }
-    }
-
-    fun onTransitionAnimationEnd() {
-        viewModelScope.launch { _enterTransitionEndAction.emit(Unit) }
+        viewModelScope.launch { _uiSideEffect.send(SelectLocationSideEffect.CloseScreen) }
     }
 
     fun onSearchTermInput(searchTerm: String) {
@@ -146,4 +137,8 @@ class SelectLocationViewModel(
     companion object {
         private const val EMPTY_SEARCH_TERM = ""
     }
+}
+
+sealed interface SelectLocationSideEffect {
+    data object CloseScreen : SelectLocationSideEffect
 }

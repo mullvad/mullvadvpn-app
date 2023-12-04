@@ -3,14 +3,15 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -21,17 +22,43 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.DeviceRevokedLoginButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
+import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
+import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.viewmodel.DeviceRevokedViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 private fun PreviewDeviceRevokedScreen() {
     AppTheme { DeviceRevokedScreen(state = DeviceRevokedUiState.SECURED) }
+}
+
+@Destination
+@Composable
+fun DeviceRevoked(navigator: DestinationsNavigator) {
+    val viewModel = koinViewModel<DeviceRevokedViewModel>()
+
+    val state by viewModel.uiState.collectAsState()
+    DeviceRevokedScreen(
+        state = state,
+        onSettingsClicked = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onGoToLoginClicked = {
+            navigator.navigate(LoginDestination(null)) {
+                launchSingleTop = true
+                popUpTo(NavGraphs.root) { inclusive = true }
+            }
+        }
+    )
 }
 
 @Composable
@@ -49,15 +76,12 @@ fun DeviceRevokedScreen(
 
     ScaffoldWithTopBar(
         topBarColor = topColor,
-        statusBarColor = topColor,
-        navigationBarColor = MaterialTheme.colorScheme.background,
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null
     ) {
         ConstraintLayout(
             modifier =
-                Modifier.fillMaxHeight()
-                    .fillMaxWidth()
+                Modifier.fillMaxSize()
                     .padding(it)
                     .background(color = MaterialTheme.colorScheme.background)
         ) {
