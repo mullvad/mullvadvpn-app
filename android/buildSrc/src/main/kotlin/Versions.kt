@@ -15,7 +15,6 @@ object Versions {
 
     object Android {
         const val compileSdkVersion = 34
-        const val material = "1.9.0"
         const val minSdkVersion = 26
         const val targetSdkVersion = 34
         const val volley = "1.2.1"
@@ -25,12 +24,9 @@ object Versions {
         const val appcompat = "1.6.1"
         const val coreKtx = "1.9.0"
         const val constraintlayout = "2.1.4"
-        const val coordinatorlayout = "1.2.0"
         const val espresso = "3.5.1"
         const val lifecycle = "2.6.1"
         const val fragment = "1.6.1"
-        const val recyclerview = "1.3.1"
-        const val junit = "1.1.4"
         const val test = "1.5.0"
         const val testMonitor = "1.6.1"
         const val testOrchestrator = "1.4.2"
@@ -44,7 +40,6 @@ object Versions {
         const val foundation = base
         const val material3 = "1.1.1"
         const val uiController = "0.30.1"
-        const val viewModelLifecycle = "2.6.1"
     }
 
     object Plugin {
