@@ -43,6 +43,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Rename interface name from `wg-mullvad` to `wg0-mullvad`.
 
+### Fixed
+#### Linux
+- Prevent fragmentation when multihop is enabled by setting a default route MTU.
+
 
 ## [2023.6-beta1] - 2023-11-23
 ### Added

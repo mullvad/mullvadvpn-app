@@ -20,7 +20,7 @@ use libc::{AF_INET, AF_INET6};
 use netlink_packet_route::{
     constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, NLM_F_REQUEST},
     link::{nlas::Nla as LinkNla, LinkMessage},
-    route::{nlas::Nla as RouteNla, RouteHeader, RouteMessage},
+    route::{nlas::Nla as RouteNla, Metrics, RouteHeader, RouteMessage},
     rtnl::{
         constants::{
             RTN_UNSPEC, RTPROT_UNSPEC, RT_SCOPE_LINK, RT_SCOPE_UNIVERSE, RT_TABLE_COMPAT,
@@ -293,7 +293,9 @@ impl RouteManagerImpl {
                     } else {
                         self.table_id
                     };
-                    required_normal_routes.insert(Route::new(node, route.prefix).table(table));
+                    let mut new_route = Route::new(node, route.prefix).table(table);
+                    new_route.mtu = route.mtu.map(u32::from);
+                    required_normal_routes.insert(new_route);
                 }
             }
         }
@@ -450,12 +452,13 @@ impl RouteManagerImpl {
             destination_length,
         )
         .map_err(Error::InvalidNetworkPrefix)?;
+
         let mut node_addr = None;
         let mut device = None;
         let mut metric = None;
         let mut gateway: Option<IpAddr> = None;
-
         let mut table_id = u32::from(msg.header.table);
+        let mut route_mtu = None;
 
         for nla in msg.nlas.iter() {
             match nla {
@@ -501,6 +504,10 @@ impl RouteManagerImpl {
                 RouteNla::Table(id) => {
                     table_id = *id;
                 }
+
+                RouteNla::Metrics(Metrics::Mtu(mtu)) => {
+                    route_mtu = Some(*mtu);
+                }
                 _ => continue,
             }
         }
@@ -519,6 +526,7 @@ impl RouteManagerImpl {
             prefix,
             metric,
             table_id,
+            mtu: route_mtu,
         }))
     }
 
@@ -700,6 +708,11 @@ impl RouteManagerImpl {
             add_message.nlas.push(RouteNla::Priority(metric));
         }
 
+        // Set route MTU
+        if let Some(mtu) = route.mtu {
+            add_message.nlas.push(RouteNla::Metrics(Metrics::Mtu(mtu)));
+        }
+
         // Need to modify the request in place to set the correct flags to be able to replace any
         // existing routes - self.handle.route().add_v4().execute() sets the NLM_F_EXCL flag which
         // will make the request fail if a route with the same destination already exists.
@@ -743,6 +756,7 @@ impl RouteManagerImpl {
     async fn get_mtu_for_route(&self, ip: IpAddr) -> Result<u16> {
         // RECURSION_LIMIT controls how many times we recurse to find the device name by looking up
         // an IP with `get_destination_route`.
+        // TODO: Check route MTU first
         const RECURSION_LIMIT: usize = 10;
         const STANDARD_MTU: u16 = 1500;
         let mut attempted_ip = ip;

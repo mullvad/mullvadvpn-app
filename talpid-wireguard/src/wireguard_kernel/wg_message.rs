@@ -78,7 +78,7 @@ impl DeviceMessage {
     pub fn reset_config(message_type: u16, interface_index: u32, config: &Config) -> DeviceMessage {
         let mut peers = vec![];
 
-        for peer in config.peers.iter() {
+        for peer in config.peers() {
             let peer_endpoint = InetAddr::from_std(&peer.endpoint);
             let allowed_ips = peer.allowed_ips.iter().map(From::from).collect();
             let mut peer_nlas = vec![

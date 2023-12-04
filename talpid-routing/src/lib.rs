@@ -38,6 +38,8 @@ pub struct Route {
     metric: Option<u32>,
     #[cfg(target_os = "linux")]
     table_id: u32,
+    #[cfg(target_os = "linux")]
+    mtu: Option<u32>,
 }
 
 impl Route {
@@ -49,6 +51,8 @@ impl Route {
             metric: None,
             #[cfg(target_os = "linux")]
             table_id: u32::from(RT_TABLE_MAIN),
+            #[cfg(target_os = "linux")]
+            mtu: None,
         }
     }
 
@@ -72,6 +76,10 @@ impl fmt::Display for Route {
         }
         #[cfg(target_os = "linux")]
         write!(f, " table {}", self.table_id)?;
+        #[cfg(target_os = "linux")]
+        if let Some(mtu) = self.mtu {
+            write!(f, " mtu {mtu}")?;
+        }
         Ok(())
     }
 }
@@ -87,6 +95,9 @@ pub struct RequiredRoute {
     /// Specifies whether the route should be added to the main routing table or not.
     #[cfg(target_os = "linux")]
     main_table: bool,
+    /// Specifies route MTU
+    #[cfg(target_os = "linux")]
+    mtu: Option<u16>,
 }
 
 impl RequiredRoute {
@@ -97,6 +108,8 @@ impl RequiredRoute {
             prefix,
             #[cfg(target_os = "linux")]
             main_table: true,
+            #[cfg(target_os = "linux")]
+            mtu: None,
         }
     }
 
@@ -104,6 +117,13 @@ impl RequiredRoute {
     #[cfg(target_os = "linux")]
     pub fn use_main_table(mut self, main_table: bool) -> Self {
         self.main_table = main_table;
+        self
+    }
+
+    /// Set route MTU to the given value.
+    #[cfg(target_os = "linux")]
+    pub fn mtu(mut self, mtu: u16) -> Self {
+        self.mtu = Some(mtu);
         self
     }
 }
