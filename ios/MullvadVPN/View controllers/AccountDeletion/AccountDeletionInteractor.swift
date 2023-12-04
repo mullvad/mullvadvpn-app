@@ -48,7 +48,7 @@ class AccountDeletionInteractor {
         }
     }
 
-    func delete(accountNumber: String, completionHandler: @escaping (Error?) -> Void) -> Cancellable {
-        return tunnelManager.deleteAccount(accountNumber: accountNumber, completion: completionHandler)
+    func delete(accountNumber: String, completionHandler: @escaping (Error?) -> Void) {
+        tunnelManager.deleteAccount(accountNumber: accountNumber, completion: completionHandler)
     }
 }
