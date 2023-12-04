@@ -66,7 +66,7 @@ use std::{
     mem,
     path::PathBuf,
     pin::Pin,
-    sync::{Arc, Mutex, Weak},
+    sync::{Arc, Weak},
     time::Duration,
 };
 #[cfg(any(target_os = "linux", windows))]
@@ -178,6 +178,9 @@ pub enum Error {
 
     #[error(display = "Access method error")]
     AccessMethodError(#[error(source)] access_method::Error),
+
+    #[error(display = "API connection mode error")]
+    ApiConnectionModeError(#[error(source)] api::Error),
 
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
@@ -293,8 +296,8 @@ pub enum DaemonCommand {
     UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
     /// Get the currently used API access method
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
-    /// Get the addresses of all known API endpoints
-    GetApiAddresses(ResponseTx<Vec<std::net::SocketAddr>, Error>),
+    /// Test an API access method
+    TestApiAccessMethod(ResponseTx<bool, Error>, mullvad_types::access_method::Id),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -602,7 +605,7 @@ pub struct Daemon<L: EventListener> {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    connection_modes: Arc<Mutex<api::ConnectionModesIterator>>,
+    connection_modes_handler: api::AccessModeSelectorHandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -680,38 +683,19 @@ where
                 .set_config(new_selector_config(settings));
         });
 
-        let proxy_provider = match api::ApiConnectionModeProvider::new(
+        let connection_modes = settings.api_access_methods.collect_enabled();
+
+        let connection_modes_handler = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
-            settings
-                .api_access_methods
-                .access_method_settings
-                .iter()
-                // We only care about the access methods which are set to 'enabled' by the user.
-                .filter(|api_access_method| api_access_method.enabled())
-                .cloned()
-                .collect(),
-        ) {
-            Ok(provider) => provider,
-            Err(api::Error::NoAccessMethods) => {
-                // No settings seem to have been found. Default to using the the
-                // direct access method.
-                let default = mullvad_types::access_method::Settings::direct();
-                api::ApiConnectionModeProvider::new(
-                    cache_dir.clone(),
-                    relay_selector.clone(),
-                    vec![default],
-                )
-                .expect(
-                    "Failed to create the data structure responsible for managing access methods",
-                )
-            }
-        };
-
-        let connection_modes = proxy_provider.handle();
+            connection_modes,
+        );
 
         let api_handle = api_runtime
-            .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
+            .mullvad_rest_handle(
+                Box::pin(connection_modes_handler.clone().into_stream()),
+                endpoint_updater.callback(),
+            )
             .await;
 
         let migration_complete = if let Some(migration_data) = migration_data {
@@ -861,7 +845,7 @@ where
             account_history,
             device_checker: device::TunnelStateChangeHandler::new(account_manager.clone()),
             account_manager,
-            connection_modes,
+            connection_modes_handler,
             api_runtime,
             api_handle,
             version_updater_handle,
@@ -1151,7 +1135,7 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
-            GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
+            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2375,17 +2359,45 @@ where
     }
 
     fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {
-        let result = self
-            .get_current_access_method()
-            .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "get_current_api_access_method response");
+        let handle = self.connection_modes_handler.clone();
+        tokio::spawn(async move {
+            let result = handle
+                .get_access_method()
+                .await
+                .map_err(Error::ApiConnectionModeError);
+            Self::oneshot_send(tx, result, "get_current_api_access_method response");
+        });
     }
 
-    async fn on_get_api_addresses(&mut self, tx: ResponseTx<Vec<std::net::SocketAddr>, Error>) {
-        let api_proxy = mullvad_api::ApiProxy::new(self.api_handle.clone());
-        let result = api_proxy.get_api_addrs().await.map_err(Error::RestError);
+    fn on_test_api_access_method(
+        &mut self,
+        tx: ResponseTx<bool, Error>,
+        access_method: mullvad_types::access_method::Id,
+    ) {
+        // NOTE: Preferably we would block all new API calls until the test is
+        // done and the previous access method is reset. Otherwise we run the
+        // risk of errounously triggering a rotation of the currently in-use
+        // access method.
+        let api_handle = self.api_handle.clone();
+        let handle = self.connection_modes_handler.clone();
+        let access_method_lookup = self
+            .get_api_access_method(access_method)
+            .map_err(Error::AccessMethodError);
 
-        Self::oneshot_send(tx, result, "on_get_api_adressess response");
+        match access_method_lookup {
+            Ok(access_method) => {
+                tokio::spawn(async move {
+                    let result =
+                        access_method::test_access_method(access_method, handle, api_handle)
+                            .await
+                            .map_err(Error::AccessMethodError);
+                    Self::oneshot_send(tx, result, "on_test_api_access_method response");
+                });
+            }
+            Err(err) => {
+                Self::oneshot_send(tx, Err(err), "on_test_api_access_method response");
+            }
+        }
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
