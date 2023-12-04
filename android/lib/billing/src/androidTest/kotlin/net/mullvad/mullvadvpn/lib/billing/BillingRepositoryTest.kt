@@ -38,9 +38,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
 
 class BillingRepositoryTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
@@ -56,8 +53,6 @@ class BillingRepositoryTest {
 
     @Before
     fun setUp() {
-        startKoin { modules(module { single { mockk<Activity>() } }) }
-
         mockkStatic(BILLING_CLIENT_CLASS)
         mockkStatic(BILLING_CLIENT_KOTLIN_CLASS)
         mockkStatic(BILLING_FLOW_PARAMS)
@@ -74,7 +69,6 @@ class BillingRepositoryTest {
     @After
     fun tearDown() {
         unmockkAll()
-        stopKoin()
     }
 
     @Test
