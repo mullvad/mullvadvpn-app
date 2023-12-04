@@ -12,6 +12,14 @@
         <item quantity="one">1 år kvar</item>
         <item quantity="other">%1$d år kvar</item>
     </plurals>
+    <plurals name="days">
+        <item quantity="one">%1$d dag</item>
+        <item quantity="other">%1$d dagar</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%1$d månad</item>
+        <item quantity="other">%1$d månader</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Kontokrediten slutar gälla om en dag</item>
         <item quantity="other">Kontokrediten slutar gälla om %1$d dagar</item>

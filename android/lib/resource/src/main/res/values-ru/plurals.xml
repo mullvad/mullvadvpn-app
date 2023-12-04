@@ -18,6 +18,18 @@
         <item quantity="many">Осталось %1$d лет</item>
         <item quantity="other">Осталось %1$d года</item>
     </plurals>
+    <plurals name="days">
+        <item quantity="one">%1$d сутки</item>
+        <item quantity="few">%1$d суток</item>
+        <item quantity="many">%1$d суток</item>
+        <item quantity="other">%1$d суток</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%1$d месяц</item>
+        <item quantity="few">%1$d месяца</item>
+        <item quantity="many">%1$d месяцев</item>
+        <item quantity="other">%1$d месяца</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Срок действия баланса учетной записи истекает через %1$d день</item>
         <item quantity="few">Срок действия баланса учетной записи истекает через %1$d дня</item>

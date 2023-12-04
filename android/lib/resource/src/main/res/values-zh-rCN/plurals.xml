@@ -9,6 +9,12 @@
     <plurals name="years_left">
         <item quantity="other">剩余 %1$d 年</item>
     </plurals>
+    <plurals name="days">
+        <item quantity="other">%1$d 天</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="other">%1$d 个月</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="other">帐户额度将在 %1$d 天后到期</item>
     </plurals>

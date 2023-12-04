@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -58,7 +58,7 @@ msgstr "Beograd"
 
 #. DE BER
 msgid "Berlin"
-msgstr ""
+msgstr "Berlin"
 
 #. CO BOG
 msgid "Bogota"
@@ -98,7 +98,7 @@ msgstr "Bulgaria"
 
 #. CA YYC
 msgid "Calgary"
-msgstr ""
+msgstr "Calgary"
 
 #. CA
 msgid "Canada"
@@ -250,7 +250,7 @@ msgstr "Kiev"
 
 #. UA IEV
 msgid "Kyiv"
-msgstr ""
+msgstr "Kyiv"
 
 #. LV
 msgid "Latvia"
@@ -298,7 +298,7 @@ msgstr "Melbourne"
 
 #. MX
 msgid "Mexico"
-msgstr ""
+msgstr "Mexico"
 
 #. US MIA
 msgid "Miami, FL"
@@ -402,7 +402,7 @@ msgstr "Pune"
 
 #. MX QRO
 msgid "Queretaro"
-msgstr ""
+msgstr "Queretaro"
 
 #. US RAG
 msgid "Raleigh, NC"
@@ -571,3 +571,4 @@ msgstr "Zagreb"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
+

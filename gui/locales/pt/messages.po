@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "foi adicionado %(duration)s, conta paga até %(expiry)s."
@@ -179,6 +179,9 @@ msgstr "Sair"
 
 msgid "Reconnect"
 msgstr "Religar"
+
+msgid "Save"
+msgstr "Guardar"
 
 msgid "Search for..."
 msgstr "Pesquisar por..."
@@ -491,11 +494,6 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "Se terminar a sessão, o dispositivo e o nome do dispositivo são removidos. Quando voltar a iniciar sessão, o dispositivo recebe um novo nome."
 
-#. Confirmation button when logging out
-msgctxt "device-management"
-msgid "Log out anyway"
-msgstr "Desligar mesmo assim"
-
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "Desligue-se de pelo menos um dos dispositivos removendo-o da lista abaixo. Pode encontrar o nome do dispositivo correspondente nas definições de Conta do dispositivo."
@@ -506,19 +504,9 @@ msgctxt "device-management"
 msgid "Super!"
 msgstr "Excelente!"
 
-#. This is is a further explanation of what happens when logging out.
-msgctxt "device-management"
-msgid "The ports forwarded to this device will be deleted if you log out."
-msgstr "As portas reencaminhadas para este dispositivo serão apagadas caso se desligue."
-
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
 msgstr "Este é o nome atribuído ao dispositivo. Cada dispositivo com sessão iniciada numa conta Mullvad recebe um nome único que lhe ajuda a identificá-lo quando gere os seus dispositivos na app ou no site."
-
-#. Further information about consequences of logging out device.
-msgctxt "device-management"
-msgid "This will delete all forwarded ports. Local settings will be saved."
-msgstr "Esta ação irá apagar todas as portas reencaminhadas. As definições locais serão guardadas."
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
@@ -1021,6 +1009,10 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Selecionar local"
 
+msgctxt "select-location-view"
+msgid "(Added)"
+msgstr "(adicionado)"
+
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
 #. Available placeholders:
@@ -1029,6 +1021,33 @@ msgstr "Selecionar local"
 msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "select-location-view"
+msgid "Add <b>%(locationType)s</b> to list"
+msgstr "Adicionar <b>%(locationType)s</b> à lista"
+
+msgctxt "select-location-view"
+msgid "All locations"
+msgstr "Todas as localizações"
+
+msgctxt "select-location-view"
+msgid "City"
+msgstr "Cidade"
+
+msgctxt "select-location-view"
+msgid "Country"
+msgstr "País"
+
+msgctxt "select-location-view"
+msgid "Custom lists"
+msgstr "Listas personalizadas"
+
+msgctxt "select-location-view"
+msgid "Edit list name"
+msgstr "Editar nome da lista"
 
 msgctxt "select-location-view"
 msgid "Entry"
@@ -1043,8 +1062,20 @@ msgid "Filtered:"
 msgstr "Filtrado:"
 
 msgctxt "select-location-view"
+msgid "List names must be unique."
+msgstr "Os nomes de listas devem ser únicos."
+
+msgctxt "select-location-view"
+msgid "Name is already taken."
+msgstr "O nome já está a ser utilizado."
+
+msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Fornecedores: %(numberOfProviders)d"
+
+msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgid "Relay"
+msgstr "Retransmissão"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
@@ -1424,10 +1455,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "Ativar IPv6"
 
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr "Ativar comunicação IPv6 através do túnel."
-
 #. The label next to the multihop settings toggle.
 msgctxt "vpn-settings-view"
 msgid "Enable multihop"
@@ -1454,6 +1481,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "Aumenta o anonimato ao redirecionar o seu tráfego para entrar num servidor %(wireguard)s e sair noutro, tornando-o mais difícil de seguir."
 
 msgctxt "vpn-settings-view"
+msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
+msgstr "O IPv4 está sempre ativado e a maioria dos websites e aplicações utilizam este protocolo. Não recomendamos a ativação do IPv6, a menos que saiba que precisa dele."
+
+msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
 msgstr "Para tal, permite a comunicação de rede fora do túnel para intervalos locais de multicast e difusão, bem como de e para estes intervalos de IPs privados:"
 
@@ -1477,6 +1508,11 @@ msgstr "Modo de bloqueio"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Malware"
+
+#. Label for settings that enables block of social media.
+msgctxt "vpn-settings-view"
+msgid "Social media"
+msgstr "Redes sociais"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1538,6 +1574,10 @@ msgstr "Aviso: o bloqueador de malware não é um antivírus e não deve ser tra
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "Quando esta funcionalidade é ativada, impede que o dispositivo contacte certos domínios ou sites conhecidos por distribuir anúncios, malware, trackers e muito mais."
+
+msgctxt "vpn-settings-view"
+msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
+msgstr "Quando esta funcionalidade está ativada, o IPv6 pode ser utilizado juntamente com o IPv4 no túnel VPN para comunicar com os serviços Internet."
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1627,6 +1667,13 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "A que porta TCP o protocolo de ofuscação UDP sobre TCP deve ligar-se no servidor VPN."
 
+msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgid "%s was added to your account."
+msgstr "%s adicionado(s) à sua conta."
+
+msgid "30 days was added to your account."
+msgstr "30 dias adicionados à sua conta."
+
 msgid "Account credit expires in a few minutes"
 msgstr "O crédito da conta expira dentro de alguns minutos"
 
@@ -1635,6 +1682,12 @@ msgstr "O crédito da conta expira brevemente"
 
 msgid "Account time reminders"
 msgstr "Lembretes de tempo da conta"
+
+msgid "Add 30 days time"
+msgstr "Adicionar 30 dias"
+
+msgid "Add 30 days time (%s)"
+msgstr "Adicionar 30 dias (%s)"
 
 msgid "Add DNS server"
 msgstr "Adicionar servidor DNS"
@@ -1663,6 +1716,9 @@ msgstr "Bloqueio de Internet (dispositivo offline)"
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "As alterações às definições relacionadas com o DNS podem não fazer efeito imediatamente devido aos resultados em cache."
 
+msgid "Connecting..."
+msgstr "A ligar..."
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Número de conta Mullvad copiado para a área de transferência"
 
@@ -1687,11 +1743,24 @@ msgstr "Ativar"
 msgid "Enter MTU"
 msgstr "Introduzir MTU"
 
+msgctxt "Placeholder in port number input field."
+msgid "Enter port"
+msgstr "Introduzir porta"
+
 msgid "Excluded applications"
 msgstr "Aplicações excluídas"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Ir para a ligação irá desbloquear a Internet neste dispositivo."
+
+msgid "Google Play payment pending"
+msgstr "Pagamento Google Play pendente"
+
+msgid "Google Play unavailable"
+msgstr "Google Play indisponível"
+
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Se for utilizada a funcionalidade de divisão do túnel, a app consulta o seu sistema para obter uma lista de todas as aplicações instaladas. Esta lista só é recuperada na vista de divisão do túnel. A lista de aplicações instaladas nunca é enviada pelo dispositivo."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Instalar o Mullvad VPN (%s) para ficar atualizado"
@@ -1701,6 +1770,9 @@ msgstr "Gerir conta"
 
 msgid "Mullvad account number"
 msgstr "Número de conta Mullvad"
+
+msgid "Mullvad services unavailable"
+msgstr "Serviços Mullvad indisponíveis"
 
 msgid "Preferences"
 msgstr "Preferências"
@@ -1714,6 +1786,9 @@ msgstr "Política de privacidade"
 msgid "Remove"
 msgstr "Remover"
 
+msgid "Remove custom port"
+msgstr "Remover porta personalizada"
+
 msgid "Reset to default"
 msgstr "Repor para as predefinições"
 
@@ -1723,6 +1798,9 @@ msgstr "Seguro"
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Definir o valor WireGuard MTU. Intervalo válido: %d - %d."
 
+msgid "Set port"
+msgstr "Definir porta"
+
 msgid "Show system apps"
 msgstr "Mostrar aplicações do sistema"
 
@@ -1731,9 +1809,6 @@ msgstr "Indica o estado atual do túnel VPN"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Mostra lembretes quando o tempo da conta está prestes a expirar"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "A divisão do túnel permite selecionar quais as aplicações que devem ser direcionadas através do túnel VPN."
 
 msgid "Submit"
 msgstr "Enviar"
@@ -1747,8 +1822,8 @@ msgstr "Este endereço já foi introduzido."
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "Pode causar problemas em alguns sites, serviços e apps."
 
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "Para se certificar de que tem a versão mais segura e para o informar de quaisquer problemas com a versão atual em execução, a app efetua verificações de versão automaticamente. Isto envia a versão da app e a versão do sistema Android para os servidores do Mullvad. O Mullvad mantém um registo do número de versões da app e de versões do Android utilizadas. Os dados nunca são armazenados ou utilizados de forma a identificá-lo.\\n\\nSe for utilizada a funcionalidade de divisão do túnel, a app consulta o seu sistema para obter uma lista de todas as aplicações instaladas. Esta lista apenas é obtida na vista de divisão do túnel. A lista de aplicações instaladas nunca é enviada do dispositivo."
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
+msgstr "Para se certificar de que tem a versão mais segura e para o informar de quaisquer problemas com a versão atual em execução, a app efetua verificações de versão automaticamente. Esta envia a versão da app e a versão do sistema Android para os servidores da Mullvad. A Mullvad mantém um registo do número de versões da app e de versões do Android utilizadas. Os dados nunca são armazenados ou utilizados de forma a identificar o utilizador."
 
 msgid "Toggle VPN"
 msgstr "Alternar VPN"
@@ -1780,8 +1855,30 @@ msgstr "Estado do túnel VPN"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas."
 
+msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgid "Valid ranges: %s"
+msgstr "Intervalos válidos: %s"
+
+msgid "Verifying purchase"
+msgstr "Verificação de compra"
+
+msgid "Verifying purchase..."
+msgstr "A verificar compra..."
+
+msgid "Verifying voucher…"
+msgstr "A verificar voucher…"
+
 msgid "Virtual adapter error"
 msgstr "Erro de adaptador virtual"
+
+msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "Estamos atualmente a verificar a sua compra, o que poderá demorar algum tempo. O seu tempo será adicionado se a verificação for bem sucedida."
+
+msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
+msgstr "Não foi possível iniciar o processo de pagamento. Verifique se tem a versão mais recente do Google Play."
+
+msgid "We were unable to start the payment process, please try again later."
+msgstr "Não foi possível iniciar o processo de pagamento, tente novamente mais tarde."
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "Enquanto estiver ligado, a sua localização real será mascarada com uma localização privada e segura na região selecionada."
@@ -1789,8 +1886,14 @@ msgstr "Enquanto estiver ligado, a sua localização real será mascarada com um
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard custom port"
+msgstr "Porta personalizada WireGuard"
+
 msgid "WireGuard obfuscation"
 msgstr "Ofuscação WireGuard"
+
+msgid "WireGuard port"
+msgstr "Porta WireGuard"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "PODERÁ ESTAR A PERDER TRÁFEGO DE REDE"
@@ -1800,6 +1903,19 @@ msgstr "Está a executar uma versão da aplicação não suportada."
 
 msgid "less than a minute ago"
 msgstr "há menos de um minuto"
+
+msgid "less than one day"
+msgstr "menos de um dia"
+
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d dia"
+msgstr[1] "%d dias"
+
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] "%d mês"
+msgstr[1] "%d meses"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
