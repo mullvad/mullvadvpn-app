@@ -7,8 +7,8 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -33,22 +33,15 @@ class DeviceListViewModel(
     private val resources: Resources,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
-    private val _stagedDeviceId = MutableStateFlow<DeviceId?>(null)
     private val _loadingDevices = MutableStateFlow<List<DeviceId>>(emptyList())
 
-    private val _toastMessages = MutableSharedFlow<String>(extraBufferCapacity = 1)
-    @Suppress("konsist.ensure public properties use permitted names")
-    val toastMessages = _toastMessages.asSharedFlow()
+    private val _uiSideEffect: MutableSharedFlow<DeviceListSideEffect> = MutableSharedFlow()
+    val uiSideEffect: SharedFlow<DeviceListSideEffect> = _uiSideEffect
 
-    @Suppress("konsist.ensure public properties use permitted names")
-    var accountToken: String? = null
     private var cachedDeviceList: List<Device>? = null
 
     val uiState =
-        combine(deviceRepository.deviceList, _stagedDeviceId, _loadingDevices) {
-                deviceList,
-                stagedDeviceId,
-                loadingDevices ->
+        combine(deviceRepository.deviceList, _loadingDevices) { deviceList, loadingDevices ->
                 val devices =
                     if (deviceList is DeviceList.Available) {
                         deviceList.devices.also { cachedDeviceList = it }
@@ -65,66 +58,47 @@ class DeviceListViewModel(
                             )
                         }
                 val isLoading = devices == null
-                val stagedDevice = devices?.firstOrNull { device -> device.id == stagedDeviceId }
                 DeviceListUiState(
                     deviceUiItems = deviceUiItems ?: emptyList(),
                     isLoading = isLoading,
-                    stagedDevice = stagedDevice
                 )
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), DeviceListUiState.INITIAL)
 
-    fun stageDeviceForRemoval(deviceId: DeviceId) {
-        _stagedDeviceId.value = deviceId
-    }
+    fun removeDevice(accountToken: String, deviceIdToRemove: DeviceId) {
 
-    fun clearStagedDevice() {
-        _stagedDeviceId.value = null
-    }
+        viewModelScope.launch {
+            withContext(dispatcher) {
+                val result =
+                    withTimeoutOrNull(DEVICE_REMOVAL_TIMEOUT_MILLIS) {
+                        deviceRepository.deviceRemovalEvent
+                            .onSubscription {
+                                setLoadingDevice(deviceIdToRemove)
+                                deviceRepository.removeDevice(accountToken, deviceIdToRemove)
+                            }
+                            .filter { (deviceId, result) ->
+                                deviceId == deviceIdToRemove && result == RemoveDeviceResult.Ok
+                            }
+                            .first()
+                    }
 
-    fun confirmRemovalOfStagedDevice() {
-        val token = accountToken
-        val stagedDeviceId = _stagedDeviceId.value
+                clearLoadingDevice(deviceIdToRemove)
 
-        if (token != null && stagedDeviceId != null) {
-            viewModelScope.launch {
-                withContext(dispatcher) {
-                    val result =
-                        withTimeoutOrNull(DEVICE_REMOVAL_TIMEOUT_MILLIS) {
-                            deviceRepository.deviceRemovalEvent
-                                .onSubscription {
-                                    clearStagedDevice()
-                                    setLoadingDevice(stagedDeviceId)
-                                    deviceRepository.removeDevice(token, stagedDeviceId)
-                                }
-                                .filter { (deviceId, result) ->
-                                    deviceId == stagedDeviceId && result == RemoveDeviceResult.Ok
-                                }
-                                .first()
-                        }
-
-                    clearLoadingDevice(stagedDeviceId)
-
-                    if (result == null) {
-                        _toastMessages.tryEmit(
+                if (result == null) {
+                    _uiSideEffect.emit(
+                        DeviceListSideEffect.ShowToast(
                             resources.getString(R.string.failed_to_remove_device)
                         )
-                        refreshDeviceList()
-                    }
+                    )
+                    refreshDeviceList(accountToken)
                 }
             }
-        } else {
-            _toastMessages.tryEmit(resources.getString(R.string.error_occurred))
-            clearLoadingDevices()
-            clearStagedDevice()
-            refreshDeviceList()
         }
     }
 
     fun refreshDeviceState() = deviceRepository.refreshDeviceState()
 
-    fun refreshDeviceList() =
-        accountToken?.let { token -> deviceRepository.refreshDeviceList(token) }
+    fun refreshDeviceList(accountToken: String) = deviceRepository.refreshDeviceList(accountToken)
 
     private fun setLoadingDevice(deviceId: DeviceId) {
         _loadingDevices.value = _loadingDevices.value.toMutableList().apply { add(deviceId) }
@@ -134,11 +108,11 @@ class DeviceListViewModel(
         _loadingDevices.value = _loadingDevices.value.toMutableList().apply { remove(deviceId) }
     }
 
-    private fun clearLoadingDevices() {
-        _loadingDevices.value = emptyList()
-    }
-
     companion object {
         private const val DEVICE_REMOVAL_TIMEOUT_MILLIS = 5000L
     }
+}
+
+sealed interface DeviceListSideEffect {
+    data class ShowToast(val text: String) : DeviceListSideEffect
 }

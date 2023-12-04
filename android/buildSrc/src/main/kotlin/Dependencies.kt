@@ -45,6 +45,8 @@ object Dependencies {
     }
 
     object Compose {
+        const val destinations = "io.github.raamcosta.compose-destinations:core:${Versions.Compose.destinations}"
+        const val destinationsKsp = "io.github.raamcosta.compose-destinations:ksp:${Versions.Compose.destinations}"
         const val constrainLayout =
             "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
         const val foundation =
@@ -130,5 +132,6 @@ object Dependencies {
         const val dependencyCheckId = "org.owasp.dependencycheck"
         const val gradleVersionsId = "com.github.ben-manes.versions"
         const val ktfmtId = "com.ncorti.ktfmt.gradle"
+        const val ksp = "com.google.devtools.ksp"
     }
 }

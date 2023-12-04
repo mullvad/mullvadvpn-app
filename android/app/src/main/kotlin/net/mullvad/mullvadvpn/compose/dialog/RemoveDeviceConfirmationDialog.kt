@@ -18,27 +18,34 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.HtmlText
 import net.mullvad.mullvadvpn.compose.component.textResource
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.model.Device
 
 @Preview
 @Composable
-private fun PreviewShowDeviceRemovalDialog() {
-    DeviceRemovalDialog(
-        onDismiss = {},
-        onConfirm = {},
-        device = Device("test", "test", byteArrayOf(), "test")
-    )
+private fun PreviewShowDefalseviceRemovalDialog() {
+    AppTheme {
+        RemoveDeviceConfirmationDialog(
+            EmptyResultBackNavigator(),
+            device = Device("test", "test", byteArrayOf(), "test")
+        )
+    }
 }
 
+@Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun DeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device: Device) {
+fun RemoveDeviceConfirmationDialog(navigator: ResultBackNavigator<String>, device: Device) {
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { navigator.navigateBack() },
         title = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -62,14 +69,14 @@ fun DeviceRemovalDialog(onDismiss: () -> Unit, onConfirm: () -> Unit, device: De
         },
         dismissButton = {
             NegativeButton(
-                onClick = onConfirm,
+                onClick = { navigator.navigateBack(result = device.id) },
                 text = stringResource(id = R.string.confirm_removal)
             )
         },
         confirmButton = {
             PrimaryButton(
                 modifier = Modifier.focusRequester(FocusRequester()),
-                onClick = onDismiss,
+                onClick = { navigator.navigateBack() },
                 text = stringResource(id = R.string.back)
             )
         },

@@ -8,7 +8,6 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.service.quicksettings.Tile
-import android.widget.Toast
 
 object SdkUtils {
     fun getSupportedPendingIntentFlags(): Int {
@@ -41,10 +40,4 @@ object SdkUtils {
         } else {
             @Suppress("DEPRECATION") getInstalledPackages(flags)
         }
-
-    fun showCopyToastIfNeeded(context: Context, message: String) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        }
-    }
 }

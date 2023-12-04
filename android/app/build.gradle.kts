@@ -9,6 +9,7 @@ plugins {
     id(Dependencies.Plugin.playPublisherId)
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
+    id(Dependencies.Plugin.ksp) version Versions.Plugin.ksp
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -337,6 +338,9 @@ dependencies {
     implementation(Dependencies.Compose.uiController)
     implementation(Dependencies.Compose.ui)
     implementation(Dependencies.Compose.uiUtil)
+    implementation(Dependencies.Compose.destinations)
+    ksp(Dependencies.Compose.destinationsKsp)
+
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Koin.android)

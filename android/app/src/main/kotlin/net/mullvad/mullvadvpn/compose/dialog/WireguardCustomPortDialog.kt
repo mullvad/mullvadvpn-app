@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
+import android.os.Parcelable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
+import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -29,29 +35,46 @@ import net.mullvad.mullvadvpn.util.isPortInValidRanges
 
 @Preview
 @Composable
-private fun PreviewCustomPortDialog() {
+private fun PreviewWireguardCustomPortDialog() {
     AppTheme {
-        CustomPortDialog(
-            onSave = {},
-            onReset = {},
-            customPort = "",
-            allowedPortRanges = listOf(PortRange(10, 10), PortRange(40, 50)),
-            showReset = true,
-            onDismissRequest = {}
+        WireguardCustomPortDialog(
+            WireguardCustomPortNavArgs(
+                customPort = null,
+                allowedPortRanges = listOf(PortRange(10, 10), PortRange(40, 50)),
+            ),
+            EmptyResultBackNavigator()
         )
     }
 }
 
+@Parcelize
+data class WireguardCustomPortNavArgs(
+    val customPort: Int?,
+    val allowedPortRanges: List<PortRange>,
+) : Parcelable
+
+@Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun CustomPortDialog(
-    customPort: String,
-    allowedPortRanges: List<PortRange>,
-    showReset: Boolean,
-    onSave: (customPortString: String) -> Unit,
-    onReset: () -> Unit,
-    onDismissRequest: () -> Unit
+fun WireguardCustomPortDialog(
+    navArg: WireguardCustomPortNavArgs,
+    backNavigator: ResultBackNavigator<Int?>,
 ) {
-    val port = remember { mutableStateOf(customPort) }
+    WireguardCustomPortDialog(
+        initialPort = navArg.customPort,
+        allowedPortRanges = navArg.allowedPortRanges,
+        onSave = { port -> backNavigator.navigateBack(port) },
+        onDismiss = backNavigator::navigateBack
+    )
+}
+
+@Composable
+fun WireguardCustomPortDialog(
+    initialPort: Int?,
+    allowedPortRanges: List<PortRange>,
+    onSave: (Int?) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val port = remember { mutableStateOf(initialPort?.toString() ?: "") }
 
     AlertDialog(
         title = {
@@ -64,21 +87,18 @@ fun CustomPortDialog(
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     text = stringResource(id = R.string.custom_port_dialog_submit),
-                    onClick = { onSave(port.value) },
+                    onClick = { onSave(port.value.toInt()) },
                     isEnabled =
                         port.value.isNotEmpty() &&
                             allowedPortRanges.isPortInValidRanges(port.value.toIntOrNull() ?: 0)
                 )
-                if (showReset) {
+                if (initialPort != null) {
                     NegativeButton(
                         text = stringResource(R.string.custom_port_dialog_remove),
-                        onClick = onReset
+                        onClick = { onSave(null) }
                     )
                 }
-                PrimaryButton(
-                    text = stringResource(id = R.string.cancel),
-                    onClick = onDismissRequest
-                )
+                PrimaryButton(text = stringResource(id = R.string.cancel), onClick = onDismiss)
             }
         },
         text = {
@@ -90,7 +110,7 @@ fun CustomPortDialog(
                             input.isNotEmpty() &&
                                 allowedPortRanges.isPortInValidRanges(input.toIntOrNull() ?: 0)
                         ) {
-                            onSave(input)
+                            onSave(input.toIntOrNull())
                         }
                     },
                     onValueChanged = { input -> port.value = input },
@@ -114,6 +134,6 @@ fun CustomPortDialog(
         },
         containerColor = MaterialTheme.colorScheme.background,
         titleContentColor = MaterialTheme.colorScheme.onBackground,
-        onDismissRequest = onDismissRequest
+        onDismissRequest = onDismiss
     )
 }
