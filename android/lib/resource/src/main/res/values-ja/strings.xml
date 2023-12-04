@@ -7,8 +7,6 @@
     <string name="account_number">アカウント番号</string>
     <string name="account_time_notification_channel_description">アカウントの期限切れが迫っているときにリマインダーを表示します</string>
     <string name="account_time_notification_channel_name">アカウント時間のリマインダー</string>
-    <string name="add_30_days_time">30日分を追加する</string>
-    <string name="add_30_days_time_x">30日分を追加する (%1$s)</string>
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_dns_server_dialog_title">DNS サーバーを追加</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
@@ -36,6 +34,7 @@
     <string name="buy_credit">クレジットを購入</string>
     <string name="buy_more_credit">追加クレジットを購入</string>
     <string name="cancel">キャンセル</string>
+    <string name="changes_dialog_dismiss_button">了解</string>
     <string name="changes_dialog_subtitle">このバージョンでの変更内容:</string>
     <string name="confirm_local_dns">環境設定で \"ローカルネットワーク共有\" を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
@@ -97,7 +96,6 @@
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>
     <string name="go_to_login">ログインに進む</string>
-    <string name="got_it">了解</string>
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
     <string name="hide_account_number">アカウント番号の非表示</string>
     <string name="hint_default">デフォルト</string>
@@ -109,8 +107,6 @@
     <string name="less_than_a_day_left">残り1日未満</string>
     <string name="less_than_a_minute_ago">1分未満前</string>
     <string name="less_than_one_day">1日未満</string>
-    <string name="loading_connecting">接続中...</string>
-    <string name="loading_verifying">購入を確認中...</string>
     <string name="local_network_sharing">ローカルネットワーク共有</string>
     <string name="local_network_sharing_additional_info">これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。</string>
     <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
@@ -145,15 +141,6 @@
     <string name="out_of_time">時間切れ</string>
     <string name="paid_until">次の日時まで支払い済み</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
-    <string name="payment_billing_error_dialog_message">決済処理を開始できませんでした。最新バージョンのGoogle Playを使用していることを確認してください。</string>
-    <string name="payment_billing_error_dialog_title">Google Playを使用できません</string>
-    <string name="payment_completed_dialog_message">アカウントに30日分が追加されました。</string>
-    <string name="payment_completed_dialog_title">時間を正常に追加しました</string>
-    <string name="payment_obfuscation_id_error_dialog_message">決済処理を開始できませんでした。後でもう一度お試しください。</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvadサービスを使用できません</string>
-    <string name="payment_pending_dialog_message">購入を確認中です。これにはしばらく時間がかかる場合があります。正常に確認されると、この時間が追加されます。</string>
-    <string name="payment_pending_dialog_title">購入を確認中</string>
-    <string name="payment_status_pending">Google Playの決済は未完了です</string>
     <string name="port">ポート</string>
     <string name="privacy_disclaimer_body_first_paragraph">このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。</string>
     <string name="privacy_disclaimer_body_second_paragraph">スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。</string>

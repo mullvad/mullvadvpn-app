@@ -7,8 +7,6 @@
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Viser påminnelser når tidsavbrudd for kontoen er i ferd med å inntreffe</string>
     <string name="account_time_notification_channel_name">Påminnelser om tidsavbrudd for konto</string>
-    <string name="add_30_days_time">Legg til 30 dager</string>
-    <string name="add_30_days_time_x">Legg til 30 dager (%1$s)</string>
     <string name="add_a_server">Legg til en server</string>
     <string name="add_dns_server_dialog_title">Legg til DNS-server</string>
     <string name="add_time_to_account">Du kan enten kjøpe kreditt på nettsiden vår eller løse inn en kupong.</string>
@@ -36,6 +34,7 @@
     <string name="buy_credit">Kjøp kreditt</string>
     <string name="buy_more_credit">Kjøp mer kreditt</string>
     <string name="cancel">Avbryt</string>
+    <string name="changes_dialog_dismiss_button">Forstått!</string>
     <string name="changes_dialog_subtitle">Endringer i denne versjonen:</string>
     <string name="confirm_local_dns">Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under Innstillinger.</string>
     <string name="confirm_no_email">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</string>
@@ -97,7 +96,6 @@
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til pålogging</string>
-    <string name="got_it">Forstått!</string>
     <string name="here_is_your_account_number">Dette er kontonummeret ditt. Ta vare på det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
@@ -109,8 +107,6 @@
     <string name="less_than_a_day_left">mindre enn én dag igjen</string>
     <string name="less_than_a_minute_ago">mindre enn ett minutt siden</string>
     <string name="less_than_one_day">mindre enn én dag</string>
-    <string name="loading_connecting">Kobler til ...</string>
-    <string name="loading_verifying">Bekrefter kjøp ...</string>
     <string name="local_network_sharing">Deling over lokalt nettverk</string>
     <string name="local_network_sharing_additional_info">Den gjør det ved å tillate nettverkkommunikasjon utenfor tunnelen til lokale multicast- og sendingsintervall, samt mellom følgende privat IP-intervall:</string>
     <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
@@ -145,15 +141,6 @@
     <string name="out_of_time">Tiden har utløpt</string>
     <string name="paid_until">Betalt fram til</string>
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
-    <string name="payment_billing_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Kontroller om du har siste versjon av Google Play.</string>
-    <string name="payment_billing_error_dialog_title">Google Play utilgjengelig</string>
-    <string name="payment_completed_dialog_message">30 dager ble lagt til kontoen din.</string>
-    <string name="payment_completed_dialog_title">Tid ble lagt til</string>
-    <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Prøv igjen senere.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester utilgjengelig</string>
-    <string name="payment_pending_dialog_message">Vi behandler kjøpet. Det kan ta litt tid. Hvis kjøpet blir bekreftet, legges tiden din til.</string>
-    <string name="payment_pending_dialog_title">Bekrefter kjøp</string>
-    <string name="payment_status_pending">Google Play-betaling venter</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_body_first_paragraph">For å sørge for at du har den sikreste appversjonen, og informere deg om eventuelle problemer med den versjonen som kjøres, vil appen automatisk sjekke appversjonen. Appversjonen og Android-systemversjonen blir da sendt til Mullvad-servere. Mullvad registrerer antallet brukte appversjoner og Android-versjoner. Dataen blir aldri lagret eller brukt på noen som helst måte som kan identifisere deg.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Hvis funksjonen delt tunnelering brukes, vil appen be systemet ditt om en liste over alle installerte applikasjoner. Denne listen hentes bare i delt tunnelering-visningen. Listen over installerte apper sendes aldri ut fra enheten.</string>

@@ -7,8 +7,6 @@
     <string name="account_number">Hesap Kimliği</string>
     <string name="account_time_notification_channel_description">Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir</string>
     <string name="account_time_notification_channel_name">Hesap süresi hatırlatıcıları</string>
-    <string name="add_30_days_time">30 gün süre ekleyin</string>
-    <string name="add_30_days_time_x">30 gün süre ekleyin (%1$s)</string>
     <string name="add_a_server">Sunucu ekle</string>
     <string name="add_dns_server_dialog_title">DNS sunucusu ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
@@ -36,6 +34,7 @@
     <string name="buy_credit">Kredi satın alın</string>
     <string name="buy_more_credit">Daha fazla kredi satın alın</string>
     <string name="cancel">İptal et</string>
+    <string name="changes_dialog_dismiss_button">Anladım!</string>
     <string name="changes_dialog_subtitle">Bu sürümdeki değişiklikler:</string>
     <string name="confirm_local_dns">Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz.</string>
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>
@@ -97,7 +96,6 @@
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
     <string name="go_to_login">Giriş sayfasına git</string>
-    <string name="got_it">Anladım!</string>
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
     <string name="hide_account_number">Hesap numarasını gizle</string>
     <string name="hint_default">Varsayılan</string>
@@ -109,8 +107,6 @@
     <string name="less_than_a_day_left">bir günden az kaldı</string>
     <string name="less_than_a_minute_ago">bir dakikadan az</string>
     <string name="less_than_one_day">bir günden az</string>
-    <string name="loading_connecting">Bağlanılıyor...</string>
-    <string name="loading_verifying">Satın alma işlemi doğrulanıyor...</string>
     <string name="local_network_sharing">Yerel ağ paylaşımı</string>
     <string name="local_network_sharing_additional_info">Bunu, yerel çok noktaya yayın ve yayın aralıklarının yanı sıra aşağıdaki özel IP aralıkları arasında tünel dışı ağ iletişimine izin vererek yapar:</string>
     <string name="local_network_sharing_info">Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir.</string>
@@ -145,15 +141,6 @@
     <string name="out_of_time">Süre doldu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
-    <string name="payment_billing_error_dialog_message">Ödeme işlemini başlatamadık. Lütfen Google Play\'in en son sürümüne sahip olduğunuzdan emin olun.</string>
-    <string name="payment_billing_error_dialog_title">Google Play kullanılamıyor</string>
-    <string name="payment_completed_dialog_message">Hesabınıza 30gün eklendi.</string>
-    <string name="payment_completed_dialog_title">Süre başarıyla eklendi</string>
-    <string name="payment_obfuscation_id_error_dialog_message">Ödeme işlemini başlatamadık, lütfen daha sonra tekrar deneyin.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad hizmetleri kullanılamıyor</string>
-    <string name="payment_pending_dialog_message">Şu anda satın alma işleminizi doğruluyoruz. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir.</string>
-    <string name="payment_pending_dialog_title">Satın alma işlemi doğrulanıyor</string>
-    <string name="payment_status_pending">Google Play ödemesi bekleniyor</string>
     <string name="port">Port</string>
     <string name="privacy_disclaimer_body_first_paragraph">Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez.</string>

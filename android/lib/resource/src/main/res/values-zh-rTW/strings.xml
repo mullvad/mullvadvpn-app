@@ -7,8 +7,6 @@
     <string name="account_number">帳戶編號</string>
     <string name="account_time_notification_channel_description">在帳戶時間即將到期時顯示提醒</string>
     <string name="account_time_notification_channel_name">帳戶時間提醒</string>
-    <string name="add_30_days_time">增加 30 天時間</string>
-    <string name="add_30_days_time_x">增加 30 天時間 (%1$s)</string>
     <string name="add_a_server">新增伺服器</string>
     <string name="add_dns_server_dialog_title">新增 DNS 伺服器</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
@@ -36,6 +34,7 @@
     <string name="buy_credit">購買點數</string>
     <string name="buy_more_credit">購買更多點數</string>
     <string name="cancel">取消</string>
+    <string name="changes_dialog_dismiss_button">知道了！</string>
     <string name="changes_dialog_subtitle">此版本中的變更：</string>
     <string name="confirm_local_dns">若要使本機 DNS 伺服器運作，需先在「偏好設定」下啟用「本機網路共用」。</string>
     <string name="confirm_no_email">您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。</string>
@@ -97,7 +96,6 @@
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
     <string name="go_to_login">前往登入</string>
-    <string name="got_it">知道了！</string>
     <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
     <string name="hide_account_number">隱藏帳號</string>
     <string name="hint_default">預設</string>
@@ -109,8 +107,6 @@
     <string name="less_than_a_day_left">剩餘時間不足 1 天</string>
     <string name="less_than_a_minute_ago">不到 1 分鐘前</string>
     <string name="less_than_one_day">不足 1 天</string>
-    <string name="loading_connecting">正在連線…</string>
-    <string name="loading_verifying">正在驗證購買…</string>
     <string name="local_network_sharing">本機網路分享</string>
     <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
@@ -145,15 +141,6 @@
     <string name="out_of_time">逾時</string>
     <string name="paid_until">支付至</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
-    <string name="payment_billing_error_dialog_message">我們無法啟動付款流程，請確認您是否擁有最新版本的 Google Play。</string>
-    <string name="payment_billing_error_dialog_title">Google Play 無法使用</string>
-    <string name="payment_completed_dialog_message">已為您的帳戶新增 30 天。</string>
-    <string name="payment_completed_dialog_title">已成功新增時間</string>
-    <string name="payment_obfuscation_id_error_dialog_message">我們無法啟動付款流程，請稍後再試一次。</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服務無法使用</string>
-    <string name="payment_pending_dialog_message">我們目前正在驗證您的購買，這可能需要一些時間。如果驗證成功，您的時間就會增加。</string>
-    <string name="payment_pending_dialog_title">正在驗證購買</string>
-    <string name="payment_status_pending">Google Play 付款尚待處理</string>
     <string name="port">連接埠</string>
     <string name="privacy_disclaimer_body_first_paragraph">為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。</string>
     <string name="privacy_disclaimer_body_second_paragraph">如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。</string>

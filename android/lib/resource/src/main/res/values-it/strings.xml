@@ -7,8 +7,6 @@
     <string name="account_number">Numero di account</string>
     <string name="account_time_notification_channel_description">Mostra promemoria quando il tempo dell\'account sta per scadere</string>
     <string name="account_time_notification_channel_name">Promemoria temporali per l\'account</string>
-    <string name="add_30_days_time">Aggiungi 30 giorni di tempo</string>
-    <string name="add_30_days_time_x">Aggiungi 30 giorni di tempo (%1$s)</string>
     <string name="add_a_server">Aggiungi un server</string>
     <string name="add_dns_server_dialog_title">Aggiungi server DNS</string>
     <string name="add_time_to_account">Acquista credito sul nostro sito web o riscatta un voucher.</string>
@@ -36,6 +34,7 @@
     <string name="buy_credit">Acquista credito</string>
     <string name="buy_more_credit">Acquista altro credito</string>
     <string name="cancel">Annulla</string>
+    <string name="changes_dialog_dismiss_button">Ok!</string>
     <string name="changes_dialog_subtitle">Modifiche in questa versione:</string>
     <string name="confirm_local_dns">Il server DNS locale non funzionerà a meno che non si abiliti \"Condivisione rete locale\" in Preferenze.</string>
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
@@ -97,7 +96,6 @@
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>
     <string name="foreground_notification_channel_name">Stato del tunnel VPN</string>
     <string name="go_to_login">Vai al login</string>
-    <string name="got_it">Ok!</string>
     <string name="here_is_your_account_number">Ecco il tuo numero di account. Salvalo!</string>
     <string name="hide_account_number">Nascondi numero di account</string>
     <string name="hint_default">Predefinito</string>
@@ -109,8 +107,6 @@
     <string name="less_than_a_day_left">meno di un giorno rimanente</string>
     <string name="less_than_a_minute_ago">meno di un minuto fa</string>
     <string name="less_than_one_day">meno di un giorno</string>
-    <string name="loading_connecting">Connessione...</string>
-    <string name="loading_verifying">Verifica dell\'acquisto...</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
     <string name="local_network_sharing_additional_info">Lo fa consentendo la comunicazione di rete al di fuori del tunnel verso intervalli multicast e broadcast locali, nonché da e verso questi intervalli IP privati:</string>
     <string name="local_network_sharing_info">Questa funzione consente l\'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc.</string>
@@ -145,15 +141,6 @@
     <string name="out_of_time">Scaduto</string>
     <string name="paid_until">Pagato fino al</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
-    <string name="payment_billing_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, assicurati di avere la versione più recente di Google Play.</string>
-    <string name="payment_billing_error_dialog_title">Google Play non disponibile</string>
-    <string name="payment_completed_dialog_message">30 giorni aggiunti al tuo account.</string>
-    <string name="payment_completed_dialog_title">L\'ora è stata aggiunta correttamente</string>
-    <string name="payment_obfuscation_id_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, riprova più tardi.</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Servizi Mullvad non disponibili</string>
-    <string name="payment_pending_dialog_message">Stiamo verificando il tuo acquisto, l\'operazione potrebbe richiedere del tempo. Il tuo tempo verrà aggiunto quando la verifica avrà avuto esito positivo.</string>
-    <string name="payment_pending_dialog_title">Verifica dell\'acquisto</string>
-    <string name="payment_status_pending">Pagamento Google Play in sospeso</string>
     <string name="port">Porta</string>
     <string name="privacy_disclaimer_body_first_paragraph">Per assicurarti di avere la versione più sicura e per informarti di eventuali problemi con la versione attualmente in esecuzione, l\'app esegue automaticamente i controlli di versione. Questa operazione invia la versione dell\'app e la versione del sistema Android ai server Mullvad. Mullvad mantiene traccia dei numeri di versione dell\'app utilizzati e delle versioni di Android. I dati non vengono mai archiviati o utilizzati in alcun modo che possa identificarti.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Se viene utilizzata la funzionalità di split tunneling, l\'app richiede al tuo sistema un elenco di tutte le applicazioni installate. Questo elenco viene recuperato solo nella vista split tunneling. L\'elenco delle applicazioni installate non viene mai inviato dal dispositivo.</string>

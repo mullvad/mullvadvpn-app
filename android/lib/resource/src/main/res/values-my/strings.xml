@@ -7,8 +7,6 @@
     <string name="account_number">အကောင့် နံပါတ်</string>
     <string name="account_time_notification_channel_description">အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်</string>
     <string name="account_time_notification_channel_name">အကောင့်အချိန် သတိပေးချက်များ</string>
-    <string name="add_30_days_time">အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန်</string>
-    <string name="add_30_days_time_x">အချိန် ရက် 30 ကို‌ ပေါင်းထည့်ရန် (%1$s)</string>
     <string name="add_a_server">ဆာဗာ ပေါင်းထည့်ရန်</string>
     <string name="add_dns_server_dialog_title">DNS ဆာဗာကို ပေါင်းထည့်ရန်</string>
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
@@ -36,6 +34,7 @@
     <string name="buy_credit">ခရက်ဒစ် ဝယ်ရန်</string>
     <string name="buy_more_credit">ခရက်ဒစ်များ ဝယ်ရန်</string>
     <string name="cancel">မလုပ်တော့ပါ</string>
+    <string name="changes_dialog_dismiss_button">ရပါပြီ။</string>
     <string name="changes_dialog_subtitle">ဤဗားရှင်းတွင် ပြောင်းလဲမှုများ-</string>
     <string name="confirm_local_dns">လိုကယ် DNS ဆာဗာသည် လိုလားမှုများအောက်ရှိ \"လိုကယ် ကွန်ရက် ဝေမျှမှု\"ကို မဖွင့်မချင်း အလုပ်လုပ်မည် မဟုတ်ပါ။</string>
     <string name="confirm_no_email">သင်သည် သင့်ထံ ကျွန်ုပ်တို့ ပြန်ဆက်သွယ်နိုင်မည့် နည်းလမ်း မပါဘဲ ပြဿနာ ရီပို့တ်ကို ပေးပို့တော့မည် ဖြစ်ပါသည်။ သင့်ရီပို့တ်အတွက် အဖြေ ရရှိလိုပါက အီမေးလိပ်စာ ဖြည့်သွင်းပေးရပါမည်။</string>
@@ -97,7 +96,6 @@
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>
     <string name="go_to_login">ဝင်ရောက်ရန် သွားပါ</string>
-    <string name="got_it">ရပါပြီ။</string>
     <string name="here_is_your_account_number">ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။</string>
     <string name="hide_account_number">အကောင့်နံပါတ်ကို ဝှက်ရန်</string>
     <string name="hint_default">ပုံသေ</string>
@@ -109,8 +107,6 @@
     <string name="less_than_a_day_left">တစ်ရက်အောက်သာ ကျန်တော့သည်</string>
     <string name="less_than_a_minute_ago">လွန်ခဲ့သော စက္ကန့်ပိုင်း</string>
     <string name="less_than_one_day">တစ်ရက်အောက် နည်းသည်။</string>
-    <string name="loading_connecting">ချိတ်ဆက်နေဆဲ...</string>
-    <string name="loading_verifying">ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ...</string>
     <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
     <string name="local_network_sharing_additional_info">ဒေသတွင်း Multicast နှင့် Broadcast အပိုင်းအခြားများဆီသို့ သာမက ဤသီးသန့် IP အပိုင်းအခြားများထံမှနှင့် ၎င်းတို့ဆီသို့ Tunnel ပြင်ပ ကွန်ရက် ဆက်သွယ်မှုကို ခွင့်ပြုခြင်းဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။</string>
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
@@ -145,15 +141,6 @@
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
     <string name="paid_until">ဖော်ပြပါအထိ ပေးချေထားပြီး</string>
     <string name="pay_to_start_using">အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။</string>
-    <string name="payment_billing_error_dialog_message">လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ Google Play နောက်ဆုံး ဗားရှင်း သင့်တွင်ရှိနေကြောင်း သေချာပါစေ။</string>
-    <string name="payment_billing_error_dialog_title">Google Play ကို မရရှိနိုင်ပါ</string>
-    <string name="payment_completed_dialog_message">သင့်အကောင့်ထဲသို့ ရက် 30 ကို ပေါင်းထည့်ပြီးပါပြီ။</string>
-    <string name="payment_completed_dialog_title">အချိန်ကို အောင်မြင်စွာ ပေါင်းထည့်ပြီးပြီ</string>
-    <string name="payment_obfuscation_id_error_dialog_message">လက်ရှိတွင် ပေးချေမှု လုပ်ငန်းစဉ်ကို စတင်၍ မရနိုင်ပါ၊ နောက်မှ ထပ်ကြိုးစားကြည့်ပါ။</string>
-    <string name="payment_obfuscation_id_error_dialog_title">Mullvad ဝန်ဆောင်မှုများကို မရရှိနိုင်ပါ</string>
-    <string name="payment_pending_dialog_message">သင့်ဝယ်ယူမှုကို လက်ရှိတွင် ကျွန်ုပ်တို့ စစ်ဆေး အတည်ပြုနေဆဲဖြစ်ပြီး အချိန်အနည်းငယ်ကြာနိုင်ပါသည်။ စစ်ဆေး အတည်ပြုမှု အောင်မြင်ပါက သင့်အချိန်များကို ပေါင်းထည့်သွားပါမည်။</string>
-    <string name="payment_pending_dialog_title">ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ</string>
-    <string name="payment_status_pending">Google Play ပေးချေမှုကို ဆိုင်းငံ့ထားဆဲ</string>
     <string name="port">ပေါ့တ်</string>
     <string name="privacy_disclaimer_body_first_paragraph">အလုံခြုံဆုံး ဗားရှင်းကို ရရှိကြောင်း သေချာစေရန်နှင့် လုပ်ဆောင်နေသည့် လက်ရှိဗားရှင်းနှင့်ပတ်သက်သော ပြဿနာများအကြောင်း သင့်အား အသိပေးရန် အက်ပ်သည် ဗားရှင်း စစ်ဆေးမှုများကို အော်တိုလုပ်ဆောင်ပါသည်။ ၎င်းသည် Mullvad ဆာဗာများသို့ အက်ပ် ဗားရှင်းနှင့် Android စနစ်ဗားရှင်းတို့ကို ပေးပို့ပါသည်။ အသုံးပြုထားသည့် အက်ပ် ဗားရှင်းများနှင့် Android ဗားရှင်းများ၏ အရေအတွက်ကို Mullvad က ရေတွက်ထားပါသည်။ ဒေတာကို မည်သည့်အခါမျှ မသိမ်းဆည်းထားပါ သို့မဟုတ် သင့်အား ခွဲခြားဖော်ထုတ်နိုင်သော မည်သည့်နည်းလမ်းတွင်မျှ အသုံးမပြုထားပါ။</string>
     <string name="privacy_disclaimer_body_second_paragraph">Split Tunneling လုပ်ဆောင်ချက်ကို အသုံးပြုထားပါက အက်ပ်သည် ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများအားလုံး၏ စာရင်းကို မေးမြန်းပါသည်။ ဤစာရင်းကို Split Tunneling ပြသမှုတွင်သာ ပြန်ရယူပါသည်။ ထည့်သွင်းထားသော အက်ပလီကေးရှင်းများ၏ စာရင်းကို စက်မှ မည်သည့်အခါမျှ မပေးပို့ပါ။</string>
