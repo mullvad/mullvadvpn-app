@@ -1,28 +1,23 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.app.Activity
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertNull
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialogData
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
-import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.model.AccountAndDevice
 import net.mullvad.mullvadvpn.model.AccountExpiry
@@ -37,8 +32,8 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.ReadableInstant
@@ -56,6 +51,7 @@ class WelcomeViewModelTest {
     private val accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
     private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
+    private val outOfTime = MutableStateFlow(true)
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -68,6 +64,7 @@ class WelcomeViewModelTest {
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
+    private val mockOutOfTimeUseCase: OutOfTimeUseCase = mockk(relaxed = true)
 
     private lateinit var viewModel: WelcomeViewModel
 
@@ -90,19 +87,24 @@ class WelcomeViewModelTest {
 
         coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
 
+        coEvery { mockOutOfTimeUseCase.isOutOfTime() } returns outOfTime
+
         viewModel =
             WelcomeViewModel(
                 accountRepository = mockAccountRepository,
                 deviceRepository = mockDeviceRepository,
                 serviceConnectionManager = mockServiceConnectionManager,
                 paymentUseCase = mockPaymentUseCase,
+                outOfTimeUseCase = mockOutOfTimeUseCase,
                 pollAccountExpiry = false
             )
+        viewModel.start()
     }
 
     @After
     fun tearDown() {
         viewModel.viewModelScope.coroutineContext.cancel()
+        viewModel.stop()
         unmockkAll()
     }
 
@@ -142,27 +144,26 @@ class WelcomeViewModelTest {
         }
 
     @Test
-    fun testUpdateAccountNumber() =
-        runTest(testCoroutineRule.testDispatcher) {
-            // Arrange
-            val expectedAccountNumber = "4444555566667777"
-            val device: Device = mockk()
-            every { device.displayName() } returns ""
+    fun testUpdateAccountNumber() = runTest {
+        // Arrange
+        val expectedAccountNumber = "4444555566667777"
+        val device: Device = mockk()
+        every { device.displayName() } returns ""
 
-            // Act, Assert
-            viewModel.uiState.test {
-                assertEquals(WelcomeUiState(), awaitItem())
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                deviceState.value =
-                    DeviceState.LoggedIn(
-                        accountAndDevice =
-                            AccountAndDevice(account_token = expectedAccountNumber, device = device)
-                    )
-                val result = awaitItem()
-                assertEquals(expectedAccountNumber, result.accountNumber)
-            }
+        // Act, Assert
+        viewModel.uiState.test {
+            assertEquals(WelcomeUiState(), awaitItem())
+            paymentAvailability.value = null
+            deviceState.value =
+                DeviceState.LoggedIn(
+                    accountAndDevice =
+                        AccountAndDevice(account_token = expectedAccountNumber, device = device)
+                )
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            assertEquals(expectedAccountNumber, awaitItem().accountNumber)
         }
+    }
 
     @Test
     fun testOpenConnectScreen() =
@@ -173,7 +174,7 @@ class WelcomeViewModelTest {
 
             // Act, Assert
             viewModel.uiSideEffect.test {
-                accountExpiryState.value = AccountExpiry.Available(mockExpiryDate)
+                outOfTime.value = false
                 val action = awaitItem()
                 assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
             }
@@ -242,46 +243,6 @@ class WelcomeViewModelTest {
             assertIs<PaymentState.PaymentAvailable>(result)
             assertLists(expectedProductList, result.products)
         }
-    }
-
-    @Test
-    fun testBillingUserCancelled() = runTest {
-        // Arrange
-        val result = PurchaseResult.Completed.Cancelled
-        purchaseResult.value = result
-        serviceConnectionState.value =
-            ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-        every { result.toPaymentDialogData() } returns null
-
-        // Act, Assert
-        viewModel.uiState.test { assertNull(awaitItem().paymentDialogData) }
-    }
-
-    @Test
-    fun testBillingPurchaseSuccess() = runTest {
-        // Arrange
-        val result = PurchaseResult.Completed.Success
-        val expectedData: PaymentDialogData = mockk()
-        purchaseResult.value = result
-        serviceConnectionState.value =
-            ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-        every { result.toPaymentDialogData() } returns expectedData
-
-        // Act, Assert
-        viewModel.uiState.test { assertEquals(expectedData, awaitItem().paymentDialogData) }
-    }
-
-    @Test
-    fun testStartBillingPayment() {
-        // Arrange
-        val mockProductId = ProductId("MOCK")
-        val mockActivityProvider = mockk<() -> Activity>()
-
-        // Act
-        viewModel.startBillingPayment(mockProductId, mockActivityProvider)
-
-        // Assert
-        coVerify { mockPaymentUseCase.purchaseProduct(mockProductId, mockActivityProvider) }
     }
 
     companion object {

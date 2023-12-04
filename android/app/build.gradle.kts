@@ -9,11 +9,12 @@ plugins {
     id(Dependencies.Plugin.playPublisherId)
     id(Dependencies.Plugin.kotlinAndroidId)
     id(Dependencies.Plugin.kotlinParcelizeId)
+    id(Dependencies.Plugin.ksp) version Versions.Plugin.ksp
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = "${project.buildDir}/extraAssets"
-val defaultChangeLogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
+val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
@@ -111,7 +112,7 @@ android {
         getByName("main") {
             val changelogDir =
                 gradleLocalProperties(rootProject.projectDir)
-                    .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangeLogAssetsDirectory)
+                    .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
             assets.srcDirs(extraAssetsDirectory, changelogDir)
             jniLibs.srcDirs(extraJniDirectory)
@@ -337,6 +338,9 @@ dependencies {
     implementation(Dependencies.Compose.uiController)
     implementation(Dependencies.Compose.ui)
     implementation(Dependencies.Compose.uiUtil)
+    implementation(Dependencies.Compose.destinations)
+    ksp(Dependencies.Compose.destinationsKsp)
+
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Koin.android)

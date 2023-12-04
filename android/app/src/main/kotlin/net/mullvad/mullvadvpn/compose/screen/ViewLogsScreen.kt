@@ -18,6 +18,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -26,6 +27,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
@@ -33,12 +36,15 @@ import net.mullvad.mullvadvpn.compose.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.provider.getLogsShareIntent
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsUiState
+import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -50,6 +56,14 @@ private fun PreviewViewLogsScreen() {
 @Composable
 private fun PreviewViewLogsLoadingScreen() {
     AppTheme { ViewLogsScreen(uiState = ViewLogsUiState()) }
+}
+
+@Destination(style = SlideInFromRightTransition::class)
+@Composable
+fun ViewLogs(navigator: DestinationsNavigator) {
+    val vm = koinViewModel<ViewLogsViewModel>()
+    val uiState = vm.uiState.collectAsState()
+    ViewLogsScreen(uiState = uiState.value, onBackClick = navigator::navigateUp)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

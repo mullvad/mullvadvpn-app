@@ -11,29 +11,35 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.DefaultExternalLinkView
 import net.mullvad.mullvadvpn.compose.cell.NavigationCellBody
 import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.destinations.ReportProblemDestination
+import net.mullvad.mullvadvpn.compose.destinations.SplitTunnelingDestination
+import net.mullvad.mullvadvpn.compose.destinations.VpnSettingsDestination
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.transitions.SettingsTransition
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
+import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -47,29 +53,41 @@ private fun PreviewSettings() {
                     isLoggedIn = true,
                     isUpdateAvailable = true
                 ),
-            enterTransitionEndAction = MutableSharedFlow()
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Destination(style = SettingsTransition::class)
+@Composable
+fun Settings(navigator: DestinationsNavigator) {
+    val vm = koinViewModel<SettingsViewModel>()
+    val state by vm.uiState.collectAsState()
+    SettingsScreen(
+        uiState = state,
+        onVpnSettingCellClick = {
+            navigator.navigate(VpnSettingsDestination) { launchSingleTop = true }
+        },
+        onSplitTunnelingCellClick = {
+            navigator.navigate(SplitTunnelingDestination) { launchSingleTop = true }
+        },
+        onReportProblemCellClick = {
+            navigator.navigate(ReportProblemDestination) { launchSingleTop = true }
+        },
+        onBackClick = navigator::navigateUp
+    )
 }
 
 @ExperimentalMaterial3Api
 @Composable
 fun SettingsScreen(
     uiState: SettingsUiState,
-    enterTransitionEndAction: SharedFlow<Unit>,
     onVpnSettingCellClick: () -> Unit = {},
     onSplitTunnelingCellClick: () -> Unit = {},
     onReportProblemCellClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val backgroundColor = MaterialTheme.colorScheme.background
-    val systemUiController = rememberSystemUiController()
-
-    LaunchedEffect(Unit) {
-        systemUiController.setNavigationBarColor(backgroundColor)
-        enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
-    }
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),

@@ -5,17 +5,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
+import net.mullvad.mullvadvpn.util.getActivity
+import net.mullvad.mullvadvpn.viewmodel.PaymentUiSideEffect
+import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -108,11 +119,38 @@ private fun PreviewPaymentDialogPaymentAvailabilityError() {
     }
 }
 
+@Destination(style = DestinationStyle.Dialog::class)
+@Composable
+fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boolean>) {
+    val vm = koinViewModel<PaymentViewModel>()
+    val uiState = vm.uiState.collectAsState().value
+
+    LaunchedEffect(Unit) {
+        vm.uiSideEffect.collect {
+            when (it) {
+                is PaymentUiSideEffect.PaymentCancelled ->
+                    resultBackNavigator.navigateBack(result = false)
+            }
+        }
+    }
+
+    val context = LocalContext.current
+    LaunchedEffect(Unit) { vm.startBillingPayment(productId) { context.getActivity()!! } }
+
+    if (uiState.paymentDialogData != null) {
+        PaymentDialog(
+            paymentDialogData = uiState.paymentDialogData,
+            retryPurchase = { vm.startBillingPayment(it) { context.getActivity()!! } },
+            onCloseDialog = { resultBackNavigator.navigateBack(result = it) }
+        )
+    }
+}
+
 @Composable
 fun PaymentDialog(
     paymentDialogData: PaymentDialogData,
-    retryPurchase: (ProductId) -> Unit,
-    onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit
+    retryPurchase: (ProductId) -> Unit = {},
+    onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit = {}
 ) {
     val clickResolver: (action: PaymentDialogAction) -> Unit = {
         when (it) {
