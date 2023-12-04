@@ -32,7 +32,7 @@ class SettingsRepository(
                 callbackFlowFromNotifier(state.container.settingsListener.settingsNotifier)
             }
             .onStart { serviceConnectionManager.settingsListener()?.settingsNotifier?.latestEvent }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), null)
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, null)
 
     fun setDnsOptions(
         isCustomDnsEnabled: Boolean,
@@ -49,6 +49,31 @@ class SettingsRepository(
                         defaultOptions = contentBlockersOptions
                     )
             )
+    }
+
+    fun setDnsState(
+        state: DnsState,
+    ) {
+        updateDnsSettings { it.copy(state = state) }
+    }
+
+    fun updateCustomDnsList(update: (List<InetAddress>) -> List<InetAddress>) {
+        updateDnsSettings { dnsOptions ->
+            val newDnsList = ArrayList(update(dnsOptions.customOptions.addresses.map { it }))
+            dnsOptions.copy(
+                state = if (newDnsList.isEmpty()) DnsState.Default else DnsState.Custom,
+                customOptions =
+                    CustomDnsOptions(
+                        addresses = newDnsList,
+                    )
+            )
+        }
+    }
+
+    private fun updateDnsSettings(lambda: (DnsOptions) -> DnsOptions) {
+        settingsUpdates.value?.tunnelOptions?.dnsOptions?.let {
+            serviceConnectionManager.customDns()?.setDnsOptions(lambda(it))
+        }
     }
 
     fun setWireguardMtu(value: Int?) {
