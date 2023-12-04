@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
@@ -24,11 +27,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
@@ -37,6 +40,10 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
+import net.mullvad.mullvadvpn.compose.destinations.AccountDestination
+import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
+import net.mullvad.mullvadvpn.compose.destinations.SelectLocationDestination
+import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
@@ -44,14 +51,17 @@ import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
+import net.mullvad.mullvadvpn.compose.transitions.NoTransition
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 
@@ -62,16 +72,64 @@ private fun PreviewConnectScreen() {
     AppTheme {
         ConnectScreen(
             uiState = state,
-            uiSideEffect = MutableSharedFlow<ConnectViewModel.UiSideEffect>().asSharedFlow()
         )
     }
+}
+
+@Destination(style = NoTransition::class)
+@Composable
+fun Connect(navigator: DestinationsNavigator) {
+    val connectViewModel: ConnectViewModel = koinViewModel()
+
+    val state = connectViewModel.uiState.collectAsState().value
+
+    val context = LocalContext.current
+    LaunchedEffect(key1 = Unit) {
+        connectViewModel.uiSideEffect.collect { uiSideEffect ->
+            when (uiSideEffect) {
+                is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
+                    context.openAccountPageInBrowser(uiSideEffect.token)
+                }
+                is ConnectViewModel.UiSideEffect.OutOfTime -> {
+                    navigator.navigate(OutOfTimeDestination) {
+                        launchSingleTop = true
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
+    ConnectScreen(
+        uiState = state,
+        onDisconnectClick = connectViewModel::onDisconnectClick,
+        onReconnectClick = connectViewModel::onReconnectClick,
+        onConnectClick = connectViewModel::onConnectClick,
+        onCancelClick = connectViewModel::onCancelClick,
+        onSwitchLocationClick = {
+            navigator.navigate(SelectLocationDestination) { launchSingleTop = true }
+        },
+        onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion,
+        onUpdateVersionClick = {
+            val intent =
+                Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse(
+                            context.getString(R.string.download_url).appendHideNavOnPlayBuild()
+                        )
+                    )
+                    .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
+            context.startActivity(intent)
+        },
+        onManageAccountClick = connectViewModel::onManageAccountClick,
+        onSettingsClick = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onAccountClick = { navigator.navigate(AccountDestination) { launchSingleTop = true } },
+        onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
+    )
 }
 
 @Composable
 fun ConnectScreen(
     uiState: ConnectUiState,
-    uiSideEffect: SharedFlow<ConnectViewModel.UiSideEffect>,
-    drawNavigationBar: Boolean = false,
     onDisconnectClick: () -> Unit = {},
     onReconnectClick: () -> Unit = {},
     onConnectClick: () -> Unit = {},
@@ -80,33 +138,10 @@ fun ConnectScreen(
     onToggleTunnelInfo: () -> Unit = {},
     onUpdateVersionClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
-    onOpenOutOfTimeScreen: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     onAccountClick: () -> Unit = {},
     onDismissNewDeviceClick: () -> Unit = {}
 ) {
-    val context = LocalContext.current
-
-    val systemUiController = rememberSystemUiController()
-    val navigationBarColor = MaterialTheme.colorScheme.primary
-    val setSystemBarColor = { systemUiController.setNavigationBarColor(navigationBarColor) }
-    LaunchedEffect(drawNavigationBar) {
-        if (drawNavigationBar) {
-            setSystemBarColor()
-        }
-    }
-    LaunchedEffect(key1 = Unit) {
-        uiSideEffect.collect { uiSideEffect ->
-            when (uiSideEffect) {
-                is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
-                    context.openAccountPageInBrowser(uiSideEffect.token)
-                }
-                is ConnectViewModel.UiSideEffect.OpenOutOfTimeView -> {
-                    onOpenOutOfTimeScreen()
-                }
-            }
-        }
-    }
 
     val scrollState = rememberScrollState()
     var lastConnectionActionTimestamp by remember { mutableLongStateOf(0L) }
@@ -126,13 +161,6 @@ fun ConnectScreen(
             } else {
                 MaterialTheme.colorScheme.error
             },
-        statusBarColor =
-            if (uiState.tunnelUiState.isSecured()) {
-                MaterialTheme.colorScheme.inversePrimary
-            } else {
-                MaterialTheme.colorScheme.error
-            },
-        navigationBarColor = null,
         iconTintColor =
             if (uiState.tunnelUiState.isSecured()) {
                     MaterialTheme.colorScheme.onPrimary
@@ -149,8 +177,8 @@ fun ConnectScreen(
             verticalArrangement = Arrangement.Bottom,
             horizontalAlignment = Alignment.Start,
             modifier =
-                Modifier.padding(it)
-                    .background(color = MaterialTheme.colorScheme.primary)
+                Modifier.background(color = MaterialTheme.colorScheme.primary)
+                    .padding(it)
                     .fillMaxHeight()
                     .drawVerticalScrollbar(
                         scrollState,

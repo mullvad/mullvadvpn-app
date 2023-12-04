@@ -7,8 +7,6 @@ import androidx.compose.ui.test.performTextInput
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -39,8 +37,6 @@ class SelectLocationScreenTest {
         composeTestRule.setContentWithTheme {
             SelectLocationScreen(
                 uiState = SelectLocationUiState.Loading,
-                uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -61,8 +57,6 @@ class SelectLocationScreenTest {
                         selectedProvidersCount = 0,
                         searchTerm = ""
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -101,8 +95,6 @@ class SelectLocationScreenTest {
                         selectedProvidersCount = 0,
                         searchTerm = ""
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow()
             )
         }
 
@@ -131,8 +123,6 @@ class SelectLocationScreenTest {
                         selectedProvidersCount = 0,
                         searchTerm = ""
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onSearchTermInput = mockedSearchTermInput
             )
         }
@@ -160,8 +150,6 @@ class SelectLocationScreenTest {
                         selectedProvidersCount = 0,
                         searchTerm = mockSearchString
                     ),
-                uiCloseAction = MutableSharedFlow(),
-                enterTransitionEndAction = MutableSharedFlow<Unit>().asSharedFlow(),
                 onSearchTermInput = mockedSearchTermInput
             )
         }

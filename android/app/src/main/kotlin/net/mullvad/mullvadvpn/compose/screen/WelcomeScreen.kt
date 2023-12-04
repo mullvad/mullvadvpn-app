@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.app.Activity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,8 +18,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,21 +29,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
 import net.mullvad.mullvadvpn.compose.button.SitePaymentButton
 import net.mullvad.mullvadvpn.compose.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
-import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
-import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
+import net.mullvad.mullvadvpn.compose.destinations.AccountDestination
+import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
+import net.mullvad.mullvadvpn.compose.destinations.DeviceNameInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.PaymentDestination
+import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
+import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
+import net.mullvad.mullvadvpn.compose.transitions.NoTransition
+import net.mullvad.mullvadvpn.compose.util.WhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
@@ -57,13 +65,13 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 import net.mullvad.mullvadvpn.lib.theme.color.MullvadWhite
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 private fun PreviewWelcomeScreen() {
     AppTheme {
         WelcomeScreen(
-            showSitePayment = true,
             uiState =
                 WelcomeUiState(
                     accountNumber = "4444555566667777",
@@ -76,55 +84,100 @@ private fun PreviewWelcomeScreen() {
                                 )
                         )
                 ),
-            uiSideEffect = MutableSharedFlow<WelcomeViewModel.UiSideEffect>().asSharedFlow(),
             onSitePaymentClick = {},
             onRedeemVoucherClick = {},
             onSettingsClick = {},
             onAccountClick = {},
-            openConnectScreen = {},
-            onPurchaseBillingProductClick = { _, _ -> },
-            onClosePurchaseResultDialog = {}
+            onPurchaseBillingProductClick = { _ -> },
+            navigateToDeviceInfoDialog = {},
+            navigateToVerificationPendingDialog = {}
         )
     }
 }
 
+@Destination(style = NoTransition::class)
 @Composable
-fun WelcomeScreen(
-    showSitePayment: Boolean,
-    uiState: WelcomeUiState,
-    uiSideEffect: SharedFlow<WelcomeViewModel.UiSideEffect>,
-    onSitePaymentClick: () -> Unit,
-    onRedeemVoucherClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onAccountClick: () -> Unit,
-    openConnectScreen: () -> Unit,
-    onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
-    onClosePurchaseResultDialog: (success: Boolean) -> Unit
+fun Welcome(
+    navigator: DestinationsNavigator,
+    voucherRedeemResultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>,
+    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
 ) {
+    val vm = koinViewModel<WelcomeViewModel>()
+    val state by vm.uiState.collectAsState()
+
+    voucherRedeemResultRecipient.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {
+                /* Do nothing */
+            }
+            is NavResult.Value ->
+                // If we successfully redeemed a voucher, navigate to Connect screen
+                if (it.value) {
+                    navigator.navigate(ConnectDestination) {
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
+        }
+    }
+
+    playPaymentResultRecipient.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {
+                /* Do nothing */
+            }
+            is NavResult.Value -> vm.onClosePurchaseResultDialog(it.value)
+        }
+    }
+
     val context = LocalContext.current
     LaunchedEffect(Unit) {
-        uiSideEffect.collect { uiSideEffect ->
+        vm.uiSideEffect.collect { uiSideEffect ->
             when (uiSideEffect) {
                 is WelcomeViewModel.UiSideEffect.OpenAccountView ->
                     context.openAccountPageInBrowser(uiSideEffect.token)
-                WelcomeViewModel.UiSideEffect.OpenConnectScreen -> openConnectScreen()
+                WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
+                    navigator.navigate(ConnectDestination) {
+                        launchSingleTop = true
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
             }
         }
     }
 
-    var showVerificationPendingDialog by remember { mutableStateOf(false) }
-    if (showVerificationPendingDialog) {
-        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
-    }
+    WhileInView(inView = vm::start, outOfView = vm::stop)
 
-    uiState.paymentDialogData?.let {
-        PaymentDialog(
-            paymentDialogData = uiState.paymentDialogData,
-            retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
-            onCloseDialog = onClosePurchaseResultDialog
-        )
-    }
+    WelcomeScreen(
+        uiState = state,
+        onSitePaymentClick = vm::onSitePaymentClick,
+        onRedeemVoucherClick = {
+            navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
+        },
+        onSettingsClick = { navigator.navigate(SettingsDestination) { launchSingleTop = true } },
+        onAccountClick = { navigator.navigate(AccountDestination) { launchSingleTop = true } },
+        navigateToDeviceInfoDialog = {
+            navigator.navigate(DeviceNameInfoDialogDestination) { launchSingleTop = true }
+        },
+        onPurchaseBillingProductClick = { productId ->
+            navigator.navigate(PaymentDestination(productId))
+        },
+        navigateToVerificationPendingDialog = {
+            navigator.navigate(VerificationPendingDialogDestination) { launchSingleTop = true }
+        }
+    )
+}
 
+@Composable
+fun WelcomeScreen(
+    uiState: WelcomeUiState,
+    onSitePaymentClick: () -> Unit,
+    onRedeemVoucherClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onAccountClick: () -> Unit,
+    onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
+    navigateToDeviceInfoDialog: () -> Unit,
+    navigateToVerificationPendingDialog: () -> Unit
+) {
     val scrollState = rememberScrollState()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -135,13 +188,6 @@ fun WelcomeScreen(
             } else {
                 MaterialTheme.colorScheme.error
             },
-        statusBarColor =
-            if (uiState.tunnelState.isSecured()) {
-                MaterialTheme.colorScheme.inversePrimary
-            } else {
-                MaterialTheme.colorScheme.error
-            },
-        navigationBarColor = MaterialTheme.colorScheme.background,
         iconTintColor =
             if (uiState.tunnelState.isSecured()) {
                     MaterialTheme.colorScheme.onPrimary
@@ -165,18 +211,18 @@ fun WelcomeScreen(
                     .background(color = MaterialTheme.colorScheme.primary)
         ) {
             // Welcome info area
-            WelcomeInfo(snackbarHostState, uiState, showSitePayment)
+            WelcomeInfo(snackbarHostState, uiState, navigateToDeviceInfoDialog)
 
             Spacer(modifier = Modifier.weight(1f))
 
             // Payment button area
             PaymentPanel(
-                showSitePayment = showSitePayment,
+                showSitePayment = uiState.showSitePayment,
                 billingPaymentState = uiState.billingPaymentState,
                 onSitePaymentClick = onSitePaymentClick,
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPurchaseBillingProductClick = onPurchaseBillingProductClick,
-                onPaymentInfoClick = { showVerificationPendingDialog = true }
+                onPaymentInfoClick = navigateToVerificationPendingDialog
             )
         }
     }
@@ -186,7 +232,7 @@ fun WelcomeScreen(
 private fun WelcomeInfo(
     snackbarHostState: SnackbarHostState,
     uiState: WelcomeUiState,
-    showSitePayment: Boolean
+    navigateToDeviceInfoDialog: () -> Unit
 ) {
     Column {
         Text(
@@ -217,13 +263,13 @@ private fun WelcomeInfo(
 
         AccountNumberRow(snackbarHostState, uiState)
 
-        DeviceNameRow(deviceName = uiState.deviceName)
+        DeviceNameRow(deviceName = uiState.deviceName, navigateToDeviceInfoDialog)
 
         Text(
             text =
                 buildString {
                     append(stringResource(id = R.string.pay_to_start_using))
-                    if (showSitePayment) {
+                    if (uiState.showSitePayment) {
                         append(" ")
                         append(stringResource(id = R.string.add_time_to_account))
                     }
@@ -269,7 +315,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, uiState: Welc
 }
 
 @Composable
-fun DeviceNameRow(deviceName: String?) {
+fun DeviceNameRow(deviceName: String?, navigateToDeviceInfoDialog: () -> Unit) {
     Row(
         modifier = Modifier.padding(horizontal = Dimens.sideMargin),
         verticalAlignment = Alignment.CenterVertically,
@@ -288,19 +334,15 @@ fun DeviceNameRow(deviceName: String?) {
             color = MaterialTheme.colorScheme.onPrimary
         )
 
-        var showDeviceNameDialog by remember { mutableStateOf(false) }
         IconButton(
             modifier = Modifier.align(Alignment.CenterVertically),
-            onClick = { showDeviceNameDialog = true }
+            onClick = navigateToDeviceInfoDialog
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.icon_info),
                 contentDescription = null,
                 tint = MullvadWhite
             )
-        }
-        if (showDeviceNameDialog) {
-            DeviceNameInfoDialog { showDeviceNameDialog = false }
         }
     }
 }
@@ -311,10 +353,9 @@ private fun PaymentPanel(
     billingPaymentState: PaymentState?,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
-    onPurchaseBillingProductClick: (productId: ProductId, activityProvider: () -> Activity) -> Unit,
+    onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
     onPaymentInfoClick: () -> Unit
 ) {
-    val context = LocalContext.current
     Column(
         modifier =
             Modifier.fillMaxWidth()
@@ -326,7 +367,7 @@ private fun PaymentPanel(
             PlayPayment(
                 billingPaymentState = billingPaymentState,
                 onPurchaseBillingProductClick = { productId ->
-                    onPurchaseBillingProductClick(productId) { context as Activity }
+                    onPurchaseBillingProductClick(productId)
                 },
                 onInfoClick = onPaymentInfoClick,
                 modifier =
