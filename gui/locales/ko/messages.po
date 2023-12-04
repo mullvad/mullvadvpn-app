@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s 추가됨, %(expiry)s까지 계정 결제함"
@@ -173,6 +173,9 @@ msgstr "종료"
 
 msgid "Reconnect"
 msgstr "다시 연결"
+
+msgid "Save"
+msgstr "저장"
 
 msgid "Search for..."
 msgstr "검색..."
@@ -485,11 +488,6 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다."
 
-#. Confirmation button when logging out
-msgctxt "device-management"
-msgid "Log out anyway"
-msgstr "로그아웃"
-
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다."
@@ -500,19 +498,9 @@ msgctxt "device-management"
 msgid "Super!"
 msgstr "좋습니다!"
 
-#. This is is a further explanation of what happens when logging out.
-msgctxt "device-management"
-msgid "The ports forwarded to this device will be deleted if you log out."
-msgstr "이 장치로 전달된 포트는 로그아웃하면 삭제됩니다."
-
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
 msgstr "이것은 장치에 할당된 이름입니다. Mullvad 계정에 로그인된 각 장치에는 앱이나 웹사이트에서 장치를 관리할 때 장치를 보다 쉽게 식별할 수 있는 고유한 이름이 부여됩니다."
-
-#. Further information about consequences of logging out device.
-msgctxt "device-management"
-msgid "This will delete all forwarded ports. Local settings will be saved."
-msgstr "전달된 모든 포트가 삭제됩니다. 로컬 설정이 저장됩니다."
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
@@ -1015,6 +1003,10 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "위치 선택"
 
+msgctxt "select-location-view"
+msgid "(Added)"
+msgstr "(추가됨)"
+
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
 #. Available placeholders:
@@ -1023,6 +1015,33 @@ msgstr "위치 선택"
 msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s(%(info)s)"
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "select-location-view"
+msgid "Add <b>%(locationType)s</b> to list"
+msgstr "목록에 <b>%(locationType)s</b> 추가"
+
+msgctxt "select-location-view"
+msgid "All locations"
+msgstr "모든 위치"
+
+msgctxt "select-location-view"
+msgid "City"
+msgstr "도시"
+
+msgctxt "select-location-view"
+msgid "Country"
+msgstr "국가"
+
+msgctxt "select-location-view"
+msgid "Custom lists"
+msgstr "사용자 지정 목록"
+
+msgctxt "select-location-view"
+msgid "Edit list name"
+msgstr "목록 이름 수정"
 
 msgctxt "select-location-view"
 msgid "Entry"
@@ -1037,8 +1056,20 @@ msgid "Filtered:"
 msgstr "필터링됨:"
 
 msgctxt "select-location-view"
+msgid "List names must be unique."
+msgstr "목록 이름은 고유해야 합니다."
+
+msgctxt "select-location-view"
+msgid "Name is already taken."
+msgstr "이미 사용 중인 이름입니다."
+
+msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "제공업체: %(numberOfProviders)d"
+
+msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgid "Relay"
+msgstr "릴레이"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
@@ -1418,10 +1449,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6 사용"
 
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr "터널을 통한 IPv6 통신 사용"
-
 #. The label next to the multihop settings toggle.
 msgctxt "vpn-settings-view"
 msgid "Enable multihop"
@@ -1448,6 +1475,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "트래픽을 하나의 %(wireguard)s 서버로 라우팅하고 다른 서버로 전달하여 익명성을 높이고 추적을 더 어렵게 만듭니다."
 
 msgctxt "vpn-settings-view"
+msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
+msgstr "IPv4는 항상 활성화되어 있으며 대부분의 웹사이트와 애플리케이션이 이 프로토콜을 사용합니다. IPv6이 필요하다고 확신하지 않는 한 IPv6을 활성화하지 않는 것이 좋습니다."
+
+msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
 msgstr "이를 위해 터널 외부에서 로컬 멀티캐스트 및 브로드캐스트 범위는 물론 다음 개인 IP 범위와의 네트워크 통신을 허용합니다."
 
@@ -1471,6 +1502,11 @@ msgstr "잠금 모드"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "맬웨어"
+
+#. Label for settings that enables block of social media.
+msgctxt "vpn-settings-view"
+msgid "Social media"
+msgstr "소셜 미디어"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1532,6 +1568,10 @@ msgstr "경고: 맬웨어 차단기는 안티바이러스가 아니며 하나의
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "이 기능이 활성화되면 광고, 맬웨어, 트래커 등을 배포하는 것으로 알려진 특정 도메인이나 웹사이트에 장치가 연결하지 않게 방지됩니다."
+
+msgctxt "vpn-settings-view"
+msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
+msgstr "이 기능을 활성화하면 VPN 터널에서 IPv4와 함께 IPv6을 사용하여 인터넷 서비스와 통신할 수 있습니다."
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1621,6 +1661,13 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다."
 
+msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgid "%s was added to your account."
+msgstr "%s이(가) 귀하의 계정에 추가되었습니다."
+
+msgid "30 days was added to your account."
+msgstr "귀하의 계정에 30일이 추가되었습니다."
+
 msgid "Account credit expires in a few minutes"
 msgstr "계정 크레딧이 몇 분 후에 만료됨"
 
@@ -1629,6 +1676,12 @@ msgstr "계정 크레딧이 곧 만료됨"
 
 msgid "Account time reminders"
 msgstr "계정 시간 알림"
+
+msgid "Add 30 days time"
+msgstr "30일 시간 추가"
+
+msgid "Add 30 days time (%s)"
+msgstr "30일 시간 추가(%s)"
 
 msgid "Add DNS server"
 msgstr "DNS 서버 추가"
@@ -1657,6 +1710,9 @@ msgstr "인터넷 차단(장치 오프라인)"
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS 관련 설정에 대한 변경 사항은 캐시된 결과로 인해 즉시 적용되지 않을 수도 있습니다."
 
+msgid "Connecting..."
+msgstr "연결 중..."
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "클립보드에 Mullvad 계정 번호 복사됨"
 
@@ -1681,11 +1737,24 @@ msgstr "사용"
 msgid "Enter MTU"
 msgstr "MTU 입력"
 
+msgctxt "Placeholder in port number input field."
+msgid "Enter port"
+msgstr "포트 입력"
+
 msgid "Excluded applications"
 msgstr "제외된 애플리케이션"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "로그인하면 이 장치에서 인터넷 차단이 해제됩니다."
+
+msgid "Google Play payment pending"
+msgstr "Google Play 결제 보류 중"
+
+msgid "Google Play unavailable"
+msgstr "Google Play 사용 불가"
+
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "분할 터널링 기능을 사용하는 경우, 이 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 장치에서 전송되지 않습니다."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN(%s)을 설치하여 최신 상태로 유지하세요."
@@ -1695,6 +1764,9 @@ msgstr "계정 관리"
 
 msgid "Mullvad account number"
 msgstr "Mullvad 계정 번호"
+
+msgid "Mullvad services unavailable"
+msgstr "Mullvad 서비스 사용 불가"
 
 msgid "Preferences"
 msgstr "환경 설정"
@@ -1708,6 +1780,9 @@ msgstr "개인정보 보호정책"
 msgid "Remove"
 msgstr "제거"
 
+msgid "Remove custom port"
+msgstr "사용자 지정 포트 제거"
+
 msgid "Reset to default"
 msgstr "기본값으로 재설정"
 
@@ -1717,6 +1792,9 @@ msgstr "안전함"
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %d ~ %d"
 
+msgid "Set port"
+msgstr "포트 설정"
+
 msgid "Show system apps"
 msgstr "시스템 앱 표시"
 
@@ -1725,9 +1803,6 @@ msgstr "현재 VPN 터널 상태 표시"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "계정 시간이 만료되려고 할 때 알림 표시"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다."
 
 msgid "Submit"
 msgstr "제출"
@@ -1741,8 +1816,8 @@ msgstr "이 주소는 이미 입력되었습니다."
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "이 기능을 사용하면 특정 웹 사이트, 서비스 및 앱에서 문제가 발생할 수 있습니다."
 
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "가장 안전한 버전인지 확인하고 실행 중인 현재 버전 관련 문제를 알리기 위해 앱에서 버전 확인을 자동으로 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전과 Android 버전 수에 대한 카운터를 유지합니다. 데이터는 사용자를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다.\\n\\n분할 터널링 기능이 사용되는 경우 앱은 설치된 모든 애플리케이션 목록을 시스템에 쿼리합니다. 이 목록은 분할 터널링 보기에서만 검색됩니다. 설치된 애플리케이션 목록은 절대 장치에서 전송되지 않습니다."
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
+msgstr "가장 안전한 버전인지 확인하고 현재 실행 중인 버전에 문제가 있으면 알려드리기 위해 앱에서 자동으로 버전 확인을 수행합니다. 그러면 앱 버전과 Android 시스템 버전이 Mullvad 서버로 전송됩니다. Mullvad는 사용된 앱 버전 및 Android 버전 수에 대한 카운터를 유지합니다. 이 데이터는 귀하를 식별할 수 있는 어떤 방식으로도 저장되거나 사용되지 않습니다."
 
 msgid "Toggle VPN"
 msgstr "VPN 전환"
@@ -1774,8 +1849,30 @@ msgstr "VPN 터널 상태"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요."
 
+msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgid "Valid ranges: %s"
+msgstr "유효한 범위: %s"
+
+msgid "Verifying purchase"
+msgstr "구매 확인 중"
+
+msgid "Verifying purchase..."
+msgstr "구매 확인 중..."
+
+msgid "Verifying voucher…"
+msgstr "바우처 확인 중…"
+
 msgid "Virtual adapter error"
 msgstr "가상 어댑터 오류"
+
+msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "구매를 현재 확인하는 중이므로 다소 시간이 걸릴 수 있습니다. 확인을 성공적으로 마치면 시간이 추가됩니다."
+
+msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
+msgstr "결제 프로세스를 시작할 수 없습니다. Google Play가 최신 버전인지 확인하세요."
+
+msgid "We were unable to start the payment process, please try again later."
+msgstr "결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요."
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "연결되어 있는 동안 실제 위치는 선택한 지역의 안전한 비공개 위치로 마스킹됩니다."
@@ -1783,8 +1880,14 @@ msgstr "연결되어 있는 동안 실제 위치는 선택한 지역의 안전�
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard custom port"
+msgstr "WireGuard 사용자 지정 포트"
+
 msgid "WireGuard obfuscation"
 msgstr "WireGuard 난독화"
+
+msgid "WireGuard port"
+msgstr "WireGuard 포트"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "네트워크 트래픽이 유출될 수 있습니다."
@@ -1794,6 +1897,17 @@ msgstr "지원되지 않는 앱 버전을 실행 중입니다."
 
 msgid "less than a minute ago"
 msgstr "1분 이내"
+
+msgid "less than one day"
+msgstr "1일 미만"
+
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d일"
+
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] "%d개월"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

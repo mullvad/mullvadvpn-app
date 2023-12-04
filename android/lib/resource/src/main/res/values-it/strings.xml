@@ -7,9 +7,12 @@
     <string name="account_number">Numero di account</string>
     <string name="account_time_notification_channel_description">Mostra promemoria quando il tempo dell\'account sta per scadere</string>
     <string name="account_time_notification_channel_name">Promemoria temporali per l\'account</string>
+    <string name="add_30_days_time">Aggiungi 30 giorni di tempo</string>
+    <string name="add_30_days_time_x">Aggiungi 30 giorni di tempo (%1$s)</string>
     <string name="add_a_server">Aggiungi un server</string>
     <string name="add_dns_server_dialog_title">Aggiungi server DNS</string>
     <string name="add_time_to_account">Acquista credito sul nostro sito web o riscatta un voucher.</string>
+    <string name="added_to_your_account">%1$s aggiunti al tuo account.</string>
     <string name="agree_and_continue">Accetta e continua</string>
     <string name="all_applications">Tutte le applicazioni</string>
     <string name="allow_lan_footer">Consenti l\'accesso ad altri dispositivi sulla stessa rete per condividere, stampare e altro.</string>
@@ -25,6 +28,7 @@
     <string name="block_adult_content_title">Contenuti per adulti</string>
     <string name="block_gambling_title">Gioco d\'azzardo</string>
     <string name="block_malware_title">Malware</string>
+    <string name="block_social_media_title">Social media</string>
     <string name="block_trackers_title">Tracker</string>
     <string name="blocked_connection">CONNESSIONE BLOCCATA</string>
     <string name="blocking_internet">Blocco di Internet</string>
@@ -32,7 +36,6 @@
     <string name="buy_credit">Acquista credito</string>
     <string name="buy_more_credit">Acquista altro credito</string>
     <string name="cancel">Annulla</string>
-    <string name="changes_dialog_dismiss_button">Ok!</string>
     <string name="changes_dialog_subtitle">Modifiche in questa versione:</string>
     <string name="confirm_local_dns">Il server DNS locale non funzionerà a meno che non si abiliti \"Condivisione rete locale\" in Preferenze.</string>
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
@@ -53,6 +56,11 @@
     <string name="custom_dns_disable_mode_subtitle">Disabilita tutti i &lt;b&gt;%1$s&lt;/b&gt; sopra per attivare questa impostazione.</string>
     <string name="custom_dns_footer">Abilita per aggiungere almeno un server DNS.</string>
     <string name="custom_dns_hint">Inserisci IP</string>
+    <string name="custom_port_dialog_placeholder">Inserisci porta</string>
+    <string name="custom_port_dialog_remove">Rimuovi porta personalizzata</string>
+    <string name="custom_port_dialog_submit">Imposta porta</string>
+    <string name="custom_port_dialog_title">Porta personalizzata WireGuard</string>
+    <string name="custom_port_dialog_valid_ranges">Intervalli validi: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere l\'host del tunnel personalizzato. Prova a modificare le impostazioni.</string>
     <string name="device_inactive_description">Hai rimosso questo dispositivo. Per riconnetterti, dovrai effettuare nuovamente il login.</string>
     <string name="device_inactive_title">Il dispositivo è inattivo</string>
@@ -89,6 +97,7 @@
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>
     <string name="foreground_notification_channel_name">Stato del tunnel VPN</string>
     <string name="go_to_login">Vai al login</string>
+    <string name="got_it">Ok!</string>
     <string name="here_is_your_account_number">Ecco il tuo numero di account. Salvalo!</string>
     <string name="hide_account_number">Nascondi numero di account</string>
     <string name="hint_default">Predefinito</string>
@@ -99,6 +108,9 @@
     <string name="is_offline">Il tuo dispositivo è offline. Il tunnel si connetterà automaticamente una volta che il tuo dispositivo sarà di nuovo online.</string>
     <string name="less_than_a_day_left">meno di un giorno rimanente</string>
     <string name="less_than_a_minute_ago">meno di un minuto fa</string>
+    <string name="less_than_one_day">meno di un giorno</string>
+    <string name="loading_connecting">Connessione...</string>
+    <string name="loading_verifying">Verifica dell\'acquisto...</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
     <string name="local_network_sharing_additional_info">Lo fa consentendo la comunicazione di rete al di fuori del tunnel verso intervalli multicast e broadcast locali, nonché da e verso questi intervalli IP privati:</string>
     <string name="local_network_sharing_info">Questa funzione consente l\'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc.</string>
@@ -133,7 +145,18 @@
     <string name="out_of_time">Scaduto</string>
     <string name="paid_until">Pagato fino al</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>
+    <string name="payment_billing_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, assicurati di avere la versione più recente di Google Play.</string>
+    <string name="payment_billing_error_dialog_title">Google Play non disponibile</string>
+    <string name="payment_completed_dialog_message">30 giorni aggiunti al tuo account.</string>
+    <string name="payment_completed_dialog_title">L\'ora è stata aggiunta correttamente</string>
+    <string name="payment_obfuscation_id_error_dialog_message">Non siamo riusciti ad avviare il processo di pagamento, riprova più tardi.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Servizi Mullvad non disponibili</string>
+    <string name="payment_pending_dialog_message">Stiamo verificando il tuo acquisto, l\'operazione potrebbe richiedere del tempo. Il tuo tempo verrà aggiunto quando la verifica avrà avuto esito positivo.</string>
+    <string name="payment_pending_dialog_title">Verifica dell\'acquisto</string>
+    <string name="payment_status_pending">Pagamento Google Play in sospeso</string>
     <string name="port">Porta</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Per assicurarti di avere la versione più sicura e per informarti di eventuali problemi con la versione attualmente in esecuzione, l\'app esegue automaticamente i controlli di versione. Questa operazione invia la versione dell\'app e la versione del sistema Android ai server Mullvad. Mullvad mantiene traccia dei numeri di versione dell\'app utilizzati e delle versioni di Android. I dati non vengono mai archiviati o utilizzati in alcun modo che possa identificarti.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Se viene utilizzata la funzionalità di split tunneling, l\'app richiede al tuo sistema un elenco di tutte le applicazioni installate. Questo elenco viene recuperato solo nella vista split tunneling. L\'elenco delle applicazioni installate non viene mai inviato dal dispositivo.</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Informativa sulla privacy</string>
     <string name="problem_report_description">Per aiutarti in modo più efficace, il file di registro della tua app sarà allegato a questo messaggio. I tuoi dati rimarranno protetti e privati, e saranno anonimizzati prima di essere inviati tramite un canale crittografato.</string>
@@ -193,6 +216,7 @@
     <string name="update_dns_server_dialog_title">Aggiorna server DNS</string>
     <string name="user_email_hint">La tua e-mail (opzionale)</string>
     <string name="user_message_hint">Per consentirci di assisterti meglio, scrivi in ​​inglese o in svedese e indica da quale Paese ti stai connettendo.</string>
+    <string name="verifying_voucher">Verifica del voucher…</string>
     <string name="view_logs">Visualizza registri app</string>
     <string name="virtual_adapter_problem">Errore scheda virtuale</string>
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>
@@ -206,4 +230,5 @@
     <string name="wireguard_mtu_footer">Imposta il valore MTU WireGuard. Intervallo valido: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">L\'impostazione automatica sceglierà in modo casuale una porta valida negli intervalli mostrati di seguito.</string>
     <string name="wireguard_port_info_port_range">La porta personalizzata può essere qualsiasi valore all\'interno degli intervalli validi: %1$s.</string>
+    <string name="wireguard_port_title">Porta WireGuard</string>
 </resources>

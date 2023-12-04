@@ -7,9 +7,12 @@
     <string name="account_number">Номер учетной записи</string>
     <string name="account_time_notification_channel_description">Показывает уведомления, когда время на учетной записи скоро закончится</string>
     <string name="account_time_notification_channel_name">Напоминания о времени на учетной записи</string>
+    <string name="add_30_days_time">Добавить 30 дней</string>
+    <string name="add_30_days_time_x">Добавить 30 дней (%1$s)</string>
     <string name="add_a_server">Добавить сервер</string>
     <string name="add_dns_server_dialog_title">Добавить DNS-сервер</string>
     <string name="add_time_to_account">Пополните баланс у нас на сайте или погасите ваучер.</string>
+    <string name="added_to_your_account">На учетную запись добавлено время: %1$s.</string>
     <string name="agree_and_continue">Согласиться и продолжить</string>
     <string name="all_applications">Все приложения</string>
     <string name="allow_lan_footer">Разрешить доступ к другим устройствам в той же сети для организации общего доступа, печати и т. д.</string>
@@ -25,6 +28,7 @@
     <string name="block_adult_content_title">Контент для взрослых</string>
     <string name="block_gambling_title">Азартные игры</string>
     <string name="block_malware_title">Вредоносное ПО</string>
+    <string name="block_social_media_title">Социальные сети</string>
     <string name="block_trackers_title">Трекеры</string>
     <string name="blocked_connection">ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО</string>
     <string name="blocking_internet">Блокируется доступ в Интернет</string>
@@ -32,7 +36,6 @@
     <string name="buy_credit">Пополнить баланс</string>
     <string name="buy_more_credit">Пополнить баланс</string>
     <string name="cancel">Отмена</string>
-    <string name="changes_dialog_dismiss_button">Понятно!</string>
     <string name="changes_dialog_subtitle">Изменения в этой версии:</string>
     <string name="confirm_local_dns">Локальный DNS-сервер не будет работать, пока вы не включите «Обмен данными в локальной сети» в разделе «Параметры».</string>
     <string name="confirm_no_email">Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты.</string>
@@ -53,6 +56,11 @@
     <string name="custom_dns_disable_mode_subtitle">Чтобы включить эту настройку, отключите все &lt;b&gt;%1$s&lt;/b&gt; выше.</string>
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
     <string name="custom_dns_hint">Введите IP-адрес</string>
+    <string name="custom_port_dialog_placeholder">Введите порт</string>
+    <string name="custom_port_dialog_remove">Удалить пользовательский порт</string>
+    <string name="custom_port_dialog_submit">Установить порт</string>
+    <string name="custom_port_dialog_title">Пользовательский порт WireGuard</string>
+    <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
@@ -89,6 +97,7 @@
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
     <string name="foreground_notification_channel_name">Состояние туннеля VPN</string>
     <string name="go_to_login">Войти</string>
+    <string name="got_it">Понятно!</string>
     <string name="here_is_your_account_number">Вот номер вашей учетной записи. Сохраните его!</string>
     <string name="hide_account_number">Скрыть номер учетной записи</string>
     <string name="hint_default">По умолчанию</string>
@@ -99,6 +108,9 @@
     <string name="is_offline">Устройство отключено от Интернета. Туннельное соединение автоматически запустится, как только ваше устройство подключится к Интернету.</string>
     <string name="less_than_a_day_left">осталось менее суток</string>
     <string name="less_than_a_minute_ago">менее минуты назад</string>
+    <string name="less_than_one_day">менее суток</string>
+    <string name="loading_connecting">Идет подключение...</string>
+    <string name="loading_verifying">Идет проверка оплаты...</string>
     <string name="local_network_sharing">Обмен данными в локальной сети</string>
     <string name="local_network_sharing_additional_info">Это достигается путем разрешения сетевого взаимодействия вне туннеля с локальными многоадресными и широковещательными диапазонами, а также со следующими диапазонами частных IP-адресов:</string>
     <string name="local_network_sharing_info">Эта функция позволяет получить доступ к другим устройствам в локальной сети, например, для организации общего доступа, печати, потоковой передачи и т. д.</string>
@@ -133,7 +145,18 @@
     <string name="out_of_time">Закончилось время</string>
     <string name="paid_until">Оплачено до</string>
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
+    <string name="payment_billing_error_dialog_message">Не удалось начать процесс оплаты — убедитесь, что у вас установлена последняя версия Google Play.</string>
+    <string name="payment_billing_error_dialog_title">Google Play недоступен</string>
+    <string name="payment_completed_dialog_message">На учетную запись добавлено 30 дней.</string>
+    <string name="payment_completed_dialog_title">Время добавлено</string>
+    <string name="payment_obfuscation_id_error_dialog_message">Не удалось начать процесс оплаты. Повторите попытку позже.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Службы Mullvad недоступны</string>
+    <string name="payment_pending_dialog_message">Сейчас мы проверяем, прошла ли оплата; нужно немного подождать. Если проверка завершится успешно, мы добавим оплаченное время.</string>
+    <string name="payment_pending_dialog_title">Идет проверка оплаты</string>
+    <string name="payment_status_pending">Ожидается оплата в Google Play</string>
     <string name="port">Порт</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Чтобы удостовериться, что вы используете наиболее безопасную версию приложения, и сообщить вам о возможных проблемах в ней, приложение автоматически проверяет свою версию. При этом на серверы Mullvad передаются данные о версии приложения и системы Android. Mullvad ведет учет количества пользователей с определенными версиями приложения и ОС Android. Эти данные не хранятся и не используются каким бы то ни было образом, позволяющим вас идентифицировать.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Если используется функция раздельного туннелирования, то приложение запрашивает в системе список всех установленных приложений. Этот список запрашивается только на  экране настройки раздельного туннелирования. Список установленных приложений никогда не передается за пределы устройства.</string>
     <string name="privacy_disclaimer_title">Конфиденциальность</string>
     <string name="privacy_policy_label">Политика конфиденциальности</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
@@ -193,6 +216,7 @@
     <string name="update_dns_server_dialog_title">Обновить DNS-сервер</string>
     <string name="user_email_hint">Ваша электронная почта (необязательно)</string>
     <string name="user_message_hint">Чтобы мы могли быстрее решить проблему, напишите нам на английском или шведском и укажите, из какой страны вы подключаетесь.</string>
+    <string name="verifying_voucher">Идет проверка ваучера…</string>
     <string name="view_logs">Открыть журналы</string>
     <string name="virtual_adapter_problem">Ошибка виртуального адаптера</string>
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>
@@ -206,4 +230,5 @@
     <string name="wireguard_mtu_footer">Установите значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">При автоматической настройке порт будет выбираться случайным образом из допустимого диапазона, показанного ниже.</string>
     <string name="wireguard_port_info_port_range">Пользовательский порт может принимать любое значение внутри допустимых диапазонов: %1$s.</string>
+    <string name="wireguard_port_title">Порт WireGuard</string>
 </resources>

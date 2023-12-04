@@ -7,9 +7,12 @@
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Viser påmindelser, når kontotiden er ved at udløbe</string>
     <string name="account_time_notification_channel_name">Påmindelser om kontotid</string>
+    <string name="add_30_days_time">Tilføj 30 dages tid</string>
+    <string name="add_30_days_time_x">Tilføj 30 dages tid (%1$s)</string>
     <string name="add_a_server">Tilføj en server</string>
     <string name="add_dns_server_dialog_title">Tilføj DNS-server</string>
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
+    <string name="added_to_your_account">%1$s blev føjet til din konto.</string>
     <string name="agree_and_continue">Accepter og fortsæt</string>
     <string name="all_applications">Alle applikationer</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
@@ -25,6 +28,7 @@
     <string name="block_adult_content_title">Voksenindhold</string>
     <string name="block_gambling_title">Hasardspil</string>
     <string name="block_malware_title">Malware</string>
+    <string name="block_social_media_title">Sociale medier</string>
     <string name="block_trackers_title">Trackere</string>
     <string name="blocked_connection">FORBINDELSE BLOKERET</string>
     <string name="blocking_internet">Blokerer internettet</string>
@@ -32,7 +36,6 @@
     <string name="buy_credit">Køb kredit</string>
     <string name="buy_more_credit">Køb mere kredit</string>
     <string name="cancel">Annuller</string>
-    <string name="changes_dialog_dismiss_button">Forstået!</string>
     <string name="changes_dialog_subtitle">Ændringer i denne version:</string>
     <string name="confirm_local_dns">Den lokale DNS-server fungerer ikke, medmindre du aktiverer \"Lokal netværksdeling\" under Indstillinger.</string>
     <string name="confirm_no_email">Du er ved at sende rapporten om problemet, men har ikke angivet hvordan vi kan kontakte dig. Hvis du ønsker et svar på din rapport, skal du indtaste en e-mail-adresse.</string>
@@ -53,6 +56,11 @@
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle &lt;b&gt;%1$s&lt;/b&gt; ovenfor for at aktivere denne indstilling.</string>
     <string name="custom_dns_footer">Aktiver for at tilføje mindst én DNS-server.</string>
     <string name="custom_dns_hint">Indtast IP</string>
+    <string name="custom_port_dialog_placeholder">Indtast port</string>
+    <string name="custom_port_dialog_remove">Fjern brugerdefineret port</string>
+    <string name="custom_port_dialog_submit">Indstil port</string>
+    <string name="custom_port_dialog_title">Brugerdefineret WireGuard-port</string>
+    <string name="custom_port_dialog_valid_ranges">Gyldige intervaller: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
     <string name="device_inactive_description">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</string>
     <string name="device_inactive_title">Enheden er inaktiv</string>
@@ -89,6 +97,7 @@
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til login</string>
+    <string name="got_it">Forstået!</string>
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
     <string name="hide_account_number">Skjul kontonummer</string>
     <string name="hint_default">Standard</string>
@@ -99,6 +108,9 @@
     <string name="is_offline">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</string>
     <string name="less_than_a_day_left">mindre end én dag tilbage</string>
     <string name="less_than_a_minute_ago">mindre end et minut siden</string>
+    <string name="less_than_one_day">mindre end én dag</string>
+    <string name="loading_connecting">Tilslutter...</string>
+    <string name="loading_verifying">Bekræfter køb...</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
     <string name="local_network_sharing_additional_info">Det opnås ved at tillade netværkskommunikation uden for tunnelen til lokale multicast- og broadcast-områder samt til og fra disse private IP-intervaller:</string>
     <string name="local_network_sharing_info">Denne funktion giver adgang til andre enheder på det lokale netværk, såsom til deling, udskrivning, streaming osv.</string>
@@ -133,7 +145,18 @@
     <string name="out_of_time">Tid udløbet</string>
     <string name="paid_until">Betalt indtil</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>
+    <string name="payment_billing_error_dialog_message">Vi kunne ikke starte betalingsprocessen. Sørg for, at du har den nyeste version af Google Play.</string>
+    <string name="payment_billing_error_dialog_title">Google Play er ikke tilgængelig</string>
+    <string name="payment_completed_dialog_message">30 dage blev føjet til din konto.</string>
+    <string name="payment_completed_dialog_title">Tid blev tilføjet</string>
+    <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprocessen. Prøv igen senere.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester er ikke tilgængelige</string>
+    <string name="payment_pending_dialog_message">Vi er i øjeblikket ved at bekræfte dit køb, det kan tage noget tid. Din tid vil blive tilføjet, hvis bekræftelsen lykkes.</string>
+    <string name="payment_pending_dialog_title">Bekræfter køb</string>
+    <string name="payment_status_pending">Google Play-betaling afventer</string>
     <string name="port">Port</string>
+    <string name="privacy_disclaimer_body_first_paragraph">For at sørge for, at du har den mest sikre version og for at informere dig om eventuelle problemer med den aktuelle version, der kører, udfører appen automatisk versionstjek. Dette sender app-versionen og Android-systemversionen til Mullvad-servere. Mullvad holder tal på antallet af brugte app-versioner og Android-versioner. Dataene bliver aldrig opbevaret eller brugt på nogen måde, der kan identificere dig.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Hvis funktionen split tunneling bruges, beder appen dit system om en liste over alle installerede programmer. Denne liste hentes kun i split tunnel-visningen. Listen over installerede programmer sendes aldrig fra enheden.</string>
     <string name="privacy_disclaimer_title">Privatliv</string>
     <string name="privacy_policy_label">Fortrolighedspolitik</string>
     <string name="problem_report_description">For at vi bedre kan hjælpe dig, bedes du vedhæfte din apps logfil til denne meddelelse. Dine data vil forblive sikre og private, da de anonymiseres, før de sendes via en krypteret kanal.</string>
@@ -193,6 +216,7 @@
     <string name="update_dns_server_dialog_title">Opdater DNS-server</string>
     <string name="user_email_hint">Din e-mail (valgfrit)</string>
     <string name="user_message_hint">For at vi bedre kan hjælpe dig, bedes du skrive på engelsk eller svensk og nævne hvilket land, du befinder dig i.</string>
+    <string name="verifying_voucher">Bekræfter kupon…</string>
     <string name="view_logs">Se app-logfiler</string>
     <string name="virtual_adapter_problem">Fejl ved virtuel adapter</string>
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
@@ -206,4 +230,5 @@
     <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Den automatiske indstilling vælger tilfældigt fra de gyldige rækker af porte nedenfor.</string>
     <string name="wireguard_port_info_port_range">Den brugerdefinerede port kan være en hvilken som helst værdi inden for de gyldige intervaller: %1$s.</string>
+    <string name="wireguard_port_title">WireGuard-port</string>
 </resources>

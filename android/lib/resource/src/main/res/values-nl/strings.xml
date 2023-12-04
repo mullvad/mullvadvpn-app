@@ -7,9 +7,12 @@
     <string name="account_number">Accountnummer</string>
     <string name="account_time_notification_channel_description">Toont herinneringen wanneer de accounttijd op het punt staat te verlopen</string>
     <string name="account_time_notification_channel_name">Accounttijdherinneringen</string>
+    <string name="add_30_days_time">30 dagen tijd toevoegen</string>
+    <string name="add_30_days_time_x">30 dagen tijd toevoegen (%1$s)</string>
     <string name="add_a_server">Server toevoegen</string>
     <string name="add_dns_server_dialog_title">DNS-server toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
+    <string name="added_to_your_account">Er is %1$s toegevoegd aan uw account.</string>
     <string name="agree_and_continue">Akkoord en doorgaan</string>
     <string name="all_applications">Alle toepassingen</string>
     <string name="allow_lan_footer">Biedt toegang tot andere apparaten op hetzelfde netwerk voor delen, afdrukken en dergelijke</string>
@@ -25,6 +28,7 @@
     <string name="block_adult_content_title">Content voor volwassenen</string>
     <string name="block_gambling_title">Gokken</string>
     <string name="block_malware_title">Malware</string>
+    <string name="block_social_media_title">Sociale media</string>
     <string name="block_trackers_title">Trackers</string>
     <string name="blocked_connection">VERBINDING GEBLOKKEERD</string>
     <string name="blocking_internet">Internet blokkeren</string>
@@ -32,7 +36,6 @@
     <string name="buy_credit">Krediet kopen</string>
     <string name="buy_more_credit">Meer krediet kopen</string>
     <string name="cancel">Annuleren</string>
-    <string name="changes_dialog_dismiss_button">Begrepen!</string>
     <string name="changes_dialog_subtitle">Wijzigingen in deze versie:</string>
     <string name="confirm_local_dns">De lokale DNS-server werkt niet tenzij u \"Lokale netwerken delen\" inschakelt onder Voorkeuren.</string>
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
@@ -53,6 +56,11 @@
     <string name="custom_dns_disable_mode_subtitle">Schakel alle &lt;b&gt;%1$s&lt;/b&gt; hierboven uit om deze instelling te activeren.</string>
     <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
     <string name="custom_dns_hint">Voer IP-adres in</string>
+    <string name="custom_port_dialog_placeholder">Voer poort in</string>
+    <string name="custom_port_dialog_remove">Aangepaste poort verwijderen</string>
+    <string name="custom_port_dialog_submit">Poort instellen</string>
+    <string name="custom_port_dialog_title">Aangepaste WireGuard-poort</string>
+    <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>
@@ -89,6 +97,7 @@
     <string name="foreground_notification_channel_description">Toont de huidige status van de VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
     <string name="go_to_login">Ga naar aanmelden</string>
+    <string name="got_it">Begrepen!</string>
     <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>
     <string name="hide_account_number">Accountnummer verbergen</string>
     <string name="hint_default">Standaard</string>
@@ -99,6 +108,9 @@
     <string name="is_offline">Uw apparaat is offline. De tunnel wordt automatisch verbonden wanneer uw apparaat weer online is.</string>
     <string name="less_than_a_day_left">minder dan een dag over</string>
     <string name="less_than_a_minute_ago">minder dan een minuut geleden</string>
+    <string name="less_than_one_day">minder dan één dag</string>
+    <string name="loading_connecting">Verbinden ...</string>
+    <string name="loading_verifying">Aankoop controleren ...</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
     <string name="local_network_sharing_additional_info">De functie doet dit door netwerkcommunicatie buiten de tunnel naar lokale multicast- en broadcastbereiken toe te staan, alsmede van en naar deze private IP-adresbereiken:</string>
     <string name="local_network_sharing_info">Deze functie geeft toegang tot andere apparaten op het lokale netwerk, bijvoorbeeld voor delen, afdrukken, streamen en dergelijke</string>
@@ -133,7 +145,18 @@
     <string name="out_of_time">Geen tijd meer</string>
     <string name="paid_until">Betaald tot</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>
+    <string name="payment_billing_error_dialog_message">We kunnen het betalingsproces niet starten. Controleer of u de nieuwste versie van Google Play hebt.</string>
+    <string name="payment_billing_error_dialog_title">Google Play niet beschikbaar</string>
+    <string name="payment_completed_dialog_message">Er zijn 30 dagen toegevoegd aan uw account.</string>
+    <string name="payment_completed_dialog_title">Tijd is toegevoegd</string>
+    <string name="payment_obfuscation_id_error_dialog_message">We kunnen het betalingsproces niet starten, probeer het later opnieuw.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-diensten niet beschikbaar</string>
+    <string name="payment_pending_dialog_message">We verifiëren momenteel uw aankoop, dit kan even duren. Uw tijd wordt toegevoegd als de controle succesvol is.</string>
+    <string name="payment_pending_dialog_title">Aankoop verifiëren</string>
+    <string name="payment_status_pending">Google Play-betaling in behandeling</string>
     <string name="port">Poort</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Om zeker te zijn dat u de meest veilige versie hebt en om u te informeren over eventuele problemen met de huidige geactiveerde versie, voert de app automatisch versiecontroles uit. Hierbij worden de appversie en de Android-systeemversie naar de servers van Mullvad gestuurd. Mullvad houdt tellers bij voor gebruikte appversies en Android-versies. De gegevens worden nooit opgeslagen of gebruikt op een manier die u kan identificeren.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Als de split-tunnelingfunctie wordt gebruikt, vraagt de app het systeem om een lijst van alle geïnstalleerde toepassingen. Deze lijst wordt alleen opgehaald in de split-tunnelingweergave. De lijst van geïnstalleerde toepassingen wordt nooit verzonden vanaf het apparaat.</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_policy_label">Privacybeleid</string>
     <string name="problem_report_description">Het logboekbestand van uw app wordt aan dit bericht gekoppeld zodat we u beter kunnen helpen. Uw gegevens blijven veilig en privé, omdat ze worden geanonimiseerd voordat ze over een versleuteld kanaal worden verzonden.</string>
@@ -193,6 +216,7 @@
     <string name="update_dns_server_dialog_title">DNS-server bijwerken</string>
     <string name="user_email_hint">Uw e-mailadres (optioneel)</string>
     <string name="user_message_hint">Om u beter te kunnen helpen, kunt u in het Engels of Zweeds schrijven. Vermeld uit welk land u komt.</string>
+    <string name="verifying_voucher">Voucher verifiëren …</string>
     <string name="view_logs">Applogboeken weergeven</string>
     <string name="virtual_adapter_problem">Fout virtuele adapter</string>
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
@@ -206,4 +230,5 @@
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Bij de automatische instelling wordt willekeurig gekozen uit de hieronder weergegeven geldige poortbereiken.</string>
     <string name="wireguard_port_info_port_range">De aangepaste poort kan elke waarde zijn binnen de geldige bereiken: %1$s.</string>
+    <string name="wireguard_port_title">WireGuard-poort</string>
 </resources>
