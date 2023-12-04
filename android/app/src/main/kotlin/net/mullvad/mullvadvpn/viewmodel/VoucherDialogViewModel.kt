@@ -60,9 +60,7 @@ class VoucherDialogViewModel(
             when (val result = serviceConnectionManager.voucherRedeemer()?.submit(voucherCode)) {
                 is VoucherSubmissionResult.Ok -> handleAddedTime(result.submission.timeAdded)
                 is VoucherSubmissionResult.Error -> setError(result.error)
-                else -> {
-                    vmState.update { VoucherDialogState.Default }
-                }
+                null -> vmState.update { VoucherDialogState.Default }
             }
         }
     }
@@ -88,7 +86,8 @@ class VoucherDialogViewModel(
                     when (error) {
                         VoucherSubmissionError.InvalidVoucher -> R.string.invalid_voucher
                         VoucherSubmissionError.VoucherAlreadyUsed -> R.string.voucher_already_used
-                        else -> R.string.error_occurred
+                        VoucherSubmissionError.RpcError,
+                        VoucherSubmissionError.OtherError -> R.string.error_occurred
                     }
                 )
             vmState.update { VoucherDialogState.Error(message) }
