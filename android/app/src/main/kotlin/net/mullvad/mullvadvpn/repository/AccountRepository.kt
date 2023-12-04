@@ -64,14 +64,14 @@ class AccountRepository(
         withContext(dispatcher) {
             val deferred = async { accountCreationEvents.first() }
             messageHandler.trySendRequest(Request.CreateAccount)
-            deferred.await()
+            deferred.await().also { fetchAccountHistory() }
         }
 
     suspend fun login(accountToken: String): LoginResult =
         withContext(Dispatchers.IO) {
             val deferred = async { loginEvents.first() }
             messageHandler.trySendRequest(Request.Login(accountToken))
-            deferred.await()
+            deferred.await().also { fetchAccountHistory() }
         }
 
     fun logout() {
