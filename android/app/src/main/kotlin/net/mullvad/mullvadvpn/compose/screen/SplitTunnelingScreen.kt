@@ -13,12 +13,19 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.graphics.drawable.toBitmapOrNull
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
@@ -32,8 +39,11 @@ import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -67,6 +77,25 @@ private fun PreviewSplitTunnelingScreen() {
                 )
         )
     }
+}
+
+@Destination(style = SlideInFromRightTransition::class)
+@Composable
+fun SplitTunneling(navigator: DestinationsNavigator) {
+    val viewModel = koinViewModel<SplitTunnelingViewModel>()
+    val state by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val packageManager = remember(context) { context.packageManager }
+    SplitTunnelingScreen(
+        uiState = state,
+        onShowSystemAppsClick = viewModel::onShowSystemAppsClick,
+        onExcludeAppClick = viewModel::onExcludeAppClick,
+        onIncludeAppClick = viewModel::onIncludeAppClick,
+        onBackClick = navigator::navigateUp,
+        onResolveIcon = { packageName ->
+            packageManager.getApplicationIcon(packageName).toBitmapOrNull()
+        }
+    )
 }
 
 @Composable

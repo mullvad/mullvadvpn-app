@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
 import android.os.Messenger
 import android.util.Log
@@ -76,7 +78,15 @@ class ServiceConnectionManager(private val context: Context) : MessageHandler {
                 }
 
                 context.startService(intent)
-                context.bindService(intent, serviceConnection, 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    context.bindService(
+                        intent,
+                        serviceConnection,
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SYSTEM_EXEMPTED
+                    )
+                } else {
+                    context.bindService(intent, serviceConnection, 0)
+                }
                 isBound = true
             }
         }

@@ -11,10 +11,8 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertNull
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialogData
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -32,7 +30,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -158,29 +155,6 @@ class AccountViewModelTest {
             assertIs<PaymentState.PaymentAvailable>(result)
             assertLists(expectedProductList, result.products)
         }
-    }
-
-    @Test
-    fun testBillingUserCancelled() = runTest {
-        // Arrange
-        val result = PurchaseResult.Completed.Cancelled
-        purchaseResult.value = result
-        every { result.toPaymentDialogData() } returns null
-
-        // Act, Assert
-        viewModel.uiState.test { assertNull(awaitItem().paymentDialogData) }
-    }
-
-    @Test
-    fun testBillingPurchaseSuccess() = runTest {
-        // Arrange
-        val result = PurchaseResult.Completed.Success
-        val expectedData: PaymentDialogData = mockk()
-        purchaseResult.value = result
-        every { result.toPaymentDialogData() } returns expectedData
-
-        // Act, Assert
-        viewModel.uiState.test { assertEquals(expectedData, awaitItem().paymentDialogData) }
     }
 
     @Test

@@ -9,7 +9,7 @@ fun DnsTextField(
     value: String,
     modifier: Modifier = Modifier,
     onValueChanged: (String) -> Unit = {},
-    onSubmit: (String) -> Unit = {},
+    onSubmit: () -> Unit = {},
     placeholderText: String?,
     isEnabled: Boolean = true,
     isValidValue: Boolean = true
@@ -19,7 +19,7 @@ fun DnsTextField(
         keyboardType = KeyboardType.Text,
         modifier = modifier,
         onValueChanged = onValueChanged,
-        onSubmit = onSubmit,
+        onSubmit = { onSubmit() },
         isEnabled = isEnabled,
         placeholderText = placeholderText,
         maxCharLength = Int.MAX_VALUE,

@@ -71,7 +71,7 @@ data class Dimensions(
     val spacingAboveButton: Dp = 22.dp,
     val successIconVerticalPadding: Dp = 26.dp,
     val switchIconSize: Dp = 24.dp,
-    val titleIconSize: Dp = 24.dp,
+    val titleIconSize: Dp = 48.dp,
     val topBarHeight: Dp = 64.dp,
     val verticalDividerPadding: Dp = 12.dp,
     val verticalSpace: Dp = 20.dp,
