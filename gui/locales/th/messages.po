@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "มีการเพิ่ม %(duration)s แล้ว บัญชีได้ชำระเงินจนถึง %(expiry)s"
@@ -173,6 +173,9 @@ msgstr "ออก"
 
 msgid "Reconnect"
 msgstr "เชื่อมต่อใหม่"
+
+msgid "Save"
+msgstr "บันทึก"
 
 msgid "Search for..."
 msgstr "ค้นหา…"
@@ -485,11 +488,6 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่"
 
-#. Confirmation button when logging out
-msgctxt "device-management"
-msgid "Log out anyway"
-msgstr "ออกจากระบบ"
-
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "โปรดลงชื่อออกจากระบบบนอุปกรณ์อย่างน้อยหนึ่งเครื่อง เพื่อนำอุปกรณ์ออกจากรายการด้านล่าง คุณสามารถดูชื่ออุปกรณ์ที่เกี่ยวข้องได้ ภายใต้การตั้งค่าบัญชีของอุปกรณ์"
@@ -500,19 +498,9 @@ msgctxt "device-management"
 msgid "Super!"
 msgstr "เยี่ยมยอด!"
 
-#. This is is a further explanation of what happens when logging out.
-msgctxt "device-management"
-msgid "The ports forwarded to this device will be deleted if you log out."
-msgstr "พอร์ตที่ส่งต่อไปยังอุปกรณ์นี้จะถูกลบหากคุณออกจากระบบ"
-
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
 msgstr "นี่เป็นชื่อที่มอบหมายให้กับอุปกรณ์ อุปกรณ์แต่ละเครื่องที่ลงชื่อเข้าใช้บนบัญชี Mullvad จะได้รับชื่อเฉพาะ ที่จะช่วยคุณระบุอุปกรณ์ ในขณะที่คุณจัดการอุปกรณ์ของคุณในแอปหรือบนเว็บไซต์"
-
-#. Further information about consequences of logging out device.
-msgctxt "device-management"
-msgid "This will delete all forwarded ports. Local settings will be saved."
-msgstr "นี่จะเป็นการลบพอร์ตที่ส่งต่อทั้งหมด และการตั้งค่าบนอุปกรณ์จะได้รับการบันทึกไว้"
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
@@ -1015,6 +1003,10 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "เลือกตำแหน่งที่ตั้ง"
 
+msgctxt "select-location-view"
+msgid "(Added)"
+msgstr "(เพิ่มแล้ว)"
+
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
 #. Available placeholders:
@@ -1023,6 +1015,33 @@ msgstr "เลือกตำแหน่งที่ตั้ง"
 msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "select-location-view"
+msgid "Add <b>%(locationType)s</b> to list"
+msgstr "เพิ่ม <b>%(locationType)s</b> ลงในรายการ"
+
+msgctxt "select-location-view"
+msgid "All locations"
+msgstr "ตำแหน่งที่ตั้งทั้งหมด"
+
+msgctxt "select-location-view"
+msgid "City"
+msgstr "เมือง"
+
+msgctxt "select-location-view"
+msgid "Country"
+msgstr "ประเทศ"
+
+msgctxt "select-location-view"
+msgid "Custom lists"
+msgstr "รายการกำหนดเอง"
+
+msgctxt "select-location-view"
+msgid "Edit list name"
+msgstr "แก้ไขชื่อรายการ"
 
 msgctxt "select-location-view"
 msgid "Entry"
@@ -1037,8 +1056,20 @@ msgid "Filtered:"
 msgstr "กรอง:"
 
 msgctxt "select-location-view"
+msgid "List names must be unique."
+msgstr "ชื่อรายการจะต้องไม่ซ้ำกัน"
+
+msgctxt "select-location-view"
+msgid "Name is already taken."
+msgstr "ชื่อนี้ถูกใช้ไปแล้ว"
+
+msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "ผู้ให้บริการ: %(numberOfProviders)d"
+
+msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgid "Relay"
+msgstr "รีเลย์"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
@@ -1418,10 +1449,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "เปิดใช้งาน IPv6"
 
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr "เปิดใช้งานการสื่อสาร IPv6 ผ่านอุโมงค์"
-
 #. The label next to the multihop settings toggle.
 msgctxt "vpn-settings-view"
 msgid "Enable multihop"
@@ -1448,6 +1475,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "ยกระดับการไม่ระบุตัวตน ด้วยการกำหนดเส้นทางการรับส่งข้อมูลของคุณไปยังเซิร์ฟเวอร์ %(wireguard)s เดียว และออกไปยังอีกเซิร์ฟเวอร์ เพื่อทำให้ติดตามได้ยากขึ้น"
 
 msgctxt "vpn-settings-view"
+msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
+msgstr "IPv4 จะเปิดใช้งานอยู่เสมอ และเว็บไซต์และแอปพลิเคชันส่วนใหญ่ใช้งานโพรโทคอลนี้ เราไม่แนะนำให้เปิดใช้งาน IPv6 เว้นแต่ในกรณีที่คุณจำเป็นต้องใช้งาน"
+
+msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
 msgstr "ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:"
 
@@ -1471,6 +1502,11 @@ msgstr "โหมดล็อกดาวน์"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "มัลแวร์"
+
+#. Label for settings that enables block of social media.
+msgctxt "vpn-settings-view"
+msgid "Social media"
+msgstr "โซเชียลมีเดีย"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1532,6 +1568,10 @@ msgstr "คำเตือน: ตัวบล็อกมัลแวร์ไ�
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "ในขณะที่เปิดใช้งานคุณสมบัตินี้ คุณสมบัตินี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ"
+
+msgctxt "vpn-settings-view"
+msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
+msgstr "ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณจะสามารถใช้งาน IPv6 ร่วมกับ IPv4 ในอุโมงค์ VPN เพื่อสื่อสารกับบริการอินเทอร์เน็ตได้"
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1621,6 +1661,13 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN"
 
+msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgid "%s was added to your account."
+msgstr "%s ถูกเพิ่มลงในบัญชีของคุณแล้ว"
+
+msgid "30 days was added to your account."
+msgstr "30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว"
+
 msgid "Account credit expires in a few minutes"
 msgstr "เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที"
 
@@ -1629,6 +1676,12 @@ msgstr "เครดิตของบัญชีจะหมดอายุใ
 
 msgid "Account time reminders"
 msgstr "การแจ้งเตือนเวลาบัญชี"
+
+msgid "Add 30 days time"
+msgstr "เพิ่มเวลา 30 วัน"
+
+msgid "Add 30 days time (%s)"
+msgstr "เพิ่มเวลา 30 วัน (%s)"
 
 msgid "Add DNS server"
 msgstr "เพิ่มเซิร์ฟเวอร์ DNS"
@@ -1657,6 +1710,9 @@ msgstr "กำลังบล็อกอินเทอร์เน็ต (อ�
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้"
 
+msgid "Connecting..."
+msgstr "กำลังเชื่อมต่อ..."
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว"
 
@@ -1681,11 +1737,24 @@ msgstr "เปิดใช้งาน"
 msgid "Enter MTU"
 msgstr "ป้อน MTU"
 
+msgctxt "Placeholder in port number input field."
+msgid "Enter port"
+msgstr "ป้อนพอร์ต"
+
 msgid "Excluded applications"
 msgstr "แอปพลิเคชันที่แยกออก"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้"
+
+msgid "Google Play payment pending"
+msgstr "กำลังชำระเงิน Google Play"
+
+msgid "Google Play unavailable"
+msgstr "Google Play ไม่พร้อมใช้งาน"
+
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "หากมีการใช้งานคุณลักษณะการแยกอุโมงค์ แอปจะขอให้ระบบของคุณระบุแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด รายการนี้จะได้รับการเรียกใช้งานในมุมมองการแยกอุโมงค์เท่านั้น รายการแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด จะไม่ถูกส่งออกจากอุปกรณ์"
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัปเดตล่าสุดอยู่เสมอ"
@@ -1695,6 +1764,9 @@ msgstr "จัดการบัญชี"
 
 msgid "Mullvad account number"
 msgstr "หมายเลขบัญชี Mullvad"
+
+msgid "Mullvad services unavailable"
+msgstr "บริการ Mullavad ไม่พร้อมใช้งาน"
 
 msgid "Preferences"
 msgstr "การกำหนดค่า"
@@ -1708,6 +1780,9 @@ msgstr "นโยบายความเป็นส่วนตัว"
 msgid "Remove"
 msgstr "ลบ"
 
+msgid "Remove custom port"
+msgstr "นำพอร์ตแบบกำหนดเองออก"
+
 msgid "Reset to default"
 msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
 
@@ -1717,6 +1792,9 @@ msgstr "ปลอดภัย"
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %d - %d"
 
+msgid "Set port"
+msgstr "ตั้งค่าพอร์ต"
+
 msgid "Show system apps"
 msgstr "แสดงแอประบบ"
 
@@ -1725,9 +1803,6 @@ msgstr "แสดงสถานะอุโมงค์ VPN ในปัจจ�
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "การแยกอุโมงค์ทำให้สามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านอุโมงค์ VPN"
 
 msgid "Submit"
 msgstr "ส่ง"
@@ -1741,8 +1816,8 @@ msgstr "ที่อยู่นี้ได้รับการป้อนไ
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "นี่อาจก่อให้เกิดปัญหากับบางเว็บไซต์ บริการ และแอปได้"
 
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "แอปจะดำเนินการตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้มั่นใจว่า คุณมีเวอร์ชันที่ปลอดภัยที่สุด และแจ้งปัญหาใดๆ เกี่ยวกับเวอร์ชันปัจจุบันที่ใช้อยู่ให้คุณทราบ การดำเนินการนี้จะส่งเวอร์ชันแอป และเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullvad โดย Mullvad จะเก็บหมายเลขเวอร์ชันแอปที่ใช้ และเวอร์ชัน Andriod เอาไว้ และข้อมูลจะได้รับการจัดเก็บ หรือใช้ในรูปแบบที่ไม่สามารถระบุตัวตนของคุณได้\\n\\nหากมีการใช้งานคุณสมบัติการแยกอุโมงค์อยู่ แอปจะสอบถามระบบของคุณ เพื่อดูรายการแอปพลิเคชันที่ติดตั้งทั้งหมด รายการนี้จะได้รับข้อมูลที่อยู่ในมุมมองการแยกอุโมงค์เท่านั้น โดยจะไม่มีการส่งรายการแอปพลิเคชันที่ติดตั้งออกไปจากอุปกรณ์"
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
+msgstr "แอปจะตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้แน่ใจว่า คุณใช้งานเวอร์ชันที่ปลอดภัยที่สุด และเพื่อแจ้งปัญหาใดๆ ของเวอร์ชันปัจจุบันที่ใช้งานอยู่ให้คุณทราบ โดยระบบจะส่งเวอร์ชันแอปและเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullavid ซึ่ง Mullvad จะติดตามจำนวนเวอร์ชันแอปที่ใช้และเวอร์ชัน Android ทั้งนี้ข้อมูลจะไม่ถูกจัดเก็บ หรือนำไปใช้ในลักษณะใดๆ ที่สามารถระบุตัวตนคุณได้"
 
 msgid "Toggle VPN"
 msgstr "เปิด/ปิด VPN"
@@ -1774,8 +1849,30 @@ msgstr "สถานะอุโมงค์ VPN"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง"
 
+msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgid "Valid ranges: %s"
+msgstr "ช่วงที่ใช้ได้: %s"
+
+msgid "Verifying purchase"
+msgstr "กำลังตรวจสอบยืนยันการซื้อ"
+
+msgid "Verifying purchase..."
+msgstr "กำลังตรวจสอบยืนยันการซื้อ..."
+
+msgid "Verifying voucher…"
+msgstr "กำลังตรวจสอบยืนยันบัตรกำนัล…"
+
 msgid "Virtual adapter error"
 msgstr "ข้อผิดพลาดของอะแดปเตอร์เสมือน"
+
+msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ"
+
+msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
+msgstr "เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด "
+
+msgid "We were unable to start the payment process, please try again later."
+msgstr "เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง"
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "ในขณะที่เชื่อมต่อ ตำแหน่งที่ตั้งจริงของคุณจะถูกปิดบัง ด้วยตำแหน่งที่ตั้งที่เป็นส่วนตัวและปลอดภัย ในภูมิภาคที่เลือก"
@@ -1783,8 +1880,14 @@ msgstr "ในขณะที่เชื่อมต่อ ตำแหน่�
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard custom port"
+msgstr "พอร์ต WireGuard แบบกำหนดเอง"
+
 msgid "WireGuard obfuscation"
 msgstr "การทำให้ข้อมูลยุ่งเหยิงของ WireGuard"
+
+msgid "WireGuard port"
+msgstr "พอร์ต WireGuard"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่"
@@ -1794,6 +1897,17 @@ msgstr "คุณกำลังใช้งานเวอร์ชันแอ
 
 msgid "less than a minute ago"
 msgstr "น้อยกว่าหนึ่งนาทีก่อน"
+
+msgid "less than one day"
+msgstr "น้อยกว่าหนึ่งวัน"
+
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d วัน"
+
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] "%d เดือน"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

@@ -18,6 +18,18 @@
         <item quantity="many">Pozostało %1$d lat</item>
         <item quantity="other">Pozostało %1$d roku</item>
     </plurals>
+    <plurals name="days">
+        <item quantity="one">%1$d dzień</item>
+        <item quantity="few">%1$d dni</item>
+        <item quantity="many">%1$d dni</item>
+        <item quantity="other">%1$d dnia</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%1$d miesiąc</item>
+        <item quantity="few">%1$d miesiące</item>
+        <item quantity="many">%1$d miesięcy</item>
+        <item quantity="other">%1$d miesiąca</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Doładowanie konta wygasa za 1 dzień</item>
         <item quantity="few">Doładowanie konta wygasa za %1$d dni</item>

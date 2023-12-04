@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -402,7 +402,7 @@ msgstr "Pune"
 
 #. MX QRO
 msgid "Queretaro"
-msgstr "Santiago de Querétaro"
+msgstr "Querétaro"
 
 #. US RAG
 msgid "Raleigh, NC"
@@ -571,3 +571,4 @@ msgstr "Zagreb"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zúrich"
+

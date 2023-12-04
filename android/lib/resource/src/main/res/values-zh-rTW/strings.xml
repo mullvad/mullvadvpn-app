@@ -7,9 +7,12 @@
     <string name="account_number">帳戶編號</string>
     <string name="account_time_notification_channel_description">在帳戶時間即將到期時顯示提醒</string>
     <string name="account_time_notification_channel_name">帳戶時間提醒</string>
+    <string name="add_30_days_time">增加 30 天時間</string>
+    <string name="add_30_days_time_x">增加 30 天時間 (%1$s)</string>
     <string name="add_a_server">新增伺服器</string>
     <string name="add_dns_server_dialog_title">新增 DNS 伺服器</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
+    <string name="added_to_your_account">已為您的帳戶新增 %1$s。</string>
     <string name="agree_and_continue">同意並繼續</string>
     <string name="all_applications">所有應用程式</string>
     <string name="all_providers">所有供應商</string>
@@ -28,6 +31,7 @@
     <string name="block_adult_content_title">成人內容</string>
     <string name="block_gambling_title">賭博</string>
     <string name="block_malware_title">惡意軟體</string>
+    <string name="block_social_media_title">社群媒體</string>
     <string name="block_trackers_title">追蹤程式</string>
     <string name="blocked_connection">被封鎖的連線</string>
     <string name="blocking_internet">正在封鎖網路</string>
@@ -55,6 +59,11 @@
     <string name="custom_dns_disable_mode_subtitle">停用上方所有 &lt;b&gt;%1$s&lt;/b&gt;以啟動此設定。</string>
     <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
     <string name="custom_dns_hint">輸入 IP</string>
+    <string name="custom_port_dialog_placeholder">輸入連接埠</string>
+    <string name="custom_port_dialog_remove">移除自訂連接埠</string>
+    <string name="custom_port_dialog_submit">設定連接埠</string>
+    <string name="custom_port_dialog_title">WireGuard 自訂連接埠</string>
+    <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
@@ -104,6 +113,9 @@
     <string name="is_offline">您的裝置已離線。在您的裝置重新上線後，通道將自動連線。</string>
     <string name="less_than_a_day_left">剩餘時間不足 1 天</string>
     <string name="less_than_a_minute_ago">不到 1 分鐘前</string>
+    <string name="less_than_one_day">不足 1 天</string>
+    <string name="loading_connecting">正在連線…</string>
+    <string name="loading_verifying">正在驗證購買…</string>
     <string name="local_network_sharing">本機網路分享</string>
     <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
@@ -142,8 +154,18 @@
     <string name="ownership">所有權狀態</string>
     <string name="paid_until">支付至</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>
+    <string name="payment_billing_error_dialog_message">我們無法啟動付款流程，請確認您是否擁有最新版本的 Google Play。</string>
+    <string name="payment_billing_error_dialog_title">Google Play 無法使用</string>
+    <string name="payment_completed_dialog_message">已為您的帳戶新增 30 天。</string>
     <string name="payment_completed_dialog_title">已成功新增時間</string>
+    <string name="payment_obfuscation_id_error_dialog_message">我們無法啟動付款流程，請稍後再試一次。</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服務無法使用</string>
+    <string name="payment_pending_dialog_message">我們目前正在驗證您的購買，這可能需要一些時間。如果驗證成功，您的時間就會增加。</string>
+    <string name="payment_pending_dialog_title">正在驗證購買</string>
+    <string name="payment_status_pending">Google Play 付款尚待處理</string>
     <string name="port">連接埠</string>
+    <string name="privacy_disclaimer_body_first_paragraph">為確保您擁有最安全的版本，並告知您目前執行的版本有無任何問題，該應用程式會自動進行版本檢查。為此，應用程式會將其版本和 Android 系統版本傳送至 Mullvad 伺服器，以便讓 Mullvad 統計已使用的應用程式版本和 Android 版本的數量。這些資料永遠不會以任何方式儲存或用來辨識您的身分。</string>
+    <string name="privacy_disclaimer_body_second_paragraph">如果使用了分割通道功能，該應用程式會查詢您的系統，以取得所有已安裝應用程式的清單。我們只會在分割通道視圖中擷取這份清單，絕不會傳送至他處。</string>
     <string name="privacy_disclaimer_title">隱私權</string>
     <string name="privacy_policy_label">隱私權政策</string>
     <string name="problem_report_description">為了更有效協助您，會將應用程式的日誌檔將附加到此郵件。您的資料會保持安全和私密性，因為這些資料會先經過匿名處理，再透過加密通道傳送。</string>
@@ -206,6 +228,7 @@
     <string name="update_dns_server_dialog_title">更新 DNS 伺服器</string>
     <string name="user_email_hint">您的電子郵件 (選填)</string>
     <string name="user_message_hint">為了給您提供更完善的協助，請您使用英語或瑞典語書寫，並註明您是從哪個國家/地區進行連線。</string>
+    <string name="verifying_voucher">正在驗證優惠券…</string>
     <string name="view_logs">檢視應用程式日誌</string>
     <string name="virtual_adapter_problem">虛擬配接器錯誤</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
@@ -219,4 +242,5 @@
     <string name="wireguard_mtu_footer">設定 WireGuard MTU 值。有效範圍：%1$d - %2$d。</string>
     <string name="wireguard_port_info_description">自動設定將會隨機從下方顯示的有效連接埠範圍中進行選擇。</string>
     <string name="wireguard_port_info_port_range">自訂連接埠可以是有效範圍內的任何值：%1$s。</string>
+    <string name="wireguard_port_title">WireGuard 連接埠</string>
 </resources>

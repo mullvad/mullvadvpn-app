@@ -7,9 +7,12 @@
     <string name="account_number">Tilin numero</string>
     <string name="account_time_notification_channel_description">Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa</string>
     <string name="account_time_notification_channel_name">Muistutukset tilin käyttöajasta</string>
+    <string name="add_30_days_time">Lisää 30 päivää käyttöaikaa</string>
+    <string name="add_30_days_time_x">Lisää 30 päivää käyttöaikaa (%1$s)</string>
     <string name="add_a_server">Lisää palvelin</string>
     <string name="add_dns_server_dialog_title">Lisää DNS-palvelin</string>
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
+    <string name="added_to_your_account">Tilillesi lisättiin %1$s käyttöaikaa.</string>
     <string name="agree_and_continue">Hyväksy ja jatka</string>
     <string name="all_applications">Kaikki sovellukset</string>
     <string name="all_providers">Kaikki palveluntarjoajat</string>
@@ -28,6 +31,7 @@
     <string name="block_adult_content_title">Aikuisille suunnattu sisältö</string>
     <string name="block_gambling_title">Uhkapelaaminen</string>
     <string name="block_malware_title">Haittaohjelmat</string>
+    <string name="block_social_media_title">Sosiaalinen media</string>
     <string name="block_trackers_title">Seurantapalvelimet</string>
     <string name="blocked_connection">ESTETTY YHTEYS</string>
     <string name="blocking_internet">Verkkoyhteys estetään</string>
@@ -55,6 +59,11 @@
     <string name="custom_dns_disable_mode_subtitle">Ota tämä asetus käyttöön poistamalla kaikki &lt;b&gt;%1$s&lt;/b&gt; käytöstä yllä.</string>
     <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
     <string name="custom_dns_hint">Anna IP-osoite</string>
+    <string name="custom_port_dialog_placeholder">Anna portti</string>
+    <string name="custom_port_dialog_remove">Poista mukautettu portti</string>
+    <string name="custom_port_dialog_submit">Määritä portti</string>
+    <string name="custom_port_dialog_title">Mukautettu WireGuard-portti</string>
+    <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
     <string name="device_inactive_description">Olet poistanut tämän laitteen. Jos haluat muodostaa yhteyden uudelleen, sinun täytyy kirjautua takaisin sisään.</string>
     <string name="device_inactive_title">Laite ei ole aktiivinen</string>
@@ -104,6 +113,9 @@
     <string name="is_offline">Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti.</string>
     <string name="less_than_a_day_left">alle vuorokausi jäljellä</string>
     <string name="less_than_a_minute_ago">alle minuutti sitten</string>
+    <string name="less_than_one_day">alle vuorokausi</string>
+    <string name="loading_connecting">Yhdistetään...</string>
+    <string name="loading_verifying">Ostosta vahvistetaan...</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
     <string name="local_network_sharing_additional_info">Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:</string>
     <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
@@ -142,8 +154,18 @@
     <string name="ownership">Omistajuus</string>
     <string name="paid_until">Maksu ennen</string>
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>
+    <string name="payment_billing_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät Google Playn uusinta versiota.</string>
+    <string name="payment_billing_error_dialog_title">Google Play ei ole käytettävissä</string>
+    <string name="payment_completed_dialog_message">Tilillesi lisättiin 30 päivää käyttöaikaa.</string>
     <string name="payment_completed_dialog_title">Aika lisättiin onnistuneesti</string>
+    <string name="payment_obfuscation_id_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Mullvad-palvelut eivät ole käytettävissä</string>
+    <string name="payment_pending_dialog_message">Vahvistamme ostostasi parhaillaan. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu.</string>
+    <string name="payment_pending_dialog_title">Ostoksen vahvistaminen</string>
+    <string name="payment_status_pending">Google Play -maksu odottaa</string>
     <string name="port">Portti</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta.</string>
     <string name="privacy_disclaimer_title">Tietosuoja</string>
     <string name="privacy_policy_label">Tietosuojakäytäntö</string>
     <string name="problem_report_description">Jotta voimme olla avuksi parhaamme mukaan, sovelluksesi lokitiedosto liitetään tähän viestiin. Tietosi pysyvät suojattuina ja yksityisinä, ja ne anonymisoidaan salatun kanavan kautta ennen lähetystä.</string>
@@ -206,6 +228,7 @@
     <string name="update_dns_server_dialog_title">Päivitä DNS-palvelin</string>
     <string name="user_email_hint">Sähköpostisi (valinnainen)</string>
     <string name="user_message_hint">Jotta voisimme avustaa sinua paremmin, kirjoita englanniksi tai ruotsiksi ja mainitse, mistä maasta muodostat yhteyden.</string>
+    <string name="verifying_voucher">Kuponkia vahvistetaan…</string>
     <string name="view_logs">Tarkastele sovelluslokeja</string>
     <string name="virtual_adapter_problem">Virtuaalisovittimen virhe</string>
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
@@ -219,4 +242,5 @@
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>
     <string name="wireguard_port_info_description">Automaattinen asetus valitsee satunnaisesti käytettävissä olevista, alla luetelluista porteista.</string>
     <string name="wireguard_port_info_port_range">Mukautettu portti voi olla mikä tahansa sallittu arvo: %1$s.</string>
+    <string name="wireguard_port_title">WireGuard-portti</string>
 </resources>

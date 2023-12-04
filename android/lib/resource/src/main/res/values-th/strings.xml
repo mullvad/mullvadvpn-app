@@ -7,9 +7,12 @@
     <string name="account_number">หมายเลขบัญชี</string>
     <string name="account_time_notification_channel_description">แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ</string>
     <string name="account_time_notification_channel_name">การแจ้งเตือนเวลาบัญชี</string>
+    <string name="add_30_days_time">เพิ่มเวลา 30 วัน</string>
+    <string name="add_30_days_time_x">เพิ่มเวลา 30 วัน (%1$s)</string>
     <string name="add_a_server">เพิ่มเซิร์ฟเวอร์</string>
     <string name="add_dns_server_dialog_title">เพิ่มเซิร์ฟเวอร์ DNS</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
+    <string name="added_to_your_account">%1$s ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="agree_and_continue">ยอมรับและดำเนินการต่อ</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="all_providers">ผู้ให้บริการทั้งหมด</string>
@@ -28,6 +31,7 @@
     <string name="block_adult_content_title">เนื้อหาสำหรับผู้ใหญ่</string>
     <string name="block_gambling_title">การพนัน</string>
     <string name="block_malware_title">มัลแวร์</string>
+    <string name="block_social_media_title">โซเชียลมีเดีย</string>
     <string name="block_trackers_title">ตัวติดตาม</string>
     <string name="blocked_connection">การเชื่อมต่อที่ถูกบล็อก</string>
     <string name="blocking_internet">กำลังบล็อกอินเทอร์เน็ต</string>
@@ -55,6 +59,11 @@
     <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน &lt;b&gt;%1$s&lt;/b&gt; ด้านบนทั้งหมด เพื่อเปิดใช้การตั้งค่านี้</string>
     <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
     <string name="custom_dns_hint">ป้อน IP</string>
+    <string name="custom_port_dialog_placeholder">ป้อนพอร์ต</string>
+    <string name="custom_port_dialog_remove">นำพอร์ตแบบกำหนดเองออก</string>
+    <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
+    <string name="custom_port_dialog_title">พอร์ต WireGuard แบบกำหนดเอง</string>
+    <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>
@@ -104,6 +113,9 @@
     <string name="is_offline">อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์</string>
     <string name="less_than_a_day_left">เหลือเวลาน้อยกว่าหนึ่งวัน</string>
     <string name="less_than_a_minute_ago">น้อยกว่าหนึ่งนาทีก่อน</string>
+    <string name="less_than_one_day">น้อยกว่าหนึ่งวัน</string>
+    <string name="loading_connecting">กำลังเชื่อมต่อ...</string>
+    <string name="loading_verifying">กำลังตรวจสอบยืนยันการซื้อ...</string>
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="local_network_sharing_additional_info">ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:</string>
     <string name="local_network_sharing_info">คุณสมบัตินี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ</string>
@@ -142,8 +154,18 @@
     <string name="ownership">ความเป็นเจ้าของ</string>
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
+    <string name="payment_billing_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดตรวจสอบให้แน่ใจว่า คุณมี Google Play เวอร์ชันล่าสุด </string>
+    <string name="payment_billing_error_dialog_title">Google Play ไม่พร้อมใช้งาน</string>
+    <string name="payment_completed_dialog_message">30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="payment_completed_dialog_title">เพิ่มเวลาสำเร็จแล้ว</string>
+    <string name="payment_obfuscation_id_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง</string>
+    <string name="payment_obfuscation_id_error_dialog_title">บริการ Mullavad ไม่พร้อมใช้งาน</string>
+    <string name="payment_pending_dialog_message">เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ</string>
+    <string name="payment_pending_dialog_title">กำลังตรวจสอบยืนยันการซื้อ</string>
+    <string name="payment_status_pending">กำลังชำระเงิน Google Play</string>
     <string name="port">พอร์ต</string>
+    <string name="privacy_disclaimer_body_first_paragraph">แอปจะตรวจสอบเวอร์ชันโดยอัตโนมัติ เพื่อให้แน่ใจว่า คุณใช้งานเวอร์ชันที่ปลอดภัยที่สุด และเพื่อแจ้งปัญหาใดๆ ของเวอร์ชันปัจจุบันที่ใช้งานอยู่ให้คุณทราบ โดยระบบจะส่งเวอร์ชันแอปและเวอร์ชันระบบ Android ไปยังเซิร์ฟเวอร์ Mullavid ซึ่ง Mullvad จะติดตามจำนวนเวอร์ชันแอปที่ใช้และเวอร์ชัน Android ทั้งนี้ข้อมูลจะไม่ถูกจัดเก็บ หรือนำไปใช้ในลักษณะใดๆ ที่สามารถระบุตัวตนคุณได้</string>
+    <string name="privacy_disclaimer_body_second_paragraph">หากมีการใช้งานคุณลักษณะการแยกอุโมงค์ แอปจะขอให้ระบบของคุณระบุแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด รายการนี้จะได้รับการเรียกใช้งานในมุมมองการแยกอุโมงค์เท่านั้น รายการแอปพลิเคชันที่ติดตั้งไว้ทั้งหมด จะไม่ถูกส่งออกจากอุปกรณ์</string>
     <string name="privacy_disclaimer_title">ความเป็นส่วนตัว</string>
     <string name="privacy_policy_label">นโยบายความเป็นส่วนตัว</string>
     <string name="problem_report_description">ไฟล์บันทึกล็อกของแอปของคุณจะถูกแนบไปกับข้อความนี้ เพื่อที่เราจะช่วยเหลือคุณได้อย่างมีประสิทธิภาพมากขึ้น ข้อมูลของคุณจะยังคงมีความปลอดภัยและเป็นส่วนตัว เนื่องจากจะไม่มีการระบุตัวตนก่อนส่งข้อมูลผ่านช่องทางที่มีการเข้ารหัส</string>
@@ -206,6 +228,7 @@
     <string name="update_dns_server_dialog_title">อัปเดตเซิร์ฟเวอร์ DNS</string>
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
     <string name="user_message_hint">โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น</string>
+    <string name="verifying_voucher">กำลังตรวจสอบยืนยันบัตรกำนัล…</string>
     <string name="view_logs">ดูบันทึกของแอป</string>
     <string name="virtual_adapter_problem">ข้อผิดพลาดของอะแดปเตอร์เสมือน</string>
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
@@ -219,4 +242,5 @@
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %1$d - %2$d</string>
     <string name="wireguard_port_info_description">การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง</string>
     <string name="wireguard_port_info_port_range">พอร์ตแบบกำหนดเองอาจมีค่าใดๆ ก็ได้ ภายในช่วงที่ใช้งานได้: %1$s</string>
+    <string name="wireguard_port_title">พอร์ต WireGuard</string>
 </resources>
