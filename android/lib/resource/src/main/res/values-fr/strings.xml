@@ -7,9 +7,12 @@
     <string name="account_number">Numéro de compte</string>
     <string name="account_time_notification_channel_description">Affiche des rappels lorsque le temps du compte va expirer</string>
     <string name="account_time_notification_channel_name">Rappels de temps pour le compte</string>
+    <string name="add_30_days_time">Ajouter 30 jours de temps</string>
+    <string name="add_30_days_time_x">Ajouter 30 jours de temps (%1$s)</string>
     <string name="add_a_server">Ajouter un serveur</string>
     <string name="add_dns_server_dialog_title">Ajouter un serveur DNS</string>
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
+    <string name="added_to_your_account">%1$s ajouté à votre compte.</string>
     <string name="agree_and_continue">Accepter et continuer</string>
     <string name="all_applications">Toutes les applications</string>
     <string name="allow_lan_footer">Autorise l\'accès aux autres appareils sur le même réseau pour partager, imprimer, etc.</string>
@@ -25,6 +28,7 @@
     <string name="block_adult_content_title">Contenu pour adultes</string>
     <string name="block_gambling_title">Jeux d\'argent</string>
     <string name="block_malware_title">Malware</string>
+    <string name="block_social_media_title">Réseaux sociaux</string>
     <string name="block_trackers_title">Trackers</string>
     <string name="blocked_connection">CONNEXION BLOQUÉE</string>
     <string name="blocking_internet">Internet bloqué</string>
@@ -52,6 +56,11 @@
     <string name="custom_dns_disable_mode_subtitle">Désactivez tous les &lt;b&gt;%1$s&lt;/b&gt; ci-dessus pour activer ce paramètre.</string>
     <string name="custom_dns_footer">Activez pour ajouter au moins un serveur DNS.</string>
     <string name="custom_dns_hint">Saisir l\'IP</string>
+    <string name="custom_port_dialog_placeholder">Saisir le port</string>
+    <string name="custom_port_dialog_remove">Supprimer le port personnalisé</string>
+    <string name="custom_port_dialog_submit">Définir le port</string>
+    <string name="custom_port_dialog_title">Port WireGuard personnalisé</string>
+    <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
@@ -99,6 +108,9 @@
     <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
     <string name="less_than_a_day_left">moins d\'un jour restant</string>
     <string name="less_than_a_minute_ago">il y a moins d\'une minute</string>
+    <string name="less_than_one_day">moins d\'un jour</string>
+    <string name="loading_connecting">Connexion...</string>
+    <string name="loading_verifying">Vérification de l\'achat...</string>
     <string name="local_network_sharing">Partage réseau local</string>
     <string name="local_network_sharing_additional_info">Pour ce faire, il autorise la communication réseau à l\'extérieur du tunnel vers les plages locales de multidiffusion et de diffusion, ainsi que vers et à partir de ces plages IP privées :</string>
     <string name="local_network_sharing_info">Cette fonctionnalité permet d\'accéder à d\'autres appareils sur le réseau local, par exemple pour le partage, l\'impression, le streaming, etc.</string>
@@ -112,7 +124,7 @@
     <string name="login_fail_title">Échec de la connexion</string>
     <string name="login_title">Connexion</string>
     <string name="malware_info">Avertissement : le bloqueur de malware n\'est pas un anti-virus et ne doit pas être traité comme tel, il s\'agit juste d\'une couche de protection supplémentaire.</string>
-    <string name="manage_account">Générer le compte</string>
+    <string name="manage_account">Gérer le compte</string>
     <string name="max_devices_confirm_removal_description">Voulez-vous vraiment déconnecter &lt;b&gt;%1$s&lt;/b&gt; ?</string>
     <string name="max_devices_resolved_description">Vous pouvez maintenant continuer la connexion sur cet appareil.</string>
     <string name="max_devices_resolved_title">Super !</string>
@@ -133,8 +145,18 @@
     <string name="out_of_time">Plus de temps</string>
     <string name="paid_until">Payé jusqu\'au</string>
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
+    <string name="payment_billing_error_dialog_message">Nous n\'avons pas pu lancer le processus de paiement, merci de vérifier que vous disposez de la dernière version de Google Play.</string>
+    <string name="payment_billing_error_dialog_title">Google Play indisponible</string>
+    <string name="payment_completed_dialog_message">30 jours ont été ajoutés à votre compte.</string>
     <string name="payment_completed_dialog_title">Le temps a bien été ajouté</string>
+    <string name="payment_obfuscation_id_error_dialog_message">Nous n\'avons pas pu lancer le processus de paiement, merci de réessayer plus tard.</string>
+    <string name="payment_obfuscation_id_error_dialog_title">Services Mullvad indisponibles</string>
+    <string name="payment_pending_dialog_message">Nous vérifions actuellement votre achat, ce qui peut prendre un certain temps. Votre temps sera ajouté si la vérification réussit.</string>
+    <string name="payment_pending_dialog_title">Vérification de l\'achat</string>
+    <string name="payment_status_pending">Paiement Google Play en attente</string>
     <string name="port">Port</string>
+    <string name="privacy_disclaimer_body_first_paragraph">Pour vous assurer que vous disposez de la version la plus sécurisée et pour vous informer de tout problème lié à la version en cours d\'exécution, l\'application effectue automatiquement des vérifications de version. Elle envoie ainsi la version de l\'application et la version du système Android aux serveurs de Mullvad. Mullvad tient des compteurs sur le nombre de versions d\'applications et de versions d\'Android utilisées. Les données ne sont jamais stockées ou utilisées de manière à vous identifier.</string>
+    <string name="privacy_disclaimer_body_second_paragraph">Si la fonctionnalité de split tunneling est utilisée, l\'application demande à votre système la liste de toutes les applications installées. Cette liste n\'est récupérée que dans la vue de split tunneling. La liste des applications installées n\'est jamais envoyée par l\'appareil.</string>
     <string name="privacy_disclaimer_title">Confidentialité</string>
     <string name="privacy_policy_label">Politique de confidentialité</string>
     <string name="problem_report_description">Pour mieux vous aider, le fichier journal de l\'application est joint à ce message. Vos données restent privées et en sécurité dans la mesure où elles sont rendues anonymes avant d\'être envoyées via un canal chiffré.</string>
@@ -194,6 +216,7 @@
     <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="user_email_hint">Votre e-mail (facultatif)</string>
     <string name="user_message_hint">Pour nous permettre de mieux vous assister, merci d\'écrire en anglais ou en suédois et d\'indiquer le pays à partir duquel vous vous connectez.</string>
+    <string name="verifying_voucher">Vérification du bon…</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
@@ -207,4 +230,5 @@
     <string name="wireguard_mtu_footer">Définir la valeur MTU WireGuard. Plage valide : %1$d - %2$d.</string>
     <string name="wireguard_port_info_description">Le réglage automatique choisira au hasard parmi la plage de ports valide affichée ci-dessous.</string>
     <string name="wireguard_port_info_port_range">Le port personnalisé peut prendre n\'importe quelle valeur dans les plages valides : %1$s.</string>
+    <string name="wireguard_port_title">Port WireGuard</string>
 </resources>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2023-09-05 14:16\n"
+"PO-Revision-Date: 2023-12-04 12:55\n"
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)s lisättiin: tilin käyttö maksettu %(expiry)s asti."
@@ -179,6 +179,9 @@ msgstr "Sulje"
 
 msgid "Reconnect"
 msgstr "Yhdistä uudelleen"
+
+msgid "Save"
+msgstr "Tallenna"
 
 msgid "Search for..."
 msgstr "Hae..."
@@ -491,11 +494,6 @@ msgctxt "device-management"
 msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
 msgstr "Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi."
 
-#. Confirmation button when logging out
-msgctxt "device-management"
-msgid "Log out anyway"
-msgstr "Kirjaudu silti ulos"
-
 msgctxt "device-management"
 msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
 msgstr "Kirjaudu ulos vähintään yhdestä luettelon laitteesta poistamalla se. Löydät vastaavan laitteen nimen laitteen tiliasetuksista."
@@ -506,19 +504,9 @@ msgctxt "device-management"
 msgid "Super!"
 msgstr "Mahtavaa!"
 
-#. This is is a further explanation of what happens when logging out.
-msgctxt "device-management"
-msgid "The ports forwarded to this device will be deleted if you log out."
-msgstr "Tälle laitteelle välitetyt portit poistetaan, jos kirjaudut ulos."
-
 msgctxt "device-management"
 msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
 msgstr "Tämä on laitteelle annettu nimi. Jokainen Mullvad-tilille kirjautunut laite saa yksilöllisen nimen, jonka avulla sen voi tunnistaa laitteiden hallinnassa sovelluksessa tai verkkosivustolla."
-
-#. Further information about consequences of logging out device.
-msgctxt "device-management"
-msgid "This will delete all forwarded ports. Local settings will be saved."
-msgstr "Toiminto poistaa kaikki välitetyt portit. Paikalliset asetukset tallennetaan."
 
 msgctxt "device-management"
 msgid "Time left: %(timeLeft)s"
@@ -1021,6 +1009,10 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Valitse sijainti"
 
+msgctxt "select-location-view"
+msgid "(Added)"
+msgstr "(Lisätty)"
+
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
 #. Available placeholders:
@@ -1029,6 +1021,33 @@ msgstr "Valitse sijainti"
 msgctxt "select-location-view"
 msgid "%(location)s (%(info)s)"
 msgstr "%(location)s (%(info)s)"
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "select-location-view"
+msgid "Add <b>%(locationType)s</b> to list"
+msgstr "Lisää <b>%(locationType)s</b> luetteloon"
+
+msgctxt "select-location-view"
+msgid "All locations"
+msgstr "Kaikki sijainnit"
+
+msgctxt "select-location-view"
+msgid "City"
+msgstr "Kaupunki"
+
+msgctxt "select-location-view"
+msgid "Country"
+msgstr "Maa"
+
+msgctxt "select-location-view"
+msgid "Custom lists"
+msgstr "Mukautetut luettelot"
+
+msgctxt "select-location-view"
+msgid "Edit list name"
+msgstr "Muokkaa luettelon nimeä"
 
 msgctxt "select-location-view"
 msgid "Entry"
@@ -1043,8 +1062,20 @@ msgid "Filtered:"
 msgstr "Suodatettu:"
 
 msgctxt "select-location-view"
+msgid "List names must be unique."
+msgstr "Luettelon nimen tulee olla ainutlaatuinen."
+
+msgctxt "select-location-view"
+msgid "Name is already taken."
+msgstr "Nimi on jo olemassa."
+
+msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Palveluntarjoajat: %(numberOfProviders)d"
+
+msgctxt "select-location-viewThis refers to a VPN server which we also call relay since it relays internet traffic from the user onto the internet. It should probably say server here instead of relay. I'll look into if this should be changed until next relay but for now it will be \"Relay\"."
+msgid "Relay"
+msgstr "Välitys"
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
@@ -1424,10 +1455,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "Salli IPv6"
 
-msgctxt "vpn-settings-view"
-msgid "Enable IPv6 communication through the tunnel."
-msgstr "Salli IPv6-yhteys tunnelin kautta."
-
 #. The label next to the multihop settings toggle.
 msgctxt "vpn-settings-view"
 msgid "Enable multihop"
@@ -1454,6 +1481,10 @@ msgid "Increases anonymity by routing your traffic into one %(wireguard)s server
 msgstr "Paranna anonymiteettia reitittämällä liikenteen yhdelle %(wireguard)s-palvelimelle ja sitten toisen kautta ulos, mikä tekee jäljittämisestä vaikeampaa."
 
 msgctxt "vpn-settings-view"
+msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
+msgstr "IPv4 on aina käytössä, ja suurin osa verkkosivustoista ja sovelluksista käyttää kyseistä protokollaa. Emme suosittele IPv6:n käyttöönottoa, ellet varta vasten tarvitse sitä."
+
+msgctxt "vpn-settings-view"
 msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
 msgstr "Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:"
 
@@ -1477,6 +1508,11 @@ msgstr "Lukitustila"
 msgctxt "vpn-settings-view"
 msgid "Malware"
 msgstr "Haittaohjelmat"
+
+#. Label for settings that enables block of social media.
+msgctxt "vpn-settings-view"
+msgid "Social media"
+msgstr "Sosiaalinen media"
 
 msgctxt "vpn-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
@@ -1538,6 +1574,10 @@ msgstr "Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eik�
 msgctxt "vpn-settings-view"
 msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
 msgstr "Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina."
+
+msgctxt "vpn-settings-view"
+msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
+msgstr "Kun tämä ominaisuus on käytössä, IPv6:ta voidaan käyttää IPv4:n rinnalla VPN-tunnelissa yhteydenpidossa internetpalveluiden kanssa."
 
 msgctxt "vpn-settings-view"
 msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
@@ -1627,6 +1667,13 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys."
 
+msgctxt "Message shown after successfully adding subscription time to an account, where \"%s\" represent the amount of time, like for example \"1 day\" or \"4 months\".Full examples: \"1 day was added to your account.\"\"4 months was added to your account.\""
+msgid "%s was added to your account."
+msgstr "Tilillesi lisättiin %s käyttöaikaa."
+
+msgid "30 days was added to your account."
+msgstr "Tilillesi lisättiin 30 päivää käyttöaikaa."
+
 msgid "Account credit expires in a few minutes"
 msgstr "Tilin käyttöaika päättyy muutaman minuutin kuluttua"
 
@@ -1635,6 +1682,12 @@ msgstr "Tilin käyttöaika päättyy pian"
 
 msgid "Account time reminders"
 msgstr "Muistutukset tilin käyttöajasta"
+
+msgid "Add 30 days time"
+msgstr "Lisää 30 päivää käyttöaikaa"
+
+msgid "Add 30 days time (%s)"
+msgstr "Lisää 30 päivää käyttöaikaa (%s)"
 
 msgid "Add DNS server"
 msgstr "Lisää DNS-palvelin"
@@ -1663,6 +1716,9 @@ msgstr "Internetyhteys on estetty (laite on offline-tilassa)"
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi."
 
+msgid "Connecting..."
+msgstr "Yhdistetään..."
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-tilin numero kopioitu leikepöydälle"
 
@@ -1687,11 +1743,24 @@ msgstr "Ota käyttöön"
 msgid "Enter MTU"
 msgstr "Syötä MTU"
 
+msgctxt "Placeholder in port number input field."
+msgid "Enter port"
+msgstr "Anna portti"
+
 msgid "Excluded applications"
 msgstr "Poissuljetut sovellukset"
 
 msgid "Going to login will unblock the internet on this device."
 msgstr "Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta."
+
+msgid "Google Play payment pending"
+msgstr "Google Play -maksu odottaa"
+
+msgid "Google Play unavailable"
+msgstr "Google Play ei ole käytettävissä"
+
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Asenna Mullvad VPN (%s) pysyäksesi ajan tasalla"
@@ -1701,6 +1770,9 @@ msgstr "Tilin hallinta"
 
 msgid "Mullvad account number"
 msgstr "Mullvad-tilin numero"
+
+msgid "Mullvad services unavailable"
+msgstr "Mullvad-palvelut eivät ole käytettävissä"
 
 msgid "Preferences"
 msgstr "Asetukset"
@@ -1714,6 +1786,9 @@ msgstr "Tietosuojakäytäntö"
 msgid "Remove"
 msgstr "Poista"
 
+msgid "Remove custom port"
+msgstr "Poista mukautettu portti"
+
 msgid "Reset to default"
 msgstr "Palauta oletusarvo"
 
@@ -1723,6 +1798,9 @@ msgstr "Suojattu"
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Aseta WireGuardin MTU-arvo väliltä %d–%d."
 
+msgid "Set port"
+msgstr "Määritä portti"
+
 msgid "Show system apps"
 msgstr "Näytä järjestelmäsovellukset"
 
@@ -1731,9 +1809,6 @@ msgstr "Näyttää VPN-tunnelin nykyisen tilan"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "Jaettu tunnelointi antaa mahdollisuuden valita, mitä sovelluksia ei reititetä VPN-tunnelin kautta."
 
 msgid "Submit"
 msgstr "Lähetä"
@@ -1747,8 +1822,8 @@ msgstr "Tämä osoite on annettu jo."
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja sovelluksissa."
 
-msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.\\n\\nIf the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
-msgstr "Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytössäsi on turvallisin versio ja ilmoittaakseen mahdollisista ongelmista nykyisessä käynnissä olevassa versiossa. Toiminto lähettää tiedon sovellusversiosta ja Android-järjestelmäversiosta Mullvadin palvelimille. Mullvad pitää laskuria käytettyjen sovellusversioiden ja Android-versioiden määrästä. Tietoja ei koskaan tallenneta tai käytetä tavalla, josta sinut voisi tunnistaa.\\n\\nJos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista muista asennetuista sovelluksista. Kyseinen luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
+msgstr "Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi."
 
 msgid "Toggle VPN"
 msgstr "Vaihda VPN:ää"
@@ -1780,8 +1855,30 @@ msgstr "VPN-tunnelin tila"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa."
 
+msgctxt "Used to inform the user about a set of valid network port number ranges, for example: \"Valid ranges: 1-10, 100-200, 30000-31000\" "
+msgid "Valid ranges: %s"
+msgstr "Kelvolliset portit: %s"
+
+msgid "Verifying purchase"
+msgstr "Ostoksen vahvistaminen"
+
+msgid "Verifying purchase..."
+msgstr "Ostosta vahvistetaan..."
+
+msgid "Verifying voucher…"
+msgstr "Kuponkia vahvistetaan…"
+
 msgid "Virtual adapter error"
 msgstr "Virtuaalisovittimen virhe"
+
+msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "Vahvistamme ostostasi parhaillaan. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu."
+
+msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
+msgstr "Emme pystyneet aloittamaan maksun käsittelyä. Varmista, että käytät Google Playn uusinta versiota."
+
+msgid "We were unable to start the payment process, please try again later."
+msgstr "Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen."
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr "Kun yhteys on muodostettu, yksityinen ja suojattu sijainti valitulta alueelta naamioi todellisen sijaintisi."
@@ -1789,8 +1886,14 @@ msgstr "Kun yhteys on muodostettu, yksityinen ja suojattu sijainti valitulta alu
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
 
+msgid "WireGuard custom port"
+msgstr "Mukautettu WireGuard-portti"
+
 msgid "WireGuard obfuscation"
 msgstr "WireGuard-obfuskointi"
+
+msgid "WireGuard port"
+msgstr "WireGuard-portti"
 
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "VERKKOLIIKENTEESI SAATTAA VUOTAA"
@@ -1800,6 +1903,19 @@ msgstr "Sovellusversiotasi ei tueta."
 
 msgid "less than a minute ago"
 msgstr "alle minuutti sitten"
+
+msgid "less than one day"
+msgstr "alle vuorokausi"
+
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d päivä"
+msgstr[1] "%d päivää"
+
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] "%d kuukausi"
+msgstr[1] "%d kuukautta"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"

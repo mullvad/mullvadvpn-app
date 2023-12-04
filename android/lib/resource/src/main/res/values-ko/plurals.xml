@@ -9,6 +9,12 @@
     <plurals name="years_left">
         <item quantity="other">%1$d년 남음</item>
     </plurals>
+    <plurals name="days">
+        <item quantity="other">%1$d일</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="other">%1$d개월</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="other">계정 크레딧이 %1$d일 후에 만료됩니다.</item>
     </plurals>

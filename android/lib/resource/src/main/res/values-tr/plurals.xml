@@ -12,6 +12,14 @@
         <item quantity="one">1 yıl kaldı</item>
         <item quantity="other">%1$d yıl kaldı</item>
     </plurals>
+    <plurals name="days">
+        <item quantity="one">%1$d gün</item>
+        <item quantity="other">%1$d gün</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%1$d ay</item>
+        <item quantity="other">%1$d ay</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Hesap kredisi bir gün içinde sona eriyor</item>
         <item quantity="other">Hesap kredisi %1$d gün içinde sona eriyor</item>

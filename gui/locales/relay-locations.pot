@@ -46,6 +46,10 @@ msgstr ""
 msgid "Belgrade"
 msgstr ""
 
+#. DE BER
+msgid "Berlin"
+msgstr ""
+
 #. CO BOG
 msgid "Bogota"
 msgstr ""
@@ -80,6 +84,10 @@ msgstr ""
 
 #. BG
 msgid "Bulgaria"
+msgstr ""
+
+#. CA YYC
+msgid "Calgary"
 msgstr ""
 
 #. CA
@@ -230,6 +238,10 @@ msgstr ""
 msgid "Kiev"
 msgstr ""
 
+#. UA IEV
+msgid "Kyiv"
+msgstr ""
+
 #. LV
 msgid "Latvia"
 msgstr ""
@@ -272,6 +284,10 @@ msgstr ""
 
 #. AU MEL
 msgid "Melbourne"
+msgstr ""
+
+#. MX
+msgid "Mexico"
 msgstr ""
 
 #. US MIA
@@ -372,6 +388,10 @@ msgstr ""
 
 #. IN PNQ
 msgid "Pune"
+msgstr ""
+
+#. MX QRO
+msgid "Queretaro"
 msgstr ""
 
 #. US RAG

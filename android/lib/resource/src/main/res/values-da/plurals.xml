@@ -12,6 +12,14 @@
         <item quantity="one">1 år tilbage</item>
         <item quantity="other">%1$d år tilbage</item>
     </plurals>
+    <plurals name="days">
+        <item quantity="one">%1$d dag</item>
+        <item quantity="other">%1$d dage</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%1$d måned</item>
+        <item quantity="other">%1$d måneder</item>
+    </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Kontokredit udløber om en dag</item>
         <item quantity="other">Kontokredit udløber om %1$d dage</item>
