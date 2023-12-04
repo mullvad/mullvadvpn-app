@@ -12,10 +12,13 @@
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="agree_and_continue">Kabul et ve devam et</string>
     <string name="all_applications">Tüm uygulamalar</string>
+    <string name="all_providers">Tüm hizmet sağlayıcılar</string>
     <string name="allow_lan_footer">Paylaşım, yazdırma gibi özellikler için aynı ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
     <string name="always_on_vpn_error_notification_title">Her zaman açık VPN başka bir uygulamaya atandı</string>
+    <string name="any">Tümü</string>
     <string name="app_version">Uygulama sürümü</string>
+    <string name="apply">Uygula</string>
     <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="auto_connect">Otomatik Bağlan</string>
     <string name="auto_connect_footer">Uygulama başladığında bir sunucuya otomatik olarak bağlan.</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">Gönderme başarısız</string>
     <string name="failed_to_send_details">Formdan çıkıp daha sonra tekrar denerseniz, girmiş olduğunuz bilgiler hala burada olacaktır.</string>
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
+    <string name="filter">Filtrele</string>
+    <string name="filtered">Filtrelendi:</string>
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
     <string name="go_to_login">Giriş sayfasına git</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">Lütfen aşağıdaki listeden en az bir cihazı kaldırarak çıkış yapın. İlgili cihaz adını cihazın Hesap ayarları altında bulabilirsiniz.</string>
     <string name="max_devices_warning_title">Cihaz sayısı çok fazla</string>
     <string name="mullvad_account_number">Mullvad hesap numarası</string>
+    <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="new_device_notification_message">Hoş geldiniz, bu cihaz artık &lt;b&gt;%1$s&lt;/b&gt; olarak adlandırılıyor. Daha fazla ayrıntı için Hesaptaki bilgi düğmesine bakın.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
     <string name="no_matching_relay">Ayarlarınızla eşleşen sunucu yok. Sunucuyu veya diğer ayarları değiştirmeyi deneyin.</string>
     <string name="no_wireguard_key">Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin.</string>
     <string name="not_blocking_internet">AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR</string>
+    <string name="number_of_providers">Hizmet sağlayıcılar: %1$d</string>
     <string name="obfuscation_info">Gizleme, WireGuard trafiğini başka bir protokolün içinde gizler. Normal bir WireGuard bağlantısının engelleneceği sansürü ve diğer filtreleme türlerini aşmaya yardımcı olmak için kullanılabilir.</string>
     <string name="obfuscation_on_udp_over_tcp">Açık (TCP üzerinden UDP)</string>
     <string name="obfuscation_title">WireGuard gizlemesi</string>
@@ -131,6 +138,8 @@
     <string name="on">Açık</string>
     <string name="out_address">Çıkış</string>
     <string name="out_of_time">Süre doldu</string>
+    <string name="owned">Tarafımıza ait olanlar</string>
+    <string name="ownership">Sahiplik durumu</string>
     <string name="paid_until">Şu tarihe kadar ödendi:</string>
     <string name="pay_to_start_using">Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir.</string>
     <string name="payment_completed_dialog_title">Süre başarıyla eklendi</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">Gizlilik</string>
     <string name="privacy_policy_label">Gizlilik politikası</string>
     <string name="problem_report_description">Size daha etkili bir şekilde yardımcı olmak için uygulamanızın günlük dosyası bu mesaja eklenecektir. Verileriniz şifrelenmiş bir kanal üzerinden gönderilmeden önce anonimleştirildiği için güvenli ve gizli kalacaktır.</string>
+    <string name="providers">Hizmet sağlayıcılar</string>
     <string name="quantum_creating_secure_connection">KUANTUM GÜVENLİ BAĞLANTISI OLUŞTURULUYOR</string>
     <string name="quantum_resistant_info_first_paragaph">Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir.</string>
     <string name="quantum_resistant_info_second_paragaph">Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard\'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır.</string>
@@ -147,6 +157,8 @@
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>
+    <string name="rented">Kiralananlar</string>
+    <string name="rented_only">Sadece kiralananlar</string>
     <string name="report_a_problem">Bir sorun bildir</string>
     <string name="reset_to_default_button">Varsayılana sıfırla</string>
     <string name="search_placeholder">Ara...</string>

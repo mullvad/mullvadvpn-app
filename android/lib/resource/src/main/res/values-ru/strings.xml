@@ -12,10 +12,13 @@
     <string name="add_time_to_account">Пополните баланс у нас на сайте или погасите ваучер.</string>
     <string name="agree_and_continue">Согласиться и продолжить</string>
     <string name="all_applications">Все приложения</string>
+    <string name="all_providers">Все провайдеры</string>
     <string name="allow_lan_footer">Разрешить доступ к другим устройствам в той же сети для организации общего доступа, печати и т. д.</string>
     <string name="always_on_vpn_error_notification_content">Не удалось запустить туннельное соединение. Перед использованием Mullvad VPN отключите опцию «VPN всегда вкл.» для &lt;b&gt;%1$s&lt;/b&gt;.</string>
     <string name="always_on_vpn_error_notification_title">Опция «VPN всегда вкл.» назначена другому приложению</string>
+    <string name="any">Все</string>
     <string name="app_version">Версия приложения</string>
+    <string name="apply">Применить</string>
     <string name="auth_failed">Не удается произвести аутентификацию учетной записи. Отправьте сообщение о проблеме.</string>
     <string name="auto_connect">Автоподключение</string>
     <string name="auto_connect_footer">Автоматически подключаться к серверу при запуске приложения.</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">Ошибка отправки</string>
     <string name="failed_to_send_details">Если вы выйдете из формы и повторите попытку позже, информация, которую вы уже ввели, сохранится.</string>
     <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
+    <string name="filter">Фильтр</string>
+    <string name="filtered">Фильтр:</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
     <string name="foreground_notification_channel_name">Состояние туннеля VPN</string>
     <string name="go_to_login">Войти</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">Выйдите из учетной записи хотя бы на одном из устройств, удалив его из списка ниже. Имя устройства указано в настройках учетной записи.</string>
     <string name="max_devices_warning_title">Слишком много устройств</string>
     <string name="mullvad_account_number">Номер учетной записи Mullvad</string>
+    <string name="mullvad_owned_only">Только принадлежащие Mullvad</string>
     <string name="new_device_notification_message">Добро пожаловать, теперь это устройство называется &lt;b&gt;%1$s&lt;/b&gt;. Для получения более подробной нажмите на кнопку «Информация» в учетной записи.</string>
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="no_matching_relay">Нет серверов, соответствующих вашим настройкам. Попробуйте изменить сервер или задайте другие настройки.</string>
     <string name="no_wireguard_key">Не найден действительный ключ WireGuard. Управлять ключами можно в дополнительных настройках.</string>
     <string name="not_blocking_internet">ВОЗМОЖНА УТЕЧКА СЕТЕВОГО ТРАФИКА</string>
+    <string name="number_of_providers">провайдеры: %1$d</string>
     <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычное соединение WireGuard было бы заблокировано.</string>
     <string name="obfuscation_on_udp_over_tcp">Вкл. (UDP через TCP)</string>
     <string name="obfuscation_title">Обфускация WireGuard</string>
@@ -131,6 +138,8 @@
     <string name="on">Включен</string>
     <string name="out_address">Выход</string>
     <string name="out_of_time">Закончилось время</string>
+    <string name="owned">Во владении</string>
+    <string name="ownership">Собственность</string>
     <string name="paid_until">Оплачено до</string>
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
     <string name="payment_completed_dialog_title">Время добавлено</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">Конфиденциальность</string>
     <string name="privacy_policy_label">Политика конфиденциальности</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
+    <string name="providers">Провайдеры</string>
     <string name="quantum_creating_secure_connection">СОЗДАНИЕ ПОДКЛЮЧЕНИЯ С ЗАЩИТОЙ ОТ КВАНТОВЫХ АТАК</string>
     <string name="quantum_resistant_info_first_paragaph">Эта функция делает туннель WireGuard устойчивым к потенциальным атакам с использованием квантовых компьютеров.</string>
     <string name="quantum_resistant_info_second_paragaph">Для этого функция выполняет дополнительный обмен ключами с использованием квантово-устойчивого алгоритма и добавляет результат к обычному шифрованию WireGuard. Эта дополнительная мера использует примерно 500 КиБ трафика при каждом создании нового туннеля.</string>
@@ -147,6 +157,8 @@
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
+    <string name="rented">Арендованные</string>
+    <string name="rented_only">Только арендованные</string>
     <string name="report_a_problem">Сообщение о проблеме</string>
     <string name="reset_to_default_button">Восстановить значение по умолчанию</string>
     <string name="search_placeholder">Поиск...</string>

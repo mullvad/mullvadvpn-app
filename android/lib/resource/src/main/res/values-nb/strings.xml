@@ -12,10 +12,13 @@
     <string name="add_time_to_account">Du kan enten kjøpe kreditt på nettsiden vår eller løse inn en kupong.</string>
     <string name="agree_and_continue">Godta og fortsett</string>
     <string name="all_applications">Alle applikasjoner</string>
+    <string name="all_providers">Alle leverandører</string>
     <string name="allow_lan_footer">Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv.</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for &lt;b&gt;%1$s&lt;/b&gt; før du bruker Mullvad VPN.</string>
     <string name="always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet en annen app</string>
+    <string name="any">Hvilken som helst</string>
     <string name="app_version">Appversjon</string>
+    <string name="apply">Angi</string>
     <string name="auth_failed">Kunne ikke autentisere konto. Send inn en problemrapport.</string>
     <string name="auto_connect">Automatisk tilkobling</string>
     <string name="auto_connect_footer">Kobler automatisk til en server når appen starter.</string>
@@ -85,6 +88,8 @@
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Hvis du avslutter skjemaet og prøver igjen senere, vil informasjonen du allerede har lagt inn fortsatt være der.</string>
     <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
+    <string name="filter">Filter</string>
+    <string name="filtered">Filtrert:</string>
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til pålogging</string>
@@ -119,11 +124,13 @@
     <string name="max_devices_warning_description">Logg ut av minst én ved å fjerne den fra listen nedenfor. Du finner det tilsvarende enhetsnavnet under enhetens kontoinnstillinger.</string>
     <string name="max_devices_warning_title">For mange enheter</string>
     <string name="mullvad_account_number">Mullvad-kontonummer</string>
+    <string name="mullvad_owned_only">Kun eid av Mullvad</string>
     <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet &lt;b&gt;%1$s&lt;/b&gt;. For å finne ut mer kan du bruke informasjonsknappen under Konto.</string>
     <string name="new_device_notification_title">NY ENHET OPPRETTET</string>
     <string name="no_matching_relay">Ingen servere passer til innstillingene dine. Prøv å endre server eller andre innstillinger.</string>
     <string name="no_wireguard_key">Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger.</string>
     <string name="not_blocking_internet">DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG</string>
+    <string name="number_of_providers">Leverandører: %1$d</string>
     <string name="obfuscation_info">Tilsløring skjuler WireGuard-trafikken i en annen protokoll. Man kan på den måten omgå sensur og andre typer filter i tilfeller der en vanlig WireGuard-tilkobling ville blitt blokkert.</string>
     <string name="obfuscation_on_udp_over_tcp">På (UDP-over-TCP)</string>
     <string name="obfuscation_title">Tilsløring av WireGuard</string>
@@ -131,6 +138,8 @@
     <string name="on">På</string>
     <string name="out_address">Utgående</string>
     <string name="out_of_time">Tiden har utløpt</string>
+    <string name="owned">Eid</string>
+    <string name="ownership">Eierskap</string>
     <string name="paid_until">Betalt fram til</string>
     <string name="pay_to_start_using">For å starte bruken av appen, må du først legge til tid til kontoen.</string>
     <string name="payment_completed_dialog_title">Tid ble lagt til</string>
@@ -138,6 +147,7 @@
     <string name="privacy_disclaimer_title">Personvern</string>
     <string name="privacy_policy_label">Retningslinjer for personvern</string>
     <string name="problem_report_description">For å kunne gi deg god nok hjelp vil loggfilen til appen ligge som vedlegg til meldingen. All data forblir beskyttet og privat gjennom anonymisering før det sendes gjennom en kryptert kanal.</string>
+    <string name="providers">Leverandører</string>
     <string name="quantum_creating_secure_connection">OPPRETTER KVANTESIKKER TILKOBLING</string>
     <string name="quantum_resistant_info_first_paragaph">Denne funksjonen gjør WireGuard-tunnelen motstandsdyktig mot potensielle angrep fra kvantemaskiner.</string>
     <string name="quantum_resistant_info_second_paragaph">Det gjøres ved at å utføre en ekstra nøkkelutveksling med en kvantesikker algoritme og kombinere resultatet med WireGuard sin vanlige kryptering. Dette ekstratrinnet bruker omtrent 500 kiB trafikk hver gang det opprettes en ny tunnel.</string>
@@ -147,6 +157,8 @@
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
     <string name="remove_button">Fjern</string>
+    <string name="rented">Leid</string>
+    <string name="rented_only">Kun leid</string>
     <string name="report_a_problem">Rapporter et problem</string>
     <string name="reset_to_default_button">Tilbakestill til standard</string>
     <string name="search_placeholder">Søk etter ...</string>

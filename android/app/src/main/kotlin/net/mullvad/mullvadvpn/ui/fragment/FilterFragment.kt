@@ -6,16 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.screen.SelectLocationScreen
+import net.mullvad.mullvadvpn.compose.screen.FilterScreen
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
+import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SelectLocationFragment : BaseFragment() {
+class FilterFragment : Fragment() {
 
-    private val vm by viewModel<SelectLocationViewModel>()
+    private val vm by viewModel<FilterViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,27 +26,17 @@ class SelectLocationFragment : BaseFragment() {
             findViewById<ComposeView>(R.id.compose_view).setContent {
                 AppTheme {
                     val state = vm.uiState.collectAsState().value
-                    SelectLocationScreen(
+                    FilterScreen(
                         uiState = state,
-                        uiCloseAction = vm.uiCloseAction,
-                        enterTransitionEndAction = vm.enterTransitionEndAction,
-                        onSelectRelay = vm::selectRelay,
-                        onSearchTermInput = vm::onSearchTermInput,
+                        onSelectedOwnership = vm::setSelectedOwnership,
+                        onAllProviderCheckChange = vm::setAllProviders,
+                        onSelectedProviders = vm::setSelectedProvider,
+                        uiCloseAction = vm.uiSideEffect,
                         onBackClick = { activity?.onBackPressedDispatcher?.onBackPressed() },
-                        removeOwnershipFilter = vm::removeOwnerFilter,
-                        removeProviderFilter = vm::removeProviderFilter,
-                        onFilterClick = ::openFilterView
+                        onApplyClick = vm::onApplyButtonClicked
                     )
                 }
             }
         }
-    }
-
-    private fun openFilterView() {
-        (context as? MainActivity)?.openFilter()
-    }
-
-    override fun onEnterTransitionAnimationEnd() {
-        vm.onTransitionAnimationEnd()
     }
 }
