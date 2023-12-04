@@ -984,7 +984,7 @@ where
             TunnelStateTransition::Disconnected => {
                 self.notify_tunnel_state_when_ip_arrives(TunnelState::Disconnected)
                     .await;
-                TunnelState::Disconnected(self.parameters_generator.get_last_location().await)
+                TunnelState::Disconnected(None)
             }
 
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
