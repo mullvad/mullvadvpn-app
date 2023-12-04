@@ -38,20 +38,16 @@ impl Status {
                         format::print_state(&new_state, args.verbose);
                     }
 
-                    let location = match new_state {
-                        TunnelState::Connected {
-                            location,
-                            endpoint: _,
-                        } => location,
-                        TunnelState::Disconnected(location) => location,
-                        _ => return Ok(()), /* No location data is available during
-                                             * connecting/disconnecting/error states */
-                    };
                     if args.location {
-                        if let Some(location) = location {
-                            print_location(&location);
-                        } else {
-                            eprintln!("No location available")
+                        match new_state {
+                            TunnelState::Connected {
+                                location: Some(location),
+                                ..
+                            }
+                            | TunnelState::Disconnected(Some(location)) => {
+                                print_location(&location)
+                            }
+                            _ => (),
                         }
                     }
                 }
