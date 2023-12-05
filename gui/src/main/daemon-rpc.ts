@@ -37,6 +37,7 @@ import {
   IAppVersionInfo,
   IBridgeConstraints,
   ICustomList,
+  IDaitaSettings,
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
@@ -559,6 +560,15 @@ export class DaemonRpc {
 
   public async updateDevice(): Promise<void> {
     await this.callEmpty(this.client.updateDevice);
+  }
+
+  public async setDaitaSettings(daitaSettings: IDaitaSettings): Promise<void> {
+    const grpcDaitaSettings = new grpcTypes.DaitaSettings();
+    grpcDaitaSettings.setEnabled(daitaSettings.enabled);
+    await this.call<grpcTypes.DaitaSettings, Empty>(
+      this.client.setDaitaSettings,
+      grpcDaitaSettings,
+    );
   }
 
   public async listDevices(accountToken: AccountToken): Promise<Array<IDevice>> {
@@ -1333,6 +1343,7 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
       quantumResistant: convertFromQuantumResistantState(
         tunnelOptions.wireguard?.quantumResistant?.state,
       ),
+      daita: tunnelOptions.wireguard!.daita,
     },
     generic: {
       enableIpv6: tunnelOptions.generic!.enableIpv6,

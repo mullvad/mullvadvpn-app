@@ -143,6 +143,7 @@ export interface ITunnelEndpoint {
   proxy?: IProxyEndpoint;
   obfuscationEndpoint?: IObfuscationEndpoint;
   entryEndpoint?: IEndpoint;
+  daita: boolean;
 }
 
 export interface IEndpoint {
@@ -320,6 +321,7 @@ export interface ITunnelOptions {
   wireguard: {
     mtu?: number;
     quantumResistant?: boolean;
+    daita?: IDaitaSettings;
   };
   generic: {
     enableIpv6: boolean;
@@ -501,6 +503,10 @@ export interface RelayOverride {
   hostname: string;
   ipv4AddrIn?: string;
   ipv6AddrIn?: string;
+}
+
+export interface IDaitaSettings {
+  enabled: boolean;
 }
 
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {

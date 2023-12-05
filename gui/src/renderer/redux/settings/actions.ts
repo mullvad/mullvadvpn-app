@@ -4,6 +4,7 @@ import {
   ApiAccessMethodSettings,
   BridgeState,
   CustomLists,
+  IDaitaSettings,
   IDnsOptions,
   IWireguardEndpointData,
   ObfuscationSettings,
@@ -77,6 +78,11 @@ export interface IUpdateWireguardQuantumResistantAction {
   quantumResistant?: boolean;
 }
 
+export interface IUpdateWireguardDaitaAction {
+  type: 'UPDATE_WIREGUARD_DAITA';
+  daita?: IDaitaSettings;
+}
+
 export interface IUpdateAutoStartAction {
   type: 'UPDATE_AUTO_START';
   autoStart: boolean;
@@ -136,6 +142,7 @@ export type SettingsAction =
   | IUpdateOpenVpnMssfixAction
   | IUpdateWireguardMtuAction
   | IUpdateWireguardQuantumResistantAction
+  | IUpdateWireguardDaitaAction
   | IUpdateAutoStartAction
   | IUpdateDnsOptionsAction
   | IUpdateSplitTunnelingStateAction
@@ -245,6 +252,13 @@ function updateWireguardQuantumResistant(
   };
 }
 
+function updateWireguardDaita(daita?: IDaitaSettings): IUpdateWireguardDaitaAction {
+  return {
+    type: 'UPDATE_WIREGUARD_DAITA',
+    daita,
+  };
+}
+
 function updateAutoStart(autoStart: boolean): IUpdateAutoStartAction {
   return {
     type: 'UPDATE_AUTO_START',
@@ -326,6 +340,7 @@ export default {
   updateOpenVpnMssfix,
   updateWireguardMtu,
   updateWireguardQuantumResistant,
+  updateWireguardDaita,
   updateAutoStart,
   updateDnsOptions,
   updateSplitTunnelingState,
