@@ -33,7 +33,7 @@ object SelectLocationTransition : DestinationStyle.Animated {
     // TODO temporary hack until we have a proper solution.
     // https://issuetracker.google.com/issues/309506799
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
-        fadeOut(snap(700))
+        fadeOut(snap(400))
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() = null
 

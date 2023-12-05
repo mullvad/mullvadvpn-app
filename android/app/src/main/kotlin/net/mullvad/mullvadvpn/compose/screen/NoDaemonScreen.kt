@@ -27,6 +27,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
+import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
@@ -39,7 +40,7 @@ private fun PreviewNoDaemonScreen() {
 }
 
 // Set this as the start destination of the default nav graph
-@Destination
+@Destination(style = DefaultTransition::class)
 @Composable
 fun NoDaemonScreen(navigator: DestinationsNavigator) {
     NoDaemonScreen { navigator.navigate(SettingsDestination) }

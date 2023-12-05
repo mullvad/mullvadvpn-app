@@ -40,6 +40,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
+import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -55,7 +56,7 @@ private fun PreviewPrivacyDisclaimerScreen() {
     AppTheme { PrivacyDisclaimerScreen({}, {}) }
 }
 
-@Destination
+@Destination(style = DefaultTransition::class)
 @Composable
 fun PrivacyDisclaimer(
     navigator: DestinationsNavigator,

@@ -2,10 +2,9 @@ package net.mullvad.mullvadvpn.compose.transitions
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
 import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
@@ -15,18 +14,17 @@ import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 object HomeTransition : DestinationStyle.Animated {
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
         when (this.initialState.destination()) {
-            is LoginDestination -> slideInHorizontally(initialOffsetX = { it })
+            is LoginDestination -> fadeIn()
             else -> EnterTransition.None
         }
 
     // TODO temporary hack until we have a proper solution.
     // https://issuetracker.google.com/issues/309506799
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
-        fadeOut(snap(700))
+        fadeOut(snap(400))
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() =
         EnterTransition.None
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition() =
-        ExitTransition.None
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition() = fadeOut()
 }

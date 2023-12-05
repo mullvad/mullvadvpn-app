@@ -2,11 +2,10 @@ package net.mullvad.mullvadvpn.compose.transitions
 
 import android.util.Log
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
@@ -15,8 +14,7 @@ import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.WelcomeDestination
 
 object LoginTransition : DestinationStyle.Animated {
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
-        EnterTransition.None
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() = fadeIn()
 
     // TODO temporary hack until we have a proper solution.
     // https://issuetracker.google.com/issues/309506799
@@ -28,9 +26,9 @@ object LoginTransition : DestinationStyle.Animated {
                 is WelcomeDestination,
                 is ConnectDestination -> {
                     Log.d("LoginTransition", "was slide anim!")
-                    slideOutHorizontally(targetOffsetX = { -it })
+                    fadeOut()
                 }
-                else -> fadeOut(snap(700))
+                else -> fadeOut(snap(400))
             }
 
         Log.d(
@@ -40,9 +38,7 @@ object LoginTransition : DestinationStyle.Animated {
         return transition
     }
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() =
-        EnterTransition.None
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() = fadeIn()
 
-    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition() =
-        ExitTransition.None
+    override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition() = fadeOut()
 }
