@@ -16,25 +16,25 @@ class ChangelogViewModel(
     private val alwaysShowChangelog: Boolean
 ) : ViewModel() {
 
-    private val _uiSideEffect = MutableSharedFlow<ChangeLog>(replay = 1, extraBufferCapacity = 1)
-    val uiSideEffect: SharedFlow<ChangeLog> = _uiSideEffect
+    private val _uiSideEffect = MutableSharedFlow<Changelog>(replay = 1, extraBufferCapacity = 1)
+    val uiSideEffect: SharedFlow<Changelog> = _uiSideEffect
 
     init {
-        if (shouldShowChangeLog()) {
-            val changeLog =
-                ChangeLog(BuildConfig.VERSION_NAME, changelogRepository.getLastVersionChanges())
-            viewModelScope.launch { _uiSideEffect.emit(changeLog) }
+        if (shouldShowChangelog()) {
+            val changelog =
+                Changelog(BuildConfig.VERSION_NAME, changelogRepository.getLastVersionChanges())
+            viewModelScope.launch { _uiSideEffect.emit(changelog) }
         }
     }
 
-    fun markChangeLogAsRead() {
+    fun markChangelogAsRead() {
         changelogRepository.setVersionCodeOfMostRecentChangelogShowed(buildVersionCode)
     }
 
-    private fun shouldShowChangeLog(): Boolean =
+    private fun shouldShowChangelog(): Boolean =
         alwaysShowChangelog ||
             (changelogRepository.getVersionCodeOfMostRecentChangelogShowed() < buildVersionCode &&
                 changelogRepository.getLastVersionChanges().isNotEmpty())
 }
 
-@Parcelize data class ChangeLog(val version: String, val changes: List<String>) : Parcelable
+@Parcelize data class Changelog(val version: String, val changes: List<String>) : Parcelable

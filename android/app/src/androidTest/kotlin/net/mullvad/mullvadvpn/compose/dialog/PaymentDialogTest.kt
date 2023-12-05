@@ -2,23 +2,16 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.util.toPaymentDialogData
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 class PaymentDialogTest {
     @get:Rule val composeTestRule = createComposeRule()
-
-    @Before
-    fun setup() {
-        MockKAnnotations.init(this)
-    }
 
     @Test
     fun testShowPurchaseCompleteDialog() {

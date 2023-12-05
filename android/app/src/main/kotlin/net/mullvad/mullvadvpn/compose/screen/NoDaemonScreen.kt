@@ -21,8 +21,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat.finishAffinity
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -76,23 +74,26 @@ fun NoDaemonScreen(onNavigateToSettings: () -> Unit) {
                     Image(
                         painter = painterResource(id = R.drawable.launch_logo),
                         contentDescription = "",
-                        modifier = Modifier.size(120.dp)
+                        modifier = Modifier.size(Dimens.splashLogoSize)
                     )
                     Image(
                         painter = painterResource(id = R.drawable.logo_text),
                         contentDescription = "",
                         alpha = 0.6f,
-                        modifier = Modifier.padding(top = 12.dp).height(18.dp)
+                        modifier =
+                            Modifier.padding(top = Dimens.mediumPadding)
+                                .height(Dimens.splashLogoTextHeight)
                     )
                     Text(
                         text = stringResource(id = R.string.connecting_to_daemon),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color =
                             MaterialTheme.colorScheme.onPrimary
                                 .copy(alpha = AlphaDescription)
                                 .compositeOver(backgroundColor),
                         modifier =
-                            Modifier.padding(top = 12.dp).padding(horizontal = Dimens.sideMargin),
+                            Modifier.padding(top = Dimens.mediumPadding)
+                                .padding(horizontal = Dimens.sideMargin),
                         textAlign = TextAlign.Center
                     )
                 }

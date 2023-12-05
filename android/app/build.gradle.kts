@@ -14,7 +14,7 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = "${project.buildDir}/extraAssets"
-val defaultChangeLogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
+val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = "${project.buildDir}/extraJni"
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
@@ -112,7 +112,7 @@ android {
         getByName("main") {
             val changelogDir =
                 gradleLocalProperties(rootProject.projectDir)
-                    .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangeLogAssetsDirectory)
+                    .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
             assets.srcDirs(extraAssetsDirectory, changelogDir)
             jniLibs.srcDirs(extraJniDirectory)

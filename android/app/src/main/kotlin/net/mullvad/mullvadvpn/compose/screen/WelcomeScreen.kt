@@ -159,7 +159,7 @@ fun Welcome(
             navigator.navigate(DeviceNameInfoDialogDestination) { launchSingleTop = true }
         },
         onPurchaseBillingProductClick = { productId ->
-            navigator.navigate(PaymentDestination(productId))
+            navigator.navigate(PaymentDestination(productId)) { launchSingleTop = true }
         },
         navigateToVerificationPendingDialog = {
             navigator.navigate(VerificationPendingDialogDestination) { launchSingleTop = true }

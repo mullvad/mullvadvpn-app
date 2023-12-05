@@ -69,6 +69,8 @@ data class Dimensions(
     val smallIconSize: Dp = 16.dp,
     val smallPadding: Dp = 8.dp,
     val spacingAboveButton: Dp = 22.dp,
+    val splashLogoSize: Dp = 120.dp,
+    val splashLogoTextHeight: Dp = 18.dp,
     val successIconVerticalPadding: Dp = 26.dp,
     val switchIconSize: Dp = 24.dp,
     val titleIconSize: Dp = 48.dp,
