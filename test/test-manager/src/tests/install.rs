@@ -1,9 +1,10 @@
-use super::helpers::{get_package_desc, AbortOnDrop};
+use super::helpers::{connect_and_wait, get_package_desc, AbortOnDrop};
 use super::{Error, TestContext};
 
 use super::config::TEST_CONFIG;
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
-use mullvad_management_interface::types;
+use crate::tests::helpers::wait_for_tunnel_state;
+use mullvad_management_interface::{types, ManagementServiceClient};
 use std::{
     collections::HashMap,
     net::{SocketAddr, ToSocketAddrs},
@@ -317,6 +318,99 @@ pub async fn test_install_new_app(_: TestContext, rpc: ServiceClient) -> Result<
 
     // Override env vars
     rpc.set_daemon_environment(get_app_env()).await?;
+
+    Ok(())
+}
+
+/// Install the multiple times starting from a connected state with auto-connect
+/// disabled, failing if the app starts in a disconnected state.
+///
+/// This test is supposed to guard against regressions to this fix included in
+/// the 2021.3-beta1 release:
+/// https://github.com/mullvad/mullvadvpn-app/blob/main/CHANGELOG.md#security-10
+#[test_function(priority = -150)]
+pub async fn test_installation_idempotency(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: ManagementServiceClient,
+) -> Result<(), Error> {
+    // Connect to any relay
+    connect_and_wait(&mut mullvad_client).await?;
+    // Disable auto-connect
+    mullvad_client
+        .set_auto_connect(false)
+        .await
+        .expect("failed to enable auto-connect");
+    // Start a tunnel monitor. No traffic should be observed going outside of
+    // the tunnel during either installation process.
+    let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
+    let guest_iface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to obtain default interface");
+    let guest_ip = rpc
+        .get_interface_ip(guest_iface)
+        .await
+        .expect("failed to obtain non-tun IP");
+    log::debug!("Guest IP: {guest_ip}");
+
+    log::debug!("Monitoring outgoing traffic");
+    let monitor = start_packet_monitor(
+        move |packet| {
+            // NOTE: Many packets will likely be observed for API traffic. Rather than filtering all
+            // of those specifically, simply fail if our probes are observed.
+            packet.source.ip() == guest_ip && packet.destination.ip() == inet_destination.ip()
+        },
+        MonitorOptions::default(),
+    )
+    .await;
+    // TODO: Refactor this into a nice-looking API which returns both a pinger and an associated ping-monitor. => (Pinger, PingMonitor).
+    let ping_rpc = rpc.clone();
+    let probe_sender = AbortOnDrop::new(tokio::spawn(async move {
+        // Send a ping once every second.
+        loop {
+            super::helpers::send_guest_probes_without_monitor(
+                ping_rpc.clone(),
+                None,
+                inet_destination,
+            )
+            .await;
+            tokio::time::sleep(Duration::from_secs(1)).await;
+        }
+    }));
+
+    for _ in 1..=2 {
+        // install package
+        log::debug!("Installing new app");
+        rpc.install_app(get_package_desc(&TEST_CONFIG.current_app_filename)?)
+            .await?;
+        // verify that daemon is running
+        wait_for_tunnel_state(mullvad_client.clone(), |state| state.is_connected())
+            .await
+            .map_err(|err| {
+                log::error!(
+                    "App did not start in the expected `Connected` state after the installation process."
+                );
+                err
+            })?;
+
+        // Wait for an arbitrary amount of time. The point is that the pinger
+        // should be able to ping `inet_destination` while the newly installed
+        // app is running.
+        tokio::time::sleep(Duration::from_secs(3)).await;
+    }
+
+    // Make sure that no traffic leak occured during any installation process.
+    let probe_sender = probe_sender.into_inner();
+    probe_sender.abort();
+    let _ = probe_sender.await;
+
+    let monitor_result = monitor.into_result().await.unwrap();
+    assert_eq!(
+        monitor_result.packets.len(),
+        0,
+        "observed unexpected packets from {guest_ip}"
+    );
 
     Ok(())
 }
