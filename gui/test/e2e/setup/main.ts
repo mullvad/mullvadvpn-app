@@ -94,6 +94,7 @@ class ApplicationMain {
                 weight: 0,
                 owned: true,
                 endpointType: 'wireguard',
+                daita: false,
               },
             ],
           },

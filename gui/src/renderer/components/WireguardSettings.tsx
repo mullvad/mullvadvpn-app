@@ -557,7 +557,7 @@ function MtuSetting() {
 
 function DaitaSettings() {
   const { setDaitaSettings } = useAppContext();
-  const daita = useSelector((state) => state.settings.wireguard.daita);
+  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
 
   const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
 
@@ -584,13 +584,25 @@ function DaitaSettings() {
               <YellowLabel>{messages.gettext('BETA')}</YellowLabel>
             </Cell.InputLabel>
           </AriaLabel>
-          <InfoButton
-            message={messages.pgettext(
-              'wireguard-settings-view',
-              'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
-            )}></InfoButton>
+          <InfoButton>
+            <ModalMessage>
+              {
+                // TODO: These texts need to be polished
+                messages.pgettext(
+                  'wireguard-settings-view',
+                  'Enabling DAITA (Defence against AI Traffic Analysis) hides patterns in the VPN tunnel by generating dummy traffic and using a fixed packet size.',
+                )
+              }
+            </ModalMessage>
+            <ModalMessage>
+              {messages.pgettext(
+                'wireguard-settings-view',
+                'DAITA may cause significant overhead. We do not recommend enabling DAITA on a metered internet connection.',
+              )}
+            </ModalMessage>
+          </InfoButton>
           <AriaInput>
-            <Cell.Switch isOn={daita?.enabled ?? false} onChange={setDaita} />
+            <Cell.Switch isOn={daita} onChange={setDaita} />
           </AriaInput>
         </Cell.Container>
       </AriaInputGroup>

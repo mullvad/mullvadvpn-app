@@ -857,9 +857,7 @@ function convertFromRelayList(relayList: grpcTypes.RelayList): IRelayListWithEnd
     relayList: {
       countries: relayList
         .getCountriesList()
-        .map((country: grpcTypes.RelayListCountry) =>
-          convertFromRelayListCountry(country.toObject()),
-        ),
+        .map((country: grpcTypes.RelayListCountry) => convertFromRelayListCountry(country)),
     },
     wireguardEndpointData: convertWireguardEndpointData(relayList.getWireguard()!),
   };
@@ -874,26 +872,37 @@ function convertWireguardEndpointData(
   };
 }
 
-function convertFromRelayListCountry(
-  country: grpcTypes.RelayListCountry.AsObject,
-): IRelayListCountry {
+function convertFromRelayListCountry(country: grpcTypes.RelayListCountry): IRelayListCountry {
+  const countryObject = country.toObject();
   return {
-    ...country,
-    cities: country.citiesList.map(convertFromRelayListCity),
+    ...countryObject,
+    cities: country.getCitiesList().map(convertFromRelayListCity),
   };
 }
 
-function convertFromRelayListCity(city: grpcTypes.RelayListCity.AsObject): IRelayListCity {
+function convertFromRelayListCity(city: grpcTypes.RelayListCity): IRelayListCity {
+  const cityObject = city.toObject();
   return {
-    ...city,
-    relays: city.relaysList.map(convertFromRelayListRelay),
+    ...cityObject,
+    relays: city.getRelaysList().map(convertFromRelayListRelay),
   };
 }
 
-function convertFromRelayListRelay(relay: grpcTypes.Relay.AsObject): IRelayListHostname {
+function convertFromRelayListRelay(relay: grpcTypes.Relay): IRelayListHostname {
+  const relayObject = relay.toObject();
+
+  let daita = false;
+  if (relayObject.endpointType === grpcTypes.Relay.RelayType.WIREGUARD) {
+    const endpointDataU8 = relay.getEndpointData()?.getValue_asU8();
+    if (endpointDataU8) {
+      daita = grpcTypes.WireguardRelayEndpointData.deserializeBinary(endpointDataU8).getDaita();
+    }
+  }
+
   return {
-    ...relay,
-    endpointType: convertFromRelayType(relay.endpointType),
+    ...relayObject,
+    endpointType: convertFromRelayType(relayObject.endpointType),
+    daita,
   };
 }
 
