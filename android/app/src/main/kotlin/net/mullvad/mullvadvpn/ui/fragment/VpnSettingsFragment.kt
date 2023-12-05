@@ -31,6 +31,7 @@ class VpnSettingsFragment : BaseFragment() {
                         onRestoreMtuClick = vm::onRestoreMtuClick,
                         onCancelMtuDialogClick = vm::onCancelDialogClick,
                         onToggleAutoConnect = vm::onToggleAutoConnect,
+                        onToggleConnectOnBoot = vm::onToggleConnectOnBoot,
                         onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
                         onToggleDnsClick = vm::onToggleDnsClick,
                         onToggleBlockAds = vm::onToggleBlockAds,

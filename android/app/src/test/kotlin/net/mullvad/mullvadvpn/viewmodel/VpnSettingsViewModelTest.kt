@@ -54,6 +54,7 @@ class VpnSettingsViewModelTest {
     @Before
     fun setUp() {
         every { mockSettingsRepository.settingsUpdates } returns mockSettingsUpdate
+        every { mockSettingsRepository.isConnectOnBootEnabled } returns MutableStateFlow(null)
         every { mockPortRangeUseCase.portRanges() } returns portRangeFlow
 
         viewModel =
