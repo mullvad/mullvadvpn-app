@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -71,6 +72,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
+import net.mullvad.mullvadvpn.compose.transitions.LoginTransition
 import net.mullvad.mullvadvpn.compose.util.accountTokenVisualTransformation
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -111,7 +113,7 @@ private fun PreviewLoginSuccess() {
     AppTheme { LoginScreen(uiState = LoginUiState(loginState = Success)) }
 }
 
-@Destination
+@Destination(style = LoginTransition::class)
 @Composable
 fun Login(
     navigator: DestinationsNavigator,
@@ -138,6 +140,7 @@ fun Login(
                     }
                 }
                 is LoginUiSideEffect.NavigateToConnect -> {
+                    Log.d("LoginScreen", "Navigate to connect!")
                     navigator.navigate(ConnectDestination) {
                         launchSingleTop = true
                         popUpTo(NavGraphs.root) { inclusive = true }
