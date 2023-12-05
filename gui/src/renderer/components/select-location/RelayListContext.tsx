@@ -4,6 +4,7 @@ import { compareRelayLocation, RelayLocation } from '../../../shared/daemon-rpc-
 import {
   EndpointType,
   filterLocations,
+  filterLocationsByDaita,
   filterLocationsByEndPointType,
   getLocationsExpandedBySearch,
   searchForLocations,
@@ -60,6 +61,7 @@ interface RelayListContextProviderProps {
 
 export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const { locationType, searchTerm } = useSelectLocationContext();
+  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const fullRelayList = useSelector((state) => state.settings.relayLocations);
   const relaySettings = useNormalRelaySettings();
 
@@ -71,15 +73,15 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     return filterLocationsByEndPointType(fullRelayList, endpointType, relaySettings);
   }, [fullRelayList, locationType, relaySettings?.tunnelProtocol]);
 
+  const relayListForDaita = useMemo(() => {
+    return filterLocationsByDaita(relayListForEndpointType, daita);
+  }, [daita, relayListForEndpointType]);
+
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
   // ownership and providers
   const relayListForFilters = useMemo(() => {
-    return filterLocations(
-      relayListForEndpointType,
-      relaySettings?.ownership,
-      relaySettings?.providers,
-    );
-  }, [relaySettings?.ownership, relaySettings?.providers, relayListForEndpointType]);
+    return filterLocations(relayListForDaita, relaySettings?.ownership, relaySettings?.providers);
+  }, [relaySettings?.ownership, relaySettings?.providers, relayListForDaita]);
 
   // Filters the relays based on the provided search term
   const relayListForSearch = useMemo(() => {
