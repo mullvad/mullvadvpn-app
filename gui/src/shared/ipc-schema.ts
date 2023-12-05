@@ -15,7 +15,6 @@ import {
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
-  ILocation,
   IRelayListWithEndpointData,
   ISettings,
   ObfuscationSettings,
@@ -152,9 +151,6 @@ export const ipcSchema = {
     openUrl: invoke<string, void>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
     showLaunchDaemonSettings: invoke<void, void>(),
-  },
-  location: {
-    get: invoke<void, ILocation>(),
   },
   tunnel: {
     '': notifyRenderer<TunnelState>(),

@@ -33,7 +33,6 @@ import {
   IDevice,
   IDeviceRemoval,
   IDnsOptions,
-  ILocation,
   IObfuscationEndpoint,
   IOpenVpnConstraints,
   IProxyEndpoint,
@@ -432,11 +431,6 @@ export class DaemonRpc {
 
   public async reconnectTunnel(): Promise<void> {
     await this.callEmpty(this.client.reconnectTunnel);
-  }
-
-  public async getLocation(): Promise<ILocation> {
-    const response = await this.callEmpty<grpcTypes.GeoIpLocation>(this.client.getCurrentLocation);
-    return response.toObject();
   }
 
   public async getState(): Promise<TunnelState> {
@@ -851,7 +845,10 @@ function convertFromTunnelState(tunnelState: grpcTypes.TunnelState): TunnelState
     case grpcTypes.TunnelState.StateCase.STATE_NOT_SET:
       return undefined;
     case grpcTypes.TunnelState.StateCase.DISCONNECTED:
-      return { state: 'disconnected' };
+      return {
+        state: 'disconnected',
+        location: tunnelStateObject.disconnected!.disconnectedLocation,
+      };
     case grpcTypes.TunnelState.StateCase.DISCONNECTING: {
       const detailsMap: Record<grpcTypes.AfterDisconnect, AfterDisconnect> = {
         [grpcTypes.AfterDisconnect.NOTHING]: 'nothing',

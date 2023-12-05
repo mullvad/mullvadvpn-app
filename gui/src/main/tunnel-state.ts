@@ -1,5 +1,5 @@
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
-import { TunnelState } from '../shared/daemon-rpc-types';
+import { ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { Scheduler } from '../shared/scheduler';
 
 export interface TunnelStateProvider {
@@ -19,6 +19,8 @@ export default class TunnelStateHandler {
   private tunnelStateFallback?: TunnelState;
   // Scheduler for discarding the assumed next state.
   private tunnelStateFallbackScheduler = new Scheduler();
+
+  private lastKnownDisconnectedLocation: Partial<ILocation> | undefined;
 
   public constructor(private delegate: TunnelStateHandlerDelegate) {}
 
@@ -68,6 +70,17 @@ export default class TunnelStateHandler {
       this.tunnelStateFallback = newState;
     } else {
       this.setTunnelState(newState);
+    }
+
+    if (newState.state === 'disconnected' && newState.location !== undefined) {
+      this.lastKnownDisconnectedLocation = newState.location;
+    }
+
+    if (
+      newState.state === 'disconnecting' ||
+      (newState.state === 'disconnected' && newState.location === undefined)
+    ) {
+      newState.location = this.lastKnownDisconnectedLocation;
     }
   }
 
