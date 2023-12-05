@@ -51,7 +51,7 @@
         <packageUrl regex="true">^pkg:maven/com\.squareup\.okio/okio@.*$</packageUrl>
         <cve>CVE-2023-3635</cve>
     </suppress>
-    <suppress>
+    <suppress until="2024-06-01Z">
         <notes><![CDATA[
           This CVE only affect programs using loadXML and is derived from using ksp.
           We do not use the loadXML, ksp is used to generate navigation paths in our code

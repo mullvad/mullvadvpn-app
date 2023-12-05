@@ -106,7 +106,7 @@ fun ReportProblem(
         vm.uiSideEffect.collect {
             when (it) {
                 is ReportProblemSideEffect.ShowConfirmNoEmail -> {
-                    navigator.navigate(ReportProblemNoEmailDialogDestination())
+                    navigator.navigate(ReportProblemNoEmailDialogDestination)
                 }
             }
         }

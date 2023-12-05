@@ -20,8 +20,6 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -35,6 +33,7 @@ import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.PrivacyDisclaimerDestination
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
 import net.mullvad.mullvadvpn.viewmodel.SplashUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
@@ -113,22 +112,24 @@ fun SplashScreen() {
                     Image(
                         painter = painterResource(id = R.drawable.launch_logo),
                         contentDescription = "",
-                        modifier = Modifier.size(120.dp)
+                        modifier = Modifier.size(Dimens.splashLogoSize)
                     )
                     Image(
                         painter = painterResource(id = R.drawable.logo_text),
                         contentDescription = "",
                         alpha = 0.6f,
-                        modifier = Modifier.padding(top = 12.dp).height(18.dp)
+                        modifier =
+                            Modifier.padding(top = Dimens.mediumPadding)
+                                .height(Dimens.splashLogoTextHeight)
                     )
                     Text(
                         text = stringResource(id = R.string.connecting_to_daemon),
-                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodySmall,
                         color =
                             MaterialTheme.colorScheme.onPrimary
                                 .copy(alpha = AlphaDescription)
                                 .compositeOver(backgroundColor),
-                        modifier = Modifier.padding(top = 12.dp)
+                        modifier = Modifier.padding(top = Dimens.mediumPadding)
                     )
                 }
             }

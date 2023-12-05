@@ -11,7 +11,7 @@ import io.mockk.just
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
-import net.mullvad.mullvadvpn.viewmodel.ChangeLog
+import net.mullvad.mullvadvpn.viewmodel.Changelog
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -28,17 +28,17 @@ class ChangelogDialogTest {
     }
 
     @Test
-    fun testShowChangeLogWhenNeeded() {
+    fun testShowChangelogWhenNeeded() {
         // Arrange
-        every { mockedViewModel.markChangeLogAsRead() } just Runs
+        every { mockedViewModel.markChangelogAsRead() } just Runs
 
         composeTestRule.setContentWithTheme {
             ChangelogDialog(
-                ChangeLog(
+                Changelog(
                     changes = listOf(CHANGELOG_ITEM),
                     version = CHANGELOG_VERSION,
                 ),
-                onDismiss = { mockedViewModel.markChangeLogAsRead() }
+                onDismiss = { mockedViewModel.markChangelogAsRead() }
             )
         }
 
@@ -49,7 +49,7 @@ class ChangelogDialogTest {
         composeTestRule.onNodeWithText(CHANGELOG_BUTTON_TEXT).performClick()
 
         // Assert
-        verify { mockedViewModel.markChangeLogAsRead() }
+        verify { mockedViewModel.markChangelogAsRead() }
     }
 
     companion object {

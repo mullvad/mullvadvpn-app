@@ -62,7 +62,7 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testNotUpToDateVersionCodeWithEmptyChangeLog() = runTest {
+    fun testNotUpToDateVersionCodeWithEmptyChangelog() = runTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
         every { mockedChangelogRepository.getLastVersionChanges() } returns emptyList()
