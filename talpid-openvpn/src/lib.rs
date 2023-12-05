@@ -295,6 +295,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 user_pass_file_path: user_pass_file_path.clone(),
                 proxy_auth_file_path: proxy_auth_file_path.clone(),
                 abort_server_tx: event_server_abort_tx,
+                proxy: params.proxy.clone(),
                 #[cfg(target_os = "linux")]
                 route_manager_handle: route_manager,
                 #[cfg(target_os = "linux")]
@@ -798,6 +799,7 @@ mod event_server {
         pub user_pass_file_path: super::PathBuf,
         pub proxy_auth_file_path: Option<super::PathBuf>,
         pub abort_server_tx: triggered::Trigger,
+        pub proxy: Option<talpid_types::net::openvpn::ProxySettings>,
         #[cfg(target_os = "linux")]
         pub route_manager_handle: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "linux")]
@@ -843,7 +845,7 @@ mod event_server {
                 let route_handle = self.route_manager_handle.clone();
                 let ipv6_enabled = self.ipv6_enabled;
 
-                let routes = super::extract_routes(&env)
+                let mut routes: std::collections::HashSet<_, _> = super::extract_routes(&env)
                     .map_err(|err| {
                         log::error!("{}", err.display_chain_with_msg("Failed to obtain routes"));
                         tonic::Status::failed_precondition("Failed to obtain routes")
@@ -851,6 +853,14 @@ mod event_server {
                     .into_iter()
                     .filter(|route| route.prefix.is_ipv4() || ipv6_enabled)
                     .collect();
+
+                if let Some(proxy_settings) = &self.proxy {
+                    if let talpid_types::net::openvpn::ProxySettings::Local(proxy_settings) = proxy_settings {
+                        let network = proxy_settings.peer.ip().into();
+                        let node = talpid_routing::Node::new("192.168.1.1".parse().unwrap(), String::from("wlp0s20f3"));
+                        routes.insert(talpid_routing::RequiredRoute::new(network, node).use_main_table(false));
+                    }
+                }
 
                 if let Err(error) = route_handle.add_routes(routes).await {
                     log::error!("{}", error.display_chain());
