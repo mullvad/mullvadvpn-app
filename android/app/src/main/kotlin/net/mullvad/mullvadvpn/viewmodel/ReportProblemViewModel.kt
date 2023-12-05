@@ -32,8 +32,7 @@ sealed interface SendingReportUiState {
 }
 
 sealed interface ReportProblemSideEffect {
-    data class ShowConfirmNoEmail(val email: String, val description: String) :
-        ReportProblemSideEffect
+    data object ShowConfirmNoEmail : ReportProblemSideEffect
 }
 
 class ReportProblemViewModel(
@@ -64,7 +63,7 @@ class ReportProblemViewModel(
             val userEmail = email.trim()
             val nullableEmail = if (email.isEmpty()) null else userEmail
             if (!skipEmptyEmailCheck && shouldShowConfirmNoEmail(nullableEmail)) {
-                _uiSideEffect.emit(ReportProblemSideEffect.ShowConfirmNoEmail(email, description))
+                _uiSideEffect.emit(ReportProblemSideEffect.ShowConfirmNoEmail)
             } else {
                 sendingState.emit(SendingReportUiState.Sending)
 

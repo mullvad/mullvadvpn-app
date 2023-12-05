@@ -32,7 +32,7 @@ class SettingsRepository(
                 callbackFlowFromNotifier(state.container.settingsListener.settingsNotifier)
             }
             .onStart { serviceConnectionManager.settingsListener()?.settingsNotifier?.latestEvent }
-            .stateIn(CoroutineScope(dispatcher), SharingStarted.Lazily, null)
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), null)
 
     fun setDnsOptions(
         isCustomDnsEnabled: Boolean,

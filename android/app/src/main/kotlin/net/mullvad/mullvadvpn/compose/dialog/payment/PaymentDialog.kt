@@ -137,15 +137,13 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
     val context = LocalContext.current
     LaunchedEffect(Unit) { vm.startBillingPayment(productId) { context.getActivity()!! } }
 
-    if (uiState.paymentDialogData == null) {
-        return
+    if (uiState.paymentDialogData != null) {
+        PaymentDialog(
+            paymentDialogData = uiState.paymentDialogData,
+            retryPurchase = { vm.startBillingPayment(it) { context.getActivity()!! } },
+            onCloseDialog = { resultBackNavigator.navigateBack(result = it) }
+        )
     }
-
-    PaymentDialog(
-        paymentDialogData = uiState.paymentDialogData,
-        retryPurchase = { vm.startBillingPayment(it) { context.getActivity()!! } },
-        onCloseDialog = { resultBackNavigator.navigateBack(result = it) }
-    )
 }
 
 @Composable

@@ -23,26 +23,26 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
-import net.mullvad.mullvadvpn.viewmodel.ChangeLog
+import net.mullvad.mullvadvpn.viewmodel.Changelog
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun Changelog(navController: NavController, changeLog: ChangeLog) {
+fun Changelog(navController: NavController, changeLog: Changelog) {
     val viewModel = koinViewModel<ChangelogViewModel>()
 
     ChangelogDialog(
         changeLog,
         onDismiss = {
-            viewModel.markChangeLogAsRead()
+            viewModel.markChangelogAsRead()
             navController.navigateUp()
         }
     )
 }
 
 @Composable
-fun ChangelogDialog(changeLog: ChangeLog, onDismiss: () -> Unit) {
+fun ChangelogDialog(changeLog: Changelog, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -101,7 +101,7 @@ private fun ChangeListItem(text: String) {
 @Composable
 private fun PreviewChangelogDialogWithSingleShortItem() {
     AppTheme {
-        ChangelogDialog(ChangeLog(changes = listOf("Item 1"), version = "1111.1"), onDismiss = {})
+        ChangelogDialog(Changelog(changes = listOf("Item 1"), version = "1111.1"), onDismiss = {})
     }
 }
 
@@ -115,7 +115,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 
     AppTheme {
         ChangelogDialog(
-            ChangeLog(changes = listOf(longPreviewText, longPreviewText), version = "1111.1"),
+            Changelog(changes = listOf(longPreviewText, longPreviewText), version = "1111.1"),
             onDismiss = {}
         )
     }
@@ -126,7 +126,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 private fun PreviewChangelogDialogWithTenShortItems() {
     AppTheme {
         ChangelogDialog(
-            ChangeLog(
+            Changelog(
                 changes =
                     listOf(
                         "Item 1",
