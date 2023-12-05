@@ -15,11 +15,6 @@ import org.junit.Test
 class DnsDialogTest {
     @get:Rule val composeTestRule = createComposeRule()
 
-    @Before
-    fun setup() {
-        MockKAnnotations.init(this)
-    }
-
     private val defaultState =
         DnsDialogViewState(
             ipAddress = "",
@@ -91,7 +86,7 @@ class DnsDialogTest {
         composeTestRule.setContentWithTheme {
             testDnsDialog(
                 defaultState.copy(
-                    ipAddress = "300.300.300.300",
+                    ipAddress = invalidIpAddress,
                     validationResult = DnsDialogViewState.ValidationResult.InvalidAddress,
                 )
             )
@@ -121,5 +116,7 @@ class DnsDialogTest {
         private const val LOCAL_DNS_SERVER_WARNING =
             "The local DNS server will not work unless you enable " +
                 "\"Local Network Sharing\" under Preferences."
+
+        private const val invalidIpAddress = "300.300.300.300"
     }
 }
