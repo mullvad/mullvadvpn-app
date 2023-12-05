@@ -300,8 +300,11 @@ pub async fn test_installation_idempotency(
         .set_auto_connect(false)
         .await
         .expect("failed to enable auto-connect");
-    // Start a tunnel monitor. No traffic should be observed going outside of
-    // the tunnel during either installation process.
+    // Check for traffic leaks during the installation processes.
+    //
+    // Start continously pinging while monitoring the network traffic. No
+    // traffic should be observed going outside of the tunnel during either
+    // installation process.
     let pinger = Pinger::start(&rpc).await;
     for _ in 1..=2 {
         // install package
@@ -323,8 +326,7 @@ pub async fn test_installation_idempotency(
             tokio::time::sleep(delay).await;
         }
     }
-
-    // Make sure that no traffic leak occured during any installation process.
+    // Make sure that no network leak occured during any installation process.
     let guest_ip = pinger.guest_ip;
     let monitor_result = pinger.stop().await.unwrap();
     assert_eq!(
