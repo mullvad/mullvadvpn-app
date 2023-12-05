@@ -51,7 +51,7 @@ import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.transitions.NoTransition
+import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -76,7 +76,7 @@ private fun PreviewConnectScreen() {
     }
 }
 
-@Destination(style = NoTransition::class)
+@Destination(style = HomeTransition::class)
 @Composable
 fun Connect(navigator: DestinationsNavigator) {
     val connectViewModel: ConnectViewModel = koinViewModel()

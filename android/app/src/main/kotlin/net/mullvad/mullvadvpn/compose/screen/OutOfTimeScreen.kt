@@ -42,7 +42,7 @@ import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
-import net.mullvad.mullvadvpn.compose.transitions.NoTransition
+import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.WhileInView
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -104,7 +104,7 @@ private fun PreviewOutOfTimeScreenError() {
     }
 }
 
-@Destination(style = NoTransition::class)
+@Destination(style = HomeTransition::class)
 @Composable
 fun OutOfTime(
     navigator: DestinationsNavigator,
