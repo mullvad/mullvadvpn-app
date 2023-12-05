@@ -27,6 +27,15 @@ export function filterLocationsByEndPointType(
   return filterLocationsImpl(locations, getTunnelProtocolFilter(endpointType, relaySettings));
 }
 
+export function filterLocationsByDaita(
+  locations: IRelayLocationCountryRedux[],
+  daita: boolean,
+): IRelayLocationCountryRedux[] {
+  return daita
+    ? filterLocationsImpl(locations, (relay: IRelayLocationRelayRedux) => relay.daita)
+    : locations;
+}
+
 export function filterLocations(
   locations: IRelayLocationCountryRedux[],
   ownership?: Ownership,
