@@ -343,42 +343,7 @@ pub async fn test_installation_idempotency(
         .expect("failed to enable auto-connect");
     // Start a tunnel monitor. No traffic should be observed going outside of
     // the tunnel during either installation process.
-    let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
-    let guest_iface = rpc
-        .get_default_interface()
-        .await
-        .expect("failed to obtain default interface");
-    let guest_ip = rpc
-        .get_interface_ip(guest_iface)
-        .await
-        .expect("failed to obtain non-tun IP");
-    log::debug!("Guest IP: {guest_ip}");
-
-    log::debug!("Monitoring outgoing traffic");
-    let monitor = start_packet_monitor(
-        move |packet| {
-            // NOTE: Many packets will likely be observed for API traffic. Rather than filtering all
-            // of those specifically, simply fail if our probes are observed.
-            packet.source.ip() == guest_ip && packet.destination.ip() == inet_destination.ip()
-        },
-        MonitorOptions::default(),
-    )
-    .await;
-    // TODO: Refactor this into a nice-looking API which returns both a pinger and an associated ping-monitor. => (Pinger, PingMonitor).
-    let ping_rpc = rpc.clone();
-    let probe_sender = AbortOnDrop::new(tokio::spawn(async move {
-        // Send a ping once every second.
-        loop {
-            super::helpers::send_guest_probes_without_monitor(
-                ping_rpc.clone(),
-                None,
-                inet_destination,
-            )
-            .await;
-            tokio::time::sleep(Duration::from_secs(1)).await;
-        }
-    }));
-
+    let pinger = Pinger::start(&rpc).await;
     for _ in 1..=2 {
         // install package
         log::debug!("Installing new app");
@@ -393,19 +358,16 @@ pub async fn test_installation_idempotency(
                 );
                 err
             })?;
-
         // Wait for an arbitrary amount of time. The point is that the pinger
-        // should be able to ping `inet_destination` while the newly installed
-        // app is running.
-        tokio::time::sleep(Duration::from_secs(3)).await;
+        // should be able to ping while the newly installed app is running.
+        if let Some(delay) = pinger.period().checked_mul(3) {
+            tokio::time::sleep(delay).await;
+        }
     }
 
     // Make sure that no traffic leak occured during any installation process.
-    let probe_sender = probe_sender.into_inner();
-    probe_sender.abort();
-    let _ = probe_sender.await;
-
-    let monitor_result = monitor.into_result().await.unwrap();
+    let guest_ip = pinger.guest_ip;
+    let monitor_result = pinger.stop().await.unwrap();
     assert_eq!(
         monitor_result.packets.len(),
         0,
