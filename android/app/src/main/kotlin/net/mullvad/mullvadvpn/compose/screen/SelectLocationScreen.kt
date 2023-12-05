@@ -163,6 +163,16 @@ fun SelectLocationScreen(
         }
         Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
         val lazyListState = rememberLazyListState()
+        if (uiState is SelectLocationUiState.ShowData && uiState.selectedRelay != null) {
+            LaunchedEffect(uiState.selectedRelay) {
+                lazyListState.scrollToItem(
+                    uiState.countries.indexOfFirst {
+                        it.location.location.country ==
+                            uiState.selectedRelay.location.location.country
+                    }
+                )
+            }
+        }
         LazyColumn(
             modifier =
                 Modifier.focusRequester(listFocus)
