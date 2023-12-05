@@ -623,6 +623,7 @@ class VpnSettingsScreenTest {
                 uiState =
                     VpnSettingsUiState.createDefault(
                         quantumResistant = QuantumResistantState.Auto,
+                        isConnectOnBootEnabled = false
                     ),
                 onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
                 toastMessagesSharedFlow = MutableSharedFlow<String>().asSharedFlow()

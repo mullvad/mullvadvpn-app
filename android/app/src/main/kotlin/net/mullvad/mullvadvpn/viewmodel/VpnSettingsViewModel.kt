@@ -51,13 +51,16 @@ class VpnSettingsViewModel(
     private val dialogState = MutableStateFlow<VpnSettingsDialogState?>(null)
 
     private val vmState =
-        combine(repository.settingsUpdates, portRangeUseCase.portRanges(), dialogState) {
-                settings,
-                portRanges,
-                dialogState ->
+        combine(
+                repository.settingsUpdates,
+                portRangeUseCase.portRanges(),
+                dialogState,
+                repository.isConnectOnBootEnabled
+            ) { settings, portRanges, dialogState, isConnectOnBootEnabled ->
                 VpnSettingsViewModelState(
                     mtuValue = settings?.mtuString() ?: "",
                     isAutoConnectEnabled = settings?.autoConnect ?: false,
+                    isConnectOnBootEnabled = isConnectOnBootEnabled,
                     isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
                     isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
@@ -225,6 +228,10 @@ class VpnSettingsViewModel(
 
     fun onToggleAutoConnect(isEnabled: Boolean) {
         viewModelScope.launch(dispatcher) { repository.setAutoConnect(isEnabled) }
+    }
+
+    fun onToggleConnectOnBoot(isEnabled: Boolean) {
+        viewModelScope.launch(dispatcher) { repository.setConnectOnBoot(isEnabled) }
     }
 
     fun onToggleLocalNetworkSharing(isEnabled: Boolean) {
