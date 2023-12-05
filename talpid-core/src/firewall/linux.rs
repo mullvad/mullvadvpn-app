@@ -530,9 +530,13 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
+                custom_remote_endpoint,
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
                 self.add_allow_endpoint_rules(allowed_endpoint);
+                if let Some(custom_remote_endpoint) = &custom_remote_endpoint {
+                    self.add_custom_remote_endpoint(&custom_remote_endpoint);
+                }
 
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
@@ -563,10 +567,14 @@ impl<'a> PolicyBatch<'a> {
                 tunnel,
                 allow_lan,
                 dns_servers,
+                custom_remote_endpoint,
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Tcp)?;
+                if let Some(custom_remote_endpoint) = &custom_remote_endpoint {
+                    self.add_custom_remote_endpoint(&custom_remote_endpoint);
+                }
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 self.add_drop_dns_rule();
@@ -882,6 +890,28 @@ impl<'a> PolicyBatch<'a> {
             add_verdict(&mut in_v4, &Verdict::Accept);
             self.batch.add(&in_v4, nftnl::MsgType::Add);
         }
+    }
+
+    fn add_custom_remote_endpoint(&mut self, custom_remote_endpoint: &Endpoint) {
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            let mut rule = Rule::new(chain);
+            check_endpoint(
+                &mut rule,
+                End::Dst,
+                custom_remote_endpoint,
+            );
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        
+        let mut rule = Rule::new(&self.in_chain);
+        check_endpoint(
+            &mut rule,
+            End::Src,
+            custom_remote_endpoint,
+        );
+        add_verdict(&mut rule, &Verdict::Accept);
+        self.batch.add(&rule, nftnl::MsgType::Add);
     }
 }
 
