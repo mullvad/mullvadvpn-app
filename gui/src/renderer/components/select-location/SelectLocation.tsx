@@ -71,6 +71,7 @@ export default function SelectLocation() {
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
   const filteredProviders = useFilteredProviders(providers, ownership);
+  const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
 
   const [searchValue, setSearchValue] = useState('');
 
@@ -122,7 +123,7 @@ export default function SelectLocation() {
 
   const showOwnershipFilter = ownership !== Ownership.any;
   const showProvidersFilter = providers.length > 0;
-  const showFilters = showOwnershipFilter || showProvidersFilter;
+  const showFilters = showOwnershipFilter || showProvidersFilter || daita;
   return (
     <BackAction action={onClose}>
       <Layout>
@@ -218,6 +219,15 @@ export default function SelectLocation() {
                           tintHoverColor={colors.white80}
                         />
                       </StyledClearFilterButton>
+                    </StyledFilter>
+                  )}
+
+                  {daita && (
+                    <StyledFilter>
+                      {sprintf(
+                        messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
+                        { settingName: 'DAITA' },
+                      )}
                     </StyledFilter>
                   )}
                 </StyledFilterRow>
