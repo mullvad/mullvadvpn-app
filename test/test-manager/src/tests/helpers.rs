@@ -1,6 +1,6 @@
 use super::{config::TEST_CONFIG, Error, PING_TIMEOUT, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
 use crate::network_monitor::{
-    start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
+    self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
 };
 use futures::StreamExt;
 use mullvad_management_interface::{types, ManagementServiceClient, MullvadProxyClient};
@@ -106,7 +106,7 @@ pub async fn send_guest_probes(
     let pktmon = start_packet_monitor(
         move |packet| packet.destination.ip() == destination.ip(),
         MonitorOptions {
-            direction: Some(crate::network_monitor::Direction::In),
+            direction: Some(network_monitor::Direction::In),
             timeout: Some(MONITOR_DURATION),
             ..Default::default()
         },
@@ -535,7 +535,7 @@ pub struct Pinger {
     // These values can be configured with [`PingerBuilder`].
     destination: SocketAddr,
     interval: tokio::time::Interval,
-    // Run-time specifics
+    // Run-time specific values
     pub guest_ip: IpAddr,
     ping_task: AbortOnDrop<tokio::task::JoinHandle<()>>,
     monitor: PacketMonitor,
@@ -555,14 +555,8 @@ impl Pinger {
     /// See [`PingerBuilder`] for details on how to configure a [`Pinger`]
     /// before starting it.
     pub async fn start_with(builder: PingerBuilder, rpc: &test_rpc::ServiceClient) -> Pinger {
-        let guest_iface = rpc
-            .get_default_interface()
-            .await
-            .expect("failed to obtain default interface");
-        let guest_ip = rpc
-            .get_interface_ip(guest_iface)
-            .await
-            .expect("failed to obtain non-tun IP");
+        // Get the associated IP address of the test runner on the default, non-tunnel interface.
+        let guest_ip = obtain_guest_ip(rpc).await;
         log::debug!("Guest IP: {guest_ip}");
 
         // Start a network monitor
@@ -577,6 +571,7 @@ impl Pinger {
             MonitorOptions::default(),
         )
         .await;
+
         // Start pinging
         let ping_rpc = rpc.clone();
         let mut interval = tokio::time::interval(builder.interval.period());
@@ -599,9 +594,7 @@ impl Pinger {
         }
     }
 
-    pub async fn stop(
-        self,
-    ) -> Result<crate::network_monitor::MonitorResult, MonitorUnexpectedlyStopped> {
+    pub async fn stop(self) -> Result<network_monitor::MonitorResult, MonitorUnexpectedlyStopped> {
         // Abort the inner probe sender, which is accomplish by dropping the
         // join handle to the running task.
         drop(self.ping_task);
@@ -612,6 +605,17 @@ impl Pinger {
     pub fn period(&self) -> tokio::time::Duration {
         self.interval.period()
     }
+}
+
+/// Returns the [`IpAddr`] of the default non-tunnel interface.
+async fn obtain_guest_ip(rpc: &ServiceClient) -> IpAddr {
+    let guest_iface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to obtain default interface");
+    rpc.get_interface_ip(guest_iface)
+        .await
+        .expect("failed to obtain non-tun IP")
 }
 
 /// Configure a [`Pinger`] before starting it.
