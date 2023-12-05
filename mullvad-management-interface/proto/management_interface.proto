@@ -260,36 +260,19 @@ enum Ownership {
 }
 
 message BridgeSettings {
+  enum BridgeType {
+    NORMAL = 0;
+    CUSTOM = 1;
+  }
   message BridgeConstraints {
     LocationConstraint location = 1;
     repeated string providers = 2;
     Ownership ownership = 3;
   }
 
-  message LocalProxySettings {
-    uint32 port = 1;
-    string peer = 2;
-  }
-  message RemoteProxySettings {
-    string address = 1;
-    RemoteProxyAuth auth = 2;
-  }
-  message RemoteProxyAuth {
-    string username = 1;
-    string password = 2;
-  }
-  message ShadowsocksProxySettings {
-    string peer = 1;
-    string password = 2;
-    string cipher = 3;
-  }
-
-  oneof type {
-    BridgeConstraints normal = 1;
-    LocalProxySettings local = 2;
-    RemoteProxySettings remote = 3;
-    ShadowsocksProxySettings shadowsocks = 4;
-  }
+  BridgeType bridge_type = 1;
+  BridgeConstraints normal = 2;
+  CustomProxy custom = 3;
 }
 
 message LocationConstraint {
@@ -334,30 +317,39 @@ message CustomList {
 
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
+message Socks5Local {
+  string remote_ip = 1;
+  uint32 remote_port = 2;
+  TransportProtocol remote_transport_protocol = 3;
+  uint32 local_port = 4;
+}
+message SocksAuth {
+  string username = 1;
+  string password = 2;
+}
+message Socks5Remote {
+  string ip = 1;
+  uint32 port = 2;
+  SocksAuth auth = 3;
+}
+message Shadowsocks {
+  string ip = 1;
+  uint32 port = 2;
+  string password = 3;
+  string cipher = 4;
+}
+
+message CustomProxy {
+  oneof proxy_method {
+    Socks5Local socks5local = 1;
+    Socks5Remote socks5remote = 2;
+    Shadowsocks shadowsocks = 3;
+  }
+}
+
 message AccessMethod {
   message Direct {}
   message Bridges {}
-  message Socks5Local {
-    string remote_ip = 1;
-    uint32 remote_port = 2;
-    TransportProtocol remote_transport_protocol = 3;
-    uint32 local_port = 4;
-  }
-  message SocksAuth {
-    string username = 1;
-    string password = 2;
-  }
-  message Socks5Remote {
-    string ip = 1;
-    uint32 port = 2;
-    SocksAuth authentication = 3;
-  }
-  message Shadowsocks {
-    string ip = 1;
-    uint32 port = 2;
-    string password = 3;
-    string cipher = 4;
-  }
   oneof access_method {
     Direct direct = 1;
     Bridges bridges = 2;

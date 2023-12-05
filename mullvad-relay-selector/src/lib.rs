@@ -9,9 +9,10 @@ use mullvad_types::{
     location::{Coordinates, Location},
     relay_constraints::{
         BridgeSettings, BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint,
-        Match, ObfuscationSettings, OpenVpnConstraints, Ownership, Providers, RelayConstraints,
-        RelayConstraintsFormatter, RelayOverride, RelaySettings, ResolvedLocationConstraint,
-        SelectedObfuscation, Set, TransportPort, Udp2TcpObfuscationSettings,
+        Match, MissingCustomBridgeSettings, ObfuscationSettings, OpenVpnConstraints, Ownership,
+        Providers, RelayConstraints, RelayConstraintsFormatter, RelayOverride, RelaySettings,
+        ResolvedBridgeSettings, ResolvedLocationConstraint, SelectedObfuscation, Set,
+        TransportPort, Udp2TcpObfuscationSettings,
     },
     relay_list::{BridgeEndpointData, Relay, RelayEndpointData, RelayList},
     settings::Settings,
@@ -29,8 +30,8 @@ use std::{
 };
 use talpid_types::{
     net::{
-        obfuscation::ObfuscatorConfig, openvpn::ProxySettings, wireguard, IpVersion,
-        TransportProtocol, TunnelType,
+        obfuscation::ObfuscatorConfig, proxy::CustomProxy, wireguard, IpVersion, TransportProtocol,
+        TunnelType,
     },
     ErrorExt,
 };
@@ -77,6 +78,9 @@ pub enum Error {
 
     #[error(display = "Downloader already shut down")]
     DownloaderShutDown,
+
+    #[error(display = "Invalid bridge settings")]
+    InvalidBridgeSettings(#[error(source)] MissingCustomBridgeSettings),
 }
 
 struct ParsedRelays {
@@ -869,8 +873,12 @@ impl RelaySelector {
         retry_attempt: u32,
         custom_lists: &CustomListsSettings,
     ) -> Result<Option<SelectedBridge>, Error> {
-        match &config.bridge_settings {
-            BridgeSettings::Normal(settings) => {
+        match config
+            .bridge_settings
+            .resolve()
+            .map_err(Error::InvalidBridgeSettings)?
+        {
+            ResolvedBridgeSettings::Normal(settings) => {
                 let bridge_constraints = InternalBridgeConstraints {
                     location: settings.location.clone(),
                     providers: settings.providers.clone(),
@@ -896,7 +904,7 @@ impl RelaySelector {
                     BridgeState::Auto | BridgeState::Off => Ok(None),
                 }
             }
-            BridgeSettings::Custom(bridge_settings) => match config.bridge_state {
+            ResolvedBridgeSettings::Custom(bridge_settings) => match config.bridge_state {
                 BridgeState::On => Ok(Some(SelectedBridge::Custom(bridge_settings.clone()))),
                 BridgeState::Auto if Self::should_use_bridge(retry_attempt) => {
                     Ok(Some(SelectedBridge::Custom(bridge_settings.clone())))
@@ -906,8 +914,9 @@ impl RelaySelector {
         }
     }
 
-    /// Returns a bridge based on the relay and bridge constraints, ignoring the bridge state.
-    pub fn get_bridge_forced(&self) -> Option<ProxySettings> {
+    /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
+    /// state.
+    pub fn get_bridge_forced(&self) -> Option<CustomProxy> {
         let config = self.config.lock();
 
         let near_location = match &config.relay_settings {
@@ -917,14 +926,14 @@ impl RelaySelector {
             _ => None,
         };
 
-        let constraints = match &config.bridge_settings {
-            BridgeSettings::Normal(settings) => InternalBridgeConstraints {
+        let constraints = match config.bridge_settings.resolve() {
+            Ok(ResolvedBridgeSettings::Normal(settings)) => InternalBridgeConstraints {
                 location: settings.location.clone(),
                 providers: settings.providers.clone(),
                 ownership: settings.ownership,
                 transport_protocol: Constraint::Only(TransportProtocol::Tcp),
             },
-            BridgeSettings::Custom(_bridge_settings) => InternalBridgeConstraints {
+            _ => InternalBridgeConstraints {
                 location: Constraint::Any,
                 providers: Constraint::Any,
                 ownership: Constraint::Any,
@@ -951,7 +960,7 @@ impl RelaySelector {
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
         custom_lists: &CustomListsSettings,
-    ) -> Option<(ProxySettings, Relay)> {
+    ) -> Option<(CustomProxy, Relay)> {
         let matcher = RelayMatcher {
             locations: ResolvedLocationConstraint::from_constraint(
                 constraints.location.clone(),
@@ -1236,11 +1245,7 @@ impl RelaySelector {
     }
 
     /// Picks a random bridge from a relay.
-    fn pick_random_bridge(
-        &self,
-        data: &BridgeEndpointData,
-        relay: &Relay,
-    ) -> Option<ProxySettings> {
+    fn pick_random_bridge(&self, data: &BridgeEndpointData, relay: &Relay) -> Option<CustomProxy> {
         if relay.endpoint_data != RelayEndpointData::Bridge {
             return None;
         }
@@ -1254,11 +1259,7 @@ impl RelaySelector {
                     shadowsocks_endpoint.port,
                     shadowsocks_endpoint.protocol
                 );
-                shadowsocks_endpoint.to_proxy_settings(
-                    relay.ipv4_addr_in.into(),
-                    #[cfg(target_os = "linux")]
-                    mullvad_types::TUNNEL_FWMARK,
-                )
+                shadowsocks_endpoint.to_proxy_settings(relay.ipv4_addr_in.into())
             })
     }
 
@@ -1275,12 +1276,12 @@ impl RelaySelector {
 #[derive(Debug)]
 pub enum SelectedBridge {
     Normal(NormalSelectedBridge),
-    Custom(ProxySettings),
+    Custom(CustomProxy),
 }
 
 #[derive(Debug)]
 pub struct NormalSelectedBridge {
-    pub settings: ProxySettings,
+    pub settings: CustomProxy,
     pub relay: Relay,
 }
 

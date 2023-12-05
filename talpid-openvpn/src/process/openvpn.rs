@@ -7,7 +7,7 @@ use std::{
     process::Stdio,
     time::Duration,
 };
-use talpid_types::net;
+use talpid_types::net::{self, proxy::CustomProxy};
 
 static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--client"],
@@ -66,7 +66,7 @@ pub struct OpenVpnCommand {
     plugin: Option<(PathBuf, Vec<String>)>,
     log: Option<PathBuf>,
     tunnel_options: net::openvpn::TunnelOptions,
-    proxy_settings: Option<net::openvpn::ProxySettings>,
+    proxy_settings: Option<CustomProxy>,
     tunnel_alias: Option<OsString>,
     enable_ipv6: bool,
     proxy_port: Option<u16>,
@@ -182,7 +182,7 @@ impl OpenVpnCommand {
     }
 
     /// Sets the proxy settings.
-    pub fn proxy_settings(&mut self, proxy_settings: net::openvpn::ProxySettings) -> &mut Self {
+    pub fn proxy_settings(&mut self, proxy_settings: CustomProxy) -> &mut Self {
         self.proxy_settings = Some(proxy_settings);
         self
     }
@@ -302,19 +302,19 @@ impl OpenVpnCommand {
     fn proxy_arguments(&self) -> Vec<String> {
         let mut args = vec![];
         match self.proxy_settings {
-            Some(net::openvpn::ProxySettings::Local(ref local_proxy)) => {
+            Some(CustomProxy::Socks5Local(ref local_proxy)) => {
                 args.push("--socks-proxy".to_owned());
                 args.push("127.0.0.1".to_owned());
-                args.push(local_proxy.port.to_string());
+                args.push(local_proxy.local_port.to_string());
                 args.push("--route".to_owned());
-                args.push(local_proxy.peer.ip().to_string());
+                args.push(local_proxy.remote_endpoint.address.ip().to_string());
                 args.push("255.255.255.255".to_owned());
                 args.push("net_gateway".to_owned());
             }
-            Some(net::openvpn::ProxySettings::Remote(ref remote_proxy)) => {
+            Some(CustomProxy::Socks5Remote(ref remote_proxy)) => {
                 args.push("--socks-proxy".to_owned());
-                args.push(remote_proxy.address.ip().to_string());
-                args.push(remote_proxy.address.port().to_string());
+                args.push(remote_proxy.endpoint.ip().to_string());
+                args.push(remote_proxy.endpoint.port().to_string());
 
                 if let Some(ref _auth) = remote_proxy.auth {
                     if let Some(ref auth_file) = self.proxy_auth_path {
@@ -325,11 +325,11 @@ impl OpenVpnCommand {
                 }
 
                 args.push("--route".to_owned());
-                args.push(remote_proxy.address.ip().to_string());
+                args.push(remote_proxy.endpoint.ip().to_string());
                 args.push("255.255.255.255".to_owned());
                 args.push("net_gateway".to_owned());
             }
-            Some(net::openvpn::ProxySettings::Shadowsocks(ref ss)) => {
+            Some(CustomProxy::Shadowsocks(ref ss)) => {
                 args.push("--socks-proxy".to_owned());
                 args.push("127.0.0.1".to_owned());
 
@@ -340,7 +340,7 @@ impl OpenVpnCommand {
                 }
 
                 args.push("--route".to_owned());
-                args.push(ss.peer.ip().to_string());
+                args.push(ss.endpoint.ip().to_string());
                 args.push("255.255.255.255".to_owned());
                 args.push("net_gateway".to_owned());
             }

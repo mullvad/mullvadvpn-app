@@ -4,6 +4,7 @@ use mullvad_types::{
     relay_constraints::{Constraint, GeographicLocationConstraint},
 };
 use std::str::FromStr;
+use talpid_types::net::proxy::CustomProxy;
 
 impl TryFrom<&proto::WireguardConstraints>
     for mullvad_types::relay_constraints::WireguardConstraints
@@ -178,52 +179,34 @@ impl From<&mullvad_types::relay_constraints::Udp2TcpObfuscationSettings>
 
 impl From<mullvad_types::relay_constraints::BridgeSettings> for proto::BridgeSettings {
     fn from(settings: mullvad_types::relay_constraints::BridgeSettings) -> Self {
-        use mullvad_types::relay_constraints::BridgeSettings as MullvadBridgeSettings;
         use proto::bridge_settings;
-        use talpid_types::net as talpid_net;
 
-        let settings = match settings {
-            MullvadBridgeSettings::Normal(constraints) => {
-                bridge_settings::Type::Normal(bridge_settings::BridgeConstraints {
-                    location: constraints
-                        .location
-                        .clone()
-                        .option()
-                        .map(proto::LocationConstraint::from),
-                    providers: convert_providers_constraint(&constraints.providers),
-                    ownership: convert_ownership_constraint(&constraints.ownership) as i32,
-                })
+        let mode = match settings.bridge_type {
+            mullvad_types::relay_constraints::BridgeType::Normal => {
+                bridge_settings::BridgeType::Normal
             }
-            MullvadBridgeSettings::Custom(proxy_settings) => match proxy_settings {
-                talpid_net::openvpn::ProxySettings::Local(proxy_settings) => {
-                    bridge_settings::Type::Local(bridge_settings::LocalProxySettings {
-                        port: u32::from(proxy_settings.port),
-                        peer: proxy_settings.peer.to_string(),
-                    })
-                }
-                talpid_net::openvpn::ProxySettings::Remote(proxy_settings) => {
-                    bridge_settings::Type::Remote(bridge_settings::RemoteProxySettings {
-                        address: proxy_settings.address.to_string(),
-                        auth: proxy_settings.auth.as_ref().map(|auth| {
-                            bridge_settings::RemoteProxyAuth {
-                                username: auth.username.clone(),
-                                password: auth.password.clone(),
-                            }
-                        }),
-                    })
-                }
-                talpid_net::openvpn::ProxySettings::Shadowsocks(proxy_settings) => {
-                    bridge_settings::Type::Shadowsocks(bridge_settings::ShadowsocksProxySettings {
-                        peer: proxy_settings.peer.to_string(),
-                        password: proxy_settings.password.clone(),
-                        cipher: proxy_settings.cipher,
-                    })
-                }
-            },
+            mullvad_types::relay_constraints::BridgeType::Custom => {
+                bridge_settings::BridgeType::Custom
+            }
         };
 
+        let normal = bridge_settings::BridgeConstraints {
+            location: settings
+                .normal
+                .location
+                .clone()
+                .option()
+                .map(proto::LocationConstraint::from),
+            providers: convert_providers_constraint(&settings.normal.providers),
+            ownership: i32::from(convert_ownership_constraint(&settings.normal.ownership)),
+        };
+
+        let custom = settings.custom.map(proto::CustomProxy::from);
+
         proto::BridgeSettings {
-            r#type: Some(settings),
+            bridge_type: i32::from(mode),
+            normal: Some(normal),
+            custom,
         }
     }
 }
@@ -389,79 +372,59 @@ impl TryFrom<proto::GeographicLocationConstraint> for GeographicLocationConstrai
     }
 }
 
+pub fn try_bridge_mode_from_i32(
+    mode: i32,
+) -> Result<mullvad_types::relay_constraints::BridgeType, FromProtobufTypeError> {
+    proto::bridge_settings::BridgeType::try_from(mode)
+        .map(mullvad_types::relay_constraints::BridgeType::from)
+        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid bridge mode argument"))
+}
+
+impl From<proto::bridge_settings::BridgeType> for mullvad_types::relay_constraints::BridgeType {
+    fn from(value: proto::bridge_settings::BridgeType) -> Self {
+        use mullvad_types::relay_constraints::BridgeType;
+
+        match value {
+            proto::bridge_settings::BridgeType::Normal => BridgeType::Normal,
+            proto::bridge_settings::BridgeType::Custom => BridgeType::Custom,
+        }
+    }
+}
+
 impl TryFrom<proto::BridgeSettings> for mullvad_types::relay_constraints::BridgeSettings {
     type Error = FromProtobufTypeError;
 
     fn try_from(settings: proto::BridgeSettings) -> Result<Self, Self::Error> {
-        use mullvad_types::relay_constraints as mullvad_constraints;
-        use talpid_types::net as talpid_net;
+        use mullvad_types::relay_constraints::{BridgeConstraints, BridgeSettings};
 
-        match settings
-            .r#type
+        // convert normal bridge settings
+        let constraints = settings
+            .normal
             .ok_or(FromProtobufTypeError::InvalidArgument(
-                "no settings provided",
-            ))? {
-            proto::bridge_settings::Type::Normal(constraints) => {
-                let location = match constraints.location {
-                    None => Constraint::Any,
-                    Some(location) => Constraint::<
-                        mullvad_types::relay_constraints::LocationConstraint,
-                    >::try_from(location)?,
-                };
-                let providers = try_providers_constraint_from_proto(&constraints.providers)?;
-                let ownership = try_ownership_constraint_from_i32(constraints.ownership)?;
+                "missing normal bridge constraints",
+            ))?;
+        let location = match constraints.location {
+            None => Constraint::Any,
+            Some(location) => {
+                Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
+                    location,
+                )?
+            }
+        };
+        let normal = BridgeConstraints {
+            location,
+            providers: try_providers_constraint_from_proto(&constraints.providers)?,
+            ownership: try_ownership_constraint_from_i32(constraints.ownership)?,
+        };
 
-                Ok(mullvad_constraints::BridgeSettings::Normal(
-                    mullvad_constraints::BridgeConstraints {
-                        location,
-                        providers,
-                        ownership,
-                    },
-                ))
-            }
-            proto::bridge_settings::Type::Local(proxy_settings) => {
-                let peer = proxy_settings.peer.parse().map_err(|_| {
-                    FromProtobufTypeError::InvalidArgument("failed to parse peer address")
-                })?;
-                let proxy_settings = talpid_net::openvpn::ProxySettings::Local(
-                    talpid_net::openvpn::LocalProxySettings {
-                        port: proxy_settings.port as u16,
-                        peer,
-                    },
-                );
-                Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
-            }
-            proto::bridge_settings::Type::Remote(proxy_settings) => {
-                let address = proxy_settings.address.parse().map_err(|_| {
-                    FromProtobufTypeError::InvalidArgument("failed to parse IP address")
-                })?;
-                let auth = proxy_settings
-                    .auth
-                    .map(|auth| talpid_net::openvpn::ProxyAuth {
-                        username: auth.username,
-                        password: auth.password,
-                    });
-                let proxy_settings = talpid_net::openvpn::ProxySettings::Remote(
-                    talpid_net::openvpn::RemoteProxySettings { address, auth },
-                );
-                Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
-            }
-            proto::bridge_settings::Type::Shadowsocks(proxy_settings) => {
-                let peer = proxy_settings.peer.parse().map_err(|_| {
-                    FromProtobufTypeError::InvalidArgument("failed to parse peer address")
-                })?;
-                let proxy_settings = talpid_net::openvpn::ProxySettings::Shadowsocks(
-                    talpid_net::openvpn::ShadowsocksProxySettings {
-                        #[cfg(target_os = "linux")]
-                        fwmark: Some(mullvad_types::TUNNEL_FWMARK),
-                        peer,
-                        password: proxy_settings.password,
-                        cipher: proxy_settings.cipher,
-                    },
-                );
-                Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
-            }
-        }
+        // convert custom bridge settings
+        let custom = settings.custom.map(CustomProxy::try_from).transpose()?;
+
+        Ok(BridgeSettings {
+            bridge_type: try_bridge_mode_from_i32(settings.bridge_type)?,
+            normal,
+            custom,
+        })
     }
 }
 

@@ -49,7 +49,7 @@ use mullvad_types::{
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
-        BridgeSettings, BridgeState, ObfuscationSettings, RelayOverride, RelaySettings,
+        BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
     },
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -182,6 +182,8 @@ pub enum Error {
 
     #[error(display = "API connection mode error")]
     ApiConnectionModeError(#[error(source)] api::Error),
+    #[error(display = "No custom bridge has been specified")]
+    NoCustomProxySaved,
 
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
@@ -248,7 +250,7 @@ pub enum DaemonCommand {
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set proxy details for OpenVPN
-    SetBridgeSettings(ResponseTx<(), settings::Error>, BridgeSettings),
+    SetBridgeSettings(ResponseTx<(), Error>, BridgeSettings),
     /// Set proxy state
     SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
@@ -2027,9 +2029,19 @@ where
 
     async fn on_set_bridge_settings(
         &mut self,
-        tx: ResponseTx<(), settings::Error>,
+        tx: ResponseTx<(), Error>,
         new_settings: BridgeSettings,
     ) {
+        if new_settings.custom.is_none() && new_settings.bridge_type == BridgeType::Custom {
+            log::info!("Tried to select custom bridge but no custom bridge settings exist");
+            Self::oneshot_send(
+                tx,
+                Err(Error::NoCustomProxySaved),
+                "set_bridge_settings response",
+            );
+            return;
+        }
+
         match self
             .settings
             .update(move |settings| settings.bridge_settings = new_settings)
@@ -2050,7 +2062,7 @@ where
                     "{}",
                     e.display_chain_with_msg("Failed to set new bridge settings")
                 );
-                Self::oneshot_send(tx, Err(e), "set_bridge_settings");
+                Self::oneshot_send(tx, Err(Error::SettingsError(e)), "set_bridge_settings");
             }
         }
     }

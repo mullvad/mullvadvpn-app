@@ -11,6 +11,7 @@ import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
 import { useRelaySettingsModifier } from '../../lib/constraint-updater';
 import { useHistory } from '../../lib/history';
+import { useSelector } from '../../redux/store';
 import { LocationType, SpecialBridgeLocationType } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 
@@ -88,6 +89,7 @@ function useOnSelectLocation() {
 export function useOnSelectBridgeLocation() {
   const { updateBridgeSettings } = useAppContext();
   const { setLocationType } = useSelectLocationContext();
+  const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
 
   const setLocation = useCallback(async (bridgeUpdate: BridgeSettings) => {
     if (bridgeUpdate) {
@@ -101,10 +103,14 @@ export function useOnSelectBridgeLocation() {
     }
   }, []);
 
-  const onSelectRelay = useCallback((location: RelayLocation) => {
-    const bridgeUpdate = new BridgeSettingsBuilder().location.fromRaw(location).build();
-    return setLocation(bridgeUpdate);
-  }, []);
+  const onSelectRelay = useCallback(
+    (location: RelayLocation) => {
+      const bridgeUpdate = new BridgeSettingsBuilder().location.fromRaw(location).build();
+      bridgeUpdate.custom = bridgeSettings.custom;
+      return setLocation(bridgeUpdate);
+    },
+    [bridgeSettings],
+  );
 
   const onSelectSpecial = useCallback((location: SpecialBridgeLocationType) => {
     switch (location) {

@@ -21,7 +21,7 @@ use std::{
 use talpid_routing::RouteManager;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 use talpid_types::{
-    net::{AllowedTunnelTraffic, TunnelParameters},
+    net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters},
     tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
 };
@@ -140,7 +140,23 @@ impl ConnectingState {
         #[cfg(target_os = "linux")]
         shared_values.disable_connectivity_check();
 
-        let peer_endpoint = params.get_next_hop_endpoint();
+        let endpoint = params.get_next_hop_endpoint();
+
+        #[cfg(target_os = "windows")]
+        let clients = AllowedClients::from(
+            TunnelMonitor::get_relay_client(&shared_values.resource_dir, params)
+                .into_iter()
+                .collect::<Vec<_>>(),
+        );
+
+        #[cfg(not(target_os = "windows"))]
+        let clients = if params.get_openvpn_local_proxy_settings().is_some() {
+            AllowedClients::All
+        } else {
+            AllowedClients::Root
+        };
+
+        let peer_endpoint = AllowedEndpoint { endpoint, clients };
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
@@ -148,8 +164,6 @@ impl ConnectingState {
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
             allowed_tunnel_traffic,
-            #[cfg(windows)]
-            relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, params),
         };
         shared_values
             .firewall

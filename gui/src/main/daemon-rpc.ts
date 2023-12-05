@@ -15,6 +15,7 @@ import {
   AuthFailedError,
   BridgeSettings,
   BridgeState,
+  BridgeType,
   ConnectionConfig,
   Constraint,
   CustomListError,
@@ -51,7 +52,6 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   Ownership,
-  ProxySettings,
   ProxyType,
   RelayEndpointType,
   RelayLocation,
@@ -341,13 +341,52 @@ export class DaemonRpc {
   public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
     const grpcBridgeSettings = new grpcTypes.BridgeSettings();
 
-    if ('normal' in bridgeSettings) {
-      const normalSettings = convertToNormalBridgeSettings(bridgeSettings.normal);
-      grpcBridgeSettings.setNormal(normalSettings);
+    if (bridgeSettings.type === 'custom') {
+      throw configNotSupported;
     }
 
-    if ('custom' in bridgeSettings) {
-      throw configNotSupported;
+    grpcBridgeSettings.setBridgeType(grpcTypes.BridgeSettings.BridgeType.NORMAL);
+
+    const normalSettings = convertToNormalBridgeSettings(bridgeSettings.normal);
+    grpcBridgeSettings.setNormal(normalSettings);
+
+    if (bridgeSettings.custom) {
+      const customProxy = new grpcTypes.CustomProxy();
+
+      const customSettings = bridgeSettings.custom;
+
+      if ('local' in customSettings) {
+        const local = customSettings.local;
+        const socks5Local = new grpcTypes.Socks5Local();
+        socks5Local.setLocalPort(local.localPort);
+        socks5Local.setRemoteIp(local.remoteIp);
+        socks5Local.setRemotePort(local.remotePort);
+        customProxy.setSocks5local(socks5Local);
+      }
+      if ('remote' in customSettings) {
+        const remote = customSettings.remote;
+        const socks5Remote = new grpcTypes.Socks5Remote();
+        if (remote.auth) {
+          const auth = new grpcTypes.SocksAuth();
+          auth.setUsername(remote.auth.username);
+          auth.setPassword(remote.auth.password);
+          socks5Remote.setAuth(auth);
+        }
+        socks5Remote.setIp(remote.ip);
+        socks5Remote.setPort(remote.port);
+        customProxy.setSocks5remote(socks5Remote);
+      }
+      if ('shadowsocks' in customSettings) {
+        const shadowsocks = customSettings.shadowsocks;
+        const shadowOut = new grpcTypes.Shadowsocks();
+        shadowOut.setCipher(shadowsocks.cipher);
+        shadowOut.setIp(shadowsocks.ip);
+        shadowOut.setPort(shadowsocks.port);
+        shadowOut.setPassword(shadowsocks.password);
+        customProxy.setShadowsocks(shadowOut);
+      }
+
+      grpcBridgeSettings.setCustom(customProxy);
     }
 
     await this.call<grpcTypes.BridgeSettings, Empty>(
@@ -1140,49 +1179,64 @@ function convertFromRelaySettings(
 
 function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): BridgeSettings {
   const bridgeSettingsObject = bridgeSettings.toObject();
-  const normalSettings = bridgeSettingsObject.normal;
-  if (normalSettings) {
-    const locationConstraint = convertFromLocationConstraint(
-      bridgeSettings.getNormal()?.getLocation(),
-    );
-    const location = wrapConstraint(locationConstraint);
-    const providers = normalSettings.providersList;
-    const ownership = convertFromOwnership(normalSettings.ownership);
-    return {
-      normal: {
-        location,
-        providers,
-        ownership,
-      },
-    };
-  }
 
-  const customSettings = (settings: ProxySettings): BridgeSettings => {
-    return { custom: settings };
+  const detailsMap: Record<grpcTypes.BridgeSettings.BridgeType, BridgeType> = {
+    [grpcTypes.BridgeSettings.BridgeType.NORMAL]: 'normal',
+    [grpcTypes.BridgeSettings.BridgeType.CUSTOM]: 'custom',
+  };
+  const type = detailsMap[bridgeSettingsObject.bridgeType];
+
+  const normalSettings = bridgeSettingsObject.normal;
+  const locationConstraint = convertFromLocationConstraint(
+    bridgeSettings.getNormal()?.getLocation(),
+  );
+  const location = wrapConstraint(locationConstraint);
+  const providers = normalSettings!.providersList;
+  const ownership = convertFromOwnership(normalSettings!.ownership);
+
+  const normal = {
+    location,
+    providers,
+    ownership,
   };
 
-  const localSettings = bridgeSettingsObject.local;
-  if (localSettings) {
-    return customSettings({
-      port: localSettings.port,
-      peer: localSettings.peer,
-    });
+  let custom = undefined;
+
+  if (bridgeSettingsObject.custom) {
+    const localSettings = bridgeSettingsObject.custom.socks5local;
+    if (localSettings) {
+      custom = {
+        local: {
+          localPort: localSettings.localPort,
+          remoteIp: localSettings.remoteIp,
+          remotePort: localSettings.remotePort,
+        },
+      };
+    }
+    const remoteSettings = bridgeSettingsObject.custom.socks5remote;
+    if (remoteSettings) {
+      custom = {
+        remote: {
+          ip: remoteSettings.ip,
+          port: remoteSettings.port,
+          auth: remoteSettings.auth && { ...remoteSettings.auth },
+        },
+      };
+    }
+    const shadowsocksSettings = bridgeSettingsObject.custom.shadowsocks;
+    if (shadowsocksSettings) {
+      custom = {
+        shadowsocks: {
+          ip: shadowsocksSettings.ip,
+          port: shadowsocksSettings.port,
+          password: shadowsocksSettings.password,
+          cipher: shadowsocksSettings.cipher,
+        },
+      };
+    }
   }
 
-  const remoteSettings = bridgeSettingsObject.remote;
-  if (remoteSettings) {
-    return customSettings({
-      address: remoteSettings.address,
-      auth: remoteSettings.auth && { ...remoteSettings.auth },
-    });
-  }
-
-  const shadowsocksSettings = bridgeSettingsObject.shadowsocks!;
-  return customSettings({
-    peer: shadowsocksSettings.peer!,
-    password: shadowsocksSettings.password!,
-    cipher: shadowsocksSettings.cipher!,
-  });
+  return { type, normal, custom };
 }
 
 function convertFromConnectionConfig(

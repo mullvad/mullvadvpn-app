@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Remove `--location` flag from `mullvad status` CLI. Location and IP will now always
   be printed (if available). `mullvad status listen` no longer prints location info.
+- Custom socks5 bridges get a new CLI interface and now work without split tunneling or root.
+  In the CLI these can be found under `mullvad bridge set custom`.
 
 #### Android
 - Migrate to Compose Navigation which also improves screen transition animations.

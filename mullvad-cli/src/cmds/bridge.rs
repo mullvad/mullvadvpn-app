@@ -1,17 +1,22 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     relay_constraints::{
-        BridgeConstraints, BridgeConstraintsFormatter, BridgeSettings, BridgeState, Constraint,
-        LocationConstraint, Ownership, Provider, Providers,
+        BridgeConstraintsFormatter, BridgeState, BridgeType, Constraint, LocationConstraint,
+        Ownership, Provider, Providers,
     },
     relay_list::RelayEndpointData,
 };
-use std::net::{IpAddr, SocketAddr};
-use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
+use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remote};
 
-use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs};
+use crate::cmds::proxies::pp::CustomProxyFormatter;
+
+use super::{
+    proxies::{ProxyEditParams, ShadowsocksAdd, Socks5LocalAdd, Socks5RemoteAdd},
+    relay::resolve_location_constraint,
+    relay_constraints::LocationArgs,
+};
 
 #[derive(Subcommand, Debug)]
 pub enum Bridge {
@@ -73,73 +78,48 @@ pub enum SetCommands {
 
     /// Configure a SOCKS5 proxy
     #[clap(subcommand)]
-    Custom(SetCustomCommands),
+    Custom(CustomCommands),
 }
 
 #[derive(Subcommand, Debug, Clone)]
-pub enum SetCustomCommands {
+pub enum CustomCommands {
+    /// Create or update and enable the custom bridge configuration.
+    #[clap(subcommand)]
+    Set(AddCustomCommands),
+    /// Edit an existing custom bridge configuration.
+    Edit(ProxyEditParams),
+    /// Use an existing custom bridge configuration.
+    Use,
+    /// Stop using the custom bridge configuration.
+    Disable,
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum AddCustomCommands {
+    #[clap(subcommand)]
+    Socks5(AddSocks5Commands),
+    /// Configure bundled Shadowsocks proxy
+    Shadowsocks {
+        #[clap(flatten)]
+        add: ShadowsocksAdd,
+    },
+}
+
+#[derive(Subcommand, Debug, Clone)]
+pub enum AddSocks5Commands {
     /// Configure a local SOCKS5 proxy
-    #[cfg_attr(
-        target_os = "linux",
-        clap(
-            about = "Registers a local SOCKS5 proxy. The server must be excluded using \
-        'mullvad-exclude', or `SO_MARK` must be set to '0x6d6f6c65', in order \
-        to bypass firewall restrictions"
-        )
-    )]
-    #[cfg_attr(
-        target_os = "windows",
-        clap(
-            about = "Registers a local SOCKS5 proxy. The server must be excluded using \
-        split tunneling in order to bypass firewall restrictions"
-        )
-    )]
-    #[cfg_attr(
-        target_os = "macos",
-        clap(
-            about = "Registers a local SOCKS5 proxy. The server must run as root to bypass \
-        firewall restrictions"
-        )
+    #[clap(
+        about = "Registers a local SOCKS5 proxy. Will allow all local programs to leak traffic *only* to the remote endpoint."
     )]
     Local {
-        /// The port that the server on localhost is listening on
-        local_port: u16,
-        /// The IP of the remote peer
-        remote_ip: IpAddr,
-        /// The port of the remote peer
-        remote_port: u16,
+        #[clap(flatten)]
+        add: Socks5LocalAdd,
     },
 
     /// Configure a remote SOCKS5 proxy
     Remote {
-        /// The IP of the remote proxy server
-        remote_ip: IpAddr,
-        /// The port of the remote proxy server
-        remote_port: u16,
-
-        /// Username for authentication
-        #[arg(requires = "password")]
-        username: Option<String>,
-        /// Password for authentication
-        #[arg(requires = "username")]
-        password: Option<String>,
-    },
-
-    /// Configure bundled Shadowsocks proxy
-    Shadowsocks {
-        /// The IP of the remote Shadowsocks server
-        remote_ip: IpAddr,
-        /// The port of the remote Shadowsocks server
-        #[arg(default_value = "443")]
-        remote_port: u16,
-
-        /// Password for authentication
-        #[arg(default_value = "mullvad")]
-        password: String,
-
-        /// Cipher to use
-        #[arg(value_parser = SHADOWSOCKS_CIPHERS, default_value = "aes-256-gcm")]
-        cipher: String,
+        #[clap(flatten)]
+        add: Socks5RemoteAdd,
     },
 }
 
@@ -188,133 +168,35 @@ impl Bridge {
                 };
                 Self::update_bridge_settings(&mut rpc, None, Some(providers), None).await
             }
-            SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
+            SetCommands::Custom(subcmd) => Self::handle_custom(subcmd).await,
         }
-    }
-
-    async fn set_custom(subcmd: SetCustomCommands) -> Result<()> {
-        match subcmd {
-            SetCustomCommands::Local {
-                local_port,
-                remote_ip,
-                remote_port,
-            } => {
-                let local_proxy = openvpn::LocalProxySettings {
-                    port: local_port,
-                    peer: SocketAddr::new(remote_ip, remote_port),
-                };
-                let packed_proxy = openvpn::ProxySettings::Local(local_proxy);
-                if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                    panic!("{}", error);
-                }
-
-                let mut rpc = MullvadProxyClient::new().await?;
-                rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
-                    .await?;
-            }
-            SetCustomCommands::Remote {
-                remote_ip,
-                remote_port,
-                username,
-                password,
-            } => {
-                let auth = match (username, password) {
-                    (Some(username), Some(password)) => {
-                        Some(openvpn::ProxyAuth { username, password })
-                    }
-                    _ => None,
-                };
-                let proxy = openvpn::RemoteProxySettings {
-                    address: SocketAddr::new(remote_ip, remote_port),
-                    auth,
-                };
-                let packed_proxy = openvpn::ProxySettings::Remote(proxy);
-                if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                    panic!("{}", error);
-                }
-
-                let mut rpc = MullvadProxyClient::new().await?;
-                rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
-                    .await?;
-            }
-            SetCustomCommands::Shadowsocks {
-                remote_ip,
-                remote_port,
-                password,
-                cipher,
-            } => {
-                let proxy = openvpn::ShadowsocksProxySettings {
-                    peer: SocketAddr::new(remote_ip, remote_port),
-                    password,
-                    cipher,
-                    #[cfg(target_os = "linux")]
-                    fwmark: None,
-                };
-                let packed_proxy = openvpn::ProxySettings::Shadowsocks(proxy);
-                if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                    panic!("{}", error);
-                }
-
-                let mut rpc = MullvadProxyClient::new().await?;
-                rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
-                    .await?;
-            }
-        }
-
-        println!("Updated bridge settings");
-        Ok(())
     }
 
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
         println!("Bridge state: {}", settings.bridge_state);
-        match settings.bridge_settings {
-            BridgeSettings::Custom(proxy) => match proxy {
-                openvpn::ProxySettings::Local(local_proxy) => Self::print_local_proxy(&local_proxy),
-                openvpn::ProxySettings::Remote(remote_proxy) => {
-                    Self::print_remote_proxy(&remote_proxy)
-                }
-                openvpn::ProxySettings::Shadowsocks(shadowsocks_proxy) => {
-                    Self::print_shadowsocks_proxy(&shadowsocks_proxy)
-                }
-            },
-            BridgeSettings::Normal(ref constraints) => {
-                println!(
-                    "Bridge constraints: {}",
-                    BridgeConstraintsFormatter {
-                        constraints,
-                        custom_lists: &settings.custom_lists
-                    }
-                )
+        println!(
+            "Active bridge type: {}",
+            settings.bridge_settings.bridge_type
+        );
+
+        println!("Normal constraints");
+        println!(
+            "{:<4}{}",
+            "",
+            BridgeConstraintsFormatter {
+                constraints: &settings.bridge_settings.normal,
+                custom_lists: &settings.custom_lists
             }
-        };
-        Ok(())
-    }
+        );
 
-    fn print_local_proxy(proxy: &openvpn::LocalProxySettings) {
-        println!("proxy: local");
-        println!("  local port: {}", proxy.port);
-        println!("  peer address: {}", proxy.peer);
-    }
-
-    fn print_remote_proxy(proxy: &openvpn::RemoteProxySettings) {
-        println!("proxy: remote");
-        println!("  server address: {}", proxy.address);
-
-        if let Some(ref auth) = proxy.auth {
-            println!("  auth username: {}", auth.username);
-            println!("  auth password: {}", auth.password);
-        } else {
-            println!("  auth: none");
+        if let Some(ref custom_proxy) = settings.bridge_settings.custom {
+            println!("Custom proxy");
+            println!("{}", CustomProxyFormatter { custom_proxy });
         }
-    }
 
-    fn print_shadowsocks_proxy(proxy: &openvpn::ShadowsocksProxySettings) {
-        println!("proxy: Shadowsocks");
-        println!("  peer address: {}", proxy.peer);
-        println!("  password: {}", proxy.password);
-        println!("  cipher: {}", proxy.cipher);
+        Ok(())
     }
 
     async fn list() -> Result<()> {
@@ -379,33 +261,99 @@ impl Bridge {
         providers: Option<Constraint<Providers>>,
         ownership: Option<Constraint<Ownership>>,
     ) -> Result<()> {
-        let constraints = match rpc.get_settings().await?.bridge_settings {
-            BridgeSettings::Normal(mut constraints) => {
-                if let Some(new_location) = location {
-                    constraints.location = new_location;
-                }
-                if let Some(new_providers) = providers {
-                    constraints.providers = new_providers;
-                }
-                if let Some(new_ownership) = ownership {
-                    constraints.ownership = new_ownership;
-                }
-                constraints
-            }
-            _ => BridgeConstraints {
-                location: location
-                    .unwrap_or(Constraint::Any)
-                    .map(LocationConstraint::from),
-                providers: providers.unwrap_or(Constraint::Any),
-                ownership: ownership.unwrap_or(Constraint::Any),
-            },
-        };
+        let mut settings = rpc.get_settings().await?.bridge_settings;
+        if let Some(new_location) = location {
+            settings.normal.location = new_location;
+        }
+        if let Some(new_providers) = providers {
+            settings.normal.providers = new_providers;
+        }
+        if let Some(new_ownership) = ownership {
+            settings.normal.ownership = new_ownership;
+        }
 
-        rpc.set_bridge_settings(BridgeSettings::Normal(constraints))
-            .await?;
+        settings.bridge_type = BridgeType::Normal;
+
+        rpc.set_bridge_settings(settings).await?;
 
         println!("Updated bridge settings");
 
         Ok(())
+    }
+
+    pub async fn handle_custom(subcmd: CustomCommands) -> Result<()> {
+        match subcmd {
+            CustomCommands::Set(set_custom_commands) => {
+                Self::custom_bridge_set(set_custom_commands).await
+            }
+            CustomCommands::Edit(edit) => Self::custom_bridge_edit(edit).await,
+            CustomCommands::Use => Self::custom_bridge_use().await,
+            CustomCommands::Disable => Self::custom_bridge_disable().await,
+        }
+    }
+
+    async fn custom_bridge_edit(edit: ProxyEditParams) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let mut settings = rpc.get_settings().await?;
+
+        let Some(ref mut custom_bridge) = settings.bridge_settings.custom else {
+            bail!("Can not edit as there is no currently saved custom bridge");
+        };
+
+        match custom_bridge {
+            CustomProxy::Shadowsocks(ss) => *ss = edit.merge_shadowsocks(ss),
+            CustomProxy::Socks5Local(local) => *local = edit.merge_socks_local(local),
+            CustomProxy::Socks5Remote(remote) => *remote = edit.merge_socks_remote(remote),
+        };
+
+        rpc.set_bridge_settings(settings.bridge_settings)
+            .await
+            .map_err(anyhow::Error::from)
+    }
+
+    async fn custom_bridge_use() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+
+        let mut settings = rpc.get_settings().await?;
+        if settings.bridge_settings.custom.is_none() {
+            bail!("Cannot enable custom bridge as there are no settings");
+        }
+        settings.bridge_settings.bridge_type = BridgeType::Custom;
+        rpc.set_bridge_settings(settings.bridge_settings).await?;
+
+        Ok(())
+    }
+
+    async fn custom_bridge_disable() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let mut settings = rpc.get_settings().await?;
+
+        settings.bridge_settings.bridge_type = BridgeType::Normal;
+
+        rpc.set_bridge_settings(settings.bridge_settings).await?;
+        Ok(())
+    }
+
+    async fn custom_bridge_set(set_commands: AddCustomCommands) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let mut settings = rpc.get_settings().await?;
+
+        settings.bridge_settings.custom = Some(match set_commands {
+            AddCustomCommands::Socks5(AddSocks5Commands::Local { add }) => {
+                CustomProxy::Socks5Local(Socks5Local::from(add))
+            }
+            AddCustomCommands::Socks5(AddSocks5Commands::Remote { add }) => {
+                CustomProxy::Socks5Remote(Socks5Remote::from(add))
+            }
+            AddCustomCommands::Shadowsocks { add } => {
+                CustomProxy::Shadowsocks(Shadowsocks::from(add))
+            }
+        });
+
+        settings.bridge_settings.bridge_type = BridgeType::Custom;
+
+        rpc.set_bridge_settings(settings.bridge_settings)
+            .await
+            .map_err(anyhow::Error::from)
     }
 }

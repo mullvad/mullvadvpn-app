@@ -16,7 +16,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
+use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
 use std::{
     path::PathBuf,
     sync::{Arc, Mutex, Weak},
@@ -24,7 +24,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_core::mpsc::Sender;
 use talpid_core::tunnel_state_machine::TunnelCommand;
-use talpid_types::net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint};
+use talpid_types::net::{AllowedEndpoint, Endpoint};
 
 pub enum Message {
     Get(ResponseTx<AccessMethodSetting>),
@@ -283,6 +283,7 @@ impl AccessModeSelector {
     /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
     /// can not be implemented.
     fn from(&mut self, access_method: AccessMethod) -> ApiConnectionMode {
+        use talpid_types::net::proxy;
         match access_method {
             AccessMethod::BuiltIn(access_method) => match access_method {
                 BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
@@ -290,13 +291,12 @@ impl AccessModeSelector {
                     .relay_selector
                     .get_bridge_forced()
                     .and_then(|settings| match settings {
-                        ProxySettings::Shadowsocks(ss_settings) => {
-                            let ss_settings: access_method::Shadowsocks =
-                                access_method::Shadowsocks::new(
-                                    ss_settings.peer,
-                                    ss_settings.cipher,
-                                    ss_settings.password,
-                                );
+                        proxy::CustomProxy::Shadowsocks(ss_settings) => {
+                            let ss_settings: proxy::Shadowsocks = proxy::Shadowsocks::new(
+                                ss_settings.endpoint,
+                                ss_settings.cipher,
+                                ss_settings.password,
+                            );
                             Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
                                 ss_settings,
                             )))
@@ -309,11 +309,14 @@ impl AccessModeSelector {
                     .unwrap_or(ApiConnectionMode::Direct),
             },
             AccessMethod::Custom(access_method) => match access_method {
-                access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
+                proxy::CustomProxy::Shadowsocks(shadowsocks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config))
                 }
-                access_method::CustomAccessMethod::Socks5(socks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config))
+                proxy::CustomProxy::Socks5Local(socks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(socks_config))
+                }
+                proxy::CustomProxy::Socks5Remote(socks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks5Remote(socks_config))
                 }
             },
         }
