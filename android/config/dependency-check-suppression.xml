@@ -41,7 +41,7 @@
         <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin\-stdlib.*@.*$</packageUrl>
         <cve>CVE-2022-24329</cve>
     </suppress>
-    <suppress until="2023-12-01Z">
+    <suppress until="2024-06-01Z">
         <notes><![CDATA[
         This CVE only affect the leakCanary build type which is limited to memory leak testing etc.
         This will most likely be solved by bumping to a future version of the leakcanary dependency
