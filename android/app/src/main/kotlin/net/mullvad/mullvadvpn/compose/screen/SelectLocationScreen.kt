@@ -124,11 +124,14 @@ fun SelectLocationScreen(
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onPrimary
             )
-            Image(
-                painter = painterResource(id = R.drawable.icons_more_circle),
-                contentDescription = null,
-                modifier = Modifier.size(Dimens.titleIconSize).clickable { onFilterClick() }
-            )
+            IconButton(onClick = onFilterClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icons_more_circle),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(Dimens.titleIconSize)
+                )
+            }
         }
         when (uiState) {
             SelectLocationUiState.Loading -> {}
