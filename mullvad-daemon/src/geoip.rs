@@ -3,13 +3,18 @@ use std::time::Duration;
 use futures::join;
 use mullvad_api::{
     self,
-    availability::ApiAvailabilityHandle,
-    rest::{Error, RequestServiceHandle},
+    rest::{Error, MullvadRestHandle, RequestServiceHandle},
 };
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
 use once_cell::sync::Lazy;
-use talpid_core::future_retry::{retry_future, ExponentialBackoff, Jittered};
+use talpid_core::{
+    future_retry::{retry_future, ExponentialBackoff, Jittered},
+    mpsc::Sender,
+};
 use talpid_types::ErrorExt;
+use tokio::task::JoinHandle;
+
+use crate::{DaemonEventSender, InternalDaemonEvent};
 
 // Define the Mullvad connection checking api endpoint.
 //
@@ -43,17 +48,66 @@ static MULLVAD_CONNCHECK_HOST: Lazy<String> = Lazy::new(|| {
 const LOCATION_RETRY_STRATEGY: Jittered<ExponentialBackoff> =
     Jittered::jitter(ExponentialBackoff::new(Duration::from_secs(1), 4));
 
+/// Handler for request to am.i.mullvad.net
+pub struct GeoIpHandler {
+    /// Unique ID for each request, used to verify
+    pub request_id: usize,
+    /// Handle to abort any in-flight request.
+    request_handle: Option<JoinHandle<()>>,
+}
+
+impl GeoIpHandler {
+    pub fn new() -> Self {
+        Self {
+            request_id: 0,
+            request_handle: None,
+        }
+    }
+
+    /// Send geographical location request to am.i.mullvad.net and send the response as an
+    /// [`InternalDaemonEvent::LocationEvent`].
+    pub fn send_geo_location_request(
+        &mut self,
+        use_ipv6: bool,
+        api_handle: MullvadRestHandle,
+        daemon_event_sender: DaemonEventSender,
+    ) {
+        // Increment request ID
+        self.request_id = self.request_id.wrapping_add(1);
+        let request_id_copy = self.request_id;
+
+        self.abort_current_request();
+        self.request_handle = Some(tokio::spawn(async move {
+            if let Ok(merged_location) = get_geo_location_with_retry(api_handle, use_ipv6).await {
+                let _ = daemon_event_sender.send(InternalDaemonEvent::LocationEvent((
+                    request_id_copy,
+                    merged_location,
+                )));
+            }
+        }));
+    }
+
+    /// Abort any ongoing call to am.i.mullvad.net
+    pub fn abort_current_request(&mut self) {
+        if let Some(handle) = self.request_handle.take() {
+            handle.abort();
+        };
+    }
+}
+
 /// Fetch the current `GeoIpLocation` with retrys
 pub async fn get_geo_location_with_retry(
-    rest_service: RequestServiceHandle,
+    api_handle: MullvadRestHandle,
     use_ipv6: bool,
-    api_handle: ApiAvailabilityHandle,
 ) -> Result<GeoIpLocation, Error> {
     log::debug!("Fetching GeoIpLocation");
+    let rest_service = api_handle.service();
     retry_future(
         move || send_location_request(rest_service.clone(), use_ipv6),
         move |result| match result {
-            Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
+            Err(error) if error.is_network_error() => {
+                !api_handle.availability.get_state().is_offline()
+            }
             _ => false,
         },
         LOCATION_RETRY_STRATEGY,
