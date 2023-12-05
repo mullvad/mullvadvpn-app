@@ -216,7 +216,14 @@ pub async fn restart_app() -> Result<(), test_rpc::Error> {
 /// This function waits for the app to successfully shut down.
 #[cfg(target_os = "linux")]
 pub async fn stop_app() -> Result<(), test_rpc::Error> {
-    set_mullvad_daemon_service_state(false).await
+    tokio::process::Command::new("systemctl")
+        .args(["stop", "mullvad-daemon"])
+        .status()
+        .await
+        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+    wait_for_service_state(ServiceState::Inactive).await?;
+
+    Ok(())
 }
 
 /// Start the Mullvad VPN application.
@@ -224,7 +231,13 @@ pub async fn stop_app() -> Result<(), test_rpc::Error> {
 /// This function waits for the app to successfully start again.
 #[cfg(target_os = "linux")]
 pub async fn start_app() -> Result<(), test_rpc::Error> {
-    set_mullvad_daemon_service_state(true).await
+    tokio::process::Command::new("systemctl")
+        .args(["start", "mullvad-daemon"])
+        .status()
+        .await
+        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+    wait_for_service_state(ServiceState::Running).await?;
+    Ok(())
 }
 
 /// Restart the Mullvad VPN application.
@@ -278,7 +291,9 @@ pub async fn restart_app() -> Result<(), test_rpc::Error> {
 /// This function waits for the app to successfully shut down.
 #[cfg(target_os = "macos")]
 pub async fn stop_app() -> Result<(), test_rpc::Error> {
-    set_mullvad_daemon_service_state(false).await
+    set_launch_daemon_state(false).await?;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    Ok(())
 }
 
 /// Start the Mullvad VPN application.
@@ -286,7 +301,9 @@ pub async fn stop_app() -> Result<(), test_rpc::Error> {
 /// This function waits for the app to successfully start again.
 #[cfg(target_os = "macos")]
 pub async fn start_app() -> Result<(), test_rpc::Error> {
-    set_mullvad_daemon_service_state(true).await
+    set_launch_daemon_state(false).await?;
+    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
+    Ok(())
 }
 
 #[cfg(target_os = "windows")]
@@ -502,51 +519,6 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
     set_launch_daemon_state(false).await?;
     tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
     set_launch_daemon_state(true).await?;
-    tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
-    Ok(())
-}
-
-#[cfg(target_os = "linux")]
-pub async fn set_mullvad_daemon_service_state(on: bool) -> Result<(), test_rpc::Error> {
-    if on {
-        tokio::process::Command::new("systemctl")
-            .args(["start", "mullvad-daemon"])
-            .status()
-            .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
-        wait_for_service_state(ServiceState::Running).await?;
-    } else {
-        tokio::process::Command::new("systemctl")
-            .args(["stop", "mullvad-daemon"])
-            .status()
-            .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
-        wait_for_service_state(ServiceState::Inactive).await?;
-    }
-    Ok(())
-}
-
-#[cfg(target_os = "windows")]
-pub async fn set_mullvad_daemon_service_state(on: bool) -> Result<(), test_rpc::Error> {
-    if on {
-        tokio::process::Command::new("net")
-            .args(["start", "mullvadvpn"])
-            .status()
-            .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
-    } else {
-        tokio::process::Command::new("net")
-            .args(["stop", "mullvadvpn"])
-            .status()
-            .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
-    }
-    Ok(())
-}
-
-#[cfg(target_os = "macos")]
-pub async fn set_mullvad_daemon_service_state(on: bool) -> Result<(), test_rpc::Error> {
-    set_launch_daemon_state(on).await?;
     tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
     Ok(())
 }

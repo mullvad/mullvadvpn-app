@@ -152,13 +152,13 @@ mod service {
         async fn resolve_hostname(hostname: String) -> Result<Vec<SocketAddr>, Error>;
 
         /// Restart the Mullvad VPN application.
-        async fn restart_app() -> Result<(), Error>;
+        async fn restart_mullvad_daemon() -> Result<(), Error>;
 
         /// Stop the Mullvad VPN application.
-        async fn stop_app() -> Result<(), Error>;
+        async fn stop_mullvad_daemon() -> Result<(), Error>;
 
         /// Start the Mullvad VPN application.
-        async fn start_app() -> Result<(), Error>;
+        async fn start_mullvad_daemon() -> Result<(), Error>;
 
         /// Sets the log level of the daemon service, the verbosity level represents the number of
         /// `-v`s passed on the command line. This will restart the daemon system service.
@@ -176,8 +176,6 @@ mod service {
         async fn write_file(dest: PathBuf, bytes: Vec<u8>) -> Result<(), Error>;
 
         async fn reboot() -> Result<(), Error>;
-
-        async fn set_mullvad_daemon_service_state(on: bool) -> Result<(), Error>;
 
         async fn make_device_json_old() -> Result<(), Error>;
     }
