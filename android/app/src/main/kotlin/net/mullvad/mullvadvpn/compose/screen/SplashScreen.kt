@@ -32,6 +32,7 @@ import net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.PrivacyDisclaimerDestination
+import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaDescription
@@ -47,7 +48,7 @@ private fun PreviewLoadingScreen() {
 
 // Set this as the start destination of the default nav graph
 @RootNavGraph(start = true)
-@Destination
+@Destination(style = DefaultTransition::class)
 @Composable
 fun Splash(navigator: DestinationsNavigator) {
     val viewModel: SplashViewModel = koinViewModel()
