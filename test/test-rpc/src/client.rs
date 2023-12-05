@@ -221,8 +221,19 @@ impl ServiceClient {
             .await?
     }
 
-    pub async fn restart_app(&self) -> Result<(), Error> {
-        let _ = self.client.restart_app(tarpc::context::current()).await?;
+    /// Restarts the app.
+    ///
+    /// Shuts down a running app, making it disconnect from any current tunnel
+    /// connection before starting the app again.
+    ///
+    /// # Note
+    /// This function will return *after* the app is running again, thus
+    /// blocking execution until then.
+    pub async fn restart_mullvad_daemon(&self) -> Result<(), Error> {
+        let _ = self
+            .client
+            .restart_mullvad_daemon(tarpc::context::current())
+            .await?;
         Ok(())
     }
 
@@ -234,18 +245,24 @@ impl ServiceClient {
     /// # Note
     /// This function will return *after* the app has been stopped, thus
     /// blocking execution until then.
-    pub async fn stop_app(&self) -> Result<(), Error> {
-        let _ = self.client.stop_app(tarpc::context::current()).await?;
+    pub async fn stop_mullvad_daemon(&self) -> Result<(), Error> {
+        let _ = self
+            .client
+            .stop_mullvad_daemon(tarpc::context::current())
+            .await?;
         Ok(())
     }
 
     /// Start the app.
     ///
     /// # Note
-    /// This function will return *after* the app has been start, thus
+    /// This function will return *after* the app has been started, thus
     /// blocking execution until then.
-    pub async fn start_app(&self) -> Result<(), Error> {
-        let _ = self.client.start_app(tarpc::context::current()).await?;
+    pub async fn start_mullvad_daemon(&self) -> Result<(), Error> {
+        let _ = self
+            .client
+            .start_mullvad_daemon(tarpc::context::current())
+            .await?;
         Ok(())
     }
 
@@ -309,23 +326,6 @@ impl ServiceClient {
         self.connection_handle.wait_for_server().await?;
 
         tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-
-        Ok(())
-    }
-
-    pub async fn set_mullvad_daemon_service_state(&self, on: bool) -> Result<(), Error> {
-        self.client
-            .set_mullvad_daemon_service_state(tarpc::context::current(), on)
-            .await??;
-
-        self.mullvad_daemon_wait_for_state(|state| {
-            if on {
-                state == ServiceStatus::Running
-            } else {
-                state == ServiceStatus::NotRunning
-            }
-        })
-        .await?;
 
         Ok(())
     }

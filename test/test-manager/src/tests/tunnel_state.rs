@@ -1,6 +1,6 @@
 use super::helpers::{
-    self, connect_and_wait, disconnect_and_wait, get_tunnel_state, send_guest_probes,
-    set_relay_settings, unreachable_wireguard_tunnel, wait_for_tunnel_state,
+    self, connect_and_wait, get_tunnel_state, send_guest_probes, set_relay_settings,
+    unreachable_wireguard_tunnel, wait_for_tunnel_state,
 };
 use super::{ui, Error, TestContext};
 use crate::assert_tunnel_state;
@@ -342,18 +342,18 @@ pub async fn test_connected_state(
 pub async fn test_connecting_state_when_corrupted_state_cache(
     _: TestContext,
     rpc: ServiceClient,
-    mut mullvad_client: ManagementServiceClient,
+    mullvad_client: ManagementServiceClient,
 ) -> Result<(), Error> {
-    // Enter the disconnected state. Normally this would be preserved when
-    // restarting the app, i.e. the user would still be disconnected after a
-    // successfull restart. However, as we will intentionally corrupt the state
-    // target cache the user should end up in the connecting/connected state,
-    // *not in the disconnected state, upon restart.
-    disconnect_and_wait(&mut mullvad_client).await?;
+    // The test should start in a disconnected state. Normally this would be
+    // preserved when restarting the app, i.e. the user would still be
+    // disconnected after a successfull restart. However, as we will
+    // intentionally corrupt the state target cache the user should end up in
+    // the connecting/connected state, *not in the disconnected state*, upon
+    // restart.
 
     // Stopping the app should write to the state target cache.
     log::info!("Stopping the app");
-    rpc.stop_app().await?;
+    rpc.stop_mullvad_daemon().await?;
 
     // Intentionally corrupt the state cache. Note that we can not simply remove
     // the cache, as this will put the app in the default target state which is
@@ -373,31 +373,16 @@ pub async fn test_connecting_state_when_corrupted_state_cache(
     // Start the app & make sure that we start in the 'connecting state'. The
     // side-effect of this is that no network traffic is allowed to leak.
     log::info!("Starting the app back up again");
-    rpc.start_app().await?;
-
-    let new_state = wait_for_tunnel_state(mullvad_client.clone(), |state| {
-        matches!(
-            state,
-            TunnelState::Connecting { .. } | TunnelState::Connected { .. } | TunnelState::Error(..)
-        )
-    })
-    .await
-    .map_err(|err| {
-        log::error!("App did not start in an expected state.");
-        err
-    })?;
-
-    assert!(
-        matches!(
-            new_state,
-            TunnelState::Connecting { .. } | TunnelState::Connected { .. }
-        ),
-        "App is not in either `Connecting` or `Connected` state after starting with corrupt state cache! There is a possibility of leaks during app startup"
-    );
-
-    log::info!(
-        "App started successfully! It successfully recovered from a corrupt tunnel state cache."
-    );
+    rpc.start_mullvad_daemon().await?;
+    wait_for_tunnel_state(mullvad_client.clone(), |state| !state.is_disconnected())
+        .await
+        .map_err(|err| {
+            log::error!("App did not start in an expected state. \
+                        App is not in either `Connecting` or `Connected` state after starting with corrupt state cache! \
+                        There is a possibility of leaks during app startup ");
+            err
+        })?;
+    log::info!("App successfully recovered from a corrupt tunnel state cache.");
 
     Ok(())
 }

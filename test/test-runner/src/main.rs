@@ -226,17 +226,17 @@ impl Service for TestServer {
         logging::get_mullvad_app_logs().await
     }
 
-    async fn restart_app(self, _: context::Context) -> Result<(), test_rpc::Error> {
+    async fn restart_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
         sys::restart_app().await
     }
 
     /// Stop the Mullvad VPN application.
-    async fn stop_app(self, _: context::Context) -> Result<(), test_rpc::Error> {
+    async fn stop_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
         sys::stop_app().await
     }
 
     /// Start the Mullvad VPN application.
-    async fn start_app(self, _: context::Context) -> Result<(), test_rpc::Error> {
+    async fn start_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
         sys::start_app().await
     }
 
@@ -292,13 +292,13 @@ impl Service for TestServer {
         sys::reboot()
     }
 
-    async fn set_mullvad_daemon_service_state(
-        self,
-        _: context::Context,
-        on: bool,
-    ) -> Result<(), test_rpc::Error> {
-        sys::set_mullvad_daemon_service_state(on).await
-    }
+    // async fn set_mullvad_daemon_service_state(
+    //     self,
+    //     _: context::Context,
+    //     on: bool,
+    // ) -> Result<(), test_rpc::Error> {
+    //     sys::set_mullvad_daemon_service_state(on).await
+    // }
 
     async fn make_device_json_old(self, _: context::Context) -> Result<(), test_rpc::Error> {
         app::make_device_json_old().await

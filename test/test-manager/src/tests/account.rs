@@ -324,7 +324,7 @@ pub async fn test_automatic_wireguard_rotation(
         .pubkey;
 
     // Stop daemon
-    rpc.set_mullvad_daemon_service_state(false)
+    rpc.stop_mullvad_daemon()
         .await
         .expect("Could not stop system service");
 
@@ -334,7 +334,7 @@ pub async fn test_automatic_wireguard_rotation(
         .expect("Could not change device.json to have an old created timestamp");
 
     // Start daemon
-    rpc.set_mullvad_daemon_service_state(true)
+    rpc.start_mullvad_daemon()
         .await
         .expect("Could not start system service");
 
