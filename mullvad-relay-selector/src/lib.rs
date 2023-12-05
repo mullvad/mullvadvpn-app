@@ -14,6 +14,7 @@ use mullvad_types::{
         SelectedObfuscation, Set, TransportPort, Udp2TcpObfuscationSettings,
     },
     relay_list::{BridgeEndpointData, Relay, RelayEndpointData, RelayList},
+    settings::Settings,
     CustomTunnelEndpoint,
 };
 use parking_lot::{Mutex, MutexGuard};
@@ -52,6 +53,8 @@ const MIN_BRIDGE_COUNT: usize = 5;
 
 /// Max distance of bridges to consider for selection (km).
 const MAX_BRIDGE_DISTANCE: f64 = 1500f64;
+
+const DEFAULT_TUNNEL_TYPE: TunnelType = TunnelType::Wireguard;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -228,6 +231,21 @@ pub struct SelectorConfig {
     pub relay_overrides: Vec<RelayOverride>,
 }
 
+impl Default for SelectorConfig {
+    fn default() -> Self {
+        let default_settings = Settings::default();
+        SelectorConfig {
+            relay_settings: default_settings.relay_settings,
+            bridge_settings: default_settings.bridge_settings,
+            obfuscation_settings: default_settings.obfuscation_settings,
+            bridge_state: default_settings.bridge_state,
+            default_tunnel_type: DEFAULT_TUNNEL_TYPE,
+            custom_lists: default_settings.custom_lists,
+            relay_overrides: default_settings.relay_overrides,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct RelaySelector {
     config: Arc<Mutex<SelectorConfig>>,
@@ -258,6 +276,17 @@ impl RelaySelector {
         RelaySelector {
             config: Arc::new(Mutex::new(config)),
             parsed_relays: Arc::new(Mutex::new(unsynchronized_parsed_relays)),
+        }
+    }
+
+    pub fn from_list(config: SelectorConfig, relay_list: RelayList) -> Self {
+        RelaySelector {
+            parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
+                relay_list,
+                SystemTime::now(),
+                &config.relay_overrides,
+            ))),
+            config: Arc::new(Mutex::new(config)),
         }
     }
 
@@ -1328,8 +1357,7 @@ mod test {
     use mullvad_types::{
         custom_list::CustomListsSettings,
         relay_constraints::{
-            BridgeConstraints, GeographicLocationConstraint, RelayConstraints, RelaySettings,
-            WireguardConstraints,
+            GeographicLocationConstraint, RelayConstraints, RelaySettings, WireguardConstraints,
         },
         relay_list::{
             OpenVpnEndpoint, OpenVpnEndpointData, Relay, RelayListCity, RelayListCountry,
@@ -1481,48 +1509,9 @@ mod test {
         },
     });
 
-    fn default_tunnel_type() -> TunnelType {
-        if cfg!(target_os = "windows") {
-            TunnelType::OpenVpn
-        } else {
-            TunnelType::Wireguard
-        }
-    }
-
-    fn new_relay_selector_with_relays(relay_list: RelayList) -> RelaySelector {
-        RelaySelector {
-            parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
-                relay_list,
-                SystemTime::now(),
-                &[],
-            ))),
-            config: Arc::new(Mutex::new(SelectorConfig {
-                relay_settings: RelaySettings::Normal(RelayConstraints {
-                    location: Constraint::Only(LocationConstraint::from(
-                        GeographicLocationConstraint::Country("se".to_owned()),
-                    )),
-                    ..Default::default()
-                }),
-                bridge_settings: BridgeSettings::Normal(BridgeConstraints::default()),
-                obfuscation_settings: ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::Off,
-                    ..Default::default()
-                },
-                bridge_state: BridgeState::Auto,
-                default_tunnel_type: default_tunnel_type(),
-                custom_lists: CustomListsSettings::default(),
-                relay_overrides: vec![],
-            })),
-        }
-    }
-
-    fn new_relay_selector() -> RelaySelector {
-        new_relay_selector_with_relays(RELAYS.clone())
-    }
-
     #[test]
     fn test_preferred_tunnel_protocol() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         // Prefer WG if the location only supports it
         let location = GeographicLocationConstraint::Hostname(
@@ -1628,7 +1617,7 @@ mod test {
 
     #[test]
     fn test_wg_entry_hostname_collision() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         let location1 = GeographicLocationConstraint::Hostname(
             "se".to_string(),
@@ -1679,7 +1668,7 @@ mod test {
 
     #[test]
     fn test_wg_entry_filter() -> Result<(), String> {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         let specific_hostname = "se10-wireguard";
 
@@ -1749,7 +1738,7 @@ mod test {
 
     #[test]
     fn test_openvpn_constraints() -> Result<(), String> {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         const ACTUAL_TCP_PORT: u16 = 443;
         const ACTUAL_UDP_PORT: u16 = 1194;
@@ -1847,7 +1836,7 @@ mod test {
                     &relay_constraints,
                     BridgeState::Auto,
                     retry_attempt,
-                    default_tunnel_type(),
+                    DEFAULT_TUNNEL_TYPE,
                     &CustomListsSettings::default(),
                 );
 
@@ -1875,7 +1864,7 @@ mod test {
 
     #[test]
     fn test_bridge_constraints() -> Result<(), String> {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         let location = LocationConstraint::from(GeographicLocationConstraint::Hostname(
             "se".to_string(),
@@ -1994,18 +1983,11 @@ mod test {
             ..RelayConstraints::default()
         };
 
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, default_tunnel_type(), &CustomListsSettings::default())
+        let result = relay_selector.get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, DEFAULT_TUNNEL_TYPE, &CustomListsSettings::default())
             .expect("Failed to get relay when tunnel constraints are set to Any and retrying the selection");
-        // Windows will ignore WireGuard until WireGuard is supported well enough
-        // TODO: Remove this caveat once Windows defaults to using WireGuard
-        #[cfg(target_os = "windows")]
-        assert!(
-            matches!(result.endpoint, MullvadEndpoint::OpenVpn(_)) && result.entry_relay.is_none()
-        );
 
-        #[cfg(not(target_os = "windows"))]
         assert!(
             matches!(result.endpoint, MullvadEndpoint::Wireguard(_))
                 && result.entry_relay.is_some()
@@ -2046,9 +2028,9 @@ mod test {
 
     #[test]
     fn test_selecting_wireguard_location_will_consider_multihop() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_MULTIHOP_CONSTRAINTS, BridgeState::Off, 0, default_tunnel_type(), &CustomListsSettings::default())
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_MULTIHOP_CONSTRAINTS, BridgeState::Off, 0, DEFAULT_TUNNEL_TYPE, &CustomListsSettings::default())
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard multihop constraints");
 
         assert!(result.entry_relay.is_some());
@@ -2057,9 +2039,9 @@ mod test {
 
     #[test]
     fn test_selecting_wg_endpoint_with_udp2tcp_obfuscation() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, default_tunnel_type(), &CustomListsSettings::default())
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, DEFAULT_TUNNEL_TYPE, &CustomListsSettings::default())
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
 
         assert!(result.entry_relay.is_none());
@@ -2086,9 +2068,9 @@ mod test {
 
     #[test]
     fn test_selecting_wg_endpoint_with_auto_obfuscation() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
-        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, default_tunnel_type(), &CustomListsSettings::default())
+        let result = relay_selector.get_tunnel_endpoint(&WIREGUARD_SINGLEHOP_CONSTRAINTS, BridgeState::Off, 0, DEFAULT_TUNNEL_TYPE, &CustomListsSettings::default())
             .expect("Failed to get relay when tunnel constraints are set to default WireGuard constraints");
 
         assert!(result.entry_relay.is_none());
@@ -2117,7 +2099,7 @@ mod test {
 
     #[test]
     fn test_selected_endpoints_use_correct_port_ranges() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
 
@@ -2165,7 +2147,7 @@ mod test {
 
     #[test]
     fn test_ownership() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
         let mut constraints = RelayConstraints::default();
         for i in 0..10 {
             constraints.ownership = Constraint::Only(Ownership::MullvadOwned);
@@ -2209,7 +2191,7 @@ mod test {
     // Make sure server and port selection varies between retry attempts.
     #[test]
     fn test_load_balancing() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         for tunnel_protocol in [
             Constraint::Any,
@@ -2257,7 +2239,7 @@ mod test {
     fn test_providers() {
         const EXPECTED_PROVIDERS: [&str; 2] = ["provider0", "provider2"];
 
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
         let mut constraints = RelayConstraints::default();
 
         for i in 0..10 {
@@ -2286,7 +2268,7 @@ mod test {
     /// to automatic.
     #[test]
     fn test_auto_bridge() {
-        let relay_selector = new_relay_selector();
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
         {
             let mut config = relay_selector.config.lock();
@@ -2401,27 +2383,31 @@ mod test {
         // If include_in_country is false for all relays, a relay must be selected anyway.
         //
 
-        let relay_selector = new_relay_selector_with_relays(relay_list.clone());
+        let relay_selector =
+            RelaySelector::from_list(SelectorConfig::default(), relay_list.clone());
         assert!(relay_selector.get_relay(0).is_ok());
 
         // If include_in_country is true for some relay, it must always be selected.
         //
 
         relay_list.countries[0].cities[0].relays[0].include_in_country = true;
-        let expected_relay = relay_list.countries[0].cities[0].relays[0].clone();
+        let expected_hostname = relay_list.countries[0].cities[0].relays[0].hostname.clone();
 
-        let relay_selector = new_relay_selector_with_relays(relay_list);
+        let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
         let (relay, ..) = relay_selector.get_relay(0).expect("expected match");
 
-        assert!(matches!(
-            relay,
-            SelectedRelay::Normal(NormalSelectedRelay {
-                exit_relay: Relay {
-                    hostname,
+        assert!(
+            matches!(
+                relay,
+                SelectedRelay::Normal(NormalSelectedRelay {
+                    exit_relay: Relay {
+                        ref hostname,
+                        ..
+                    },
                     ..
-                },
-                ..
-            }) if hostname == expected_relay.hostname
-        ))
+                }) if hostname == &expected_hostname,
+            ),
+            "found {relay:?}, expected {expected_hostname:?}",
+        )
     }
 }
