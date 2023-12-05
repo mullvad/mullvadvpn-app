@@ -99,6 +99,7 @@ private fun PreviewVpnSettings() {
             onRestoreMtuClick = {},
             onCancelMtuDialogClick = {},
             onToggleAutoConnect = {},
+            onToggleConnectOnBoot = {},
             onToggleLocalNetworkSharing = {},
             onToggleDnsClick = {},
             onToggleBlockAds = {},
@@ -143,6 +144,7 @@ fun VpnSettingsScreen(
     onRestoreMtuClick: () -> Unit = {},
     onCancelMtuDialogClick: () -> Unit = {},
     onToggleAutoConnect: (Boolean) -> Unit = {},
+    onToggleConnectOnBoot: (Boolean) -> Unit = {},
     onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
     onToggleDnsClick: (Boolean) -> Unit = {},
     onToggleBlockAds: (Boolean) -> Unit = {},
@@ -280,6 +282,17 @@ fun VpnSettingsScreen(
                     isEnabled = true,
                     onCellClicked = { newValue -> onToggleAutoConnect(newValue) }
                 )
+            }
+            if (uiState.isConnectOnBootEnabled != null) {
+                item {
+                    Divider()
+                    HeaderSwitchComposeCell(
+                        title = stringResource(R.string.connect_on_boot),
+                        isToggled = uiState.isConnectOnBootEnabled,
+                        isEnabled = true,
+                        onCellClicked = { newValue -> onToggleConnectOnBoot(newValue) }
+                    )
+                }
             }
             item {
                 SwitchComposeSubtitleCell(text = stringResource(id = R.string.auto_connect_footer))
