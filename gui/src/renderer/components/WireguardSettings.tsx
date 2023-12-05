@@ -22,7 +22,7 @@ import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
-import { InfoIcon } from './InfoButton';
+import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
@@ -34,6 +34,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
+import YellowLabel from './YellowLabel';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
@@ -44,22 +45,14 @@ function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
 }
 
-export const StyledContent = styled.div({
+const StyledContent = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
   marginBottom: '2px',
 });
 
-export const StyledCellIcon = styled(Cell.UntintedIcon)({
-  marginRight: '8px',
-});
-
-export const StyledInfoIcon = styled(InfoIcon)({
-  marginRight: '16px',
-});
-
-export const StyledSelectorContainer = styled.div({
+const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
@@ -105,6 +98,10 @@ export default function WireguardSettings() {
                 <Cell.Group>
                   <ObfuscationSettings />
                   <Udp2tcpPortSetting />
+                </Cell.Group>
+
+                <Cell.Group>
+                  <DaitaSettings />
                 </Cell.Group>
 
                 <Cell.Group>
@@ -555,6 +552,69 @@ function MtuSetting() {
         </AriaDescription>
       </Cell.CellFooter>
     </AriaInputGroup>
+  );
+}
+
+function DaitaSettings() {
+  const { setDaitaSettings } = useAppContext();
+  const daita = useSelector((state) => state.settings.wireguard.daita);
+
+  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
+
+  const setDaita = useCallback((value: boolean) => {
+    if (value) {
+      showConfirmationDialog();
+    } else {
+      void setDaitaSettings({ enabled: value });
+    }
+  }, []);
+
+  const confirmDaita = useCallback(() => {
+    void setDaitaSettings({ enabled: true });
+    hideConfirmationDialog();
+  }, []);
+
+  return (
+    <>
+      <AriaInputGroup>
+        <Cell.Container>
+          <AriaLabel>
+            <Cell.InputLabel>
+              DAITA
+              <YellowLabel>{messages.gettext('BETA')}</YellowLabel>
+            </Cell.InputLabel>
+          </AriaLabel>
+          <InfoButton
+            message={messages.pgettext(
+              'wireguard-settings-view',
+              'When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.',
+            )}></InfoButton>
+          <AriaInput>
+            <Cell.Switch isOn={daita?.enabled ?? false} onChange={setDaita} />
+          </AriaInput>
+        </Cell.Container>
+      </AriaInputGroup>
+      <ModalAlert
+        isOpen={confirmationDialogVisible}
+        type={ModalAlertType.caution}
+        message={
+          // TRANSLATORS: Warning text in a dialog that is displayed after a setting is toggled.
+          messages.pgettext(
+            'wireguard-settings-view',
+            "This feature isn't available on all servers. You might need to change location after enabling.",
+          )
+        }
+        buttons={[
+          <AppButton.BlueButton key="confirm" onClick={confirmDaita}>
+            {messages.gettext('Enable anyway')}
+          </AppButton.BlueButton>,
+          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
+            {messages.gettext('Back')}
+          </AppButton.BlueButton>,
+        ]}
+        close={hideConfirmationDialog}
+      />
+    </>
   );
 }
 
