@@ -1621,6 +1621,7 @@
 		A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "APIProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessTokenManager+Stubs.swift"; sourceTree = "<group>"; };
 		A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportStrategyTests.swift; sourceTree = "<group>"; };
+		A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A92ECC202A77FFAF0052F1B1 /* TunnelSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettings.swift; sourceTree = "<group>"; };
 		A92ECC232A7802520052F1B1 /* StoredAccountData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredAccountData.swift; sourceTree = "<group>"; };
 		A92ECC272A7802AB0052F1B1 /* StoredDeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredDeviceData.swift; sourceTree = "<group>"; };
@@ -2329,6 +2330,7 @@
 				58CE5E6F224146210008646E /* Info.plist */,
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
 				5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */,
+				A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */,
 			);
 			path = "Supporting Files";
 			sourceTree = "<group>";
