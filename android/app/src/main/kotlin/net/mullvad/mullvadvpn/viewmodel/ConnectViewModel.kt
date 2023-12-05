@@ -142,9 +142,6 @@ class ConnectViewModel(
             _uiSideEffect.emit(UiSideEffect.OutOfTime)
         }
 
-        // The create account cache is no longer needed as we have successfully reached the connect
-        // screen
-        accountRepository.clearCreatedAccountCache()
         viewModelScope.launch {
             paymentUseCase.verifyPurchases { accountRepository.fetchAccountExpiry() }
         }

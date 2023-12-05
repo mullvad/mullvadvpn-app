@@ -1,11 +1,13 @@
 package net.mullvad.mullvadvpn.usecase
 
+import android.util.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
@@ -27,6 +29,10 @@ class OutOfTimeUseCase(
         combine(pastAccountExpiry(), isTunnelBlockedBecauseOutOfTime()) {
                 accountExpiryHasPast,
                 tunnelOutOfTime ->
+                Log.d(
+                    "OutOfTimeUseCase",
+                    "accountExpiryHasPast: $accountExpiryHasPast, tunnelOutOfTime: $tunnelOutOfTime"
+                )
                 accountExpiryHasPast or tunnelOutOfTime
             }
             .distinctUntilChanged()
@@ -44,18 +50,22 @@ class OutOfTimeUseCase(
     }
 
     private fun pastAccountExpiry(): Flow<Boolean> =
-        combine(repository.accountExpiryState, timeFlow()) { accountExpiryState, time ->
-            when (accountExpiryState) {
-                is AccountExpiry.Available -> {
-                    accountExpiryState.date()?.isBefore(time) ?: false
+        combine(
+            repository.accountExpiryState.mapNotNull {
+                if (it is AccountExpiry.Available) {
+                    it.date()
+                } else {
+                    null
                 }
-                AccountExpiry.Missing -> false
-            }
+            },
+            timeFlow()
+        ) { expiryDate, time ->
+            expiryDate.isBefore(time)
         }
 
     private fun timeFlow() = flow {
         while (true) {
-            emit(DateTime.now())
+            emit(DateTime.now().plusMinutes(1))
             delay(accountRefreshInterval)
         }
     }

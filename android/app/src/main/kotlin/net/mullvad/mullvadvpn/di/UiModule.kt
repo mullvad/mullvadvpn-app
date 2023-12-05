@@ -148,10 +148,10 @@ val uiModule = module {
     viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
-    viewModel { WelcomeViewModel(get(), get(), get(), get()) }
+    viewModel { WelcomeViewModel(get(), get(), get(), get(), get()) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel { OutOfTimeViewModel(get(), get(), get(), get()) }
+    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get()) }
     viewModel { PaymentViewModel(get()) }
     viewModel { ServiceConnectionViewModel(get()) }
     viewModel { FilterViewModel(get()) }

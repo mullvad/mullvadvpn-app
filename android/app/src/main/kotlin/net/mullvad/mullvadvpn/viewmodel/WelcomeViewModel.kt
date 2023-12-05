@@ -2,16 +2,20 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -26,12 +30,12 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
 import net.mullvad.mullvadvpn.util.toPaymentState
-import org.joda.time.DateTime
 
 @OptIn(FlowPreview::class)
 class WelcomeViewModel(
@@ -39,9 +43,13 @@ class WelcomeViewModel(
     private val deviceRepository: DeviceRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
     private val paymentUseCase: PaymentUseCase,
+    private val outOfTimeUseCase: OutOfTimeUseCase,
     private val pollAccountExpiry: Boolean = true
 ) : ViewModel() {
-    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
+    private val _uiSideEffect =
+        MutableSharedFlow<UiSideEffect>(
+            extraBufferCapacity = 1,
+        )
     val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     val uiState =
@@ -72,28 +80,29 @@ class WelcomeViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), WelcomeUiState())
 
-    init {
-        viewModelScope.launch {
-            accountRepository.accountExpiryState.collectLatest { accountExpiry ->
-                accountExpiry.date()?.let { expiry ->
-                    val tomorrow = DateTime.now().plusHours(20)
+    private lateinit var jobScope: CoroutineScope
 
-                    if (expiry.isAfter(tomorrow)) {
-                        // Reset purchase state
-                        paymentUseCase.resetPurchaseResult()
-                        _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
-                    }
+    fun start() {
+        jobScope = CoroutineScope(Job() + Dispatchers.IO)
+        viewModelScope.launch {
+            launch {
+                while (pollAccountExpiry) {
+                    updateAccountExpiry()
+                    delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
                 }
             }
-        }
-        viewModelScope.launch {
-            while (pollAccountExpiry) {
-                updateAccountExpiry()
-                delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
+            launch {
+                outOfTimeUseCase.isOutOfTime().first { !it }
+                paymentUseCase.resetPurchaseResult()
+                _uiSideEffect.emit(UiSideEffect.OpenConnectScreen)
             }
+            verifyPurchases()
+            fetchPaymentAvailability()
         }
-        verifyPurchases()
-        fetchPaymentAvailability()
+    }
+
+    fun stop() {
+        jobScope.cancel()
     }
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =
@@ -127,7 +136,7 @@ class WelcomeViewModel(
         // expiry.
         if (success) {
             updateAccountExpiry()
-            _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
+            // _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
         } else {
             fetchPaymentAvailability()
         }
