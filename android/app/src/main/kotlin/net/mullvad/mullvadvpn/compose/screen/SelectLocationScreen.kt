@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -163,6 +165,18 @@ fun SelectLocationScreen(
         }
         Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
         val lazyListState = rememberLazyListState()
+        if (uiState is SelectLocationUiState.ShowData && uiState.selectedRelay != null) {
+            LaunchedEffect(uiState.selectedRelay) {
+                val index =
+                    uiState.countries.indexOfFirst {
+                        it.location.location.country ==
+                            uiState.selectedRelay.location.location.country
+                    }
+
+                lazyListState.scrollToItem(index)
+                lazyListState.animateScrollAndCentralizeItem(index)
+            }
+        }
         LazyColumn(
             modifier =
                 Modifier.focusRequester(listFocus)
@@ -237,5 +251,16 @@ fun SelectLocationScreen(
                 }
             }
         }
+    }
+}
+
+suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
+    val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
+    if (itemInfo != null) {
+        val center = layoutInfo.viewportEndOffset / 2
+        val childCenter = itemInfo.offset + itemInfo.size / 2
+        animateScrollBy((childCenter - center).toFloat())
+    } else {
+        animateScrollToItem(index)
     }
 }
