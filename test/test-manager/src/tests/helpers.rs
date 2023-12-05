@@ -546,7 +546,7 @@ impl Pinger {
     ///
     /// See [`PingerBuilder`] for details.
     pub async fn start(rpc: &test_rpc::ServiceClient) -> Pinger {
-        let defaults = PingerBuilder::new();
+        let defaults = PingerBuilder::default();
         Self::start_with(defaults, rpc).await
     }
 
@@ -573,11 +573,12 @@ impl Pinger {
         .await;
 
         // Start pinging
+        //
+        // Create some network activity for the network monitor to sniff.
         let ping_rpc = rpc.clone();
         let mut interval = tokio::time::interval(builder.interval.period());
         #[allow(clippy::async_yields_async)]
         let ping_task = AbortOnDrop::new(tokio::spawn(async move {
-            // Send a ping once every second.
             loop {
                 send_guest_probes_without_monitor(ping_rpc.clone(), None, builder.destination)
                     .await;
@@ -594,8 +595,9 @@ impl Pinger {
         }
     }
 
+    /// Stop pinging and extract the result of the network monitor.
     pub async fn stop(self) -> Result<network_monitor::MonitorResult, MonitorUnexpectedlyStopped> {
-        // Abort the inner probe sender, which is accomplish by dropping the
+        // Abort the inner probe sender, which is accomplished by dropping the
         // join handle to the running task.
         drop(self.ping_task);
         self.monitor.into_result().await
@@ -626,8 +628,12 @@ pub struct PingerBuilder {
 
 #[allow(dead_code)]
 impl PingerBuilder {
-    //
-    pub fn new() -> PingerBuilder {
+    /// Create a default [`PingerBuilder`].
+    ///
+    /// This is probably good enough for checking network traffic leaks when the
+    /// test-runner is supposed to be blocked from sending or receiving *any*
+    /// packets outside of localhost.
+    pub fn default() -> PingerBuilder {
         PingerBuilder {
             destination: "1.1.1.1:1337".parse().unwrap(),
             interval: tokio::time::interval(Duration::from_secs(1)),
