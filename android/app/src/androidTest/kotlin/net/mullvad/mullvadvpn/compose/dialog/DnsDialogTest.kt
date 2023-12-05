@@ -15,11 +15,6 @@ import org.junit.Test
 class DnsDialogTest {
     @get:Rule val composeTestRule = createComposeRule()
 
-    @Before
-    fun setup() {
-        MockKAnnotations.init(this)
-    }
-
     private val defaultState =
         DnsDialogViewState(
             ipAddress = "",
