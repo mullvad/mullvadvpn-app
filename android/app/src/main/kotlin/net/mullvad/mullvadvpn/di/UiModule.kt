@@ -91,7 +91,13 @@ val uiModule = module {
             androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE)
         )
     }
-    single { SettingsRepository(get()) }
+    single {
+        SettingsRepository(
+            get(),
+            androidContext().getSharedPreferences(APP_PREFERENCES_NAME, Context.MODE_PRIVATE),
+            get()
+        )
+    }
     single { MullvadProblemReport(get()) }
 
     single { AccountExpiryNotificationUseCase(get()) }
