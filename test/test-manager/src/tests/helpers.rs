@@ -332,10 +332,6 @@ impl<T> AbortOnDrop<T> {
     pub fn new(inner: tokio::task::JoinHandle<T>) -> AbortOnDrop<T> {
         AbortOnDrop(Some(inner))
     }
-
-    pub fn into_inner(mut self) -> tokio::task::JoinHandle<T> {
-        self.0.take().unwrap()
-    }
 }
 
 impl<T> Drop for AbortOnDrop<T> {

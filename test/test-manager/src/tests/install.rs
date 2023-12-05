@@ -1,15 +1,10 @@
-use super::helpers::{connect_and_wait, get_package_desc, AbortOnDrop};
+use super::helpers::{connect_and_wait, get_package_desc};
 use super::{Error, TestContext};
 
 use super::config::TEST_CONFIG;
-use crate::network_monitor::{start_packet_monitor, MonitorOptions};
-use crate::tests::helpers::wait_for_tunnel_state;
+use crate::tests::helpers::{wait_for_tunnel_state, Pinger};
 use mullvad_management_interface::{types, ManagementServiceClient};
-use std::{
-    collections::HashMap,
-    net::{SocketAddr, ToSocketAddrs},
-    time::Duration,
-};
+use std::{collections::HashMap, net::ToSocketAddrs, time::Duration};
 use test_macro::test_function;
 use test_rpc::meta::Os;
 use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
@@ -48,8 +43,6 @@ pub async fn test_install_previous_app(_: TestContext, rpc: ServiceClient) -> Re
 /// * The VPN service is not running after the upgrade.
 #[test_function(priority = -190)]
 pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<(), Error> {
-    let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
-
     // Verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         return Err(Error::DaemonNotRunning);
@@ -71,6 +64,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     //
     log::debug!("Entering blocking error state");
 
+    // TODO: Update this to `rpc.exec("mullvad", ["debug", "block-connection"])` when 2023.6 is released.
     rpc.exec("mullvad", ["relay", "set", "location", "xx"])
         .await
         .expect("Failed to set relay location");
@@ -102,41 +96,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     //
     // Begin monitoring outgoing traffic and pinging
     //
-
-    let guest_iface = rpc
-        .get_default_interface()
-        .await
-        .expect("failed to obtain default interface");
-    let guest_ip = rpc
-        .get_interface_ip(guest_iface)
-        .await
-        .expect("failed to obtain non-tun IP");
-    log::debug!("Guest IP: {guest_ip}");
-
-    log::debug!("Monitoring outgoing traffic");
-
-    let monitor = start_packet_monitor(
-        move |packet| {
-            // NOTE: Many packets will likely be observed for API traffic. Rather than filtering all
-            // of those specifically, simply fail if our probes are observed.
-            packet.source.ip() == guest_ip && packet.destination.ip() == inet_destination.ip()
-        },
-        MonitorOptions::default(),
-    )
-    .await;
-
-    let ping_rpc = rpc.clone();
-    let probe_sender = AbortOnDrop::new(tokio::spawn(async move {
-        loop {
-            super::helpers::send_guest_probes_without_monitor(
-                ping_rpc.clone(),
-                None,
-                inet_destination,
-            )
-            .await;
-            tokio::time::sleep(Duration::from_secs(1)).await;
-        }
-    }));
+    let pinger = Pinger::start(&rpc).await;
 
     // install new package
     log::debug!("Installing new app");
@@ -154,17 +114,16 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
     //
     // Check if any traffic was observed
     //
-    let probe_sender = probe_sender.into_inner();
-    probe_sender.abort();
-    let _ = probe_sender.await;
-
-    let monitor_result = monitor.into_result().await.unwrap();
+    let guest_ip = pinger.guest_ip;
+    let monitor_result = pinger.stop().await.unwrap();
     assert_eq!(
         monitor_result.packets.len(),
         0,
         "observed unexpected packets from {guest_ip}"
     );
 
+    // NOTE: Need to create a new `mullvad_client` here after the restart
+    // otherwise we *probably* can't communicate with the daemon.
     let mut mullvad_client = ctx.rpc_provider.new_client().await;
 
     // check if settings were (partially) preserved
