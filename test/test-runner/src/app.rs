@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use test_rpc::{AppTrace, Error};
 
@@ -14,21 +14,18 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
         Error::Syscall
     })?;
 
-    let mut traces = vec![
+    let caches = find_cache_traces()?;
+    let traces = vec![
         Path::new(r"C:\Program Files\Mullvad VPN"),
         // NOTE: This only works as of `499c06decda37dc639e5f` in the Mullvad app.
         // Older builds have no way of silently fully uninstalling the app.
         Path::new(r"C:\ProgramData\Mullvad VPN"),
         // NOTE: Works as of `4116ebc` (Mullvad app).
         &settings_dir,
+        &caches,
     ];
 
-    filter_non_existent_paths(&mut traces)?;
-
-    Ok(traces
-        .into_iter()
-        .map(|path| AppTrace::Path(path.to_path_buf()))
-        .collect())
+    Ok(existing_paths(&traces))
 }
 
 #[cfg(target_os = "linux")]
@@ -36,10 +33,11 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
     // TODO: Check GUI data
     // TODO: Check temp data
 
-    let mut traces = vec![
+    let caches = find_cache_traces()?;
+    let traces = vec![
         Path::new(r"/etc/mullvad-vpn/"),
         Path::new(r"/var/log/mullvad-vpn/"),
-        Path::new(r"/var/cache/mullvad-vpn/"),
+        &caches,
         Path::new(r"/opt/Mullvad VPN/"),
         // management interface socket
         Path::new(r"/var/run/mullvad-vpn"),
@@ -55,12 +53,11 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
         Path::new(r"/usr/share/fish/vendor_completions.d/mullvad.fish"),
     ];
 
-    filter_non_existent_paths(&mut traces)?;
+    Ok(existing_paths(&traces))
+}
 
-    Ok(traces
-        .into_iter()
-        .map(|path| AppTrace::Path(path.to_path_buf()))
-        .collect())
+pub fn find_cache_traces() -> Result<PathBuf, Error> {
+    mullvad_paths::get_cache_dir().map_err(|error| Error::FileSystem(error.to_string()))
 }
 
 #[cfg(target_os = "macos")]
@@ -68,10 +65,11 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
     // TODO: Check GUI data
     // TODO: Check temp data
 
-    let mut traces = vec![
+    let caches = find_cache_traces()?;
+    let traces = vec![
         Path::new(r"/Applications/Mullvad VPN.app/"),
         Path::new(r"/var/log/mullvad-vpn/"),
-        Path::new(r"/Library/Caches/mullvad-vpn/"),
+        &caches,
         // management interface socket
         Path::new(r"/var/run/mullvad-vpn"),
         // launch daemon
@@ -84,26 +82,16 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
         Path::new(r"/usr/local/share/fish/vendor_completions.d/mullvad.fish"),
     ];
 
-    filter_non_existent_paths(&mut traces)?;
-
-    Ok(traces
-        .into_iter()
-        .map(|path| AppTrace::Path(path.to_path_buf()))
-        .collect())
+    Ok(existing_paths(&traces))
 }
 
-fn filter_non_existent_paths(paths: &mut Vec<&Path>) -> Result<(), Error> {
-    for i in (0..paths.len()).rev() {
-        let path_exists = paths[i].try_exists().map_err(|error| {
-            log::error!("Failed to check whether path exists: {error}");
-            Error::Syscall
-        })?;
-        if !path_exists {
-            paths.swap_remove(i);
-            continue;
-        }
-    }
-    Ok(())
+/// Find all present app traces on the test runner.
+fn existing_paths(paths: &[&Path]) -> Vec<AppTrace> {
+    paths
+        .iter()
+        .filter(|&path| path.try_exists().is_ok_and(|exists| exists))
+        .map(|path| AppTrace::Path(path.to_path_buf()))
+        .collect()
 }
 
 pub async fn make_device_json_old() -> Result<(), Error> {

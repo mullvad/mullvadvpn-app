@@ -3,7 +3,7 @@ use logging::LOGGER;
 use std::{
     collections::{BTreeMap, HashMap},
     net::{IpAddr, SocketAddr},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use tarpc::context;
@@ -114,6 +114,13 @@ impl Service for TestServer {
         app::find_traces()
     }
 
+    async fn get_mullvad_app_cache_dir(
+        self,
+        _: context::Context,
+    ) -> Result<PathBuf, test_rpc::Error> {
+        app::find_cache_traces()
+    }
+
     async fn send_tcp(
         self,
         _: context::Context,
@@ -140,7 +147,7 @@ impl Service for TestServer {
         interface: Option<String>,
         destination: IpAddr,
     ) -> Result<(), test_rpc::Error> {
-        net::send_ping(interface.as_ref().map(String::as_str), destination).await
+        net::send_ping(interface.as_deref(), destination).await
     }
 
     async fn geoip_lookup(
@@ -219,6 +226,20 @@ impl Service for TestServer {
         logging::get_mullvad_app_logs().await
     }
 
+    async fn restart_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
+        sys::restart_app().await
+    }
+
+    /// Stop the Mullvad VPN application.
+    async fn stop_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
+        sys::stop_app().await
+    }
+
+    /// Start the Mullvad VPN application.
+    async fn start_mullvad_daemon(self, _: context::Context) -> Result<(), test_rpc::Error> {
+        sys::start_app().await
+    }
+
     async fn set_daemon_log_level(
         self,
         _: context::Context,
@@ -248,16 +269,27 @@ impl Service for TestServer {
         Ok(())
     }
 
-    async fn reboot(self, _: context::Context) -> Result<(), test_rpc::Error> {
-        sys::reboot()
-    }
-
-    async fn set_mullvad_daemon_service_state(
+    /// Write a slice as the entire contents of a file.
+    ///
+    /// See the documention of [`tokio::fs::write`] for details of the behavior.
+    async fn write_file(
         self,
         _: context::Context,
-        on: bool,
+        dest: PathBuf,
+        bytes: Vec<u8>,
     ) -> Result<(), test_rpc::Error> {
-        sys::set_mullvad_daemon_service_state(on).await
+        tokio::fs::write(&dest, bytes).await.map_err(|error| {
+            log::error!(
+                "Failed to write to \"{dest}\": {error}",
+                dest = dest.display()
+            );
+            test_rpc::Error::Syscall
+        })?;
+        Ok(())
+    }
+
+    async fn reboot(self, _: context::Context) -> Result<(), test_rpc::Error> {
+        sys::reboot()
     }
 
     async fn make_device_json_old(self, _: context::Context) -> Result<(), test_rpc::Error> {

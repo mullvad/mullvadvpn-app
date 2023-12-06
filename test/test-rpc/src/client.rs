@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    path::Path,
     time::{Duration, SystemTime},
 };
 
@@ -51,7 +52,7 @@ impl ServiceClient {
         self.client.uninstall_app(ctx, env).await?
     }
 
-    /// Execute a program.
+    /// Execute a program with additional environment-variables set.
     pub async fn exec_env<
         I: IntoIterator<Item = T>,
         M: IntoIterator<Item = (K, T)>,
@@ -151,6 +152,13 @@ impl ServiceClient {
             .await?
     }
 
+    /// Returns path of Mullvad app cache directorie on the test runner.
+    pub async fn find_mullvad_app_cache_dir(&self) -> Result<PathBuf, Error> {
+        self.client
+            .get_mullvad_app_cache_dir(tarpc::context::current())
+            .await?
+    }
+
     /// Send TCP packet
     pub async fn send_tcp(
         &self,
@@ -213,6 +221,51 @@ impl ServiceClient {
             .await?
     }
 
+    /// Restarts the app.
+    ///
+    /// Shuts down a running app, making it disconnect from any current tunnel
+    /// connection before starting the app again.
+    ///
+    /// # Note
+    /// This function will return *after* the app is running again, thus
+    /// blocking execution until then.
+    pub async fn restart_mullvad_daemon(&self) -> Result<(), Error> {
+        let _ = self
+            .client
+            .restart_mullvad_daemon(tarpc::context::current())
+            .await?;
+        Ok(())
+    }
+
+    /// Stop the app.
+    ///
+    /// Shuts down a running app, making it disconnect from any current tunnel
+    /// connection and making it write to caches.
+    ///
+    /// # Note
+    /// This function will return *after* the app has been stopped, thus
+    /// blocking execution until then.
+    pub async fn stop_mullvad_daemon(&self) -> Result<(), Error> {
+        let _ = self
+            .client
+            .stop_mullvad_daemon(tarpc::context::current())
+            .await?;
+        Ok(())
+    }
+
+    /// Start the app.
+    ///
+    /// # Note
+    /// This function will return *after* the app has been started, thus
+    /// blocking execution until then.
+    pub async fn start_mullvad_daemon(&self) -> Result<(), Error> {
+        let _ = self
+            .client
+            .start_mullvad_daemon(tarpc::context::current())
+            .await?;
+        Ok(())
+    }
+
     pub async fn set_daemon_log_level(
         &self,
         verbosity_level: mullvad_daemon::Verbosity,
@@ -247,6 +300,21 @@ impl ServiceClient {
             .await?
     }
 
+    pub async fn write_file(&self, dest: impl AsRef<Path>, bytes: Vec<u8>) -> Result<(), Error> {
+        log::debug!(
+            "Writing {bytes} bytes to \"{file}\"",
+            bytes = bytes.len(),
+            file = dest.as_ref().display()
+        );
+        self.client
+            .write_file(
+                tarpc::context::current(),
+                dest.as_ref().to_path_buf(),
+                bytes,
+            )
+            .await?
+    }
+
     pub async fn reboot(&mut self) -> Result<(), Error> {
         log::debug!("Rebooting server");
 
@@ -258,23 +326,6 @@ impl ServiceClient {
         self.connection_handle.wait_for_server().await?;
 
         tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-
-        Ok(())
-    }
-
-    pub async fn set_mullvad_daemon_service_state(&self, on: bool) -> Result<(), Error> {
-        self.client
-            .set_mullvad_daemon_service_state(tarpc::context::current(), on)
-            .await??;
-
-        self.mullvad_daemon_wait_for_state(|state| {
-            if on {
-                state == ServiceStatus::Running
-            } else {
-                state == ServiceStatus::NotRunning
-            }
-        })
-        .await?;
 
         Ok(())
     }

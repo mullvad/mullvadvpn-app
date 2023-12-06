@@ -335,3 +335,54 @@ pub async fn test_connected_state(
 
     Ok(())
 }
+
+/// Verify that the app defaults to the connecting state if it is started with a
+/// corrupt state cache.
+#[test_function]
+pub async fn test_connecting_state_when_corrupted_state_cache(
+    _: TestContext,
+    rpc: ServiceClient,
+    mullvad_client: ManagementServiceClient,
+) -> Result<(), Error> {
+    // The test should start in a disconnected state. Normally this would be
+    // preserved when restarting the app, i.e. the user would still be
+    // disconnected after a successfull restart. However, as we will
+    // intentionally corrupt the state target cache the user should end up in
+    // the connecting/connected state, *not in the disconnected state*, upon
+    // restart.
+
+    // Stopping the app should write to the state target cache.
+    log::info!("Stopping the app");
+    rpc.stop_mullvad_daemon().await?;
+
+    // Intentionally corrupt the state cache. Note that we can not simply remove
+    // the cache, as this will put the app in the default target state which is
+    // 'unsecured'.
+    log::info!("Figuring out where state cache resides on test runner ..");
+    let state_cache = rpc
+        .find_mullvad_app_cache_dir()
+        .await?
+        .join("target-start-state.json");
+    log::info!(
+        "Intentionally writing garbage to the state cache {file}",
+        file = state_cache.display()
+    );
+    rpc.write_file(state_cache, "cookie was here".into())
+        .await?;
+
+    // Start the app & make sure that we start in the 'connecting state'. The
+    // side-effect of this is that no network traffic is allowed to leak.
+    log::info!("Starting the app back up again");
+    rpc.start_mullvad_daemon().await?;
+    wait_for_tunnel_state(mullvad_client.clone(), |state| !state.is_disconnected())
+        .await
+        .map_err(|err| {
+            log::error!("App did not start in an expected state. \
+                        App is not in either `Connecting` or `Connected` state after starting with corrupt state cache! \
+                        There is a possibility of leaks during app startup ");
+            err
+        })?;
+    log::info!("App successfully recovered from a corrupt tunnel state cache.");
+
+    Ok(())
+}
