@@ -46,6 +46,7 @@ jobs:
     runs-on: macos-13-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
+      TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -81,6 +82,7 @@ jobs:
           cp App.xcconfig.template App.xcconfig
           cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
           cp Screenshots.xcconfig.template Screenshots.xcconfig
+          sed -i "" "s/MULLVAD_ACCOUNT_TOKEN = /MULLVAD_ACCOUNT_TOKEN = $TEST_ACCOUNT/g" Screenshots.xcconfig
         working-directory: ios/Configurations
 
       - name: Install xcbeautify
@@ -88,12 +90,19 @@ jobs:
           brew update
           brew install xcbeautify
 
-      - name: Run tests
+      - name: Run unit tests
         run: |
           set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -testPlan MullvadVPNCI \
+            -destination "platform=iOS Simulator,name=iPhone 15" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
+            test 2>&1 | xcbeautify
+          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
+            -project MullvadVPN.xcodeproj \
+            -scheme MullvadVPN \
+            -testPlan MullvadVPNScreenshots \
             -destination "platform=iOS Simulator,name=iPhone 15" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             test 2>&1 | xcbeautify
