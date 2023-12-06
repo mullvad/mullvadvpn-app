@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Surface
@@ -219,6 +220,45 @@ fun MullvadMediumTopBar(
             TopAppBarDefaults.mediumTopAppBarColors(
                 containerColor = MaterialTheme.colorScheme.background,
                 actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+            ),
+        actions = actions
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MullvadLargeTopBarWithToggleButton(
+    title: String,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    switch: @Composable () -> Unit = {},
+    scrollBehavior: TopAppBarScrollBehavior? = null
+) {
+    LargeTopAppBar(
+        title = {
+            Row(
+                modifier = Modifier.padding(end = Dimens.mediumPadding),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (scrollBehavior?.state?.collapsedFraction == 0f) {
+                    switch()
+                }
+            }
+        },
+        navigationIcon = navigationIcon,
+        scrollBehavior = scrollBehavior,
+        colors =
+            TopAppBarDefaults.mediumTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar)
             ),
         actions = actions
     )
