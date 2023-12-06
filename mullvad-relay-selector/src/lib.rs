@@ -1051,30 +1051,20 @@ impl RelaySelector {
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
     ) -> Option<SelectedObfuscator> {
-        if !self.should_use_auto_obfuscator(retry_attempt) {
-            return None;
-        }
-        // TODO FIX: The third obfuscator entry will never be chosen
-        // Because get_auto_obfuscator_retry_attempt() returns [0, 1]
-        // And the udp2tcp endpoints are defined in a vector with entries [0, 1, 2]
+        let obfuscation_attempt = Self::get_auto_obfuscator_retry_attempt(retry_attempt)?;
         self.get_udp2tcp_obfuscator(
             &obfuscation_settings.udp2tcp,
             relay,
             endpoint,
-            self.get_auto_obfuscator_retry_attempt(retry_attempt)
-                .unwrap(),
+            obfuscation_attempt,
         )
     }
 
-    fn should_use_auto_obfuscator(&self, retry_attempt: u32) -> bool {
-        self.get_auto_obfuscator_retry_attempt(retry_attempt)
-            .is_some()
-    }
-
-    fn get_auto_obfuscator_retry_attempt(&self, retry_attempt: u32) -> Option<u32> {
+    const fn get_auto_obfuscator_retry_attempt(retry_attempt: u32) -> Option<u32> {
         match retry_attempt % 4 {
             0 | 1 => None,
-            filtered_retry => Some(filtered_retry - 2),
+            // when the retry attempt is 2-3, 6-7, 10-11 ... obfuscation will be used
+            filtered_retry => Some(retry_attempt / 4 + filtered_retry - 2),
         }
     }
 
