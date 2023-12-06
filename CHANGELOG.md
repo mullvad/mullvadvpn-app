@@ -26,8 +26,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add CLI support for applying patches to the settings with `mullvad import-settings`.
 
 ### Changed
-- Update OpenVPN to 2.6.8 from 2.6.0.
-
 #### Android
 - Migrate welcome view to compose.
 - Migrate in app notifications to compose.
@@ -48,6 +46,11 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### Linux
 - Prevent fragmentation when multihop is enabled by setting a default route MTU.
+
+
+## [2023.6] - 2023-12-06
+### Changed
+- Update OpenVPN to 2.6.8 from 2.6.0.
 
 ### Security
 - Update OpenVPN to 2.6.8 to fix CVE-2023-46850, which could cause freed memory to be sent to the
