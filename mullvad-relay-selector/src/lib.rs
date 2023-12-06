@@ -1185,9 +1185,7 @@ impl RelaySelector {
         // between protocols.
         // If the tunnel type constraint is set OpenVpn, from the 4th attempt onwards, the first
         // two retry attempts OpenVpn constraints should be set to TCP as a bridge will be used,
-        // and to UDP or TCP for the next two attempts. If the tunnel type is specified to be _Any_
-        // and on not-Windows, the first two tries are used for WireGuard and don't
-        // affect counting here.
+        // and to UDP or TCP for the next two attempts.
         match retry_attempt {
             0 | 1 => (Constraint::Any, TransportProtocol::Udp),
             2 | 3 => (Constraint::Only(443), TransportProtocol::Tcp),
@@ -1573,35 +1571,6 @@ mod test {
                     &CustomListsSettings::default()
                 )
                 .is_ok());
-        }
-
-        // Prefer OpenVPN on Windows when possible
-        #[cfg(windows)]
-        {
-            let relay_constraints = RelayConstraints::default();
-            for attempt in 0..10 {
-                let preferred = relay_selector.preferred_constraints(
-                    &relay_constraints,
-                    BridgeState::Off,
-                    attempt,
-                    TunnelType::OpenVpn,
-                    &CustomListsSettings::default(),
-                );
-                assert_eq!(
-                    preferred.tunnel_protocol,
-                    Constraint::Only(TunnelType::OpenVpn)
-                );
-                match relay_selector.get_any_tunnel_endpoint(
-                    &relay_constraints,
-                    BridgeState::Off,
-                    attempt,
-                    TunnelType::OpenVpn,
-                    &CustomListsSettings::default(),
-                ) {
-                    Ok(result) if matches!(result.endpoint, MullvadEndpoint::OpenVpn(_)) => (),
-                    _ => panic!("OpenVPN endpoint was not selected"),
-                }
-            }
         }
     }
 
