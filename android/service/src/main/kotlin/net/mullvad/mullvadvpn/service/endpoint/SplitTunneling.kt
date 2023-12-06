@@ -17,7 +17,14 @@ class SplitTunneling(persistence: SplitTunnelingPersistence, endpoint: ServiceEn
             }
         }
 
-    val onChange = EventNotifier<List<String>?>(excludedApps.toList())
+    val onChange =
+        EventNotifier(
+            if (enabled) {
+                excludedApps.toList()
+            } else {
+                null
+            }
+        )
 
     init {
         onChange.subscribe(this) { excludedApps ->
