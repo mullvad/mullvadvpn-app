@@ -34,7 +34,9 @@ class SplitTunnelingScreenTest {
     fun testLoadingState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { SplitTunnelingScreen(uiState = SplitTunnelingUiState.Loading) }
+            setContentWithTheme {
+                SplitTunnelingScreen(uiState = SplitTunnelingUiState.Loading(enabled = true))
+            }
 
             // Assert
             onNodeWithText(TITLE).assertExists()
@@ -64,6 +66,7 @@ class SplitTunnelingScreenTest {
                 SplitTunnelingScreen(
                     uiState =
                         SplitTunnelingUiState.ShowAppList(
+                            enabled = true,
                             excludedApps = listOf(excludedApp),
                             includedApps = listOf(includedApp),
                             showSystemApps = false
@@ -95,6 +98,7 @@ class SplitTunnelingScreenTest {
                 SplitTunnelingScreen(
                     uiState =
                         SplitTunnelingUiState.ShowAppList(
+                            enabled = true,
                             excludedApps = emptyList(),
                             includedApps = listOf(includedApp),
                             showSystemApps = false
@@ -133,6 +137,7 @@ class SplitTunnelingScreenTest {
                 SplitTunnelingScreen(
                     uiState =
                         SplitTunnelingUiState.ShowAppList(
+                            enabled = true,
                             excludedApps = listOf(excludedApp),
                             includedApps = listOf(includedApp),
                             showSystemApps = false
@@ -169,6 +174,7 @@ class SplitTunnelingScreenTest {
                 SplitTunnelingScreen(
                     uiState =
                         SplitTunnelingUiState.ShowAppList(
+                            enabled = true,
                             excludedApps = listOf(excludedApp),
                             includedApps = listOf(includedApp),
                             showSystemApps = false
@@ -205,6 +211,7 @@ class SplitTunnelingScreenTest {
                 SplitTunnelingScreen(
                     uiState =
                         SplitTunnelingUiState.ShowAppList(
+                            enabled = true,
                             excludedApps = listOf(excludedApp),
                             includedApps = listOf(includedApp),
                             showSystemApps = false
