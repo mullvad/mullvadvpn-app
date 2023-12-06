@@ -59,6 +59,12 @@ Line wrap the file at 100 chars.                                              Th
   the directory in ProgramData.
 
 
+## [android/2023.9] - 2023-12-06
+### Added
+#### Android
+- Add missing translations for in-app purchases and a few settings.
+
+
 ## [android/2023.8] - 2023-11-28
 Identical to `android/2023.8-beta2`.
 
