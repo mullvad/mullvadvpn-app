@@ -63,8 +63,8 @@ constraints, following default ones will take effect:
   _udp2tcp_ all of the time.
 
   If obfuscation is turned _off_, WireGuard connections will first alternate between using
-  a random port and port 53, with 2 attempts each, e.g. first attempt using port 22151, second
-  26107, third attempt and fourth attempt using port 53, and then back to random ports.
+  a random port and port 53, e.g. first attempt using port 22151, second 53, third
+  26107, fourth attempt using port 53, and so on.
 
   If the user has specified a specific port for either _udp2tcp_ or WireGuard, it will override the
   port selection, but it will not change the connection type described above (WireGuard or WireGuard
