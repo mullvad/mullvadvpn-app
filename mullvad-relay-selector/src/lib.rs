@@ -1135,17 +1135,10 @@ impl RelaySelector {
     pub const fn preferred_tunnel_constraints(
         retry_attempt: u32,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
-        // Try out WireGuard in the first two connection attempts, first with any port,
-        // afterwards on port 53. Afterwards, connect through OpenVPN alternating between UDP
-        // on any port twice and TCP on port 443 once.
+        // Use WireGuard on the first three attempts, then OpenVPN
         match retry_attempt {
-            0 => (
-                Constraint::Any,
-                TransportProtocol::Udp,
-                TunnelType::Wireguard,
-            ),
-            1 => (
-                Constraint::Only(53),
+            0..=2 => (
+                Self::preferred_wireguard_port(retry_attempt),
                 TransportProtocol::Udp,
                 TunnelType::Wireguard,
             ),
@@ -1875,23 +1868,20 @@ mod test {
             protocol: TransportProtocol::Udp,
             port: Constraint::Any,
         });
-        #[cfg(all(unix, not(target_os = "android")))]
-        {
-            let preferred = relay_selector.preferred_constraints(
-                &relay_constraints,
-                BridgeState::On,
-                0,
-                &CustomListsSettings::default(),
-            );
-            assert_eq!(
-                preferred.tunnel_protocol,
-                Constraint::Only(TunnelType::Wireguard)
-            );
-        }
         let preferred = relay_selector.preferred_constraints(
             &relay_constraints,
             BridgeState::On,
-            2,
+            0,
+            &CustomListsSettings::default(),
+        );
+        assert_eq!(
+            preferred.tunnel_protocol,
+            Constraint::Only(TunnelType::Wireguard)
+        );
+        let preferred = relay_selector.preferred_constraints(
+            &relay_constraints,
+            BridgeState::On,
+            3,
             &CustomListsSettings::default(),
         );
         assert_eq!(
