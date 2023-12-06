@@ -1,4 +1,5 @@
 You can now create custom location lists, containing your favorite locations, in the select location view.
 A new social media blocking setting is now available in the VPN settings view.
 Added support in CLI for custom proxies for Mullvad API communication.
-Added support in CLI to specify custom IPs for VPN servers in order to circumvent IPs being blocked.
+Added support in CLI to specify custom IPs for VPN servers in order to circumvent blocked IPs.
+Fixed security related bugs.
