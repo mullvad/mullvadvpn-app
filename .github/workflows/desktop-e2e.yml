@@ -234,7 +234,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18.5
+          go-version: 1.21.3
       - name: Install Protoc
         uses: arduino/setup-protoc@v2
         with:
