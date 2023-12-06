@@ -259,4 +259,5 @@
     <string name="loading_connecting">Connecting...</string>
     <string name="loading_verifying">Verifying purchase...</string>
     <string name="copied_logs_to_clipboard">Copied logs to clipboard</string>
+    <string name="split_tunneling_disabled_description">Split tunneling is disabled.</string>
 </resources>
