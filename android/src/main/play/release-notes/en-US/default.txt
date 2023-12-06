@@ -1,6 +1,1 @@
-Add Google Play in-app purchases to the build distributed via Google Play.
-Add social media content blocker.
-Add support for setting per-app language in system settings.
-Add share button to the log view.
-Improve device and expiry information throughout the app.
-Migrate remaining views to the new UI framework (Compose).
+Add missing translations for in-app purchases and a few settings.
