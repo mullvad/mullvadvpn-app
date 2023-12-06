@@ -36,6 +36,12 @@ Line wrap the file at 100 chars.                                              Th
 - Fix issue with the app under some circumstances trying to connect to OpenVPN relays.
 
 
+## [android/2023.9] - 2023-12-06
+### Added
+#### Android
+- Add missing translations for in-app purchases and a few settings.
+
+
 ## [2023.6] - 2023-12-06
 ### Changed
 - Update OpenVPN to 2.6.8 from 2.6.0.
