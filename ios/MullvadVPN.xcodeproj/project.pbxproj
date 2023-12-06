@@ -505,6 +505,9 @@
 		A900E9BC2ACC609200C95F67 /* DevicesProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */; };
 		A900E9BE2ACC654100C95F67 /* APIProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */; };
 		A900E9C02ACC661900C95F67 /* AccessTokenManager+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */; };
+		A91614D12B108D1B00F416EB /* TransportLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91614D02B108D1B00F416EB /* TransportLayer.swift */; };
+		A91614D42B108F5600F416EB /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
+		A91614D62B10B26B00F416EB /* TunnelControlViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91614D52B10B26B00F416EB /* TunnelControlViewModel.swift */; };
 		A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */; };
 		A91D78E32B03BDF200FCD5D3 /* TunnelObfuscation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; };
 		A91D78E42B03C01600FCD5D3 /* MullvadSettings.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58B2FDD32AA71D2A003EB5C6 /* MullvadSettings.framework */; };
@@ -984,6 +987,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 7A88DCCD2A8FABBE00D2FF0E;
 			remoteInfo = Routing;
+		};
+		A91614D22B108F4D00F416EB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58D223D4294C8E5E0029F5F8;
+			remoteInfo = MullvadTypes;
 		};
 		A91D78E12B03BDE500FCD5D3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1620,6 +1630,8 @@
 		A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevicesProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "APIProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessTokenManager+Stubs.swift"; sourceTree = "<group>"; };
+		A91614D02B108D1B00F416EB /* TransportLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportLayer.swift; sourceTree = "<group>"; };
+		A91614D52B10B26B00F416EB /* TunnelControlViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlViewModel.swift; sourceTree = "<group>"; };
 		A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportStrategyTests.swift; sourceTree = "<group>"; };
 		A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A92ECC202A77FFAF0052F1B1 /* TunnelSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettings.swift; sourceTree = "<group>"; };
@@ -1724,6 +1736,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A91614D42B108F5600F416EB /* MullvadTypes.framework in Frameworks */,
 				584023292A407F5F007B27AC /* libtunnel_obfuscator_proxy.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2005,6 +2018,7 @@
 				581DA2722A1E227D0046ED47 /* RESTTypes.swift */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
+				A91614D02B108D1B00F416EB /* TransportLayer.swift */,
 			);
 			path = MullvadTypes;
 			sourceTree = "<group>";
@@ -2186,6 +2200,7 @@
 				58B43C1825F77DB60002C8C3 /* TunnelControlView.swift */,
 				58CCA00F224249A1004F3011 /* TunnelViewController.swift */,
 				5878A278290954790096FC88 /* TunnelViewControllerInteractor.swift */,
+				A91614D52B10B26B00F416EB /* TunnelControlViewModel.swift */,
 			);
 			path = Tunnel;
 			sourceTree = "<group>";
@@ -3307,6 +3322,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				A91614D32B108F4D00F416EB /* PBXTargetDependency */,
 			);
 			name = TunnelObfuscation;
 			productName = TunnelObfuscator;
@@ -4413,6 +4429,7 @@
 				58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
 				5878A27B2909649A0096FC88 /* CustomOverlayRenderer.swift in Sources */,
+				A91614D62B10B26B00F416EB /* TunnelControlViewModel.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				7AF9BE992A4E0FE900DBFEDB /* MarkdownStylingOptions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
@@ -4685,6 +4702,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A91614D12B108D1B00F416EB /* TransportLayer.swift in Sources */,
 				58D22406294C90210029F5F8 /* IPv4Endpoint.swift in Sources */,
 				7A307ADB2A8F56DF0017618B /* Duration+Extensions.swift in Sources */,
 				58D22407294C90210029F5F8 /* IPv6Endpoint.swift in Sources */,
@@ -4998,6 +5016,11 @@
 			isa = PBXTargetDependency;
 			target = 7A88DCCD2A8FABBE00D2FF0E /* Routing */;
 			targetProxy = 7ABCA5B52A9349F20044A708 /* PBXContainerItemProxy */;
+		};
+		A91614D32B108F4D00F416EB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58D223D4294C8E5E0029F5F8 /* MullvadTypes */;
+			targetProxy = A91614D22B108F4D00F416EB /* PBXContainerItemProxy */;
 		};
 		A91D78E22B03BDE500FCD5D3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
