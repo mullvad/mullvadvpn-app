@@ -1158,12 +1158,11 @@ impl RelaySelector {
     }
 
     const fn preferred_wireguard_port(retry_attempt: u32) -> Constraint<u16> {
-        // This ensures that if after the first 2 failed attempts the daemon does not
-        // connect, then afterwards 2 of each 4 successive attempts will try to connect
-        // on port 53.
-        match retry_attempt % 4 {
-            0 | 1 => Constraint::Any,
-            _ => Constraint::Only(53),
+        // Alternate between using a random port and port 53
+        if retry_attempt % 2 == 0 {
+            Constraint::Any
+        } else {
+            Constraint::Only(53)
         }
     }
 
