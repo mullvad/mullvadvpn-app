@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
+import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
@@ -51,6 +52,7 @@ class OutOfTimeViewModelTest {
     private val deviceState = MutableStateFlow<DeviceState>(DeviceState.Initial)
     private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
+    private val outOfTime = MutableStateFlow(true)
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -63,6 +65,7 @@ class OutOfTimeViewModelTest {
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
+    private val mockOutOfTimeUseCase: OutOfTimeUseCase = mockk(relaxed = true)
 
     private lateinit var viewModel: OutOfTimeViewModel
 
@@ -85,18 +88,24 @@ class OutOfTimeViewModelTest {
 
         coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
 
+        coEvery { mockOutOfTimeUseCase.isOutOfTime() } returns outOfTime
+
         viewModel =
             OutOfTimeViewModel(
                 accountRepository = mockAccountRepository,
                 serviceConnectionManager = mockServiceConnectionManager,
                 deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
+                outOfTimeUseCase = mockOutOfTimeUseCase,
                 pollAccountExpiry = false
             )
+
+        viewModel.start()
     }
 
     @After
     fun tearDown() {
+        viewModel.stop()
         viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
     }
@@ -145,7 +154,7 @@ class OutOfTimeViewModelTest {
 
             // Act, Assert
             viewModel.uiSideEffect.test {
-                accountExpiryState.value = AccountExpiry.Available(mockExpiryDate)
+                outOfTime.value = false
                 val action = awaitItem()
                 assertIs<OutOfTimeViewModel.UiSideEffect.OpenConnectScreen>(action)
             }

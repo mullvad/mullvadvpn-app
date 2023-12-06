@@ -53,9 +53,8 @@ fun MullvadApp() {
     LaunchedEffect(Unit) {
         serviceVm.sideEffect.collect {
             when (it) {
-                DaemonScreenEvent.Show -> navController.navigate(NoDaemonScreenDestination) {
-                    launchSingleTop = true
-                }
+                DaemonScreenEvent.Show ->
+                    navController.navigate(NoDaemonScreenDestination) { launchSingleTop = true }
                 DaemonScreenEvent.Remove ->
                     navController.popBackStack(NoDaemonScreenDestination, true)
             }
