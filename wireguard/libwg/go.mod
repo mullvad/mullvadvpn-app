@@ -1,10 +1,10 @@
 module github.com/mullvad/mullvadvpn-app/wireguard/libwg
 
-go 1.18
+go 1.20
 
 require (
-	golang.org/x/sys v0.0.0-20220808155132-1c4a2a72c664
-	golang.zx2c4.com/wireguard v0.0.0-20220703234212-c31a7b1ab478
+	golang.org/x/sys v0.6.0
+	golang.zx2c4.com/wireguard v0.0.0-20230223181233-21636207a675
 )
 
 require (
