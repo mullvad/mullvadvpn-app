@@ -32,7 +32,6 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
     let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
         button.accessibilityIdentifier = "CollapseButton"
-        button.isAccessibilityElement = false
         button.tintColor = .white
         return button
     }()
