@@ -32,12 +32,14 @@ import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SplitTunnelingCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.compose.component.MullvadSwitch
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithLargeTopBarAndToggleButton
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
+import net.mullvad.mullvadvpn.compose.state.AppListState
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -51,29 +53,32 @@ private fun PreviewSplitTunnelingScreen() {
     AppTheme {
         SplitTunnelingScreen(
             uiState =
-                SplitTunnelingUiState.ShowAppList(
-                    excludedApps =
-                        listOf(
-                            AppData(
-                                packageName = "my.package.a",
-                                name = "TitleA",
-                                iconRes = R.drawable.icon_alert,
-                            ),
-                            AppData(
-                                packageName = "my.package.b",
-                                name = "TitleB",
-                                iconRes = R.drawable.icon_chevron,
-                            )
-                        ),
-                    includedApps =
-                        listOf(
-                            AppData(
-                                packageName = "my.package.c",
-                                name = "TitleC",
-                                iconRes = R.drawable.icon_alert
-                            )
-                        ),
-                    showSystemApps = true
+                SplitTunnelingUiState(
+                    appListState =
+                        AppListState.ShowAppList(
+                            excludedApps =
+                                listOf(
+                                    AppData(
+                                        packageName = "my.package.a",
+                                        name = "TitleA",
+                                        iconRes = R.drawable.icon_alert
+                                    ),
+                                    AppData(
+                                        packageName = "my.package.b",
+                                        name = "TitleB",
+                                        iconRes = R.drawable.icon_chevron
+                                    )
+                                ),
+                            includedApps =
+                                listOf(
+                                    AppData(
+                                        packageName = "my.package.c",
+                                        name = "TitleC",
+                                        iconRes = R.drawable.icon_alert
+                                    )
+                                ),
+                            showSystemApps = true
+                        )
                 )
         )
     }
@@ -88,6 +93,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
     val packageManager = remember(context) { context.packageManager }
     SplitTunnelingScreen(
         uiState = state,
+        onShowSplitTunneling = viewModel::enableSplitTunneling,
         onShowSystemAppsClick = viewModel::onShowSystemAppsClick,
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
@@ -101,18 +107,25 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 fun SplitTunnelingScreen(
-    uiState: SplitTunnelingUiState = SplitTunnelingUiState.Loading,
+    uiState: SplitTunnelingUiState = SplitTunnelingUiState(),
+    onShowSplitTunneling: (Boolean) -> Unit = {},
     onShowSystemAppsClick: (show: Boolean) -> Unit = {},
     onExcludeAppClick: (packageName: String) -> Unit = {},
     onIncludeAppClick: (packageName: String) -> Unit = {},
     onBackClick: () -> Unit = {},
-    onResolveIcon: (String) -> Bitmap? = { null },
+    onResolveIcon: (String) -> Bitmap? = { null }
 ) {
     val focusManager = LocalFocusManager.current
 
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithLargeTopBarAndToggleButton(
         modifier = Modifier.fillMaxSize(),
         appBarTitle = stringResource(id = R.string.split_tunneling),
+        switch = {
+            MullvadSwitch(
+                checked = uiState.enabled,
+                onCheckedChange = { newValue -> onShowSplitTunneling(newValue) }
+            )
+        },
         navigationIcon = { NavigateBackIconButton(onBackClick) }
     ) { modifier, lazyListState ->
         LazyColumn(
@@ -134,14 +147,14 @@ fun SplitTunnelingScreen(
                     )
                 }
             }
-            when (uiState) {
-                SplitTunnelingUiState.Loading -> {
+            when (val appList = uiState.appListState) {
+                AppListState.Loading -> {
                     item(key = CommonContentKey.PROGRESS, contentType = ContentType.PROGRESS) {
                         MullvadCircularProgressIndicatorLarge()
                     }
                 }
-                is SplitTunnelingUiState.ShowAppList -> {
-                    if (uiState.excludedApps.isNotEmpty()) {
+                is AppListState.ShowAppList -> {
+                    if (appList.excludedApps.isNotEmpty()) {
                         itemWithDivider(
                             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
                             contentType = ContentType.HEADER
@@ -155,11 +168,11 @@ fun SplitTunnelingScreen(
                                     )
                                 },
                                 bodyView = {},
-                                background = MaterialTheme.colorScheme.primary,
+                                background = MaterialTheme.colorScheme.primary
                             )
                         }
                         itemsIndexed(
-                            items = uiState.excludedApps,
+                            items = appList.excludedApps,
                             key = { _, listItem -> listItem.packageName },
                             contentType = { _, _ -> ContentType.ITEM }
                         ) { index, listItem ->
@@ -172,7 +185,7 @@ fun SplitTunnelingScreen(
                             ) {
                                 // Move focus down unless the clicked item was the last in this
                                 // section.
-                                if (index < uiState.excludedApps.size - 1) {
+                                if (index < appList.excludedApps.size - 1) {
                                     focusManager.moveFocus(FocusDirection.Down)
                                 } else {
                                     focusManager.moveFocus(FocusDirection.Up)
@@ -195,7 +208,7 @@ fun SplitTunnelingScreen(
                     ) {
                         HeaderSwitchComposeCell(
                             title = stringResource(id = R.string.show_system_apps),
-                            isToggled = uiState.showSystemApps,
+                            isToggled = appList.showSystemApps,
                             onCellClicked = { newValue -> onShowSystemAppsClick(newValue) },
                             modifier = Modifier.animateItemPlacement()
                         )
@@ -214,11 +227,11 @@ fun SplitTunnelingScreen(
                                 )
                             },
                             bodyView = {},
-                            background = MaterialTheme.colorScheme.primary,
+                            background = MaterialTheme.colorScheme.primary
                         )
                     }
                     itemsIndexed(
-                        items = uiState.includedApps,
+                        items = appList.includedApps,
                         key = { _, listItem -> listItem.packageName },
                         contentType = { _, _ -> ContentType.ITEM }
                     ) { index, listItem ->
@@ -231,7 +244,7 @@ fun SplitTunnelingScreen(
                         ) {
                             // Move focus down unless the clicked item was the last in this
                             // section.
-                            if (index < uiState.includedApps.size - 1) {
+                            if (index < appList.includedApps.size - 1) {
                                 focusManager.moveFocus(FocusDirection.Down)
                             } else {
                                 focusManager.moveFocus(FocusDirection.Up)
@@ -241,6 +254,7 @@ fun SplitTunnelingScreen(
                         }
                     }
                 }
+                AppListState.Disabled -> {}
             }
         }
     }
