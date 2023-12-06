@@ -1,12 +1,14 @@
 ---
-name: iOS app
+name: iOS screenshots
 on:
-  pull_request:
+  push:
     paths:
       - .github/workflows/ios.yml
       - ios/.swiftformat
       - ios/**/*.swift
       - ios/**/*.xctestplan
+    tags:
+      - ios/*
   workflow_dispatch:
 jobs:
   check-formatting:
@@ -42,10 +44,11 @@ jobs:
         working-directory: ios
 
   test:
-    name: Unit tests
+    name: Take screenshots
     runs-on: macos-13-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
+      TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -73,7 +76,7 @@ jobs:
         with:
           xcode-version: '15.0.1'
       - name: Configure Rust
-        run: rustup target add aarch64-apple-ios-sim
+        run: rustup target add aarch64-apple-ios-sim x86_64-apple-ios
 
       - name: Configure Xcode project
         run: |
@@ -81,31 +84,24 @@ jobs:
           cp App.xcconfig.template App.xcconfig
           cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
           cp Screenshots.xcconfig.template Screenshots.xcconfig
+          sed -i "" "s/MULLVAD_ACCOUNT_TOKEN = /MULLVAD_ACCOUNT_TOKEN = $TEST_ACCOUNT/g" Screenshots.xcconfig
         working-directory: ios/Configurations
+
+      - name: Bundle
+        run: bundle install
+        working-directory: ios
 
       - name: Install xcbeautify
         run: |
           brew update
           brew install xcbeautify
 
-      - name: Run unit tests
-        run: |
-          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-            -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPN \
-            -testPlan MullvadVPNCI \
-            -destination "platform=iOS Simulator,name=iPhone 15" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            test 2>&1 | xcbeautify
+      - name: Run screenshot tests
+        run: bundle exec fastlane snapshot
         working-directory: ios/
 
-      - name: Run screenshot tests
-        run: |
-          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-            -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPN \
-            -testPlan MullvadVPNScreenshots \
-            -destination "platform=iOS Simulator,name=iPhone 15" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            test 2>&1 | xcbeautify
-        working-directory: ios/
+      - name: Upload screenshot artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-screenshots
+          path: ios/Screenshots
