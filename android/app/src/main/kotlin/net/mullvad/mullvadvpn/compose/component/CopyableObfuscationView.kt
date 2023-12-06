@@ -10,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -66,8 +65,7 @@ fun CopyAnimatedIconButton(onClick: () -> Unit) {
     AnimatedIconButton(
         defaultIcon = painterResource(id = R.drawable.icon_copy),
         secondaryIcon = painterResource(id = R.drawable.icon_tick),
-        secondaryIconColorFilter =
-            ColorFilter.tint(color = MaterialTheme.colorScheme.inversePrimary),
+        secondaryIconTint = MaterialTheme.colorScheme.inversePrimary,
         isToggleButton = false,
         contentDescription = stringResource(id = R.string.copy_account_number),
         onClick = onClick

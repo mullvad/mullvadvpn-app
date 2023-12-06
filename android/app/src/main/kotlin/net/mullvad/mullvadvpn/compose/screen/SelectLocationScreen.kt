@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -101,26 +104,18 @@ fun SelectLocationScreen(
     Column(modifier = Modifier.background(backgroundColor).fillMaxWidth().fillMaxHeight()) {
         Row(
             modifier =
-                Modifier.padding(
-                        horizontal = Dimens.selectLocationTitlePadding,
-                        vertical = Dimens.selectLocationTitlePadding
-                    )
+                Modifier.padding(vertical = Dimens.selectLocationTitlePadding)
+                    .padding(end = Dimens.selectLocationTitlePadding)
                     .fillMaxWidth()
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.icon_back),
-                contentDescription = null,
-                modifier =
-                    Modifier.focusRequester(backFocus)
-                        .focusProperties { next = listFocus }
-                        .focusProperties {
-                            down = listFocus
-                            right = searchBarFocus
-                        }
-                        .size(Dimens.titleIconSize)
-                        .rotate(270f)
-                        .clickable { onBackClick() }
-            )
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_back),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(Dimens.titleIconSize).rotate(270f)
+                )
+            }
             Text(
                 text = stringResource(id = R.string.select_location),
                 modifier =
