@@ -751,11 +751,11 @@ impl RelaySelector {
             custom_lists,
         );
         let (preferred_port, preferred_protocol, preferred_tunnel) = self
-            .preferred_tunnel_constraints(
+            .preferred_tunnel_constraints_for_location(
                 retry_attempt,
                 &location,
                 &original_constraints.providers,
-                &original_constraints.ownership,
+                original_constraints.ownership,
             );
 
         let mut relay_constraints = original_constraints.clone();
@@ -1097,31 +1097,43 @@ impl RelaySelector {
             })
     }
 
-    /// Returns preferred constraints
-    #[allow(unused_variables)]
-    fn preferred_tunnel_constraints(
+    /// Return the preferred constraints, on attempt `retry_attempt`, for matching locations
+    fn preferred_tunnel_constraints_for_location(
         &self,
         retry_attempt: u32,
-        location_constraint: &Constraint<ResolvedLocationConstraint>,
-        providers_constraint: &Constraint<Providers>,
-        ownership_constraint: &Constraint<Ownership>,
+        location: &Constraint<ResolvedLocationConstraint>,
+        providers: &Constraint<Providers>,
+        ownership: Constraint<Ownership>,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
-        let location_supports_wireguard = self.parsed_relays.lock().relays().any(|relay| {
+        let parsed_relays = self.parsed_relays.lock();
+        let mut active_location_relays = parsed_relays.relays().filter(|relay| {
             relay.active
-                && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                && location_constraint.matches_with_opts(relay, true)
-                && providers_constraint.matches(relay)
-                && ownership_constraint.matches(relay)
+                && location.matches_with_opts(relay, true)
+                && providers.matches(relay)
+                && ownership.matches(relay)
         });
-
-        // If location does not support WireGuard, defer to preferred OpenVPN tunnel
-        // constraints
-        if !location_supports_wireguard {
-            let (preferred_port, preferred_protocol) =
-                Self::preferred_openvpn_constraints(retry_attempt);
-            return (preferred_port, preferred_protocol, TunnelType::OpenVpn);
+        let location_supports_wg = active_location_relays
+            .clone()
+            .any(|relay| matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_)));
+        let location_supports_openvpn = active_location_relays
+            .any(|relay| matches!(relay.endpoint_data, RelayEndpointData::Openvpn));
+        match (location_supports_wg, location_supports_openvpn) {
+            (true, true) | (false, false) => Self::preferred_tunnel_constraints(retry_attempt),
+            (true, false) => {
+                let port = Self::preferred_wireguard_port(retry_attempt);
+                (port, TransportProtocol::Udp, TunnelType::Wireguard)
+            }
+            (false, true) => {
+                let (port, transport) = Self::preferred_openvpn_constraints(retry_attempt);
+                (port, transport, TunnelType::OpenVpn)
+            }
         }
+    }
 
+    /// Return the preferred constraints, on attempt `retry_attempt`, given no other constraints
+    pub const fn preferred_tunnel_constraints(
+        retry_attempt: u32,
+    ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
         // Try out WireGuard in the first two connection attempts, first with any port,
         // afterwards on port 53. Afterwards, connect through OpenVPN alternating between UDP
         // on any port twice and TCP on port 443 once.
@@ -1144,7 +1156,7 @@ impl RelaySelector {
         }
     }
 
-    fn preferred_wireguard_port(retry_attempt: u32) -> Constraint<u16> {
+    const fn preferred_wireguard_port(retry_attempt: u32) -> Constraint<u16> {
         // This ensures that if after the first 2 failed attempts the daemon does not
         // connect, then afterwards 2 of each 4 successive attempts will try to connect
         // on port 53.
@@ -1154,7 +1166,9 @@ impl RelaySelector {
         }
     }
 
-    fn preferred_openvpn_constraints(retry_attempt: u32) -> (Constraint<u16>, TransportProtocol) {
+    const fn preferred_openvpn_constraints(
+        retry_attempt: u32,
+    ) -> (Constraint<u16>, TransportProtocol) {
         // Prefer UDP by default. But if that has failed a couple of times, then try TCP port
         // 443, which works for many with UDP problems. After that, just alternate
         // between protocols.
