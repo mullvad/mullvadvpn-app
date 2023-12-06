@@ -237,6 +237,46 @@ fun MullvadMediumTopBar(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MullvadMediumTopBarWithSwitch(
+    title: String,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    switch: @Composable RowScope.() -> Unit = {},
+    scrollBehavior: TopAppBarScrollBehavior? = null
+) {
+    MediumTopAppBar(
+        title = {
+            Row(
+                modifier = Modifier.padding(end = Dimens.mediumPadding),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+
+                if (scrollBehavior?.state?.collapsedFraction == 0f) {
+                    switch()
+                }
+            }
+        },
+        navigationIcon = navigationIcon,
+        scrollBehavior = scrollBehavior,
+        colors =
+            TopAppBarDefaults.mediumTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                scrolledContainerColor = MaterialTheme.colorScheme.background,
+                actionIconContentColor = MaterialTheme.colorScheme.onPrimary.copy(AlphaTopBar),
+            ),
+        actions = actions
+    )
+}
+
 @Preview
 @Composable
 private fun PreviewMullvadTopBarWithLongDeviceName() {

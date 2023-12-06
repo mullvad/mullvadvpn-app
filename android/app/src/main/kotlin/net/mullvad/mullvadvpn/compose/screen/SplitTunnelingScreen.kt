@@ -2,22 +2,22 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -29,9 +29,11 @@ import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.compose.cell.HeaderCell
 import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SplitTunnelingCell
+import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.component.textResource
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.constant.SplitTunnelingContentKey
@@ -41,6 +43,8 @@ import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.util.getApplicationIconBitmapOrNull
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -52,17 +56,18 @@ private fun PreviewSplitTunnelingScreen() {
         SplitTunnelingScreen(
             uiState =
                 SplitTunnelingUiState.ShowAppList(
+                    enabled = true,
                     excludedApps =
                         listOf(
                             AppData(
                                 packageName = "my.package.a",
                                 name = "TitleA",
-                                iconRes = R.drawable.icon_alert,
+                                iconRes = R.drawable.icon_alert
                             ),
                             AppData(
                                 packageName = "my.package.b",
                                 name = "TitleB",
-                                iconRes = R.drawable.icon_chevron,
+                                iconRes = R.drawable.icon_chevron
                             )
                         ),
                     includedApps =
@@ -88,6 +93,7 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
     val packageManager = remember(context) { context.packageManager }
     SplitTunnelingScreen(
         uiState = state,
+        onShowSplitTunneling = viewModel::enableSplitTunneling,
         onShowSystemAppsClick = viewModel::onShowSystemAppsClick,
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
@@ -99,14 +105,14 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
 }
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 fun SplitTunnelingScreen(
-    uiState: SplitTunnelingUiState = SplitTunnelingUiState.Loading,
+    uiState: SplitTunnelingUiState,
+    onShowSplitTunneling: (Boolean) -> Unit = {},
     onShowSystemAppsClick: (show: Boolean) -> Unit = {},
     onExcludeAppClick: (packageName: String) -> Unit = {},
     onIncludeAppClick: (packageName: String) -> Unit = {},
     onBackClick: () -> Unit = {},
-    onResolveIcon: (String) -> Bitmap? = { null },
+    onResolveIcon: (String) -> Bitmap? = { null }
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -120,115 +126,195 @@ fun SplitTunnelingScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             state = lazyListState
         ) {
-            item(key = CommonContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        style = MaterialTheme.typography.labelMedium,
-                        text = stringResource(id = R.string.split_tunneling_description),
-                        modifier =
-                            Modifier.padding(
-                                start = Dimens.mediumPadding,
-                                end = Dimens.mediumPadding,
-                                bottom = Dimens.mediumPadding
-                            )
+            enabledToggle(enabled = uiState.enabled, onShowSplitTunneling)
+            description(enabled = uiState.enabled)
+            spacer()
+            when (uiState) {
+                is SplitTunnelingUiState.Loading -> {
+                    loading()
+                }
+                is SplitTunnelingUiState.ShowAppList -> {
+                    appList(
+                        uiState = uiState,
+                        focusManager = focusManager,
+                        onShowSystemAppsClick = onShowSystemAppsClick,
+                        onExcludeAppClick = onExcludeAppClick,
+                        onIncludeAppClick = onIncludeAppClick,
+                        onResolveIcon = onResolveIcon
                     )
                 }
             }
-            when (uiState) {
-                SplitTunnelingUiState.Loading -> {
-                    item(key = CommonContentKey.PROGRESS, contentType = ContentType.PROGRESS) {
-                        MullvadCircularProgressIndicatorLarge()
-                    }
-                }
-                is SplitTunnelingUiState.ShowAppList -> {
-                    if (uiState.excludedApps.isNotEmpty()) {
-                        itemWithDivider(
-                            key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
-                            contentType = ContentType.HEADER
-                        ) {
-                            HeaderCell(
-                                modifier = Modifier.animateItemPlacement(),
-                                text = stringResource(id = R.string.exclude_applications),
-                                background = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                        itemsIndexedWithDivider(
-                            items = uiState.excludedApps,
-                            key = { _, listItem -> listItem.packageName },
-                            contentType = { _, _ -> ContentType.ITEM }
-                        ) { index, listItem ->
-                            SplitTunnelingCell(
-                                title = listItem.name,
-                                packageName = listItem.packageName,
-                                isSelected = true,
-                                modifier = Modifier.animateItemPlacement().fillMaxWidth(),
-                                onResolveIcon = onResolveIcon
-                            ) {
-                                // Move focus down unless the clicked item was the last in this
-                                // section.
-                                if (index < uiState.excludedApps.size - 1) {
-                                    focusManager.moveFocus(FocusDirection.Down)
-                                } else {
-                                    focusManager.moveFocus(FocusDirection.Up)
-                                }
-
-                                onIncludeAppClick(listItem.packageName)
-                            }
-                        }
-                        item(key = CommonContentKey.SPACER, contentType = ContentType.SPACER) {
-                            Spacer(
-                                modifier =
-                                    Modifier.animateItemPlacement().height(Dimens.mediumPadding)
-                            )
-                        }
-                    }
-
-                    itemWithDivider(
-                        key = SplitTunnelingContentKey.SHOW_SYSTEM_APPLICATIONS,
-                        contentType = ContentType.OTHER_ITEM
-                    ) {
-                        HeaderSwitchComposeCell(
-                            title = stringResource(id = R.string.show_system_apps),
-                            isToggled = uiState.showSystemApps,
-                            onCellClicked = { newValue -> onShowSystemAppsClick(newValue) },
-                            modifier = Modifier.animateItemPlacement()
-                        )
-                    }
-                    itemWithDivider(
-                        key = SplitTunnelingContentKey.INCLUDED_APPLICATIONS,
-                        contentType = ContentType.HEADER
-                    ) {
-                        HeaderCell(
-                            modifier = Modifier.animateItemPlacement(),
-                            text = stringResource(id = R.string.all_applications),
-                            background = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                    itemsIndexedWithDivider(
-                        items = uiState.includedApps,
-                        key = { _, listItem -> listItem.packageName },
-                        contentType = { _, _ -> ContentType.ITEM }
-                    ) { index, listItem ->
-                        SplitTunnelingCell(
-                            title = listItem.name,
-                            packageName = listItem.packageName,
-                            isSelected = false,
-                            modifier = Modifier.animateItemPlacement().fillMaxWidth(),
-                            onResolveIcon = onResolveIcon
-                        ) {
-                            // Move focus down unless the clicked item was the last in this
-                            // section.
-                            if (index < uiState.includedApps.size - 1) {
-                                focusManager.moveFocus(FocusDirection.Down)
-                            } else {
-                                focusManager.moveFocus(FocusDirection.Up)
-                            }
-
-                            onExcludeAppClick(listItem.packageName)
-                        }
-                    }
-                }
-            }
         }
+    }
+}
+
+private fun LazyListScope.enabledToggle(enabled: Boolean, onShowSplitTunneling: (Boolean) -> Unit) {
+    item {
+        HeaderSwitchComposeCell(
+            title = textResource(id = R.string.enable),
+            isToggled = enabled,
+            onCellClicked = onShowSplitTunneling
+        )
+    }
+}
+
+private fun LazyListScope.description(enabled: Boolean) {
+    item(key = CommonContentKey.DESCRIPTION, contentType = ContentType.DESCRIPTION) {
+        SwitchComposeSubtitleCell(
+            text =
+                if (enabled) {
+                    stringResource(id = R.string.split_tunneling_description)
+                } else {
+                    stringResource(id = R.string.split_tunneling_disabled_description)
+                }
+        )
+    }
+}
+
+private fun LazyListScope.loading() {
+    item(key = CommonContentKey.PROGRESS, contentType = ContentType.PROGRESS) {
+        MullvadCircularProgressIndicatorLarge()
+    }
+}
+
+private fun LazyListScope.appList(
+    uiState: SplitTunnelingUiState.ShowAppList,
+    focusManager: FocusManager,
+    onShowSystemAppsClick: (show: Boolean) -> Unit,
+    onExcludeAppClick: (packageName: String) -> Unit,
+    onIncludeAppClick: (packageName: String) -> Unit,
+    onResolveIcon: (String) -> Bitmap?
+) {
+    if (uiState.excludedApps.isNotEmpty()) {
+        headerItem(
+            key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
+            textId = R.string.exclude_applications,
+            enabled = uiState.enabled
+        )
+        appItems(
+            apps = uiState.excludedApps,
+            focusManager = focusManager,
+            onAppClick = onIncludeAppClick,
+            onResolveIcon = onResolveIcon,
+            enabled = uiState.enabled,
+            excluded = true
+        )
+        spacer()
+    }
+    systemAppsToggle(
+        showSystemApps = uiState.showSystemApps,
+        onShowSystemAppsClick = onShowSystemAppsClick,
+        enabled = uiState.enabled
+    )
+    headerItem(
+        key = SplitTunnelingContentKey.INCLUDED_APPLICATIONS,
+        textId = R.string.all_applications,
+        enabled = uiState.enabled
+    )
+    appItems(
+        apps = uiState.includedApps,
+        focusManager = focusManager,
+        onAppClick = onExcludeAppClick,
+        onResolveIcon = onResolveIcon,
+        enabled = uiState.enabled,
+        excluded = false
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.appItems(
+    apps: List<AppData>,
+    focusManager: FocusManager,
+    onAppClick: (String) -> Unit,
+    onResolveIcon: (String) -> Bitmap?,
+    enabled: Boolean,
+    excluded: Boolean
+) {
+    itemsIndexedWithDivider(
+        items = apps,
+        key = { _, listItem -> listItem.packageName },
+        contentType = { _, _ -> ContentType.ITEM }
+    ) { index, listItem ->
+        SplitTunnelingCell(
+            title = listItem.name,
+            packageName = listItem.packageName,
+            isSelected = excluded,
+            enabled = enabled,
+            modifier =
+                Modifier.animateItemPlacement()
+                    .fillMaxWidth()
+                    .alpha(
+                        if (enabled) {
+                            AlphaVisible
+                        } else {
+                            AlphaDisabled
+                        }
+                    ),
+            onResolveIcon = onResolveIcon
+        ) {
+            // Move focus down unless the clicked item was the last in this
+            // section.
+            if (index < apps.size - 1) {
+                focusManager.moveFocus(FocusDirection.Down)
+            } else {
+                focusManager.moveFocus(FocusDirection.Up)
+            }
+
+            onAppClick(listItem.packageName)
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
+    itemWithDivider(key = key, contentType = ContentType.HEADER) {
+        HeaderCell(
+            modifier =
+                Modifier.animateItemPlacement()
+                    .alpha(
+                        if (enabled) {
+                            AlphaVisible
+                        } else {
+                            AlphaDisabled
+                        }
+                    ),
+            text = stringResource(id = textId),
+            background = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.systemAppsToggle(
+    showSystemApps: Boolean,
+    onShowSystemAppsClick: (show: Boolean) -> Unit,
+    enabled: Boolean
+) {
+    itemWithDivider(
+        key = SplitTunnelingContentKey.SHOW_SYSTEM_APPLICATIONS,
+        contentType = ContentType.OTHER_ITEM
+    ) {
+        HeaderSwitchComposeCell(
+            title = stringResource(id = R.string.show_system_apps),
+            isToggled = showSystemApps,
+            onCellClicked = { newValue -> onShowSystemAppsClick(newValue) },
+            isEnabled = enabled,
+            modifier =
+                Modifier.animateItemPlacement()
+                    .alpha(
+                        if (enabled) {
+                            AlphaVisible
+                        } else {
+                            AlphaDisabled
+                        }
+                    )
+        )
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private fun LazyListScope.spacer() {
+    item(contentType = ContentType.SPACER) {
+        Spacer(modifier = Modifier.animateItemPlacement().height(Dimens.mediumPadding))
     }
 }

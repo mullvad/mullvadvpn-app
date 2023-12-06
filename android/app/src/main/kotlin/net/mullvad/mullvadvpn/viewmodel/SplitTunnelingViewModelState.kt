@@ -4,15 +4,23 @@ import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 
 data class SplitTunnelingViewModelState(
+    val enabled: Boolean = false,
     val excludedApps: Set<String> = emptySet(),
     val allApps: List<AppData>? = null,
     val showSystemApps: Boolean = false
 ) {
     fun toUiState(): SplitTunnelingUiState {
         return allApps
-            ?.partition { appData -> excludedApps.contains(appData.packageName) }
+            ?.partition { appData ->
+                if (enabled) {
+                    excludedApps.contains(appData.packageName)
+                } else {
+                    false
+                }
+            }
             ?.let { (excluded, included) ->
                 SplitTunnelingUiState.ShowAppList(
+                    enabled = enabled,
                     excludedApps = excluded.sortedBy { it.name },
                     includedApps =
                         if (showSystemApps) {
@@ -23,6 +31,6 @@ data class SplitTunnelingViewModelState(
                             .sortedBy { it.name },
                     showSystemApps = showSystemApps
                 )
-            } ?: SplitTunnelingUiState.Loading
+            } ?: SplitTunnelingUiState.Loading(enabled = enabled)
     }
 }
