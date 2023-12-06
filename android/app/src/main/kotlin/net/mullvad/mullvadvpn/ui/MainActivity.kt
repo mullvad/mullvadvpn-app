@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
+import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var privacyDisclaimerRepository: PrivacyDisclaimerRepository
     private lateinit var serviceConnectionManager: ServiceConnectionManager
     private lateinit var changelogViewModel: ChangelogViewModel
+    private lateinit var serviceConnectionViewModel: NoDaemonViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
@@ -49,7 +51,9 @@ class MainActivity : ComponentActivity() {
             privacyDisclaimerRepository = get()
             serviceConnectionManager = get()
             changelogViewModel = get()
+            serviceConnectionViewModel = get()
         }
+        lifecycle.addObserver(serviceConnectionViewModel)
 
         super.onCreate(savedInstanceState)
 
@@ -87,6 +91,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         serviceConnectionManager.onDestroy()
+        lifecycle.removeObserver(serviceConnectionViewModel)
         super.onDestroy()
     }
 

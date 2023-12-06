@@ -8,8 +8,8 @@ import androidx.lifecycle.LifecycleEventObserver
 
 @Composable
 fun WhileInView(
-    inView: () -> Unit,
-    outOfView: () -> Unit,
+    inView: () -> Unit = {},
+    outOfView: () -> Unit = {},
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {

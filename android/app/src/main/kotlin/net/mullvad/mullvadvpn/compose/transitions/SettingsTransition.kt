@@ -20,13 +20,13 @@ object SettingsTransition : DestinationStyle.Animated {
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
         when (targetState.destination()) {
             NoDaemonScreenDestination -> fadeOut(snap(400))
-            else -> slideOutHorizontally(targetOffsetX = { -it/3 })
+            else -> slideOutHorizontally(targetOffsetX = { -it / 3 })
         }
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() =
         when (initialState.destination()) {
             NoDaemonScreenDestination -> fadeIn(snap(0))
-            else -> slideInHorizontally(initialOffsetX = { -it/3 })
+            else -> slideInHorizontally(initialOffsetX = { -it / 3 })
         }
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition() =

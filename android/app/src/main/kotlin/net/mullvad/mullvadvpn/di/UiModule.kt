@@ -45,12 +45,12 @@ import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
+import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.viewmodel.ReportProblemViewModel
 import net.mullvad.mullvadvpn.viewmodel.SelectLocationViewModel
-import net.mullvad.mullvadvpn.viewmodel.ServiceConnectionViewModel
 import net.mullvad.mullvadvpn.viewmodel.SettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplashViewModel
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
@@ -153,8 +153,10 @@ val uiModule = module {
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get()) }
     viewModel { PaymentViewModel(get()) }
-    viewModel { ServiceConnectionViewModel(get()) }
     viewModel { FilterViewModel(get()) }
+
+    // This view model must be single so we correctly attach lifecycle and share it with activity
+    single { NoDaemonViewModel(get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
