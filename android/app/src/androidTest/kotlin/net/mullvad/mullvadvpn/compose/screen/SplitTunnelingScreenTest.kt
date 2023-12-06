@@ -10,6 +10,7 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import net.mullvad.mullvadvpn.applist.AppData
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.AppListState
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -34,7 +35,12 @@ class SplitTunnelingScreenTest {
     fun testLoadingState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { SplitTunnelingScreen(uiState = SplitTunnelingUiState.Loading) }
+            setContentWithTheme {
+                SplitTunnelingScreen(
+                    uiState =
+                        SplitTunnelingUiState(enabled = true, appListState = AppListState.Loading)
+                )
+            }
 
             // Assert
             onNodeWithText(TITLE).assertExists()
@@ -63,10 +69,14 @@ class SplitTunnelingScreenTest {
             setContentWithTheme {
                 SplitTunnelingScreen(
                     uiState =
-                        SplitTunnelingUiState.ShowAppList(
-                            excludedApps = listOf(excludedApp),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false
+                        SplitTunnelingUiState(
+                            enabled = true,
+                            appListState =
+                                AppListState.ShowAppList(
+                                    excludedApps = listOf(excludedApp),
+                                    includedApps = listOf(includedApp),
+                                    showSystemApps = false
+                                )
                         )
                 )
             }
@@ -94,10 +104,14 @@ class SplitTunnelingScreenTest {
             setContentWithTheme {
                 SplitTunnelingScreen(
                     uiState =
-                        SplitTunnelingUiState.ShowAppList(
-                            excludedApps = emptyList(),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false
+                        SplitTunnelingUiState(
+                            enabled = true,
+                            appListState =
+                                AppListState.ShowAppList(
+                                    excludedApps = emptyList(),
+                                    includedApps = listOf(includedApp),
+                                    showSystemApps = false
+                                )
                         )
                 )
             }
@@ -132,10 +146,14 @@ class SplitTunnelingScreenTest {
             setContentWithTheme {
                 SplitTunnelingScreen(
                     uiState =
-                        SplitTunnelingUiState.ShowAppList(
-                            excludedApps = listOf(excludedApp),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false
+                        SplitTunnelingUiState(
+                            enabled = true,
+                            appListState =
+                                AppListState.ShowAppList(
+                                    excludedApps = listOf(excludedApp),
+                                    includedApps = listOf(includedApp),
+                                    showSystemApps = false
+                                )
                         ),
                     onExcludeAppClick = mockedClickHandler
                 )
@@ -168,10 +186,14 @@ class SplitTunnelingScreenTest {
             setContentWithTheme {
                 SplitTunnelingScreen(
                     uiState =
-                        SplitTunnelingUiState.ShowAppList(
-                            excludedApps = listOf(excludedApp),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false
+                        SplitTunnelingUiState(
+                            enabled = true,
+                            appListState =
+                                AppListState.ShowAppList(
+                                    excludedApps = listOf(excludedApp),
+                                    includedApps = listOf(includedApp),
+                                    showSystemApps = false
+                                )
                         ),
                     onIncludeAppClick = mockedClickHandler
                 )
@@ -204,10 +226,14 @@ class SplitTunnelingScreenTest {
             setContentWithTheme {
                 SplitTunnelingScreen(
                     uiState =
-                        SplitTunnelingUiState.ShowAppList(
-                            excludedApps = listOf(excludedApp),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false
+                        SplitTunnelingUiState(
+                            enabled = true,
+                            appListState =
+                                AppListState.ShowAppList(
+                                    excludedApps = listOf(excludedApp),
+                                    includedApps = listOf(includedApp),
+                                    showSystemApps = false
+                                )
                         ),
                     onShowSystemAppsClick = mockedClickHandler
                 )
