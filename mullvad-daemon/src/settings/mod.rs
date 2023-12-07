@@ -70,22 +70,10 @@ impl SettingsPersister {
     /// Loads user settings from file. If it fails, it returns the defaults.
     pub async fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
-        let (mut settings, mut should_save) = match Self::load_from_file(&path).await {
-            Ok(value) => value,
-            Err(error) => {
-                log::warn!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
-                );
-                let mut settings = Self::default_settings();
-
-                // Protect the user by blocking the internet by default. Previous settings may
-                // not have caused the daemon to enter the non-blocking disconnected state.
-                settings.block_when_disconnected = true;
-
-                (settings, true)
-            }
-        };
+        let LoadSettingsResult {
+            mut settings,
+            mut should_save,
+        } = Self::load_inner(|| Self::load_from_file(&path)).await;
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
@@ -115,31 +103,61 @@ impl SettingsPersister {
         persister
     }
 
-    pub fn register_change_listener(&mut self, change_listener: impl Fn(&Settings) + 'static) {
-        self.on_change_listeners.push(Box::new(change_listener));
-    }
+    /// Loads user settings, returning default settings if it should fail.
+    ///
+    /// `read` allows the caller to decide how to load [`Settings`] from an
+    /// bitrary resource.
+    ///
+    /// `load_inner` will always succeed, even in the presence of IO operations.
+    /// Errors are handled gracefully by returning the default [`Settings`] if
+    /// necessary.
+    async fn load_inner<F, R>(read: F) -> LoadSettingsResult
+    where
+        F: FnOnce() -> R,
+        R: std::future::Future<Output = Result<Settings, Error>>,
+    {
+        match read().await {
+            Ok(settings) => LoadSettingsResult {
+                settings,
+                should_save: false,
+            },
+            Err(Error::ReadError(_, err)) if err.kind() == io::ErrorKind::NotFound => {
+                log::info!("No settings were found. Using defaults.");
+                LoadSettingsResult {
+                    settings: Self::default_settings(),
+                    should_save: true,
+                }
+            }
+            Err(error) => {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
+                );
+                let mut settings = Self::default_settings();
 
-    fn notify_listeners(&self) {
-        for listener in &self.on_change_listeners {
-            listener(&self.settings);
+                // Protect the user by blocking the internet by default. Previous settings may
+                // not have caused the daemon to enter the non-blocking disconnected state.
+                settings.block_when_disconnected = true;
+
+                LoadSettingsResult {
+                    settings,
+                    should_save: true,
+                }
+            }
         }
     }
 
-    async fn load_from_file(path: &Path) -> Result<(Settings, bool), Error> {
-        log::info!("Loading settings from {}", path.display());
-
-        let settings_bytes = match fs::read(path).await {
-            Ok(bytes) => bytes,
-            Err(error) => {
-                if error.kind() == io::ErrorKind::NotFound {
-                    log::info!("No settings were found. Using defaults.");
-                    return Ok((Self::default_settings(), true));
-                } else {
-                    return Err(Error::ReadError(path.display().to_string(), error));
-                }
-            }
-        };
-        Ok((Self::load_from_bytes(&settings_bytes)?, false))
+    async fn load_from_file<P>(path: P) -> Result<Settings, Error>
+    where
+        P: AsRef<Path> + Clone,
+    {
+        let display = path.clone();
+        log::info!("Loading settings from {}", display.as_ref().display());
+        let settings_bytes = fs::read(path)
+            .await
+            .map_err(|error| Error::ReadError(display.as_ref().display().to_string(), error))?;
+        let settings = Self::load_from_bytes(&settings_bytes)?;
+        Ok(settings)
     }
 
     fn load_from_bytes(bytes: &[u8]) -> Result<Settings, Error> {
@@ -237,6 +255,21 @@ impl SettingsPersister {
             settings: &self.settings,
         }
     }
+
+    pub fn register_change_listener(&mut self, change_listener: impl Fn(&Settings) + 'static) {
+        self.on_change_listeners.push(Box::new(change_listener));
+    }
+
+    fn notify_listeners(&self) {
+        for listener in &self.on_change_listeners {
+            listener(&self.settings);
+        }
+    }
+}
+
+struct LoadSettingsResult {
+    settings: Settings,
+    should_save: bool,
 }
 
 impl Deref for SettingsPersister {
