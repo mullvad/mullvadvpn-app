@@ -1,5 +1,7 @@
 use super::{config::TEST_CONFIG, Error, PING_TIMEOUT, WAIT_FOR_TUNNEL_STATE_TIMEOUT};
-use crate::network_monitor::{start_packet_monitor, MonitorOptions};
+use crate::network_monitor::{
+    self, start_packet_monitor, MonitorOptions, MonitorUnexpectedlyStopped, PacketMonitor,
+};
 use futures::StreamExt;
 use mullvad_management_interface::{types, ManagementServiceClient, MullvadProxyClient};
 use mullvad_types::{
@@ -104,7 +106,7 @@ pub async fn send_guest_probes(
     let pktmon = start_packet_monitor(
         move |packet| packet.destination.ip() == destination.ip(),
         MonitorOptions {
-            direction: Some(crate::network_monitor::Direction::In),
+            direction: Some(network_monitor::Direction::In),
             timeout: Some(MONITOR_DURATION),
             ..Default::default()
         },
@@ -330,10 +332,6 @@ impl<T> AbortOnDrop<T> {
     pub fn new(inner: tokio::task::JoinHandle<T>) -> AbortOnDrop<T> {
         AbortOnDrop(Some(inner))
     }
-
-    pub fn into_inner(mut self) -> tokio::task::JoinHandle<T> {
-        self.0.take().unwrap()
-    }
 }
 
 impl<T> Drop for AbortOnDrop<T> {
@@ -522,4 +520,135 @@ pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
         .map(LocationConstraint::Location)
         .map(Constraint::Only)
         .expect("relay is missing location")
+}
+
+/// Ping monitoring made easy!
+///
+/// Continously ping some destination while monitoring to detect diverging
+/// packets.
+///
+/// To customize [`Pinger`] before the pinging and network monitoring starts,
+/// see [`PingerBuilder`]. Call [`start`](Pinger::start) to start pinging, and
+/// [`stop`](Pinger::stop) to get the leak test results.
+#[allow(dead_code)]
+pub struct Pinger {
+    // These values can be configured with [`PingerBuilder`].
+    destination: SocketAddr,
+    interval: tokio::time::Interval,
+    // Run-time specific values
+    pub guest_ip: IpAddr,
+    ping_task: AbortOnDrop<tokio::task::JoinHandle<()>>,
+    monitor: PacketMonitor,
+}
+
+impl Pinger {
+    /// Create a [`Pinger`] with a default configuration.
+    ///
+    /// See [`PingerBuilder`] for details.
+    pub async fn start(rpc: &test_rpc::ServiceClient) -> Pinger {
+        let defaults = PingerBuilder::default();
+        Self::start_with(defaults, rpc).await
+    }
+
+    /// Create a [`Pinger`] using the configuration of `builder`.
+    ///
+    /// See [`PingerBuilder`] for details on how to configure a [`Pinger`]
+    /// before starting it.
+    pub async fn start_with(builder: PingerBuilder, rpc: &test_rpc::ServiceClient) -> Pinger {
+        // Get the associated IP address of the test runner on the default, non-tunnel interface.
+        let guest_ip = obtain_guest_ip(rpc).await;
+        log::debug!("Guest IP: {guest_ip}");
+
+        // Start a network monitor
+        log::debug!("Monitoring outgoing traffic");
+        let monitor = start_packet_monitor(
+            move |packet| {
+                // NOTE: Many packets will likely be observed for API traffic. Rather than filtering all
+                // of those specifically, simply fail if our probes are observed.
+                packet.source.ip() == guest_ip
+                    && packet.destination.ip() == builder.destination.ip()
+            },
+            MonitorOptions::default(),
+        )
+        .await;
+
+        // Start pinging
+        //
+        // Create some network activity for the network monitor to sniff.
+        let ping_rpc = rpc.clone();
+        let mut interval = tokio::time::interval(builder.interval.period());
+        #[allow(clippy::async_yields_async)]
+        let ping_task = AbortOnDrop::new(tokio::spawn(async move {
+            loop {
+                send_guest_probes_without_monitor(ping_rpc.clone(), None, builder.destination)
+                    .await;
+                interval.tick().await;
+            }
+        }));
+
+        Pinger {
+            destination: builder.destination,
+            interval: builder.interval,
+            guest_ip,
+            ping_task,
+            monitor,
+        }
+    }
+
+    /// Stop pinging and extract the result of the network monitor.
+    pub async fn stop(self) -> Result<network_monitor::MonitorResult, MonitorUnexpectedlyStopped> {
+        // Abort the inner probe sender, which is accomplished by dropping the
+        // join handle to the running task.
+        drop(self.ping_task);
+        self.monitor.into_result().await
+    }
+
+    /// Return the time period determining the cadence of pings that are sent.
+    pub fn period(&self) -> tokio::time::Duration {
+        self.interval.period()
+    }
+}
+
+/// Returns the [`IpAddr`] of the default non-tunnel interface.
+async fn obtain_guest_ip(rpc: &ServiceClient) -> IpAddr {
+    let guest_iface = rpc
+        .get_default_interface()
+        .await
+        .expect("failed to obtain default interface");
+    rpc.get_interface_ip(guest_iface)
+        .await
+        .expect("failed to obtain non-tun IP")
+}
+
+/// Configure a [`Pinger`] before starting it.
+pub struct PingerBuilder {
+    destination: SocketAddr,
+    interval: tokio::time::Interval,
+}
+
+#[allow(dead_code)]
+impl PingerBuilder {
+    /// Create a default [`PingerBuilder`].
+    ///
+    /// This is probably good enough for checking network traffic leaks when the
+    /// test-runner is supposed to be blocked from sending or receiving *any*
+    /// packets outside of localhost.
+    pub fn default() -> PingerBuilder {
+        PingerBuilder {
+            destination: "1.1.1.1:1337".parse().unwrap(),
+            interval: tokio::time::interval(Duration::from_secs(1)),
+        }
+    }
+
+    /// Set the target to ping.
+    pub fn destination(mut self, destination: SocketAddr) -> Self {
+        self.destination = destination;
+        self
+    }
+
+    /// How often a ping should be sent.
+    pub fn interval(mut self, period: Duration) -> Self {
+        self.interval = tokio::time::interval(period);
+        self
+    }
 }
