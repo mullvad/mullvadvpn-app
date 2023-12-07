@@ -81,7 +81,7 @@ void AppendRelayRules
 (
 	FwContext::Ruleset &ruleset,
 	const WinFwEndpoint &relay,
-	const std::wstring &relayClient
+	const std::optional<std::wstring> &relayClient
 )
 {
 	auto sublayer =
@@ -185,7 +185,7 @@ bool FwContext::applyPolicyConnecting
 (
 	const WinFwSettings &settings,
 	const WinFwEndpoint &relay,
-	const std::wstring &relayClient,
+	const std::optional<std::wstring> &relayClient,
 	const std::optional<std::wstring> &tunnelInterfaceAlias,
 	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint,
 	const WinFwAllowedTunnelTraffic &allowedTunnelTraffic

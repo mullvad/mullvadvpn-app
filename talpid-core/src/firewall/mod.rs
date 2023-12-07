@@ -125,11 +125,9 @@ pub enum FirewallPolicy {
         allowed_endpoint: AllowedEndpoint,
         /// Networks for which to permit in-tunnel traffic.
         allowed_tunnel_traffic: AllowedTunnelTraffic,
-        /// Optional custom remote endpoint that should be allowed through the firewall
-        custom_remote_endpoint: Option<Endpoint>,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
-        relay_client: PathBuf,
+        relay_client: Option<PathBuf>,
     },
 
     /// Allow traffic only to server and over tunnel interface
@@ -140,14 +138,12 @@ pub enum FirewallPolicy {
         tunnel: crate::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
-        /// Optional custom remote endpoint that should be allowed through the firewall
-        custom_remote_endpoint: Option<Endpoint>,
         /// Servers that are allowed to respond to DNS requests.
         #[cfg(not(target_os = "android"))]
         dns_servers: Vec<IpAddr>,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
-        relay_client: PathBuf,
+        relay_client: Option<PathBuf>,
     },
 
     /// Block all network traffic in and out from the computer.
