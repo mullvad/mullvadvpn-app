@@ -407,7 +407,7 @@ impl<'a> SettingsSummary<'a> {
 
 #[cfg(test)]
 mod test {
-    use super::SettingsPersister;
+    use super::*;
     use mullvad_types::settings::SettingsVersion;
     use serde_json;
 
@@ -490,5 +490,66 @@ mod test {
         }"#;
 
         let _ = SettingsPersister::load_from_bytes(settings).unwrap();
+    }
+
+    /// The [`SettingsPersister`] should always succeed when deserializing a
+    /// [`Settings`] object from disk. However, there is a distinction between
+    /// different error cases.
+    ///
+    /// If the settings file is missing, it could be because the user starts the
+    /// app for the first time. As such, we should simply save the default
+    /// [`Settings`] to disk.
+    #[tokio::test]
+    async fn test_deserialize_missing_settings() {
+        let LoadSettingsResult {
+            should_save,
+            settings,
+        } = SettingsPersister::load_inner(|| async {
+            Err(Error::ReadError(
+                "Settings are missing".to_string(),
+                io::ErrorKind::NotFound.into(),
+            ))
+        })
+        .await;
+
+        assert!(
+            should_save,
+            "Settings should be saved to disk if they didn't exist previously"
+        );
+
+        assert!(
+            settings.block_when_disconnected == false,
+            "The daemon should not block the internet if settings are missing"
+        );
+    }
+
+    /// The [`SettingsPersister`] should always succeed when deserializing a
+    /// [`Settings`] object from disk. However, there is a distinction between
+    /// different error cases.
+    ///
+    /// If the settings file is corrupt, we can assume that the user has started
+    /// the app previously, but we can't know what settings the user have
+    /// changed. In this case, we should safeguard against leaks by locking down
+    /// the network before the user initiates a connection attempt or change
+    /// these settings.
+    #[tokio::test]
+    async fn test_deserialize_invalid_settings() {
+        let LoadSettingsResult {
+            should_save,
+            settings,
+        } = SettingsPersister::load_inner(|| async {
+            SettingsPersister::load_from_bytes(b"Not a valid settings file")
+        })
+        .await;
+
+        assert!(
+            should_save,
+            "Settings should be saved to disk if they have become corrupt"
+        );
+
+        assert!(
+            settings.block_when_disconnected,
+            "The daemon should block the internet if settings are corrupt"
+        );
     }
 }
