@@ -47,7 +47,7 @@ const LOGOUT_TIMEOUT: Duration = Duration::from_secs(2);
 
 /// Validate the current device once for every `WG_DEVICE_CHECK_THRESHOLD` attempt to set up
 /// a WireGuard tunnel.
-const WG_DEVICE_CHECK_THRESHOLD: usize = 2;
+const WG_DEVICE_CHECK_THRESHOLD: usize = 3;
 
 #[derive(err_derive::Error, Debug, Clone)]
 pub enum Error {
@@ -1396,7 +1396,7 @@ mod test {
     #[tokio::test]
     async fn test_validity_retries() {
         // Don't retry if the check succeeds
-        let mut retry_attempt = 2 * WG_DEVICE_CHECK_THRESHOLD - 1;
+        let mut retry_attempt = WG_DEVICE_CHECK_THRESHOLD - 1;
         let check_validity = Arc::new(AtomicBool::new(true));
 
         TunnelStateChangeHandler::handle_state_transition_inner(
@@ -1414,7 +1414,7 @@ mod test {
         );
 
         // Do retry if the check succeeds
-        let mut retry_attempt = 2 * WG_DEVICE_CHECK_THRESHOLD - 1;
+        let mut retry_attempt = WG_DEVICE_CHECK_THRESHOLD - 1;
         let check_validity = Arc::new(AtomicBool::new(true));
 
         TunnelStateChangeHandler::handle_state_transition_inner(
