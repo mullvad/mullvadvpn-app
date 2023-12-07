@@ -857,7 +857,7 @@ mod event_server {
                 if let Some(proxy_settings) = &self.proxy {
                     if let talpid_types::net::openvpn::ProxySettings::Local(proxy_settings) = proxy_settings {
                         let network = proxy_settings.peer.ip().into();
-                        let node = talpid_routing::Node::new("192.168.1.1".parse().unwrap(), String::from("wlp0s20f3"));
+                        let node = talpid_routing::NetNode::DefaultNode;
                         routes.insert(talpid_routing::RequiredRoute::new(network, node).use_main_table(false));
                     }
                 }

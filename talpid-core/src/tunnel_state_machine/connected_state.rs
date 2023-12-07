@@ -130,25 +130,14 @@ impl ConnectedState {
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
-        let custom_remote_endpoint = if let TunnelParameters::OpenVpn(openvpn_settings) = &self.tunnel_parameters {
-            openvpn_settings.proxy.as_ref().and_then(|proxy_settings| {
-                if let talpid_types::net::openvpn::ProxySettings::Local(local) = proxy_settings {
-                    Some(local.get_endpoint())
-                } else {
-                    None
-                }
-            })
-        } else {
-            None
-        };
+        let mut peer_endpoint = self.tunnel_parameters.get_next_hop_endpoint();
 
         FirewallPolicy::Connected {
-            peer_endpoint: self.tunnel_parameters.get_next_hop_endpoint(),
+            peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
             #[cfg(not(target_os = "android"))]
             dns_servers: self.get_dns_servers(shared_values),
-            custom_remote_endpoint,
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(
                 &shared_values.resource_dir,
