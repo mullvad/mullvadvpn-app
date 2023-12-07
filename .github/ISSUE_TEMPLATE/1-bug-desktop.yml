@@ -1,0 +1,113 @@
+---
+name: 🐞 Bug Report (Windows, macOS or Linux)
+description: This form is to report bugs in the desktop Mullvad VPN app.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thank you for wanting to help us improve the Mullvad VPN app by reporting issues.
+
+  - type: checkboxes
+    id: it-is-a-bug
+    attributes:
+      label: Is it a bug?
+      description: >
+        If you ran into a problem with the app and don't know for sure it is an actual bug,
+        please contact support instead of filing a bug report. Go to `Settings -> Support -> Report a problem`.
+        That way the support team gets redacted logs from your app and can help you out better.
+        You can also just email them at support@mullvad.net.
+      options:
+        - label: I know this is an issue with the app, and contacting Mullvad support is not relevant.
+          required: true
+
+  - type: checkboxes
+    id: checked-other-issues
+    attributes:
+      label: I have checked if others have reported this already
+      description: >
+        Before you submit a bug report, please look through the
+        [existing issues](https://github.com/mullvad/mullvadvpn-app/issues?q=is%3Aissue)
+        to see if it has already been reported by others. If so, please comment in those threads instead
+        of creating new ones.
+      options:
+        - label: I have checked the issue tracker to see if others have reported similar issues.
+          required: true
+
+  - type: textarea
+    id: current-behavior
+    attributes:
+      label: Current Behavior
+      description: What is the current behavior you experience that you think is not correct?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What is the behavior that you expect to happen instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: >
+        Please provide clear and detailed steps on how to reproduce the issue you are reporting.
+        If it is very hard to reproduce the issue, then there is no guarantee we can locate the bug and fix it.
+      value: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Failure Logs
+      description: >
+        If relevant, please include logs from the app from the time around when the bug manifested itself.
+
+        Go to settings (cogwheel) -> Support -> Report a problem -> View app logs to see the logs and
+        copy them to here.
+
+        If the graphical part of the app does not work, you can get the logs via the terminal/console
+        by running this command:
+        ```
+        mullvad-problem-report collect --output mullvad-report.log
+        ```
+        And then copy the text from the file `mullvad-report.log` that was just created.
+      render: shell
+
+  - type: input
+    id: os-version
+    attributes:
+      label: Operating system version
+      description: >
+        On what operating system(s) and version(s) have you experienced this bug?
+        If you have experienced it on multiple versions you can write more than one version here.
+
+        For example: "Windows 10" or "macOS 13.4 and macOS 14.0".
+
+  - type: input
+    id: app-version
+    attributes:
+      label: Mullvad VPN app version
+      description: >
+        On what version(s) of the app have you experienced this bug?
+        If you have experienced it on multiple versions you can write more than one version here.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Is there any additional information that you can provide?
+
+  - type: markdown
+    id: disclaimer
+    attributes:
+      value: |
+        If we are not able to reproduce the issue, we will likely prioritize fixing other issues we can reproduce.
+        Please do your best to fill out all of the sections above.
