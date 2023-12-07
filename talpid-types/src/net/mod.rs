@@ -262,7 +262,7 @@ impl Endpoint {
         }
     }
 
-    pub fn from_socket_address(address: SocketAddr, protocol: TransportProtocol) -> Self {
+    pub const fn from_socket_address(address: SocketAddr, protocol: TransportProtocol) -> Self {
         Endpoint { address, protocol }
     }
 }
