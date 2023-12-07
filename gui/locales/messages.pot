@@ -1765,6 +1765,9 @@ msgstr ""
 msgid "Mullvad services unavailable"
 msgstr ""
 
+msgid "No internet connection"
+msgstr ""
+
 msgid "Preferences"
 msgstr ""
 

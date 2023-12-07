@@ -14,7 +14,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.compose.state.LoginError
-import net.mullvad.mullvadvpn.compose.state.LoginState.*
+import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
+import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
+import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.AccountCreationResult
@@ -24,6 +26,7 @@ import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
+import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -33,6 +36,7 @@ import org.junit.Test
 class LoginViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
 
+    @MockK private lateinit var connectivityUseCase: ConnectivityUseCase
     @MockK private lateinit var mockedAccountRepository: AccountRepository
     @MockK private lateinit var mockedDeviceRepository: DeviceRepository
     @MockK private lateinit var mockedNewDeviceNotificationUseCase: NewDeviceNotificationUseCase
@@ -42,9 +46,10 @@ class LoginViewModelTest {
 
     @Before
     fun setup() {
+
         Dispatchers.setMain(UnconfinedTestDispatcher())
         MockKAnnotations.init(this, relaxUnitFun = true)
-
+        every { connectivityUseCase.isInternetAvailable() } returns true
         every { mockedAccountRepository.accountHistory } returns accountHistoryTestEvents
         every { mockedNewDeviceNotificationUseCase.newDeviceCreated() } returns Unit
 
@@ -53,8 +58,30 @@ class LoginViewModelTest {
                 mockedAccountRepository,
                 mockedDeviceRepository,
                 mockedNewDeviceNotificationUseCase,
+                connectivityUseCase,
                 UnconfinedTestDispatcher()
             )
+    }
+
+    @Test
+    fun testIsInternetAvailableWithoutInternet() = runTest {
+        turbineScope {
+            // Arrange
+            every { connectivityUseCase.isInternetAvailable() } returns false
+            val uiStates = loginViewModel.uiState.testIn(backgroundScope)
+
+            // Act
+            loginViewModel.login("")
+
+            // Discard default item
+            uiStates.awaitItem()
+
+            // Assert
+            assertEquals(
+                Idle(loginError = LoginError.NoInternetConnection),
+                uiStates.awaitItem().loginState
+            )
+        }
     }
 
     @Test
