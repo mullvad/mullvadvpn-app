@@ -57,7 +57,9 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.state.LoginError
 import net.mullvad.mullvadvpn.compose.state.LoginState
-import net.mullvad.mullvadvpn.compose.state.LoginState.*
+import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
+import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
+import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
 import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
@@ -196,7 +198,9 @@ private fun LoginContent(
             label = {
                 Text(
                     text = stringResource(id = R.string.login_description),
-                    color = Color.Unspecified
+                    color = Color.Unspecified,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             },
             keyboardActions =
