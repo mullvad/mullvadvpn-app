@@ -140,11 +140,12 @@ impl ConnectingState {
         #[cfg(target_os = "linux")]
         shared_values.disable_connectivity_check();
 
-        let peer_endpoint = params.get_next_hop_endpoint();
+        let mut peer_endpoint = params.get_next_hop_endpoint();
 
         let custom_remote_endpoint = if let TunnelParameters::OpenVpn(openvpn_settings) = &params {
             openvpn_settings.proxy.as_ref().and_then(|proxy_settings| {
                 if let talpid_types::net::openvpn::ProxySettings::Local(local) = proxy_settings {
+                    peer_endpoint = local.get_endpoint();
                     Some(local.get_endpoint())
                 } else {
                     None
@@ -160,7 +161,6 @@ impl ConnectingState {
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
             allowed_tunnel_traffic,
-            custom_remote_endpoint,
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, params),
         };

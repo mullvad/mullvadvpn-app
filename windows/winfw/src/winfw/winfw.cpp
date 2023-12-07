@@ -254,11 +254,6 @@ WinFw_ApplyPolicyConnecting(
 			THROW_ERROR("Invalid argument: relay");
 		}
 
-		if (nullptr == relayClient)
-		{
-			THROW_ERROR("Invalid argument: relayClient");
-		}
-
 		if (nullptr == allowedTunnelTraffic)
 		{
 			THROW_ERROR("Invalid argument: allowedTunnelTraffic");
@@ -267,7 +262,7 @@ WinFw_ApplyPolicyConnecting(
 		return g_fwContext->applyPolicyConnecting(
 			*settings,
 			*relay,
-			relayClient,
+			relayClient != nullptr ? std::make_optional(relayClient) : std::nullopt,
 			tunnelInterfaceAlias != nullptr ? std::make_optional(tunnelInterfaceAlias) : std::nullopt,
 			MakeOptional(allowedEndpoint),
 			*allowedTunnelTraffic
@@ -321,11 +316,6 @@ WinFw_ApplyPolicyConnected(
 		if (nullptr == relay)
 		{
 			THROW_ERROR("Invalid argument: relay");
-		}
-
-		if (nullptr == relayClient)
-		{
-			THROW_ERROR("Invalid argument: relayClient");
 		}
 
 		if (nullptr == tunnelInterfaceAlias)
@@ -410,7 +400,7 @@ WinFw_ApplyPolicyConnected(
 		return g_fwContext->applyPolicyConnected(
 			*settings,
 			*relay,
-			relayClient,
+			relayClient != nullptr ? std::make_optional(relayClient) : std::nullopt,
 			tunnelInterfaceAlias,
 			tunnelDnsServers,
 			nonTunnelDnsServers
