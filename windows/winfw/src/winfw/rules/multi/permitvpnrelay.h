@@ -23,7 +23,7 @@ public:
 		const wfp::IpAddress &relay,
 		uint16_t relayPort,
 		WinFwProtocol protocol,
-		const std::wstring &relayClient,
+		const std::optional<std::wstring> &relayClient,
 		Sublayer sublayer
 	);
 	
@@ -34,7 +34,7 @@ private:
 	const wfp::IpAddress m_relay;
 	const uint16_t m_relayPort;
 	const WinFwProtocol m_protocol;
-	const std::wstring m_relayClient;
+	const std::option<std::wstring> m_relayClient;
 	const Sublayer m_sublayer;
 };
 
