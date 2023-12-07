@@ -9,7 +9,6 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
-import MullvadTransport
 import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
@@ -37,7 +36,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let relayCache = RelayCache(cacheDirectory: containerURL)
 
         let urlSession = REST.makeURLSession()
-        let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
+        let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
 
         // This init cannot fail as long as the security group identifier is valid

@@ -8,12 +8,10 @@
 
 import Foundation
 import Logging
-import MullvadREST
 import MullvadTypes
-import RelaySelector
 
 public final class TransportProvider: RESTTransportProvider {
-    private let urlSessionTransport: URLSessionTransport
+    private let urlSessionTransport: REST.URLSessionTransport
     private let relayCache: RelayCacheProtocol
     private let logger = Logger(label: "TransportProvider")
     private let addressCache: REST.AddressCache
@@ -26,7 +24,7 @@ public final class TransportProvider: RESTTransportProvider {
     private let constraintsUpdater: RelayConstraintsUpdater
 
     public init(
-        urlSessionTransport: URLSessionTransport,
+        urlSessionTransport: REST.URLSessionTransport,
         relayCache: RelayCacheProtocol,
         addressCache: REST.AddressCache,
         shadowsocksCache: ShadowsocksConfigurationCache,

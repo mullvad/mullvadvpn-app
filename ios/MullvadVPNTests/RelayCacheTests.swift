@@ -7,7 +7,6 @@
 //
 
 @testable import MullvadREST
-import MullvadTransport
 import XCTest
 
 final class RelayCacheTests: XCTestCase {

@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadREST
-import MullvadTransport
 import MullvadTypes
 import Operations
 import PacketTunnelCore

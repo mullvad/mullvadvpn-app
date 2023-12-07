@@ -11,7 +11,7 @@ import Combine
 import MullvadTypes
 import Network
 @testable import PacketTunnelCore
-@testable import RelaySelector
+@testable import MullvadREST
 import WireGuardKitTypes
 import XCTest
 

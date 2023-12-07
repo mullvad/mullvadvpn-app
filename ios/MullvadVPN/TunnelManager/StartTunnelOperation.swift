@@ -12,7 +12,6 @@ import NetworkExtension
 import Operations
 import PacketTunnelCore
 import MullvadREST
-import RelaySelector
 
 class StartTunnelOperation: ResultOperation<Void> {
     typealias EncodeErrorHandler = (Error) -> Void

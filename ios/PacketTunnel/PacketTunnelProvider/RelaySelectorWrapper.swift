@@ -10,7 +10,6 @@ import Foundation
 import MullvadTypes
 import PacketTunnelCore
 import MullvadREST
-import RelaySelector
 
 struct RelaySelectorWrapper: RelaySelectorProtocol {
     let relayCache: RelayCache

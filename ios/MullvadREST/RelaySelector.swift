@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadREST
 import MullvadTypes
 
 private let defaultPort: UInt16 = 53

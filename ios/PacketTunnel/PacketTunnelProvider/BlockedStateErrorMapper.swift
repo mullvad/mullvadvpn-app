@@ -11,7 +11,6 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
-import RelaySelector
 import WireGuardKit
 
 /**

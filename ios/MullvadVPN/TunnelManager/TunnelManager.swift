@@ -14,7 +14,6 @@ import MullvadTypes
 import NetworkExtension
 import Operations
 import PacketTunnelCore
-import RelaySelector
 import StoreKit
 import UIKit
 import WireGuardKitTypes

@@ -10,7 +10,6 @@ import BackgroundTasks
 import MullvadLogging
 import MullvadREST
 import MullvadSettings
-import MullvadTransport
 import MullvadTypes
 import Operations
 import StoreKit
@@ -84,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             transactionLog: .default
         )
 
-        let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
+        let urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
 
         // This init cannot fail as long as the security group identifier is valid

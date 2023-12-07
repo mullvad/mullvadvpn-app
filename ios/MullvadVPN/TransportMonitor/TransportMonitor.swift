@@ -9,9 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
-import MullvadTransport
 import MullvadTypes
-import RelaySelector
 
 final class TransportMonitor: RESTTransportProvider {
     private let tunnelManager: TunnelManager
