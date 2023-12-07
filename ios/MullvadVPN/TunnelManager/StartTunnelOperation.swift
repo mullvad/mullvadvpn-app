@@ -11,7 +11,7 @@ import MullvadLogging
 import NetworkExtension
 import Operations
 import PacketTunnelCore
-import RelayCache
+import MullvadREST
 import RelaySelector
 
 class StartTunnelOperation: ResultOperation<Void> {

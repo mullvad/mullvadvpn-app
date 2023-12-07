@@ -11,7 +11,6 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-import RelayCache
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHandler {

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadREST
 
 /// A struct that represents the relay cache on disk
 public struct CachedRelays: Codable, Equatable {

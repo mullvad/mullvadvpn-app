@@ -10,7 +10,6 @@ import Foundation
 import Logging
 import MullvadREST
 import MullvadTypes
-import RelayCache
 import RelaySelector
 
 public final class TransportProvider: RESTTransportProvider {
