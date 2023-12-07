@@ -386,3 +386,68 @@ pub async fn test_connecting_state_when_corrupted_state_cache(
 
     Ok(())
 }
+
+/// Verify that the app enables "Always require VPN" by default if the settings
+/// cannot be parsed. This reduces the number of errors that lead to the daemon
+/// unexpectedly starting into non-blocking mode.
+///
+/// What this test covers that unit-tests don't is that no leaks should occur
+/// after the app has started with a corrupt settings file.
+#[test_function]
+pub async fn test_connecting_state_corrupt_settings(
+    _: TestContext,
+    rpc: ServiceClient,
+    mullvad_client: ManagementServiceClient,
+) -> Result<(), Error> {
+    // Sanity check that restarting the daemon with the default settings does
+    // not block internet connectivity.
+    log::info!("Restarting the daemon");
+    rpc.restart_mullvad_daemon().await?;
+    let default_interface = rpc.get_default_interface().await?;
+    let inet_destination = "1.1.1.1:1337".parse().unwrap();
+    let detected_probes =
+        send_guest_probes(rpc.clone(), default_interface.clone(), inet_destination).await?;
+    assert!(
+        detected_probes.any(),
+        "Could not reach the internet in an unblocked state"
+    );
+
+    // Simply corrupt the settings file and try to start the app. The settings
+    // file will automatically be repaired and written to disk. As such, no
+    // extra clean up is needed for recovering the test runner to a known-good
+    // state.
+    log::info!("Stopping the app");
+    rpc.stop_mullvad_daemon().await?;
+    // Intentionally corrupt the settings file.
+    let settings = rpc
+        .find_mullvad_app_settings_dir()
+        .await?
+        .join("settings.json");
+    log::info!(
+        "Intentionally writing garbage to the settings {file}",
+        file = settings.display()
+    );
+    rpc.write_file(settings, "cookie was here".into()).await?;
+
+    // Start the app & make sure that the app sets "Always require VPN". The
+    // side-effect of this is that no network traffic should leak after the app
+    // has started until the user either connect to Mullvad or toggle this
+    // setting.
+    log::info!("Starting the app back up again");
+    rpc.start_mullvad_daemon().await?;
+    wait_for_tunnel_state(mullvad_client, |state| state.is_disconnected())
+        .await
+        .map_err(|err| {
+            log::error!("App did not start in an expected state. \
+                        App is not in the `Disconnected` state after starting with a corrupt or missing settings file!");
+            err
+        })?;
+    log::info!("App successfully recovered from a corrupt settings file");
+
+    // Start monitoring for network leaks
+    let detected_probes =
+        send_guest_probes(rpc.clone(), default_interface.clone(), inet_destination).await?;
+    assert!(detected_probes.none(), "Observed unexpected packets");
+
+    Ok(())
+}

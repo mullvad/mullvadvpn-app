@@ -34,8 +34,9 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
     // TODO: Check temp data
 
     let caches = find_cache_traces()?;
+    let settings = find_settings_traces()?;
     let traces = vec![
-        Path::new(r"/etc/mullvad-vpn/"),
+        &settings,
         Path::new(r"/var/log/mullvad-vpn/"),
         &caches,
         Path::new(r"/opt/Mullvad VPN/"),
@@ -58,6 +59,10 @@ pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
 
 pub fn find_cache_traces() -> Result<PathBuf, Error> {
     mullvad_paths::get_cache_dir().map_err(|error| Error::FileSystem(error.to_string()))
+}
+
+pub fn find_settings_traces() -> Result<PathBuf, Error> {
+    mullvad_paths::get_default_settings_dir().map_err(|error| Error::FileSystem(error.to_string()))
 }
 
 #[cfg(target_os = "macos")]

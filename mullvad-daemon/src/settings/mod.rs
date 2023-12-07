@@ -105,18 +105,18 @@ impl SettingsPersister {
 
     /// Loads user settings, returning default settings if it should fail.
     ///
-    /// `read` allows the caller to decide how to load [`Settings`] from an
-    /// bitrary resource.
+    /// `load_settings` allows the caller to decide how to load [`Settings`]
+    /// from an bitrary resource.
     ///
     /// `load_inner` will always succeed, even in the presence of IO operations.
     /// Errors are handled gracefully by returning the default [`Settings`] if
     /// necessary.
-    async fn load_inner<F, R>(read: F) -> LoadSettingsResult
+    async fn load_inner<F, R>(load_settings: F) -> LoadSettingsResult
     where
         F: FnOnce() -> R,
         R: std::future::Future<Output = Result<Settings, Error>>,
     {
-        match read().await {
+        match load_settings().await {
             Ok(settings) => LoadSettingsResult {
                 settings,
                 should_save: false,

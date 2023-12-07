@@ -121,6 +121,13 @@ impl Service for TestServer {
         app::find_cache_traces()
     }
 
+    async fn get_mullvad_app_settings_dir(
+        self,
+        _: context::Context,
+    ) -> Result<PathBuf, test_rpc::Error> {
+        app::find_settings_traces()
+    }
+
     async fn send_tcp(
         self,
         _: context::Context,

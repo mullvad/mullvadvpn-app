@@ -122,6 +122,8 @@ mod service {
 
         async fn get_mullvad_app_cache_dir() -> Result<PathBuf, Error>;
 
+        async fn get_mullvad_app_settings_dir() -> Result<PathBuf, Error>;
+
         /// Send TCP packet
         async fn send_tcp(
             interface: Option<String>,
