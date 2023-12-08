@@ -39,7 +39,9 @@ export default class TunnelStateHandler {
     this.tunnelStateFallback = this.tunnelState;
 
     this.setTunnelState(
-      state === 'disconnecting' ? { state, details: 'nothing' as const } : { state },
+      state === 'disconnecting'
+        ? { state, details: 'nothing' as const, location: this.lastKnownDisconnectedLocation }
+        : { state },
     );
 
     this.tunnelStateFallbackScheduler.schedule(() => {
@@ -69,18 +71,18 @@ export default class TunnelStateHandler {
       this.expectNextTunnelState('connecting');
       this.tunnelStateFallback = newState;
     } else {
+      if (newState.state === 'disconnected' && newState.location !== undefined) {
+        this.lastKnownDisconnectedLocation = newState.location;
+      }
+
+      if (
+        newState.state === 'disconnecting' ||
+        (newState.state === 'disconnected' && newState.location === undefined)
+      ) {
+        newState.location = this.lastKnownDisconnectedLocation;
+      }
+
       this.setTunnelState(newState);
-    }
-
-    if (newState.state === 'disconnected' && newState.location !== undefined) {
-      this.lastKnownDisconnectedLocation = newState.location;
-    }
-
-    if (
-      newState.state === 'disconnecting' ||
-      (newState.state === 'disconnected' && newState.location === undefined)
-    ) {
-      newState.location = this.lastKnownDisconnectedLocation;
     }
   }
 
