@@ -124,6 +124,8 @@ class ConnectionPanelView: UIView {
 
     private func didChangeDataSource() {
         inAddressRow.value = dataSource?.inAddress
+        inAddressRow.alpha = dataSource?.inAddress == nil ? 0 : 1.0
+
         outAddressRow.value = dataSource?.outAddress
         outAddressRow.alpha = dataSource?.outAddress == nil ? 0 : 1.0
     }
