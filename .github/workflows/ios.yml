@@ -43,7 +43,7 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: macos-13-xlarge
+    runs-on: macos-13-large
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
