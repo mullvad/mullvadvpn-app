@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpoint
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointConfiguration
 import net.mullvad.mullvadvpn.model.AppVersionInfo
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceEvent
 import net.mullvad.mullvadvpn.model.DeviceListEvent
@@ -25,6 +26,7 @@ import net.mullvad.mullvadvpn.model.RemoveDeviceResult
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
+import net.mullvad.talpid.net.TunnelType
 import net.mullvad.talpid.util.EventNotifier
 
 class MullvadDaemon(
@@ -59,6 +61,19 @@ class MullvadDaemon(
         onSettingsChange.notify(getSettings())
 
         onTunnelStateChange.notify(getState() ?: TunnelState.Disconnected)
+
+        // Fix tunnel protocol being set to any
+        getSettings()?.relaySettings?.let { relaySettings ->
+            if (relaySettings is RelaySettings.Normal) {
+                setRelaySettings(
+                    relaySettings.copy(
+                        relaySettings.relayConstraints.copy(
+                            tunnelProtocol = Constraint.Only(TunnelType.Wireguard)
+                        )
+                    )
+                )
+            }
+        }
     }
 
     fun connect() {
