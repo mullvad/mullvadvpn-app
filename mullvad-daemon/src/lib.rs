@@ -878,7 +878,7 @@ where
         if *self.target_state == TargetState::Secured {
             self.connect_tunnel();
         } else {
-            self.fetch_am_i_mullvad().await
+            self.fetch_am_i_mullvad()
         }
 
         while let Some(event) = self.rx.next().await {
@@ -1036,7 +1036,7 @@ where
 
         self.tunnel_state = tunnel_state.clone();
         self.event_listener.notify_new_state(tunnel_state);
-        self.fetch_am_i_mullvad().await;
+        self.fetch_am_i_mullvad();
     }
 
     /// Get the geographical location from am.i.mullvad.net. When it arrives,
@@ -1044,7 +1044,7 @@ where
     /// [`InternalDaemonEvent::LocationEvent`].
     ///
     /// See [`Daemon::handle_location_event()`]
-    async fn fetch_am_i_mullvad(&mut self) {
+    fn fetch_am_i_mullvad(&mut self) {
         // Always abort any ongoing request when entering a new tunnel state
         self.location_handler.abort_current_request();
 
