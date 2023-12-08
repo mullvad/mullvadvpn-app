@@ -50,9 +50,8 @@ const LOCATION_RETRY_STRATEGY: Jittered<ExponentialBackoff> =
 /// Handler for request to am.i.mullvad.net, manages in-flight request and validity of responses.
 pub struct GeoIpHandler {
     /// Unique ID for each request. If the ID attached to the
-    /// [`InternalDaemonEvent::LocationEvent`] received from
-    /// [`Self::send_geo_location_request`] does not match this ID, then the location
-    /// corresponds to an earlier tunnel state and is outdated.
+    /// [`InternalDaemonEvent::LocationEvent`] used by [`crate::Daemon::handle_location_event`] to
+    /// determine if the location belongs to the current tunnel state.
     pub request_id: usize,
     rest_service: RequestServiceHandle,
     location_sender: DaemonEventSender,
@@ -127,6 +126,7 @@ async fn send_location_request(
         if use_ipv6 {
             let uri_v6 = format!("https://ipv6.{}/json", *MULLVAD_CONNCHECK_HOST);
             let location = send_location_request_internal(&uri_v6, v6_sender).await;
+            log::warn!("{location:?}");
             Some(location.map(GeoIpLocation::from))
         } else {
             None
