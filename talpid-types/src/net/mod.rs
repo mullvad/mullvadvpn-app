@@ -1,5 +1,5 @@
 #[cfg(target_os = "android")]
-use jnix::IntoJava;
+use jnix::{FromJava, IntoJava};
 use obfuscation::ObfuscatorConfig;
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
@@ -109,6 +109,8 @@ impl From<openvpn::TunnelParameters> for TunnelParameters {
 
 /// The tunnel protocol used by a [`TunnelEndpoint`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava, FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.net"))]
 #[serde(rename = "tunnel_type")]
 pub enum TunnelType {
     #[serde(rename = "openvpn")]

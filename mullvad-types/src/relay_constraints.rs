@@ -380,7 +380,6 @@ pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
-    #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelType>,
     pub wireguard_constraints: WireguardConstraints,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -467,10 +466,24 @@ where
 
         let ownership: Constraint<Ownership> = Constraint::from_java(env, object_ownership);
 
-        let object_wireguard_constraints = env
+        let object_tunnel_protocol = env
             .call_method(
                 object,
                 "component4",
+                "()Lnet/mullvad/mullvadvpn/model/Constraint;",
+                &[],
+            )
+            .expect("missing RelayConstraints.tunnel_protocol")
+            .l()
+            .expect("RelayConstraints.tunnel_protocol did not return an object");
+
+        let tunnel_protocol: Constraint<TunnelType> =
+             Constraint::from_java(env, object_tunnel_protocol);
+
+        let object_wireguard_constraints = env
+            .call_method(
+                object,
+                "component5",
                 "()Lnet/mullvad/mullvadvpn/model/WireguardConstraints;",
                 &[],
             )
@@ -485,6 +498,7 @@ where
             location,
             providers,
             ownership,
+            tunnel_protocol,
             wireguard_constraints,
             ..Default::default()
         }

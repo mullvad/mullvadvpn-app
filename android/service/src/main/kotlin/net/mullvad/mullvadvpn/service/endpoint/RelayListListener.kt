@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.WireguardConstraints
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.talpid.net.TunnelType
 
 class RelayListListener(
     endpoint: ServiceEndpoint,
@@ -51,7 +52,7 @@ class RelayListListener(
                                         LocationConstraint.Location(request.relayLocation)
                                     )
                             )
-                    daemon.await().setRelaySettings(RelaySettings.Normal(update))
+                    updateRelayConstraints(update)
                 }
         }
 
@@ -62,7 +63,7 @@ class RelayListListener(
                     val update =
                         getCurrentRelayConstraints()
                             .copy(wireguardConstraints = request.wireguardConstraints)
-                    daemon.await().setRelaySettings(RelaySettings.Normal(update))
+                    updateRelayConstraints(update)
                 }
         }
 
@@ -79,7 +80,7 @@ class RelayListListener(
                     val update =
                         getCurrentRelayConstraints()
                             .copy(ownership = request.ownership, providers = request.providers)
-                    daemon.await().setRelaySettings(RelaySettings.Normal(update))
+                    updateRelayConstraints(update)
                 }
         }
     }
@@ -87,6 +88,17 @@ class RelayListListener(
     fun onDestroy() {
         daemon.unregisterListener(this)
         scope.cancel()
+    }
+
+    private suspend fun updateRelayConstraints(update: RelayConstraints) {
+        daemon
+            .await()
+            .setRelaySettings(
+                RelaySettings.Normal(
+                    // Force Wireguard protocol
+                    update.copy(tunnelProtocol = Constraint.Only(TunnelType.Wireguard))
+                )
+            )
     }
 
     private fun setUpListener(daemon: MullvadDaemon) {
@@ -109,6 +121,8 @@ class RelayListListener(
                     location = Constraint.Any(),
                     providers = Constraint.Any(),
                     ownership = Constraint.Any(),
+                    // Force Wireguard protocol
+                    tunnelProtocol = Constraint.Only(TunnelType.Wireguard),
                     wireguardConstraints = WireguardConstraints(Constraint.Any())
                 )
         }

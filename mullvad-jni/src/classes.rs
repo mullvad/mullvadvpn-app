@@ -76,6 +76,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/net/TunnelEndpoint",
     "net/mullvad/talpid/net/ObfuscationEndpoint",
     "net/mullvad/talpid/net/ObfuscationType",
+    "net/mullvad/talpid/net/TunnelType",
     "net/mullvad/talpid/tun_provider/InetNetwork",
     "net/mullvad/talpid/tun_provider/TunConfig",
     "net/mullvad/talpid/tunnel/ActionAfterDisconnect",
