@@ -83,7 +83,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             transactionLog: .default
         )
 
-        let urlSessionTransport = REST.URLSessionTransport(urlSession: REST.makeURLSession())
+        let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession())
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
 
         // This init cannot fail as long as the security group identifier is valid

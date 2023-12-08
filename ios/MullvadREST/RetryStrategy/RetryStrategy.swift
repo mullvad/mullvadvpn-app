@@ -1,5 +1,5 @@
 //
-//  RESTRetryStrategy.swift
+//  RetryStrategy.swift
 //  MullvadREST
 //
 //  Created by pronebird on 09/12/2021.

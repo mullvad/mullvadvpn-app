@@ -21,7 +21,7 @@ public final class ShadowsocksConfigurationCache {
         )
     }
 
-    /// Returns configration from memory cache if available, otherwise attempts to load it from disk cache before
+    /// Returns configuration from memory cache if available, otherwise attempts to load it from disk cache before
     /// returning.
     public func read() throws -> ShadowsocksConfiguration {
         configurationLock.lock()

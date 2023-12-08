@@ -29,7 +29,7 @@
 		06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66528F83CA30033DD93 /* RESTURLSession.swift */; };
 		06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE66E28F83CA40033DD93 /* RESTProxy.swift */; };
 		06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */; };
-		06799AEF28F98E4800ACD94E /* RESTRetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67628F83CA40033DD93 /* RESTRetryStrategy.swift */; };
+		06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67628F83CA40033DD93 /* RetryStrategy.swift */; };
 		06799AF028F98E4800ACD94E /* REST.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67B28F83CA50033DD93 /* REST.swift */; };
 		06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */; };
 		06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */; };
@@ -504,10 +504,9 @@
 		A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */; };
 		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
 		A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
-		A988DF212ADD293D00D807EF /* RESTTransportStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A1DE782AD5708E0073F689 /* RESTTransportStrategy.swift */; };
 		A988DF272ADE86ED00D807EF /* WireGuardObfuscationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */; };
 		A988DF2A2ADE880300D807EF /* TunnelSettingsV3.swift in Sources */ = {isa = PBXBuildFile; fileRef = A988DF282ADE880300D807EF /* TunnelSettingsV3.swift */; };
-		A9A1DE792AD5708E0073F689 /* RESTTransportStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A1DE782AD5708E0073F689 /* RESTTransportStrategy.swift */; };
+		A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A1DE782AD5708E0073F689 /* TransportStrategy.swift */; };
 		A9A5F9E12ACB05160083449F /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
 		A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
 		A9A5F9E32ACB05160083449F /* AccountDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */; };
@@ -631,6 +630,9 @@
 		F05F39942B21C6C6006E60A7 /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675A26E6576800655B05 /* RelayCache.swift */; };
 		F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585DA87626B024A600B8C587 /* CachedRelays.swift */; };
+		F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E52B231EB700B2D37A /* URLSessionTransport.swift */; };
+		F06045EA2B23217E00B2D37A /* ShadowsocksTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */; };
+		F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06045EB2B2322A500B2D37A /* Jittered.swift */; };
 		F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
 		F07C9D952B220C77006F1C5E /* libshadowsocks_proxy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01F1FF1D29F0627D007083C3 /* libshadowsocks_proxy.a */; };
 		F07CFF2029F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift */; };
@@ -658,9 +660,7 @@
 		F0DDE4142B220458006B57A7 /* ShadowSocksProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */; };
 		F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */; };
 		F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4112B220458006B57A7 /* TransportProvider.swift */; };
-		F0DDE4172B220458006B57A7 /* URLSessionShadowsocksTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4122B220458006B57A7 /* URLSessionShadowsocksTransport.swift */; };
 		F0DDE4182B220458006B57A7 /* ShadowsocksConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */; };
-		F0DDE41A2B220531006B57A7 /* URLSessionTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4192B220531006B57A7 /* URLSessionTransport.swift */; };
 		F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4272B220A15006B57A7 /* Haversine.swift */; };
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
 		F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4292B220A15006B57A7 /* Midpoint.swift */; };
@@ -1085,7 +1085,7 @@
 		06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAPIProxy.swift; sourceTree = "<group>"; };
 		06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTRequestHandler.swift; sourceTree = "<group>"; };
 		06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTaskIdentifier.swift; sourceTree = "<group>"; };
-		06FAE67628F83CA40033DD93 /* RESTRetryStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTRetryStrategy.swift; sourceTree = "<group>"; };
+		06FAE67628F83CA40033DD93 /* RetryStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RetryStrategy.swift; sourceTree = "<group>"; };
 		06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServerRelaysResponse.swift; sourceTree = "<group>"; };
 		06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "RESTCreateApplePaymentResponse+Localization.swift"; sourceTree = "<group>"; };
 		06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTAuthorization.swift; sourceTree = "<group>"; };
@@ -1535,7 +1535,7 @@
 		A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSFileCoordinator+Extensions.swift"; sourceTree = "<group>"; };
 		A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardObfuscationSettings.swift; sourceTree = "<group>"; };
 		A988DF282ADE880300D807EF /* TunnelSettingsV3.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV3.swift; sourceTree = "<group>"; };
-		A9A1DE782AD5708E0073F689 /* RESTTransportStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransportStrategy.swift; sourceTree = "<group>"; };
+		A9A1DE782AD5708E0073F689 /* TransportStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransportStrategy.swift; sourceTree = "<group>"; };
 		A9A5F9A12ACB003D0083449F /* TunnelManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManagerTests.swift; sourceTree = "<group>"; };
 		A9A8A8EA2A262AB30086D569 /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
 		A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerTests.swift; sourceTree = "<group>"; };
@@ -1558,8 +1558,11 @@
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededViewController.swift; sourceTree = "<group>"; };
 		F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncreasedHitButton.swift; sourceTree = "<group>"; };
-		F04F95A02B21D24400431E08 /* shadowsocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = shadowsocks.h; path = "shadowsocks-proxy/include/shadowsocks.h"; sourceTree = "<group>"; };
+		F04F95A02B21D24400431E08 /* shadowsocks.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shadowsocks.h; sourceTree = "<group>"; };
 		F04FBE602A8379EE009278D7 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
+		F06045E52B231EB700B2D37A /* URLSessionTransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
+		F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksTransport.swift; sourceTree = "<group>"; };
+		F06045EB2B2322A500B2D37A /* Jittered.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Jittered.swift; sourceTree = "<group>"; };
 		F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputTextFormatterTests.swift; sourceTree = "<group>"; };
 		F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherOperation.swift; sourceTree = "<group>"; };
 		F07CFF1F29F2720E008C0343 /* RegisteredDeviceInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisteredDeviceInAppNotificationProvider.swift; sourceTree = "<group>"; };
@@ -1584,9 +1587,7 @@
 		F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowSocksProxy.swift; sourceTree = "<group>"; };
 		F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksConfigurationCache.swift; sourceTree = "<group>"; };
 		F0DDE4112B220458006B57A7 /* TransportProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransportProvider.swift; sourceTree = "<group>"; };
-		F0DDE4122B220458006B57A7 /* URLSessionShadowsocksTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionShadowsocksTransport.swift; sourceTree = "<group>"; };
 		F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksConfiguration.swift; sourceTree = "<group>"; };
-		F0DDE4192B220531006B57A7 /* URLSessionTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionTransport.swift; sourceTree = "<group>"; };
 		F0DDE4272B220A15006B57A7 /* Haversine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Haversine.swift; sourceTree = "<group>"; };
 		F0DDE4282B220A15006B57A7 /* RelaySelector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelector.swift; sourceTree = "<group>"; };
 		F0DDE4292B220A15006B57A7 /* Midpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Midpoint.swift; sourceTree = "<group>"; };
@@ -1783,49 +1784,14 @@
 		06799ABD28F98E1D00ACD94E /* MullvadREST */ = {
 			isa = PBXGroup;
 			children = (
-				06AC114128F8413A0037AF9A /* AddressCache.swift */,
+				F06045F02B2324DA00B2D37A /* ApiHandlers */,
 				062B45A228FD4C0F00746E77 /* Assets */,
-				585DA87626B024A600B8C587 /* CachedRelays.swift */,
-				5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */,
-				F0DDE4272B220A15006B57A7 /* Haversine.swift */,
-				06FAE67128F83CA40033DD93 /* HTTP.swift */,
 				582FFA82290A84E700895745 /* Info.plist */,
-				F0DDE4292B220A15006B57A7 /* Midpoint.swift */,
 				06799ABE28F98E1D00ACD94E /* MullvadREST.h */,
-				5820675A26E6576800655B05 /* RelayCache.swift */,
-				F0DDE4282B220A15006B57A7 /* RelaySelector.swift */,
+				F0DC779F2B2222D20087F09D /* Relay */,
 				06FAE67B28F83CA50033DD93 /* REST.swift */,
-				06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */,
-				06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */,
-				06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */,
-				06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */,
-				06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */,
-				06FAE66C28F83CA40033DD93 /* RESTCoding.swift */,
-				062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */,
-				06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */,
-				06FAE66928F83CA30033DD93 /* RESTError.swift */,
-				06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */,
-				06FAE66E28F83CA40033DD93 /* RESTProxy.swift */,
-				06FAE66728F83CA30033DD93 /* RESTProxyFactory.swift */,
-				589E76BF2A9378F100E502F3 /* RESTRequestExecutor.swift */,
-				06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */,
-				06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */,
-				06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */,
-				06FAE67628F83CA40033DD93 /* RESTRetryStrategy.swift */,
-				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
-				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
-				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
-				A9A1DE782AD5708E0073F689 /* RESTTransportStrategy.swift */,
-				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
-				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
-				F04F95A02B21D24400431E08 /* shadowsocks.h */,
-				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
-				F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */,
-				F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */,
-				06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */,
-				F0DDE4112B220458006B57A7 /* TransportProvider.swift */,
-				F0DDE4122B220458006B57A7 /* URLSessionShadowsocksTransport.swift */,
-				F0DDE4192B220531006B57A7 /* URLSessionTransport.swift */,
+				F0DC77A12B2313330087F09D /* RetryStrategy */,
+				F0DC77A02B2223290087F09D /* Transport */,
 			);
 			path = MullvadREST;
 			sourceTree = "<group>";
@@ -2916,6 +2882,35 @@
 			path = RedeemVoucher;
 			sourceTree = "<group>";
 		};
+		F06045F02B2324DA00B2D37A /* ApiHandlers */ = {
+			isa = PBXGroup;
+			children = (
+				06AC114128F8413A0037AF9A /* AddressCache.swift */,
+				06FAE67128F83CA40033DD93 /* HTTP.swift */,
+				06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */,
+				06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */,
+				06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */,
+				06FAE67028F83CA40033DD93 /* RESTAuthenticationProxy.swift */,
+				06FAE67928F83CA50033DD93 /* RESTAuthorization.swift */,
+				06FAE66C28F83CA40033DD93 /* RESTCoding.swift */,
+				062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */,
+				06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */,
+				06FAE66928F83CA30033DD93 /* RESTError.swift */,
+				06FAE66F28F83CA40033DD93 /* RESTNetworkOperation.swift */,
+				06FAE66E28F83CA40033DD93 /* RESTProxy.swift */,
+				06FAE66728F83CA30033DD93 /* RESTProxyFactory.swift */,
+				589E76BF2A9378F100E502F3 /* RESTRequestExecutor.swift */,
+				06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */,
+				06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */,
+				06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */,
+				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
+				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
+				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
+				06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */,
+			);
+			path = ApiHandlers;
+			sourceTree = "<group>";
+		};
 		F09D04B82AE94F27003D4F89 /* GeneralAPIs */ = {
 			isa = PBXGroup;
 			children = (
@@ -2923,6 +2918,61 @@
 				F09D04AF2AE7F83D003D4F89 /* OutgoingConnectionProxy.swift */,
 			);
 			path = GeneralAPIs;
+			sourceTree = "<group>";
+		};
+		F0DC779F2B2222D20087F09D /* Relay */ = {
+			isa = PBXGroup;
+			children = (
+				585DA87626B024A600B8C587 /* CachedRelays.swift */,
+				F0DDE4272B220A15006B57A7 /* Haversine.swift */,
+				F0DDE4292B220A15006B57A7 /* Midpoint.swift */,
+				5820675A26E6576800655B05 /* RelayCache.swift */,
+				F0DDE4282B220A15006B57A7 /* RelaySelector.swift */,
+			);
+			path = Relay;
+			sourceTree = "<group>";
+		};
+		F0DC77A02B2223290087F09D /* Transport */ = {
+			isa = PBXGroup;
+			children = (
+				F0DC77A32B2315800087F09D /* Direct */,
+				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
+				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
+				F0DC77A22B2314EF0087F09D /* Shadowsocks */,
+				F0DDE4112B220458006B57A7 /* TransportProvider.swift */,
+				A9A1DE782AD5708E0073F689 /* TransportStrategy.swift */,
+			);
+			path = Transport;
+			sourceTree = "<group>";
+		};
+		F0DC77A12B2313330087F09D /* RetryStrategy */ = {
+			isa = PBXGroup;
+			children = (
+				5897F1732913EAF800AF5695 /* ExponentialBackoff.swift */,
+				F06045EB2B2322A500B2D37A /* Jittered.swift */,
+				06FAE67628F83CA40033DD93 /* RetryStrategy.swift */,
+			);
+			path = RetryStrategy;
+			sourceTree = "<group>";
+		};
+		F0DC77A22B2314EF0087F09D /* Shadowsocks */ = {
+			isa = PBXGroup;
+			children = (
+				F04F95A02B21D24400431E08 /* shadowsocks.h */,
+				F0DDE4132B220458006B57A7 /* ShadowsocksConfiguration.swift */,
+				F0DDE4102B220458006B57A7 /* ShadowsocksConfigurationCache.swift */,
+				F0DDE40F2B220458006B57A7 /* ShadowSocksProxy.swift */,
+				F06045E92B23217E00B2D37A /* ShadowsocksTransport.swift */,
+			);
+			path = Shadowsocks;
+			sourceTree = "<group>";
+		};
+		F0DC77A32B2315800087F09D /* Direct */ = {
+			isa = PBXGroup;
+			children = (
+				F06045E52B231EB700B2D37A /* URLSessionTransport.swift */,
+			);
+			path = Direct;
 			sourceTree = "<group>";
 		};
 		F0E361892A4ADCF500AEEF2B /* Welcome */ = {
@@ -3792,9 +3842,10 @@
 				58E7BA192A975DF70068EC3A /* RESTTransportProvider.swift in Sources */,
 				06799ADE28F98E4800ACD94E /* RESTRequestHandler.swift in Sources */,
 				F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */,
-				06799AEF28F98E4800ACD94E /* RESTRetryStrategy.swift in Sources */,
+				06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */,
 				06799AE128F98E4800ACD94E /* SSLPinningURLSessionDelegate.swift in Sources */,
-				A9A1DE792AD5708E0073F689 /* RESTTransportStrategy.swift in Sources */,
+				A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */,
+				F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */,
 				F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */,
 				06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */,
 				06799ADD28F98E4800ACD94E /* RESTError.swift in Sources */,
@@ -3803,8 +3854,8 @@
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				F0DDE4142B220458006B57A7 /* ShadowSocksProxy.swift in Sources */,
+				F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
-				F0DDE4172B220458006B57A7 /* URLSessionShadowsocksTransport.swift in Sources */,
 				F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */,
 				F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */,
 				06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */,
@@ -3813,8 +3864,8 @@
 				06799AE528F98E4800ACD94E /* HTTP.swift in Sources */,
 				A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
+				F06045EA2B23217E00B2D37A /* ShadowsocksTransport.swift in Sources */,
 				06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */,
-				F0DDE41A2B220531006B57A7 /* URLSessionTransport.swift in Sources */,
 				06799AF028F98E4800ACD94E /* REST.swift in Sources */,
 				06799ADF28F98E4800ACD94E /* RESTDevicesProxy.swift in Sources */,
 				06799ADA28F98E4800ACD94E /* RESTResponseHandler.swift in Sources */,
@@ -4458,7 +4509,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				58B465702A98C53300467203 /* RequestExecutorTests.swift in Sources */,
-				A988DF212ADD293D00D807EF /* RESTTransportStrategy.swift in Sources */,
 				A917352129FAAA5200D5DCFD /* TransportStrategyTests.swift in Sources */,
 				58FBFBE9291622580020E046 /* ExponentialBackoffTests.swift in Sources */,
 				58BDEB9D2A98F69E00F578F2 /* MemoryCache.swift in Sources */,
@@ -4739,7 +4789,7 @@
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/debug";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64]" = "$(PROJECT_DIR)/../target/x86_64-apple-ios/debug";
-				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadREST/module.private.modulemap;
+				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadREST/Transport/Shadowsocks/module.private.modulemap;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadREST";
@@ -4779,7 +4829,7 @@
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios-sim/release";
 				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64]" = "$(PROJECT_DIR)/../target/x86_64-apple-ios/release";
-				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadREST/module.private.modulemap;
+				MODULEMAP_PRIVATE_FILE = $PROJECT_DIR/MullvadREST/Transport/Shadowsocks/module.private.modulemap;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).MullvadREST";

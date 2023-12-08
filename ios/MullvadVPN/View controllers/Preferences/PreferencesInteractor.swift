@@ -7,8 +7,8 @@
 //
 
 import Foundation
-import MullvadSettings
 import MullvadREST
+import MullvadSettings
 
 final class PreferencesInteractor {
     private let tunnelManager: TunnelManager

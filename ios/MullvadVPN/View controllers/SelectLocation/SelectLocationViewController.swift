@@ -7,8 +7,8 @@
 //
 
 import MullvadLogging
-import MullvadTypes
 import MullvadREST
+import MullvadTypes
 import UIKit
 
 final class SelectLocationViewController: UIViewController {

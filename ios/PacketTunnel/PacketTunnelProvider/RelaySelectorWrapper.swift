@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
-import MullvadREST
 
 struct RelaySelectorWrapper: RelaySelectorProtocol {
     let relayCache: RelayCache

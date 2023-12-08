@@ -11,7 +11,7 @@ import Logging
 import MullvadTypes
 
 public final class TransportProvider: RESTTransportProvider {
-    private let urlSessionTransport: REST.URLSessionTransport
+    private let urlSessionTransport: URLSessionTransport
     private let relayCache: RelayCacheProtocol
     private let logger = Logger(label: "TransportProvider")
     private let addressCache: REST.AddressCache
@@ -24,7 +24,7 @@ public final class TransportProvider: RESTTransportProvider {
     private let constraintsUpdater: RelayConstraintsUpdater
 
     public init(
-        urlSessionTransport: REST.URLSessionTransport,
+        urlSessionTransport: URLSessionTransport,
         relayCache: RelayCacheProtocol,
         addressCache: REST.AddressCache,
         shadowsocksCache: ShadowsocksConfigurationCache,
@@ -66,12 +66,11 @@ public final class TransportProvider: RESTTransportProvider {
             let shadowsocksConfiguration = try shadowsocksConfiguration()
 
             let shadowsocksURLSession = urlSessionTransport.urlSession
-            let shadowsocksTransport = URLSessionShadowsocksTransport(
+            let shadowsocksTransport = ShadowsocksTransport(
                 urlSession: shadowsocksURLSession,
-                shadowsocksConfiguration: shadowsocksConfiguration,
+                configuration: shadowsocksConfiguration,
                 addressCache: addressCache
             )
-
             return shadowsocksTransport
         } catch {
             logger.error(error: error, message: "Failed to produce shadowsocks configuration.")

@@ -7,8 +7,8 @@
 //
 
 import Foundation
-@testable import MullvadTypes
 @testable import MullvadREST
+@testable import MullvadTypes
 
 struct RelayCacheTrackerStub: RelayCacheTrackerProtocol {
     func startPeriodicUpdates() {}

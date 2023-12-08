@@ -7,10 +7,9 @@
 //
 
 import Foundation
-import MullvadREST
 import MullvadTypes
 
-public final class URLSessionShadowsocksTransport: RESTTransport {
+public final class ShadowsocksTransport: RESTTransport {
     /// The Shadowsocks proxy instance that proxies all the traffic it receives
     private let shadowsocksProxy: ShadowsocksProxy
 
@@ -26,7 +25,7 @@ public final class URLSessionShadowsocksTransport: RESTTransport {
 
     public init(
         urlSession: URLSession,
-        shadowsocksConfiguration: ShadowsocksConfiguration,
+        configuration: ShadowsocksConfiguration,
         addressCache: REST.AddressCache
     ) {
         self.urlSession = urlSession
@@ -35,10 +34,10 @@ public final class URLSessionShadowsocksTransport: RESTTransport {
         shadowsocksProxy = ShadowsocksProxy(
             forwardAddress: apiAddress.ip,
             forwardPort: apiAddress.port,
-            bridgeAddress: shadowsocksConfiguration.bridgeAddress,
-            bridgePort: shadowsocksConfiguration.bridgePort,
-            password: shadowsocksConfiguration.password,
-            cipher: shadowsocksConfiguration.cipher
+            bridgeAddress: configuration.bridgeAddress,
+            bridgePort: configuration.bridgePort,
+            password: configuration.password,
+            cipher: configuration.cipher
         )
     }
 

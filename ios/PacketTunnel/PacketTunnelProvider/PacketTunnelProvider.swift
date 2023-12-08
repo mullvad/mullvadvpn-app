@@ -36,7 +36,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let relayCache = RelayCache(cacheDirectory: containerURL)
 
         let urlSession = REST.makeURLSession()
-        let urlSessionTransport = REST.URLSessionTransport(urlSession: urlSession)
+        let urlSessionTransport = URLSessionTransport(urlSession: urlSession)
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
 
         // This init cannot fail as long as the security group identifier is valid
