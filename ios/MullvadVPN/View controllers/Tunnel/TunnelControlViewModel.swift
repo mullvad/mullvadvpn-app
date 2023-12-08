@@ -11,48 +11,26 @@ import Foundation
 struct TunnelControlViewModel {
     let tunnelStatus: TunnelStatus
     let secureLabelText: String
-    let connectionPanel: ConnectionPanelData
     let enableButtons: Bool
     let city: String
     let country: String
     let connectedRelayName: String
+    let outgoingConnectionInfo: OutgoingConnectionInfo?
 
-    func update(status: TunnelStatus) -> TunnelControlViewModel {
-        TunnelControlViewModel(
-            tunnelStatus: status,
-            secureLabelText: secureLabelText,
-            connectionPanel: connectionPanel,
-            enableButtons: enableButtons,
-            city: city,
-            country: country,
-            connectedRelayName: connectedRelayName
-        )
-    }
-
-    func update(outgoingConnectionInfo: OutgoingConnectionInfo) -> TunnelControlViewModel {
-        let inPort = tunnelStatus.observedState.connectionState?.remotePort ?? 0
-
-        var connectionPanelData = ConnectionPanelData(inAddress: "")
-        if let tunnelRelay = tunnelStatus.state.relay {
-            var protocolLayer = ""
-            if case let .connected(state) = tunnelStatus.observedState {
-                protocolLayer = state.transportLayer == .tcp ? "TCP" : "UDP"
-            }
-
-            connectionPanelData = ConnectionPanelData(
-                inAddress: "\(tunnelRelay.endpoint.ipv4Relay.ip):\(inPort) \(protocolLayer)",
-                outAddress: outgoingConnectionInfo.outAddress
-            )
+    var connectionPanel: ConnectionPanelData? {
+        guard let tunnelRelay = tunnelStatus.state.relay else {
+            return nil
         }
 
-        return TunnelControlViewModel(
-            tunnelStatus: tunnelStatus,
-            secureLabelText: secureLabelText,
-            connectionPanel: connectionPanelData,
-            enableButtons: enableButtons,
-            city: city,
-            country: country,
-            connectedRelayName: connectedRelayName
+        var portAndTransport = ""
+        if let inPort = tunnelStatus.observedState.connectionState?.remotePort {
+            let protocolLayer = tunnelStatus.observedState.connectionState?.transportLayer == .tcp ? "TCP" : "UDP"
+            portAndTransport = ":\(inPort) \(protocolLayer)"
+        }
+
+        return ConnectionPanelData(
+            inAddress: "\(tunnelRelay.endpoint.ipv4Relay.ip)\(portAndTransport)",
+            outAddress: outgoingConnectionInfo?.outAddress
         )
     }
 
@@ -60,11 +38,35 @@ struct TunnelControlViewModel {
         TunnelControlViewModel(
             tunnelStatus: TunnelStatus(),
             secureLabelText: "",
-            connectionPanel: ConnectionPanelData(inAddress: ""),
             enableButtons: true,
             city: "",
             country: "",
-            connectedRelayName: ""
+            connectedRelayName: "",
+            outgoingConnectionInfo: nil
+        )
+    }
+
+    func update(status: TunnelStatus) -> TunnelControlViewModel {
+        TunnelControlViewModel(
+            tunnelStatus: status,
+            secureLabelText: secureLabelText,
+            enableButtons: enableButtons,
+            city: city,
+            country: country,
+            connectedRelayName: connectedRelayName,
+            outgoingConnectionInfo: nil
+        )
+    }
+
+    func update(outgoingConnectionInfo: OutgoingConnectionInfo) -> TunnelControlViewModel {
+        TunnelControlViewModel(
+            tunnelStatus: tunnelStatus,
+            secureLabelText: secureLabelText,
+            enableButtons: enableButtons,
+            city: city,
+            country: country,
+            connectedRelayName: connectedRelayName,
+            outgoingConnectionInfo: outgoingConnectionInfo
         )
     }
 }
