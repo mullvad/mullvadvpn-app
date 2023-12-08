@@ -22,7 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-
+### Added
+- Add UDP-over-TCP WireGuard obfuscation.
 
 ## [2023.7 - 2023-11-23]
 ### Added
