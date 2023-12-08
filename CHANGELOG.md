@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add CLI support for applying patches to the settings with `mullvad import-settings`.
+- Add `198.18.0.0/15` to local network sharing ranges.
 
 ### Changed
 #### Android
