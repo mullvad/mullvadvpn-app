@@ -226,7 +226,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
-        #[cfg(target_os = "linux")] route_manager: talpid_routing::RouteManagerHandle,
+        route_manager: talpid_routing::RouteManagerHandle,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -296,7 +296,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 proxy_auth_file_path: proxy_auth_file_path.clone(),
                 abort_server_tx: event_server_abort_tx,
                 proxy: params.proxy.clone(),
-                #[cfg(target_os = "linux")]
                 route_manager_handle: route_manager,
                 #[cfg(target_os = "linux")]
                 ipv6_enabled,
@@ -752,7 +751,7 @@ mod event_server {
     use futures::stream::TryStreamExt;
     use parity_tokio_ipc::Endpoint as IpcEndpoint;
     use std::{
-        collections::HashMap,
+        collections::{HashMap, HashSet},
         pin::Pin,
         task::{Context, Poll},
     };
@@ -800,7 +799,6 @@ mod event_server {
         pub proxy_auth_file_path: Option<super::PathBuf>,
         pub abort_server_tx: triggered::Trigger,
         pub proxy: Option<talpid_types::net::openvpn::ProxySettings>,
-        #[cfg(target_os = "linux")]
         pub route_manager_handle: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "linux")]
         pub ipv6_enabled: bool,
@@ -840,36 +838,35 @@ mod event_server {
                 let _ = tokio::fs::remove_file(file_path).await;
             }
 
+            let mut routes = HashSet::new();
+            if let Some(proxy_settings) = &self.proxy {
+                if let talpid_types::net::openvpn::ProxySettings::Local(proxy_settings) = proxy_settings {
+                    let network = proxy_settings.peer.ip().into();
+                    let node = talpid_routing::NetNode::DefaultNode;
+                    let route = talpid_routing::RequiredRoute::new(network, node);
+                    #[cfg(target_os = "linux")]
+                    let route = route.use_main_table(false);
+                    routes.insert(route);
+                }
+            }
+
             #[cfg(target_os = "linux")]
             {
-                let route_handle = self.route_manager_handle.clone();
-                let ipv6_enabled = self.ipv6_enabled;
+                if let Err(error) = route_handle.create_routing_rules(ipv6_enabled).await {
+                    let ipv6_enabled = self.ipv6_enabled;
 
-                let mut routes: std::collections::HashSet<_, _> = super::extract_routes(&env)
+                    log::error!("{}", error.display_chain());
+                    return Err(tonic::Status::failed_precondition("Failed to add routes"));
+                }
+
+                let extracted_routes: HashSet<_, _> = super::extract_routes(&env)
                     .map_err(|err| {
                         log::error!("{}", err.display_chain_with_msg("Failed to obtain routes"));
                         tonic::Status::failed_precondition("Failed to obtain routes")
                     })?
                     .into_iter()
-                    .filter(|route| route.prefix.is_ipv4() || ipv6_enabled)
-                    .collect();
-
-                if let Some(proxy_settings) = &self.proxy {
-                    if let talpid_types::net::openvpn::ProxySettings::Local(proxy_settings) = proxy_settings {
-                        let network = proxy_settings.peer.ip().into();
-                        let node = talpid_routing::NetNode::DefaultNode;
-                        routes.insert(talpid_routing::RequiredRoute::new(network, node).use_main_table(false));
-                    }
-                }
-
-                if let Err(error) = route_handle.add_routes(routes).await {
-                    log::error!("{}", error.display_chain());
-                    return Err(tonic::Status::failed_precondition("Failed to add routes"));
-                }
-                if let Err(error) = route_handle.create_routing_rules(ipv6_enabled).await {
-                    log::error!("{}", error.display_chain());
-                    return Err(tonic::Status::failed_precondition("Failed to add routes"));
-                }
+                    .filter(|route| route.prefix.is_ipv4() || ipv6_enabled);
+                routes = routes.into_iter().extend(extracted_routes).collect();
             }
 
             let metadata = Self::get_tunnel_metadata(&env)?;
@@ -891,6 +888,12 @@ mod event_server {
                         );
                         tonic::Status::unavailable("wait_for_addresses failed")
                     })?;
+            }
+
+            let route_handle = self.route_manager_handle.clone();
+            if let Err(error) = route_handle.add_routes(routes).await {
+                log::error!("{}", error.display_chain());
+                return Err(tonic::Status::failed_precondition("Failed to add routes"));
             }
 
             (self.on_event)(talpid_tunnel::TunnelEvent::Up(metadata)).await;

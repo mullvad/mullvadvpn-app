@@ -4,6 +4,7 @@
 #include <winfw/winfw.h>
 #include <libwfp/ipaddress.h>
 #include <string>
+#include <optional>
 
 namespace rules::multi
 {
@@ -34,7 +35,7 @@ private:
 	const wfp::IpAddress m_relay;
 	const uint16_t m_relayPort;
 	const WinFwProtocol m_protocol;
-	const std::option<std::wstring> m_relayClient;
+	const std::optional<std::wstring> m_relayClient;
 	const Sublayer m_sublayer;
 };
 
