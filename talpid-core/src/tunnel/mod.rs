@@ -91,7 +91,6 @@ impl TunnelMonitor {
                 args.resource_dir,
                 args.on_event,
                 args.tunnel_close_rx,
-                #[cfg(target_os = "linux")]
                 args.route_manager,
             )),
             #[cfg(target_os = "android")]
@@ -210,7 +209,7 @@ impl TunnelMonitor {
         resource_dir: &path::Path,
         on_event: L,
         tunnel_close_rx: oneshot::Receiver<()>,
-        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
+        route_manager: RouteManagerHandle,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -223,7 +222,6 @@ impl TunnelMonitor {
             config,
             log,
             resource_dir,
-            #[cfg(target_os = "linux")]
             route_manager,
         )
         .await?;
