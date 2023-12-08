@@ -87,8 +87,14 @@ class MullvadVPNScreenshots: XCTestCase {
             cityCell.buttons["CollapseButton"].tap()
             snapshot("SelectLocation")
 
-            // Tap the "Done" button to dismiss the "Select location" controller
-            app.navigationBars.buttons.firstMatch.tap()
+            // Tap the "Filter" button and expand each relay filter
+            app.navigationBars.buttons["Filter"].tap()
+            app.otherElements["Ownership"].buttons["CollapseButton"].tap()
+            app.otherElements["Providers"].buttons["CollapseButton"].tap()
+            snapshot("RelayFilter")
+
+            app.navigationBars.buttons["Cancel"].tap()
+            app.navigationBars.buttons["Done"].tap()
         }
 
         // Open Settings

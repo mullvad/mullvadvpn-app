@@ -1,0 +1,65 @@
+---
+name: iOS screenshots
+on:
+  push:
+    tags:
+      - ios/*
+  workflow_dispatch:
+jobs:
+  test:
+    name: Take screenshots
+    runs-on: macos-13-xlarge
+    env:
+      SOURCE_PACKAGES_PATH: .spm
+      TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure cache
+        uses: actions/cache@v3
+        with:
+          path: ios/${{ env.SOURCE_PACKAGES_PATH }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+
+      - name: Setup go-lang
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19.5
+
+      - name: Set up yeetd to workaround XCode being slow in CI
+        run: |
+          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
+          sudo installer -pkg yeetd-normal.pkg -target /
+          yeetd &
+      - name: Configure Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.0.1'
+      - name: Configure Rust
+        run: rustup target add aarch64-apple-ios-sim x86_64-apple-ios
+
+      - name: Configure Xcode project
+        run: |
+          cp Base.xcconfig.template Base.xcconfig
+          cp App.xcconfig.template App.xcconfig
+          cp PacketTunnel.xcconfig.template PacketTunnel.xcconfig
+          cp Screenshots.xcconfig.template Screenshots.xcconfig
+          sed -i "" "s/MULLVAD_ACCOUNT_TOKEN = /MULLVAD_ACCOUNT_TOKEN = $TEST_ACCOUNT/g" Screenshots.xcconfig
+        working-directory: ios/Configurations
+
+      - name: Bundle
+        run: bundle install
+        working-directory: ios
+
+      - name: Create screenshots
+        run: bundle exec fastlane snapshot
+        working-directory: ios
+
+      - name: Upload screenshot artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ios-screenshots
+          path: ios/Screenshots
