@@ -64,7 +64,7 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           source env.sh
-          time cargo clippy --locked -- -W clippy::unused_async
+          time cargo clippy --locked
 
   clippy-check-android:
     name: Clippy linting, Android
@@ -86,4 +86,4 @@ jobs:
         env:
           RUSTFLAGS: --deny warnings
         run: |
-          cargo clippy --locked --target x86_64-linux-android --package mullvad-jni -- -W clippy::unused_async
+          cargo clippy --locked --target x86_64-linux-android --package mullvad-jni
