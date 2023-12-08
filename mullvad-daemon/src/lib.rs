@@ -81,7 +81,7 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    net::{TunnelEndpoint, TunnelType},
+    net::{IpVersion, TunnelEndpoint, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
@@ -1048,13 +1048,27 @@ where
         // Always abort any ongoing request when entering a new tunnel state
         self.location_handler.abort_current_request();
 
-        if !(self.tunnel_state.is_connected() || self.tunnel_state.is_disconnected()) {
-            // Fetching IP from am.i.mullvad.net should only be done from a state where a connection
-            // is available
-            return;
-        }
-
-        let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
+        // Whether or not to poll for an IPv6 exit IP
+        let use_ipv6 = match &self.tunnel_state {
+            // If connected, refer to the tunnel setting
+            TunnelState::Connected { .. } => self.settings.tunnel_options.generic.enable_ipv6,
+            // If not connected, we have to guess whether the users local connection supports IPv6.
+            // The only thing we have to go on is the wireguard setting.
+            TunnelState::Disconnected(_) => {
+                if let RelaySettings::Normal(relay_constraints) = &self.settings.relay_settings {
+                    // Note that `Constraint::Any` corresponds to just IPv4
+                    matches!(
+                        relay_constraints.wireguard_constraints.ip_version,
+                        mullvad_types::relay_constraints::Constraint::Only(IpVersion::V6)
+                    )
+                } else {
+                    false
+                }
+            }
+            // Fetching IP from am.i.mullvad.net should only be done from a tunnel state where a
+            // connection is available. Otherwise we just exist.
+            _ => return,
+        };
 
         self.location_handler.send_geo_location_request(use_ipv6);
     }
