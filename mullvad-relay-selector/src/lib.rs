@@ -339,6 +339,12 @@ impl RelaySelector {
         default_tunnel_type: TunnelType,
         custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
+        #[cfg(target_os = "android")]
+        {
+            self.get_wireguard_endpoint(relay_constraints, retry_attempt, custom_lists)
+        }
+
+        #[cfg(not(target_os = "android"))]
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
                 relay_constraints,
