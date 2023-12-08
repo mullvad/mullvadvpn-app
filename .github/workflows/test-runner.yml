@@ -1,0 +1,93 @@
+# Compile the test runner
+---
+name: Test runner + manager - Build
+on:
+  pull_request:
+    paths:
+      - "test/**"
+      # Maybe we should check if changes to the app code (mullvad-management-interface) will break the test runner
+  workflow_dispatch:
+jobs:
+  prepare-build-test-runner-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+
+  build-test-runner-linux:
+    needs: prepare-build-test-runner-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-build-test-runner-linux.outputs.container_image }}
+
+    strategy:
+      matrix:
+        # Cross-compile the test runner for Windows from Linux.
+        target: [x86_64-unknown-linux-gnu, x86_64-pc-windows-gnu]
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build test runner
+        working-directory: test
+        run: cargo build --release -p test-runner --target ${{ matrix.target }}
+
+  build-test-framework:
+    needs: prepare-build-test-runner-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-build-test-runner-linux.outputs.container_image }}
+
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build test framework
+        working-directory: test
+        run: cargo build --release
+
+  build-test-runner-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          default: true
+
+      - name: Build test runner
+        working-directory: test
+        # Build the test runner + test manager at once.
+        run: cargo build
