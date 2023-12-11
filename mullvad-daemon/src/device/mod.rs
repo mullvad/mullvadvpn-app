@@ -1257,6 +1257,16 @@ impl TunnelStateChangeHandler {
         ));
     }
 
+    /// Handle state transitions and optionally check the device/account validity. This should be
+    /// called during every tunnel state transition.
+    ///
+    /// # Arguments
+    ///
+    /// * `wg_retry_attempt` - this is incremented for every attempt to connect to a WireGuard
+    ///   relay, and is reset when leaving the connect/reconnect loop, e.g. when connected or
+    ///   disconnected.
+    /// * `check_validity` - whether to check the device/account validity. This is used to avoid
+    ///   polling the API too often.
     fn handle_state_transition_inner<Validate, ValidateResult>(
         wg_retry_attempt: &mut usize,
         check_validity: Arc<AtomicBool>,
@@ -1303,7 +1313,7 @@ impl TunnelStateChangeHandler {
         Either::Right(async move { Ok(()) })
     }
 
-    pub async fn check_validity(handle: AccountManagerHandle) -> Result<(), Error> {
+    async fn check_validity(handle: AccountManagerHandle) -> Result<(), Error> {
         handle.validate_device().await?;
         handle.check_expiry().await.map(|_expiry| ())
     }
