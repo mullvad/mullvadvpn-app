@@ -47,6 +47,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Prevent fragmentation when multihop is enabled by setting a default route MTU.
 
+#### Android
+- Fix issue with the app under some circumstances trying to connect to OpenVPN relays.
 
 ## [2023.6] - 2023-12-06
 ### Changed
