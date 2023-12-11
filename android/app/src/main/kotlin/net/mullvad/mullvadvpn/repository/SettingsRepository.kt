@@ -39,16 +39,13 @@ class SettingsRepository(
         dnsList: List<InetAddress>,
         contentBlockersOptions: DefaultDnsOptions
     ) {
-        serviceConnectionManager
-            .customDns()
-            ?.setDnsOptions(
-                dnsOptions =
-                    DnsOptions(
-                        state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
-                        customOptions = CustomDnsOptions(ArrayList(dnsList)),
-                        defaultOptions = contentBlockersOptions
-                    )
+        updateDnsSettings {
+            DnsOptions(
+                state = if (isCustomDnsEnabled) DnsState.Custom else DnsState.Default,
+                customOptions = CustomDnsOptions(ArrayList(dnsList)),
+                defaultOptions = contentBlockersOptions
             )
+        }
     }
 
     fun setDnsState(

@@ -84,7 +84,7 @@ class WelcomeViewModel(
 
     fun start() {
         jobScope = CoroutineScope(Job() + Dispatchers.IO)
-        viewModelScope.launch {
+        jobScope.launch {
             launch {
                 while (pollAccountExpiry) {
                     updateAccountExpiry()
@@ -136,7 +136,7 @@ class WelcomeViewModel(
         // should check payment availability and verify any purchases to handle potential errors.
         if (success) {
             updateAccountExpiry()
-            // _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
+            // Emission of out of time navigation is handled by launch in onStart
         } else {
             fetchPaymentAvailability()
             verifyPurchases() // Attempt to verify again

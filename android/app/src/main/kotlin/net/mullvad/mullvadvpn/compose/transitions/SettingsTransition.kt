@@ -12,6 +12,8 @@ import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
 import net.mullvad.mullvadvpn.compose.destinations.NoDaemonScreenDestination
+import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
+import net.mullvad.mullvadvpn.constant.withHorizontalScalingFactor
 
 object SettingsTransition : DestinationStyle.Animated {
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() =
@@ -19,14 +21,14 @@ object SettingsTransition : DestinationStyle.Animated {
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
         when (targetState.destination()) {
-            NoDaemonScreenDestination -> fadeOut(snap(400))
-            else -> slideOutHorizontally(targetOffsetX = { -it / 3 })
+            NoDaemonScreenDestination -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
+            else -> slideOutHorizontally(targetOffsetX = { -it.withHorizontalScalingFactor() })
         }
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() =
         when (initialState.destination()) {
             NoDaemonScreenDestination -> fadeIn(snap(0))
-            else -> slideInHorizontally(initialOffsetX = { -it / 3 })
+            else -> slideInHorizontally(initialOffsetX = { -it.withHorizontalScalingFactor() })
         }
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popExitTransition() =
