@@ -35,7 +35,7 @@ pub async fn run(
     let serial_stream =
         tokio_serial::SerialStream::open(&tokio_serial::new(pty_path, BAUD)).unwrap();
     let (runner_transport, mullvad_daemon_transport, mut connection_handle, completion_handle) =
-        test_rpc::transport::create_client_transports(serial_stream).await?;
+        test_rpc::transport::create_client_transports(serial_stream)?;
 
     if !skip_wait {
         connection_handle.wait_for_server().await?;
@@ -45,7 +45,7 @@ pub async fn run(
 
     let client = ServiceClient::new(connection_handle.clone(), runner_transport);
     let mullvad_client =
-        mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport).await;
+        mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport);
 
     let mut tests: Vec<_> = inventory::iter::<tests::TestMetadata>().collect();
     tests.sort_by_key(|test| test.priority.unwrap_or(0));

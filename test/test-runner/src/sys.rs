@@ -379,6 +379,7 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
 }
 
 #[cfg(target_os = "macos")]
+#[allow(clippy::unused_async)]
 pub async fn set_daemon_log_level(_verbosity_level: Verbosity) -> Result<(), test_rpc::Error> {
     // TODO: Not implemented
     log::warn!("Setting log level is not implemented on macOS");
