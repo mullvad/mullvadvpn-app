@@ -7,8 +7,8 @@
 //
 
 import MullvadLogging
+import MullvadREST
 import MullvadTypes
-import RelayCache
 import UIKit
 
 final class SelectLocationViewController: UIViewController {

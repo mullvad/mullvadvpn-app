@@ -7,8 +7,8 @@
 //
 
 import Foundation
+import MullvadREST
 import MullvadSettings
-import RelayCache
 
 final class PreferencesInteractor {
     private let tunnelManager: TunnelManager

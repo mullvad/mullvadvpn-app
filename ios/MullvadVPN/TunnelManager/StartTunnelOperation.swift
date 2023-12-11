@@ -8,11 +8,10 @@
 
 import Foundation
 import MullvadLogging
+import MullvadREST
 import NetworkExtension
 import Operations
 import PacketTunnelCore
-import RelayCache
-import RelaySelector
 
 class StartTunnelOperation: ResultOperation<Void> {
     typealias EncodeErrorHandler = (Error) -> Void

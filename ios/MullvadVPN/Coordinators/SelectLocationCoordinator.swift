@@ -6,8 +6,8 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import MullvadTypes
-import RelayCache
 import Routing
 import UIKit
 

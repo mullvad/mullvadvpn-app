@@ -2,12 +2,11 @@
 //  URLSessionTransport.swift
 //  MullvadREST
 //
-//  Created by Sajad Vishkai on 2022-10-03.
-//  Copyright © 2022 Mullvad VPN AB. All rights reserved.
+//  Created by Mojgan on 2023-12-08.
+//  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
-import MullvadREST
 import MullvadTypes
 
 extension URLSessionTask: Cancellable {}
@@ -18,6 +17,7 @@ public final class URLSessionTransport: RESTTransport {
     }
 
     public let urlSession: URLSession
+
     public init(urlSession: URLSession) {
         self.urlSession = urlSession
     }

@@ -9,11 +9,9 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
-import MullvadTransport
 import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
-import RelayCache
 import TunnelObfuscation
 
 class PacketTunnelProvider: NEPacketTunnelProvider {

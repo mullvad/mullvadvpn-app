@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadREST
-import RelayCache
 
 final class SettingsInteractorFactory {
     private let storePaymentManager: StorePaymentManager

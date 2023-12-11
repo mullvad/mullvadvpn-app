@@ -10,7 +10,7 @@ publish = false
 resolver = "2"
 members = [
     "android/translations-converter",
-    "ios/MullvadTransport/shadowsocks-proxy",
+    "ios/MullvadREST/Transport/Shadowsocks/shadowsocks-proxy",
     "ios/TunnelObfuscation/tunnel-obfuscator-proxy",
     "mullvad-daemon",
     "mullvad-cli",

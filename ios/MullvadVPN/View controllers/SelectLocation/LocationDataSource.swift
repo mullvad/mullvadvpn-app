@@ -8,7 +8,6 @@
 
 import MullvadREST
 import MullvadTypes
-import RelaySelector
 import UIKit
 
 protocol LocationDataSourceItemProtocol {

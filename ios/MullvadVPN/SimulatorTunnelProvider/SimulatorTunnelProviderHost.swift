@@ -12,12 +12,9 @@ import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadSettings
-import MullvadTransport
 import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
-import RelayCache
-import RelaySelector
 
 final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     private var observedState: ObservedState = .disconnected

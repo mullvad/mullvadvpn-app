@@ -7,8 +7,8 @@
 //
 
 import Combine
+import MullvadREST
 import MullvadTypes
-import RelayCache
 import UIKit
 
 class RelayFilterViewController: UIViewController {

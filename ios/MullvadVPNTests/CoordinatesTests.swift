@@ -7,7 +7,7 @@
 //
 
 import CoreLocation
-@testable import RelaySelector
+@testable import MullvadREST
 import XCTest
 
 final class CoordinatesTests: XCTestCase {

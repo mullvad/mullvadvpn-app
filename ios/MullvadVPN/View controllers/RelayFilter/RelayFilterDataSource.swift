@@ -9,7 +9,6 @@
 import Combine
 import MullvadREST
 import MullvadTypes
-import RelayCache
 import UIKit
 
 final class RelayFilterDataSource: UITableViewDiffableDataSource<

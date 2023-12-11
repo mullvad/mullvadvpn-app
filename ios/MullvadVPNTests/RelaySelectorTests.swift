@@ -9,7 +9,6 @@
 @testable import MullvadREST
 import MullvadTypes
 import Network
-import RelaySelector
 import XCTest
 
 private let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]

@@ -7,11 +7,11 @@
 //
 
 import Combine
+@testable import MullvadREST
 @testable import MullvadSettings
 import MullvadTypes
 import Network
 @testable import PacketTunnelCore
-@testable import RelaySelector
 import WireGuardKitTypes
 import XCTest
 

@@ -10,7 +10,6 @@ import Combine
 @testable import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
-import RelaySelector
 import XCTest
 
 final class AppMessageHandlerTests: XCTestCase {

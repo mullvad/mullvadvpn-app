@@ -5,7 +5,7 @@ if [ -z "$PROJECT_DIR" ]; then
   exit 1
 fi
 
-RELAYS_FILE="$PROJECT_DIR/RelayCache/Assets/relays.json"
+RELAYS_FILE="$PROJECT_DIR/MullvadREST/Assets/relays.json"
 
 if [ $CONFIGURATION == "Release" ]; then
   echo "Remove relays file"
