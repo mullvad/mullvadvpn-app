@@ -150,9 +150,4 @@ class OutOfTimeViewModel(
 
         data object OpenConnectScreen : UiSideEffect
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.d("OutOfTimeViewModel", "onCleared()")
-    }
 }
