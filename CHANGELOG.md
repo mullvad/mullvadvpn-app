@@ -50,9 +50,6 @@ Line wrap the file at 100 chars.                                              Th
 - Fix error dialog displayed when the daemon was killed.
 - Fix desktop app freezing when navigations occur in very quick succession.
 
-#### Android
-- Fix issue with the app under some circumstances trying to connect to OpenVPN relays.
-
 #### Windows
 - Correctly detect whether OS is Windows Server (primarily for logging in daemon.log).
 
@@ -60,6 +57,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix possible privilege escalation by setting stricter permissions on mullvad directories such as
   the directory in ProgramData.
+
+## [android/2023.10-beta1] - 2023-12-11
+### Fixed
+#### Android
+- Fix issue with the app under some circumstances trying to connect to OpenVPN relays. 
 
 
 ## [android/2023.9] - 2023-12-06
