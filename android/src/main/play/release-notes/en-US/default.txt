@@ -1,1 +1,1 @@
-Add missing translations for in-app purchases and a few settings.
+Fix a bug that could cause the app to connect to an invalid relay.
