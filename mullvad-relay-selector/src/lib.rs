@@ -331,6 +331,7 @@ impl RelaySelector {
 
     /// Returns a random relay and relay endpoint matching the given constraints and with
     /// preferences applied.
+    #[cfg_attr(target_os = "android", allow(unused_variables))]
     fn get_tunnel_endpoint(
         &self,
         relay_constraints: &RelayConstraints,
@@ -339,6 +340,12 @@ impl RelaySelector {
         default_tunnel_type: TunnelType,
         custom_lists: &CustomListsSettings,
     ) -> Result<NormalSelectedRelay, Error> {
+        #[cfg(target_os = "android")]
+        {
+            self.get_wireguard_endpoint(relay_constraints, retry_attempt, custom_lists)
+        }
+
+        #[cfg(not(target_os = "android"))]
         match relay_constraints.tunnel_protocol {
             Constraint::Only(TunnelType::OpenVpn) => self.get_openvpn_endpoint(
                 relay_constraints,
@@ -402,6 +409,7 @@ impl RelaySelector {
 
     /// Returns an OpenVpn endpoint, should only ever be used when the user has specified the tunnel
     /// protocol as only OpenVPN.
+    #[cfg_attr(target_os = "android", allow(dead_code))]
     fn get_openvpn_endpoint(
         &self,
         relay_constraints: &RelayConstraints,
@@ -585,6 +593,7 @@ impl RelaySelector {
     }
 
     /// Like [Self::get_tunnel_endpoint_internal] but also selects an entry endpoint if applicable.
+    #[cfg_attr(target_os = "android", allow(dead_code))]
     fn get_multihop_tunnel_endpoint_internal(
         &self,
         relay_constraints: &RelayConstraints,
@@ -674,6 +683,7 @@ impl RelaySelector {
 
     /// Returns a tunnel endpoint of any type, should only be used when the user hasn't specified a
     /// tunnel protocol.
+    #[cfg_attr(target_os = "android", allow(dead_code))]
     fn get_any_tunnel_endpoint(
         &self,
         relay_constraints: &RelayConstraints,
@@ -719,6 +729,7 @@ impl RelaySelector {
     }
 
     // This function ignores the tunnel type constraint on purpose.
+    #[cfg_attr(target_os = "android", allow(dead_code))]
     fn preferred_constraints(
         &self,
         original_constraints: &RelayConstraints,
