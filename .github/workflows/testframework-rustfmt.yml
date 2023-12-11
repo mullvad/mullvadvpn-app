@@ -1,0 +1,30 @@
+# Run `cargo fmt --check` on the `test` workspace
+---
+name: DES Testframework - Check formatting
+on:
+  pull_request:
+    paths:
+      - 'test/**/*.rs'
+      - .github/workflows/test-rustfmt.yml
+      - rustfmt.toml
+  workflow_dispatch:
+jobs:
+  check-formatting-testframework:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          components: rustfmt
+          default: true
+
+      - name: Check formatting
+        working-directory: test
+        run: |-
+          rustfmt --version
+          cargo fmt -- --check
