@@ -10,6 +10,7 @@ import com.ramcosta.composedestinations.utils.destination
 import net.mullvad.mullvadvpn.compose.destinations.ConnectDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.WelcomeDestination
+import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
 
 object LoginTransition : DestinationStyle.Animated {
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.enterTransition() = fadeIn()
@@ -21,7 +22,7 @@ object LoginTransition : DestinationStyle.Animated {
             is OutOfTimeDestination,
             is WelcomeDestination,
             is ConnectDestination -> fadeOut()
-            else -> fadeOut(snap(400))
+            else -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
         }
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() = fadeIn()

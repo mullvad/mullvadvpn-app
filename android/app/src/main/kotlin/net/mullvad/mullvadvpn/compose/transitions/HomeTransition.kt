@@ -9,6 +9,7 @@ import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
+import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
 
 // This is used for OutOfTime, Welcome, and Connect destinations.
 object HomeTransition : DestinationStyle.Animated {
@@ -21,7 +22,7 @@ object HomeTransition : DestinationStyle.Animated {
     // TODO temporary hack until we have a proper solution.
     // https://issuetracker.google.com/issues/309506799
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.exitTransition() =
-        fadeOut(snap(400))
+        fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
 
     override fun AnimatedContentTransitionScope<NavBackStackEntry>.popEnterTransition() =
         EnterTransition.None

@@ -135,7 +135,7 @@ fun VpnSettings(
     dnsDialogResult.onNavResult {
         when (it) {
             NavResult.Canceled -> {
-                vm.onDnsDialogDismiss()
+                vm.onDnsDialogDismissed()
             }
             is NavResult.Value -> {}
         }
@@ -237,7 +237,7 @@ fun VpnSettings(
                 launchSingleTop = true
             }
         },
-        onToggleDnsClick = vm::onToggleDnsClick,
+        onToggleDnsClick = vm::onToggleCustomDns,
         onBackClick = navigator::navigateUp,
         onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,

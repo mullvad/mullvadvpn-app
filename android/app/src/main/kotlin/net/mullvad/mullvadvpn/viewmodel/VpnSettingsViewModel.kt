@@ -113,13 +113,13 @@ class VpnSettingsViewModel(
         viewModelScope.launch(dispatcher) { repository.setLocalNetworkSharing(isEnabled) }
     }
 
-    fun onDnsDialogDismiss() {
+    fun onDnsDialogDismissed() {
         if (vmState.value.customDnsList.isEmpty()) {
-            onToggleDnsClick(false)
+            onToggleCustomDns(false)
         }
     }
 
-    fun onToggleDnsClick(enable: Boolean) {
+    fun onToggleCustomDns(enable: Boolean) {
         repository.setDnsState(if (enable) DnsState.Custom else DnsState.Default)
         if (enable && vmState.value.customDnsList.isEmpty()) {
             viewModelScope.launch { _uiSideEffect.emit(VpnSettingsSideEffect.NavigateToDnsDialog) }
