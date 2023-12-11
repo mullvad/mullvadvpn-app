@@ -76,7 +76,7 @@ impl RpcClientProvider {
     }
 }
 
-pub async fn new_rpc_client(
+pub fn new_rpc_client(
     connection_handle: ConnectionHandle,
     mullvad_daemon_transport: GrpcForwarder,
 ) -> RpcClientProvider {
