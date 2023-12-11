@@ -177,7 +177,7 @@ impl Service for TestServer {
         _: context::Context,
         interface: String,
     ) -> Result<IpAddr, test_rpc::Error> {
-        net::get_interface_ip(&interface).await
+        net::get_interface_ip(&interface)
     }
 
     async fn get_default_interface(self, _: context::Context) -> Result<String, test_rpc::Error> {
