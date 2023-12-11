@@ -1,1 +1,1 @@
-Add missing translations for in-app purchases and a few settings.
+Fix an issue where the app would attempt connecting to unsupported (OpenVPN) relays under some circumstances.
