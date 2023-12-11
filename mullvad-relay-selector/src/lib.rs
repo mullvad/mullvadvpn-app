@@ -1049,11 +1049,20 @@ impl RelaySelector {
         )
     }
 
+    /// Return whether to use obfuscation, and if so, the current attempt at using obfuscation.
+    /// The function alternates between preferring no obfuscation twice, and obfuscation twice.
     const fn get_auto_obfuscator_retry_attempt(retry_attempt: u32) -> Option<u32> {
         match retry_attempt % 4 {
+            // Do not use obfuscation
             0 | 1 => None,
-            // when the retry attempt is 2-3, 6-7, 10-11 ... obfuscation will be used
-            filtered_retry => Some(retry_attempt / 4 + filtered_retry - 2),
+            // Use obfuscation, and return the current attempt at using obfuscation.
+            // The expression below evaluates to the obfuscation attempt, discounting any attempts
+            // that did not use obfuscation:
+            //     r == 2: (r//4 * 2 + r%4 - 2) = (2//4 * 2 + 2%4 - 2) = 0
+            //     r == 3: (3//4 * 2 + 3%4 - 2) = 1
+            //     r == 6: (6//4 * 2 + 6%4 - 2) = 2
+            //     r == 7: (7//4 * 2 + 7%4 - 2) = 3
+            filtered_retry => Some(retry_attempt / 4 * 2 + filtered_retry - 2),
         }
     }
 
