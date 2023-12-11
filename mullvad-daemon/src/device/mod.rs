@@ -1,7 +1,6 @@
 use chrono::{DateTime, Utc};
 use futures::{
     channel::{mpsc, oneshot},
-    future::Either,
     stream::StreamExt,
 };
 
@@ -1233,7 +1232,7 @@ impl DeviceCacher {
 /// after multiple attempts.
 pub(crate) struct TunnelStateChangeHandler {
     manager: AccountManagerHandle,
-    check_validity: Arc<AtomicBool>,
+    no_more_retries: Arc<AtomicBool>,
     wg_retry_attempt: usize,
 }
 
@@ -1241,76 +1240,88 @@ impl TunnelStateChangeHandler {
     pub fn new(manager: AccountManagerHandle) -> Self {
         Self {
             manager,
-            check_validity: Arc::new(AtomicBool::new(true)),
+            no_more_retries: Arc::new(AtomicBool::new(false)),
             wg_retry_attempt: 0,
         }
     }
 
-    pub fn handle_state_transition(&mut self, new_state: &TunnelStateTransition) {
-        let handle = self.manager.clone();
-        // no need to await because this will spawn a future
-        drop(Self::handle_state_transition_inner(
-            &mut self.wg_retry_attempt,
-            self.check_validity.clone(),
-            new_state,
-            move || Self::check_validity(handle),
-        ));
-    }
-
     /// Handle state transitions and optionally check the device/account validity. This should be
     /// called during every tunnel state transition.
-    ///
-    /// # Arguments
-    ///
-    /// * `wg_retry_attempt` - this is incremented for every attempt to connect to a WireGuard
-    ///   relay, and is reset when leaving the connect/reconnect loop, e.g. when connected or
-    ///   disconnected.
-    /// * `check_validity` - whether to check the device/account validity. This is used to avoid
-    ///   polling the API too often.
-    fn handle_state_transition_inner<Validate, ValidateResult>(
-        wg_retry_attempt: &mut usize,
-        check_validity: Arc<AtomicBool>,
-        new_state: &TunnelStateTransition,
-        validate: Validate,
-    ) -> impl Future<Output = Result<(), tokio::task::JoinError>>
-    where
-        Validate: FnOnce() -> ValidateResult + Send + 'static,
-        ValidateResult: Future<Output = Result<(), Error>> + Send,
-    {
+    pub fn handle_state_transition(&mut self, new_state: &TunnelStateTransition) {
+        let handle = self.manager.clone();
+
+        let wg_attempt = self.wg_retry_attempt;
+        self.wg_retry_attempt = Self::next_retry_attempt(new_state, self.wg_retry_attempt);
+
+        if self.wg_retry_attempt > wg_attempt {
+            tokio::spawn(Self::maybe_check_validity(
+                wg_attempt,
+                self.no_more_retries.clone(),
+                move || Self::check_validity(handle),
+            ));
+        }
+    }
+
+    /// Return an incremented count for `retry_attempt` if this is another WireGuard connection
+    /// attempt, and zero the counter when leaving the connecting loop.
+    fn next_retry_attempt(new_state: &TunnelStateTransition, retry_attempt: usize) -> usize {
         match new_state {
             TunnelStateTransition::Connecting(endpoint) => {
                 if endpoint.tunnel_type == TunnelType::Wireguard {
-                    let prev_attempt = *wg_retry_attempt;
-                    *wg_retry_attempt = wg_retry_attempt.wrapping_add(1);
-                    if Self::should_check_validity_on_attempt(prev_attempt) {
-                        return Either::Left(tokio::spawn(async move {
-                            if !check_validity.swap(false, Ordering::SeqCst) {
-                                return;
-                            }
-                            if let Err(error) = validate().await {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg(
-                                        "Failed to check device or account validity"
-                                    )
-                                );
-                                if Self::should_retry_check(error) {
-                                    check_validity.store(true, Ordering::SeqCst);
-                                }
-                            }
-                        }));
-                    }
+                    retry_attempt.wrapping_add(1)
+                } else {
+                    retry_attempt
                 }
             }
             TunnelStateTransition::Error(_)
             | TunnelStateTransition::Connected(_)
-            | TunnelStateTransition::Disconnected => {
-                check_validity.store(true, Ordering::SeqCst);
-                *wg_retry_attempt = 0;
-            }
-            _ => (),
+            | TunnelStateTransition::Disconnected => 0,
+            _ => retry_attempt,
         }
-        Either::Right(async move { Ok(()) })
+    }
+
+    /// Run `validate` when connecting to a WireGuard server, on certain retry attempts.
+    /// If `no_more_retries` is true, no further checks are made. `no_more_retries` is reset
+    /// on the first connection attempt.
+    ///
+    /// This returns whether the device/account validity ran.
+    async fn maybe_check_validity<Validate, ValidateResult>(
+        wg_attempt: usize,
+        no_more_retries: Arc<AtomicBool>,
+        validate: Validate,
+    ) -> bool
+    where
+        Validate: FnOnce() -> ValidateResult + Send + 'static,
+        ValidateResult: Future<Output = Result<(), Error>> + Send + 'static,
+    {
+        if wg_attempt == 0 {
+            // Starting a new connecting loop, so reset the retry state
+            no_more_retries.store(false, Ordering::SeqCst);
+        }
+
+        if !Self::should_check_validity_on_attempt(wg_attempt) {
+            return false;
+        }
+        if no_more_retries.swap(true, Ordering::SeqCst) {
+            // We've either already received the device state or we've given up
+            return false;
+        }
+        match validate().await {
+            Ok(()) => true,
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to check device or account validity")
+                );
+                if Self::should_continue_retries(error) {
+                    // If the request failed due to a network error, we should continue
+                    // retrying. We give up otherwise, because it means we have a known result or
+                    // the API returned some error.
+                    no_more_retries.store(false, Ordering::SeqCst);
+                }
+                true
+            }
+        }
     }
 
     async fn check_validity(handle: AccountManagerHandle) -> Result<(), Error> {
@@ -1322,7 +1333,7 @@ impl TunnelStateChangeHandler {
         wg_attempt % WG_DEVICE_CHECK_THRESHOLD == WG_DEVICE_CHECK_THRESHOLD - 1
     }
 
-    fn should_retry_check(err: Error) -> bool {
+    fn should_continue_retries(err: Error) -> bool {
         err.is_network_error() || err.is_aborted()
     }
 }
@@ -1332,113 +1343,91 @@ mod test {
     use super::TunnelStateChangeHandler;
     use super::{Error, WG_DEVICE_CHECK_THRESHOLD};
     use mullvad_relay_selector::RelaySelector;
-    use once_cell::sync::Lazy;
     use std::sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
     };
-    use talpid_types::{
-        net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType},
-        tunnel::TunnelStateTransition,
-    };
+    use talpid_types::net::TunnelType;
 
-    const FAKE_WG_ENDPOINT: Lazy<TunnelEndpoint> = Lazy::new(|| TunnelEndpoint {
-        endpoint: Endpoint::from_socket_address(
-            "1.2.3.4:1234".parse().unwrap(),
-            TransportProtocol::Udp,
-        ),
-        tunnel_type: TunnelType::Wireguard,
-        quantum_resistant: false,
-        proxy: None,
-        obfuscation: None,
-        entry_endpoint: None,
-        tunnel_interface: None,
-    });
     const TIMEOUT_ERROR: Error = Error::OtherRestError(mullvad_api::rest::Error::TimeoutError);
 
-    /// Test whether the validity check is reset in the disconnected and connected states
+    /// Starting a new connection loop should resume device validity checks
     #[tokio::test]
-    async fn test_validity_reset() {
-        // When disconnected, `retry_attempt` and `check_validity` should be reset
-        let mut retry_attempt = 10;
-        let check_validity = Arc::new(AtomicBool::new(false));
+    async fn test_device_check_reset() {
+        let no_more_retries = Arc::new(AtomicBool::new(true));
 
-        TunnelStateChangeHandler::handle_state_transition_inner(
-            &mut retry_attempt,
-            check_validity.clone(),
-            &TunnelStateTransition::Disconnected,
-            || async { Ok(()) },
-        )
-        .await
-        .unwrap();
-        assert_eq!(
-            retry_attempt, 0,
-            "retry_attempt was not reset on disconnect: {retry_attempt}"
-        );
+        TunnelStateChangeHandler::maybe_check_validity(0, no_more_retries.clone(), || async {
+            Ok(())
+        })
+        .await;
+
         assert!(
-            check_validity.load(Ordering::SeqCst),
-            "validity was not reset on disconnect"
-        );
-
-        // When connected, `retry_attempt` and `check_validity` should be reset
-        let mut retry_attempt = 10;
-        let check_validity = Arc::new(AtomicBool::new(false));
-
-        TunnelStateChangeHandler::handle_state_transition_inner(
-            &mut retry_attempt,
-            check_validity.clone(),
-            &TunnelStateTransition::Connected(FAKE_WG_ENDPOINT.to_owned()),
-            || async { Ok(()) },
-        )
-        .await
-        .unwrap();
-        assert_eq!(
-            retry_attempt, 0,
-            "retry_attempt was not reset on connect: {retry_attempt}"
-        );
-        assert!(
-            check_validity.load(Ordering::SeqCst),
-            "validity was not reset on connect"
+            !no_more_retries.load(Ordering::SeqCst),
+            "expected retry state to be reset on first connection attempt"
         );
     }
 
-    /// Test whether retries continue when network errors occur
+    /// Retries should stop when a device check succeeds
     #[tokio::test]
-    async fn test_validity_retries() {
-        // Don't retry if the check succeeds
-        let mut retry_attempt = 2 * WG_DEVICE_CHECK_THRESHOLD - 1;
-        let check_validity = Arc::new(AtomicBool::new(true));
+    async fn test_device_check_on_success() {
+        const ATTEMPT: usize = WG_DEVICE_CHECK_THRESHOLD - 1;
+        assert!(TunnelStateChangeHandler::should_check_validity_on_attempt(
+            ATTEMPT
+        ));
 
-        TunnelStateChangeHandler::handle_state_transition_inner(
-            &mut retry_attempt,
-            check_validity.clone(),
-            &TunnelStateTransition::Connecting(FAKE_WG_ENDPOINT.to_owned()),
+        let no_more_retries = Arc::new(AtomicBool::new(false));
+
+        let check_ran = TunnelStateChangeHandler::maybe_check_validity(
+            ATTEMPT,
+            no_more_retries.clone(),
             || async { Ok(()) },
         )
-        .await
-        .unwrap();
-        assert_eq!(
-            check_validity.load(Ordering::SeqCst),
-            false,
-            "expected device check to give up on successful check"
+        .await;
+
+        assert!(check_ran, "expected device check to run");
+
+        let check_ran = TunnelStateChangeHandler::maybe_check_validity(
+            ATTEMPT,
+            no_more_retries.clone(),
+            || async { Ok(()) },
+        )
+        .await;
+
+        assert!(
+            !check_ran,
+            "expected device check to give up after successful check"
         );
+    }
 
-        // Do retry if the check succeeds
-        let mut retry_attempt = 2 * WG_DEVICE_CHECK_THRESHOLD - 1;
-        let check_validity = Arc::new(AtomicBool::new(true));
+    /// Retries should continue when a network error occurs
+    #[tokio::test]
+    async fn test_device_check_on_network_error() {
+        const ATTEMPT: usize = WG_DEVICE_CHECK_THRESHOLD - 1;
+        assert!(TunnelStateChangeHandler::should_check_validity_on_attempt(
+            ATTEMPT
+        ));
 
-        TunnelStateChangeHandler::handle_state_transition_inner(
-            &mut retry_attempt,
-            check_validity.clone(),
-            &TunnelStateTransition::Connecting(FAKE_WG_ENDPOINT.to_owned()),
+        let no_more_retries = Arc::new(AtomicBool::new(false));
+
+        let check_ran = TunnelStateChangeHandler::maybe_check_validity(
+            ATTEMPT,
+            no_more_retries.clone(),
             || async { Err(TIMEOUT_ERROR) },
         )
-        .await
-        .unwrap();
-        assert_eq!(
-            check_validity.load(Ordering::SeqCst),
-            true,
-            "expected device check to repeat on timeout"
+        .await;
+
+        assert!(check_ran, "expected device check to occur");
+
+        let check_ran = TunnelStateChangeHandler::maybe_check_validity(
+            ATTEMPT,
+            no_more_retries.clone(),
+            || async { Err(TIMEOUT_ERROR) },
+        )
+        .await;
+
+        assert!(
+            check_ran,
+            "expected device check to continue after a network error"
         );
     }
 
