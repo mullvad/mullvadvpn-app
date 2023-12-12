@@ -142,7 +142,6 @@ fun Login(
                     }
                 }
                 is LoginUiSideEffect.NavigateToConnect -> {
-                    Log.d("LoginScreen", "Navigate to connect!")
                     navigator.navigate(ConnectDestination) {
                         launchSingleTop = true
                         popUpTo(NavGraphs.root) { inclusive = true }
