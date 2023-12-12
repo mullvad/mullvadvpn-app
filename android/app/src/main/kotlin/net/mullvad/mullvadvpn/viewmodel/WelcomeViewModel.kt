@@ -2,11 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -48,7 +44,7 @@ class WelcomeViewModel(
 ) : ViewModel() {
     private val _uiSideEffect =
         MutableSharedFlow<UiSideEffect>(
-            extraBufferCapacity = 1,
+            replay = 1,
         )
     val uiSideEffect = _uiSideEffect.asSharedFlow()
 
@@ -80,29 +76,20 @@ class WelcomeViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), WelcomeUiState())
 
-    private lateinit var jobScope: CoroutineScope
-
-    fun start() {
-        jobScope = CoroutineScope(Job() + Dispatchers.IO)
-        jobScope.launch {
-            launch {
-                while (pollAccountExpiry) {
-                    updateAccountExpiry()
-                    delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
-                }
+    init {
+        viewModelScope.launch {
+            while (pollAccountExpiry) {
+                updateAccountExpiry()
+                delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
-            launch {
-                outOfTimeUseCase.isOutOfTime().first { it == false }
-                paymentUseCase.resetPurchaseResult()
-                _uiSideEffect.emit(UiSideEffect.OpenConnectScreen)
-            }
-            verifyPurchases()
-            fetchPaymentAvailability()
         }
-    }
-
-    fun stop() {
-        jobScope.cancel()
+        viewModelScope.launch {
+            outOfTimeUseCase.isOutOfTime().first { it == false }
+            paymentUseCase.resetPurchaseResult()
+            _uiSideEffect.emit(UiSideEffect.OpenConnectScreen)
+        }
+        verifyPurchases()
+        fetchPaymentAvailability()
     }
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =

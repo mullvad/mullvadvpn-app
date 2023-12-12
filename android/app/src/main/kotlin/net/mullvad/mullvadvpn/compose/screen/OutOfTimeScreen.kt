@@ -43,7 +43,6 @@ import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDest
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
-import net.mullvad.mullvadvpn.compose.util.WhileInView
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -147,7 +146,6 @@ fun OutOfTime(
             }
         }
     }
-    WhileInView(inView = vm::start, outOfView = vm::stop)
 
     OutOfTimeScreen(
         uiState = state,

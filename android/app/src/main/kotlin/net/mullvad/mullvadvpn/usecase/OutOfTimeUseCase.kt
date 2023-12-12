@@ -17,6 +17,7 @@ import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 
 const val accountRefreshInterval = 1000L * 60L // 1 minute
+const val bufferTime = 1000L * 60L // 1 minute
 
 class OutOfTimeUseCase(
     private val repository: AccountRepository,
@@ -64,7 +65,7 @@ class OutOfTimeUseCase(
             },
             timeFlow()
         ) { expiryDate, time ->
-            expiryDate?.isBefore(time)
+            expiryDate?.isBefore(time.plus(bufferTime))
         }
 
     private fun timeFlow() = flow {
