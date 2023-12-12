@@ -1,3 +1,11 @@
+# Workflow for triggering `test-manager` on select platforms.
+#
+# This is a rather complex workflow. The complexity mainly stems from these sources:
+# * figuring out which platforms to test on which runners (prepare-matrices)
+# * figuring out if the app and e2e-tests should be built on the runner (build-{linux,windows,macos})
+# or if we should download the artifacts from https://releases.mullvad.net/desktop/
+# * compiling the output from the different runners and executed platforms.
+---
 name: Desktop - End-to-end tests
 on:
   schedule:
@@ -16,6 +24,8 @@ jobs:
       - name: Generate matrix for Linux builds
         shell: bash
         run: |
+          # A list of VMs to run the tests on. These refer to the names defined
+          # in $XDG_CONFIG_DIR/mullvad-test/config.json on the runner.
           all='["debian11","debian12","ubuntu2004","ubuntu2204","ubuntu2304","ubuntu2310","fedora39","fedora38","fedora37","fedora36"]'
           oses="${{ github.event.inputs.oses }}"
           echo "OSES: $oses"
