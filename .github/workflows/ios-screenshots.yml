@@ -16,14 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Configure cache
-        uses: actions/cache@v3
-        with:
-          path: ios/${{ env.SOURCE_PACKAGES_PATH }}
-          key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
       - name: Setup go-lang
         uses: actions/setup-go@v3
         with:
@@ -55,7 +47,7 @@ jobs:
         working-directory: ios
 
       - name: Create screenshots
-        run: bundle exec fastlane snapshot
+        run: bundle exec fastlane snapshot --cloned_source_packages_path "$SOURCE_PACKAGES_PATH"
         working-directory: ios
 
       - name: Upload screenshot artifacts
