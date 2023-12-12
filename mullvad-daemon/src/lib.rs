@@ -2580,14 +2580,11 @@ impl DaemonShutdownHandle {
 }
 
 fn new_selector_config(settings: &Settings) -> SelectorConfig {
-    let default_tunnel_type = TunnelType::Wireguard;
-
     SelectorConfig {
         relay_settings: settings.relay_settings.clone(),
         bridge_state: settings.bridge_state,
         bridge_settings: settings.bridge_settings.clone(),
         obfuscation_settings: settings.obfuscation_settings.clone(),
-        default_tunnel_type,
         custom_lists: settings.custom_lists.clone(),
         relay_overrides: settings.relay_overrides.clone(),
     }
