@@ -108,12 +108,12 @@ private fun PreviewOutOfTimeScreenError() {
 @Composable
 fun OutOfTime(
     navigator: DestinationsNavigator,
-    resultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>,
+    redeemVoucherResultRecipient: ResultRecipient<RedeemVoucherDestination, Boolean>,
     playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
 ) {
     val vm = koinViewModel<OutOfTimeViewModel>()
     val state = vm.uiState.collectAsState().value
-    resultRecipient.onNavResult {
+    redeemVoucherResultRecipient.onNavResult {
         // If we successfully redeemed a voucher, navigate to Connect screen
         if (it is NavResult.Value && it.value) {
             navigator.navigate(ConnectDestination) {
@@ -133,7 +133,7 @@ fun OutOfTime(
     }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(Unit) {
         vm.uiSideEffect.collect { uiSideEffect ->
             when (uiSideEffect) {
                 is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
