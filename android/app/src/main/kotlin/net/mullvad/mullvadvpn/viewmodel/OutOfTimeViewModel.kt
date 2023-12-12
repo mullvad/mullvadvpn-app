@@ -2,10 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -43,7 +39,7 @@ class OutOfTimeViewModel(
     private val pollAccountExpiry: Boolean = true,
 ) : ViewModel() {
 
-    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
+    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(replay = 1)
     val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     val uiState =
@@ -71,17 +67,14 @@ class OutOfTimeViewModel(
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), OutOfTimeUiState())
 
-    private lateinit var jobScope: CoroutineScope
-
-    fun start() {
-        jobScope = CoroutineScope(Job() + Dispatchers.IO)
-        jobScope.launch {
+    init {
+        viewModelScope.launch {
             outOfTimeUseCase.isOutOfTime().first { it == false }
             paymentUseCase.resetPurchaseResult()
             _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
         }
 
-        jobScope.launch {
+        viewModelScope.launch {
             while (pollAccountExpiry) {
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
@@ -89,10 +82,6 @@ class OutOfTimeViewModel(
         }
         verifyPurchases()
         fetchPaymentAvailability()
-    }
-
-    fun stop() {
-        jobScope.cancel()
     }
 
     private fun ConnectionProxy.tunnelStateFlow(): Flow<TunnelState> =

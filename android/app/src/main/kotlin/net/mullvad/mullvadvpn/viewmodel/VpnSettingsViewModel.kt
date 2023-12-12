@@ -203,7 +203,7 @@ class VpnSettingsViewModel(
     fun resetCustomPort() {
         customPort.update { null }
         // If custom port was selected, update selection to be any.
-        if(vmState.value.selectedWireguardPort.isCustom()) {
+        if (vmState.value.selectedWireguardPort.isCustom()) {
             relayListUseCase.updateSelectedWireguardConstraints(
                 WireguardConstraints(port = Constraint.Any())
             )

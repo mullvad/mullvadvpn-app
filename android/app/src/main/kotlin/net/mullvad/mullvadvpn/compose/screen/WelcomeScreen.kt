@@ -51,7 +51,6 @@ import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDest
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
-import net.mullvad.mullvadvpn.compose.util.WhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
@@ -143,8 +142,6 @@ fun Welcome(
             }
         }
     }
-
-    WhileInView(inView = vm::start, outOfView = vm::stop)
 
     WelcomeScreen(
         uiState = state,
