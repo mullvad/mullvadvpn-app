@@ -98,7 +98,7 @@ class NoDaemonViewModel(serviceConnectionManager: ServiceConnectionManager) :
     }
 
     companion object {
-        private val SERVICE_DISCONNECT_DEBOUNCE = 1.seconds
+        private val SERVICE_DISCONNECT_DEBOUNCE = 2.seconds
     }
 }
 
