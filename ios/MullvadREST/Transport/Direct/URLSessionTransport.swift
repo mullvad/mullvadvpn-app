@@ -1,6 +1,6 @@
 //
 //  URLSessionTransport.swift
-//  MullvadREST
+//  MullvadTransport
 //
 //  Created by Mojgan on 2023-12-08.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.

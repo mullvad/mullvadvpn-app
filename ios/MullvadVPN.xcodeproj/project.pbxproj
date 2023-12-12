@@ -489,6 +489,26 @@
 		A900E9BC2ACC609200C95F67 /* DevicesProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */; };
 		A900E9BE2ACC654100C95F67 /* APIProxy+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */; };
 		A900E9C02ACC661900C95F67 /* AccessTokenManager+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */; };
+		A90763B02B2857D50045ADF0 /* Socks5ConnectCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */; };
+		A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */; };
+		A90763B22B2857D50045ADF0 /* Socks5EndpointReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A22B2857D50045ADF0 /* Socks5EndpointReader.swift */; };
+		A90763B32B2857D50045ADF0 /* Socks5Authentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A32B2857D50045ADF0 /* Socks5Authentication.swift */; };
+		A90763B42B2857D50045ADF0 /* NWConnection+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A42B2857D50045ADF0 /* NWConnection+Extensions.swift */; };
+		A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A52B2857D50045ADF0 /* Socks5Constants.swift */; };
+		A90763B62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift */; };
+		A90763B72B2857D50045ADF0 /* Socks5DataStreamHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A72B2857D50045ADF0 /* Socks5DataStreamHandler.swift */; };
+		A90763B82B2857D50045ADF0 /* Socks5Command.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A82B2857D50045ADF0 /* Socks5Command.swift */; };
+		A90763B92B2857D50045ADF0 /* Socks5ForwardingProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A92B2857D50045ADF0 /* Socks5ForwardingProxy.swift */; };
+		A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AA2B2857D50045ADF0 /* Socks5Error.swift */; };
+		A90763BB2B2857D50045ADF0 /* Socks5AddressType.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AB2B2857D50045ADF0 /* Socks5AddressType.swift */; };
+		A90763BC2B2857D50045ADF0 /* Socks5StatusCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AC2B2857D50045ADF0 /* Socks5StatusCode.swift */; };
+		A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AD2B2857D50045ADF0 /* Socks5Connection.swift */; };
+		A90763BE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift */; };
+		A90763BF2B2857D50045ADF0 /* Socks5Handshake.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763AF2B2857D50045ADF0 /* Socks5Handshake.swift */; };
+		A90763C12B2858320045ADF0 /* URLSessionSocks5Transport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C02B2858310045ADF0 /* URLSessionSocks5Transport.swift */; };
+		A90763C32B2858630045ADF0 /* Socks5Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C22B2858630045ADF0 /* Socks5Configuration.swift */; };
+		A90763C52B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C42B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift */; };
+		A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C62B2858DC0045ADF0 /* CancellableChain.swift */; };
 		A91614D12B108D1B00F416EB /* TransportLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91614D02B108D1B00F416EB /* TransportLayer.swift */; };
 		A91614D42B108F5600F416EB /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		A91614D62B10B26B00F416EB /* TunnelControlViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91614D52B10B26B00F416EB /* TunnelControlViewModel.swift */; };
@@ -1518,6 +1538,26 @@
 		A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevicesProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "APIProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessTokenManager+Stubs.swift"; sourceTree = "<group>"; };
+		A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectCommand.swift; sourceTree = "<group>"; };
+		A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Endpoint.swift; sourceTree = "<group>"; };
+		A90763A22B2857D50045ADF0 /* Socks5EndpointReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5EndpointReader.swift; sourceTree = "<group>"; };
+		A90763A32B2857D50045ADF0 /* Socks5Authentication.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Authentication.swift; sourceTree = "<group>"; };
+		A90763A42B2857D50045ADF0 /* NWConnection+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NWConnection+Extensions.swift"; sourceTree = "<group>"; };
+		A90763A52B2857D50045ADF0 /* Socks5Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Constants.swift; sourceTree = "<group>"; };
+		A90763A62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectNegotiation.swift; sourceTree = "<group>"; };
+		A90763A72B2857D50045ADF0 /* Socks5DataStreamHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5DataStreamHandler.swift; sourceTree = "<group>"; };
+		A90763A82B2857D50045ADF0 /* Socks5Command.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Command.swift; sourceTree = "<group>"; };
+		A90763A92B2857D50045ADF0 /* Socks5ForwardingProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ForwardingProxy.swift; sourceTree = "<group>"; };
+		A90763AA2B2857D50045ADF0 /* Socks5Error.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Error.swift; sourceTree = "<group>"; };
+		A90763AB2B2857D50045ADF0 /* Socks5AddressType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5AddressType.swift; sourceTree = "<group>"; };
+		A90763AC2B2857D50045ADF0 /* Socks5StatusCode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5StatusCode.swift; sourceTree = "<group>"; };
+		A90763AD2B2857D50045ADF0 /* Socks5Connection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Connection.swift; sourceTree = "<group>"; };
+		A90763AE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5HandshakeNegotiation.swift; sourceTree = "<group>"; };
+		A90763AF2B2857D50045ADF0 /* Socks5Handshake.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Handshake.swift; sourceTree = "<group>"; };
+		A90763C02B2858310045ADF0 /* URLSessionSocks5Transport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionSocks5Transport.swift; sourceTree = "<group>"; };
+		A90763C22B2858630045ADF0 /* Socks5Configuration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Configuration.swift; sourceTree = "<group>"; };
+		A90763C42B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AnyIPEndpoint+Socks5.swift"; sourceTree = "<group>"; };
+		A90763C62B2858DC0045ADF0 /* CancellableChain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CancellableChain.swift; sourceTree = "<group>"; };
 		A91614D02B108D1B00F416EB /* TransportLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportLayer.swift; sourceTree = "<group>"; };
 		A91614D52B10B26B00F416EB /* TunnelControlViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlViewModel.swift; sourceTree = "<group>"; };
 		A917352029FAAA5200D5DCFD /* TransportStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportStrategyTests.swift; sourceTree = "<group>"; };
@@ -2868,6 +2908,33 @@
 			path = RelayFilter;
 			sourceTree = "<group>";
 		};
+		A907639F2B2857D50045ADF0 /* Socks5 */ = {
+			isa = PBXGroup;
+			children = (
+				A90763C42B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift */,
+				A90763C62B2858DC0045ADF0 /* CancellableChain.swift */,
+				A90763A42B2857D50045ADF0 /* NWConnection+Extensions.swift */,
+				A90763AB2B2857D50045ADF0 /* Socks5AddressType.swift */,
+				A90763A32B2857D50045ADF0 /* Socks5Authentication.swift */,
+				A90763A82B2857D50045ADF0 /* Socks5Command.swift */,
+				A90763C22B2858630045ADF0 /* Socks5Configuration.swift */,
+				A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */,
+				A90763AD2B2857D50045ADF0 /* Socks5Connection.swift */,
+				A90763A62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift */,
+				A90763A52B2857D50045ADF0 /* Socks5Constants.swift */,
+				A90763A72B2857D50045ADF0 /* Socks5DataStreamHandler.swift */,
+				A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */,
+				A90763A22B2857D50045ADF0 /* Socks5EndpointReader.swift */,
+				A90763AA2B2857D50045ADF0 /* Socks5Error.swift */,
+				A90763A92B2857D50045ADF0 /* Socks5ForwardingProxy.swift */,
+				A90763AF2B2857D50045ADF0 /* Socks5Handshake.swift */,
+				A90763AE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift */,
+				A90763AC2B2857D50045ADF0 /* Socks5StatusCode.swift */,
+				A90763C02B2858310045ADF0 /* URLSessionSocks5Transport.swift */,
+			);
+			path = Socks5;
+			sourceTree = "<group>";
+		};
 		F028A5472A336E1900C0CAA3 /* RedeemVoucher */ = {
 			isa = PBXGroup;
 			children = (
@@ -2939,6 +3006,7 @@
 				06FAE67D28F83CA50033DD93 /* RESTTransport.swift */,
 				58E7BA182A975DF70068EC3A /* RESTTransportProvider.swift */,
 				F0DC77A22B2314EF0087F09D /* Shadowsocks */,
+				A907639F2B2857D50045ADF0 /* Socks5 */,
 				F0DDE4112B220458006B57A7 /* TransportProvider.swift */,
 				A9A1DE782AD5708E0073F689 /* TransportStrategy.swift */,
 			);
@@ -3836,8 +3904,11 @@
 				F05F39982B21C73C006E60A7 /* CachedRelays.swift in Sources */,
 				F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */,
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
+				A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */,
+				A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */,
 				06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */,
 				06799AE228F98E4800ACD94E /* RESTRequestFactory.swift in Sources */,
+				A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */,
 				06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */,
 				58E7BA192A975DF70068EC3A /* RESTTransportProvider.swift in Sources */,
 				06799ADE28F98E4800ACD94E /* RESTRequestHandler.swift in Sources */,
@@ -3845,31 +3916,48 @@
 				06799AEF28F98E4800ACD94E /* RetryStrategy.swift in Sources */,
 				06799AE128F98E4800ACD94E /* SSLPinningURLSessionDelegate.swift in Sources */,
 				A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */,
+				A90763BF2B2857D50045ADF0 /* Socks5Handshake.swift in Sources */,
+				A90763C52B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift in Sources */,
 				F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */,
 				F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */,
 				06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */,
+				A90763BC2B2857D50045ADF0 /* Socks5StatusCode.swift in Sources */,
+				A90763B82B2857D50045ADF0 /* Socks5Command.swift in Sources */,
+				A90763BE2B2857D50045ADF0 /* Socks5HandshakeNegotiation.swift in Sources */,
+				A90763B02B2857D50045ADF0 /* Socks5ConnectCommand.swift in Sources */,
 				06799ADD28F98E4800ACD94E /* RESTError.swift in Sources */,
+				A90763B92B2857D50045ADF0 /* Socks5ForwardingProxy.swift in Sources */,
+				A90763B32B2857D50045ADF0 /* Socks5Authentication.swift in Sources */,
 				06799ADB28F98E4800ACD94E /* RESTProxyFactory.swift in Sources */,
 				F0DDE4182B220458006B57A7 /* ShadowsocksConfiguration.swift in Sources */,
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
+				A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				F0DDE4142B220458006B57A7 /* ShadowSocksProxy.swift in Sources */,
+				A90763B62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift in Sources */,
 				F06045E62B231EB700B2D37A /* URLSessionTransport.swift in Sources */,
 				06799AE628F98E4800ACD94E /* ServerRelaysResponse.swift in Sources */,
 				F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */,
 				F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */,
+				A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */,
 				06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */,
 				F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */,
 				589E76C02A9378F100E502F3 /* RESTRequestExecutor.swift in Sources */,
+				A90763C12B2858320045ADF0 /* URLSessionSocks5Transport.swift in Sources */,
 				06799AE528F98E4800ACD94E /* HTTP.swift in Sources */,
 				A9D99B9A2A1F7C3200DE27D3 /* RESTTransport.swift in Sources */,
+				A90763BB2B2857D50045ADF0 /* Socks5AddressType.swift in Sources */,
 				06799AE028F98E4800ACD94E /* RESTCoding.swift in Sources */,
+				A90763B72B2857D50045ADF0 /* Socks5DataStreamHandler.swift in Sources */,
+				A90763B22B2857D50045ADF0 /* Socks5EndpointReader.swift in Sources */,
+				A90763B42B2857D50045ADF0 /* NWConnection+Extensions.swift in Sources */,
 				F06045EA2B23217E00B2D37A /* ShadowsocksTransport.swift in Sources */,
 				06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */,
 				06799AF028F98E4800ACD94E /* REST.swift in Sources */,
 				06799ADF28F98E4800ACD94E /* RESTDevicesProxy.swift in Sources */,
 				06799ADA28F98E4800ACD94E /* RESTResponseHandler.swift in Sources */,
 				062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */,
+				A90763C32B2858630045ADF0 /* Socks5Configuration.swift in Sources */,
 				06799AE428F98E4800ACD94E /* RESTAccountsProxy.swift in Sources */,
 				5897F1742913EAF800AF5695 /* ExponentialBackoff.swift in Sources */,
 				06799AE328F98E4800ACD94E /* RESTNetworkOperation.swift in Sources */,
