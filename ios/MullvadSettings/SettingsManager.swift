@@ -25,7 +25,7 @@ public enum SettingsManager {
     )
 
     /// Alternative store used for tests.
-    internal static var unitTestStore: SettingsStore?
+    public static var unitTestStore: SettingsStore?
 
     public static var store: SettingsStore {
         if let unitTestStore { return unitTestStore }
@@ -155,6 +155,14 @@ public enum SettingsManager {
 
         do {
             try store.delete(key: .settings)
+        } catch {
+            if (error as? KeychainError) != .itemNotFound {
+                logger.error(error: error, message: "Failed to delete settings.")
+            }
+        }
+
+        do {
+            try store.delete(key: .apiAccessMethods)
         } catch {
             if (error as? KeychainError) != .itemNotFound {
                 logger.error(error: error, message: "Failed to delete settings.")
