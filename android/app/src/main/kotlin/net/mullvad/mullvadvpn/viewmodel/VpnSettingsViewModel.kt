@@ -202,9 +202,12 @@ class VpnSettingsViewModel(
 
     fun resetCustomPort() {
         customPort.update { null }
-        relayListUseCase.updateSelectedWireguardConstraints(
-            WireguardConstraints(port = Constraint.Any())
-        )
+        // If custom port was selected, update selection to be any.
+        if(vmState.value.selectedWireguardPort.isCustom()) {
+            relayListUseCase.updateSelectedWireguardConstraints(
+                WireguardConstraints(port = Constraint.Any())
+            )
+        }
     }
 
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
