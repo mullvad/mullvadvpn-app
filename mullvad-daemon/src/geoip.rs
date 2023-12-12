@@ -48,7 +48,7 @@ const LOCATION_RETRY_STRATEGY: Jittered<ExponentialBackoff> =
     Jittered::jitter(ExponentialBackoff::new(Duration::from_secs(1), 4));
 
 /// Handler for request to am.i.mullvad.net, manages in-flight request and validity of responses.
-pub struct GeoIpHandler {
+pub(crate) struct GeoIpHandler {
     /// Unique ID for each request. If the ID attached to the
     /// [`InternalDaemonEvent::LocationEvent`] used by [`crate::Daemon::handle_location_event`] to
     /// determine if the location belongs to the current tunnel state.
