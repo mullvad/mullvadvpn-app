@@ -301,7 +301,7 @@ pub async fn stop_app() -> Result<(), test_rpc::Error> {
 /// This function waits for the app to successfully start again.
 #[cfg(target_os = "macos")]
 pub async fn start_app() -> Result<(), test_rpc::Error> {
-    set_launch_daemon_state(false).await?;
+    set_launch_daemon_state(true).await?;
     tokio::time::sleep(std::time::Duration::from_millis(1000)).await;
     Ok(())
 }
