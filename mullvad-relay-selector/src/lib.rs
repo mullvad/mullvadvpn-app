@@ -1051,30 +1051,20 @@ impl RelaySelector {
         endpoint: &MullvadWireguardEndpoint,
         retry_attempt: u32,
     ) -> Option<SelectedObfuscator> {
-        if !self.should_use_auto_obfuscator(retry_attempt) {
-            return None;
-        }
-        // TODO FIX: The third obfuscator entry will never be chosen
-        // Because get_auto_obfuscator_retry_attempt() returns [0, 1]
-        // And the udp2tcp endpoints are defined in a vector with entries [0, 1, 2]
+        let obfuscation_attempt = Self::get_auto_obfuscator_retry_attempt(retry_attempt)?;
         self.get_udp2tcp_obfuscator(
             &obfuscation_settings.udp2tcp,
             relay,
             endpoint,
-            self.get_auto_obfuscator_retry_attempt(retry_attempt)
-                .unwrap(),
+            obfuscation_attempt,
         )
     }
 
-    fn should_use_auto_obfuscator(&self, retry_attempt: u32) -> bool {
-        self.get_auto_obfuscator_retry_attempt(retry_attempt)
-            .is_some()
-    }
-
-    fn get_auto_obfuscator_retry_attempt(&self, retry_attempt: u32) -> Option<u32> {
+    const fn get_auto_obfuscator_retry_attempt(retry_attempt: u32) -> Option<u32> {
         match retry_attempt % 4 {
             0 | 1 => None,
-            filtered_retry => Some(filtered_retry - 2),
+            // when the retry attempt is 2-3, 6-7, 10-11 ... obfuscation will be used
+            filtered_retry => Some(retry_attempt / 4 + filtered_retry - 2),
         }
     }
 
@@ -1145,17 +1135,10 @@ impl RelaySelector {
     pub const fn preferred_tunnel_constraints(
         retry_attempt: u32,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
-        // Try out WireGuard in the first two connection attempts, first with any port,
-        // afterwards on port 53. Afterwards, connect through OpenVPN alternating between UDP
-        // on any port twice and TCP on port 443 once.
+        // Use WireGuard on the first three attempts, then OpenVPN
         match retry_attempt {
-            0 => (
-                Constraint::Any,
-                TransportProtocol::Udp,
-                TunnelType::Wireguard,
-            ),
-            1 => (
-                Constraint::Only(53),
+            0..=2 => (
+                Self::preferred_wireguard_port(retry_attempt),
                 TransportProtocol::Udp,
                 TunnelType::Wireguard,
             ),
@@ -1168,12 +1151,11 @@ impl RelaySelector {
     }
 
     const fn preferred_wireguard_port(retry_attempt: u32) -> Constraint<u16> {
-        // This ensures that if after the first 2 failed attempts the daemon does not
-        // connect, then afterwards 2 of each 4 successive attempts will try to connect
-        // on port 53.
-        match retry_attempt % 4 {
-            0 | 1 => Constraint::Any,
-            _ => Constraint::Only(53),
+        // Alternate between using a random port and port 53
+        if retry_attempt % 2 == 0 {
+            Constraint::Any
+        } else {
+            Constraint::Only(53)
         }
     }
 
@@ -1886,23 +1868,20 @@ mod test {
             protocol: TransportProtocol::Udp,
             port: Constraint::Any,
         });
-        #[cfg(all(unix, not(target_os = "android")))]
-        {
-            let preferred = relay_selector.preferred_constraints(
-                &relay_constraints,
-                BridgeState::On,
-                0,
-                &CustomListsSettings::default(),
-            );
-            assert_eq!(
-                preferred.tunnel_protocol,
-                Constraint::Only(TunnelType::Wireguard)
-            );
-        }
         let preferred = relay_selector.preferred_constraints(
             &relay_constraints,
             BridgeState::On,
-            2,
+            0,
+            &CustomListsSettings::default(),
+        );
+        assert_eq!(
+            preferred.tunnel_protocol,
+            Constraint::Only(TunnelType::Wireguard)
+        );
+        let preferred = relay_selector.preferred_constraints(
+            &relay_constraints,
+            BridgeState::On,
+            3,
             &CustomListsSettings::default(),
         );
         assert_eq!(

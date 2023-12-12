@@ -46,7 +46,7 @@ const LOGOUT_TIMEOUT: Duration = Duration::from_secs(2);
 
 /// Validate the current device once for every `WG_DEVICE_CHECK_THRESHOLD` attempt to set up
 /// a WireGuard tunnel.
-const WG_DEVICE_CHECK_THRESHOLD: usize = 2;
+const WG_DEVICE_CHECK_THRESHOLD: usize = 3;
 
 #[derive(err_derive::Error, Debug, Clone)]
 pub enum Error {

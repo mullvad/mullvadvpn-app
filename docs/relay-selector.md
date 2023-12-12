@@ -49,9 +49,13 @@ Endpoints may be filtered by:
 Whilst all user selected constraints are always honored, when the user hasn't selected any specific
 constraints, following default ones will take effect:
 
-- If no tunnel protocol is specified, the first two connection attempts will use WireGuard, over a
-  random port at first and then port 53. From the third attempt onwards, OpenVPN will be used,
-  alternating between UDP on any port and TCP on port 443.
+- If no tunnel protocol is specified, the first three connection attempts will use WireGuard. All
+  remaining attempts will use OpenVPN. If no specific constraints are set:
+  - The first two attempts will connect to a Wireguard server, first on a random port, and then port
+    53.
+  - The third attempt will connect to a Wireguard server on port 80 with _udp2tcp_.
+  - Remaining attempts will connect to OpenVPN servers, first over UDP on two random ports, and then
+    over TCP on port 443. Remaining attempts alternate between TCP and UDP on random ports.
 
 - If the tunnel protocol is specified as WireGuard and obfuscation mode is set to _Auto_:
   - First two attempts will be used without _udp2tcp_, using a random port on first attempt, and
@@ -63,8 +67,8 @@ constraints, following default ones will take effect:
   _udp2tcp_ all of the time.
 
   If obfuscation is turned _off_, WireGuard connections will first alternate between using
-  a random port and port 53, with 2 attempts each, e.g. first attempt using port 22151, second
-  26107, third attempt and fourth attempt using port 53, and then back to random ports.
+  a random port and port 53, e.g. first attempt using port 22151, second 53, third
+  26107, fourth attempt using port 53, and so on.
 
   If the user has specified a specific port for either _udp2tcp_ or WireGuard, it will override the
   port selection, but it will not change the connection type described above (WireGuard or WireGuard
