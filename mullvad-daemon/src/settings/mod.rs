@@ -70,22 +70,10 @@ impl SettingsPersister {
     /// Loads user settings from file. If it fails, it returns the defaults.
     pub async fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
-        let (mut settings, mut should_save) = match Self::load_from_file(&path).await {
-            Ok(value) => value,
-            Err(error) => {
-                log::warn!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
-                );
-                let mut settings = Self::default_settings();
-
-                // Protect the user by blocking the internet by default. Previous settings may
-                // not have caused the daemon to enter the non-blocking disconnected state.
-                settings.block_when_disconnected = true;
-
-                (settings, true)
-            }
-        };
+        let LoadSettingsResult {
+            mut settings,
+            mut should_save,
+        } = Self::load_inner(|| Self::load_from_file(&path)).await;
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
@@ -115,31 +103,61 @@ impl SettingsPersister {
         persister
     }
 
-    pub fn register_change_listener(&mut self, change_listener: impl Fn(&Settings) + 'static) {
-        self.on_change_listeners.push(Box::new(change_listener));
-    }
+    /// Loads user settings, returning default settings if it should fail.
+    ///
+    /// `load_settings` allows the caller to decide how to load [`Settings`]
+    /// from an bitrary resource.
+    ///
+    /// `load_inner` will always succeed, even in the presence of IO operations.
+    /// Errors are handled gracefully by returning the default [`Settings`] if
+    /// necessary.
+    async fn load_inner<F, R>(load_settings: F) -> LoadSettingsResult
+    where
+        F: FnOnce() -> R,
+        R: std::future::Future<Output = Result<Settings, Error>>,
+    {
+        match load_settings().await {
+            Ok(settings) => LoadSettingsResult {
+                settings,
+                should_save: false,
+            },
+            Err(Error::ReadError(_, err)) if err.kind() == io::ErrorKind::NotFound => {
+                log::info!("No settings were found. Using defaults.");
+                LoadSettingsResult {
+                    settings: Self::default_settings(),
+                    should_save: true,
+                }
+            }
+            Err(error) => {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
+                );
+                let mut settings = Self::default_settings();
 
-    fn notify_listeners(&self) {
-        for listener in &self.on_change_listeners {
-            listener(&self.settings);
+                // Protect the user by blocking the internet by default. Previous settings may
+                // not have caused the daemon to enter the non-blocking disconnected state.
+                settings.block_when_disconnected = true;
+
+                LoadSettingsResult {
+                    settings,
+                    should_save: true,
+                }
+            }
         }
     }
 
-    async fn load_from_file(path: &Path) -> Result<(Settings, bool), Error> {
-        log::info!("Loading settings from {}", path.display());
-
-        let settings_bytes = match fs::read(path).await {
-            Ok(bytes) => bytes,
-            Err(error) => {
-                if error.kind() == io::ErrorKind::NotFound {
-                    log::info!("No settings were found. Using defaults.");
-                    return Ok((Self::default_settings(), true));
-                } else {
-                    return Err(Error::ReadError(path.display().to_string(), error));
-                }
-            }
-        };
-        Ok((Self::load_from_bytes(&settings_bytes)?, false))
+    async fn load_from_file<P>(path: P) -> Result<Settings, Error>
+    where
+        P: AsRef<Path> + Clone,
+    {
+        let display = path.clone();
+        log::info!("Loading settings from {}", display.as_ref().display());
+        let settings_bytes = fs::read(path)
+            .await
+            .map_err(|error| Error::ReadError(display.as_ref().display().to_string(), error))?;
+        let settings = Self::load_from_bytes(&settings_bytes)?;
+        Ok(settings)
     }
 
     fn load_from_bytes(bytes: &[u8]) -> Result<Settings, Error> {
@@ -237,6 +255,21 @@ impl SettingsPersister {
             settings: &self.settings,
         }
     }
+
+    pub fn register_change_listener(&mut self, change_listener: impl Fn(&Settings) + 'static) {
+        self.on_change_listeners.push(Box::new(change_listener));
+    }
+
+    fn notify_listeners(&self) {
+        for listener in &self.on_change_listeners {
+            listener(&self.settings);
+        }
+    }
+}
+
+struct LoadSettingsResult {
+    settings: Settings,
+    should_save: bool,
 }
 
 impl Deref for SettingsPersister {
@@ -374,7 +407,7 @@ impl<'a> SettingsSummary<'a> {
 
 #[cfg(test)]
 mod test {
-    use super::SettingsPersister;
+    use super::*;
     use mullvad_types::settings::SettingsVersion;
     use serde_json;
 
@@ -457,5 +490,66 @@ mod test {
         }"#;
 
         let _ = SettingsPersister::load_from_bytes(settings).unwrap();
+    }
+
+    /// The [`SettingsPersister`] should always succeed when deserializing a
+    /// [`Settings`] object from disk. However, there is a distinction between
+    /// different error cases.
+    ///
+    /// If the settings file is missing, it could be because the user starts the
+    /// app for the first time. As such, we should simply save the default
+    /// [`Settings`] to disk.
+    #[tokio::test]
+    async fn test_deserialize_missing_settings() {
+        let LoadSettingsResult {
+            should_save,
+            settings,
+        } = SettingsPersister::load_inner(|| async {
+            Err(Error::ReadError(
+                "Settings are missing".to_string(),
+                io::ErrorKind::NotFound.into(),
+            ))
+        })
+        .await;
+
+        assert!(
+            should_save,
+            "Settings should be saved to disk if they didn't exist previously"
+        );
+
+        assert!(
+            settings.block_when_disconnected == false,
+            "The daemon should not block the internet if settings are missing"
+        );
+    }
+
+    /// The [`SettingsPersister`] should always succeed when deserializing a
+    /// [`Settings`] object from disk. However, there is a distinction between
+    /// different error cases.
+    ///
+    /// If the settings file is corrupt, we can assume that the user has started
+    /// the app previously, but we can't know what settings the user have
+    /// changed. In this case, we should safeguard against leaks by locking down
+    /// the network before the user initiates a connection attempt or change
+    /// these settings.
+    #[tokio::test]
+    async fn test_deserialize_invalid_settings() {
+        let LoadSettingsResult {
+            should_save,
+            settings,
+        } = SettingsPersister::load_inner(|| async {
+            SettingsPersister::load_from_bytes(b"Not a valid settings file")
+        })
+        .await;
+
+        assert!(
+            should_save,
+            "Settings should be saved to disk if they have become corrupt"
+        );
+
+        assert!(
+            settings.block_when_disconnected,
+            "The daemon should block the internet if settings are corrupt"
+        );
     }
 }
