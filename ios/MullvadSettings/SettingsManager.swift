@@ -161,6 +161,14 @@ public enum SettingsManager {
             }
         }
 
+        do {
+            try store.delete(key: .apiAccessMethods)
+        } catch {
+            if (error as? KeychainError) != .itemNotFound {
+                logger.error(error: error, message: "Failed to delete settings.")
+            }
+        }
+
         if completely {
             do {
                 try store.delete(key: .lastUsedAccount)
