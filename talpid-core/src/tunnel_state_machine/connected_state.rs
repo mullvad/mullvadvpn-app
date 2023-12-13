@@ -131,7 +131,10 @@ impl ConnectedState {
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
         let peer_endpoint = self.tunnel_parameters.get_next_hop_endpoint();
-        let allow_all_traffic_to_peer = self.tunnel_parameters.get_openvpn_local_proxy_settings().is_some();
+        let allow_all_traffic_to_peer = self
+            .tunnel_parameters
+            .get_openvpn_local_proxy_settings()
+            .is_some();
 
         FirewallPolicy::Connected {
             peer_endpoint,

@@ -104,16 +104,21 @@ impl TunnelMonitor {
 
     /// Returns a path to an executable that communicates with relay servers.
     #[cfg(windows)]
-    pub fn get_relay_client(resource_dir: &path::Path, params: &TunnelParameters) -> Option<path::PathBuf> {
+    pub fn get_relay_client(
+        resource_dir: &path::Path,
+        params: &TunnelParameters,
+    ) -> Option<path::PathBuf> {
         let resource_dir = resource_dir.to_path_buf();
         match params {
-            TunnelParameters::OpenVpn(params) => {
-                match &params.proxy {
-                    Some(openvpn_types::ProxySettings::Shadowsocks(_)) => Some(std::env::current_exe().unwrap()),
-                    Some(openvpn_types::ProxySettings::Local(_)) => None,
-                    Some(openvpn_types::ProxySettings::Remote(_)) | None => Some(resource_dir.join("openvpn.exe")),
+            TunnelParameters::OpenVpn(params) => match &params.proxy {
+                Some(openvpn_types::ProxySettings::Shadowsocks(_)) => {
+                    Some(std::env::current_exe().unwrap())
                 }
-            }
+                Some(openvpn_types::ProxySettings::Local(_)) => None,
+                Some(openvpn_types::ProxySettings::Remote(_)) | None => {
+                    Some(resource_dir.join("openvpn.exe"))
+                }
+            },
             _ => Some(std::env::current_exe().unwrap()),
         }
     }
