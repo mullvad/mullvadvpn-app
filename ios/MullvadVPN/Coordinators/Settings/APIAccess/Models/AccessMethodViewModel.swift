@@ -34,7 +34,7 @@ struct AccessMethodViewModel: Identifiable {
         /// Server password.
         var password = ""
         /// Shadowsocks cipher.
-        var cipher = ShadowsocksCipher.default
+        var cipher = ShadowsocksCipherOptions.default
     }
 
     /// Access method testing status view model.

@@ -71,7 +71,7 @@ extension PersistentProxyConfiguration {
         var password: String
 
         /// Server cipher.
-        var cipher: ShadowsocksCipher
+        var cipher: ShadowsocksCipherOptions
     }
 }
 

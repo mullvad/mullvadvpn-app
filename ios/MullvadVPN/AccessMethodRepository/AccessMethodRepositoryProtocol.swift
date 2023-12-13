@@ -17,7 +17,7 @@ protocol AccessMethodRepositoryProtocol {
     /// - Parameter method: persistent access method model.
     func add(_ method: PersistentAccessMethod)
 
-    /// Persist modified access method locating existing entry by id.
+    /// Update access method locating existing entry by id.
     /// - Parameter method: persistent access method model.
     func update(_ method: PersistentAccessMethod)
 
@@ -30,7 +30,7 @@ protocol AccessMethodRepositoryProtocol {
     /// - Returns: a persistent access method model upon success, otherwise `nil`.
     func fetch(by id: UUID) -> PersistentAccessMethod?
 
-    /// Fetch all access method from the persistent store.
+    /// Fetch all access methods from the persistent store.
     /// - Returns: an array of all persistent access method.
     func fetchAll() -> [PersistentAccessMethod]
 }

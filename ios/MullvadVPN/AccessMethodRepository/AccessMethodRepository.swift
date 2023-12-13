@@ -52,7 +52,7 @@ class AccessMethodRepository: AccessMethodRepositoryProtocol {
     func delete(id: UUID) {
         guard let index = memoryStore.firstIndex(where: { $0.id == id }) else { return }
 
-        // Prevent removing methods that have static UUIDs and always present.
+        // Prevent removing methods that have static UUIDs and are always present.
         let permanentMethod = memoryStore[index]
         if !permanentMethod.kind.isPermanent {
             memoryStore.remove(at: index)

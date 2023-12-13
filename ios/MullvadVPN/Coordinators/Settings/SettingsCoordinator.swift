@@ -66,7 +66,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         self.interactorFactory = interactorFactory
     }
 
-    /// Start the coordinator fllow.
+    /// Start the coordinator flow.
     /// - Parameter initialRoute: the initial route to display.
     func start(initialRoute: SettingsNavigationRoute? = nil) {
         navigationController.navigationBar.prefersLargeTitles = true

@@ -17,7 +17,7 @@ struct ShadowsocksCipherPicker {
     /// - Parameters:
     ///   - currentValue: current selection.
     ///   - completion: a completion handler.
-    func present(currentValue: ShadowsocksCipher, completion: @escaping (ShadowsocksCipher) -> Void) {
+    func present(currentValue: ShadowsocksCipherOptions, completion: @escaping (ShadowsocksCipherOptions) -> Void) {
         let navigationController = navigationController
 
         let dataSource = ShadowsocksCipherPickerDataSource()
@@ -42,13 +42,13 @@ struct ShadowsocksCipherPicker {
 /// Type implementing the data source for the shadowsocks cipher picker.
 struct ShadowsocksCipherPickerDataSource: ListItemDataSourceProtocol {
     struct Item: ListItemDataSourceItem {
-        let cipher: ShadowsocksCipher
+        let cipher: ShadowsocksCipherOptions
 
-        var id: ShadowsocksCipher { cipher }
+        var id: ShadowsocksCipherOptions { cipher }
         var text: String { "\(cipher)" }
     }
 
-    let items = ShadowsocksCipher.supportedCiphers.map { Item(cipher: $0) }
+    let items = ShadowsocksCipherOptions.all.map { Item(cipher: $0) }
 
     var itemCount: Int {
         items.count
@@ -58,7 +58,7 @@ struct ShadowsocksCipherPickerDataSource: ListItemDataSourceProtocol {
         items[indexPath.row]
     }
 
-    func indexPath(for itemID: ShadowsocksCipher) -> IndexPath? {
+    func indexPath(for itemID: ShadowsocksCipherOptions) -> IndexPath? {
         guard let index = items.firstIndex(where: { $0.id == itemID }) else { return nil }
 
         return IndexPath(row: index, section: 0)
