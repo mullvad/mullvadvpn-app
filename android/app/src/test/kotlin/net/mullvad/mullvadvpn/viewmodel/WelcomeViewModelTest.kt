@@ -58,7 +58,7 @@ class WelcomeViewModelTest {
     private val mockConnectionProxy: ConnectionProxy = mockk()
 
     // Event notifiers
-    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected)
+    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected())
 
     private val mockAccountRepository: AccountRepository = mockk(relaxed = true)
     private val mockDeviceRepository: DeviceRepository = mockk()
