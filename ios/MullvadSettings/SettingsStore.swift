@@ -11,6 +11,7 @@ import Foundation
 public enum SettingsKey: String, CaseIterable {
     case settings = "Settings"
     case deviceState = "DeviceState"
+    case apiAccessMethods = "ApiAccessMethods"
     case lastUsedAccount = "LastUsedAccount"
     case shouldWipeSettings = "ShouldWipeSettings"
 }

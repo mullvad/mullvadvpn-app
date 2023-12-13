@@ -140,41 +140,19 @@ public enum SettingsManager {
         try store.write(data, for: .deviceState)
     }
 
-    /// Removes all legacy settings, device state and tunnel settings but keeps the last used
-    /// account number stored.
+    /// Removes all legacy settings, device state, tunnel settings and API access methods but keeps
+    /// the last used account number stored.
     public static func resetStore(completely: Bool = false) {
         logger.debug("Reset store.")
 
-        do {
-            try store.delete(key: .deviceState)
-        } catch {
-            if (error as? KeychainError) != .itemNotFound {
-                logger.error(error: error, message: "Failed to delete device state.")
-            }
-        }
+        let keys = completely ? SettingsKey.allCases : [.settings, .deviceState, .apiAccessMethods]
 
-        do {
-            try store.delete(key: .settings)
-        } catch {
-            if (error as? KeychainError) != .itemNotFound {
-                logger.error(error: error, message: "Failed to delete settings.")
-            }
-        }
-
-        if completely {
+        keys.forEach { key in
             do {
-                try store.delete(key: .lastUsedAccount)
+                try store.delete(key: key)
             } catch {
                 if (error as? KeychainError) != .itemNotFound {
-                    logger.error(error: error, message: "Failed to delete last used account.")
-                }
-            }
-
-            do {
-                try store.delete(key: .shouldWipeSettings)
-            } catch {
-                if (error as? KeychainError) != .itemNotFound {
-                    logger.error(error: error, message: "Failed to delete should wipe settings.")
+                    logger.error(error: error, message: "Failed to delete \(key.rawValue).")
                 }
             }
         }
