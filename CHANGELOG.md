@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix issue with the app under some circumstances trying to connect to OpenVPN relays.
 
+
 ## [2023.6] - 2023-12-06
 ### Changed
 - Update OpenVPN to 2.6.8 from 2.6.0.
