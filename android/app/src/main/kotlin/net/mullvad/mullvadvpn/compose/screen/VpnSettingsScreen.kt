@@ -23,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -75,6 +76,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
+import net.mullvad.mullvadvpn.lib.common.util.vpnSettingsAvailable
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.Constraint
@@ -122,135 +124,13 @@ private fun PreviewVpnSettings() {
     }
 }
 
-@Destination(style = SlideInFromRightTransition::class)
-@Composable
-fun VpnSettings(
-    navigator: DestinationsNavigator,
-    dnsDialogResult: ResultRecipient<DnsDialogDestination, Boolean>,
-    customWgPortResult: ResultRecipient<WireguardCustomPortDialogDestination, Int?>
-) {
-    val vm = koinViewModel<VpnSettingsViewModel>()
-    val state = vm.uiState.collectAsState().value
-
-    dnsDialogResult.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {
-                vm.onDnsDialogDismissed()
-            }
-            is NavResult.Value -> {}
-        }
-    }
-
-    customWgPortResult.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> {
-                val port = it.value
-
-                if (port != null) {
-                    vm.onWireguardPortSelected(Constraint.Only(Port(port)))
-                } else {
-                    vm.resetCustomPort()
-                }
-            }
-        }
-    }
-
-    val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(Unit) {
-        vm.uiSideEffect.collect {
-            when (it) {
-                is VpnSettingsSideEffect.ShowToast ->
-                    launch {
-                        snackbarHostState.currentSnackbarData?.dismiss()
-                        snackbarHostState.showSnackbar(message = it.message)
-                    }
-                VpnSettingsSideEffect.NavigateToDnsDialog ->
-                    navigator.navigate(DnsDialogDestination(null, null)) { launchSingleTop = true }
-            }
-        }
-    }
-
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                vm.onStopEvent()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
-    VpnSettingsScreen(
-        uiState = state,
-        snackbarHostState = snackbarHostState,
-        navigateToContentBlockersInfo = {
-            navigator.navigate(ContentBlockersInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToCustomDnsInfo = {
-            navigator.navigate(CustomDnsInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToMalwareInfo = {
-            navigator.navigate(MalwareInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToObfuscationInfo = {
-            navigator.navigate(ObfuscationInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToQuantumResistanceInfo = {
-            navigator.navigate(QuantumResistanceInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateUdp2TcpInfo = {
-            navigator.navigate(UdpOverTcpPortInfoDialogDestination) { launchSingleTop = true }
-        },
-        navigateToWireguardPortInfo = {
-            navigator.navigate(
-                WireguardPortInfoDialogDestination(WireguardPortInfoDialogArgument(it))
-            ) {
-                launchSingleTop = true
-            }
-        },
-        navigateToLocalNetworkSharingInfo = {
-            navigator.navigate(LocalNetworkSharingInfoDialogDestination) { launchSingleTop = true }
-        },
-        onToggleBlockTrackers = vm::onToggleBlockTrackers,
-        onToggleBlockAds = vm::onToggleBlockAds,
-        onToggleBlockMalware = vm::onToggleBlockMalware,
-        onToggleAutoConnect = vm::onToggleAutoConnect,
-        onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
-        onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
-        onToggleBlockGambling = vm::onToggleBlockGambling,
-        onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
-        navigateToMtuDialog = {
-            navigator.navigate(MtuDialogDestination(it)) { launchSingleTop = true }
-        },
-        navigateToDns = { index, address ->
-            navigator.navigate(DnsDialogDestination(index, address)) { launchSingleTop = true }
-        },
-        navigateToWireguardPortDialog = {
-            val args =
-                WireguardCustomPortNavArgs(
-                    state.customWireguardPort?.toValueOrNull(),
-                    state.availablePortRanges
-                )
-            navigator.navigate(WireguardCustomPortDialogDestination(args)) {
-                launchSingleTop = true
-            }
-        },
-        onToggleDnsClick = vm::onToggleCustomDns,
-        onBackClick = navigator::navigateUp,
-        onSelectObfuscationSetting = vm::onSelectObfuscationSetting,
-        onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
-        onWireguardPortSelected = vm::onWireguardPortSelected,
-    )
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VpnSettingsScreen(
     uiState: VpnSettingsUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     navigateToContentBlockersInfo: () -> Unit = {},
+    onAutoConnectClick: () -> Unit = {},
     navigateToCustomDnsInfo: () -> Unit = {},
     navigateToMalwareInfo: () -> Unit = {},
     navigateToObfuscationInfo: () -> Unit = {},
@@ -284,10 +164,25 @@ fun VpnSettingsScreen(
         navigationIcon = { NavigateBackIconButton(onBackClick) },
         snackbarHostState = snackbarHostState
     ) { modifier, lazyListState ->
+        val context = LocalContext.current
         LazyColumn(
             modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
+            if (context.vpnSettingsAvailable()) {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    NavigationComposeCell(
+                        title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
+                        onClick = { onAutoConnectClick() },
+                    )
+                }
+                item {
+                    SwitchComposeSubtitleCell(
+                        text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
+                    )
+                }
+            }
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 HeaderSwitchComposeCell(
