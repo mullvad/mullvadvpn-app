@@ -764,6 +764,8 @@ mod event_server {
         transport::{server::Connected, Server},
         Request, Response,
     };
+    #[cfg(target_os = "macos")]
+    use talpid_types::ErrorExt;
 
     #[allow(clippy::derive_partial_eq_without_eq)]
     mod proto {

@@ -126,7 +126,7 @@ pub enum FirewallPolicy {
         /// Networks for which to permit in-tunnel traffic.
         allowed_tunnel_traffic: AllowedTunnelTraffic,
         /// TODO
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
         allow_all_traffic_to_peer: bool,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
@@ -142,7 +142,7 @@ pub enum FirewallPolicy {
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
         /// TODO
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
         allow_all_traffic_to_peer: bool,
         /// Servers that are allowed to respond to DNS requests.
         #[cfg(not(target_os = "android"))]
