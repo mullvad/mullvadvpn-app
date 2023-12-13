@@ -1,5 +1,5 @@
 ---
-name: iOS screenshots
+name: iOS create screenshots
 on:
   push:
     tags:
