@@ -530,13 +530,10 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
-                custom_remote_endpoint,
+                allow_all_traffic_to_peer,
             } => {
-                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark, *allow_all_traffic_to_peer);
                 self.add_allow_endpoint_rules(allowed_endpoint);
-                if let Some(custom_remote_endpoint) = &custom_remote_endpoint {
-                    self.add_custom_remote_endpoint(&custom_remote_endpoint);
-                }
 
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
@@ -567,14 +564,12 @@ impl<'a> PolicyBatch<'a> {
                 tunnel,
                 allow_lan,
                 dns_servers,
-                custom_remote_endpoint,
+                allow_all_traffic_to_peer
             } => {
-                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark, *allow_all_traffic_to_peer);
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Tcp)?;
-                if let Some(custom_remote_endpoint) = &custom_remote_endpoint {
-                    self.add_custom_remote_endpoint(&custom_remote_endpoint);
-                }
+
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 self.add_drop_dns_rule();
@@ -615,7 +610,7 @@ impl<'a> PolicyBatch<'a> {
         Ok(())
     }
 
-    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint, fwmark: u32) {
+    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint, fwmark: u32, allow_all_traffic_to_peer: bool) {
         let mut prerouting_rule = Rule::new(&self.prerouting_chain);
         // Mark incoming traffic from endpoint with fwmark
         check_endpoint(&mut prerouting_rule, End::Src, endpoint);
@@ -651,6 +646,18 @@ impl<'a> PolicyBatch<'a> {
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);
+
+        // Used for local custom bridge, allows some local socks5 proxy to send traffic to the
+        // endpoint
+        if allow_all_traffic_to_peer {
+            let mut rule = Rule::new(&self.mangle_chain);
+            check_endpoint(&mut rule, End::Dst, endpoint);
+            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(ct mark set));
+            rule.add_expr(&nft_expr!(immediate data fwmark));
+            rule.add_expr(&nft_expr!(meta mark set));
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
     }
 
     /// Adds firewall rules allow traffic to flow to the API. Allows the app to reach the API in
@@ -890,28 +897,6 @@ impl<'a> PolicyBatch<'a> {
             add_verdict(&mut in_v4, &Verdict::Accept);
             self.batch.add(&in_v4, nftnl::MsgType::Add);
         }
-    }
-
-    fn add_custom_remote_endpoint(&mut self, custom_remote_endpoint: &Endpoint) {
-        for chain in &[&self.out_chain, &self.forward_chain] {
-            let mut rule = Rule::new(chain);
-            check_endpoint(
-                &mut rule,
-                End::Dst,
-                custom_remote_endpoint,
-            );
-            add_verdict(&mut rule, &Verdict::Accept);
-            self.batch.add(&rule, nftnl::MsgType::Add);
-        }
-        
-        let mut rule = Rule::new(&self.in_chain);
-        check_endpoint(
-            &mut rule,
-            End::Src,
-            custom_remote_endpoint,
-        );
-        add_verdict(&mut rule, &Verdict::Accept);
-        self.batch.add(&rule, nftnl::MsgType::Add);
     }
 }
 
