@@ -4,7 +4,7 @@ use futures::channel::oneshot;
 use std::path;
 #[cfg(not(target_os = "android"))]
 use talpid_openvpn;
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
 pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]

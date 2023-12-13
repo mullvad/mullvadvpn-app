@@ -120,8 +120,9 @@ impl Firewall {
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
+                allow_all_traffic_to_peer,
             } => {
-                let mut rules = vec![self.get_allow_relay_rule(*peer_endpoint)?];
+                let mut rules = vec![self.get_allow_relay_rule(*peer_endpoint, *allow_all_traffic_to_peer)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -144,6 +145,7 @@ impl Firewall {
                 tunnel,
                 allow_lan,
                 dns_servers,
+                allow_all_traffic_to_peer
             } => {
                 let mut rules = vec![];
 
@@ -151,7 +153,7 @@ impl Firewall {
                     rules.append(&mut self.get_allow_dns_rules_when_connected(tunnel, *server)?);
                 }
 
-                rules.push(self.get_allow_relay_rule(*peer_endpoint)?);
+                rules.push(self.get_allow_relay_rule(*peer_endpoint, *allow_all_traffic_to_peer)?);
 
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
@@ -273,17 +275,24 @@ impl Firewall {
         Ok(rules)
     }
 
-    fn get_allow_relay_rule(&self, relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
+    fn get_allow_relay_rule(&self, relay_endpoint: net::Endpoint, allow_all_traffic_to_peer: bool) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
 
-        self.create_rule_builder(FilterRuleAction::Pass)
+        let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
+        builder
             .direction(pfctl::Direction::Out)
             .to(relay_endpoint.address)
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
-            .user(Uid::from(super::ROOT_UID))
-            .quick(true)
+            .quick(true);
+
+        if !allow_all_traffic_to_peer {
+            builder
+                .user(Uid::from(super::ROOT_UID));
+        }
+
+        builder
             .build()
     }
 
