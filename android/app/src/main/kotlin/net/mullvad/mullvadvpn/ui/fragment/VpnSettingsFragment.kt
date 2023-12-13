@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
+import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.VpnSettingsScreen
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -28,6 +29,7 @@ class VpnSettingsFragment : BaseFragment() {
                         uiState = state,
                         onMtuCellClick = vm::onMtuCellClick,
                         onSaveMtuClick = vm::onSaveMtuClick,
+                        onAutoConnectClick = { openAutoConnectAndLockdownModeFragment() },
                         onRestoreMtuClick = vm::onRestoreMtuClick,
                         onCancelMtuDialogClick = vm::onCancelDialogClick,
                         onToggleAutoConnect = vm::onToggleAutoConnect,
@@ -65,5 +67,23 @@ class VpnSettingsFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    private fun openFragment(fragment: Fragment) {
+        parentFragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, fragment)
+            addToBackStack(null)
+            commitAllowingStateLoss()
+        }
+    }
+
+    private fun openAutoConnectAndLockdownModeFragment() {
+        openFragment(AutoConnectAndLockdownModeFragment())
     }
 }

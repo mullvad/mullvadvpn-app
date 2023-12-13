@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
+import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
@@ -138,6 +139,7 @@ private fun PreviewVpnSettings() {
 fun VpnSettingsScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     uiState: VpnSettingsUiState,
+    onAutoConnectClick: () -> Unit = {},
     onMtuCellClick: () -> Unit = {},
     onSaveMtuClick: (Int) -> Unit = {},
     onRestoreMtuClick: () -> Unit = {},
@@ -272,6 +274,19 @@ fun VpnSettingsScreen(
             modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
+            item {
+                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                NavigationComposeCell(
+                    title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
+                    onClick = { onAutoConnectClick() },
+                )
+            }
+            item {
+                SwitchComposeSubtitleCell(
+                    text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
+                )
+            }
+
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 HeaderSwitchComposeCell(
