@@ -53,7 +53,7 @@ import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.destinations.AutoConnectAndLockdownModeScreenDestination
+import net.mullvad.mullvadvpn.compose.destinations.AutoConnectAndLockdownModeDestination
 import net.mullvad.mullvadvpn.compose.destinations.ContentBlockersInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.CustomDnsInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.DnsDialogDestination
@@ -193,9 +193,7 @@ fun VpnSettings(
             navigator.navigate(ContentBlockersInfoDialogDestination) { launchSingleTop = true }
         },
         navigateToAutoConnectScreen = {
-            navigator.navigate(AutoConnectAndLockdownModeScreenDestination) {
-                launchSingleTop = true
-            }
+            navigator.navigate(AutoConnectAndLockdownModeDestination) { launchSingleTop = true }
         },
         navigateToCustomDnsInfo = {
             navigator.navigate(CustomDnsInfoDialogDestination) { launchSingleTop = true }
