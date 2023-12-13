@@ -63,7 +63,7 @@ class OutOfTimeUseCaseTest {
         val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusDays(1))
         val tunnelStateChanges =
             listOf(
-                    TunnelState.Disconnected,
+                    TunnelState.Disconnected(),
                     TunnelState.Connected(mockk(), null),
                     TunnelState.Connecting(null, null),
                     TunnelState.Disconnecting(mockk()),

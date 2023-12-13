@@ -6,12 +6,11 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
-import io.mockk.slot
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
-import kotlin.test.assertTrue
+import kotlin.test.assertNull
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,7 +32,6 @@ import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
-import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
@@ -73,7 +71,6 @@ class ConnectViewModelTest {
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
-    private val mockLocationInfoCache: LocationInfoCache = mockk(relaxUnitFun = true)
     private lateinit var mockAppVersionInfoCache: AppVersionInfoCache
     private val mockConnectionProxy: ConnectionProxy = mockk()
     private val mockLocation: GeoIpLocation = mockk(relaxed = true)
@@ -93,12 +90,10 @@ class ConnectViewModelTest {
     // Payment use case
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
-    // Captures
-    private val locationSlot = slot<((GeoIpLocation?) -> Unit)>()
-
     // Event notifiers
-    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected)
-    private val eventNotifierTunnelRealState = EventNotifier<TunnelState>(TunnelState.Disconnected)
+    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected())
+    private val eventNotifierTunnelRealState =
+        EventNotifier<TunnelState>(TunnelState.Disconnected())
 
     // Flows
     private val selectedRelayFlow = MutableStateFlow<RelayItem?>(null)
@@ -118,7 +113,6 @@ class ConnectViewModelTest {
             }
 
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
-        every { mockServiceConnectionContainer.locationInfoCache } returns mockLocationInfoCache
         every { mockServiceConnectionContainer.appVersionInfoCache } returns mockAppVersionInfoCache
         every { mockServiceConnectionContainer.connectionProxy } returns mockConnectionProxy
 
@@ -134,7 +128,6 @@ class ConnectViewModelTest {
         every { mockLocation.country } returns "dummy country"
 
         // Listeners
-        every { mockLocationInfoCache.onNewLocation = capture(locationSlot) } answers {}
         every { mockAppVersionInfoCache.onUpdate = any() } answers {}
 
         // Flows
@@ -166,29 +159,14 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun testTunnelInfoExpandedUpdate() =
-        runTest(testCoroutineRule.testDispatcher) {
-            viewModel.uiState.test {
-                assertEquals(ConnectUiState.INITIAL, awaitItem())
-                serviceConnectionState.value =
-                    ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockLocation)
-                viewModel.toggleTunnelInfoExpansion()
-                val result = awaitItem()
-                assertTrue(result.isTunnelInfoExpanded)
-            }
-        }
-
-    @Test
     fun testTunnelRealStateUpdate() =
         runTest(testCoroutineRule.testDispatcher) {
-            val tunnelRealStateTestItem = TunnelState.Connected(mockk(relaxed = true), mockk())
+            val tunnelRealStateTestItem = TunnelState.Connected(mockk(relaxed = true), null)
 
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockLocation)
                 eventNotifierTunnelRealState.notify(tunnelRealStateTestItem)
                 val result = awaitItem()
                 assertEquals(tunnelRealStateTestItem, result.tunnelRealState)
@@ -204,7 +182,6 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockLocation)
                 eventNotifierTunnelUiState.notify(tunnelUiStateTestItem)
                 val result = awaitItem()
                 assertEquals(tunnelUiStateTestItem, result.tunnelUiState)
@@ -222,7 +199,6 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockLocation)
                 val result = awaitItem()
                 assertEquals(relayTestItem, result.relayLocation)
             }
@@ -240,13 +216,19 @@ class ConnectViewModelTest {
                     hostname = "Host"
                 )
 
+            // Act, Assert
             viewModel.uiState.test {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
+                eventNotifierTunnelRealState.notify(TunnelState.Disconnected(null))
+
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(locationTestItem)
-                val result = awaitItem()
-                assertEquals(locationTestItem, result.location)
+                // Start of with no location
+                assertNull(awaitItem().location)
+
+                // After updated we show latest
+                eventNotifierTunnelRealState.notify(TunnelState.Disconnected(locationTestItem))
+                assertEquals(locationTestItem, awaitItem().location)
             }
         }
 
@@ -261,7 +243,6 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(locationTestItem)
                 expectNoEvents()
                 val result = awaitItem()
                 assertEquals(locationTestItem, result.location)
@@ -319,7 +300,6 @@ class ConnectViewModelTest {
                 assertEquals(ConnectUiState.INITIAL, awaitItem())
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockLocation)
                 eventNotifierTunnelUiState.notify(tunnelUiState)
                 val result = awaitItem()
                 assertEquals(expectedConnectNotificationState, result.inAppNotification)
@@ -355,7 +335,6 @@ class ConnectViewModelTest {
                 awaitItem()
                 serviceConnectionState.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
-                locationSlot.captured.invoke(mockLocation)
                 outOfTimeViewFlow.value = true
                 awaitItem()
             }
