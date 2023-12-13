@@ -9,6 +9,15 @@
 import UIKit
 
 extension UINavigationBar {
+    /// Locates the navigation bar prompt label within the view hirarchy and overrides the text color.
+    /// - Note: Navigation bar does not provide the appearance configuration for the prompt.
+    func overridePromptColor() {
+        let promptView = subviews.first { $0.description.contains("Prompt") }
+        let promptLabel = promptView?.subviews.first { $0 is UILabel } as? UILabel
+
+        promptLabel?.textColor = UIColor.NavigationBar.promptColor
+    }
+
     func configureCustomAppeareance() {
         var directionalMargins = directionalLayoutMargins
         directionalMargins.leading = UIMetrics.contentLayoutMargins.leading
