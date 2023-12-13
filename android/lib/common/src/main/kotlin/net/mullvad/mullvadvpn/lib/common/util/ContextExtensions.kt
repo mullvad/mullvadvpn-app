@@ -41,3 +41,11 @@ fun Context.openLink(uri: Uri) {
     val intent = Intent(Intent.ACTION_VIEW, uri)
     startActivity(intent)
 }
+
+fun Context.openVpnSettings() {
+    val intent = Intent("android.settings.VPN_SETTINGS")
+    startActivity(intent)
+}
+
+fun Context.vpnSettingsAvailable(): Boolean =
+    Intent("android.net.vpn.SETTINGS").resolveActivity(packageManager) != null
