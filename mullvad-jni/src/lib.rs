@@ -762,34 +762,6 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getWwwA
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getCurrentLocation<
-    'env,
->(
-    env: JNIEnv<'env>,
-    _: JObject<'_>,
-    daemon_interface_address: jlong,
-) -> JObject<'env> {
-    let env = JnixEnv::from(env);
-
-    // SAFETY: The address points to an instance valid for the duration of this function call
-    if let Some(daemon_interface) = unsafe { get_daemon_interface(daemon_interface_address) } {
-        match daemon_interface.get_current_location() {
-            Ok(location) => location.into_java(&env).forget(),
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to get current location")
-                );
-                JObject::null()
-            }
-        }
-    } else {
-        JObject::null()
-    }
-}
-
-#[no_mangle]
-#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getCurrentVersion<'env>(
     env: JNIEnv<'env>,
     _: JObject<'_>,
