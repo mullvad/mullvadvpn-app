@@ -46,7 +46,8 @@ public class URLSessionSocks5Transport: RESTTransport {
 
         socksProxy = Socks5ForwardingProxy(
             socksProxyEndpoint: configuration.proxyEndpoint.nwEndpoint,
-            remoteServerEndpoint: apiAddress.socksEndpoint
+            remoteServerEndpoint: apiAddress.socksEndpoint,
+            configuration: configuration
         )
 
         socksProxy.setErrorHandler { [weak self] error in

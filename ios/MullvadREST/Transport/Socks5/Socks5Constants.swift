@@ -10,4 +10,6 @@ import Foundation
 enum Socks5Constants {
     /// Socks version.
     static let socksVersion: UInt8 = 0x05
+
+    static let usernamePasswordAuthenticationProtocol: UInt8 = 0x01
 }

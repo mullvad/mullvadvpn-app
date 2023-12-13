@@ -12,7 +12,7 @@ import Network
 final class Socks5Connection {
     /// The remote endpoint to which the client wants to establish connection over the socks proxy.
     let remoteServerEndpoint: Socks5Endpoint
-
+    let configuration: Socks5Configuration
     /**
      Initializes a new connection passing data between local and remote TCP connection over the socks proxy.
 
@@ -26,12 +26,14 @@ final class Socks5Connection {
         queue: DispatchQueue,
         localConnection: NWConnection,
         socksProxyEndpoint: NWEndpoint,
-        remoteServerEndpoint: Socks5Endpoint
+        remoteServerEndpoint: Socks5Endpoint,
+        configuration: Socks5Configuration
     ) {
         self.queue = queue
         self.remoteServerEndpoint = remoteServerEndpoint
         self.localConnection = localConnection
         self.remoteConnection = NWConnection(to: socksProxyEndpoint, using: .tcp)
+        self.configuration = configuration
     }
 
     /**
@@ -173,7 +175,10 @@ final class Socks5Connection {
 
     /// Start handshake with the socks proxy.
     private func sendHandshake() {
-        let handshake = Socks5Handshake()
+        var handshake = Socks5Handshake()
+        if configuration.username != nil && configuration.password != nil {
+            handshake.methods.append(.usernamePassword)
+        }
         let negotiation = Socks5HandshakeNegotiation(
             connection: remoteConnection,
             handshake: handshake,
@@ -191,8 +196,18 @@ final class Socks5Connection {
             connect()
 
         case .usernamePassword:
-            // TODO: handle authentication
-            break
+            // Username + password authentication sends the data in plain text to the server
+            // And then continues like the `notRequired` case after the server has authenticated the client.
+            let authentication = Socks5Authentication(
+                connection: remoteConnection,
+                endpoint: remoteServerEndpoint,
+                configuration: configuration
+            )
+            authentication.authenticate(onComplete: { [self] in
+                connect()
+            }, onFailure: { [self] error in
+                handleError(error)
+            })
         }
     }
 
