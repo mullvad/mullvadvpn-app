@@ -11,7 +11,7 @@ on:
 jobs:
   check-formatting:
     name: Check formatting
-    runs-on: macos-13-xlarge
+    runs-on: macos-13
     steps:
       - name: Install SwiftFormat
         run: |
@@ -29,7 +29,7 @@ jobs:
 
   swiftlint:
     name: Run swiftlint
-    runs-on: macos-13-xlarge
+    runs-on: macos-13
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -96,13 +96,6 @@ jobs:
             -project MullvadVPN.xcodeproj \
             -scheme MullvadVPN \
             -testPlan MullvadVPNCI \
-            -destination "platform=iOS Simulator,name=iPhone 15" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            test 2>&1 | xcbeautify
-          set -o pipefail && env NSUnbufferedIO=YES xcodebuild \
-            -project MullvadVPN.xcodeproj \
-            -scheme MullvadVPN \
-            -testPlan MullvadVPNScreenshots \
             -destination "platform=iOS Simulator,name=iPhone 15" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             test 2>&1 | xcbeautify
