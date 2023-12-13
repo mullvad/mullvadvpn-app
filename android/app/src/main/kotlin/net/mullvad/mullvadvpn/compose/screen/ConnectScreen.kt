@@ -19,7 +19,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,7 +49,6 @@ import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
@@ -108,7 +109,6 @@ fun Connect(navigator: DestinationsNavigator) {
         onSwitchLocationClick = {
             navigator.navigate(SelectLocationDestination) { launchSingleTop = true }
         },
-        onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion,
         onUpdateVersionClick = {
             val intent =
                 Intent(
@@ -135,7 +135,6 @@ fun ConnectScreen(
     onConnectClick: () -> Unit = {},
     onCancelClick: () -> Unit = {},
     onSwitchLocationClick: () -> Unit = {},
-    onToggleTunnelInfo: () -> Unit = {},
     onUpdateVersionClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
@@ -230,19 +229,17 @@ fun ConnectScreen(
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.padding(horizontal = Dimens.sideMargin)
             )
+            var expanded by rememberSaveable { mutableStateOf(false) }
             LocationInfo(
-                onToggleTunnelInfo = onToggleTunnelInfo,
+                onToggleTunnelInfo = { expanded = !expanded },
                 isVisible =
-                    uiState.tunnelRealState != TunnelState.Disconnected &&
+                    uiState.tunnelRealState !is TunnelState.Disconnected &&
                         uiState.location?.hostname != null,
-                isExpanded = uiState.isTunnelInfoExpanded,
+                isExpanded = expanded,
                 location = uiState.location,
                 inAddress = uiState.inAddress,
                 outAddress = uiState.outAddress,
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(horizontal = Dimens.sideMargin)
-                        .testTag(LOCATION_INFO_TEST_TAG)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin)
             )
             Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
             SwitchLocationButton(

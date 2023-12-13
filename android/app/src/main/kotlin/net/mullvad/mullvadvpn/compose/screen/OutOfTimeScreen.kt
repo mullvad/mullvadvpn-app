@@ -62,7 +62,7 @@ private fun PreviewOutOfTimeScreenDisconnected() {
         OutOfTimeScreen(
             uiState =
                 OutOfTimeUiState(
-                    tunnelState = TunnelState.Disconnected,
+                    tunnelState = TunnelState.Disconnected(),
                     "Heroic Frog",
                     showSitePayment = true
                 ),

@@ -35,7 +35,7 @@ class TunnelStateNotificationUseCaseTest {
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
     private lateinit var tunnelStateNotificationUseCase: TunnelStateNotificationUseCase
 
-    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected)
+    private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected())
 
     @Before
     fun setup() {

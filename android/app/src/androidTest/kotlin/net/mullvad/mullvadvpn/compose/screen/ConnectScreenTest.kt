@@ -13,7 +13,6 @@ import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
@@ -79,7 +78,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked
@@ -114,7 +112,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked
@@ -147,7 +144,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -179,7 +175,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -212,7 +207,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -240,12 +234,11 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = mockRelayLocation,
-                        tunnelUiState = TunnelState.Disconnected,
-                        tunnelRealState = TunnelState.Disconnected,
+                        tunnelUiState = TunnelState.Disconnected(),
+                        tunnelRealState = TunnelState.Disconnected(),
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -280,7 +273,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification =
@@ -319,7 +311,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification =
@@ -355,7 +346,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked
@@ -390,7 +380,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = true,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.TunnelStateBlocked
@@ -420,12 +409,11 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = mockRelayLocation,
-                        tunnelUiState = TunnelState.Disconnected,
-                        tunnelRealState = TunnelState.Disconnected,
+                        tunnelUiState = TunnelState.Disconnected(),
+                        tunnelRealState = TunnelState.Disconnected(),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -457,7 +445,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -489,7 +476,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -515,12 +501,11 @@ class ConnectScreenTest {
                     ConnectUiState(
                         location = null,
                         relayLocation = null,
-                        tunnelUiState = TunnelState.Disconnected,
-                        tunnelRealState = TunnelState.Disconnected,
+                        tunnelUiState = TunnelState.Disconnected(),
+                        tunnelRealState = TunnelState.Disconnected(),
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -551,7 +536,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -562,38 +546,6 @@ class ConnectScreenTest {
 
         // Act
         composeTestRule.onNodeWithTag(CONNECT_BUTTON_TEST_TAG).performClick()
-
-        // Assert
-        verify { mockedClickHandler.invoke() }
-    }
-
-    @Test
-    fun testToggleTunnelInfo() {
-        // Arrange
-        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-        val dummyLocation = GeoIpLocation(null, null, "dummy country", null, "dummy hostname")
-        composeTestRule.setContentWithTheme {
-            ConnectScreen(
-                uiState =
-                    ConnectUiState(
-                        location = dummyLocation,
-                        relayLocation = null,
-                        tunnelUiState = TunnelState.Connecting(null, null),
-                        tunnelRealState = TunnelState.Connecting(null, null),
-                        inAddress = null,
-                        outAddress = "",
-                        showLocation = false,
-                        isTunnelInfoExpanded = false,
-                        deviceName = "",
-                        daysLeftUntilExpiry = null,
-                        inAppNotification = null
-                    ),
-                onToggleTunnelInfo = mockedClickHandler
-            )
-        }
-
-        // Act
-        composeTestRule.onNodeWithTag(LOCATION_INFO_TEST_TAG).performClick()
 
         // Assert
         verify { mockedClickHandler.invoke() }
@@ -622,7 +574,6 @@ class ConnectScreenTest {
                         inAddress = mockInAddress,
                         outAddress = mockOutAddress,
                         showLocation = false,
-                        isTunnelInfoExpanded = true,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = null
@@ -660,7 +611,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UpdateAvailable(versionInfo)
@@ -696,7 +646,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo)
@@ -729,7 +678,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.AccountExpiry(expiryDate)
@@ -767,7 +715,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.UnsupportedVersion(versionInfo)
@@ -799,7 +746,6 @@ class ConnectScreenTest {
                         inAddress = null,
                         outAddress = "",
                         showLocation = false,
-                        isTunnelInfoExpanded = false,
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification = InAppNotification.AccountExpiry(expiryDate)
@@ -816,10 +762,8 @@ class ConnectScreenTest {
 
     @Test
     fun testOpenAccountView() {
-
-        val onAccountClickMockk: () -> Unit = mockk(relaxed = true)
-
         // Arrange
+        val onAccountClickMockk: () -> Unit = mockk(relaxed = true)
         composeTestRule.setContentWithTheme {
             ConnectScreen(uiState = ConnectUiState.INITIAL, onAccountClick = onAccountClickMockk)
         }
