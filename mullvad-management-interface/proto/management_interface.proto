@@ -378,7 +378,10 @@ message NewAccessMethodSetting {
   AccessMethod access_method = 3;
 }
 
-message ApiAccessMethodSettings { repeated AccessMethodSetting access_method_settings = 1; }
+message ApiAccessMethodSettings {
+  UUID active = 1;
+  repeated AccessMethodSetting access_method_settings = 2;
+}
 
 message Settings {
   RelaySettings relay_settings = 1;
