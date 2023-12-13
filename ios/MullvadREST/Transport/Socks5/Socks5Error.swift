@@ -34,6 +34,9 @@ public enum Socks5Error: Error {
     /// Server replied with unsupported authentication method.
     case unsupportedAuthMethod
 
+    /// Invalid username or password was provided to the server
+    case invalidUsernameOrPassword
+
     /// None of the auth methods listed by the client are acceptable.
     case unacceptableAuthMethods
 

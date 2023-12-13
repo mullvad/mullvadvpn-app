@@ -78,10 +78,14 @@ public final class TransportProvider: RESTTransportProvider {
         }
     }
 
+    // TODO: Pass the socks5 username, password, and ip+port combo here.
     private func socks5() -> RESTTransport? {
         return URLSessionSocks5Transport(
             urlSession: urlSessionTransport.urlSession,
-            configuration: Socks5Configuration(address: .ipv4(.loopback), port: 8889),
+            configuration: Socks5Configuration(proxyEndpoint: AnyIPEndpoint.ipv4(IPv4Endpoint(
+                ip: .loopback,
+                port: 8889
+            ))),
             addressCache: addressCache
         )
     }

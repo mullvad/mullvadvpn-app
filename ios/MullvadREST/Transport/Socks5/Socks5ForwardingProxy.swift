@@ -26,6 +26,8 @@ public final class Socks5ForwardingProxy {
     /// Remote server that socks proxy should connect to.
     public let remoteServerEndpoint: Socks5Endpoint
 
+    public let configuration: Socks5Configuration
+
     /// Local TCP port that clients should use to communicate with the remote server.
     /// This property is set once the proxy is successfully started.
     public var listenPort: UInt16? {
@@ -46,9 +48,14 @@ public final class Socks5ForwardingProxy {
        - socksProxyEndpoint: socks proxy endpoint.
        - remoteServerEndpoint: remote server that socks proxy should connect to.
      */
-    public init(socksProxyEndpoint: NWEndpoint, remoteServerEndpoint: Socks5Endpoint) {
+    public init(
+        socksProxyEndpoint: NWEndpoint,
+        remoteServerEndpoint: Socks5Endpoint,
+        configuration: Socks5Configuration
+    ) {
         self.socksProxyEndpoint = socksProxyEndpoint
         self.remoteServerEndpoint = remoteServerEndpoint
+        self.configuration = configuration
     }
 
     deinit {
@@ -251,7 +258,8 @@ public final class Socks5ForwardingProxy {
                 queue: queue,
                 localConnection: connection,
                 socksProxyEndpoint: socksProxyEndpoint,
-                remoteServerEndpoint: remoteServerEndpoint
+                remoteServerEndpoint: remoteServerEndpoint,
+                configuration: configuration
             )
             socks5Connection.setStateHandler { [weak self] socks5Connection, state in
                 if case let .stopped(error) = state {
