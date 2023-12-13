@@ -1,6 +1,5 @@
 #[cfg(all(unix, not(target_os = "android")))]
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::Parser;
 
 mod cmds;
@@ -187,7 +186,7 @@ async fn main() -> Result<()> {
             // FIXME: The shell completions include hidden commands (including "shell-completions")
             println!("Generating shell completions to {}", dir.display());
             clap_complete::generate_to(shell, &mut Cli::command(), BIN_NAME, dir)
-                .map_err(|_| anyhow!("Failed to generate shell completions"))?;
+                .context("Failed to generate shell completions")?;
             Ok(())
         }
     }
