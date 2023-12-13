@@ -958,7 +958,6 @@ where
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent((request_id, fetched_location)) => {
                 self.handle_location_event(request_id, fetched_location)
-                    .await
             }
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -1075,7 +1074,7 @@ where
 
     /// Recieves and handles the geographical exit location received from am.i.mullvad.net, i.e. the
     /// [`InternalDaemonEvent::LocationEvent`] event.
-    async fn handle_location_event(&mut self, request_id: usize, fetched_location: GeoIpLocation) {
+    fn handle_location_event(&mut self, request_id: usize, fetched_location: GeoIpLocation) {
         if self.location_handler.request_id != request_id {
             log::debug!("Location from am.i.mullvad.net belongs to an outdated tunnel state");
             return;
