@@ -15,7 +15,12 @@ public struct Socks5Configuration {
     /// The socks proxy endpoint.
     public var proxyEndpoint: AnyIPEndpoint
 
-    public init(proxyEndpoint: AnyIPEndpoint) {
+    public var username: String?
+    public var password: String?
+
+    public init(proxyEndpoint: AnyIPEndpoint, username: String? = nil, password: String? = nil) {
         self.proxyEndpoint = proxyEndpoint
+        self.username = username
+        self.password = password
     }
 }
