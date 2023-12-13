@@ -141,7 +141,6 @@ impl ConnectingState {
         shared_values.disable_connectivity_check();
 
         let peer_endpoint = params.get_next_hop_endpoint();
-        let allow_all_traffic_to_peer = params.get_openvpn_local_proxy_settings().is_some();
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
@@ -149,8 +148,8 @@ impl ConnectingState {
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
             allowed_tunnel_traffic,
-            #[cfg(any(target_os = "linux", target_os = "macos"))]
-            allow_all_traffic_to_peer,
+            #[cfg(target_os = "macos")]
+            allow_all_traffic_to_peer: params.get_openvpn_local_proxy_settings().is_some(),
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, params),
         };
