@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
+import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
@@ -71,6 +72,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBE
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
+import net.mullvad.mullvadvpn.lib.common.util.vpnSettingsAvailable
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.Constraint
@@ -138,6 +140,7 @@ private fun PreviewVpnSettings() {
 fun VpnSettingsScreen(
     lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     uiState: VpnSettingsUiState,
+    onAutoConnectClick: () -> Unit = {},
     onMtuCellClick: () -> Unit = {},
     onSaveMtuClick: (Int) -> Unit = {},
     onRestoreMtuClick: () -> Unit = {},
@@ -272,6 +275,20 @@ fun VpnSettingsScreen(
             modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
+            if (context.vpnSettingsAvailable()) {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    NavigationComposeCell(
+                        title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
+                        onClick = { onAutoConnectClick() },
+                    )
+                }
+                item {
+                    SwitchComposeSubtitleCell(
+                        text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
+                    )
+                }
+            }
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 HeaderSwitchComposeCell(
