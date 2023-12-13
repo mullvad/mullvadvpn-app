@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_INTERACTION_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
+import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import org.junit.Assert.assertTrue
@@ -28,6 +29,7 @@ class LoginMockApiTest : MockApiTest() {
         // Act
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
 
@@ -53,6 +55,7 @@ class LoginMockApiTest : MockApiTest() {
         app.launch(endpoint)
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
 
@@ -73,6 +76,7 @@ class LoginMockApiTest : MockApiTest() {
         app.launch(endpoint)
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        device.dismissChangelogDialogIfShown()
         app.waitForLoginPrompt()
         app.attemptLogin(validAccountToken)
 
