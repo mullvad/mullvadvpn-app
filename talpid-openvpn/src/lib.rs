@@ -839,34 +839,36 @@ mod event_server {
             }
 
             let mut routes = HashSet::new();
+            #[cfg(not(target_os = "linux"))]
             if let Some(proxy_settings) = &self.proxy {
-                if let talpid_types::net::openvpn::ProxySettings::Local(proxy_settings) = proxy_settings {
+                if let talpid_types::net::openvpn::ProxySettings::Local(proxy_settings) =
+                    proxy_settings
+                {
                     let network = proxy_settings.peer.ip().into();
                     let node = talpid_routing::NetNode::DefaultNode;
                     let route = talpid_routing::RequiredRoute::new(network, node);
-                    #[cfg(target_os = "linux")]
-                    let route = route.use_main_table(false);
                     routes.insert(route);
                 }
             }
+            let route_handle = self.route_manager_handle.clone();
 
             #[cfg(target_os = "linux")]
             {
-                if let Err(error) = route_handle.create_routing_rules(ipv6_enabled).await {
-                    let ipv6_enabled = self.ipv6_enabled;
+                let ipv6_enabled = self.ipv6_enabled;
 
+                if let Err(error) = route_handle.create_routing_rules(ipv6_enabled).await {
                     log::error!("{}", error.display_chain());
                     return Err(tonic::Status::failed_precondition("Failed to add routes"));
                 }
 
-                let extracted_routes: HashSet<_, _> = super::extract_routes(&env)
+                let extracted_routes = super::extract_routes(&env)
                     .map_err(|err| {
                         log::error!("{}", err.display_chain_with_msg("Failed to obtain routes"));
                         tonic::Status::failed_precondition("Failed to obtain routes")
                     })?
                     .into_iter()
                     .filter(|route| route.prefix.is_ipv4() || ipv6_enabled);
-                routes = routes.into_iter().extend(extracted_routes).collect();
+                routes.extend(extracted_routes);
             }
 
             let metadata = Self::get_tunnel_metadata(&env)?;
@@ -890,7 +892,6 @@ mod event_server {
                     })?;
             }
 
-            let route_handle = self.route_manager_handle.clone();
             if let Err(error) = route_handle.add_routes(routes).await {
                 log::error!("{}", error.display_chain());
                 return Err(tonic::Status::failed_precondition("Failed to add routes"));
