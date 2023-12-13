@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -24,7 +25,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaTopBar
 
@@ -181,6 +186,61 @@ fun ScaffoldWithMediumTopBar(
                 navigationIcon = navigationIcon,
                 actions,
                 scrollBehavior = scrollBehavior
+            )
+        },
+        content = {
+            content(
+                Modifier.fillMaxSize()
+                    .padding(it)
+                    .drawVerticalScrollbar(state = scrollState, color = scrollbarColor)
+                    .verticalScroll(scrollState)
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScaffoldWithLargeTopBarAndButton(
+    appBarTitle: String,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    onButtonClick: () -> Unit = {}, // Add button
+    buttonTitle: String,
+    scrollbarColor: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = AlphaScrollbar),
+    content: @Composable (modifier: Modifier) -> Unit
+) {
+    val appBarState = rememberTopAppBarState()
+    val scrollState = rememberScrollState()
+    val canScroll = scrollState.canScrollForward || scrollState.canScrollBackward
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
+    Scaffold(
+        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            MullvadLargeTopBar(
+                title = appBarTitle,
+                navigationIcon = navigationIcon,
+                actions,
+                scrollBehavior = scrollBehavior
+            )
+        },
+        bottomBar = {
+            PrimaryButton(
+                text = buttonTitle,
+                onClick = onButtonClick,
+                modifier =
+                    Modifier.padding(
+                        horizontal = Dimens.sideMargin,
+                        vertical = Dimens.screenVerticalMargin
+                    ),
+                icon = {
+                    Icon(
+                        painter = painterResource(id = R.drawable.icon_extlink),
+                        contentDescription = null
+                    )
+                },
             )
         },
         content = {
