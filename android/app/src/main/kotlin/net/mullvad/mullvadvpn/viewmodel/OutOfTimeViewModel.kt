@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -39,7 +40,11 @@ class OutOfTimeViewModel(
     private val pollAccountExpiry: Boolean = true,
 ) : ViewModel() {
 
-    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(replay = 1)
+    private val _uiSideEffect =
+        MutableSharedFlow<UiSideEffect>(
+            extraBufferCapacity = 2,
+            onBufferOverflow = BufferOverflow.DROP_OLDEST
+        )
     val uiSideEffect = _uiSideEffect.asSharedFlow()
 
     val uiState =

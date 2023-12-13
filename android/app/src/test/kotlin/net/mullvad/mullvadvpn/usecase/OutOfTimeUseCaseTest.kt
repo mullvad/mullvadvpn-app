@@ -85,7 +85,7 @@ class OutOfTimeUseCaseTest {
     @Test
     fun `Account that expires without new expiry event`() = runTest {
         // Arrange
-        val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(2))
+        val expiredAccountExpiry = AccountExpiry.Available(DateTime.now().plusSeconds(62))
 
         // Act, Assert
         outOfTimeUseCase.isOutOfTime().test {

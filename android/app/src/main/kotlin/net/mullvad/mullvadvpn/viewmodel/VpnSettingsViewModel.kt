@@ -7,14 +7,15 @@ import androidx.lifecycle.viewModelScope
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -50,8 +51,8 @@ class VpnSettingsViewModel(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
-    private val _uiSideEffect = MutableSharedFlow<VpnSettingsSideEffect>(extraBufferCapacity = 1)
-    val uiSideEffect = _uiSideEffect.asSharedFlow()
+    private val _uiSideEffect = Channel<VpnSettingsSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val customPort = MutableStateFlow<Constraint<Port>?>(null)
 
@@ -122,7 +123,7 @@ class VpnSettingsViewModel(
     fun onToggleCustomDns(enable: Boolean) {
         repository.setDnsState(if (enable) DnsState.Custom else DnsState.Default)
         if (enable && vmState.value.customDnsList.isEmpty()) {
-            viewModelScope.launch { _uiSideEffect.emit(VpnSettingsSideEffect.NavigateToDnsDialog) }
+            viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog) }
         } else {
             showApplySettingChangesWarningToast()
         }
@@ -259,7 +260,7 @@ class VpnSettingsViewModel(
 
     private fun showApplySettingChangesWarningToast() {
         viewModelScope.launch {
-            _uiSideEffect.emit(
+            _uiSideEffect.send(
                 VpnSettingsSideEffect.ShowToast(
                     resources.getString(R.string.settings_changes_effect_warning_short)
                 )

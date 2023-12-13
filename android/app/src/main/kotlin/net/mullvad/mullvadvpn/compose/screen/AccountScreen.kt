@@ -33,8 +33,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 import com.ramcosta.composedestinations.result.NavResult
 import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
@@ -153,7 +153,7 @@ fun Account(
 @Composable
 fun AccountScreen(
     uiState: AccountUiState,
-    uiSideEffect: SharedFlow<AccountViewModel.UiSideEffect>,
+    uiSideEffect: Flow<AccountViewModel.UiSideEffect>,
     onCopyAccountNumber: (String) -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},

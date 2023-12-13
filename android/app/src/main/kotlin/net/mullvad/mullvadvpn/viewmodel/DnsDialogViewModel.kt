@@ -5,14 +5,15 @@ import androidx.lifecycle.viewModelScope
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.constant.EMPTY_STRING
@@ -80,8 +81,8 @@ class DnsDialogViewModel(
                 createViewState(_ipAddressInput.value, vmState.value)
             )
 
-    private val _uiSideEffect = MutableSharedFlow<DnsDialogSideEffect>()
-    val uiSideEffect: SharedFlow<DnsDialogSideEffect> = _uiSideEffect
+    private val _uiSideEffect = Channel<DnsDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun createViewState(ipAddress: String, vmState: DnsDialogViewModelState) =
         DnsDialogViewState(
@@ -126,7 +127,7 @@ class DnsDialogViewModel(
                 }
             }
 
-            _uiSideEffect.emit(DnsDialogSideEffect.Complete)
+            _uiSideEffect.send(DnsDialogSideEffect.Complete)
         }
 
     fun onRemoveDnsClick() =
@@ -134,7 +135,7 @@ class DnsDialogViewModel(
             repository.updateCustomDnsList {
                 it.filter { it.hostAddress != uiState.value.ipAddress }
             }
-            _uiSideEffect.emit(DnsDialogSideEffect.Complete)
+            _uiSideEffect.send(DnsDialogSideEffect.Complete)
         }
 
     private fun String.isValidIp(): Boolean {

@@ -3,11 +3,12 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
@@ -26,16 +27,15 @@ class SplashViewModel(
     private val messageHandler: MessageHandler,
 ) : ViewModel() {
 
-    private val _uiSideEffect =
-        MutableSharedFlow<SplashUiSideEffect>(replay = 1, extraBufferCapacity = 1)
-    val uiSideEffect = _uiSideEffect.asSharedFlow()
+    private val _uiSideEffect = Channel<SplashUiSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun start() {
         viewModelScope.launch {
             if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
-                _uiSideEffect.emit(getStartDestination())
+                _uiSideEffect.send(getStartDestination())
             } else {
-                _uiSideEffect.emit(SplashUiSideEffect.NavigateToPrivacyDisclaimer)
+                _uiSideEffect.send(SplashUiSideEffect.NavigateToPrivacyDisclaimer)
             }
         }
     }

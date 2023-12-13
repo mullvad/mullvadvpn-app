@@ -3,11 +3,12 @@ package net.mullvad.mullvadvpn.viewmodel
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
@@ -29,9 +30,8 @@ class AccountViewModel(
     private val paymentUseCase: PaymentUseCase,
     deviceRepository: DeviceRepository
 ) : ViewModel() {
-
-    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
-    val uiSideEffect = _uiSideEffect.asSharedFlow()
+    private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState: StateFlow<AccountUiState> =
         combine(
@@ -57,7 +57,7 @@ class AccountViewModel(
 
     fun onManageAccountClick() {
         viewModelScope.launch {
-            _uiSideEffect.tryEmit(
+            _uiSideEffect.send(
                 UiSideEffect.OpenAccountManagementPageInBrowser(
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
@@ -67,11 +67,11 @@ class AccountViewModel(
 
     fun onLogoutClick() {
         accountRepository.logout()
-        viewModelScope.launch { _uiSideEffect.emit(UiSideEffect.NavigateToLogin) }
+        viewModelScope.launch { _uiSideEffect.send(UiSideEffect.NavigateToLogin) }
     }
 
     fun onCopyAccountNumber(accountNumber: String) {
-        viewModelScope.launch { _uiSideEffect.emit(UiSideEffect.CopyAccountNumber(accountNumber)) }
+        viewModelScope.launch { _uiSideEffect.send(UiSideEffect.CopyAccountNumber(accountNumber)) }
     }
 
     fun startBillingPayment(productId: ProductId, activityProvider: () -> Activity) {

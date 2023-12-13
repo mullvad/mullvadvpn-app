@@ -5,14 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,8 +36,8 @@ class DeviceListViewModel(
 ) : ViewModel() {
     private val _loadingDevices = MutableStateFlow<List<DeviceId>>(emptyList())
 
-    private val _uiSideEffect: MutableSharedFlow<DeviceListSideEffect> = MutableSharedFlow()
-    val uiSideEffect: SharedFlow<DeviceListSideEffect> = _uiSideEffect
+    private val _uiSideEffect = Channel<DeviceListSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private var cachedDeviceList: List<Device>? = null
 
@@ -85,7 +86,7 @@ class DeviceListViewModel(
                 clearLoadingDevice(deviceIdToRemove)
 
                 if (result == null) {
-                    _uiSideEffect.emit(
+                    _uiSideEffect.send(
                         DeviceListSideEffect.ShowToast(
                             resources.getString(R.string.failed_to_remove_device)
                         )
