@@ -758,14 +758,14 @@ mod event_server {
     use talpid_tunnel::TunnelMetadata;
     #[cfg(any(target_os = "linux", windows))]
     use talpid_types::ErrorExt;
+    #[cfg(target_os = "macos")]
+    use talpid_types::ErrorExt;
     use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
         self,
         transport::{server::Connected, Server},
         Request, Response,
     };
-    #[cfg(target_os = "macos")]
-    use talpid_types::ErrorExt;
 
     #[allow(clippy::derive_partial_eq_without_eq)]
     mod proto {
