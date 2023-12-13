@@ -41,7 +41,7 @@ class ChangelogViewModelTest {
     fun testUpToDateVersionCodeShouldNotEmitChangelog() = runTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
-                buildVersionCode
+            buildVersionCode
         viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
 
         // If we have the most up to date version code, we should not show the changelog dialog

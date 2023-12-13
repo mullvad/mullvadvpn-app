@@ -20,7 +20,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
-class ReportProblemModelTest {
+class ReportProblemViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var mockMullvadProblemReport: MullvadProblemReport

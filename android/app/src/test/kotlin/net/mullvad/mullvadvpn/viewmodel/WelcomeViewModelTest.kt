@@ -98,13 +98,11 @@ class WelcomeViewModelTest {
                 outOfTimeUseCase = mockOutOfTimeUseCase,
                 pollAccountExpiry = false
             )
-        viewModel.start()
     }
 
     @After
     fun tearDown() {
         viewModel.viewModelScope.coroutineContext.cancel()
-        viewModel.stop()
         unmockkAll()
     }
 

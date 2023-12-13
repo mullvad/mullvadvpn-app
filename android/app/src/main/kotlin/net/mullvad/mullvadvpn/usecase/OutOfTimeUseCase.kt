@@ -19,7 +19,6 @@ import org.joda.time.DateTime
 const val accountRefreshIntervalMillis = 60L * 1000L // 1 minute
 const val bufferTimeMillis = 60L * 1000L // 1 minute
 
-
 class OutOfTimeUseCase(
     private val repository: AccountRepository,
     private val messageHandler: MessageHandler

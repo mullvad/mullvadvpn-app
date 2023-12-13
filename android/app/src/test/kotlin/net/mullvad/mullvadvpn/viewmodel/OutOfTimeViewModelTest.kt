@@ -99,13 +99,10 @@ class OutOfTimeViewModelTest {
                 outOfTimeUseCase = mockOutOfTimeUseCase,
                 pollAccountExpiry = false
             )
-
-        viewModel.start()
     }
 
     @After
     fun tearDown() {
-        viewModel.stop()
         viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
     }
