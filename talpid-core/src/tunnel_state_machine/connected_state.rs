@@ -137,7 +137,7 @@ impl ConnectedState {
             peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
-            #[cfg(target_os = "linux")]
+            #[cfg(any(target_os = "linux", target_os = "macos"))]
             allow_all_traffic_to_peer,
             #[cfg(not(target_os = "android"))]
             dns_servers: self.get_dns_servers(shared_values),
