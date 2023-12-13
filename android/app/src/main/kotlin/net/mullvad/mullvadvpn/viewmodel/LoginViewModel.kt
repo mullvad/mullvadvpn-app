@@ -5,17 +5,17 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -59,8 +59,8 @@ class LoginViewModel(
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
     private val _loginInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
 
-    private val _uiSideEffect = MutableSharedFlow<LoginUiSideEffect>(extraBufferCapacity = 1)
-    val uiSideEffect = _uiSideEffect.asSharedFlow()
+    private val _uiSideEffect = Channel<LoginUiSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val _uiState =
         combine(
@@ -112,9 +112,9 @@ class LoginViewModel(
                             delay(1000)
                             val isOutOfTime = isOutOfTimeDeferred.getOrDefault(false)
                             if (isOutOfTime) {
-                                _uiSideEffect.emit(LoginUiSideEffect.NavigateToOutOfTime)
+                                _uiSideEffect.send(LoginUiSideEffect.NavigateToOutOfTime)
                             } else {
-                                _uiSideEffect.emit(LoginUiSideEffect.NavigateToConnect)
+                                _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
                             }
                         }
                         newDeviceNotificationUseCase.newDeviceCreated()
@@ -134,7 +134,7 @@ class LoginViewModel(
                         if (refreshResult.isAvailable()) {
                             // Navigate to device list
 
-                            _uiSideEffect.emit(
+                            _uiSideEffect.send(
                                 LoginUiSideEffect.TooManyDevices(AccountToken(accountToken))
                             )
                             Idle()
@@ -157,7 +157,7 @@ class LoginViewModel(
 
     private suspend fun AccountCreationResult.mapToUiState(): LoginState? {
         return if (this is AccountCreationResult.Success) {
-            _uiSideEffect.emit(LoginUiSideEffect.NavigateToWelcome)
+            _uiSideEffect.send(LoginUiSideEffect.NavigateToWelcome)
             null
         } else {
             Idle(LoginError.UnableToCreateAccount)

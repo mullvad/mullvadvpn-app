@@ -2,16 +2,17 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.OutOfTimeUiState
@@ -39,8 +40,8 @@ class OutOfTimeViewModel(
     private val pollAccountExpiry: Boolean = true,
 ) : ViewModel() {
 
-    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(replay = 1)
-    val uiSideEffect = _uiSideEffect.asSharedFlow()
+    private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState =
         serviceConnectionManager.connectionState
@@ -71,7 +72,7 @@ class OutOfTimeViewModel(
         viewModelScope.launch {
             outOfTimeUseCase.isOutOfTime().first { it == false }
             paymentUseCase.resetPurchaseResult()
-            _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
+            _uiSideEffect.send(UiSideEffect.OpenConnectScreen)
         }
 
         viewModelScope.launch {
@@ -89,7 +90,7 @@ class OutOfTimeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            _uiSideEffect.tryEmit(
+            _uiSideEffect.send(
                 UiSideEffect.OpenAccountView(
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )

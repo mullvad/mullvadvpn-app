@@ -24,6 +24,7 @@ class ReportProblemViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var mockMullvadProblemReport: MullvadProblemReport
+
     @MockK(relaxed = true) private lateinit var mockProblemReportRepository: ProblemReportRepository
 
     private val problemReportFlow = MutableStateFlow(UserReport("", ""))
@@ -125,6 +126,8 @@ class ReportProblemViewModelTest {
         val email = "my@email.com"
         val description = "My description"
 
+        // This might look a bit weird, and is not optimal. An alternative would be to use the real
+        // ProblemReportRepository, but that would complicate the other tests. This is a compromise.
         coEvery { mockProblemReportRepository.setEmail(any()) } answers
             {
                 problemReportFlow.value = problemReportFlow.value.copy(email = arg(0))
