@@ -73,6 +73,26 @@
     <string name="local_network_sharing">Local network sharing</string>
     <string name="allow_lan_footer">Allows access to other devices on the same network for sharing, printing etc.</string>
     <string name="auto_connect">Auto-connect</string>
+    <string name="auto_connect_and_lockdown_mode">Auto-connect &amp; Lockdown mode</string>
+    <string name="auto_connect_and_lockdown_mode_two_lines">Auto-connect &amp; \nLockdown mode</string>
+    <string name="auto_connect_and_lockdown_mode_footer">Makes sure the device is always on the VPN tunnel.</string>
+    <string name="go_to_vpn_settings">Go to VPN settings</string>
+    <string name="vpn_settings_not_found">There is no VPN settings on your device</string>
+    <string name="auto_connect_carousel_first_slide_top_text">The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both.</string>
+    <string name="auto_connect_carousel_first_slide_bottom_text">
+       <![CDATA[1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name.]]>
+    </string>
+    <string name="auto_connect_carousel_second_slide_top_text">Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart.</string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">
+    <![CDATA[2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>.]]>
+     </string>
+    <string name="auto_connect_carousel_third_slide_top_text">
+        <![CDATA[The Lockdown mode blocks all internet access if the VPN tunnel is manually disconnected. <br/><b>Warning: This setting blocks split apps and the Local Network Sharing feature</b>.]]>
+    </string>
+    <string name="auto_connect_carousel_third_slide_bottom_text">
+        <![CDATA[3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.]]>
+    </string>
+
     <string name="auto_connect_footer">Automatically connect to a server when the app launches.</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range: %1$d - %2$d.</string>
