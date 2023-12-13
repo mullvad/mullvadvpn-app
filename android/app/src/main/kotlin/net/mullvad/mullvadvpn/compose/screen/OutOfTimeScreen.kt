@@ -57,7 +57,7 @@ private fun PreviewOutOfTimeScreenDisconnected() {
     AppTheme {
         OutOfTimeScreen(
             showSitePayment = true,
-            uiState = OutOfTimeUiState(tunnelState = TunnelState.Disconnected, "Heroic Frog"),
+            uiState = OutOfTimeUiState(tunnelState = TunnelState.Disconnected(), "Heroic Frog"),
             uiSideEffect = MutableSharedFlow<OutOfTimeViewModel.UiSideEffect>().asSharedFlow()
         )
     }

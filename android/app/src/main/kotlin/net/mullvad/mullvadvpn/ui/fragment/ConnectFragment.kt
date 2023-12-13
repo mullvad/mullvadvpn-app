@@ -43,7 +43,6 @@ class ConnectFragment : BaseFragment() {
                     onConnectClick = connectViewModel::onConnectClick,
                     onCancelClick = connectViewModel::onCancelClick,
                     onSwitchLocationClick = ::openSwitchLocationScreen,
-                    onToggleTunnelInfo = connectViewModel::toggleTunnelInfoExpansion,
                     onUpdateVersionClick = { openDownloadUrl() },
                     onManageAccountClick = connectViewModel::onManageAccountClick,
                     onOpenOutOfTimeScreen = ::openOutOfTimeScreen,

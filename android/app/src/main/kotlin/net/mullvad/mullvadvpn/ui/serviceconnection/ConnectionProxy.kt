@@ -19,8 +19,8 @@ const val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 class ConnectionProxy(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     private var resetAnticipatedStateJob: Job? = null
 
-    val onStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
-    val onUiStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
+    val onStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected())
+    val onUiStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected())
 
     var state by onStateChange.notifiable()
         private set

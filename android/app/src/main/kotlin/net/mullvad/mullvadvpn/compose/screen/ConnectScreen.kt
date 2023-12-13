@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -77,7 +78,6 @@ fun ConnectScreen(
     onConnectClick: () -> Unit = {},
     onCancelClick: () -> Unit = {},
     onSwitchLocationClick: () -> Unit = {},
-    onToggleTunnelInfo: () -> Unit = {},
     onUpdateVersionClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onOpenOutOfTimeScreen: () -> Unit = {},
@@ -202,12 +202,13 @@ fun ConnectScreen(
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.padding(horizontal = Dimens.sideMargin)
             )
+            var expanded by remember { mutableStateOf(false) }
             LocationInfo(
-                onToggleTunnelInfo = onToggleTunnelInfo,
+                onToggleTunnelInfo = { expanded = !expanded },
                 isVisible =
-                    uiState.tunnelRealState != TunnelState.Disconnected &&
+                    uiState.tunnelRealState !is TunnelState.Disconnected &&
                         uiState.location?.hostname != null,
-                isExpanded = uiState.isTunnelInfoExpanded,
+                isExpanded = expanded,
                 location = uiState.location,
                 inAddress = uiState.inAddress,
                 outAddress = uiState.outAddress,
