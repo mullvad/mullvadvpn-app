@@ -291,6 +291,11 @@ pub enum DaemonCommand {
     RemoveApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Set the API access method to use
     SetApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
+    /// Updat the active access method. This happens after a new access method
+    /// has been set and is being used.
+    ///
+    /// Note: This is for internal use only, and is not supposed to be called from any client.
+    UpdateActiveAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Edit an API access method
     UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
     /// Get the currently used API access method
@@ -1217,6 +1222,9 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
+            UpdateActiveAccessMethod(tx, method) => {
+                self.on_update_active_api_access_method(tx, method).await
+            }
             TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -2377,6 +2385,18 @@ where
     ) {
         let result = self
             .set_api_access_method(access_method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "set_api_access_method response");
+    }
+
+    async fn on_update_active_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        access_method: mullvad_types::access_method::Id,
+    ) {
+        let result = self
+            .set_active_access_method(access_method)
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "set_api_access_method response");

@@ -194,6 +194,19 @@ where
             })
     }
 
+    /// Update the known active access method and notify any listeners
+    pub async fn set_active_access_method(
+        &mut self,
+        access_method: access_method::Id,
+    ) -> Result<(), Error> {
+        self.settings
+            .update(|settings| settings.api_access_methods.active = Some(access_method))
+            .await
+            .map(|did_change| self.notify_on_change(did_change))
+            .map(|_| ())
+            .map_err(Error::Settings)
+    }
+
     /// If settings were changed due to an update, notify all listeners.
     fn notify_on_change(&mut self, settings_changed: MadeChanges) -> &mut Self {
         if settings_changed {

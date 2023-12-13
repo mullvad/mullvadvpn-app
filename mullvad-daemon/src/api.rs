@@ -7,7 +7,6 @@
 use crate::{DaemonCommand, DaemonEventSender};
 use futures::{
     channel::{mpsc, oneshot},
-    stream::unfold,
     Stream, StreamExt,
 };
 use mullvad_api::{
@@ -96,13 +95,21 @@ impl AccessModeSelectorHandle {
         })
     }
 
+    // pub async fn listen(&self) -> Result<ApiConnectionMode> {
+    //     self.send_command(Message::Next).await.map_err(|err| {
+    //         log::error!("Failed to update new access methods!");
+    //         err
+    //     })
+    // }
+
     /// Convert this handle to a [`Stream`] of [`ApiConnectionMode`] from the
     /// associated [`AccessModeSelector`].
     ///
-    /// Practically converts the handle to a listener for when the
-    /// currently valid connection modes changes.
+    /// Practically converts the handle to a listener for when the currently
+    /// valid connection modes changes. Calling `next` on this stream will poll
+    /// for the next access method, which is produced by calling `next`.
     pub fn into_stream(self) -> impl Stream<Item = ApiConnectionMode> {
-        unfold(self, |handle| async move {
+        futures::stream::unfold(self, |handle| async move {
             match handle.next().await {
                 Ok(connection_mode) => Some((connection_mode, handle)),
                 // End this stream in case of failure in `next`. `next` should
