@@ -10,6 +10,8 @@ use std::{
     str::FromStr,
 };
 
+use self::openvpn::{ProxySettings, LocalProxySettings};
+
 pub mod obfuscation;
 pub mod openvpn;
 pub mod proxy;
@@ -91,6 +93,18 @@ impl TunnelParameters {
         match &self {
             TunnelParameters::OpenVpn(params) => &params.generic_options,
             TunnelParameters::Wireguard(params) => &params.generic_options,
+        }
+    }
+
+    pub fn get_openvpn_local_proxy_settings(&self) -> Option<&LocalProxySettings> {
+        match &self {
+            TunnelParameters::OpenVpn(params) => params.proxy.as_ref().and_then(|proxy_settings| {
+                match proxy_settings {
+                    ProxySettings::Local(local_settings) => Some(local_settings),
+                    _ => None,
+                }
+            }),
+            _ => None,
         }
     }
 }

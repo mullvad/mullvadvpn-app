@@ -130,12 +130,15 @@ impl ConnectedState {
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
-        let mut peer_endpoint = self.tunnel_parameters.get_next_hop_endpoint();
+        let peer_endpoint = self.tunnel_parameters.get_next_hop_endpoint();
+        let allow_all_traffic_to_peer = self.tunnel_parameters.get_openvpn_local_proxy_settings().is_some();
 
         FirewallPolicy::Connected {
             peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
+            #[cfg(target_os = "linux")]
+            allow_all_traffic_to_peer,
             #[cfg(not(target_os = "android"))]
             dns_servers: self.get_dns_servers(shared_values),
             #[cfg(windows)]
