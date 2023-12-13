@@ -24,8 +24,6 @@ class ChangelogViewModelTest {
 
     private lateinit var viewModel: ChangelogViewModel
 
-    private val buildVersionCode = 10
-
     @Before
     fun setup() {
         MockKAnnotations.init(this)
@@ -40,10 +38,10 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testUpToDateVersionCode() = runTest {
+    fun testUpToDateVersionCodeShouldNotEmitChangelog() = runTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns
-            buildVersionCode
+                buildVersionCode
         viewModel = ChangelogViewModel(mockedChangelogRepository, buildVersionCode, false)
 
         // If we have the most up to date version code, we should not show the changelog dialog
@@ -51,7 +49,7 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testNotUpToDateVersionCode() = runTest {
+    fun testNotUpToDateVersionCodeShouldEmitChangelog() = runTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
         every { mockedChangelogRepository.getLastVersionChanges() } returns listOf("bla", "bla")
@@ -62,7 +60,7 @@ class ChangelogViewModelTest {
     }
 
     @Test
-    fun testNotUpToDateVersionCodeWithEmptyChangelog() = runTest {
+    fun testEmptyChangelogShouldNotEmitChangelog() = runTest {
         // Arrange
         every { mockedChangelogRepository.getVersionCodeOfMostRecentChangelogShowed() } returns -1
         every { mockedChangelogRepository.getLastVersionChanges() } returns emptyList()
@@ -75,5 +73,6 @@ class ChangelogViewModelTest {
     companion object {
         private const val EVENT_NOTIFIER_EXTENSION_CLASS =
             "net.mullvad.talpid.util.EventNotifierExtensionsKt"
+        private const val buildVersionCode = 10
     }
 }

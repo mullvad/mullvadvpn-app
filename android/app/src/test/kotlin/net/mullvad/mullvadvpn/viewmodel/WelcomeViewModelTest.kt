@@ -45,13 +45,13 @@ import org.junit.Test
 class WelcomeViewModelTest {
     @get:Rule val testCoroutineRule = TestCoroutineRule()
 
-    private val serviceConnectionState =
+    private val serviceConnectionStateFlow =
         MutableStateFlow<ServiceConnectionState>(ServiceConnectionState.Disconnected)
-    private val deviceState = MutableStateFlow<DeviceState>(DeviceState.Initial)
-    private val accountExpiryState = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
-    private val purchaseResult = MutableStateFlow<PurchaseResult?>(null)
-    private val paymentAvailability = MutableStateFlow<PaymentAvailability?>(null)
-    private val outOfTime = MutableStateFlow(true)
+    private val deviceStateFlow = MutableStateFlow<DeviceState>(DeviceState.Initial)
+    private val accountExpiryStateFlow = MutableStateFlow<AccountExpiry>(AccountExpiry.Missing)
+    private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)
+    private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
+    private val outOfTimeFlow = MutableStateFlow(true)
 
     // Service connections
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -73,21 +73,21 @@ class WelcomeViewModelTest {
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
 
-        every { mockDeviceRepository.deviceState } returns deviceState
+        every { mockDeviceRepository.deviceState } returns deviceStateFlow
 
-        every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
+        every { mockServiceConnectionManager.connectionState } returns serviceConnectionStateFlow
 
         every { mockServiceConnectionContainer.connectionProxy } returns mockConnectionProxy
 
         every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
 
-        every { mockAccountRepository.accountExpiryState } returns accountExpiryState
+        every { mockAccountRepository.accountExpiryState } returns accountExpiryStateFlow
 
-        coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResult
+        coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResultFlow
 
-        coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailability
+        coEvery { mockPaymentUseCase.paymentAvailability } returns paymentAvailabilityFlow
 
-        coEvery { mockOutOfTimeUseCase.isOutOfTime() } returns outOfTime
+        coEvery { mockOutOfTimeUseCase.isOutOfTime() } returns outOfTimeFlow
 
         viewModel =
             WelcomeViewModel(
@@ -136,7 +136,7 @@ class WelcomeViewModelTest {
             viewModel.uiState.test {
                 assertEquals(WelcomeUiState(), awaitItem())
                 eventNotifierTunnelUiState.notify(tunnelUiStateTestItem)
-                serviceConnectionState.value =
+                serviceConnectionStateFlow.value =
                     ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
                 val result = awaitItem()
                 assertEquals(tunnelUiStateTestItem, result.tunnelState)
@@ -153,13 +153,13 @@ class WelcomeViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             assertEquals(WelcomeUiState(), awaitItem())
-            paymentAvailability.value = null
-            deviceState.value =
+            paymentAvailabilityFlow.value = null
+            deviceStateFlow.value =
                 DeviceState.LoggedIn(
                     accountAndDevice =
                         AccountAndDevice(account_token = expectedAccountNumber, device = device)
                 )
-            serviceConnectionState.value =
+            serviceConnectionStateFlow.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             assertEquals(expectedAccountNumber, awaitItem().accountNumber)
         }
@@ -174,7 +174,7 @@ class WelcomeViewModelTest {
 
             // Act, Assert
             viewModel.uiSideEffect.test {
-                outOfTime.value = false
+                outOfTimeFlow.value = false
                 val action = awaitItem()
                 assertIs<WelcomeViewModel.UiSideEffect.OpenConnectScreen>(action)
             }
@@ -189,8 +189,8 @@ class WelcomeViewModelTest {
         viewModel.uiState.test {
             // Default item
             awaitItem()
-            paymentAvailability.tryEmit(productsUnavailable)
-            serviceConnectionState.value =
+            paymentAvailabilityFlow.tryEmit(productsUnavailable)
+            serviceConnectionStateFlow.value =
                 ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
             val result = awaitItem().billingPaymentState
             assertIs<PaymentState.NoPayment>(result)
@@ -201,8 +201,8 @@ class WelcomeViewModelTest {
     fun testBillingProductsGenericErrorState() = runTest {
         // Arrange
         val paymentOtherError = PaymentAvailability.Error.Other(mockk())
-        paymentAvailability.tryEmit(paymentOtherError)
-        serviceConnectionState.value =
+        paymentAvailabilityFlow.tryEmit(paymentOtherError)
+        serviceConnectionStateFlow.value =
             ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
 
         // Act, Assert
@@ -216,8 +216,8 @@ class WelcomeViewModelTest {
     fun testBillingProductsBillingErrorState() = runTest {
         // Arrange
         val paymentBillingError = PaymentAvailability.Error.BillingUnavailable
-        paymentAvailability.value = paymentBillingError
-        serviceConnectionState.value =
+        paymentAvailabilityFlow.value = paymentBillingError
+        serviceConnectionStateFlow.value =
             ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
 
         // Act, Assert
@@ -233,8 +233,8 @@ class WelcomeViewModelTest {
         val mockProduct: PaymentProduct = mockk()
         val expectedProductList = listOf(mockProduct)
         val productsAvailable = PaymentAvailability.ProductsAvailable(listOf(mockProduct))
-        paymentAvailability.value = productsAvailable
-        serviceConnectionState.value =
+        paymentAvailabilityFlow.value = productsAvailable
+        serviceConnectionStateFlow.value =
             ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
 
         // Act, Assert
