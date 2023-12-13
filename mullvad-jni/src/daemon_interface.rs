@@ -3,7 +3,6 @@ use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
     account::{AccountData, AccountToken, PlayPurchase, VoucherSubmission},
     device::{Device, DeviceState},
-    location::GeoIpLocation,
     relay_constraints::{ObfuscationSettings, RelaySettings},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
