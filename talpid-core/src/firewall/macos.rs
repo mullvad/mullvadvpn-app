@@ -122,7 +122,8 @@ impl Firewall {
                 allowed_tunnel_traffic,
                 allow_all_traffic_to_peer,
             } => {
-                let mut rules = vec![self.get_allow_relay_rule(*peer_endpoint, *allow_all_traffic_to_peer)?];
+                let mut rules =
+                    vec![self.get_allow_relay_rule(*peer_endpoint, *allow_all_traffic_to_peer)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -145,7 +146,7 @@ impl Firewall {
                 tunnel,
                 allow_lan,
                 dns_servers,
-                allow_all_traffic_to_peer
+                allow_all_traffic_to_peer,
             } => {
                 let mut rules = vec![];
 
@@ -275,7 +276,11 @@ impl Firewall {
         Ok(rules)
     }
 
-    fn get_allow_relay_rule(&self, relay_endpoint: net::Endpoint, allow_all_traffic_to_peer: bool) -> Result<pfctl::FilterRule> {
+    fn get_allow_relay_rule(
+        &self,
+        relay_endpoint: net::Endpoint,
+        allow_all_traffic_to_peer: bool,
+    ) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
 
         let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
@@ -288,12 +293,10 @@ impl Firewall {
             .quick(true);
 
         if !allow_all_traffic_to_peer {
-            builder
-                .user(Uid::from(super::ROOT_UID));
+            builder.user(Uid::from(super::ROOT_UID));
         }
 
-        builder
-            .build()
+        builder.build()
     }
 
     /// Produces a rule that allows traffic to flow to the API. Allows the app (or other apps if configured)
