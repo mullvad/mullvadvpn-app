@@ -22,9 +22,6 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-### Added
-- Add CLI support for applying patches to the settings with `mullvad import-settings`.
-
 ### Changed
 #### Android
 - Migrate welcome view to compose.
@@ -40,15 +37,30 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for setting per-app language in system settings.
 - Add support for in app purchases for versions that are released on Google Play.
 
+### Fixed
+#### Android
+- Fix issue with the app under some circumstances trying to connect to OpenVPN relays.
+
+
+## [2024.1-beta1] - 2023-12-14
+### Added
+- Add CLI support for applying patches to the settings with `mullvad import-settings`.
+
+### Changed
+- CLI command `mullvad relay set tunnel wireguard entry-location` changed to
+  `mullvad relay set tunnel wireguard entry location`, as the `location` subcommand can now be
+  swapped for `custom-list` to select entry relays using a custom list.
+
 #### Linux
 - Rename interface name from `wg-mullvad` to `wg0-mullvad`.
 
 ### Fixed
+- Validate that hostname matches correct server type for CLI commands `mullvad relay set location`,
+  `mullvad bridge set location`, and `mullvad relay set tunnel wireguard entry location`.
+
 #### Linux
 - Prevent fragmentation when multihop is enabled by setting a default route MTU.
 
-#### Android
-- Fix issue with the app under some circumstances trying to connect to OpenVPN relays.
 
 ## [2023.6] - 2023-12-06
 ### Changed
@@ -73,9 +85,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Update Electron from 25.2.0 to 26.3.0.
-- CLI command `mullvad relay set tunnel wireguard entry-location` changed to
-  `mullvad relay set tunnel wireguard entry location`, as the `location` subcommand can now be
-  swapped for `custom-list` to select entry relays using a custom list.
 
 #### Linux
 - Don't block forwarding of traffic when the split tunnel mark (ct mark) is set.
@@ -85,8 +94,6 @@ Line wrap the file at 100 chars.                                              Th
 - Remove wireguard-go (userspace WireGuard) support.
 
 ### Fixed
-- Validate that hostname matches correct server type for CLI commands `mullvad relay set location`,
-  `mullvad bridge set location`, and `mullvad relay set tunnel wireguard entry location`.
 - Show correct endpoint in CLI for custom relays.
 - Lower risk of being rate limited.
 - Fix error dialog when failing to write to console by handling the thrown error.
