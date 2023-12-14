@@ -74,7 +74,13 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   }, [fullRelayList, locationType, relaySettings?.tunnelProtocol]);
 
   const relayListForDaita = useMemo(() => {
-    return filterLocationsByDaita(relayListForEndpointType, daita);
+    return filterLocationsByDaita(
+      relayListForEndpointType,
+      daita,
+      locationType,
+      relaySettings?.tunnelProtocol ?? 'any',
+      relaySettings?.wireguard.useMultihop ?? false,
+    );
   }, [daita, relayListForEndpointType]);
 
   // Filters the relays to only keep the relays matching the currently selected filters, e.g.
