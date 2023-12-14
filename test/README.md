@@ -95,7 +95,7 @@ TARGET=x86_64-pc-windows-gnu ./build.sh
 
 # Building base images
 
-See [`BUILD_OS_IMAGE.md`](./BUILD_OS_IMAGE.md) for how to build images for running tests on.
+See [`BUILD_OS_IMAGE.md`](./docs/BUILD_OS_IMAGE.md) for how to build images for running tests on.
 
 # Running tests
 
@@ -107,7 +107,7 @@ Here is an example of how to create a new OS configuration and then run all test
 
 ```bash
 # Create or edit configuration
-# The image is assumed to contain a test runner service set up as described in ./BUILD_OS_IMAGE.md
+# The image is assumed to contain a test runner service set up as described in ./docs/BUILD_OS_IMAGE.md
 cargo run --bin test-manager set debian11 qemu ./os-images/debian11.qcow2 linux \
     --package-type deb --architecture x64 \
     --artifacts-dir /opt/testing \
