@@ -192,20 +192,13 @@ where
     }
 
     /// Update the known active access method and notify any listeners
-    ///
-    /// TODO(markus): Update this function to actually do anything. We should no
-    /// longer update settings, but rather induce a new event to be broadcasted!
     pub async fn set_active_access_method(
         &mut self,
-        _access_method: access_method::Id,
+        access_method: AccessMethodSetting,
     ) -> Result<(), Error> {
-        todo!("`set_active_access_method`")
-        // self.settings
-        //     .update(|settings| settings.api_access_methods.active = Some(access_method))
-        //     .await
-        //     .map(|did_change| self.notify_on_change(did_change))
-        //     .map(|_| ())
-        //     .map_err(Error::Settings)
+        let event_listener = self.event_listener.clone();
+        event_listener.notify_new_access_method(access_method);
+        Ok(())
     }
 
     /// If settings were changed due to an update, notify all listeners.

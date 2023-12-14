@@ -38,6 +38,7 @@ pub enum DaemonEvent {
     AppVersionInfo(AppVersionInfo),
     Device(DeviceEvent),
     RemoveDevice(RemoveDeviceEvent),
+    NewAccessMethod(AccessMethodSetting),
 }
 
 impl TryFrom<types::daemon_event::Event> for DaemonEvent {
@@ -63,6 +64,11 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
             types::daemon_event::Event::RemoveDevice(event) => RemoveDeviceEvent::try_from(event)
                 .map(DaemonEvent::RemoveDevice)
                 .map_err(Error::InvalidResponse),
+            types::daemon_event::Event::NewAccessMethod(event) => {
+                AccessMethodSetting::try_from(event)
+                    .map(DaemonEvent::NewAccessMethod)
+                    .map_err(Error::InvalidResponse)
+            }
         }
     }
 }

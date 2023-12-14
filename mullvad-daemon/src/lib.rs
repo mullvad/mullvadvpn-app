@@ -595,11 +595,11 @@ pub trait EventListener {
     /// Notify that device changed (login, logout, or key rotation).
     fn notify_device_event(&self, event: DeviceEvent);
 
-    /// Notify that the api access method changed.
-    fn notify_access_method_event(&self, event: AccessMethodEvent);
-
     /// Notify that a device was revoked using `RemoveDevice`.
     fn notify_remove_device_event(&self, event: RemoveDeviceEvent);
+
+    /// Notify that the api access method changed.
+    fn notify_new_access_method(&self, new_access_method: AccessMethodSetting);
 }
 
 pub struct Daemon<L: EventListener> {
@@ -1250,7 +1250,7 @@ where
 
     async fn handle_access_method_event(&mut self, event: AccessMethodEvent) {
         match event {
-            AccessMethodEvent::Active(id) => {
+            AccessMethodEvent::Active(access_method) => {
                 log::info!("HANDLING INTERNVAL DAEMON EVENT: Setting new active access method");
                 if let Err(error) = self.force_api_endpoint_rotation().await {
                     log::error!(
@@ -1258,7 +1258,7 @@ where
                         error.display_chain_with_msg("Failed to rotate access mehod")
                     );
                 }
-                if let Err(error) = self.set_active_access_method(id).await {
+                if let Err(error) = self.set_active_access_method(access_method).await {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Failed to set active access mehod")

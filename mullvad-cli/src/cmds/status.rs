@@ -72,6 +72,11 @@ impl Status {
                         println!("Remove device event: {device:#?}");
                     }
                 }
+                DaemonEvent::NewAccessMethod(access_method) => {
+                    if args.debug {
+                        println!("New access method: {access_method:#?}");
+                    }
+                }
             }
         }
         Ok(())

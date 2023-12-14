@@ -600,6 +600,7 @@ message DaemonEvent {
     AppVersionInfo version_info = 4;
     DeviceEvent device = 5;
     RemoveDeviceEvent remove_device = 6;
+    AccessMethodSetting new_access_method = 7;
   }
 }
 
