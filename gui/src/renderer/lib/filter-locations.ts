@@ -1,6 +1,13 @@
-import { Ownership, RelayEndpointType, RelayLocation } from '../../shared/daemon-rpc-types';
+import {
+  LiftedConstraint,
+  Ownership,
+  RelayEndpointType,
+  RelayLocation,
+  TunnelProtocol,
+} from '../../shared/daemon-rpc-types';
 import { relayLocations } from '../../shared/gettext';
 import {
+  LocationType,
   RelayLocationCityWithVisibility,
   RelayLocationCountryWithVisibility,
   RelayLocationRelayWithVisibility,
@@ -30,10 +37,25 @@ export function filterLocationsByEndPointType(
 export function filterLocationsByDaita(
   locations: IRelayLocationCountryRedux[],
   daita: boolean,
+  locationType: LocationType,
+  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
+  multihop: boolean,
 ): IRelayLocationCountryRedux[] {
-  return daita
+  return daitaFilterActive(daita, locationType, tunnelProtocol, multihop)
     ? filterLocationsImpl(locations, (relay: IRelayLocationRelayRedux) => relay.daita)
     : locations;
+}
+
+export function daitaFilterActive(
+  daita: boolean,
+  locationType: LocationType,
+  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
+  multihop: boolean,
+) {
+  const isEntry = multihop
+    ? locationType === LocationType.entry
+    : locationType === LocationType.exit;
+  return daita && isEntry && tunnelProtocol !== 'openvpn';
 }
 
 export function filterLocations(
