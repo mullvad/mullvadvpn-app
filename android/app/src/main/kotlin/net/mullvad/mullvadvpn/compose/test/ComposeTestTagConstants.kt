@@ -20,7 +20,6 @@ const val SCROLLABLE_COLUMN_TEST_TAG = "scrollable_column_test_tag"
 const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
 const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"
 const val RECONNECT_BUTTON_TEST_TAG = "reconnect_button_test_tag"
-const val LOCATION_INFO_TEST_TAG = "location_info_test_tag"
 
 // ConnectScreen - Notification banner
 const val NOTIFICATION_BANNER = "notification_banner"

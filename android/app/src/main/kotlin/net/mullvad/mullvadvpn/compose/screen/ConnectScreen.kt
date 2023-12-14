@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,7 +42,6 @@ import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationB
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SCROLLABLE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
@@ -202,7 +202,7 @@ fun ConnectScreen(
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.padding(horizontal = Dimens.sideMargin)
             )
-            var expanded by remember { mutableStateOf(false) }
+            var expanded by rememberSaveable { mutableStateOf(false) }
             LocationInfo(
                 onToggleTunnelInfo = { expanded = !expanded },
                 isVisible =
@@ -212,10 +212,7 @@ fun ConnectScreen(
                 location = uiState.location,
                 inAddress = uiState.inAddress,
                 outAddress = uiState.outAddress,
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(horizontal = Dimens.sideMargin)
-                        .testTag(LOCATION_INFO_TEST_TAG)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin)
             )
             Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
             SwitchLocationButton(
