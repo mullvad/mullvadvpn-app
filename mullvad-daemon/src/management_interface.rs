@@ -1009,6 +1009,11 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
             )),
         })
     }
+
+    fn notify_access_method_event(&self, _event: crate::api::AccessMethodEvent) {
+        log::debug!("Broadcasting access method event");
+        todo!("Implement `notify_access_method_event`")
+    }
 }
 
 impl ManagementInterfaceEventBroadcaster {
