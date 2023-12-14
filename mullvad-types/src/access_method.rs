@@ -7,7 +7,8 @@ use talpid_types::net::{Endpoint, TransportProtocol};
 /// Daemon settings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
-    pub active: Id,
+    #[serde(skip)]
+    pub active: Option<Id>,
     pub access_method_settings: Vec<AccessMethodSetting>,
 }
 
@@ -76,7 +77,7 @@ impl Default for Settings {
     fn default() -> Self {
         let direct = Settings::direct();
         Self {
-            active: direct.get_id(),
+            active: Some(direct.get_id()),
             access_method_settings: vec![direct, Settings::mullvad_bridges()],
         }
     }

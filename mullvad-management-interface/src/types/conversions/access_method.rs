@@ -8,7 +8,7 @@ mod settings {
     impl From<&access_method::Settings> for proto::ApiAccessMethodSettings {
         fn from(settings: &access_method::Settings) -> Self {
             Self {
-                active: Some(proto::Uuid::from(&settings.active)),
+                active: settings.active.as_ref().map(proto::Uuid::from),
                 access_method_settings: settings
                     .access_method_settings
                     .iter()
@@ -29,12 +29,14 @@ mod settings {
 
         fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
             Ok(Self {
-                active: settings
-                    .active
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                        "Could not deserialize Access Method from protobuf",
-                    ))
-                    .and_then(Id::try_from)?,
+                active: Some(
+                    settings
+                        .active
+                        .ok_or(FromProtobufTypeError::InvalidArgument(
+                            "Could not deserialize Access Method from protobuf",
+                        ))
+                        .and_then(Id::try_from)?,
+                ),
                 access_method_settings: settings
                     .access_method_settings
                     .iter()
