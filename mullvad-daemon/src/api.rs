@@ -20,7 +20,6 @@ use std::{
     path::PathBuf,
     sync::{Arc, Mutex, Weak},
 };
-#[cfg(target_os = "android")]
 use talpid_core::mpsc::Sender;
 use talpid_core::tunnel_state_machine::TunnelCommand;
 use talpid_types::net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint};
@@ -30,6 +29,13 @@ pub enum Message {
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Vec<AccessMethodSetting>),
+}
+
+// TODO(markus): Update this name (?)
+#[derive(Clone)]
+pub enum AccessMethodEvent {
+    /// Emitted when the active access method changes.
+    Active(access_method::Id),
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -137,6 +143,9 @@ pub struct AccessModeSelector {
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
+    /// Communication channel with the daemon
+    // daemon_cmd_tx: mpsc::UnboundedSender<DaemonCommand>,
+    listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
 }
 
 impl AccessModeSelector {
@@ -144,6 +153,7 @@ impl AccessModeSelector {
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
+        listener_tx: impl Sender<AccessMethodEvent> + Send + 'static,
     ) -> AccessModeSelectorHandle {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -163,6 +173,7 @@ impl AccessModeSelector {
             cache_dir,
             relay_selector,
             connection_modes,
+            listeners: vec![Box::new(listener_tx)],
         };
         tokio::spawn(selector.into_future());
         AccessModeSelectorHandle { cmd_tx }
@@ -208,7 +219,11 @@ impl AccessModeSelector {
         tx: ResponseTx<()>,
         value: AccessMethodSetting,
     ) -> Result<()> {
+        let event = AccessMethodEvent::Active(value.get_id());
+        // TODO(markus): This won't work out too well. But! It should be fixable by forcing a rotation through the event `AccessMethodEvent::Active`
         self.set_access_method(value);
+        self.listeners
+            .retain(|listener| listener.send(event.clone()).is_ok());
         self.reply(tx, ())
     }
 

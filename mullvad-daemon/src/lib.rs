@@ -28,6 +28,7 @@ pub mod version;
 mod version_check;
 
 use crate::{geoip::get_geo_location, target_state::PersistentTargetState};
+use api::AccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -292,11 +293,6 @@ pub enum DaemonCommand {
     RemoveApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Set the API access method to use
     SetApiAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
-    /// Updat the active access method. This happens after a new access method
-    /// has been set and is being used.
-    ///
-    /// Note: This is for internal use only, and is not supposed to be called from any client.
-    UpdateActiveAccessMethod(ResponseTx<(), Error>, mullvad_types::access_method::Id),
     /// Edit an API access method
     UpdateApiAccessMethod(ResponseTx<(), Error>, AccessMethodSetting),
     /// Get the currently used API access method
@@ -374,6 +370,8 @@ pub(crate) enum InternalDaemonEvent {
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
     DeviceEvent(AccountEvent),
+    /// Sent when access methods are changed in any way (new active access method).
+    AccessMethodEvent(AccessMethodEvent),
     /// Handles updates from versions without devices.
     DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// The split tunnel paths or state were updated.
@@ -408,6 +406,12 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
 impl From<AccountEvent> for InternalDaemonEvent {
     fn from(event: AccountEvent) -> Self {
         InternalDaemonEvent::DeviceEvent(event)
+    }
+}
+
+impl From<AccessMethodEvent> for InternalDaemonEvent {
+    fn from(event: AccessMethodEvent) -> Self {
+        InternalDaemonEvent::AccessMethodEvent(event)
     }
 }
 
@@ -591,6 +595,9 @@ pub trait EventListener {
     /// Notify that device changed (login, logout, or key rotation).
     fn notify_device_event(&self, event: DeviceEvent);
 
+    /// Notify that the api access method changed.
+    fn notify_access_method_event(&self, event: AccessMethodEvent);
+
     /// Notify that a device was revoked using `RemoveDevice`.
     fn notify_remove_device_event(&self, event: RemoveDeviceEvent);
 }
@@ -694,6 +701,7 @@ where
             cache_dir.clone(),
             relay_selector.clone(),
             connection_modes,
+            internal_event_tx.to_specialized_sender(),
         );
 
         let api_handle = api_runtime
@@ -950,6 +958,7 @@ where
                 self.handle_new_app_version_info(app_version_info);
             }
             DeviceEvent(event) => self.handle_device_event(event).await,
+            AccessMethodEvent(event) => self.handle_access_method_event(event).await,
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -1140,9 +1149,6 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
-            UpdateActiveAccessMethod(tx, method) => {
-                self.on_update_active_api_access_method(tx, method).await
-            }
             TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
@@ -1239,6 +1245,19 @@ where
         if let AccountEvent::Device(event) = event {
             self.event_listener
                 .notify_device_event(DeviceEvent::from(event));
+        }
+    }
+
+    async fn handle_access_method_event(&mut self, event: AccessMethodEvent) {
+        match event {
+            AccessMethodEvent::Active(id) => {
+                if let Err(error) = self.set_active_access_method(id).await {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to set active access mehod")
+                    );
+                }
+            }
         }
     }
 
@@ -2349,18 +2368,6 @@ where
     ) {
         let result = self
             .set_api_access_method(access_method)
-            .await
-            .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "set_api_access_method response");
-    }
-
-    async fn on_update_active_api_access_method(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        access_method: mullvad_types::access_method::Id,
-    ) {
-        let result = self
-            .set_active_access_method(access_method)
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "set_api_access_method response");
