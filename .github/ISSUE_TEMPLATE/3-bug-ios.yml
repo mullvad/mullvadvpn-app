@@ -91,6 +91,9 @@ body:
         On what version(s) of the app have you experienced this bug?
         If you have experienced it on multiple versions you can write more than one version here.
 
+        If you know that this has worked fine before, please include that.
+        For example: "Broke in 2023.8. Worked fine on 2023.7".
+
   - type: textarea
     id: additional
     attributes:
