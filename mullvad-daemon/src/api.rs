@@ -35,7 +35,7 @@ pub enum Message {
 #[derive(Clone)]
 pub enum AccessMethodEvent {
     /// Emitted when the active access method changes.
-    Active(access_method::Id),
+    Active(AccessMethodSetting),
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -219,7 +219,7 @@ impl AccessModeSelector {
         tx: ResponseTx<()>,
         value: AccessMethodSetting,
     ) -> Result<()> {
-        let event = AccessMethodEvent::Active(value.get_id());
+        let event = AccessMethodEvent::Active(value.clone());
         // TODO(markus): This won't work out too well. But! It should be fixable by forcing a rotation through the event `AccessMethodEvent::Active`
         self.set_access_method(value);
         self.listeners

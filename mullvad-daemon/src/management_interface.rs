@@ -1010,9 +1010,16 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
-    fn notify_access_method_event(&self, _event: crate::api::AccessMethodEvent) {
+    fn notify_new_access_method(
+        &self,
+        new_access_method: mullvad_types::access_method::AccessMethodSetting,
+    ) {
         log::debug!("Broadcasting access method event");
-        todo!("Implement `notify_access_method_event`")
+        self.notify(types::DaemonEvent {
+            event: Some(daemon_event::Event::NewAccessMethod(
+                types::AccessMethodSetting::from(new_access_method),
+            )),
+        })
     }
 }
 
