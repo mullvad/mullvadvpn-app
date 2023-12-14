@@ -1,25 +1,25 @@
 package net.mullvad.mullvadvpn.viewmodel
 
-import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.lib.payment.model.ProductId
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -27,13 +27,12 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
+import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS
 import net.mullvad.mullvadvpn.util.addDebounceForUnknownState
 import net.mullvad.mullvadvpn.util.callbackFlowFromNotifier
-import net.mullvad.mullvadvpn.util.toPaymentDialogData
 import net.mullvad.mullvadvpn.util.toPaymentState
-import org.joda.time.DateTime
 
 @OptIn(FlowPreview::class)
 class WelcomeViewModel(
@@ -41,10 +40,11 @@ class WelcomeViewModel(
     private val deviceRepository: DeviceRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
     private val paymentUseCase: PaymentUseCase,
+    private val outOfTimeUseCase: OutOfTimeUseCase,
     private val pollAccountExpiry: Boolean = true
 ) : ViewModel() {
-    private val _uiSideEffect = MutableSharedFlow<UiSideEffect>(extraBufferCapacity = 1)
-    val uiSideEffect = _uiSideEffect.asSharedFlow()
+    private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState =
         serviceConnectionManager.connectionState
@@ -62,14 +62,13 @@ class WelcomeViewModel(
                         it.addDebounceForUnknownState(UNKNOWN_STATE_DEBOUNCE_DELAY_MILLISECONDS)
                     },
                     paymentUseCase.paymentAvailability,
-                    paymentUseCase.purchaseResult
-                ) { tunnelState, deviceState, paymentAvailability, purchaseResult ->
+                ) { tunnelState, deviceState, paymentAvailability ->
                     WelcomeUiState(
                         tunnelState = tunnelState,
                         accountNumber = deviceState.token(),
                         deviceName = deviceState.deviceName(),
+                        showSitePayment = IS_PLAY_BUILD.not(),
                         billingPaymentState = paymentAvailability?.toPaymentState(),
-                        paymentDialogData = purchaseResult?.toPaymentDialogData()
                     )
                 }
             }
@@ -77,23 +76,15 @@ class WelcomeViewModel(
 
     init {
         viewModelScope.launch {
-            accountRepository.accountExpiryState.collectLatest { accountExpiry ->
-                accountExpiry.date()?.let { expiry ->
-                    val tomorrow = DateTime.now().plusHours(20)
-
-                    if (expiry.isAfter(tomorrow)) {
-                        // Reset purchase state
-                        paymentUseCase.resetPurchaseResult()
-                        _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
-                    }
-                }
-            }
-        }
-        viewModelScope.launch {
             while (pollAccountExpiry) {
                 updateAccountExpiry()
                 delay(ACCOUNT_EXPIRY_POLL_INTERVAL)
             }
+        }
+        viewModelScope.launch {
+            outOfTimeUseCase.isOutOfTime().first { it == false }
+            paymentUseCase.resetPurchaseResult()
+            _uiSideEffect.send(UiSideEffect.OpenConnectScreen)
         }
         verifyPurchases()
         fetchPaymentAvailability()
@@ -104,16 +95,12 @@ class WelcomeViewModel(
 
     fun onSitePaymentClick() {
         viewModelScope.launch {
-            _uiSideEffect.tryEmit(
+            _uiSideEffect.send(
                 UiSideEffect.OpenAccountView(
                     serviceConnectionManager.authTokenCache()?.fetchAuthToken() ?: ""
                 )
             )
         }
-    }
-
-    fun startBillingPayment(productId: ProductId, activityProvider: () -> Activity) {
-        viewModelScope.launch { paymentUseCase.purchaseProduct(productId, activityProvider) }
     }
 
     private fun verifyPurchases() {
@@ -123,7 +110,6 @@ class WelcomeViewModel(
         }
     }
 
-    @OptIn(FlowPreview::class)
     private fun fetchPaymentAvailability() {
         viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
     }
@@ -135,7 +121,7 @@ class WelcomeViewModel(
         // should check payment availability and verify any purchases to handle potential errors.
         if (success) {
             updateAccountExpiry()
-            _uiSideEffect.tryEmit(UiSideEffect.OpenConnectScreen)
+            // Emission of out of time navigation is handled by launch in onStart
         } else {
             fetchPaymentAvailability()
             verifyPurchases() // Attempt to verify again

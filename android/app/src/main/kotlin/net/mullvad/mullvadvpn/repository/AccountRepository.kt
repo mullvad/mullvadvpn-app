@@ -4,14 +4,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
@@ -29,16 +26,10 @@ class AccountRepository(
     private val messageHandler: MessageHandler,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    private val _cachedCreatedAccount = MutableStateFlow<String?>(null)
-    val cachedCreatedAccount = _cachedCreatedAccount.asStateFlow()
-
     private val accountCreationEvents: SharedFlow<AccountCreationResult> =
         messageHandler
             .events<Event.AccountCreationEvent>()
             .map { it.result }
-            .onEach {
-                _cachedCreatedAccount.value = (it as? AccountCreationResult.Success)?.accountToken
-            }
             .shareIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed())
 
     val accountExpiryState: StateFlow<AccountExpiry> =
@@ -75,7 +66,6 @@ class AccountRepository(
         }
 
     fun logout() {
-        clearCreatedAccountCache()
         messageHandler.trySendRequest(Request.Logout)
     }
 
@@ -89,9 +79,5 @@ class AccountRepository(
 
     fun clearAccountHistory() {
         messageHandler.trySendRequest(Request.ClearAccountHistory)
-    }
-
-    fun clearCreatedAccountCache() {
-        _cachedCreatedAccount.value = null
     }
 }

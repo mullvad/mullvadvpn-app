@@ -1,12 +1,10 @@
 package net.mullvad.mullvadvpn.compose.cell
 
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -54,12 +52,12 @@ fun DnsCell(
 }
 
 @Composable
-private fun DnsTitle(address: String, modifier: Modifier = Modifier) {
+private fun RowScope.DnsTitle(address: String, modifier: Modifier = Modifier) {
     Text(
         text = address,
         color = Color.White,
         style = MaterialTheme.typography.labelLarge,
         textAlign = TextAlign.Start,
-        modifier = modifier.wrapContentWidth(align = Alignment.End).wrapContentHeight()
+        modifier = modifier.weight(1f)
     )
 }

@@ -10,24 +10,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.AnimatedIconButton
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.ui.extension.copyToClipboard
 
 @Preview
 @Composable
 private fun PreviewCopyableObfuscationView() {
-    AppTheme { CopyableObfuscationView("1111222233334444", modifier = Modifier.fillMaxWidth()) }
+    AppTheme { CopyableObfuscationView("1111222233334444", {}, modifier = Modifier.fillMaxWidth()) }
 }
 
 @Composable
-fun CopyableObfuscationView(content: String, modifier: Modifier = Modifier) {
+fun CopyableObfuscationView(
+    content: String,
+    onCopyClicked: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     var obfuscationEnabled by remember { mutableStateOf(true) }
 
     Row(verticalAlignment = CenterVertically, modifier = modifier) {
@@ -44,19 +45,7 @@ fun CopyableObfuscationView(content: String, modifier: Modifier = Modifier) {
             onClick = { obfuscationEnabled = !obfuscationEnabled }
         )
 
-        val context = LocalContext.current
-        val copy = {
-            context.copyToClipboard(
-                content = content,
-                clipboardLabel = context.getString(R.string.mullvad_account_number)
-            )
-            SdkUtils.showCopyToastIfNeeded(
-                context,
-                context.getString(R.string.copied_mullvad_account_number)
-            )
-        }
-
-        CopyAnimatedIconButton(onClick = copy)
+        CopyAnimatedIconButton(onClick = { onCopyClicked(content) })
     }
 }
 
