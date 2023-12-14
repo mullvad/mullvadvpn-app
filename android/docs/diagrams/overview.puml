@@ -1,4 +1,4 @@
-@startuml overview-diagram
+@startuml overview
 
 title Mullvad VPN Android app overview
 skinparam SequenceMessageAlign center
