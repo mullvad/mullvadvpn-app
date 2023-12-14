@@ -32,6 +32,12 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Prevent fragmentation when multihop is enabled by setting a default route MTU.
 
+### Changed
+#### Android
+- Migrated to Compose Navigation
+- Allow for full rotation
+- Improve animations between screens
+
 
 ## [android/2023.10-beta1] - 2023-12-11
 ### Fixed
