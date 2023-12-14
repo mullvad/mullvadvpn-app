@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.app.Activity
+import android.os.Build
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,25 +13,32 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.ExternalButton
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.RedeemVoucherButton
@@ -41,11 +48,13 @@ import net.mullvad.mullvadvpn.compose.component.MissingPolicy
 import net.mullvad.mullvadvpn.compose.component.NavigateBackDownIconButton
 import net.mullvad.mullvadvpn.compose.component.PlayPayment
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.compose.dialog.DeviceNameInfoDialog
-import net.mullvad.mullvadvpn.compose.dialog.payment.PaymentDialog
-import net.mullvad.mullvadvpn.compose.dialog.payment.VerificationPendingDialog
-import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.compose.destinations.DeviceNameInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
+import net.mullvad.mullvadvpn.compose.destinations.PaymentDestination
+import net.mullvad.mullvadvpn.compose.destinations.RedeemVoucherDestination
+import net.mullvad.mullvadvpn.compose.destinations.VerificationPendingDialogDestination
 import net.mullvad.mullvadvpn.compose.state.PaymentState
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.lib.common.util.openAccountPageInBrowser
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
@@ -58,6 +67,7 @@ import net.mullvad.mullvadvpn.util.toExpiryDateString
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 import net.mullvad.mullvadvpn.viewmodel.AccountViewModel
 import org.joda.time.DateTime
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -65,12 +75,12 @@ import org.joda.time.DateTime
 private fun PreviewAccountScreen() {
     AppTheme {
         AccountScreen(
-            showSitePayment = true,
             uiState =
                 AccountUiState(
                     deviceName = "Test Name",
                     accountNumber = "1234123412341234",
                     accountExpiry = null,
+                    showSitePayment = true,
                     billingPaymentState =
                         PaymentState.PaymentAvailable(
                             listOf(
@@ -88,70 +98,94 @@ private fun PreviewAccountScreen() {
                         )
                 ),
             uiSideEffect = MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
-            enterTransitionEndAction = MutableSharedFlow()
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Destination(style = SlideInFromBottomTransition::class)
+@Composable
+fun Account(
+    navigator: DestinationsNavigator,
+    playPaymentResultRecipient: ResultRecipient<PaymentDestination, Boolean>
+) {
+    val vm = koinViewModel<AccountViewModel>()
+    val state by vm.uiState.collectAsState()
+
+    playPaymentResultRecipient.onNavResult {
+        when (it) {
+            NavResult.Canceled -> {
+                /* Do nothing */
+            }
+            is NavResult.Value -> vm.onClosePurchaseResultDialog(it.value)
+        }
+    }
+
+    AccountScreen(
+        uiState = state,
+        uiSideEffect = vm.uiSideEffect,
+        onRedeemVoucherClick = {
+            navigator.navigate(RedeemVoucherDestination) { launchSingleTop = true }
+        },
+        onManageAccountClick = vm::onManageAccountClick,
+        onLogoutClick = vm::onLogoutClick,
+        navigateToLogin = {
+            navigator.navigate(LoginDestination(null)) {
+                launchSingleTop = true
+                popUpTo(NavGraphs.root) { inclusive = true }
+            }
+        },
+        onCopyAccountNumber = vm::onCopyAccountNumber,
+        onBackClick = navigator::navigateUp,
+        navigateToDeviceInfo = {
+            navigator.navigate(DeviceNameInfoDialogDestination) { launchSingleTop = true }
+        },
+        onPurchaseBillingProductClick = { productId ->
+            navigator.navigate(PaymentDestination(productId)) { launchSingleTop = true }
+        },
+        navigateToVerificationPendingDialog = {
+            navigator.navigate(VerificationPendingDialogDestination) { launchSingleTop = true }
+        }
+    )
 }
 
 @ExperimentalMaterial3Api
 @Composable
 fun AccountScreen(
-    showSitePayment: Boolean,
     uiState: AccountUiState,
-    uiSideEffect: SharedFlow<AccountViewModel.UiSideEffect>,
-    enterTransitionEndAction: SharedFlow<Unit>,
+    uiSideEffect: Flow<AccountViewModel.UiSideEffect>,
+    onCopyAccountNumber: (String) -> Unit = {},
     onRedeemVoucherClick: () -> Unit = {},
     onManageAccountClick: () -> Unit = {},
     onLogoutClick: () -> Unit = {},
-    onPurchaseBillingProductClick:
-        (productId: ProductId, activityProvider: () -> Activity) -> Unit =
-        { _, _ ->
-        },
-    onClosePurchaseResultDialog: (success: Boolean) -> Unit = {},
+    onPurchaseBillingProductClick: (productId: ProductId) -> Unit = { _ -> },
+    navigateToLogin: () -> Unit = {},
+    navigateToDeviceInfo: () -> Unit = {},
+    navigateToVerificationPendingDialog: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()
 
     val context = LocalContext.current
-    val backgroundColor = MaterialTheme.colorScheme.background
-    val systemUiController = rememberSystemUiController()
-    var showDeviceNameInfoDialog by remember { mutableStateOf(false) }
-    var showVerificationPendingDialog by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        systemUiController.setNavigationBarColor(backgroundColor)
-        enterTransitionEndAction.collect { systemUiController.setStatusBarColor(backgroundColor) }
-    }
-    val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
-    LaunchedEffect(Unit) {
-        uiSideEffect.collect { viewAction ->
-            if (viewAction is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser) {
-                openAccountPage(viewAction.token)
-            }
-        }
-    }
-
-    if (showDeviceNameInfoDialog) {
-        DeviceNameInfoDialog { showDeviceNameInfoDialog = false }
-    }
-
-    if (showVerificationPendingDialog) {
-        VerificationPendingDialog(onClose = { showVerificationPendingDialog = false })
-    }
-
-    uiState.paymentDialogData?.let {
-        PaymentDialog(
-            paymentDialogData = uiState.paymentDialogData,
-            retryPurchase = { onPurchaseBillingProductClick(it) { context as Activity } },
-            onCloseDialog = onClosePurchaseResultDialog
-        )
-    }
-
+    val clipboardManager = LocalClipboardManager.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
     LaunchedEffect(Unit) {
         uiSideEffect.collect { uiSideEffect ->
-            if (uiSideEffect is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser) {
-                context.openAccountPageInBrowser(uiSideEffect.token)
+            when (uiSideEffect) {
+                AccountViewModel.UiSideEffect.NavigateToLogin -> navigateToLogin()
+                is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
+                    context.openAccountPageInBrowser(uiSideEffect.token)
+                is AccountViewModel.UiSideEffect.CopyAccountNumber ->
+                    launch {
+                        clipboardManager.setText(AnnotatedString(uiSideEffect.accountNumber))
+
+                        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(message = copyTextString)
+                        }
+                    }
             }
         }
     }
@@ -165,9 +199,9 @@ fun AccountScreen(
             verticalArrangement = Arrangement.spacedBy(Dimens.accountRowSpacing),
             modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMargin)
         ) {
-            DeviceNameRow(deviceName = uiState.deviceName ?: "") { showDeviceNameInfoDialog = true }
+            DeviceNameRow(deviceName = uiState.deviceName ?: "", onInfoClick = navigateToDeviceInfo)
 
-            AccountNumberRow(accountNumber = uiState.accountNumber ?: "")
+            AccountNumberRow(accountNumber = uiState.accountNumber ?: "", onCopyAccountNumber)
 
             PaidUntilRow(accountExpiry = uiState.accountExpiry)
 
@@ -178,14 +212,14 @@ fun AccountScreen(
                     PlayPayment(
                         billingPaymentState = uiState.billingPaymentState,
                         onPurchaseBillingProductClick = { productId ->
-                            onPurchaseBillingProductClick(productId) { context as Activity }
+                            onPurchaseBillingProductClick(productId)
                         },
-                        onInfoClick = { showVerificationPendingDialog = true },
+                        onInfoClick = navigateToVerificationPendingDialog,
                         modifier = Modifier.padding(bottom = Dimens.buttonSpacing)
                     )
                 }
 
-                if (showSitePayment) {
+                if (uiState.showSitePayment) {
                     ExternalButton(
                         text = stringResource(id = R.string.manage_account),
                         onClick = onManageAccountClick,
@@ -230,7 +264,7 @@ private fun DeviceNameRow(deviceName: String, onInfoClick: () -> Unit) {
 }
 
 @Composable
-private fun AccountNumberRow(accountNumber: String) {
+private fun AccountNumberRow(accountNumber: String, onCopyAccountNumber: (String) -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             style = MaterialTheme.typography.labelMedium,
@@ -238,6 +272,7 @@ private fun AccountNumberRow(accountNumber: String) {
         )
         CopyableObfuscationView(
             content = accountNumber,
+            onCopyClicked = { onCopyAccountNumber(accountNumber) },
             modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight).fillMaxWidth()
         )
     }

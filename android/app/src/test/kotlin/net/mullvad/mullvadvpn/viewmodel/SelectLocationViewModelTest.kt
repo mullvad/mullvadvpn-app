@@ -120,10 +120,10 @@ class SelectLocationViewModelTest {
         every { mockRelayListUseCase.updateSelectedRelayLocation(mockLocation) } returns Unit
 
         // Act, Assert
-        viewModel.uiCloseAction.test {
+        viewModel.uiSideEffect.test {
             viewModel.selectRelay(mockRelayItem)
             // Await an empty item
-            assertEquals(Unit, awaitItem())
+            assertEquals(SelectLocationSideEffect.CloseScreen, awaitItem())
             verify {
                 connectionProxyMock.connect()
                 mockRelayListUseCase.updateSelectedRelayLocation(mockLocation)

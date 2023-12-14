@@ -5,8 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -16,9 +15,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -30,19 +31,53 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
+import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerUiSideEffect
+import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 private fun PreviewPrivacyDisclaimerScreen() {
     AppTheme { PrivacyDisclaimerScreen({}, {}) }
+}
+
+@Destination(style = DefaultTransition::class)
+@Composable
+fun PrivacyDisclaimer(
+    navigator: DestinationsNavigator,
+) {
+    val viewModel: PrivacyDisclaimerViewModel = koinViewModel()
+
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        viewModel.uiSideEffect.collect {
+            when (it) {
+                PrivacyDisclaimerUiSideEffect.NavigateToLogin -> {
+                    (context as MainActivity).initializeStateHandlerAndServiceConnection()
+                    navigator.navigate(LoginDestination(null)) {
+                        launchSingleTop = true
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
+            }
+        }
+    }
+    PrivacyDisclaimerScreen({}, viewModel::setPrivacyDisclosureAccepted)
 }
 
 @Composable
@@ -51,18 +86,11 @@ fun PrivacyDisclaimerScreen(
     onAcceptClicked: () -> Unit,
 ) {
     val topColor = MaterialTheme.colorScheme.primary
-    ScaffoldWithTopBar(
-        topBarColor = topColor,
-        statusBarColor = topColor,
-        navigationBarColor = MaterialTheme.colorScheme.background,
-        onAccountClicked = null,
-        onSettingsClicked = null
-    ) {
+    ScaffoldWithTopBar(topBarColor = topColor, onAccountClicked = null, onSettingsClicked = null) {
         ConstraintLayout(
             modifier =
-                Modifier.fillMaxHeight()
-                    .fillMaxWidth()
-                    .padding(it)
+                Modifier.padding(it)
+                    .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background)
         ) {
             val (body, actionButtons) = createRefs()

@@ -12,6 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
+import com.ramcosta.composedestinations.result.ResultBackNavigator
+import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -21,18 +25,14 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Preview
 @Composable
 private fun PreviewReportProblemNoEmailDialog() {
-    AppTheme {
-        ReportProblemNoEmailDialog(
-            onDismiss = {},
-            onConfirm = {},
-        )
-    }
+    AppTheme { ReportProblemNoEmailDialog(EmptyResultBackNavigator()) }
 }
 
+@Destination(style = DestinationStyle.Dialog::class)
 @Composable
-fun ReportProblemNoEmailDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
+fun ReportProblemNoEmailDialog(resultBackNavigator: ResultBackNavigator<Boolean>) {
     AlertDialog(
-        onDismissRequest = { onDismiss() },
+        onDismissRequest = resultBackNavigator::navigateBack,
         icon = {
             Icon(
                 painter = painterResource(id = R.drawable.icon_alert),
@@ -52,14 +52,14 @@ fun ReportProblemNoEmailDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
         dismissButton = {
             NegativeButton(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = onConfirm,
+                onClick = { resultBackNavigator.navigateBack(result = true) },
                 text = stringResource(id = R.string.send_anyway)
             )
         },
         confirmButton = {
             PrimaryButton(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { onDismiss() },
+                onClick = resultBackNavigator::navigateBack,
                 text = stringResource(id = R.string.back)
             )
         },
