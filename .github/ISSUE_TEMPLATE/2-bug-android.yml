@@ -90,8 +90,8 @@ body:
     attributes:
       label: Device model
       description: >
-        On what device have you seen this bug? for example "Samsung S22" or "Pixel 7"
-        If you have experienced it on multiple versions you can write more than one version here.
+        On what device have you seen this bug? for example "Samsung S22" or "Pixel 7".
+        If you have experienced it on multiple models, you can write more than one here.
 
   - type: input
     id: app-version
