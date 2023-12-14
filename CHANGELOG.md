@@ -36,6 +36,10 @@ Line wrap the file at 100 chars.                                              Th
 - Improve animations between screens
 
 
+## [android/2023.10] - 2023-12-14
+Identical to `android/2023.10-beta1`.
+
+
 ## [2024.1-beta1] - 2023-12-14
 ### Added
 - Add CLI support for applying patches to the settings with `mullvad import-settings`.
