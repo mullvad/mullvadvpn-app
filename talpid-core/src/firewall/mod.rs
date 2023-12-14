@@ -126,7 +126,7 @@ pub enum FirewallPolicy {
         /// Networks for which to permit in-tunnel traffic.
         allowed_tunnel_traffic: AllowedTunnelTraffic,
         /// TODO
-        #[cfg(target_os = "macos")]
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
         allow_all_traffic_to_peer: bool,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]

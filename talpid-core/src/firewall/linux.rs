@@ -530,11 +530,12 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
+                allow_all_traffic_to_peer,
             } => {
                 self.add_allow_tunnel_endpoint_rules(
                     peer_endpoint,
                     fwmark,
-                    false,
+                    *allow_all_traffic_to_peer,
                 );
                 self.add_allow_endpoint_rules(allowed_endpoint);
 
