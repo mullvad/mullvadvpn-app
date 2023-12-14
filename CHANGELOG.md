@@ -59,6 +59,12 @@ Line wrap the file at 100 chars.                                              Th
   the directory in ProgramData.
 
 
+## [android/2023.10] - 2023-12-14
+### Fixed
+#### Android
+Identical to `android/2023.10-beta1`.
+
+
 ## [android/2023.10-beta1] - 2023-12-11
 ### Fixed
 #### Android
