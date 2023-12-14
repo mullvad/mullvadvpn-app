@@ -1251,6 +1251,13 @@ where
     async fn handle_access_method_event(&mut self, event: AccessMethodEvent) {
         match event {
             AccessMethodEvent::Active(id) => {
+                log::info!("HANDLING INTERNVAL DAEMON EVENT: Setting new active access method");
+                if let Err(error) = self.force_api_endpoint_rotation().await {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to rotate access mehod")
+                    );
+                }
                 if let Err(error) = self.set_active_access_method(id).await {
                     log::error!(
                         "{}",

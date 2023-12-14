@@ -40,8 +40,6 @@ pub enum Error {
 pub enum Command {
     /// There is no need to force a rotation of [`AccessMethodSetting`]
     Nothing,
-    /// Select the next available [`AccessMethodSetting`], whichever that is
-    Rotate,
     /// Select the [`AccessMethodSetting`] with a certain [`access_method::Id`]
     Set(access_method::Id),
 }
@@ -79,30 +77,29 @@ where
         &mut self,
         access_method: access_method::Id,
     ) -> Result<(), Error> {
-        // Make sure that we are not trying to remove a built-in API access
-        // method
-        let command = match self.settings.api_access_methods.find(&access_method) {
-            Some(api_access_method) => {
-                if api_access_method.is_builtin() {
-                    Err(Error::RemoveBuiltIn)
-                } else if api_access_method.get_id()
-                    == self.get_current_access_method().await?.get_id()
-                {
-                    Ok(Command::Rotate)
-                } else {
-                    Ok(Command::Nothing)
-                }
+        match self.settings.api_access_methods.find(&access_method) {
+            // Make sure that we are not trying to remove a built-in API access
+            // method
+            Some(api_access_method) if api_access_method.is_builtin() => {
+                return Err(Error::RemoveBuiltIn)
             }
-            None => Ok(Command::Nothing),
-        }?;
+            // If the currently active access method is removed, a new access
+            // method should trigger
+            Some(api_access_method)
+                if api_access_method.get_id()
+                    == self.get_current_access_method().await?.get_id() =>
+            {
+                self.connection_modes_handler.next().await?;
+            }
+            _ => (),
+        }
 
         self.settings
             .update(|settings| settings.api_access_methods.remove(&access_method))
             .await
             .map(|did_change| self.notify_on_change(did_change))
-            .map_err(Error::Settings)?
-            .process_command(command)
-            .await
+            .map(|_| ())
+            .map_err(Error::Settings)
     }
 
     /// Set a [`AccessMethodSetting`] as the current API access method.
@@ -181,9 +178,9 @@ where
         Ok(self.connection_modes_handler.get_access_method().await?)
     }
 
-    /// Change which [`AccessMethodSetting`] which will be used to figure out
-    /// the Mullvad API endpoint.
-    async fn force_api_endpoint_rotation(&self) -> Result<(), Error> {
+    /// Change which [`AccessMethodSetting`] which will be used as the Mullvad
+    /// API endpoint.
+    pub async fn force_api_endpoint_rotation(&self) -> Result<(), Error> {
         self.api_handle
             .service()
             .next_api_endpoint()
@@ -236,7 +233,6 @@ where
     async fn process_command(&mut self, command: Command) -> Result<(), Error> {
         match command {
             Command::Nothing => Ok(()),
-            Command::Rotate => self.force_api_endpoint_rotation().await,
             Command::Set(id) => self.set_api_access_method(id).await,
         }
     }
