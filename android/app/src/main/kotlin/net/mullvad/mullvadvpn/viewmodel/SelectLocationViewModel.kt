@@ -84,6 +84,10 @@ class SelectLocationViewModel(
     private val _uiSideEffect = Channel<SelectLocationSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
+    init {
+        viewModelScope.launch { relayListUseCase.fetchRelayList() }
+    }
+
     fun selectRelay(relayItem: RelayItem) {
         relayListUseCase.updateSelectedRelayLocation(relayItem.location)
         serviceConnectionManager.connectionProxy()?.connect()
