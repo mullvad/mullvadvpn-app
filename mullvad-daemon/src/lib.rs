@@ -762,6 +762,9 @@ where
             vec![]
         };
 
+        // TODO: Can this be made cleaner? For example, don't tell the API
+        // runtime the initial API endpoint, since it already knows how to
+        // request an allowed endpoint.
         let initial_api_endpoint =
             api::get_allowed_endpoint(talpid_types::net::Endpoint::from_socket_address(
                 api_runtime.address_cache.get_address().await,

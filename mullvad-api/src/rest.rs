@@ -202,6 +202,7 @@ impl<
                 self.connector_handle.reset();
             }
             RequestCommand::NextApiConfig(completion_tx) => {
+                // TODO(markus): Rework this to be a lot simpler
                 #[cfg(feature = "api-override")]
                 if API.force_direct_connection {
                     log::debug!("Ignoring API connection mode");
