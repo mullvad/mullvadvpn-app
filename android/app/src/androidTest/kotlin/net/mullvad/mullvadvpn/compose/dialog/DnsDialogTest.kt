@@ -2,16 +2,20 @@ package net.mullvad.mullvadvpn.compose.dialog
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import de.mannodermaus.junit5.compose.createComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.DnsDialogViewState
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 
 class DnsDialogTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @OptIn(ExperimentalTestApi::class)
+    @JvmField
+    @RegisterExtension
+    val composeExtension = createComposeExtension()
 
     private val defaultState =
         DnsDialogViewState(
@@ -35,80 +39,86 @@ class DnsDialogTest {
     }
 
     @Test
-    fun testDnsDialogLanWarningShownWhenLanTrafficDisabledAndLocalAddressUsed() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            testDnsDialog(defaultState.copy(isAllowLanEnabled = false, isLocal = true))
+    fun testDnsDialogLanWarningShownWhenLanTrafficDisabledAndLocalAddressUsed() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                testDnsDialog(defaultState.copy(isAllowLanEnabled = false, isLocal = true))
+            }
+
+            // Assert
+            onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertExists()
         }
 
-        // Assert
-        composeTestRule.onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertExists()
-    }
-
     @Test
-    fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressUsed() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            testDnsDialog(defaultState.copy(isAllowLanEnabled = true, isLocal = true))
+    fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressUsed() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                testDnsDialog(defaultState.copy(isAllowLanEnabled = true, isLocal = true))
+            }
+
+            // Assert
+            onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
         }
 
-        // Assert
-        composeTestRule.onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
-    }
-
     @Test
-    fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndNonLocalAddressUsed() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            testDnsDialog(defaultState.copy(isAllowLanEnabled = true, isLocal = false))
+    fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndNonLocalAddressUsed() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                testDnsDialog(defaultState.copy(isAllowLanEnabled = true, isLocal = false))
+            }
+
+            // Assert
+            onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
         }
 
-        // Assert
-        composeTestRule.onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
-    }
-
     @Test
-    fun testDnsDialogLanWarningNotShownWhenLanTrafficDisabledAndNonLocalAddressUsed() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            testDnsDialog(defaultState.copy(isAllowLanEnabled = false, isLocal = false))
+    fun testDnsDialogLanWarningNotShownWhenLanTrafficDisabledAndNonLocalAddressUsed() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                testDnsDialog(defaultState.copy(isAllowLanEnabled = false, isLocal = false))
+            }
+
+            // Assert
+            onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
         }
 
-        // Assert
-        composeTestRule.onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
-    }
-
     @Test
-    fun testDnsDialogSubmitButtonDisabledOnInvalidDnsAddress() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            testDnsDialog(
-                defaultState.copy(
-                    ipAddress = invalidIpAddress,
-                    validationResult = DnsDialogViewState.ValidationResult.InvalidAddress,
+    fun testDnsDialogSubmitButtonDisabledOnInvalidDnsAddress() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                testDnsDialog(
+                    defaultState.copy(
+                        ipAddress = invalidIpAddress,
+                        validationResult = DnsDialogViewState.ValidationResult.InvalidAddress,
+                    )
                 )
-            )
-        }
+            }
 
-        // Assert
-        composeTestRule.onNodeWithText("Submit").assertIsNotEnabled()
-    }
+            // Assert
+            onNodeWithText("Submit").assertIsNotEnabled()
+        }
 
     @Test
-    fun testDnsDialogSubmitButtonDisabledOnDuplicateDnsAddress() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            testDnsDialog(
-                defaultState.copy(
-                    ipAddress = "192.168.0.1",
-                    validationResult = DnsDialogViewState.ValidationResult.DuplicateAddress,
+    fun testDnsDialogSubmitButtonDisabledOnDuplicateDnsAddress() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme {
+                testDnsDialog(
+                    defaultState.copy(
+                        ipAddress = "192.168.0.1",
+                        validationResult = DnsDialogViewState.ValidationResult.DuplicateAddress,
+                    )
                 )
-            )
-        }
+            }
 
-        // Assert
-        composeTestRule.onNodeWithText("Submit").assertIsNotEnabled()
-    }
+            // Assert
+            onNodeWithText("Submit").assertIsNotEnabled()
+        }
 
     companion object {
         private const val LOCAL_DNS_SERVER_WARNING =

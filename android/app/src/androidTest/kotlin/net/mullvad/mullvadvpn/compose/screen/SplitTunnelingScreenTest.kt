@@ -1,9 +1,10 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.graphics.Bitmap
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
@@ -14,15 +15,16 @@ import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.SplitTunnelingUiState
 import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.unloadKoinModules
 import org.koin.dsl.module
 
+@OptIn(ExperimentalTestApi::class)
 class SplitTunnelingScreenTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @JvmField @RegisterExtension val composeExtension = createComposeExtension()
 
     private val mockBitmap: Bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888)
     private val testModule = module {
@@ -33,7 +35,7 @@ class SplitTunnelingScreenTest {
         }
     }
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         loadKoinModules(testModule)
@@ -46,42 +48,47 @@ class SplitTunnelingScreenTest {
     }
 
     @Test
-    fun testLoadingState() {
-        // Arrange
-        composeTestRule.setContentWithTheme {
-            SplitTunnelingScreen(uiState = SplitTunnelingUiState.Loading)
-        }
+    fun testLoadingState() =
+        composeExtension.use {
+            // Arrange
+            setContentWithTheme { SplitTunnelingScreen(uiState = SplitTunnelingUiState.Loading) }
 
-        // Assert
-        composeTestRule.apply {
+            // Assert
             onNodeWithText(TITLE).assertExists()
             onNodeWithText(DESCRIPTION).assertExists()
             onNodeWithText(EXCLUDED_APPLICATIONS).assertDoesNotExist()
             onNodeWithText(SHOW_SYSTEM_APPS).assertDoesNotExist()
             onNodeWithText(ALL_APPLICATIONS).assertDoesNotExist()
         }
-    }
 
     @Test
-    fun testListDisplayed() {
-        // Arrange
-        val excludedApp =
-            AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
-        val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
-        composeTestRule.setContentWithTheme {
-            SplitTunnelingScreen(
-                uiState =
-                    SplitTunnelingUiState.ShowAppList(
-                        excludedApps = listOf(excludedApp),
-                        includedApps = listOf(includedApp),
-                        showSystemApps = false
-                    )
-            )
-        }
+    fun testListDisplayed() =
+        composeExtension.use {
+            // Arrange
+            val excludedApp =
+                AppData(
+                    packageName = EXCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = EXCLUDED_APP_NAME
+                )
+            val includedApp =
+                AppData(
+                    packageName = INCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = INCLUDED_APP_NAME
+                )
+            setContentWithTheme {
+                SplitTunnelingScreen(
+                    uiState =
+                        SplitTunnelingUiState.ShowAppList(
+                            excludedApps = listOf(excludedApp),
+                            includedApps = listOf(includedApp),
+                            showSystemApps = false
+                        )
+                )
+            }
 
-        // Assert
-        composeTestRule.apply {
+            // Assert
             onNodeWithText(TITLE).assertExists()
             onNodeWithText(DESCRIPTION).assertExists()
             onNodeWithText(EXCLUDED_APPLICATIONS).assertExists()
@@ -90,26 +97,29 @@ class SplitTunnelingScreenTest {
             onNodeWithText(ALL_APPLICATIONS).assertExists()
             onNodeWithText(INCLUDED_APP_NAME).assertExists()
         }
-    }
 
     @Test
-    fun testNoExcludedApps() {
-        // Arrange
-        val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
-        composeTestRule.setContentWithTheme {
-            SplitTunnelingScreen(
-                uiState =
-                    SplitTunnelingUiState.ShowAppList(
-                        excludedApps = emptyList(),
-                        includedApps = listOf(includedApp),
-                        showSystemApps = false
-                    )
-            )
-        }
+    fun testNoExcludedApps() =
+        composeExtension.use {
+            // Arrange
+            val includedApp =
+                AppData(
+                    packageName = INCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = INCLUDED_APP_NAME
+                )
+            setContentWithTheme {
+                SplitTunnelingScreen(
+                    uiState =
+                        SplitTunnelingUiState.ShowAppList(
+                            excludedApps = emptyList(),
+                            includedApps = listOf(includedApp),
+                            showSystemApps = false
+                        )
+                )
+            }
 
-        // Assert
-        composeTestRule.apply {
+            // Assert
             onNodeWithText(TITLE).assertExists()
             onNodeWithText(DESCRIPTION).assertExists()
             onNodeWithText(EXCLUDED_APPLICATIONS).assertDoesNotExist()
@@ -118,88 +128,114 @@ class SplitTunnelingScreenTest {
             onNodeWithText(ALL_APPLICATIONS).assertExists()
             onNodeWithText(INCLUDED_APP_NAME).assertExists()
         }
-    }
 
     @Test
-    fun testClickIncludedItem() {
-        // Arrange
-        val excludedApp =
-            AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
-        val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
-        val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
-        composeTestRule.setContentWithTheme {
-            SplitTunnelingScreen(
-                uiState =
-                    SplitTunnelingUiState.ShowAppList(
-                        excludedApps = listOf(excludedApp),
-                        includedApps = listOf(includedApp),
-                        showSystemApps = false
-                    ),
-                onExcludeAppClick = mockedClickHandler
-            )
+    fun testClickIncludedItem() =
+        composeExtension.use {
+            // Arrange
+            val excludedApp =
+                AppData(
+                    packageName = EXCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = EXCLUDED_APP_NAME
+                )
+            val includedApp =
+                AppData(
+                    packageName = INCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = INCLUDED_APP_NAME
+                )
+            val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                SplitTunnelingScreen(
+                    uiState =
+                        SplitTunnelingUiState.ShowAppList(
+                            excludedApps = listOf(excludedApp),
+                            includedApps = listOf(includedApp),
+                            showSystemApps = false
+                        ),
+                    onExcludeAppClick = mockedClickHandler
+                )
+            }
+
+            // Act
+            onNodeWithText(INCLUDED_APP_NAME).performClick()
+
+            // Assert
+            verify { mockedClickHandler.invoke(INCLUDED_APP_PACKAGE_NAME) }
         }
-
-        // Act
-        composeTestRule.onNodeWithText(INCLUDED_APP_NAME).performClick()
-
-        // Assert
-        verify { mockedClickHandler.invoke(INCLUDED_APP_PACKAGE_NAME) }
-    }
 
     @Test
-    fun testClickExcludedItem() {
-        // Arrange
-        val excludedApp =
-            AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
-        val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
-        val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
-        composeTestRule.setContentWithTheme {
-            SplitTunnelingScreen(
-                uiState =
-                    SplitTunnelingUiState.ShowAppList(
-                        excludedApps = listOf(excludedApp),
-                        includedApps = listOf(includedApp),
-                        showSystemApps = false
-                    ),
-                onIncludeAppClick = mockedClickHandler
-            )
+    fun testClickExcludedItem() =
+        composeExtension.use {
+            // Arrange
+            val excludedApp =
+                AppData(
+                    packageName = EXCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = EXCLUDED_APP_NAME
+                )
+            val includedApp =
+                AppData(
+                    packageName = INCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = INCLUDED_APP_NAME
+                )
+            val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                SplitTunnelingScreen(
+                    uiState =
+                        SplitTunnelingUiState.ShowAppList(
+                            excludedApps = listOf(excludedApp),
+                            includedApps = listOf(includedApp),
+                            showSystemApps = false
+                        ),
+                    onIncludeAppClick = mockedClickHandler
+                )
+            }
+
+            // Act
+            onNodeWithText(EXCLUDED_APP_NAME).performClick()
+
+            // Assert
+            verify { mockedClickHandler.invoke(EXCLUDED_APP_PACKAGE_NAME) }
         }
-
-        // Act
-        composeTestRule.onNodeWithText(EXCLUDED_APP_NAME).performClick()
-
-        // Assert
-        verify { mockedClickHandler.invoke(EXCLUDED_APP_PACKAGE_NAME) }
-    }
 
     @Test
-    fun testClickShowSystemApps() {
-        // Arrange
-        val excludedApp =
-            AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
-        val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
-        val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
-        composeTestRule.setContentWithTheme {
-            SplitTunnelingScreen(
-                uiState =
-                    SplitTunnelingUiState.ShowAppList(
-                        excludedApps = listOf(excludedApp),
-                        includedApps = listOf(includedApp),
-                        showSystemApps = false
-                    ),
-                onShowSystemAppsClick = mockedClickHandler
-            )
+    fun testClickShowSystemApps() =
+        composeExtension.use {
+            // Arrange
+            val excludedApp =
+                AppData(
+                    packageName = EXCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = EXCLUDED_APP_NAME
+                )
+            val includedApp =
+                AppData(
+                    packageName = INCLUDED_APP_PACKAGE_NAME,
+                    iconRes = 0,
+                    name = INCLUDED_APP_NAME
+                )
+            val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                SplitTunnelingScreen(
+                    uiState =
+                        SplitTunnelingUiState.ShowAppList(
+                            excludedApps = listOf(excludedApp),
+                            includedApps = listOf(includedApp),
+                            showSystemApps = false
+                        ),
+                    onShowSystemAppsClick = mockedClickHandler
+                )
+            }
+
+            // Act
+            onNodeWithText(SHOW_SYSTEM_APPS).performClick()
+
+            // Assert
+            verify { mockedClickHandler.invoke(true) }
         }
-
-        // Act
-        composeTestRule.onNodeWithText(SHOW_SYSTEM_APPS).performClick()
-
-        // Assert
-        verify { mockedClickHandler.invoke(true) }
-    }
 
     companion object {
         private const val EXCLUDED_APP_PACKAGE_NAME = "excluded-pkg"

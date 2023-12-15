@@ -1,64 +1,69 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.createComposeExtension
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
 
+@OptIn(ExperimentalTestApi::class)
 class DeviceRevokedScreenTest {
-    @get:Rule val composeTestRule = createComposeRule()
+    @JvmField @RegisterExtension val composeExtension = createComposeExtension()
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
     }
 
     @Test
-    fun testUnblockWarningShowingWhenSecured() {
-        // Arrange
-        val state = DeviceRevokedUiState.SECURED
+    fun testUnblockWarningShowingWhenSecured() =
+        composeExtension.use {
+            // Arrange
+            val state = DeviceRevokedUiState.SECURED
 
-        // Act
-        composeTestRule.setContentWithTheme { DeviceRevokedScreen(state) }
+            // Act
+            setContentWithTheme { DeviceRevokedScreen(state) }
 
-        // Assert
-        composeTestRule.onNodeWithText(UNBLOCK_WARNING).assertExists()
-    }
-
-    @Test
-    fun testUnblockWarningNotShowingWhenNotSecured() {
-        // Arrange
-        val state = DeviceRevokedUiState.UNSECURED
-
-        // Act
-        composeTestRule.setContentWithTheme { DeviceRevokedScreen(state) }
-
-        // Assert
-        composeTestRule.onNodeWithText(UNBLOCK_WARNING).assertDoesNotExist()
-    }
-
-    @Test
-    fun testGoToLogin() {
-        // Arrange
-        val state = DeviceRevokedUiState.UNSECURED
-        val mockOnGoToLoginClicked: () -> Unit = mockk(relaxed = true)
-        composeTestRule.setContentWithTheme {
-            DeviceRevokedScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
+            // Assert
+            onNodeWithText(UNBLOCK_WARNING).assertExists()
         }
 
-        // Act
-        composeTestRule.onNodeWithText(GO_TO_LOGIN_BUTTON_TEXT).performClick()
+    @Test
+    fun testUnblockWarningNotShowingWhenNotSecured() =
+        composeExtension.use {
+            // Arrange
+            val state = DeviceRevokedUiState.UNSECURED
 
-        // Assert
-        verify { mockOnGoToLoginClicked.invoke() }
-    }
+            // Act
+            setContentWithTheme { DeviceRevokedScreen(state) }
+
+            // Assert
+            onNodeWithText(UNBLOCK_WARNING).assertDoesNotExist()
+        }
+
+    @Test
+    fun testGoToLogin() =
+        composeExtension.use {
+            // Arrange
+            val state = DeviceRevokedUiState.UNSECURED
+            val mockOnGoToLoginClicked: () -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                DeviceRevokedScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
+            }
+
+            // Act
+            onNodeWithText(GO_TO_LOGIN_BUTTON_TEXT).performClick()
+
+            // Assert
+            verify { mockOnGoToLoginClicked.invoke() }
+        }
 
     companion object {
         private const val GO_TO_LOGIN_BUTTON_TEXT = "Go to login"
