@@ -13,6 +13,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,10 +24,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.result.NavResult
+import com.ramcosta.composedestinations.result.ResultRecipient
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.cell.BaseCell
 import net.mullvad.mullvadvpn.compose.cell.ContentBlockersDisableModeCellSubtitle
@@ -42,6 +53,20 @@ import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.destinations.AutoConnectAndLockdownModeScreenDestination
+import net.mullvad.mullvadvpn.compose.destinations.ContentBlockersInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.CustomDnsInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.DnsDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.LocalNetworkSharingInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.MalwareInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.MtuDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.ObfuscationInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.QuantumResistanceInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.UdpOverTcpPortInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.WireguardCustomPortDialogDestination
+import net.mullvad.mullvadvpn.compose.destinations.WireguardPortInfoDialogDestination
+import net.mullvad.mullvadvpn.compose.dialog.WireguardCustomPortNavArgs
+import net.mullvad.mullvadvpn.compose.dialog.WireguardPortInfoDialogArgument
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
@@ -51,6 +76,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.common.util.vpnSettingsAvailable
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -64,6 +90,9 @@ import net.mullvad.mullvadvpn.util.hasValue
 import net.mullvad.mullvadvpn.util.isCustom
 import net.mullvad.mullvadvpn.util.toValueOrNull
 import net.mullvad.mullvadvpn.viewmodel.CustomDnsItem
+import net.mullvad.mullvadvpn.viewmodel.VpnSettingsSideEffect
+import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
@@ -163,6 +192,11 @@ fun VpnSettings(
         navigateToContentBlockersInfo = {
             navigator.navigate(ContentBlockersInfoDialogDestination) { launchSingleTop = true }
         },
+        navigateToAutoConnectScreen = {
+            navigator.navigate(AutoConnectAndLockdownModeScreenDestination) {
+                launchSingleTop = true
+            }
+        },
         navigateToCustomDnsInfo = {
             navigator.navigate(CustomDnsInfoDialogDestination) { launchSingleTop = true }
         },
@@ -226,7 +260,7 @@ fun VpnSettingsScreen(
     uiState: VpnSettingsUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     navigateToContentBlockersInfo: () -> Unit = {},
-    onAutoConnectClick: () -> Unit = {},
+    navigateToAutoConnectScreen: () -> Unit = {},
     navigateToCustomDnsInfo: () -> Unit = {},
     navigateToMalwareInfo: () -> Unit = {},
     navigateToObfuscationInfo: () -> Unit = {},
@@ -270,7 +304,7 @@ fun VpnSettingsScreen(
                     Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                     NavigationComposeCell(
                         title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
-                        onClick = { onAutoConnectClick() },
+                        onClick = { navigateToAutoConnectScreen() },
                     )
                 }
                 item {

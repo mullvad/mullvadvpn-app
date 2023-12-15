@@ -1,10 +1,12 @@
 package net.mullvad.mullvadvpn.compose.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -207,7 +209,7 @@ fun ScaffoldWithLargeTopBarAndButton(
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
     Scaffold(
-        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).systemBarsPadding().nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             MullvadLargeTopBar(
                 title = appBarTitle,
