@@ -120,36 +120,24 @@ impl Error {
     }
 }
 
-use super::ApiEndpointUpdateCallback;
-
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<
-    T: Stream<Item = ApiConnectionMode>,
-    F: ApiEndpointUpdateCallback + Send,
-> {
+pub(crate) struct RequestService<T: Stream<Item = ApiConnectionMode>> {
     command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     proxy_config_provider: T,
-    new_address_callback: F,
-    address_cache: AddressCache,
     api_availability: ApiAvailabilityHandle,
 }
 
-impl<
-        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
-        F: ApiEndpointUpdateCallback + Send + Sync + 'static,
-    > RequestService<T, F>
-{
+impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestService<T> {
     /// Constructs a new request service.
     pub async fn spawn(
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
         mut proxy_config_provider: T,
-        new_address_callback: F,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
@@ -181,8 +169,6 @@ impl<
             connector_handle,
             client,
             proxy_config_provider,
-            new_address_callback,
-            address_cache,
             api_availability,
         };
         let handle = RequestServiceHandle { tx: command_tx };
