@@ -3,8 +3,10 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
@@ -53,6 +55,7 @@ class SelectLocationViewModelTest {
         every { mockRelayListFilterUseCase.selectedProviders() } returns selectedProvider
         every { mockRelayListFilterUseCase.availableProviders() } returns allProvider
         every { mockRelayListUseCase.relayListWithSelection() } returns relayListWithSelectionFlow
+        every { mockRelayListUseCase.fetchRelayList() } just runs
 
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(RELAY_LIST_EXTENSIONS)
