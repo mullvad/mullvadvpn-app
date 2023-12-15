@@ -1,5 +1,5 @@
 ---
-name: 🐞 Bug Report (Windows, macOS or Linux)
+name: 🐞🖥️ Desktop app bug report (Windows, macOS or Linux)
 description: This form is to report bugs in the desktop Mullvad VPN app.
 labels: ["bug"]
 body:

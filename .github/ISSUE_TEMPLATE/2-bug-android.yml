@@ -1,5 +1,5 @@
 ---
-name: 🐞 Bug Report (Android)
+name: 🐞📱 Android app bug report
 description: This form is to report bugs in the Android Mullvad VPN app.
 labels: ["bug", "android"]
 body:

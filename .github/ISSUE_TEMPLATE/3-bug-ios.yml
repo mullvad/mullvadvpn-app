@@ -1,5 +1,5 @@
 ---
-name: 🐞 Bug Report (iOS)
+name: 🐞📱 iOS app bug report
 description: This form is to report bugs in the iOS (iPhone + iPad) Mullvad VPN app.
 labels: ["bug", "ios"]
 body:
