@@ -194,7 +194,7 @@ fun SelectLocationScreen(
                         }
                     }
                     is SelectLocationUiState.ShowData -> {
-                        if (uiState.countries.isEmpty()) {
+                        if (uiState.countries.isEmpty() && uiState.searchTerm.isNotEmpty()) {
                             item(contentType = ContentType.EMPTY_TEXT) {
                                 val firstRow =
                                     HtmlCompat.fromHtml(
