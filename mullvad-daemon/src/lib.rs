@@ -36,6 +36,7 @@ use futures::{
     StreamExt,
 };
 use geoip::GeoIpHandler;
+use mullvad_api::proxy::ApiConnectionMode;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
@@ -1337,18 +1338,41 @@ where
         match event {
             AccessMethodEvent::Active(access_method) => {
                 log::info!("HANDLING INTERNVAL DAEMON EVENT: Setting new active access method");
-                if let Err(error) = self.force_api_endpoint_rotation().await {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to rotate access mehod")
-                    );
-                }
-                if let Err(error) = self.set_active_access_method(access_method).await {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to set active access mehod")
-                    );
-                }
+                // TODO(markus): Update the tunnel state machine to punch an appropriate hole in the firewall
+                let connection_mode: ApiConnectionMode = ApiConnectionMode::Direct;
+                let allowed_endpoint = talpid_types::net::AllowedEndpoint {
+                    clients: connection_mode.allowed_clients(),
+                    endpoint: match connection_mode.get_endpoint() {
+                        Some(endpoint) => endpoint,
+                        None => talpid_types::net::Endpoint::from_socket_address(
+                            self.api_runtime.address_cache.get_address().await,
+                            talpid_types::net::TransportProtocol::Tcp,
+                        ),
+                    },
+                };
+                let (result_tx, result_rx) = oneshot::channel();
+                log::warn!(
+                    "API endpoint: {endpoint}",
+                    endpoint = allowed_endpoint.endpoint
+                );
+                self.send_tunnel_command(TunnelCommand::AllowEndpoint(allowed_endpoint, result_tx));
+                //  Wait for the firewall policy to be updated.
+                let _ = result_rx.await;
+
+                self.event_listener.notify_new_access_method(access_method);
+
+                // if let Err(error) = self.force_api_endpoint_rotation().await {
+                //     log::error!(
+                //         "{}",
+                //         error.display_chain_with_msg("Failed to rotate access mehod")
+                //     );
+                // }
+                // if let Err(error) = self.set_active_access_method(access_method).await {
+                //     log::error!(
+                //         "{}",
+                //         error.display_chain_with_msg("Failed to set active access mehod")
+                //     );
+                // }
             }
         }
     }

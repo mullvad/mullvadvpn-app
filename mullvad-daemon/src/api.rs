@@ -160,6 +160,7 @@ impl AccessModeSelector {
                 )
             }
         };
+
         let selector = AccessModeSelector {
             cmd_rx,
             cache_dir,
@@ -211,20 +212,41 @@ impl AccessModeSelector {
         tx: ResponseTx<()>,
         value: AccessMethodSetting,
     ) -> Result<()> {
-        let event = AccessMethodEvent::Active(value.clone());
-        // TODO(markus): This won't work out too well. But! It should be fixable by forcing a rotation through the event `AccessMethodEvent::Active`
         self.set_access_method(value);
-        self.listeners
-            .retain(|listener| listener.send(event.clone()).is_ok());
         self.reply(tx, ())
     }
 
+    /// Set the next access method to be returned by the [`Stream`] produced by
+    /// calling `into_stream`.
     fn set_access_method(&mut self, value: AccessMethodSetting) {
         self.connection_modes.set_access_method(value);
     }
 
     fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
-        let next = self.next_connection_mode();
+        let (next, access_method) = {
+            // TODO(markus): Do not unwrap! Model the `next` function to not return an Option.
+            let access_method = self.connection_modes.next().unwrap();
+            //let next =
+            //    access_method.map(|access_method_setting| access_method_setting.access_method);
+            //.unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct));
+
+            let connection_mode = self.from(access_method.access_method.clone());
+            log::info!("New API connection mode selected: {connection_mode}");
+            (connection_mode, access_method)
+        };
+        // Notify all listeners about the new connection mode.
+        //
+        // TODO(markus): Remove this comment: Broadcasting this event to the
+        // daemon (via the listeners) will punch the appropriate hole in the
+        // firewall. As such, we can distribute this new access method to any
+        // downstream consumer, such as the `mullvad-api` crate. This is a bit
+        // racey though, as there is no synchronization between the daemon
+        // receiving and acting upon this event (by opening up the firewall) and
+        // the `mullvad-api` crate using this new access method.
+        let event = AccessMethodEvent::Active(access_method);
+        self.listeners
+            .retain(|listener| listener.send(event.clone()).is_ok());
+
         // Save the new connection mode to cache!
         {
             let cache_dir = self.cache_dir.clone();
@@ -239,18 +261,6 @@ impl AccessModeSelector {
             });
         }
         self.reply(tx, next)
-    }
-
-    fn next_connection_mode(&mut self) -> ApiConnectionMode {
-        let access_method = self
-            .connection_modes
-            .next()
-            .map(|access_method_setting| access_method_setting.access_method)
-            .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct));
-
-        let connection_mode = self.from(access_method);
-        log::info!("New API connection mode selected: {connection_mode}");
-        connection_mode
     }
 
     fn on_update_access_methods(
@@ -400,6 +410,7 @@ impl ApiEndpointUpdaterHandle {
         *self.tunnel_cmd_tx.lock().unwrap() = Some(tunnel_cmd_tx);
     }
 
+    // TODO(markus): Move this to the daemon. This can probably be removed entirely.
     pub fn callback(&self) -> impl ApiEndpointUpdateCallback {
         let tunnel_tx = self.tunnel_cmd_tx.clone();
         move |allowed_endpoint: AllowedEndpoint| {
