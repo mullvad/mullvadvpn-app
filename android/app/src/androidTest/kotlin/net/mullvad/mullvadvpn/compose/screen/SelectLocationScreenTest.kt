@@ -8,6 +8,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
+import net.mullvad.mullvadvpn.compose.state.RelayListState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.model.Constraint
@@ -50,9 +51,12 @@ class SelectLocationScreenTest {
         composeTestRule.setContentWithTheme {
             SelectLocationScreen(
                 uiState =
-                    SelectLocationUiState.ShowData(
-                        countries = DUMMY_RELAY_COUNTRIES,
-                        selectedRelay = null,
+                    SelectLocationUiState.Data(
+                        relayListState =
+                            RelayListState.RelayList(
+                                countries = DUMMY_RELAY_COUNTRIES,
+                                selectedRelay = null
+                            ),
                         selectedOwnership = null,
                         selectedProvidersCount = 0,
                         searchTerm = ""
@@ -88,9 +92,12 @@ class SelectLocationScreenTest {
         composeTestRule.setContentWithTheme {
             SelectLocationScreen(
                 uiState =
-                    SelectLocationUiState.ShowData(
-                        countries = updatedDummyList,
-                        selectedRelay = updatedDummyList[0].cities[0].relays[0],
+                    SelectLocationUiState.Data(
+                        relayListState =
+                            RelayListState.RelayList(
+                                countries = updatedDummyList,
+                                selectedRelay = updatedDummyList[0].cities[0].relays[0]
+                            ),
                         selectedOwnership = null,
                         selectedProvidersCount = 0,
                         searchTerm = ""
@@ -116,9 +123,8 @@ class SelectLocationScreenTest {
         composeTestRule.setContentWithTheme {
             SelectLocationScreen(
                 uiState =
-                    SelectLocationUiState.ShowData(
-                        countries = emptyList(),
-                        selectedRelay = null,
+                    SelectLocationUiState.Data(
+                        relayListState = RelayListState.Empty,
                         selectedOwnership = null,
                         selectedProvidersCount = 0,
                         searchTerm = ""
@@ -143,9 +149,8 @@ class SelectLocationScreenTest {
         composeTestRule.setContentWithTheme {
             SelectLocationScreen(
                 uiState =
-                    SelectLocationUiState.ShowData(
-                        countries = emptyList(),
-                        selectedRelay = null,
+                    SelectLocationUiState.Data(
+                        relayListState = RelayListState.Empty,
                         selectedOwnership = null,
                         selectedProvidersCount = 0,
                         searchTerm = mockSearchString
