@@ -96,7 +96,7 @@ fun FilterScreen(
     onApplyClick: () -> Unit = {},
     onSelectedOwnership: (ownership: Ownership?) -> Unit = {},
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit = {},
-    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit
+    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit = { _, _ -> }
 ) {
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var ownershipExpanded by rememberSaveable { mutableStateOf(false) }
