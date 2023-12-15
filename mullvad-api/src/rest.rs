@@ -24,10 +24,7 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-use talpid_types::{
-    net::{AllowedEndpoint, Endpoint, TransportProtocol},
-    ErrorExt,
-};
+use talpid_types::ErrorExt;
 
 #[cfg(feature = "api-override")]
 use crate::API;
@@ -210,20 +207,9 @@ impl<
                     return;
                 }
 
-                if let Some(new_config) = self.proxy_config_provider.next().await {
-                    let endpoint = match new_config.get_endpoint() {
-                        Some(endpoint) => endpoint,
-                        None => Endpoint::from_socket_address(
-                            self.address_cache.get_address().await,
-                            TransportProtocol::Tcp,
-                        ),
-                    };
-                    let clients = new_config.allowed_clients();
-                    let allowed_endpoint = AllowedEndpoint { endpoint, clients };
-                    // Switch to new connection mode unless rejected by address change callback
-                    if (self.new_address_callback)(allowed_endpoint).await {
-                        self.connector_handle.set_connection_mode(new_config);
-                    }
+                log::warn!("Getting next API connection mode ..");
+                if let Some(connection_mode) = self.proxy_config_provider.next().await {
+                    self.connector_handle.set_connection_mode(connection_mode);
                 }
 
                 let _ = completion_tx.send(Ok(()));

@@ -191,16 +191,6 @@ where
             })
     }
 
-    /// Update the known active access method and notify any listeners
-    pub async fn set_active_access_method(
-        &mut self,
-        access_method: AccessMethodSetting,
-    ) -> Result<(), Error> {
-        let event_listener = self.event_listener.clone();
-        event_listener.notify_new_access_method(access_method);
-        Ok(())
-    }
-
     /// If settings were changed due to an update, notify all listeners.
     fn notify_on_change(&mut self, settings_changed: MadeChanges) -> &mut Self {
         if settings_changed {
