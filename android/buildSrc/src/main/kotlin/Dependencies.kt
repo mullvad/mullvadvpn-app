@@ -123,5 +123,6 @@ object Dependencies {
         const val gradleVersionsId = "com.github.ben-manes.versions"
         const val ktfmtId = "com.ncorti.ktfmt.gradle"
         const val ksp = "com.google.devtools.ksp"
+        const val junit5 = "de.mannodermaus.android-junit5"
     }
 }
