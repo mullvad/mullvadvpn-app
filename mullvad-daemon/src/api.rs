@@ -101,13 +101,6 @@ impl AccessModeSelectorHandle {
         })
     }
 
-    // pub async fn listen(&self) -> Result<ApiConnectionMode> {
-    //     self.send_command(Message::Next).await.map_err(|err| {
-    //         log::error!("Failed to update new access methods!");
-    //         err
-    //     })
-    // }
-
     /// Convert this handle to a [`Stream`] of [`ApiConnectionMode`] from the
     /// associated [`AccessModeSelector`].
     ///
@@ -144,7 +137,6 @@ pub struct AccessModeSelector {
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
     /// Communication channel with the daemon
-    // daemon_cmd_tx: mpsc::UnboundedSender<DaemonCommand>,
     listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
 }
 
@@ -153,7 +145,7 @@ impl AccessModeSelector {
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
-        listener_tx: impl Sender<AccessMethodEvent> + Send + 'static,
+        listener: impl Sender<AccessMethodEvent> + Send + 'static,
     ) -> AccessModeSelectorHandle {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -173,7 +165,7 @@ impl AccessModeSelector {
             cache_dir,
             relay_selector,
             connection_modes,
-            listeners: vec![Box::new(listener_tx)],
+            listeners: vec![Box::new(listener)],
         };
         tokio::spawn(selector.into_future());
         AccessModeSelectorHandle { cmd_tx }
@@ -286,15 +278,15 @@ impl AccessModeSelector {
                     .relay_selector
                     .get_bridge_forced()
                     .and_then(|settings| match settings {
-                        ProxySettings::Shadowsocks(ss_settings) => {
-                            let ss_settings: access_method::Shadowsocks =
+                        ProxySettings::Shadowsocks(settings) => {
+                            let shadowsocks: access_method::Shadowsocks =
                                 access_method::Shadowsocks::new(
-                                    ss_settings.peer,
-                                    ss_settings.cipher,
-                                    ss_settings.password,
+                                    settings.peer,
+                                    settings.cipher,
+                                    settings.password,
                                 );
                             Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                                ss_settings,
+                                shadowsocks,
                             )))
                         }
                         _ => {
@@ -305,11 +297,11 @@ impl AccessModeSelector {
                     .unwrap_or(ApiConnectionMode::Direct),
             },
             AccessMethod::Custom(access_method) => match access_method {
-                access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config))
+                access_method::CustomAccessMethod::Shadowsocks(shadowsocks) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks))
                 }
-                access_method::CustomAccessMethod::Socks5(socks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config))
+                access_method::CustomAccessMethod::Socks5(socks) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks))
                 }
             },
         }
