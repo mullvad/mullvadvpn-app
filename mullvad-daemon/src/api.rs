@@ -12,16 +12,11 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
-    ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
-use std::{
-    path::PathBuf,
-    sync::{Arc, Mutex, Weak},
-};
+use std::path::PathBuf;
 use talpid_core::mpsc::Sender;
-use talpid_core::tunnel_state_machine::TunnelCommand;
 use talpid_types::net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint};
 
 pub enum Message {
@@ -389,55 +384,6 @@ impl Iterator for ConnectionModesIterator {
             .unwrap();
         self.current = next.clone();
         Some(next)
-    }
-}
-
-/// Notifies the tunnel state machine that the API (real or proxied) endpoint has
-/// changed. [ApiEndpointUpdaterHandle::callback()] creates a callback that may
-/// be passed to the `mullvad-api` runtime.
-pub(super) struct ApiEndpointUpdaterHandle {
-    tunnel_cmd_tx: Arc<Mutex<Option<Weak<mpsc::UnboundedSender<TunnelCommand>>>>>,
-}
-
-impl ApiEndpointUpdaterHandle {
-    pub fn new() -> Self {
-        Self {
-            tunnel_cmd_tx: Arc::new(Mutex::new(None)),
-        }
-    }
-
-    pub fn set_tunnel_command_tx(&self, tunnel_cmd_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) {
-        *self.tunnel_cmd_tx.lock().unwrap() = Some(tunnel_cmd_tx);
-    }
-
-    // TODO(markus): Move this to the daemon. This can probably be removed entirely.
-    pub fn callback(&self) -> impl ApiEndpointUpdateCallback {
-        let tunnel_tx = self.tunnel_cmd_tx.clone();
-        move |allowed_endpoint: AllowedEndpoint| {
-            let inner_tx = tunnel_tx.clone();
-            async move {
-                let tunnel_tx = if let Some(tunnel_tx) = { inner_tx.lock().unwrap().as_ref() }
-                    .and_then(|tx: &Weak<mpsc::UnboundedSender<TunnelCommand>>| tx.upgrade())
-                {
-                    tunnel_tx
-                } else {
-                    log::error!("Rejecting allowed endpoint: Tunnel state machine is not running");
-                    return false;
-                };
-                let (result_tx, result_rx) = oneshot::channel();
-                let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                    allowed_endpoint.clone(),
-                    result_tx,
-                ));
-                // Wait for the firewall policy to be updated.
-                let _ = result_rx.await;
-                log::debug!(
-                    "API endpoint: {endpoint}",
-                    endpoint = allowed_endpoint.endpoint
-                );
-                true
-            }
-        }
     }
 }
 
