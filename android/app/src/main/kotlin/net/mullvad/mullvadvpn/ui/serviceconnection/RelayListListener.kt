@@ -53,5 +53,9 @@ class RelayListListener(
         messageHandler.trySendRequest(Request.SetOwnershipAndProviders(ownership, providers))
     }
 
+    fun fetchRelayList() {
+        messageHandler.trySendRequest(Request.FetchRelayList)
+    }
+
     private fun defaultRelayList() = RelayList(ArrayList(), WireguardEndpointData(ArrayList()))
 }

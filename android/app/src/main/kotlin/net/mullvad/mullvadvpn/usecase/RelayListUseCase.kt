@@ -48,6 +48,10 @@ class RelayListUseCase(
 
     fun selectedRelayItem(): Flow<RelayItem?> = relayListWithSelection().map { it.selectedItem }
 
+    fun fetchRelayList() {
+        relayListListener.fetchRelayList()
+    }
+
     private fun List<RelayCountry>.findSelectedRelayItem(
         relaySettings: RelaySettings?,
     ): RelayItem? {
