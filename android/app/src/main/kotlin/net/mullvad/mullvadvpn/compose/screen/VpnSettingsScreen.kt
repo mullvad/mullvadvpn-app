@@ -23,6 +23,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -46,11 +47,13 @@ import net.mullvad.mullvadvpn.compose.cell.HeaderSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.InformationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuComposeCell
 import net.mullvad.mullvadvpn.compose.cell.MtuSubtitle
+import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.NormalSwitchComposeCell
 import net.mullvad.mullvadvpn.compose.cell.SelectableCell
 import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.destinations.AutoConnectAndLockdownModeScreenDestination
 import net.mullvad.mullvadvpn.compose.destinations.ContentBlockersInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.CustomDnsInfoDialogDestination
 import net.mullvad.mullvadvpn.compose.destinations.DnsDialogDestination
@@ -75,6 +78,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
+import net.mullvad.mullvadvpn.lib.common.util.vpnSettingsAvailable
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.model.Constraint
@@ -188,6 +192,11 @@ fun VpnSettings(
         navigateToContentBlockersInfo = {
             navigator.navigate(ContentBlockersInfoDialogDestination) { launchSingleTop = true }
         },
+        navigateToAutoConnectScreen = {
+            navigator.navigate(AutoConnectAndLockdownModeScreenDestination) {
+                launchSingleTop = true
+            }
+        },
         navigateToCustomDnsInfo = {
             navigator.navigate(CustomDnsInfoDialogDestination) { launchSingleTop = true }
         },
@@ -245,12 +254,14 @@ fun VpnSettings(
     )
 }
 
+@Suppress("LongMethod")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VpnSettingsScreen(
     uiState: VpnSettingsUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     navigateToContentBlockersInfo: () -> Unit = {},
+    navigateToAutoConnectScreen: () -> Unit = {},
     navigateToCustomDnsInfo: () -> Unit = {},
     navigateToMalwareInfo: () -> Unit = {},
     navigateToObfuscationInfo: () -> Unit = {},
@@ -284,10 +295,25 @@ fun VpnSettingsScreen(
         navigationIcon = { NavigateBackIconButton(onBackClick) },
         snackbarHostState = snackbarHostState
     ) { modifier, lazyListState ->
+        val context = LocalContext.current
         LazyColumn(
             modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
             state = lazyListState
         ) {
+            if (context.vpnSettingsAvailable()) {
+                item {
+                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                    NavigationComposeCell(
+                        title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
+                        onClick = { navigateToAutoConnectScreen() },
+                    )
+                }
+                item {
+                    SwitchComposeSubtitleCell(
+                        text = stringResource(id = R.string.auto_connect_and_lockdown_mode_footer)
+                    )
+                }
+            }
             item {
                 Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 HeaderSwitchComposeCell(
