@@ -3,8 +3,10 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.runs
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
@@ -12,6 +14,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.compose.state.RelayListState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
@@ -53,6 +56,7 @@ class SelectLocationViewModelTest {
         every { mockRelayListFilterUseCase.selectedProviders() } returns selectedProvider
         every { mockRelayListFilterUseCase.availableProviders() } returns allProvider
         every { mockRelayListUseCase.relayListWithSelection() } returns relayListWithSelectionFlow
+        every { mockRelayListUseCase.fetchRelayList() } just runs
 
         mockkStatic(SERVICE_CONNECTION_MANAGER_EXTENSIONS)
         mockkStatic(RELAY_LIST_EXTENSIONS)
@@ -86,9 +90,16 @@ class SelectLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val actualState = awaitItem()
-            assertIs<SelectLocationUiState.ShowData>(actualState)
-            assertLists(mockCountries, actualState.countries)
-            assertEquals(selectedRelay, actualState.selectedRelay)
+            assertIs<SelectLocationUiState.Data>(actualState)
+            assertIs<RelayListState.RelayList>(actualState.relayListState)
+            assertLists(
+                mockCountries,
+                (actualState.relayListState as RelayListState.RelayList).countries
+            )
+            assertEquals(
+                selectedRelay,
+                (actualState.relayListState as RelayListState.RelayList).selectedRelay
+            )
         }
     }
 
@@ -103,9 +114,16 @@ class SelectLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val actualState = awaitItem()
-            assertIs<SelectLocationUiState.ShowData>(actualState)
-            assertLists(mockCountries, actualState.countries)
-            assertEquals(selectedRelay, actualState.selectedRelay)
+            assertIs<SelectLocationUiState.Data>(actualState)
+            assertIs<RelayListState.RelayList>(actualState.relayListState)
+            assertLists(
+                mockCountries,
+                (actualState.relayListState as RelayListState.RelayList).countries
+            )
+            assertEquals(
+                selectedRelay,
+                (actualState.relayListState as RelayListState.RelayList).selectedRelay
+            )
         }
     }
 
@@ -145,16 +163,23 @@ class SelectLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             // Wait for first data
-            assertIs<SelectLocationUiState.ShowData>(awaitItem())
+            assertIs<SelectLocationUiState.Data>(awaitItem())
 
             // Update search string
             viewModel.onSearchTermInput(mockSearchString)
 
             // Assert
             val actualState = awaitItem()
-            assertIs<SelectLocationUiState.ShowData>(actualState)
-            assertLists(mockCountries, actualState.countries)
-            assertEquals(selectedRelay, actualState.selectedRelay)
+            assertIs<SelectLocationUiState.Data>(actualState)
+            assertIs<RelayListState.RelayList>(actualState.relayListState)
+            assertLists(
+                mockCountries,
+                (actualState.relayListState as RelayListState.RelayList).countries
+            )
+            assertEquals(
+                selectedRelay,
+                (actualState.relayListState as RelayListState.RelayList).selectedRelay
+            )
         }
     }
 
@@ -172,14 +197,14 @@ class SelectLocationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             // Wait for first data
-            assertIs<SelectLocationUiState.ShowData>(awaitItem())
+            assertIs<SelectLocationUiState.Data>(awaitItem())
 
             // Update search string
             viewModel.onSearchTermInput(mockSearchString)
 
             // Assert
             val actualState = awaitItem()
-            assertIs<SelectLocationUiState.ShowData>(actualState)
+            assertIs<SelectLocationUiState.Data>(actualState)
             assertEquals(mockSearchString, actualState.searchTerm)
         }
     }
