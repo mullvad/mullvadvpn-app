@@ -56,6 +56,7 @@ object Versions {
         // Ksp version is linked with kotlin version, find matching release here:
         // https://github.com/google/ksp/releases
         const val ksp = "${kotlin}-1.0.14"
+        const val junit5 = "1.10.0.0"
     }
 
     object Koin {
