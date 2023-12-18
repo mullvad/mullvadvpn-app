@@ -15,13 +15,13 @@ import net.mullvad.mullvadvpn.model.Device
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class NewDeviceUseNotificationCaseTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val deviceName = "Frank Zebra"
     private val deviceState =
@@ -32,7 +32,7 @@ class NewDeviceUseNotificationCaseTest {
         )
     private lateinit var newDeviceNotificationUseCase: NewDeviceNotificationUseCase
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
 
@@ -42,7 +42,7 @@ class NewDeviceUseNotificationCaseTest {
             NewDeviceNotificationUseCase(deviceRepository = mockDeviceRepository)
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         unmockkAll()
     }

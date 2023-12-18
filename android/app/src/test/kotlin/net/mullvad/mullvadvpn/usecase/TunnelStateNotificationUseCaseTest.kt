@@ -19,13 +19,13 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.util.EventNotifier
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class TunnelStateNotificationUseCaseTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -37,7 +37,7 @@ class TunnelStateNotificationUseCaseTest {
 
     private val eventNotifierTunnelUiState = EventNotifier<TunnelState>(TunnelState.Disconnected())
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         every { mockConnectionProxy.onUiStateChange } returns eventNotifierTunnelUiState
@@ -49,7 +49,7 @@ class TunnelStateNotificationUseCaseTest {
             TunnelStateNotificationUseCase(serviceConnectionManager = mockServiceConnectionManager)
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         unmockkAll()
     }
