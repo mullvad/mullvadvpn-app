@@ -27,4 +27,5 @@ dependencies {
     implementation(Dependencies.Kotlin.test)
     implementation(Dependencies.KotlinX.coroutinesTest)
     implementation(Dependencies.junit)
+    implementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
 }

@@ -12,19 +12,19 @@ import kotlin.test.assertNotNull
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class ChangelogViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var mockedChangelogRepository: ChangelogRepository
 
     private lateinit var viewModel: ChangelogViewModel
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         mockkStatic(EVENT_NOTIFIER_EXTENSION_CLASS)
@@ -32,7 +32,7 @@ class ChangelogViewModelTest {
             Runs
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         unmockkAll()
     }

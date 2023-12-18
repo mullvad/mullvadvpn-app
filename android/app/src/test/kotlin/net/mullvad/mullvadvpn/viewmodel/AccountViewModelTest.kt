@@ -30,13 +30,13 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.authTokenCache
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class AccountViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockAccountRepository: AccountRepository = mockk(relaxUnitFun = true)
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
@@ -62,7 +62,7 @@ class AccountViewModelTest {
 
     private lateinit var viewModel: AccountViewModel
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockkStatic(CACHE_EXTENSION_CLASS)
         mockkStatic(PURCHASE_RESULT_EXTENSIONS_CLASS)
@@ -82,7 +82,7 @@ class AccountViewModelTest {
             )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }
