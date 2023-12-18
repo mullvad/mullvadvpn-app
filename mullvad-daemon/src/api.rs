@@ -24,7 +24,6 @@ use talpid_types::net::{
 
 pub enum Message {
     Get(ResponseTx<AccessMethodSetting>),
-    GetConnectionMode(ResponseTx<ApiConnectionMode>),
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Vec<AccessMethodSetting>),
@@ -76,16 +75,6 @@ impl AccessModeSelectorHandle {
             log::error!("Failed to get current access method!");
             err
         })
-    }
-
-    /// Get the [`ApiConnectionMode`] currently in use for establishing API connections.
-    pub async fn get_active_connection_mode(&self) -> Result<ApiConnectionMode> {
-        self.send_command(Message::GetConnectionMode)
-            .await
-            .map_err(|err| {
-                log::error!("Failed to get current access method!");
-                err
-            })
     }
 
     pub async fn set_access_method(&self, value: AccessMethodSetting) -> Result<()> {
@@ -148,7 +137,6 @@ pub struct AccessModeSelector {
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
-    active_connection_mode: ApiConnectionMode,
     address_cache: AddressCache,
     /// Communication channel with the daemon
     listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
@@ -183,25 +171,25 @@ impl AccessModeSelector {
             }
         };
 
-        let active_connection_mode = {
+        let initial_api_endpoint = {
             // TODO(markus): Unwrap? :no-thanks:
             let next = connection_modes.next().unwrap();
-            resolve(next.access_method.clone(), &relay_selector)
-        };
-        let initial_api_endpoint = {
+            let active_connection_mode = resolve(next.access_method.clone(), &relay_selector);
             let fallback = address_cache.get_address().await;
             allowed_endpoint(&active_connection_mode, fallback)
         };
+
         let selector = AccessModeSelector {
             cmd_rx,
             cache_dir,
             relay_selector,
             connection_modes,
-            active_connection_mode,
             address_cache,
             listeners: vec![Box::new(listener)],
         };
+
         tokio::spawn(selector.into_future());
+
         SpawnResult {
             handle: AccessModeSelectorHandle { cmd_tx },
             initial_api_endpoint,
@@ -212,7 +200,6 @@ impl AccessModeSelector {
         while let Some(cmd) = self.cmd_rx.next().await {
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
-                Message::GetConnectionMode(tx) => self.on_get_active_connection_mode(tx),
                 Message::Set(tx, value) => self.on_set_access_method(tx, value),
                 Message::Next(tx) => self.on_next_connection_mode(tx).await,
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values),
@@ -242,11 +229,6 @@ impl AccessModeSelector {
 
     fn get_access_method(&mut self) -> AccessMethodSetting {
         self.connection_modes.peek()
-    }
-
-    fn on_get_active_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
-        let value = self.active_connection_mode.clone();
-        self.reply(tx, value)
     }
 
     fn on_set_access_method(
