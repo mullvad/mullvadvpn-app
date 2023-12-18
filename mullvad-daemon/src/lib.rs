@@ -35,7 +35,6 @@ use futures::{
     future::{abortable, AbortHandle, Future, LocalBoxFuture},
     StreamExt,
 };
-use mullvad_api::proxy::ApiConnectionMode;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
@@ -695,13 +694,19 @@ where
         });
 
         let connection_modes = settings.api_access_methods.collect_enabled();
+        let connection_modes_address_cache = api_runtime.address_cache.clone();
 
-        let connection_modes_handler = api::AccessModeSelector::spawn(
+        let api::SpawnResult {
+            handle: connection_modes_handler,
+            initial_api_endpoint,
+        } = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
             connection_modes,
             internal_event_tx.to_specialized_sender(),
-        );
+            connection_modes_address_cache.clone(),
+        )
+        .await;
 
         let api_handle = api_runtime
             .mullvad_rest_handle(Box::pin(connection_modes_handler.clone().into_stream()))
@@ -755,15 +760,6 @@ where
         } else {
             vec![]
         };
-
-        let initial_api_endpoint = api::allowed_endpoint(
-            &connection_modes_handler
-                .get_active_connection_mode()
-                .await
-                // TODO(markus): Can I get rid of this `unwrap_or`? I don't even know if this is semantically correct
-                .unwrap_or(ApiConnectionMode::Direct),
-            api_runtime.address_cache.get_address().await,
-        );
 
         let parameters_generator = tunnel::ParametersGenerator::new(
             account_manager.clone(),
@@ -1247,37 +1243,18 @@ where
 
     async fn handle_access_method_event(&mut self, event: AccessMethodEvent) {
         match event {
-            AccessMethodEvent::Active(access_method) => {
+            AccessMethodEvent::Active {
+                settings,
+                api_endpoint,
+            } => {
                 log::info!("HANDLING INTERNVAL DAEMON EVENT: Setting new active access method");
-                // TODO(markus): Update the tunnel state machine to punch an appropriate hole in the firewall
-                let connection_mode: ApiConnectionMode = ApiConnectionMode::Direct;
-                let allowed_endpoint = api::allowed_endpoint(
-                    &connection_mode,
-                    self.api_runtime.address_cache.get_address().await,
-                );
                 let (result_tx, result_rx) = oneshot::channel();
-                log::warn!(
-                    "API endpoint: {endpoint}",
-                    endpoint = allowed_endpoint.endpoint
-                );
-                self.send_tunnel_command(TunnelCommand::AllowEndpoint(allowed_endpoint, result_tx));
+                log::warn!("API endpoint: {endpoint}", endpoint = api_endpoint.endpoint);
+                self.send_tunnel_command(TunnelCommand::AllowEndpoint(api_endpoint, result_tx));
                 //  Wait for the firewall policy to be updated.
                 let _ = result_rx.await;
 
-                self.event_listener.notify_new_access_method(access_method);
-
-                // if let Err(error) = self.force_api_endpoint_rotation().await {
-                //     log::error!(
-                //         "{}",
-                //         error.display_chain_with_msg("Failed to rotate access mehod")
-                //     );
-                // }
-                // if let Err(error) = self.set_active_access_method(access_method).await {
-                //     log::error!(
-                //         "{}",
-                //         error.display_chain_with_msg("Failed to set active access mehod")
-                //     );
-                // }
+                self.event_listener.notify_new_access_method(settings);
             }
         }
     }
