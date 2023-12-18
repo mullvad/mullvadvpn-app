@@ -4,7 +4,7 @@ import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.modifierprovider.withDataModifier
 import com.lemonappdev.konsist.api.ext.list.properties
 import com.lemonappdev.konsist.api.verify.assertNot
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class DataClasses {
     @Test

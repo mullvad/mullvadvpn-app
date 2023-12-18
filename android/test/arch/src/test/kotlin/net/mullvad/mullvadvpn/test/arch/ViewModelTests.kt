@@ -8,7 +8,7 @@ import com.lemonappdev.konsist.api.ext.list.properties
 import com.lemonappdev.konsist.api.ext.list.withAllParentsOf
 import com.lemonappdev.konsist.api.verify.assert
 import com.lemonappdev.konsist.api.verify.assertNot
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ViewModelTests {
     @Test
