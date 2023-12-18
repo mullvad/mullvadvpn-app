@@ -229,7 +229,7 @@ pub async fn disconnect_and_wait(
         .await
         .map_err(|error| Error::DaemonError(format!("failed to begin disconnecting: {}", error)))?;
     wait_for_tunnel_state(mullvad_client.clone(), |state| {
-        matches!(state, TunnelState::Disconnected)
+        matches!(state, TunnelState::Disconnected(_))
     })
     .await?;
 

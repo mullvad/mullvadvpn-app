@@ -44,13 +44,13 @@ const LOCATION_RETRY_STRATEGY: Jittered<ExponentialBackoff> =
     Jittered::jitter(ExponentialBackoff::new(Duration::from_secs(1), 4));
 
 /// Fetch the current `GeoIpLocation` with retrys
-pub async fn get_geo_location(
+pub async fn get_geo_location_with_retry(
     rest_service: RequestServiceHandle,
     use_ipv6: bool,
     api_handle: ApiAvailabilityHandle,
-) -> Option<GeoIpLocation> {
+) -> Result<GeoIpLocation, Error> {
     log::debug!("Fetching GeoIpLocation");
-    match retry_future(
+    retry_future(
         move || send_location_request(rest_service.clone(), use_ipv6),
         move |result| match result {
             Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
@@ -59,13 +59,6 @@ pub async fn get_geo_location(
         LOCATION_RETRY_STRATEGY,
     )
     .await
-    {
-        Ok(loc) => Some(loc),
-        Err(e) => {
-            log::warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-            None
-        }
-    }
 }
 
 async fn send_location_request(
