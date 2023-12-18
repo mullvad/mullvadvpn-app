@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.PaymentState
-import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.DeviceState
@@ -28,7 +27,8 @@ class AccountViewModel(
     private val accountRepository: AccountRepository,
     private val serviceConnectionManager: ServiceConnectionManager,
     private val paymentUseCase: PaymentUseCase,
-    deviceRepository: DeviceRepository
+    deviceRepository: DeviceRepository,
+    private val isPlayBuild: Boolean,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -43,7 +43,7 @@ class AccountViewModel(
                     deviceName = deviceState.deviceName() ?: "",
                     accountNumber = deviceState.token() ?: "",
                     accountExpiry = accountExpiry.date(),
-                    showSitePayment = IS_PLAY_BUILD.not(),
+                    showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState()
                 )
             }

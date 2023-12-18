@@ -77,7 +77,8 @@ class AccountViewModelTest {
                 accountRepository = mockAccountRepository,
                 serviceConnectionManager = mockServiceConnectionManager,
                 deviceRepository = mockDeviceRepository,
-                paymentUseCase = mockPaymentUseCase
+                paymentUseCase = mockPaymentUseCase,
+                isPlayBuild = false
             )
     }
 

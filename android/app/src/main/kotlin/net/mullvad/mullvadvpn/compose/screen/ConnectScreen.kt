@@ -114,7 +114,9 @@ fun Connect(navigator: DestinationsNavigator) {
                 Intent(
                         Intent.ACTION_VIEW,
                         Uri.parse(
-                            context.getString(R.string.download_url).appendHideNavOnPlayBuild()
+                            context
+                                .getString(R.string.download_url)
+                                .appendHideNavOnPlayBuild(state.isPlayBuild)
                         )
                     )
                     .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
@@ -190,6 +192,7 @@ fun ConnectScreen(
         ) {
             NotificationBanner(
                 notification = uiState.inAppNotification,
+                isPlayBuild = uiState.isPlayBuild,
                 onClickUpdateVersion = onUpdateVersionClick,
                 onClickShowAccount = onManageAccountClick,
                 onClickDismissNewDevice = onDismissNewDeviceClick,

@@ -63,7 +63,8 @@ class SettingsViewModelTest {
         viewModel =
             SettingsViewModel(
                 deviceRepository = mockDeviceRepository,
-                serviceConnectionManager = mockServiceConnectionManager
+                serviceConnectionManager = mockServiceConnectionManager,
+                isPlayBuild = false
             )
     }
 

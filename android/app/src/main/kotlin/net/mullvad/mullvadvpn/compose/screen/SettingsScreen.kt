@@ -33,7 +33,6 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SettingsTransition
-import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.openLink
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -51,7 +50,8 @@ private fun PreviewSettings() {
                 SettingsUiState(
                     appVersion = "2222.22",
                     isLoggedIn = true,
-                    isUpdateAvailable = true
+                    isUpdateAvailable = true,
+                    isPlayBuild = false
                 ),
         )
     }
@@ -123,13 +123,13 @@ fun SettingsScreen(
                             Uri.parse(
                                 context.resources
                                     .getString(R.string.download_url)
-                                    .appendHideNavOnPlayBuild()
+                                    .appendHideNavOnPlayBuild(uiState.isPlayBuild)
                             )
                         )
                     },
                     bodyView =
                         @Composable {
-                            if (IS_PLAY_BUILD.not()) {
+                            if (!uiState.isPlayBuild) {
                                 NavigationCellBody(
                                     content = uiState.appVersion,
                                     contentBodyDescription =
@@ -145,7 +145,7 @@ fun SettingsScreen(
                             }
                         },
                     showWarning = uiState.isUpdateAvailable,
-                    isRowEnabled = IS_PLAY_BUILD.not()
+                    isRowEnabled = !uiState.isPlayBuild
                 )
             }
             if (uiState.isUpdateAvailable) {
@@ -174,7 +174,7 @@ fun SettingsScreen(
                 )
             }
 
-            if (IS_PLAY_BUILD.not()) {
+            if (!uiState.isPlayBuild) {
                 itemWithDivider {
                     val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
                     NavigationComposeCell(
@@ -199,7 +199,7 @@ fun SettingsScreen(
                             Uri.parse(
                                 context.resources
                                     .getString(R.string.privacy_policy_url)
-                                    .appendHideNavOnPlayBuild()
+                                    .appendHideNavOnPlayBuild(uiState.isPlayBuild)
                             )
                         )
                     }

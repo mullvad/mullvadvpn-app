@@ -13,7 +13,8 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 
 class SettingsViewModel(
     deviceRepository: DeviceRepository,
-    serviceConnectionManager: ServiceConnectionManager
+    serviceConnectionManager: ServiceConnectionManager,
+    isPlayBuild: Boolean
 ) : ViewModel() {
 
     private val vmState: StateFlow<SettingsUiState> =
@@ -25,19 +26,30 @@ class SettingsViewModel(
                     isLoggedIn = deviceState is DeviceState.LoggedIn,
                     appVersion = cachedVersionInfo?.version ?: "",
                     isUpdateAvailable =
-                        cachedVersionInfo?.let { it.isSupported.not() || it.isOutdated } ?: false
+                        cachedVersionInfo?.let { it.isSupported.not() || it.isOutdated } ?: false,
+                    isPlayBuild = isPlayBuild
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                SettingsUiState(appVersion = "", isLoggedIn = false, isUpdateAvailable = false)
+                SettingsUiState(
+                    appVersion = "",
+                    isLoggedIn = false,
+                    isUpdateAvailable = false,
+                    isPlayBuild
+                )
             )
 
     val uiState =
         vmState.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(),
-            SettingsUiState(appVersion = "", isLoggedIn = false, isUpdateAvailable = false)
+            SettingsUiState(
+                appVersion = "",
+                isLoggedIn = false,
+                isUpdateAvailable = false,
+                isPlayBuild
+            )
         )
 }

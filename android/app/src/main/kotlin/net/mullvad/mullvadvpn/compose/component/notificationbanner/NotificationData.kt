@@ -12,7 +12,6 @@ import androidx.core.text.HtmlCompat
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
-import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
@@ -39,6 +38,7 @@ data class NotificationAction(
 
 @Composable
 fun InAppNotification.toNotificationData(
+    isPlayBuild: Boolean,
     onClickUpdateVersion: () -> Unit,
     onClickShowAccount: () -> Unit,
     onDismissNewDevice: () -> Unit
@@ -71,7 +71,7 @@ fun InAppNotification.toNotificationData(
                 message = LocalContext.current.resources.getExpiryQuantityString(expiry),
                 statusLevel = StatusLevel.Error,
                 action =
-                    if (IS_PLAY_BUILD) null
+                    if (isPlayBuild) null
                     else
                         NotificationAction(
                             R.drawable.icon_extlink,
@@ -90,7 +90,7 @@ fun InAppNotification.toNotificationData(
                 message = stringResource(id = R.string.unsupported_version_description),
                 statusLevel = StatusLevel.Error,
                 action =
-                    if (IS_PLAY_BUILD) null
+                    if (isPlayBuild) null
                     else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion)
             )
         is InAppNotification.UpdateAvailable ->
@@ -103,7 +103,7 @@ fun InAppNotification.toNotificationData(
                     ),
                 statusLevel = StatusLevel.Warning,
                 action =
-                    if (IS_PLAY_BUILD) null
+                    if (isPlayBuild) null
                     else NotificationAction(R.drawable.icon_extlink, onClickUpdateVersion)
             )
     }

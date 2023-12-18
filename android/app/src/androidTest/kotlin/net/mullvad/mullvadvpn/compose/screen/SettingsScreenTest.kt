@@ -25,7 +25,12 @@ class SettingsScreenTest {
         composeTestRule.setContentWithTheme {
             SettingsScreen(
                 uiState =
-                    SettingsUiState(appVersion = "", isLoggedIn = true, isUpdateAvailable = true),
+                    SettingsUiState(
+                        appVersion = "",
+                        isLoggedIn = true,
+                        isUpdateAvailable = true,
+                        isPlayBuild = false
+                    ),
             )
         }
         // Assert
@@ -43,7 +48,12 @@ class SettingsScreenTest {
         composeTestRule.setContentWithTheme {
             SettingsScreen(
                 uiState =
-                    SettingsUiState(appVersion = "", isLoggedIn = false, isUpdateAvailable = true),
+                    SettingsUiState(
+                        appVersion = "",
+                        isLoggedIn = false,
+                        isUpdateAvailable = true,
+                        isPlayBuild = false
+                    ),
             )
         }
         // Assert

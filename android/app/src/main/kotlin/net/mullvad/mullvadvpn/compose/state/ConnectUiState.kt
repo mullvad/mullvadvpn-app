@@ -17,7 +17,8 @@ data class ConnectUiState(
     val inAppNotification: InAppNotification?,
     val isTunnelInfoExpanded: Boolean,
     val deviceName: String?,
-    val daysLeftUntilExpiry: Int?
+    val daysLeftUntilExpiry: Int?,
+    val isPlayBuild: Boolean
 ) {
     companion object {
         val INITIAL =
@@ -32,7 +33,8 @@ data class ConnectUiState(
                 isTunnelInfoExpanded = false,
                 inAppNotification = null,
                 deviceName = null,
-                daysLeftUntilExpiry = null
+                daysLeftUntilExpiry = null,
+                isPlayBuild = false
             )
     }
 }
