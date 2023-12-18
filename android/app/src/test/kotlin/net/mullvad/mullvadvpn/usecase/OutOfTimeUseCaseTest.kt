@@ -16,8 +16,8 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class OutOfTimeUseCaseTest {
     private val mockAccountRepository: AccountRepository = mockk()
@@ -28,7 +28,7 @@ class OutOfTimeUseCaseTest {
 
     lateinit var outOfTimeUseCase: OutOfTimeUseCase
 
-    @Before
+    @BeforeEach
     fun setup() {
         every { mockAccountRepository.accountExpiryState } returns expiry
         every { mockMessageHandler.events<Event.TunnelStateChange>() } returns events

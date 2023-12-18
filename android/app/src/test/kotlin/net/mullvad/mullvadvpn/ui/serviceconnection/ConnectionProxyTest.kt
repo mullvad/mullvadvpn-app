@@ -19,9 +19,9 @@ import kotlin.test.assertEquals
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.Request
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class ConnectionProxyTest {
 
@@ -32,7 +32,7 @@ class ConnectionProxyTest {
     @MockK private lateinit var mockedDispatchingHandler: EventDispatcher
     lateinit var connectionProxy: ConnectionProxy
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockkStatic(Looper::class)
         mockkStatic(Log::class)
@@ -44,7 +44,7 @@ class ConnectionProxyTest {
         every { Log.e(any(), any()) } returns mockk(relaxed = true)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }

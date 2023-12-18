@@ -17,9 +17,9 @@ import net.mullvad.mullvadvpn.lib.common.util.JobTracker
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.Request
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class ServiceConnectionDeviceDataSourceTest {
     private val tracker = JobTracker()
@@ -32,7 +32,7 @@ class ServiceConnectionDeviceDataSourceTest {
 
     lateinit var serviceConnectionDeviceDataSource: ServiceConnectionDeviceDataSource
 
-    @Before
+    @BeforeEach
     fun setup() {
         mockkStatic(Looper::class)
         mockkStatic(android.util.Log::class)
@@ -44,7 +44,7 @@ class ServiceConnectionDeviceDataSourceTest {
         every { android.util.Log.e(any(), any()) } returns mockk(relaxed = true)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }
