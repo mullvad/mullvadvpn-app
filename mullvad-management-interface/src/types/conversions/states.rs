@@ -32,8 +32,10 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
             };
 
         let state = match state {
-            MullvadTunnelState::Disconnected => {
-                proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {})
+            MullvadTunnelState::Disconnected(disconnected_location) => {
+                proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
+                    disconnected_location: disconnected_location.map(proto::GeoIpLocation::from),
+                })
             }
             MullvadTunnelState::Connecting { endpoint, location } => {
                 proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
@@ -189,7 +191,13 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
         use talpid_types::{net as talpid_net, tunnel as talpid_tunnel};
 
         let state = match state.state {
-            Some(proto::tunnel_state::State::Disconnected(_)) => MullvadState::Disconnected,
+            Some(proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
+                disconnected_location,
+            })) => MullvadState::Disconnected(
+                disconnected_location
+                    .map(mullvad_types::location::GeoIpLocation::try_from)
+                    .transpose()?,
+            ),
             Some(proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
                 relay_info:
                     Some(proto::TunnelStateRelayInfo {
