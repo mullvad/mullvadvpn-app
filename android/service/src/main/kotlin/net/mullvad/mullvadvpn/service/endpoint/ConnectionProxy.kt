@@ -20,7 +20,7 @@ class ConnectionProxy(val vpnPermission: VpnPermission, endpoint: ServiceEndpoin
 
     private val commandChannel = spawnActor()
     private val daemon = endpoint.intermittentDaemon
-    private val initialState = TunnelState.Disconnected
+    private val initialState = TunnelState.Disconnected()
 
     var onStateChange = EventNotifier<TunnelState>(initialState)
 

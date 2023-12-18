@@ -15,7 +15,6 @@ data class ConnectUiState(
     val outAddress: String,
     val showLocation: Boolean,
     val inAppNotification: InAppNotification?,
-    val isTunnelInfoExpanded: Boolean,
     val deviceName: String?,
     val daysLeftUntilExpiry: Int?
 ) {
@@ -24,12 +23,11 @@ data class ConnectUiState(
             ConnectUiState(
                 location = null,
                 relayLocation = null,
-                tunnelUiState = TunnelState.Disconnected,
-                tunnelRealState = TunnelState.Disconnected,
+                tunnelUiState = TunnelState.Disconnected(),
+                tunnelRealState = TunnelState.Disconnected(),
                 inAddress = null,
                 outAddress = "",
                 showLocation = false,
-                isTunnelInfoExpanded = false,
                 inAppNotification = null,
                 deviceName = null,
                 daysLeftUntilExpiry = null
