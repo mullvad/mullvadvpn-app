@@ -153,7 +153,7 @@ class ApplicationMain {
       autoStart: false,
       accountData: this.accountData,
       accountHistory: undefined,
-      tunnelState: { state: 'disconnected' },
+      tunnelState: { state: 'disconnected', location: this.location },
       settings: this.settings,
       isPerformingPostUpgrade: false,
       deviceState: this.deviceState,
@@ -173,8 +173,6 @@ class ApplicationMain {
       navigationHistory: undefined,
       scrollPositions: {},
     }));
-
-    IpcMainEventChannel.location.handleGet(() => Promise.resolve(this.location));
 
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale) => {
       this.updateCurrentLocale(locale);
