@@ -28,7 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Remove `--location` flag from `mullvad status` CLI. Location and IP will now always
-  be printed (if available). `mullvad status listen` does no longer print location info.
+  be printed (if available). `mullvad status listen` no longer prints location info.
 
 #### Android
 - Migrated to Compose Navigation
