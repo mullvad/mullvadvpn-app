@@ -15,7 +15,6 @@ final class MigrationManagerTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
 
     var manager: MigrationManager!
-    var proxyFactory: REST.ProxyFactory!
     override class func setUp() {
         SettingsManager.unitTestStore = store
     }
@@ -25,18 +24,6 @@ final class MigrationManagerTests: XCTestCase {
     }
 
     override func setUpWithError() throws {
-        let transportProvider = REST.AnyTransportProvider { nil }
-        let addressCache = REST.AddressCache(canWriteToCache: false, fileCache: MemoryCache())
-        let proxyConfiguration = REST.ProxyConfiguration(
-            transportProvider: transportProvider,
-            addressCacheStore: addressCache
-        )
-        let authProxy = REST.AuthProxyConfiguration(
-            proxyConfiguration: proxyConfiguration,
-            accessTokenManager: AccessTokenManagerStub()
-        )
-
-        proxyFactory = REST.ProxyFactory(configuration: authProxy)
         manager = MigrationManager()
     }
 
@@ -46,7 +33,7 @@ final class MigrationManagerTests: XCTestCase {
         try SettingsManager.writeSettings(settings)
 
         let nothingToMigrateExpectation = expectation(description: "No migration")
-        manager.migrateSettings(store: store, proxyFactory: proxyFactory) { result in
+        manager.migrateSettings(store: store) { result in
             if case .nothing = result {
                 nothingToMigrateExpectation.fulfill()
             }
@@ -59,7 +46,7 @@ final class MigrationManagerTests: XCTestCase {
         SettingsManager.unitTestStore = store
 
         let nothingToMigrateExpectation = expectation(description: "No migration")
-        manager.migrateSettings(store: store, proxyFactory: proxyFactory) { result in
+        manager.migrateSettings(store: store) { result in
             if case .nothing = result {
                 nothingToMigrateExpectation.fulfill()
             }
@@ -74,7 +61,7 @@ final class MigrationManagerTests: XCTestCase {
     func testFailedMigration() throws {
         let store = Self.store
         let failedMigrationExpectation = expectation(description: "Failed migration")
-        manager.migrateSettings(store: store, proxyFactory: proxyFactory) { result in
+        manager.migrateSettings(store: store) { result in
             if case .failure = result {
                 failedMigrationExpectation.fulfill()
             }
@@ -89,7 +76,7 @@ final class MigrationManagerTests: XCTestCase {
         try store.write(data, for: .deviceState)
 
         // Failed migration should reset settings and device state keys
-        manager.migrateSettings(store: store, proxyFactory: proxyFactory) { _ in }
+        manager.migrateSettings(store: store) { _ in }
 
         let assertDeletionFor: (SettingsKey) throws -> Void = { key in
             try XCTAssertThrowsError(store.read(key: key)) { thrownError in
@@ -106,7 +93,7 @@ final class MigrationManagerTests: XCTestCase {
         let settings = FutureVersionSettings()
         try write(settings: settings, version: Int.max - 1, in: store)
 
-        manager.migrateSettings(store: store, proxyFactory: proxyFactory) { _ in }
+        manager.migrateSettings(store: store) { _ in }
 
         let assertDeletionFor: (SettingsKey) throws -> Void = { key in
             try XCTAssertThrowsError(store.read(key: key)) { thrownError in
@@ -124,7 +111,7 @@ final class MigrationManagerTests: XCTestCase {
         try write(settings: settings, version: -42, in: store)
 
         let failedMigrationExpectation = expectation(description: "Failed migration")
-        manager.migrateSettings(store: store, proxyFactory: proxyFactory) { result in
+        manager.migrateSettings(store: store) { result in
             if case .failure = result {
                 failedMigrationExpectation.fulfill()
             }
@@ -161,7 +148,7 @@ final class MigrationManagerTests: XCTestCase {
         try write(settings: settings, version: version.rawValue, in: store)
 
         let successfulMigrationExpectation = expectation(description: "Successful migration")
-        manager.migrateSettings(store: store, proxyFactory: proxyFactory) { result in
+        manager.migrateSettings(store: store) { result in
             if case .success = result {
                 successfulMigrationExpectation.fulfill()
             }

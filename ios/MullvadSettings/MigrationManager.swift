@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadLogging
-import MullvadREST
 import MullvadTypes
 
 public enum SettingsMigrationResult {
@@ -37,7 +36,6 @@ public struct MigrationManager {
     ///   - migrationCompleted: Completion handler called with a migration result.
     public func migrateSettings(
         store: SettingsStore,
-        proxyFactory: REST.ProxyFactory,
         migrationCompleted: @escaping (SettingsMigrationResult) -> Void
     ) {
         let resetStoreHandler = { (result: SettingsMigrationResult) in
@@ -51,7 +49,6 @@ public struct MigrationManager {
         do {
             try upgradeSettingsToLatestVersion(
                 store: store,
-                proxyFactory: proxyFactory,
                 migrationCompleted: migrationCompleted
             )
         } catch .itemNotFound as KeychainError {
@@ -63,7 +60,6 @@ public struct MigrationManager {
 
     private func upgradeSettingsToLatestVersion(
         store: SettingsStore,
-        proxyFactory: REST.ProxyFactory,
         migrationCompleted: @escaping (SettingsMigrationResult) -> Void
     ) throws {
         let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())

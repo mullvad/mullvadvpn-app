@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadLogging
-import MullvadREST
 import MullvadTypes
 
 private let keychainServiceName = "Mullvad VPN"
