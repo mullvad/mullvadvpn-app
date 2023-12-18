@@ -12,13 +12,13 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.toPaymentDialogData
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class PaymentViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
@@ -26,14 +26,14 @@ class PaymentViewModelTest {
 
     private lateinit var viewModel: PaymentViewModel
 
-    @Before
+    @BeforeEach
     fun setUp() {
         coEvery { mockPaymentUseCase.purchaseResult } returns purchaseResult
 
         viewModel = PaymentViewModel(paymentUseCase = mockPaymentUseCase)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }

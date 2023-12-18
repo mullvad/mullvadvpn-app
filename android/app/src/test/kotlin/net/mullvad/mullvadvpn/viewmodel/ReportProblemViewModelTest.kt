@@ -15,13 +15,13 @@ import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.dataproxy.UserReport
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class ReportProblemViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var mockMullvadProblemReport: MullvadProblemReport
 
@@ -31,7 +31,7 @@ class ReportProblemViewModelTest {
 
     private lateinit var viewModel: ReportProblemViewModel
 
-    @Before
+    @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this)
         coEvery { mockMullvadProblemReport.collectLogs() } returns true
@@ -39,7 +39,7 @@ class ReportProblemViewModelTest {
         viewModel = ReportProblemViewModel(mockMullvadProblemReport, mockProblemReportRepository)
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         viewModel.viewModelScope.coroutineContext.cancel()
     }
