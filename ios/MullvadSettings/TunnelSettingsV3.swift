@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadREST
 import MullvadTypes
 
 public struct TunnelSettingsV3: Codable, Equatable, TunnelSettings {

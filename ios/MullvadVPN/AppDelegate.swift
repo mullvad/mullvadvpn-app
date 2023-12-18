@@ -418,7 +418,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func getMigrateSettingsOperation(application: UIApplication) -> AsyncBlockOperation {
         AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
             migrationManager
-                .migrateSettings(store: SettingsManager.store, proxyFactory: proxyFactory) { [self] migrationResult in
+                .migrateSettings(store: SettingsManager.store) { [self] migrationResult in
                     switch migrationResult {
                     case .success:
                         // Tell the tunnel to re-read tunnel configuration after migration.
