@@ -1,0 +1,73 @@
+# Run `clippy` on the `test` workspace
+---
+name: DES Testframework - Clippy
+on:
+  pull_request:
+    paths:
+      - 'test/**/*.rs'
+      - .github/workflows/clippy-test.yml
+      - clippy.toml
+  workflow_dispatch:
+jobs:
+  clippy-check-test:
+    name: Clippy linting of test workspace
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+
+      - name: Install build dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install libdbus-1-dev
+
+      - name: Clippy check
+        working-directory: test
+        shell: bash
+        env:
+          RUSTFLAGS: --deny warnings
+        run: |
+          time cargo clippy --locked -- -W clippy::unused_async
+
+  clippy-check-test-windows:
+    name: Clippy linting of test workspace (Windows)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          components: clippy
+          override: true
+
+      - name: Clippy check
+        working-directory: test
+        shell: bash
+        env:
+          RUSTFLAGS: --deny warnings
+        run: |
+          # Exclude checking test-manager on Windows, since it is not a supported compilation target.
+          time cargo clippy --workspace --exclude test-manager --locked -- -W clippy::unused_async

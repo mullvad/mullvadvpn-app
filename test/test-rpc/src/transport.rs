@@ -120,16 +120,18 @@ impl ConnectionHandle {
     }
 }
 
-pub fn create_server_transports(
-    serial_stream: impl AsyncRead + AsyncWrite + Unpin + Send + 'static,
-) -> (
+type ServerTransports = (
     tarpc::transport::channel::UnboundedChannel<
         ClientMessage<ServiceRequest>,
         Response<ServiceResponse>,
     >,
     GrpcForwarder,
     CompletionHandle,
-) {
+);
+
+pub fn create_server_transports(
+    serial_stream: impl AsyncRead + AsyncWrite + Unpin + Send + 'static,
+) -> ServerTransports {
     let (runner_forwarder_1, runner_forwarder_2) = tarpc::transport::channel::unbounded();
 
     let (daemon_rx, mullvad_daemon_forwarder) = tokio::io::duplex(DAEMON_CHANNEL_BUF_SIZE);
@@ -162,20 +164,9 @@ pub fn create_server_transports(
     (runner_forwarder_1, daemon_rx, completion_handle)
 }
 
-pub async fn create_client_transports(
+pub fn create_client_transports(
     serial_stream: impl AsyncRead + AsyncWrite + Unpin + Send + 'static,
-) -> Result<
-    (
-        tarpc::transport::channel::UnboundedChannel<
-            Response<ServiceResponse>,
-            ClientMessage<ServiceRequest>,
-        >,
-        GrpcForwarder,
-        ConnectionHandle,
-        CompletionHandle,
-    ),
-    Error,
-> {
+) -> Result<ClientTransports, Error> {
     let (runner_forwarder_1, runner_forwarder_2) = tarpc::transport::channel::unbounded();
 
     let (daemon_rx, mullvad_daemon_forwarder) = tokio::io::duplex(DAEMON_CHANNEL_BUF_SIZE);
@@ -215,6 +206,16 @@ pub async fn create_client_transports(
         completion_handle,
     ))
 }
+
+type ClientTransports = (
+    tarpc::transport::channel::UnboundedChannel<
+        Response<ServiceResponse>,
+        ClientMessage<ServiceRequest>,
+    >,
+    GrpcForwarder,
+    ConnectionHandle,
+    CompletionHandle,
+);
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]

@@ -1,0 +1,111 @@
+# Compile the test framework
+---
+name: DES Testframework - Build
+on:
+  pull_request:
+    paths:
+      - '**'
+      - '!**/**.md'
+      - '!.github/workflows/**'
+      - '.github/workflows/daemon.yml'
+      - '!android/**'
+      - '!audits/**'
+      - '!build-apk.sh'
+      - '!build.sh'
+      - '!clippy.toml'
+      - '!deny.toml'
+      - '!docs/**'
+      - '!graphics/**'
+      - '!gui/**'
+      - '!ios/**'
+      - '!scripts/**'
+      - '!.*ignore'
+      - '!prepare-release.sh'
+      - '!rustfmt.toml'
+      - '!.yamllint'
+  workflow_dispatch:
+jobs:
+  prepare-build-test-framework-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+
+  # Build the test runner + test manager at once.
+  build-test-framework-linux:
+    needs: prepare-build-test-framework-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-build-test-framework-linux.outputs.container_image }}
+
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Install system dependencies # Needed to build test-manager, and is not included in the app container.
+        run: apt update && apt install -y pkg-config libssl-dev libpcap-dev
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build test framework
+        working-directory: test
+        run: cargo build --release
+
+  # Build the test runner + test manager at once.
+  build-test-framework-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Protoc
+        uses: arduino/setup-protoc@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          default: true
+
+      - name: Build test runner
+        working-directory: test
+        run: cargo build
+
+  # Build only the test-runner binary on Windows. Windows is not a supported host for test-manager.
+  build-test-runner-windows:
+    # Cross-compile the test runner for Windows from Linux.
+    needs: prepare-build-test-framework-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-build-test-framework-linux.outputs.container_image }}
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build test runner
+        working-directory: test
+        run: cargo build --release -p test-runner --target x86_64-pc-windows-gnu

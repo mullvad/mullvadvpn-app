@@ -202,7 +202,7 @@ pub async fn send_ping(
 }
 
 #[cfg(unix)]
-pub async fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
+pub fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
     // TODO: IPv6
     use std::net::Ipv4Addr;
 
@@ -225,7 +225,7 @@ pub async fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error
 }
 
 #[cfg(target_os = "windows")]
-pub async fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
+pub fn get_interface_ip(interface: &str) -> Result<IpAddr, test_rpc::Error> {
     // TODO: IPv6
 
     get_interface_ip_for_family(interface, talpid_windows::net::AddressFamily::Ipv4)
