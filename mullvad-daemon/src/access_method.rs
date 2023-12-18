@@ -89,6 +89,7 @@ where
                 if api_access_method.get_id()
                     == self.get_current_access_method().await?.get_id() =>
             {
+                // TODO(markus): I don't believe that this statement should be here.
                 self.connection_modes_handler.next().await?;
             }
             _ => (),

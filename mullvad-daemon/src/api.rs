@@ -12,6 +12,7 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
+    AddressCache,
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
@@ -33,7 +34,10 @@ pub enum Message {
 #[derive(Clone)]
 pub enum AccessMethodEvent {
     /// Emitted when the active access method changes.
-    Active(AccessMethodSetting),
+    Active {
+        settings: AccessMethodSetting,
+        api_endpoint: AllowedEndpoint,
+    },
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -145,17 +149,26 @@ pub struct AccessModeSelector {
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
     active_connection_mode: ApiConnectionMode,
+    address_cache: AddressCache,
     /// Communication channel with the daemon
     listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
 }
 
+// TODO(markus): Document this! It was created to get an initial api endpoint in
+// a more straight-forward way.
+pub(super) struct SpawnResult {
+    pub handle: AccessModeSelectorHandle,
+    pub initial_api_endpoint: AllowedEndpoint,
+}
+
 impl AccessModeSelector {
-    pub fn spawn(
+    pub async fn spawn(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
         listener: impl Sender<AccessMethodEvent> + Send + 'static,
-    ) -> AccessModeSelectorHandle {
+        address_cache: AddressCache,
+    ) -> SpawnResult {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
         let mut connection_modes = match ConnectionModesIterator::new(connection_modes) {
@@ -175,16 +188,24 @@ impl AccessModeSelector {
             let next = connection_modes.next().unwrap();
             resolve(next.access_method.clone(), &relay_selector)
         };
+        let initial_api_endpoint = {
+            let fallback = address_cache.get_address().await;
+            allowed_endpoint(&active_connection_mode, fallback)
+        };
         let selector = AccessModeSelector {
             cmd_rx,
             cache_dir,
             relay_selector,
             connection_modes,
             active_connection_mode,
+            address_cache,
             listeners: vec![Box::new(listener)],
         };
         tokio::spawn(selector.into_future());
-        AccessModeSelectorHandle { cmd_tx }
+        SpawnResult {
+            handle: AccessModeSelectorHandle { cmd_tx },
+            initial_api_endpoint,
+        }
     }
 
     async fn into_future(mut self) {
@@ -193,7 +214,7 @@ impl AccessModeSelector {
                 Message::Get(tx) => self.on_get_access_method(tx),
                 Message::GetConnectionMode(tx) => self.on_get_active_connection_mode(tx),
                 Message::Set(tx, value) => self.on_set_access_method(tx, value),
-                Message::Next(tx) => self.on_next_connection_mode(tx),
+                Message::Next(tx) => self.on_next_connection_mode(tx).await,
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values),
             };
             match execution {
@@ -243,7 +264,7 @@ impl AccessModeSelector {
         self.connection_modes.set_access_method(value);
     }
 
-    fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
+    async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
         let access_method = self.connection_modes.next().unwrap();
         let next = resolve(access_method.access_method.clone(), &self.relay_selector);
         // Notify all listeners about the new connection mode.
@@ -255,7 +276,10 @@ impl AccessModeSelector {
         // racey though, as there is no synchronization between the daemon
         // receiving and acting upon this event (by opening up the firewall) and
         // the `mullvad-api` crate using this new access method.
-        let event = AccessMethodEvent::Active(access_method);
+        let event = AccessMethodEvent::Active {
+            settings: access_method,
+            api_endpoint: allowed_endpoint(&next, self.address_cache.get_address().await),
+        };
         self.listeners
             .retain(|listener| listener.send(event.clone()).is_ok());
 
@@ -405,7 +429,6 @@ impl Iterator for ConnectionModesIterator {
 
 pub(super) fn allowed_endpoint(
     connection_mode: &ApiConnectionMode,
-    // TODO(markus): Can I get rid of `fallback`?
     fallback: SocketAddr,
 ) -> AllowedEndpoint {
     let endpoint = match connection_mode.get_endpoint() {
