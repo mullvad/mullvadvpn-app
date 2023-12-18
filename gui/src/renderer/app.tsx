@@ -94,7 +94,6 @@ export default class AppRenderer {
   };
 
   private location?: Partial<ILocation>;
-  private lastDisconnectedLocation?: Partial<ILocation>;
   private relayList?: IRelayListWithEndpointData;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
@@ -103,7 +102,6 @@ export default class AppRenderer {
   private previousLoginState: LoginState = 'none';
   private loginScheduler = new Scheduler();
   private connectedToDaemon = false;
-  private getLocationPromise?: Promise<ILocation>;
 
   constructor() {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
@@ -255,7 +253,7 @@ export default class AppRenderer {
       );
     }
 
-    void this.updateLocation();
+    this.updateLocation();
 
     if (initialState.navigationHistory) {
       // Set last action to POP to trigger automatic scrolling to saved coordinates.
@@ -765,7 +763,7 @@ export default class AppRenderer {
       }
 
       // Update the location when entering a new tunnel state since it's likely changed.
-      void this.updateLocation();
+      this.updateLocation();
     });
   }
 
@@ -944,22 +942,16 @@ export default class AppRenderer {
     this.reduxActions.userInterface.setForceShowChanges(forceShowChanges);
   }
 
-  private async updateLocation() {
+  private updateLocation() {
     switch (this.tunnelState.state) {
-      case 'disconnected': {
-        if (this.lastDisconnectedLocation) {
-          this.setLocation(this.lastDisconnectedLocation);
-        }
-        const location = await this.fetchLocation();
-        if (location) {
-          this.setLocation(location);
-          this.lastDisconnectedLocation = location;
+      case 'disconnected':
+        if (this.tunnelState.location) {
+          this.setLocation(this.tunnelState.location);
         }
         break;
-      }
       case 'disconnecting':
-        if (this.lastDisconnectedLocation) {
-          this.setLocation(this.lastDisconnectedLocation);
+        if (this.tunnelState.location) {
+          this.setLocation(this.tunnelState.location);
         } else {
           // If there's no previous location while disconnecting we remove the location. We keep the
           // coordinates to prevent the map from jumping around.
@@ -968,35 +960,10 @@ export default class AppRenderer {
         }
         break;
       case 'connecting':
+      case 'connected': {
         this.setLocation(this.tunnelState.details?.location ?? this.getLocationFromConstraints());
         break;
-      case 'connected': {
-        if (this.tunnelState.details?.location) {
-          this.setLocation(this.tunnelState.details.location);
-        }
-        const location = await this.fetchLocation();
-        if (location) {
-          this.setLocation(location);
-        }
-        break;
       }
-    }
-  }
-
-  private async fetchLocation(): Promise<ILocation | void> {
-    try {
-      // Fetch the new user location
-      const getLocationPromise = IpcRendererEventChannel.location.get();
-      this.getLocationPromise = getLocationPromise;
-      const location = await getLocationPromise;
-      // If the location is currently unavailable, do nothing! This only ever happens when a
-      // custom relay is set or we are in a blocked state.
-      if (location && getLocationPromise === this.getLocationPromise) {
-        return location;
-      }
-    } catch (e) {
-      const error = e as Error;
-      log.error(`Failed to update the location: ${error.message}`);
     }
   }
 
