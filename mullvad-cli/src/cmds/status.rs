@@ -18,7 +18,6 @@ pub struct StatusArgs {
     #[arg(long, short = 'v')]
     verbose: bool,
 
-    // TODO: changelog about removing location flag
     /// Enable debug output
     #[arg(long, short = 'd')]
     debug: bool,
@@ -36,7 +35,7 @@ impl Status {
                     } else {
                         // When we enter the connected or disconnected state, am.i.mullvad.net will
                         // be polled to get IP information. When it arrives, we will get another
-                        // tunnel state of the same enum type, but with the IP  filled in. This
+                        // tunnel state of the same enum type, but with the IP filled in. This
                         // match statement checks for duplicate tunnel states and skips the second
                         // print to avoid spamming the user.
                         match (&previous_tunnel_state, &new_state) {
@@ -92,7 +91,6 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     if args.debug {
         println!("Tunnel state: {state:#?}");
     } else {
-        // TODO: respect location arg?
         format::print_state(&state, args.verbose);
         format::print_location(&state);
     }

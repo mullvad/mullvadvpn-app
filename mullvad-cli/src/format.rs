@@ -51,7 +51,7 @@ pub fn print_location(state: &TunnelState) {
         _ => return,
     };
     if let Some(location) = location {
-        print!("Your connection appears from: {}", location.country);
+        print!("Your connection appears to be from: {}", location.country);
         if let Some(city) = &location.city {
             print!(", {}", city);
         }
