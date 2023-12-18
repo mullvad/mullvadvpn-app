@@ -181,10 +181,10 @@ export interface ITunnelStateRelayInfo {
 }
 
 export type TunnelState =
-  | { state: 'disconnected' }
+  | { state: 'disconnected'; location?: Partial<ILocation> }
   | { state: 'connecting'; details?: ITunnelStateRelayInfo }
   | { state: 'connected'; details: ITunnelStateRelayInfo }
-  | { state: 'disconnecting'; details: AfterDisconnect }
+  | { state: 'disconnecting'; details: AfterDisconnect; location?: Partial<ILocation> }
   | { state: 'error'; details: ErrorState };
 
 export interface RelayLocationCountry extends Partial<RelayLocationCustomList> {
