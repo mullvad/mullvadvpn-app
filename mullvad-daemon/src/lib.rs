@@ -34,6 +34,7 @@ use futures::{
     future::{abortable, AbortHandle, Future, LocalBoxFuture},
     StreamExt,
 };
+use geoip::GeoIpHandler;
 use mullvad_relay_selector::{
     updater::{RelayListUpdater, RelayListUpdaterHandle},
     RelaySelector, SelectorConfig,
@@ -80,7 +81,7 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    net::{TunnelEndpoint, TunnelType},
+    net::{IpVersion, TunnelEndpoint, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
@@ -369,6 +370,8 @@ pub(crate) enum InternalDaemonEvent {
     DeviceEvent(AccountEvent),
     /// Handles updates from versions without devices.
     DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
+    /// A geographical location has has been received from am.i.mullvad.net
+    LocationEvent((usize, GeoIpLocation)),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -615,7 +618,7 @@ pub struct Daemon<L: EventListener> {
     tunnel_state_machine_handle: TunnelStateMachineHandle,
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
-    location_abort_handle: Option<tokio::task::AbortHandle>,
+    location_handler: GeoIpHandler,
 }
 
 impl<L> Daemon<L>
@@ -829,6 +832,11 @@ where
         // Attempt to download a fresh relay list
         relay_list_updater.update().await;
 
+        let location_handler = GeoIpHandler::new(
+            api_runtime.rest_handle().await,
+            internal_event_tx.clone().to_specialized_sender(),
+        );
+
         let daemon = Daemon {
             tunnel_state: TunnelState::Disconnected(None),
             target_state,
@@ -856,7 +864,7 @@ where
             tunnel_state_machine_handle,
             #[cfg(target_os = "windows")]
             volume_update_tx,
-            location_abort_handle: None,
+            location_handler,
         };
 
         api_availability.unsuspend();
@@ -869,6 +877,8 @@ where
     pub async fn run(mut self) -> Result<(), Error> {
         if *self.target_state == TargetState::Secured {
             self.connect_tunnel();
+        } else {
+            self.fetch_am_i_mullvad()
         }
 
         while let Some(event) = self.rx.next().await {
@@ -946,6 +956,9 @@ where
             }
             DeviceEvent(event) => self.handle_device_event(event).await,
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
+            LocationEvent((request_id, fetched_location)) => {
+                self.handle_location_event(request_id, fetched_location)
+            }
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
@@ -960,25 +973,14 @@ where
             .handle_state_transition(&tunnel_state_transition);
 
         let tunnel_state = match tunnel_state_transition {
-            TunnelStateTransition::Disconnected => {
-                self.notify_tunnel_state_when_ip_arrives(None, TunnelState::Disconnected)
-                    .await;
-                TunnelState::Disconnected(None)
-            }
+            TunnelStateTransition::Disconnected => TunnelState::Disconnected(None),
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
                 endpoint,
                 location: self.parameters_generator.get_last_location().await,
             },
             TunnelStateTransition::Connected(endpoint) => {
                 let location = self.parameters_generator.get_last_location().await;
-                let make_tunnel_state = |location| TunnelState::Connected { endpoint, location };
-                self.notify_tunnel_state_when_ip_arrives(
-                    location.clone(),
-                    make_tunnel_state.clone(),
-                )
-                .await;
-
-                make_tunnel_state(location)
+                TunnelState::Connected { endpoint, location }
             }
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
@@ -1033,53 +1035,67 @@ where
 
         self.tunnel_state = tunnel_state.clone();
         self.event_listener.notify_new_state(tunnel_state);
+        self.fetch_am_i_mullvad();
     }
 
-    /// Get the out IP from am.i.mullvad.net. When it arrives, send another
-    /// TunnelState with the IP filled in.
-    async fn notify_tunnel_state_when_ip_arrives(
-        &mut self,
-        old_location: Option<GeoIpLocation>,
-        make_tunnel_state: impl FnOnce(Option<GeoIpLocation>) -> TunnelState + Send + 'static,
-    ) {
-        // Abort any ongoing calls to `self.notify_tunnel_state_when_ip_arrives` from
-        // previous tunnel state transitions to avoid sending an outdated information.
-        if let Some(handle) = self.location_abort_handle.take() {
-            handle.abort();
-        }
-        let rest_service = self.api_runtime.rest_handle().await;
-        let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
-        let api_handle = self.api_handle.availability.clone();
-        let even_listener = self.event_listener.clone();
+    /// Get the geographical location from am.i.mullvad.net. When it arrives,
+    /// update the "Out IP" field of the front ends by sending a
+    /// [`InternalDaemonEvent::LocationEvent`].
+    ///
+    /// See [`Daemon::handle_location_event()`]
+    fn fetch_am_i_mullvad(&mut self) {
+        // Always abort any ongoing request when entering a new tunnel state
+        self.location_handler.abort_current_request();
 
-        self.location_abort_handle = Some(
-            tokio::spawn(async move {
-                let merged_location =
-                    geoip::get_geo_location_with_retry(rest_service, use_ipv6, api_handle)
-                        .await
-                        .ok()
-                        // Replace the old location with new information from am.i.mullvad.net,
-                        // but keep the hostname as it is always none
-                        .map(|new_location| match old_location {
-                            Some(old_location) => GeoIpLocation {
-                                hostname: old_location.hostname,
-                                bridge_hostname: old_location.bridge_hostname,
-                                entry_hostname: old_location.entry_hostname,
-                                obfuscator_hostname: old_location.obfuscator_hostname,
-                                ..new_location
-                            },
-                            None => GeoIpLocation {
-                                hostname: None,
-                                bridge_hostname: None,
-                                entry_hostname: None,
-                                obfuscator_hostname: None,
-                                ..new_location
-                            },
-                        });
-                even_listener.notify_new_state(make_tunnel_state(merged_location));
-            })
-            .abort_handle(),
-        );
+        // Whether or not to poll for an IPv6 exit IP
+        let use_ipv6 = match &self.tunnel_state {
+            // If connected, refer to the tunnel setting
+            TunnelState::Connected { .. } => self.settings.tunnel_options.generic.enable_ipv6,
+            // If not connected, we have to guess whether the users local connection supports IPv6.
+            // The only thing we have to go on is the wireguard setting.
+            TunnelState::Disconnected(_) => {
+                if let RelaySettings::Normal(relay_constraints) = &self.settings.relay_settings {
+                    // Note that `Constraint::Any` corresponds to just IPv4
+                    matches!(
+                        relay_constraints.wireguard_constraints.ip_version,
+                        mullvad_types::relay_constraints::Constraint::Only(IpVersion::V6)
+                    )
+                } else {
+                    false
+                }
+            }
+            // Fetching IP from am.i.mullvad.net should only be done from a tunnel state where a
+            // connection is available. Otherwise we just exist.
+            _ => return,
+        };
+
+        self.location_handler.send_geo_location_request(use_ipv6);
+    }
+
+    /// Recieves and handles the geographical exit location received from am.i.mullvad.net, i.e. the
+    /// [`InternalDaemonEvent::LocationEvent`] event.
+    fn handle_location_event(&mut self, request_id: usize, fetched_location: GeoIpLocation) {
+        if self.location_handler.request_id != request_id {
+            log::debug!("Location from am.i.mullvad.net belongs to an outdated tunnel state");
+            return;
+        }
+
+        match self.tunnel_state {
+            TunnelState::Disconnected(ref mut location) => *location = Some(fetched_location),
+            TunnelState::Connected {
+                ref mut location, ..
+            } => {
+                *location = Some(GeoIpLocation {
+                    ipv4: fetched_location.ipv4,
+                    ipv6: fetched_location.ipv6,
+                    ..location.clone().unwrap_or(fetched_location)
+                })
+            }
+            _ => return,
+        };
+
+        self.event_listener
+            .notify_new_state(self.tunnel_state.clone());
     }
 
     fn reset_rpc_sockets_on_tunnel_state_transition(
