@@ -37,7 +37,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = "PreferencesCell"
+            cell.accessibilityIdentifier = AccessibilityIdentifier.preferencesCell.rawValue
             cell.disclosureType = .chevron
 
         case .version:

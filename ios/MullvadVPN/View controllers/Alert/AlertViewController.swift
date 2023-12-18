@@ -126,6 +126,7 @@ class AlertViewController: UIViewController {
             addAction(
                 title: action.title,
                 style: action.style,
+                accessibilityId: action.accessibilityId,
                 handler: action.handler
             )
         }
@@ -251,10 +252,16 @@ class AlertViewController: UIViewController {
         contentView.addArrangedSubview(iconView)
     }
 
-    private func addAction(title: String, style: AlertActionStyle, handler: (() -> Void)? = nil) {
+    private func addAction(
+        title: String,
+        style: AlertActionStyle,
+        accessibilityId: String?,
+        handler: (() -> Void)? = nil
+    ) {
         let button = AppButton(style: style.buttonStyle)
 
         button.setTitle(title, for: .normal)
+        button.accessibilityIdentifier = accessibilityId
         button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
 
         buttonView.addArrangedSubview(button)

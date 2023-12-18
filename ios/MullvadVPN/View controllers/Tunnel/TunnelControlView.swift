@@ -70,14 +70,14 @@ final class TunnelControlView: UIView {
 
     private let cancelButton: AppButton = {
         let button = AppButton(style: .translucentDanger)
-        button.accessibilityIdentifier = "CancelButton"
+        button.accessibilityIdentifier = AccessibilityIdentifier.cancelButton.rawValue
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     private let selectLocationButton: AppButton = {
         let button = AppButton(style: .translucentNeutral)
-        button.accessibilityIdentifier = "SelectLocationButton"
+        button.accessibilityIdentifier = AccessibilityIdentifier.selectLocationButton.rawValue
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -88,7 +88,7 @@ final class TunnelControlView: UIView {
 
     private let splitDisconnectButton: DisconnectSplitButton = {
         let button = DisconnectSplitButton()
-        button.primaryButton.accessibilityIdentifier = "DisconnectButton"
+        button.primaryButton.accessibilityIdentifier = AccessibilityIdentifier.disconnectButton.rawValue
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

@@ -103,7 +103,7 @@ class LoginContentView: UIView {
         backgroundColor = .primaryColor
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
 
-        accountInputGroup.textField.accessibilityIdentifier = "LoginTextField"
+        accountInputGroup.textField.accessibilityIdentifier = AccessibilityIdentifier.loginTextField.rawValue
 
         keyboardResponder = AutomaticKeyboardResponder(
             targetView: self,

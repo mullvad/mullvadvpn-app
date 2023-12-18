@@ -66,7 +66,7 @@ class TermsOfServiceContentView: UIView {
     let agreeButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = "AgreeButton"
+        button.accessibilityIdentifier = AccessibilityIdentifier.agreeButton.rawValue
         button.setTitle(NSLocalizedString(
             "CONTINUE_BUTTON_TITLE",
             tableName: "TermsOfService",
