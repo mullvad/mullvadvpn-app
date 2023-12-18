@@ -12,23 +12,23 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class ApplicationsIconManagerTest {
     private val mockedPackageManager = mockk<PackageManager>()
     private val mockedMainLooper = mockk<Looper>()
     private val testSubject = ApplicationsIconManager(mockedPackageManager)
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockkStatic(Looper::class)
         mockkStatic(DRAWABLE_EXTENSION_CLASS)
         every { Looper.getMainLooper() } returns mockedMainLooper
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }
