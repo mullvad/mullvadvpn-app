@@ -22,13 +22,13 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
 import net.mullvad.mullvadvpn.ui.serviceconnection.voucherRedeemer
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class VoucherDialogViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
     private val mockServiceConnectionContainer: ServiceConnectionContainer = mockk()
@@ -41,7 +41,7 @@ class VoucherDialogViewModelTest {
 
     private lateinit var viewModel: VoucherDialogViewModel
 
-    @Before
+    @BeforeEach
     fun setUp() {
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
 
@@ -52,7 +52,7 @@ class VoucherDialogViewModelTest {
             )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }

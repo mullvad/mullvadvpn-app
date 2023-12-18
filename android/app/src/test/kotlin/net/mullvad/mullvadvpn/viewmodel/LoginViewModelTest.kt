@@ -30,13 +30,13 @@ import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.ConnectivityUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import org.joda.time.DateTime
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class LoginViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var connectivityUseCase: ConnectivityUseCase
     @MockK private lateinit var mockedAccountRepository: AccountRepository
@@ -46,7 +46,7 @@ class LoginViewModelTest {
     private lateinit var loginViewModel: LoginViewModel
     private val accountHistoryTestEvents = MutableStateFlow<AccountHistory>(AccountHistory.Missing)
 
-    @Before
+    @BeforeEach
     fun setup() {
 
         Dispatchers.setMain(UnconfinedTestDispatcher())
@@ -79,7 +79,7 @@ class LoginViewModelTest {
             uiStates.awaitItem()
 
             // Assert
-            assertEquals(
+            Assertions.assertEquals(
                 Idle(loginError = LoginError.NoInternetConnection),
                 uiStates.awaitItem().loginState
             )
@@ -88,7 +88,7 @@ class LoginViewModelTest {
 
     @Test
     fun testDefaultState() = runTest {
-        loginViewModel.uiState.test { assertEquals(LoginUiState.INITIAL, awaitItem()) }
+        loginViewModel.uiState.test { Assertions.assertEquals(LoginUiState.INITIAL, awaitItem()) }
     }
 
     @Test
@@ -103,8 +103,8 @@ class LoginViewModelTest {
             // Act, Assert
             uiStates.skipDefaultItem()
             loginViewModel.createAccount()
-            assertEquals(Loading.CreatingAccount, uiStates.awaitItem().loginState)
-            assertEquals(LoginUiSideEffect.NavigateToWelcome, sideEffects.awaitItem())
+            Assertions.assertEquals(Loading.CreatingAccount, uiStates.awaitItem().loginState)
+            Assertions.assertEquals(LoginUiSideEffect.NavigateToWelcome, sideEffects.awaitItem())
         }
     }
 
@@ -121,9 +121,9 @@ class LoginViewModelTest {
             // Act, Assert
             uiStates.skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
-            assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
-            assertEquals(Success, uiStates.awaitItem().loginState)
-            assertEquals(LoginUiSideEffect.NavigateToConnect, sideEffects.awaitItem())
+            Assertions.assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
+            Assertions.assertEquals(Success, uiStates.awaitItem().loginState)
+            Assertions.assertEquals(LoginUiSideEffect.NavigateToConnect, sideEffects.awaitItem())
         }
     }
 
@@ -136,8 +136,11 @@ class LoginViewModelTest {
             // Act, Assert
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
-            assertEquals(Loading.LoggingIn, awaitItem().loginState)
-            assertEquals(Idle(loginError = LoginError.InvalidCredentials), awaitItem().loginState)
+            Assertions.assertEquals(Loading.LoggingIn, awaitItem().loginState)
+            Assertions.assertEquals(
+                Idle(loginError = LoginError.InvalidCredentials),
+                awaitItem().loginState
+            )
         }
     }
 
@@ -160,8 +163,8 @@ class LoginViewModelTest {
             // Act, Assert
             uiStates.skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
-            assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
-            assertEquals(
+            Assertions.assertEquals(Loading.LoggingIn, uiStates.awaitItem().loginState)
+            Assertions.assertEquals(
                 LoginUiSideEffect.TooManyDevices(AccountToken(DUMMY_ACCOUNT_TOKEN)),
                 sideEffects.awaitItem()
             )
@@ -177,8 +180,8 @@ class LoginViewModelTest {
             // Act, Assert
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
-            assertEquals(Loading.LoggingIn, awaitItem().loginState)
-            assertEquals(
+            Assertions.assertEquals(Loading.LoggingIn, awaitItem().loginState)
+            Assertions.assertEquals(
                 Idle(LoginError.Unknown(EXPECTED_RPC_ERROR_MESSAGE)),
                 awaitItem().loginState
             )
@@ -194,8 +197,8 @@ class LoginViewModelTest {
             // Act, Assert
             skipDefaultItem()
             loginViewModel.login(DUMMY_ACCOUNT_TOKEN)
-            assertEquals(Loading.LoggingIn, awaitItem().loginState)
-            assertEquals(
+            Assertions.assertEquals(Loading.LoggingIn, awaitItem().loginState)
+            Assertions.assertEquals(
                 Idle(LoginError.Unknown(EXPECTED_OTHER_ERROR_MESSAGE)),
                 awaitItem().loginState
             )
@@ -208,7 +211,7 @@ class LoginViewModelTest {
             // Act, Assert
             skipDefaultItem()
             accountHistoryTestEvents.emit(AccountHistory.Available(DUMMY_ACCOUNT_TOKEN))
-            assertEquals(
+            Assertions.assertEquals(
                 LoginUiState.INITIAL.copy(lastUsedAccount = AccountToken(DUMMY_ACCOUNT_TOKEN)),
                 awaitItem()
             )

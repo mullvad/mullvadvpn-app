@@ -29,13 +29,13 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.connectionProxy
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
 import net.mullvad.mullvadvpn.usecase.RelayListUseCase
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class SelectLocationViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockRelayListFilterUseCase: RelayListFilterUseCase = mockk(relaxed = true)
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
@@ -46,7 +46,7 @@ class SelectLocationViewModelTest {
     private val selectedProvider = MutableStateFlow<Constraint<Providers>>(Constraint.Any())
     private val allProvider = MutableStateFlow<List<Provider>>(emptyList())
 
-    @Before
+    @BeforeEach
     fun setup() {
 
         every { mockRelayListFilterUseCase.selectedOwnership() } returns selectedOwnership
@@ -64,7 +64,7 @@ class SelectLocationViewModelTest {
             )
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()

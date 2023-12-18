@@ -20,13 +20,13 @@ import net.mullvad.mullvadvpn.model.Ownership
 import net.mullvad.mullvadvpn.model.Providers
 import net.mullvad.mullvadvpn.relaylist.Provider
 import net.mullvad.mullvadvpn.usecase.RelayListFilterUseCase
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class FilterViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
     private val mockRelayListFilterUseCase: RelayListFilterUseCase = mockk(relaxed = true)
     private lateinit var viewModel: FilterViewModel
     private val selectedOwnership =
@@ -54,7 +54,7 @@ class FilterViewModelTest {
     private val mockSelectedProviders: List<Provider> =
         listOf(Provider("31173", true), Provider("Blix", true), Provider("Creanova", true))
 
-    @Before
+    @BeforeEach
     fun setup() {
         every { mockRelayListFilterUseCase.selectedOwnership() } returns selectedOwnership
         every { mockRelayListFilterUseCase.availableProviders() } returns
@@ -64,7 +64,7 @@ class FilterViewModelTest {
         viewModel = FilterViewModel(mockRelayListFilterUseCase)
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
