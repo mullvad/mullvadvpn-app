@@ -103,7 +103,7 @@ class AccountDeletionContentView: UIView {
 
     private let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
-        button.accessibilityIdentifier = Action.delete.rawValue
+        button.accessibilityIdentifier = AccessibilityIdentifier.deleteButton.rawValue
         button.setTitle(NSLocalizedString(
             "OK_BUTTON_TITLE",
             tableName: "Account",
@@ -115,7 +115,7 @@ class AccountDeletionContentView: UIView {
 
     private let cancelButton: AppButton = {
         let button = AppButton(style: .default)
-        button.accessibilityIdentifier = Action.cancel.rawValue
+        button.accessibilityIdentifier = AccessibilityIdentifier.cancelButton.rawValue
         button.setTitle(NSLocalizedString(
             "CANCEL_BUTTON_TITLE",
             tableName: "Account",

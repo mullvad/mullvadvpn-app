@@ -59,7 +59,7 @@ class LoginViewController: UIViewController, RootContainment {
             target: self,
             action: #selector(doLogin)
         )
-        barButtonItem.accessibilityIdentifier = "LoginBarButtonItem"
+        barButtonItem.accessibilityIdentifier = AccessibilityIdentifier.loginBarButton.rawValue
 
         return barButtonItem
     }()

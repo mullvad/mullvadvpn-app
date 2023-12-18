@@ -67,25 +67,25 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
         var accessibilityIdentifier: String {
             switch self {
             case .blockAdvertising:
-                return "blockAdvertising"
+                return AccessibilityIdentifier.blockAdvertising.rawValue
             case .blockTracking:
-                return "blockTracking"
+                return AccessibilityIdentifier.blockTracking.rawValue
             case .blockMalware:
-                return "blockMalware"
+                return AccessibilityIdentifier.blockMalware.rawValue
             case .blockGambling:
-                return "blockGambling"
+                return AccessibilityIdentifier.blockGambling.rawValue
             case .blockAdultContent:
-                return "blockAdultContent"
+                return AccessibilityIdentifier.blockAdultContent.rawValue
             case .blockSocialMedia:
-                return "blockSocialMedia"
+                return AccessibilityIdentifier.blockSocialMedia.rawValue
             case .useCustomDNS:
-                return "useCustomDNS"
+                return AccessibilityIdentifier.useCustomDNS.rawValue
             case .addDNSServer:
-                return "addDNSServer"
+                return AccessibilityIdentifier.addDNSServer.rawValue
             case let .dnsServer(uuid):
-                return "dnsServer(\(uuid.uuidString))"
+                return "\(AccessibilityIdentifier.dnsServer.rawValue)(\(uuid.uuidString))"
             case .dnsServerInfo:
-                return "dnsServerInfo"
+                return AccessibilityIdentifier.dnsServerInfo.rawValue
             }
         }
 

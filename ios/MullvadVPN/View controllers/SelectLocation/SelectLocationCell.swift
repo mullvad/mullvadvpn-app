@@ -111,7 +111,7 @@ class SelectLocationCell: UITableViewCell {
 
         tickImageView.tintColor = .white
 
-        collapseButton.accessibilityIdentifier = "CollapseButton"
+        collapseButton.accessibilityIdentifier = AccessibilityIdentifier.collapseButton.rawValue
         collapseButton.isAccessibilityElement = false
         collapseButton.tintColor = .white
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_:)), for: .touchUpInside)

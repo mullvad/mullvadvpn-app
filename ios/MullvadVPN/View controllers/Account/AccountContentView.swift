@@ -12,7 +12,7 @@ class AccountContentView: UIView {
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = "PurchaseButton"
+        button.accessibilityIdentifier = AccessibilityIdentifier.purchaseButton.rawValue
         return button
     }()
 
@@ -31,7 +31,7 @@ class AccountContentView: UIView {
     let redeemVoucherButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = "redeemVoucherButton"
+        button.accessibilityIdentifier = AccessibilityIdentifier.redeemVoucherButton.rawValue
         button.setTitle(NSLocalizedString(
             "REDEEM_VOUCHER_BUTTON_TITLE",
             tableName: "Account",
@@ -44,7 +44,7 @@ class AccountContentView: UIView {
     let logoutButton: AppButton = {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = "LogoutButton"
+        button.accessibilityIdentifier = AccessibilityIdentifier.logoutButton.rawValue
         button.setTitle(NSLocalizedString(
             "LOGOUT_BUTTON_TITLE",
             tableName: "Account",
@@ -57,7 +57,7 @@ class AccountContentView: UIView {
     let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = "DeleteButton"
+        button.accessibilityIdentifier = AccessibilityIdentifier.deleteButton.rawValue
         button.setTitle(NSLocalizedString(
             "DELETE_BUTTON_TITLE",
             tableName: "Account",
