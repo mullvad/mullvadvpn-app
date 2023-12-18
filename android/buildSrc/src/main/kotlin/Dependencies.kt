@@ -2,7 +2,10 @@ object Dependencies {
     const val androidVolley = "com.android.volley:volley:${Versions.Android.volley}"
     const val commonsValidator = "commons-validator:commons-validator:${Versions.commonsValidator}"
     const val jodaTime = "joda-time:joda-time:${Versions.jodaTime}"
-    const val junit = "junit:junit:${Versions.junit}"
+    const val junitApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junit}"
+    const val junitEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit}"
+    const val junitParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junit}"
+    const val junitVintage = "org.junit.vintage:junit-vintage-engine:${Versions.junit}"
     const val konsist = "com.lemonappdev:konsist:${Versions.konsist}"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
     const val mockkWebserver = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebserver}"
@@ -37,13 +40,15 @@ object Dependencies {
     }
 
     object Compose {
-        const val destinations = "io.github.raamcosta.compose-destinations:core:${Versions.Compose.destinations}"
-        const val destinationsKsp = "io.github.raamcosta.compose-destinations:ksp:${Versions.Compose.destinations}"
+        const val destinations =
+            "io.github.raamcosta.compose-destinations:core:${Versions.Compose.destinations}"
+        const val destinationsKsp =
+            "io.github.raamcosta.compose-destinations:ksp:${Versions.Compose.destinations}"
         const val constrainLayout =
             "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
         const val foundation =
             "androidx.compose.foundation:foundation:${Versions.Compose.foundation}"
-        const val junit = "androidx.compose.ui:ui-test-junit4:${Versions.Compose.base}"
+        const val junit5 = "de.mannodermaus.junit5:android-test-compose:${Versions.Compose.junit}"
         const val material3 = "androidx.compose.material3:material3:${Versions.Compose.material3}"
         const val testManifest = "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
         const val uiController =
@@ -55,7 +60,6 @@ object Dependencies {
             "androidx.compose.ui:ui-tooling-preview:${Versions.Compose.base}"
         const val uiToolingAndroidPreview =
             "androidx.compose.ui:ui-tooling-preview-android:${Versions.Compose.base}"
-
     }
 
     object Koin {

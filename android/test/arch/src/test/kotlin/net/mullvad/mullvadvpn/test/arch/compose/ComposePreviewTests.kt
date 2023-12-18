@@ -4,7 +4,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.ext.list.withAllAnnotationsOf
 import com.lemonappdev.konsist.api.verify.assert
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ComposePreviewTests {
     @Test

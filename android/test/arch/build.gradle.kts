@@ -30,6 +30,6 @@ androidComponents {
 dependencies {
     testImplementation(Dependencies.Compose.uiToolingAndroidPreview)
     testImplementation(Dependencies.AndroidX.appcompat)
-    testImplementation(Dependencies.junit)
+    testImplementation(Dependencies.junitApi)
     testImplementation(Dependencies.konsist)
 }

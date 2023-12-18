@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.test.arch.classes
 
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.verify.assert
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class ClassTests {
     @Test

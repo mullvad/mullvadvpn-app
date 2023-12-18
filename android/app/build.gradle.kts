@@ -351,32 +351,17 @@ dependencies {
     // Leak canary
     leakCanaryImplementation(Dependencies.leakCanary)
 
-    // Test dependencies
-
-    // (Required) Writing and executing Unit Tests on the JUnit Platform
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
-
-    // (Optional) If you need "Parameterized Tests"
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
-
-    // (Optional) If you also have JUnit 4-based tests
-//    testImplementation("junit:junit:4.13.2")
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.10.0")
-
-    androidTestImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-
-    // Test extension & transitive dependencies
-    androidTestImplementation("de.mannodermaus.junit5:android-test-compose:1.4.0")
-
     // Needed for createComposeExtension() and createAndroidComposeExtension()
     debugImplementation("androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}")
     testImplementation(project(Dependencies.Mullvad.commonTestLib))
     testImplementation(Dependencies.Kotlin.test)
     testImplementation(Dependencies.KotlinX.coroutinesTest)
     testImplementation(Dependencies.MockK.core)
-    testImplementation(Dependencies.junit)
     testImplementation(Dependencies.turbine)
+    testImplementation(Dependencies.junitApi)
+    testRuntimeOnly(Dependencies.junitEngine)
+    testImplementation(Dependencies.junitParams)
+    testRuntimeOnly(Dependencies.junitVintage)
 
     // UI test dependencies
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
@@ -387,4 +372,6 @@ dependencies {
     androidTestImplementation(Dependencies.Koin.test)
     androidTestImplementation(Dependencies.Kotlin.test)
     androidTestImplementation(Dependencies.MockK.android)
+    androidTestImplementation(Dependencies.junitApi)
+    androidTestImplementation(Dependencies.Compose.junit5)
 }
