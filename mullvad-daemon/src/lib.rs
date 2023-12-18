@@ -27,7 +27,7 @@ mod tunnel;
 pub mod version;
 mod version_check;
 
-use crate::{geoip::get_geo_location, target_state::PersistentTargetState};
+use crate::target_state::PersistentTargetState;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -203,8 +203,6 @@ pub enum DaemonCommand {
     Reconnect(oneshot::Sender<bool>),
     /// Request the current state.
     GetState(oneshot::Sender<TunnelState>),
-    /// Get the current geographical location.
-    GetCurrentLocation(oneshot::Sender<Option<GeoIpLocation>>),
     CreateNewAccount(ResponseTx<String, Error>),
     /// Request the metadata for an account.
     GetAccountData(
@@ -420,7 +418,7 @@ impl DaemonExecutionState {
         match self {
             Running => {
                 match tunnel_state {
-                    TunnelState::Disconnected => mem::replace(self, Finished),
+                    TunnelState::Disconnected(_) => mem::replace(self, Finished),
                     _ => mem::replace(self, Exiting),
                 };
             }
@@ -617,6 +615,7 @@ pub struct Daemon<L: EventListener> {
     tunnel_state_machine_handle: TunnelStateMachineHandle,
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
+    location_abort_handle: Option<tokio::task::AbortHandle>,
 }
 
 impl<L> Daemon<L>
@@ -831,7 +830,7 @@ where
         relay_list_updater.update().await;
 
         let daemon = Daemon {
-            tunnel_state: TunnelState::Disconnected,
+            tunnel_state: TunnelState::Disconnected(None),
             target_state,
             state: DaemonExecutionState::Running,
             #[cfg(target_os = "linux")]
@@ -857,6 +856,7 @@ where
             tunnel_state_machine_handle,
             #[cfg(target_os = "windows")]
             volume_update_tx,
+            location_abort_handle: None,
         };
 
         api_availability.unsuspend();
@@ -960,15 +960,26 @@ where
             .handle_state_transition(&tunnel_state_transition);
 
         let tunnel_state = match tunnel_state_transition {
-            TunnelStateTransition::Disconnected => TunnelState::Disconnected,
+            TunnelStateTransition::Disconnected => {
+                self.notify_tunnel_state_when_ip_arrives(None, TunnelState::Disconnected)
+                    .await;
+                TunnelState::Disconnected(None)
+            }
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
                 endpoint,
                 location: self.parameters_generator.get_last_location().await,
             },
-            TunnelStateTransition::Connected(endpoint) => TunnelState::Connected {
-                endpoint,
-                location: self.parameters_generator.get_last_location().await,
-            },
+            TunnelStateTransition::Connected(endpoint) => {
+                let location = self.parameters_generator.get_last_location().await;
+                let make_tunnel_state = |location| TunnelState::Connected { endpoint, location };
+                self.notify_tunnel_state_when_ip_arrives(
+                    location.clone(),
+                    make_tunnel_state.clone(),
+                )
+                .await;
+
+                make_tunnel_state(location)
+            }
             TunnelStateTransition::Disconnecting(after_disconnect) => {
                 TunnelState::Disconnecting(after_disconnect)
             }
@@ -985,7 +996,7 @@ where
         log::debug!("New tunnel state: {:?}", tunnel_state);
 
         match tunnel_state {
-            TunnelState::Disconnected => {
+            TunnelState::Disconnected(_) => {
                 self.api_handle.availability.reset_inactivity_timer();
             }
             _ => {
@@ -994,7 +1005,7 @@ where
         }
 
         match &tunnel_state {
-            TunnelState::Disconnected => self.state.disconnected(),
+            TunnelState::Disconnected(_) => self.state.disconnected(),
             TunnelState::Connecting { .. } => {
                 log::debug!("Settings: {}", self.settings.summary());
             }
@@ -1022,6 +1033,53 @@ where
 
         self.tunnel_state = tunnel_state.clone();
         self.event_listener.notify_new_state(tunnel_state);
+    }
+
+    /// Get the out IP from am.i.mullvad.net. When it arrives, send another
+    /// TunnelState with the IP filled in.
+    async fn notify_tunnel_state_when_ip_arrives(
+        &mut self,
+        old_location: Option<GeoIpLocation>,
+        make_tunnel_state: impl FnOnce(Option<GeoIpLocation>) -> TunnelState + Send + 'static,
+    ) {
+        // Abort any ongoing calls to `self.notify_tunnel_state_when_ip_arrives` from
+        // previous tunnel state transitions to avoid sending an outdated information.
+        if let Some(handle) = self.location_abort_handle.take() {
+            handle.abort();
+        }
+        let rest_service = self.api_runtime.rest_handle().await;
+        let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
+        let api_handle = self.api_handle.availability.clone();
+        let even_listener = self.event_listener.clone();
+
+        self.location_abort_handle = Some(
+            tokio::spawn(async move {
+                let merged_location =
+                    geoip::get_geo_location_with_retry(rest_service, use_ipv6, api_handle)
+                        .await
+                        .ok()
+                        // Replace the old location with new information from am.i.mullvad.net,
+                        // but keep the hostname as it is always none
+                        .map(|new_location| match old_location {
+                            Some(old_location) => GeoIpLocation {
+                                hostname: old_location.hostname,
+                                bridge_hostname: old_location.bridge_hostname,
+                                entry_hostname: old_location.entry_hostname,
+                                obfuscator_hostname: old_location.obfuscator_hostname,
+                                ..new_location
+                            },
+                            None => GeoIpLocation {
+                                hostname: None,
+                                bridge_hostname: None,
+                                entry_hostname: None,
+                                obfuscator_hostname: None,
+                                ..new_location
+                            },
+                        });
+                even_listener.notify_new_state(make_tunnel_state(merged_location));
+            })
+            .abort_handle(),
+        );
     }
 
     fn reset_rpc_sockets_on_tunnel_state_transition(
@@ -1075,7 +1133,6 @@ where
             SetTargetState(tx, state) => self.on_set_target_state(tx, state).await,
             Reconnect(tx) => self.on_reconnect(tx),
             GetState(tx) => self.on_get_state(tx),
-            GetCurrentLocation(tx) => self.on_get_current_location(tx).await,
             CreateNewAccount(tx) => self.on_create_new_account(tx),
             GetAccountData(tx, account_token) => self.on_get_account_data(tx, account_token),
             GetWwwAuthToken(tx) => self.on_get_www_auth_token(tx).await,
@@ -1324,52 +1381,6 @@ where
     fn on_is_performing_post_upgrade(&self, tx: oneshot::Sender<bool>) {
         let performing_post_upgrade = !self.migration_complete.is_complete();
         Self::oneshot_send(tx, performing_post_upgrade, "performing post upgrade");
-    }
-
-    async fn on_get_current_location(&mut self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
-        use self::TunnelState::*;
-
-        match &self.tunnel_state {
-            Disconnected => self.update_and_send_geo_location(tx, None).await,
-            Connecting { location, .. } => {
-                Self::oneshot_send(tx, location.clone(), "current location")
-            }
-            Disconnecting(..) => Self::oneshot_send(
-                tx,
-                self.parameters_generator.get_last_location().await,
-                "current location",
-            ),
-            Connected { location, .. } => {
-                self.update_and_send_geo_location(tx, location.clone())
-                    .await
-            }
-            // We are not online at all at this stage so no location data is available.
-            Error(_) => Self::oneshot_send(tx, None, "current location"),
-        };
-    }
-
-    /// Fetch the current `GeoIpLocation` and send it on the return channel,
-    /// in a non-blocking fashion. Optionally give a chached previous location.
-    async fn update_and_send_geo_location(
-        &mut self,
-        tx: oneshot::Sender<Option<GeoIpLocation>>,
-        current_relay_location: Option<GeoIpLocation>,
-    ) {
-        let rest_service = self.api_runtime.rest_handle().await;
-        let use_ipv6 = self.settings.tunnel_options.generic.enable_ipv6;
-        let api_handle = self.api_handle.availability.clone();
-        tokio::spawn(async move {
-            let new_location = get_geo_location(rest_service, use_ipv6, api_handle).await;
-            Self::oneshot_send(
-                tx,
-                new_location.map(|fetched_location| GeoIpLocation {
-                    ipv4: fetched_location.ipv4,
-                    ipv6: fetched_location.ipv6,
-                    ..current_relay_location.unwrap_or(fetched_location)
-                }),
-                "current location",
-            );
-        });
     }
 
     fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {

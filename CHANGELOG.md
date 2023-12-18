@@ -22,7 +22,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+#### Linux
+- Out IP missing forever when am.i.mullvad.net returns error
+
 ### Changed
+- Remove `--location` flag from `mullvad status` CLI. Location and IP will now always
+  be printed (if available). `mullvad status listen` does no longer print location info.
+
 #### Android
 - Migrated to Compose Navigation
 - Allow for full rotation

@@ -191,17 +191,6 @@ impl ManagementService for ManagementServiceImpl {
             .map(|relays| Response::new(types::RelayList::from(relays)))
     }
 
-    async fn get_current_location(&self, _: Request<()>) -> ServiceResult<types::GeoIpLocation> {
-        log::debug!("get_current_location");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetCurrentLocation(tx))?;
-        let result = self.wait_for_result(rx).await?;
-        match result {
-            Some(geoip) => Ok(Response::new(types::GeoIpLocation::from(geoip))),
-            None => Err(Status::not_found("no location was found")),
-        }
-    }
-
     async fn set_bridge_settings(
         &self,
         request: Request<types::BridgeSettings>,
