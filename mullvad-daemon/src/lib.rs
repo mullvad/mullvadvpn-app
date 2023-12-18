@@ -1324,19 +1324,27 @@ where
     }
 
     async fn handle_access_method_event(&mut self, event: AccessMethodEvent) {
+        let update_fw = |api_endpoint| async {
+            let (result_tx, result_rx) = oneshot::channel();
+            self.send_tunnel_command(TunnelCommand::AllowEndpoint(api_endpoint, result_tx));
+            //  Wait for the firewall policy to be updated.
+            let _ = result_rx.await;
+        };
         match event {
             AccessMethodEvent::Active {
                 settings,
                 api_endpoint,
             } => {
                 log::info!("HANDLING INTERNVAL DAEMON EVENT: Setting new active access method");
-                let (result_tx, result_rx) = oneshot::channel();
                 log::warn!("API endpoint: {endpoint}", endpoint = api_endpoint.endpoint);
-                self.send_tunnel_command(TunnelCommand::AllowEndpoint(api_endpoint, result_tx));
-                //  Wait for the firewall policy to be updated.
-                let _ = result_rx.await;
-
+                update_fw(api_endpoint).await;
                 self.event_listener.notify_new_access_method(settings);
+            }
+            AccessMethodEvent::Testing { api_endpoint } => {
+                log::info!("HANDLING INTERNVAL DAEMON EVENT: Testing new active access method");
+                // Just update the firewall, but do not notify clients about the
+                // change since it will be reverted asap.
+                update_fw(api_endpoint).await;
             }
         }
     }
@@ -2435,11 +2443,9 @@ where
         tx: ResponseTx<bool, Error>,
         access_method: mullvad_types::access_method::Id,
     ) {
-        // NOTE: Preferably we would block all new API calls until the test is
-        // done and the previous access method is reset. Otherwise we run the
-        // risk of errounously triggering a rotation of the currently in-use
-        // access method.
         let api_handle = self.api_handle.clone();
+        // TODO(markus): Check if this is sound
+        self.api_handle.availability.suspend();
         let handle = self.connection_modes_handler.clone();
         let access_method_lookup = self
             .get_api_access_method(access_method)
@@ -2458,7 +2464,9 @@ where
             Err(err) => {
                 Self::oneshot_send(tx, Err(err), "on_test_api_access_method response");
             }
-        }
+        };
+        // TODO(markus): Check if this is sound
+        self.api_handle.availability.unsuspend();
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

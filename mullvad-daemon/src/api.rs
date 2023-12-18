@@ -27,6 +27,9 @@ pub enum Message {
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Vec<AccessMethodSetting>),
+    // Used for "Testing" access methods
+    Test(ResponseTx<()>, AccessMethodSetting),
+    TestReset(ResponseTx<()>),
 }
 
 // TODO(markus): Update this name (?)
@@ -35,6 +38,9 @@ pub enum AccessMethodEvent {
     /// Emitted when the active access method changes.
     Active {
         settings: AccessMethodSetting,
+        api_endpoint: AllowedEndpoint,
+    },
+    Testing {
         api_endpoint: AllowedEndpoint,
     },
 }
@@ -95,6 +101,26 @@ impl AccessModeSelectorHandle {
             })
     }
 
+    // TODO(markus): Document this!
+    pub(super) async fn debug_test(&self, setting: AccessMethodSetting) -> Result<()> {
+        self.send_command(|tx| Message::Test(tx, setting))
+            .await
+            .map_err(|err| {
+                log::error!("Failed to set new test access methods!");
+                err
+            })
+    }
+
+    // TODO(markus): Document this!
+    pub(super) async fn debug_reset(&self) -> Result<()> {
+        self.send_command(|tx| Message::TestReset(tx))
+            .await
+            .map_err(|err| {
+                log::error!("Failed to set new test access methods!");
+                err
+            })
+    }
+
     pub async fn next(&self) -> Result<ApiConnectionMode> {
         self.send_command(Message::Next).await.map_err(|err| {
             log::error!("Failed to update new access methods!");
@@ -120,6 +146,16 @@ impl AccessModeSelectorHandle {
     }
 }
 
+// TODO(markus): Rename this!
+struct TestType {
+    /// The [`AccessMethodSetting`] under test.
+    testee: AccessMethodSetting,
+    /// The [`AccessMethodSetting`] which was active before the testing started.
+    previous_access_method: AccessMethodSetting,
+    /// The [`ApiConnectionMode`] which was active before the testing started.
+    previous_connection_mode: ApiConnectionMode,
+}
+
 /// A small actor which takes care of handling the logic around rotating
 /// connection modes to be used for Mullvad API request.
 ///
@@ -140,6 +176,13 @@ pub struct AccessModeSelector {
     address_cache: AddressCache,
     /// Communication channel with the daemon
     listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
+    // TODO(markus): Phrase this better
+    /// If some access method is being tested or not.
+    ///
+    /// If this value is `Some`, calls to `next` should not actually progress
+    /// the access method state machine. When this value goes from `Some` to
+    /// `None`, the `TestType.previous` value should be respected.
+    test: Option<TestType>,
 }
 
 // TODO(markus): Document this! It was created to get an initial api endpoint in
@@ -186,6 +229,7 @@ impl AccessModeSelector {
             connection_modes,
             address_cache,
             listeners: vec![Box::new(listener)],
+            test: None,
         };
 
         tokio::spawn(selector.into_future());
@@ -203,6 +247,8 @@ impl AccessModeSelector {
                 Message::Set(tx, value) => self.on_set_access_method(tx, value),
                 Message::Next(tx) => self.on_next_connection_mode(tx).await,
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values),
+                Message::Test(tx, setting) => self.on_set_test(tx, setting).await,
+                Message::TestReset(tx) => self.on_reset_test(tx).await,
             };
             match execution {
                 Ok(_) => (),
@@ -246,39 +292,107 @@ impl AccessModeSelector {
         self.connection_modes.set_access_method(value);
     }
 
-    async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
-        let access_method = self.connection_modes.next().unwrap();
-        let next = resolve(access_method.access_method.clone(), &self.relay_selector);
-        // Notify all listeners about the new connection mode.
-        //
-        // TODO(markus): Remove this comment: Broadcasting this event to the
-        // daemon (via the listeners) will punch the appropriate hole in the
-        // firewall. As such, we can distribute this new access method to any
-        // downstream consumer, such as the `mullvad-api` crate. This is a bit
-        // racey though, as there is no synchronization between the daemon
-        // receiving and acting upon this event (by opening up the firewall) and
-        // the `mullvad-api` crate using this new access method.
-        let event = AccessMethodEvent::Active {
-            settings: access_method,
-            api_endpoint: allowed_endpoint(&next, self.address_cache.get_address().await),
+    // TODO(markus): Document these
+    async fn on_set_test(
+        &mut self,
+        tx: ResponseTx<()>,
+        setting: AccessMethodSetting,
+    ) -> Result<()> {
+        // TODO: Should we force a rotation here, such that all subsequent API request are done using this new 'test' access method?
+        // Probably.
+        let test = TestType {
+            testee: setting.clone(),
+            previous_access_method: self.get_access_method(),
+            // TODO(markus): Should this actually be stashed instead of resovled here?
+            previous_connection_mode: resolve(
+                self.get_access_method().access_method,
+                &self.relay_selector,
+            ),
         };
-        self.listeners
-            .retain(|listener| listener.send(event.clone()).is_ok());
+        {
+            let connection_mode = resolve(test.testee.access_method.clone(), &self.relay_selector);
+            let event = AccessMethodEvent::Testing {
+                api_endpoint: allowed_endpoint(
+                    &connection_mode,
+                    self.address_cache.get_address().await,
+                ),
+            };
+            self.listeners
+                .retain(|listener| listener.send(event.clone()).is_ok());
+        }
+
+        self.test = Some(test);
+        self.reply(tx, ())
+    }
+
+    // TODO(markus): Document these
+    async fn on_reset_test(&mut self, tx: ResponseTx<()>) -> Result<()> {
+        if let Some(TestType {
+            previous_connection_mode,
+            previous_access_method,
+            ..
+        }) = self.test.take()
+        {
+            // Punch a hole in the firewall for the previously active access method.
+            //
+            // TODO(markus): This logic for sending an `AccessMethodEvent` to
+            // all listeners could probably be abstracted to a single fn.
+            let event = AccessMethodEvent::Testing {
+                api_endpoint: allowed_endpoint(
+                    &previous_connection_mode,
+                    self.address_cache.get_address().await,
+                ),
+            };
+            self.listeners
+                .retain(|listener| listener.send(event.clone()).is_ok());
+
+            // The next access method should be the previous access method since before the test started.
+            self.set_access_method(previous_access_method)
+        }
+        self.reply(tx, ())
+    }
+
+    async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
+        // If some access method is currently under test, the 'access method state machine' should not progress.
+        let next = if let Some(testee) = &self.test {
+            testee.previous_connection_mode.clone()
+        } else {
+            self.next_connection_mode().await
+        };
+        self.reply(tx, next)
+    }
+
+    async fn next_connection_mode(&mut self) -> ApiConnectionMode {
+        let access_method = self.connection_modes.next().unwrap();
+        let next = {
+            let connection_mode =
+                resolve(access_method.access_method.clone(), &self.relay_selector);
+            let event = AccessMethodEvent::Active {
+                settings: access_method,
+                api_endpoint: allowed_endpoint(
+                    &connection_mode,
+                    self.address_cache.get_address().await,
+                ),
+            };
+            self.listeners
+                .retain(|listener| listener.send(event.clone()).is_ok());
+            connection_mode
+        };
 
         // Save the new connection mode to cache!
         {
             let cache_dir = self.cache_dir.clone();
-            let next = next.clone();
+            let new_connection_mode = next.clone();
             tokio::spawn(async move {
-                if next.save(&cache_dir).await.is_err() {
+                if new_connection_mode.save(&cache_dir).await.is_err() {
                     log::warn!(
                         "Failed to save {connection_mode} to cache",
-                        connection_mode = next
+                        connection_mode = new_connection_mode
                     )
                 }
             });
         }
-        self.reply(tx, next)
+        next
     }
 
     fn on_update_access_methods(
@@ -365,6 +479,7 @@ impl ConnectionModesIterator {
     pub fn set_access_method(&mut self, next: AccessMethodSetting) {
         self.next = Some(next);
     }
+
     /// Update the collection of [`AccessMethod`] which this iterator will
     /// return.
     pub fn update_access_methods(
