@@ -107,9 +107,8 @@ pub async fn test_lockdown(
     let inet_destination: SocketAddr = "1.1.1.1:1337".parse().unwrap();
 
     log::info!("Verify tunnel state: disconnected");
-    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected);
+    assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected(_));
 
-    //
     // Enable lockdown mode
     //
     mullvad_client
