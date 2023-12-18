@@ -21,7 +21,7 @@ class RelayFilterViewController: UIViewController {
 
     private let applyButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = "ApplyButton"
+        button.accessibilityIdentifier = .applyButton
         button.setTitle(NSLocalizedString(
             "RELAY_FILTER_BUTTON_TITLE",
             tableName: "RelayFilter",

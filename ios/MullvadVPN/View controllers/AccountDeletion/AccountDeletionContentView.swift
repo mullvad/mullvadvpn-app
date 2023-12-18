@@ -21,10 +21,6 @@ class AccountDeletionContentView: UIView {
         case failure(Error)
     }
 
-    private enum Action: String {
-        case delete, cancel
-    }
-
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         return scrollView
@@ -103,7 +99,7 @@ class AccountDeletionContentView: UIView {
 
     private let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
-        button.accessibilityIdentifier = Action.delete.rawValue
+        button.accessibilityIdentifier = .deleteButton
         button.setTitle(NSLocalizedString(
             "OK_BUTTON_TITLE",
             tableName: "Account",
@@ -115,7 +111,7 @@ class AccountDeletionContentView: UIView {
 
     private let cancelButton: AppButton = {
         let button = AppButton(style: .default)
-        button.accessibilityIdentifier = Action.cancel.rawValue
+        button.accessibilityIdentifier = .cancelButton
         button.setTitle(NSLocalizedString(
             "CANCEL_BUTTON_TITLE",
             tableName: "Account",
@@ -376,10 +372,10 @@ class AccountDeletionContentView: UIView {
     }
 
     @objc private func didPress(button: AppButton) {
-        switch Action(rawValue: button.accessibilityIdentifier ?? "") {
-        case .delete:
+        switch AccessibilityIdentifier(rawValue: button.accessibilityIdentifier ?? "") {
+        case .deleteButton:
             delegate?.didTapDeleteButton(contentView: self, button: button)
-        case .cancel:
+        case .cancelButton:
             delegate?.didTapCancelButton(contentView: self, button: button)
         default: return
         }

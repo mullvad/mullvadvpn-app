@@ -50,7 +50,7 @@ struct RelayFilterCellFactory: CellFactoryProtocol {
         )
 
         cell.applySubCellStyling()
-        cell.accessibilityIdentifier = "RelayFilterOwnershipCell"
+        cell.accessibilityIdentifier = .relayFilterOwnershipCell
     }
 
     private func configureProviderCell(_ cell: UITableViewCell, item: RelayFilterDataSource.Item) {
@@ -78,7 +78,7 @@ struct RelayFilterCellFactory: CellFactoryProtocol {
         )
 
         cell.applySubCellStyling()
-        cell.accessibilityIdentifier = "RelayFilterProviderCell"
+        cell.accessibilityIdentifier = .relayFilterProviderCell
     }
 
     private func setFontWeight(_ weight: UIFont.Weight, to label: UILabel) {

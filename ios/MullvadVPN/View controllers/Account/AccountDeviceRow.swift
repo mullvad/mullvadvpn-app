@@ -6,7 +6,6 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 class AccountDeviceRow: UIView {
@@ -41,7 +40,7 @@ class AccountDeviceRow: UIView {
 
     private let infoButton: UIButton = {
         let button = IncreasedHitButton(type: .system)
-        button.accessibilityIdentifier = "InfoButton"
+        button.accessibilityIdentifier = .infoButton
         button.tintColor = .white
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
         return button

@@ -49,7 +49,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             )
 
             cell.disclosureType = .chevron
-            cell.accessibilityHint = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
 
         case let .wireGuardPort(port):
             guard let cell = cell as? SelectableSettingsCell else { return }
@@ -65,7 +65,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
             }
 
             cell.titleLabel.text = portString
-            cell.accessibilityHint = nil
+            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue) (\(portString))"
             cell.applySubCellStyling()
 
         case .wireGuardCustomPort:
@@ -84,7 +84,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 comment: ""
             )
 
-            cell.accessibilityHint = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
 
             cell.inputDidChange = { [weak self] text in
@@ -117,7 +117,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 value: "Automatic",
                 comment: ""
             )
-            cell.accessibilityHint = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
 
         case .wireGuardObfuscationOn:
@@ -129,7 +129,7 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 value: "On (UDP-over-TCP)",
                 comment: ""
             )
-            cell.accessibilityHint = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
         case .wireGuardObfuscationOff:
             guard let cell = cell as? SelectableSettingsCell else { return }
@@ -140,21 +140,20 @@ final class PreferencesCellFactory: CellFactoryProtocol {
                 value: "Off",
                 comment: ""
             )
-            cell.accessibilityHint = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
 
         case let .wireGuardObfuscationPort(port):
             guard let cell = cell as? SelectableSettingsCell else { return }
 
-            let portValue = port == 0 ? "Automatic" : "\(port)"
-
+            let portString = port == 0 ? "Automatic" : "\(port)"
             cell.titleLabel.text = NSLocalizedString(
                 "WIRE_GUARD_OBFUSCATION_PORT_LABEL",
                 tableName: "Preferences",
-                value: portValue,
+                value: portString,
                 comment: ""
             )
-            cell.accessibilityHint = nil
+            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue) (\(portString))"
             cell.applySubCellStyling()
         }
     }

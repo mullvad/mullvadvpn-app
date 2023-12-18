@@ -40,6 +40,21 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case faq
         case apiAccess
 
+        var accessibilityIdentifier: AccessibilityIdentifier {
+            switch self {
+            case .preferences:
+                return .preferencesCell
+            case .version:
+                return .versionCell
+            case .problemReport:
+                return .problemReportCell
+            case .faq:
+                return .faqCell
+            case .apiAccess:
+                return .apiAccessCell
+            }
+        }
+
         var reuseIdentifier: CellReuseIdentifiers {
             .basicCell
         }
