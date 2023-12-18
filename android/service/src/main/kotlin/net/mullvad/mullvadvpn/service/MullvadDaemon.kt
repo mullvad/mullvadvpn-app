@@ -10,7 +10,6 @@ import net.mullvad.mullvadvpn.model.DeviceEvent
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.ObfuscationSettings
@@ -34,7 +33,7 @@ class MullvadDaemon(
     protected var daemonInterfaceAddress = 0L
 
     val onSettingsChange = EventNotifier<Settings?>(null)
-    var onTunnelStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
+    var onTunnelStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected())
 
     var onAppVersionInfoChange: ((AppVersionInfo) -> Unit)? = null
     var onRelayListChange: ((RelayList) -> Unit)? = null
@@ -58,7 +57,7 @@ class MullvadDaemon(
 
         onSettingsChange.notify(getSettings())
 
-        onTunnelStateChange.notify(getState() ?: TunnelState.Disconnected)
+        onTunnelStateChange.notify(getState() ?: TunnelState.Disconnected())
     }
 
     fun connect() {
@@ -83,10 +82,6 @@ class MullvadDaemon(
 
     fun getWwwAuthToken(): String {
         return getWwwAuthToken(daemonInterfaceAddress) ?: ""
-    }
-
-    fun getCurrentLocation(): GeoIpLocation? {
-        return getCurrentLocation(daemonInterfaceAddress)
     }
 
     fun getCurrentVersion(): String? {
@@ -228,8 +223,6 @@ class MullvadDaemon(
     private external fun getAccountHistory(daemonInterfaceAddress: Long): String?
 
     private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String?
-
-    private external fun getCurrentLocation(daemonInterfaceAddress: Long): GeoIpLocation?
 
     private external fun getCurrentVersion(daemonInterfaceAddress: Long): String?
 
