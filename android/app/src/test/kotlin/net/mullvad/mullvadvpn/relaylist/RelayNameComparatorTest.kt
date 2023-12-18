@@ -2,13 +2,13 @@ package net.mullvad.mullvadvpn.relaylist
 
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import org.junit.After
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
 class RelayNameComparatorTest {
 
-    @After
+    @AfterEach
     fun tearDown() {
         unmockkAll()
     }
@@ -35,8 +35,8 @@ class RelayNameComparatorTest {
         val relay9b =
             Relay(name = "se9-wireguard", location = mockk(), locationName = "mock", active = false)
 
-        assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
-        assertTrue(RelayNameComparator.compare(relay9b, relay9a) == 0)
+        Assertions.assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
+        Assertions.assertTrue(RelayNameComparator.compare(relay9b, relay9a) == 0)
     }
 
     @Test
@@ -61,8 +61,8 @@ class RelayNameComparatorTest {
         val relay9b =
             Relay(name = "se-wireguard", location = mockk(), locationName = "mock", active = false)
 
-        assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
-        assertTrue(RelayNameComparator.compare(relay9b, relay9a) == 0)
+        Assertions.assertTrue(RelayNameComparator.compare(relay9a, relay9b) == 0)
+        Assertions.assertTrue(RelayNameComparator.compare(relay9b, relay9a) == 0)
     }
 
     @Test
@@ -132,7 +132,7 @@ class RelayNameComparatorTest {
     }
 
     private infix fun Relay.assertOrderBothDirection(other: Relay) {
-        assertTrue(RelayNameComparator.compare(this, other) < 0)
-        assertTrue(RelayNameComparator.compare(other, this) > 0)
+        Assertions.assertTrue(RelayNameComparator.compare(this, other) < 0)
+        Assertions.assertTrue(RelayNameComparator.compare(other, this) > 0)
     }
 }
