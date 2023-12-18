@@ -1,7 +1,7 @@
 object Versions {
     const val commonsValidator = "1.7"
     const val jodaTime = "2.12.5"
-    const val junit = "4.13.2"
+    const val junit = "5.10.0"
     const val jvmTarget = "17"
     const val konsist = "0.13.0"
     const val kotlin = "1.9.20"
@@ -41,6 +41,7 @@ object Versions {
         const val foundation = base
         const val material3 = "1.1.1"
         const val uiController = "0.30.1"
+        const val junit = "1.4.0"
     }
 
     object Plugin {

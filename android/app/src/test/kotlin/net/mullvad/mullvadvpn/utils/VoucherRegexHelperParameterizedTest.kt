@@ -1,10 +1,9 @@
 package net.mullvad.mullvadvpn.utils
 
 import java.util.stream.Stream
+import kotlin.test.assertEquals
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.util.VoucherRegexHelper
-import org.hamcrest.CoreMatchers.equalTo
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
@@ -18,7 +17,7 @@ class VoucherRegexHelperParameterizedTest {
     @ParameterizedTest
     @MethodSource("data")
     fun testVoucherFormat(isValid: Boolean, voucher: String) {
-        assertThat(VoucherRegexHelper.validate(voucher), equalTo(isValid))
+        assertEquals(VoucherRegexHelper.validate(voucher), isValid)
     }
 
     companion object {
