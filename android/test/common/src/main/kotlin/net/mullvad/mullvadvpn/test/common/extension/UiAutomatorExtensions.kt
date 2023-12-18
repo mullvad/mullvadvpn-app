@@ -37,6 +37,15 @@ fun UiDevice.clickAgreeOnPrivacyDisclaimer() {
     findObjectWithTimeout(By.text("Agree and continue")).click()
 }
 
+// The dialog will only be shown when there's a new version code and bundled release notes.
+fun UiDevice.dismissChangelogDialogIfShown() {
+    try {
+        findObjectWithTimeout(By.text("Got it!")).click()
+    } catch (e: IllegalArgumentException) {
+        // This is OK since it means the changes dialog wasn't shown.
+    }
+}
+
 fun UiDevice.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
     timeout: Long = DEFAULT_INTERACTION_TIMEOUT
 ) {
