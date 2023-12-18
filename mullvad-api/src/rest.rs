@@ -185,16 +185,15 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
                 self.connector_handle.reset();
             }
             RequestCommand::NextApiConfig(completion_tx) => {
-                // TODO(markus): Rework this to be a lot simpler
                 #[cfg(feature = "api-override")]
-                if API.force_direct_connection {
-                    log::debug!("Ignoring API connection mode");
-                    let _ = completion_tx.send(Ok(()));
-                    return;
-                }
+                let force_direct_connection = API.force_direct_connection;
+                #[cfg(not(feature = "api-override"))]
+                let force_direct_connection = false;
 
-                log::warn!("Getting next API connection mode ..");
-                if let Some(connection_mode) = self.proxy_config_provider.next().await {
+                if force_direct_connection {
+                    log::debug!("Ignoring API connection mode");
+                } else if let Some(connection_mode) = self.proxy_config_provider.next().await {
+                    log::warn!("Getting next API connection mode ..");
                     self.connector_handle.set_connection_mode(connection_mode);
                 }
 
