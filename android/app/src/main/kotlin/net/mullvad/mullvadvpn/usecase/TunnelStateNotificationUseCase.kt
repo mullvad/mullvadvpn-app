@@ -39,7 +39,7 @@ class TunnelStateNotificationUseCase(
             }
             is TunnelState.Error -> InAppNotification.TunnelStateError(tunnelUiState.errorState)
             is TunnelState.Connected,
-            TunnelState.Disconnected -> null
+            is TunnelState.Disconnected -> null
         }
 
     private fun ConnectionProxy.tunnelUiStateFlow(): Flow<TunnelState> =

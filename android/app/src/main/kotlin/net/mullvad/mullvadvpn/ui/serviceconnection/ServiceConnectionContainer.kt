@@ -28,7 +28,6 @@ class ServiceConnectionContainer(
     val authTokenCache = AuthTokenCache(connection, dispatcher)
     val connectionProxy = ConnectionProxy(connection, dispatcher)
     val deviceDataSource = ServiceConnectionDeviceDataSource(connection, dispatcher)
-    val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(connection, dispatcher)
 
     val splitTunneling = SplitTunneling(connection, dispatcher)
@@ -62,7 +61,6 @@ class ServiceConnectionContainer(
 
         authTokenCache.onDestroy()
         connectionProxy.onDestroy()
-        locationInfoCache.onDestroy()
         settingsListener.onDestroy()
         voucherRedeemer.onDestroy()
 
