@@ -11,7 +11,6 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import io.mockk.verify
 import io.mockk.verifyOrder
-import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -25,13 +24,14 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.talpid.util.EventNotifier
 import net.mullvad.talpid.util.callbackFlowFromSubscription
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class DeviceRevokedViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var mockedAccountRepository: AccountRepository
 
@@ -42,7 +42,7 @@ class DeviceRevokedViewModelTest {
 
     private lateinit var viewModel: DeviceRevokedViewModel
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         mockkStatic(EVENT_NOTIFIER_EXTENSION_CLASS)
@@ -55,7 +55,7 @@ class DeviceRevokedViewModelTest {
             )
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         unmockkAll()
     }

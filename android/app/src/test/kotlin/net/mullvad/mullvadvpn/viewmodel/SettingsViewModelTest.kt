@@ -19,13 +19,13 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionContainer
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.util.appVersionCallbackFlow
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class SettingsViewModelTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockServiceConnectionManager: ServiceConnectionManager = mockk()
@@ -46,7 +46,7 @@ class SettingsViewModelTest {
 
     private lateinit var viewModel: SettingsViewModel
 
-    @Before
+    @BeforeEach
     fun setUp() {
         mockkStatic(CACHE_EXTENSION_CLASS)
         val deviceState = MutableStateFlow<DeviceState>(DeviceState.LoggedOut)
@@ -68,7 +68,7 @@ class SettingsViewModelTest {
             )
     }
 
-    @After
+    @AfterEach
     fun tearDown() {
         viewModel.viewModelScope.coroutineContext.cancel()
         unmockkAll()
