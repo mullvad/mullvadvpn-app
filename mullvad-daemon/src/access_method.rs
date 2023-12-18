@@ -239,44 +239,27 @@ pub async fn test_access_method(
     rest_handle: MullvadRestHandle,
 ) -> Result<bool, Error> {
     // Setup test
-    let previous_access_method = access_mode_selector
-        .get_access_method()
-        .await
-        .map_err(Error::ConnectionMode)?;
-
-    let method_under_test = new_access_method.clone();
-    access_mode_selector
-        .set_access_method(new_access_method)
-        .await
-        .map_err(Error::ConnectionMode)?;
-
-    // We need to perform a rotation of API endpoint after a set action
     let rotation_handle = rest_handle.clone();
-    rotation_handle
-        .service()
-        .next_api_endpoint()
-        .await
-        .map_err(|err| {
-            log::error!("Failed to rotate API endpoint: {err}");
-            Error::RestError(err)
-        })?;
+    let rot = || async {
+        rotation_handle
+            .service()
+            .next_api_endpoint()
+            .await
+            .map_err(|err| {
+                log::error!("Failed to rotate API endpoint: {err}");
+                Error::RestError(err)
+            })
+    };
 
-    // Set up the reset
-    //
-    // In case the API call fails, the next API endpoint will
-    // automatically be selected, which means that we need to set up
-    // with the previous API endpoint beforehand.
+    // Setting this should prevent the actual access mode from being changed until `debug_reset` is called.
     access_mode_selector
-        .set_access_method(previous_access_method)
+        .debug_test(new_access_method.clone())
         .await
-        .map_err(|err| {
-            log::error!(
-                "Could not reset to previous access
-            method after API reachability test was carried out. This should only
-            happen if the previous access method was removed in the meantime."
-            );
-            Error::ConnectionMode(err)
-        })?;
+        .map_err(Error::ConnectionMode)?;
+
+    // We need to perform a rotation of the API endpoint before performing an
+    // API request.
+    rot().await?;
 
     // Perform test
     //
@@ -286,31 +269,34 @@ pub async fn test_access_method(
     let result = mullvad_api::ApiProxy::new(rest_handle)
         .api_addrs_available()
         .await
-        .map_err(Error::RestError)?;
+        .map_err(Error::RestError);
 
-    // We need to perform a rotation of API endpoint after a set action
-    // Note that this will be done automatically if the API call fails,
-    // so it only has to be done if the call succeeded ..
-    if result {
-        rotation_handle
-            .service()
-            .next_api_endpoint()
-            .await
-            .map_err(|err| {
-                log::error!("Failed to rotate API endpoint: {err}");
-                Error::RestError(err)
-            })?;
-    }
+    // Reset test
+    access_mode_selector.debug_reset().await.map_err(|err| {
+        log::error!(
+            "Could not reset to previous access
+            method after API reachability test was carried out."
+        );
+        Error::ConnectionMode(err)
+    })?;
+
+    // TODO(markus): This is probably unneccesary... We'll see if
+    // `next_api_endpoint` really has to be called manually like this.
+    //
+    // We need to perform a rotation of API endpoint after the reset, such that
+    // the api runtime picks up the old access method.
+    // Ideally, this should be done automatically.
+    rot().await?;
 
     log::info!(
         "The result of testing {method:?} is {result}",
-        method = method_under_test.access_method,
-        result = if result {
+        method = new_access_method.access_method,
+        result = if result.as_ref().is_ok_and(|is_true| *is_true) {
             "success".to_string()
         } else {
             "failed".to_string()
         }
     );
 
-    Ok(result)
+    result
 }
