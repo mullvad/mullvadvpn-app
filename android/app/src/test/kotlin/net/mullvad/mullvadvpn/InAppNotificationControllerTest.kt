@@ -9,6 +9,7 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.repository.InAppNotification
@@ -19,13 +20,13 @@ import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
 import net.mullvad.talpid.tunnel.ErrorState
 import org.joda.time.DateTime
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(TestCoroutineRule::class)
 class InAppNotificationControllerTest {
-    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     private lateinit var inAppNotificationController: InAppNotificationController
     private val accountExpiryNotifications = MutableStateFlow(emptyList<InAppNotification>())
@@ -35,7 +36,7 @@ class InAppNotificationControllerTest {
 
     private lateinit var job: Job
 
-    @Before
+    @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
 
@@ -56,11 +57,11 @@ class InAppNotificationControllerTest {
                 newDeviceNotificationUseCase,
                 versionNotificationUseCase,
                 tunnelStateNotificationUseCase,
-                CoroutineScope(job + testCoroutineRule.testDispatcher)
+                CoroutineScope(job + UnconfinedTestDispatcher())
             )
     }
 
-    @After
+    @AfterEach
     fun teardown() {
         job.cancel()
         unmockkAll()
