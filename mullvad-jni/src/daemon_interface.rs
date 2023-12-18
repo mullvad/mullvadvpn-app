@@ -114,14 +114,6 @@ impl DaemonInterface {
             .map_err(Error::from)
     }
 
-    pub fn get_current_location(&self) -> Result<Option<GeoIpLocation>> {
-        let (tx, rx) = oneshot::channel();
-
-        self.send_command(DaemonCommand::GetCurrentLocation(tx))?;
-
-        block_on(rx).map_err(|_| Error::NoResponse)
-    }
-
     pub fn get_current_version(&self) -> Result<String> {
         let (tx, rx) = oneshot::channel();
 

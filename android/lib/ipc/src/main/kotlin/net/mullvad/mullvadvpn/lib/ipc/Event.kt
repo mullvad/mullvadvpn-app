@@ -7,7 +7,6 @@ import net.mullvad.mullvadvpn.model.AccountExpiry
 import net.mullvad.mullvadvpn.model.AccountHistory
 import net.mullvad.mullvadvpn.model.DeviceListEvent
 import net.mullvad.mullvadvpn.model.DeviceState
-import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.LoginResult
 import net.mullvad.mullvadvpn.model.PlayPurchaseInitResult
 import net.mullvad.mullvadvpn.model.PlayPurchaseVerifyResult
@@ -44,8 +43,6 @@ sealed class Event : Message.EventMessage() {
     @Parcelize data class ListenerReady(val connection: Messenger, val listenerId: Int) : Event()
 
     @Parcelize data class LoginEvent(val result: LoginResult) : Event()
-
-    @Parcelize data class NewLocation(val location: GeoIpLocation?) : Event()
 
     @Parcelize data class NewRelayList(val relayList: RelayList?) : Event()
 
