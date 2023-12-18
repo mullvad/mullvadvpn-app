@@ -758,14 +758,15 @@ where
             vec![]
         };
 
-        // TODO: Can this be made cleaner? For example, don't tell the API
-        // runtime the initial API endpoint, since it already knows how to
-        // request an allowed endpoint.
-        let initial_api_endpoint =
-            api::get_allowed_endpoint(talpid_types::net::Endpoint::from_socket_address(
-                api_runtime.address_cache.get_address().await,
-                talpid_types::net::TransportProtocol::Tcp,
-            ));
+        let initial_api_endpoint = api::allowed_endpoint(
+            &connection_modes_handler
+                .get_active_connection_mode()
+                .await
+                // TODO(markus): Can I get rid of this `unwrap_or`? I don't even know if this is semantically correct
+                .unwrap_or(ApiConnectionMode::Direct),
+            api_runtime.address_cache.get_address().await,
+        );
+
         let parameters_generator = tunnel::ParametersGenerator::new(
             account_manager.clone(),
             relay_selector.clone(),
@@ -1332,16 +1333,10 @@ where
                 log::info!("HANDLING INTERNVAL DAEMON EVENT: Setting new active access method");
                 // TODO(markus): Update the tunnel state machine to punch an appropriate hole in the firewall
                 let connection_mode: ApiConnectionMode = ApiConnectionMode::Direct;
-                let allowed_endpoint = talpid_types::net::AllowedEndpoint {
-                    clients: connection_mode.allowed_clients(),
-                    endpoint: match connection_mode.get_endpoint() {
-                        Some(endpoint) => endpoint,
-                        None => talpid_types::net::Endpoint::from_socket_address(
-                            self.api_runtime.address_cache.get_address().await,
-                            talpid_types::net::TransportProtocol::Tcp,
-                        ),
-                    },
-                };
+                let allowed_endpoint = api::allowed_endpoint(
+                    &connection_mode,
+                    self.api_runtime.address_cache.get_address().await,
+                );
                 let (result_tx, result_rx) = oneshot::channel();
                 log::warn!(
                     "API endpoint: {endpoint}",

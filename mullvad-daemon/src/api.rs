@@ -15,12 +15,15 @@ use mullvad_api::{
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
-use std::path::PathBuf;
+use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
-use talpid_types::net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint};
+use talpid_types::net::{
+    openvpn::ProxySettings, AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol,
+};
 
 pub enum Message {
     Get(ResponseTx<AccessMethodSetting>),
+    GetConnectionMode(ResponseTx<ApiConnectionMode>),
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Vec<AccessMethodSetting>),
@@ -69,6 +72,16 @@ impl AccessModeSelectorHandle {
             log::error!("Failed to get current access method!");
             err
         })
+    }
+
+    /// Get the [`ApiConnectionMode`] currently in use for establishing API connections.
+    pub async fn get_active_connection_mode(&self) -> Result<ApiConnectionMode> {
+        self.send_command(Message::GetConnectionMode)
+            .await
+            .map_err(|err| {
+                log::error!("Failed to get current access method!");
+                err
+            })
     }
 
     pub async fn set_access_method(&self, value: AccessMethodSetting) -> Result<()> {
@@ -131,6 +144,7 @@ pub struct AccessModeSelector {
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
+    active_connection_mode: ApiConnectionMode,
     /// Communication channel with the daemon
     listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
 }
@@ -144,7 +158,7 @@ impl AccessModeSelector {
     ) -> AccessModeSelectorHandle {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let connection_modes = match ConnectionModesIterator::new(connection_modes) {
+        let mut connection_modes = match ConnectionModesIterator::new(connection_modes) {
             Ok(provider) => provider,
             Err(Error::NoAccessMethods) | Err(_) => {
                 // No settings seem to have been found. Default to using the the
@@ -156,11 +170,17 @@ impl AccessModeSelector {
             }
         };
 
+        let active_connection_mode = {
+            // TODO(markus): Unwrap? :no-thanks:
+            let next = connection_modes.next().unwrap();
+            resolve(next.access_method.clone(), &relay_selector)
+        };
         let selector = AccessModeSelector {
             cmd_rx,
             cache_dir,
             relay_selector,
             connection_modes,
+            active_connection_mode,
             listeners: vec![Box::new(listener)],
         };
         tokio::spawn(selector.into_future());
@@ -171,6 +191,7 @@ impl AccessModeSelector {
         while let Some(cmd) = self.cmd_rx.next().await {
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
+                Message::GetConnectionMode(tx) => self.on_get_active_connection_mode(tx),
                 Message::Set(tx, value) => self.on_set_access_method(tx, value),
                 Message::Next(tx) => self.on_next_connection_mode(tx),
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values),
@@ -202,6 +223,11 @@ impl AccessModeSelector {
         self.connection_modes.peek()
     }
 
+    fn on_get_active_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
+        let value = self.active_connection_mode.clone();
+        self.reply(tx, value)
+    }
+
     fn on_set_access_method(
         &mut self,
         tx: ResponseTx<()>,
@@ -218,17 +244,8 @@ impl AccessModeSelector {
     }
 
     fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
-        let (next, access_method) = {
-            // TODO(markus): Do not unwrap! Model the `next` function to not return an Option.
-            let access_method = self.connection_modes.next().unwrap();
-            //let next =
-            //    access_method.map(|access_method_setting| access_method_setting.access_method);
-            //.unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct));
-
-            let connection_mode = self.from(access_method.access_method.clone());
-            log::info!("New API connection mode selected: {connection_mode}");
-            (connection_mode, access_method)
-        };
+        let access_method = self.connection_modes.next().unwrap();
+        let next = resolve(access_method.access_method.clone(), &self.relay_selector);
         // Notify all listeners about the new connection mode.
         //
         // TODO(markus): Remove this comment: Broadcasting this event to the
@@ -270,46 +287,45 @@ impl AccessModeSelector {
     fn update_access_methods(&mut self, values: Vec<AccessMethodSetting>) -> Result<()> {
         self.connection_modes.update_access_methods(values)
     }
+}
 
-    /// Ad-hoc version of [`std::convert::From::from`], but since some
-    /// [`ApiConnectionMode`]s require extra logic/data from
-    /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
-    /// can not be implemented.
-    fn from(&mut self, access_method: AccessMethod) -> ApiConnectionMode {
-        match access_method {
-            AccessMethod::BuiltIn(access_method) => match access_method {
-                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
-                BuiltInAccessMethod::Bridge => self
-                    .relay_selector
-                    .get_bridge_forced()
-                    .and_then(|settings| match settings {
-                        ProxySettings::Shadowsocks(settings) => {
-                            let shadowsocks: access_method::Shadowsocks =
-                                access_method::Shadowsocks::new(
-                                    settings.peer,
-                                    settings.cipher,
-                                    settings.password,
-                                );
-                            Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                                shadowsocks,
-                            )))
-                        }
-                        _ => {
-                            log::error!("Received unexpected proxy settings type");
-                            None
-                        }
-                    })
-                    .unwrap_or(ApiConnectionMode::Direct),
-            },
-            AccessMethod::Custom(access_method) => match access_method {
-                access_method::CustomAccessMethod::Shadowsocks(shadowsocks) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks))
-                }
-                access_method::CustomAccessMethod::Socks5(socks) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks))
-                }
-            },
-        }
+/// Ad-hoc version of [`std::convert::From::from`], but since some
+/// [`ApiConnectionMode`]s require extra logic/data from
+/// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
+/// can not be implemented.
+fn resolve(access_method: AccessMethod, relay_selector: &RelaySelector) -> ApiConnectionMode {
+    match access_method {
+        AccessMethod::BuiltIn(access_method) => match access_method {
+            BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
+            BuiltInAccessMethod::Bridge => relay_selector
+                .get_bridge_forced()
+                .and_then(|settings| match settings {
+                    ProxySettings::Shadowsocks(settings) => {
+                        let shadowsocks: access_method::Shadowsocks =
+                            access_method::Shadowsocks::new(
+                                settings.peer,
+                                settings.cipher,
+                                settings.password,
+                            );
+                        Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
+                            shadowsocks,
+                        )))
+                    }
+                    _ => {
+                        log::error!("Received unexpected proxy settings type");
+                        None
+                    }
+                })
+                .unwrap_or(ApiConnectionMode::Direct),
+        },
+        AccessMethod::Custom(access_method) => match access_method {
+            access_method::CustomAccessMethod::Shadowsocks(shadowsocks) => {
+                ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks))
+            }
+            access_method::CustomAccessMethod::Socks5(socks) => {
+                ApiConnectionMode::Proxied(ProxyConfig::Socks(socks))
+            }
+        },
     }
 }
 
@@ -387,23 +403,45 @@ impl Iterator for ConnectionModesIterator {
     }
 }
 
-pub(super) fn get_allowed_endpoint(endpoint: Endpoint) -> AllowedEndpoint {
-    #[cfg(unix)]
-    let clients = talpid_types::net::AllowedClients::Root;
-    #[cfg(windows)]
-    let clients = {
-        let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
-        vec![
-            daemon_exe
-                .parent()
-                .expect("missing executable parent directory")
-                .join("mullvad-problem-report.exe"),
-            daemon_exe,
-        ]
-        .into()
+pub(super) fn allowed_endpoint(
+    connection_mode: &ApiConnectionMode,
+    // TODO(markus): Can I get rid of `fallback`?
+    fallback: SocketAddr,
+) -> AllowedEndpoint {
+    let endpoint = match connection_mode.get_endpoint() {
+        Some(endpoint) => endpoint,
+        None => Endpoint::from_socket_address(fallback, TransportProtocol::Tcp),
     };
-
+    let clients = allowed_clients(connection_mode);
     AllowedEndpoint { endpoint, clients }
+}
+
+#[cfg(unix)]
+pub fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
+    use access_method::Socks5;
+    match connection_mode {
+        ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => AllowedClients::All,
+        ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => AllowedClients::Root,
+    }
+}
+
+#[cfg(windows)]
+pub fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
+    use access_method::Socks5;
+    match connection_mode {
+        ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => AllowedClients::all(),
+        ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => {
+            let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
+            vec![
+                daemon_exe
+                    .parent()
+                    .expect("missing executable parent directory")
+                    .join("mullvad-problem-report.exe"),
+                daemon_exe,
+            ]
+            .into()
+        }
+    }
 }
 
 pub(crate) fn forward_offline_state(
