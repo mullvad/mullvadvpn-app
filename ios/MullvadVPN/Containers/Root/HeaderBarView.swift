@@ -6,7 +6,6 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 class HeaderBarView: UIView {
@@ -58,7 +57,7 @@ class HeaderBarView: UIView {
 
     let accountButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage(named: "IconAccount"))
-        button.accessibilityIdentifier = "AccountButton"
+        button.accessibilityIdentifier = .accountButton
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "HeaderBar",
@@ -72,7 +71,7 @@ class HeaderBarView: UIView {
 
     let settingsButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage(named: "IconSettings"))
-        button.accessibilityIdentifier = "SettingsButton"
+        button.accessibilityIdentifier = .settingsButton
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "HeaderBar",

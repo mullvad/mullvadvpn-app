@@ -38,6 +38,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable {
                         comment: ""
                     ),
                     style: .default,
+                    accessibilityId: .alertOkButton,
                     handler: { [weak self] in
                         guard let self else { return }
                         didFinish?(self)

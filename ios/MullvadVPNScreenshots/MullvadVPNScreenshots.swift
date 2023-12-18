@@ -9,12 +9,17 @@
 import XCTest
 
 class MullvadVPNScreenshots: XCTestCase {
+    let app = XCUIApplication()
+
     override func setUp() {
         // Put setup code here. This method is called before the invocation of
         // each test method in the class.
 
         // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
+
+        // Disable animations to speed up tests. This argument is picked up in AppDelegate.didFinishLaunchingWithOptions.
+        app.launchArguments = ["DisableAnimations"]
 
         // In UI tests it’s important to set the initial state - such as interface orientation -
         // required for your tests before they run. The setUp method is a good place to do this.
@@ -29,21 +34,19 @@ class MullvadVPNScreenshots: XCTestCase {
         let accountToken = Bundle(for: Self.self).infoDictionary?["MullvadAccountToken"] as! String
 
         // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        setupSnapshot(app)
-
+        setupSnapshot(app, waitForAnimations: false)
         app.launch()
 
         // Dismiss terms of service screen
-        _ = app.buttons["AgreeButton"].waitForExistence(timeout: 10)
-        app.buttons["AgreeButton"].tap()
+        _ = app.buttons[AccessibilityIdentifier.agreeButton.rawValue].waitForExistence(timeout: 10)
+        app.buttons[AccessibilityIdentifier.agreeButton.rawValue].tap()
 
         // Dismiss changelog screen
-        _ = app.buttons["Got it!"].waitForExistence(timeout: 10)
-        app.buttons["Got it!"].tap()
+        _ = app.buttons[AccessibilityIdentifier.alertOkButton.rawValue].waitForExistence(timeout: 10)
+        app.buttons[AccessibilityIdentifier.alertOkButton.rawValue].tap()
 
         // Wait for Login screen
-        let textField = app.textFields["LoginTextField"]
+        let textField = app.textFields[AccessibilityIdentifier.loginTextField.rawValue]
         _ = textField.waitForExistence(timeout: 5)
 
         // Enter account token
@@ -52,15 +55,15 @@ class MullvadVPNScreenshots: XCTestCase {
 
         // Tap "Log in" button to log in
         if case .phone = UIDevice.current.userInterfaceIdiom {
-            app.toolbars["Toolbar"].buttons["LoginBarButtonItem"].tap()
+            app.toolbars["Toolbar"].buttons[AccessibilityIdentifier.loginBarButton.rawValue].tap()
         } else {
             textField.typeText("\n")
         }
 
         // Select Sweden, Gothenburg in Select location controller
         if case .phone = UIDevice.current.userInterfaceIdiom {
-            _ = app.buttons["SelectLocationButton"].waitForExistence(timeout: 10)
-            app.buttons["SelectLocationButton"].tap()
+            _ = app.buttons[AccessibilityIdentifier.selectLocationButton.rawValue].waitForExistence(timeout: 10)
+            app.buttons[AccessibilityIdentifier.selectLocationButton.rawValue].tap()
         }
 
         let countryCell = app.cells["se"]
@@ -71,26 +74,26 @@ class MullvadVPNScreenshots: XCTestCase {
         if cityCell.exists {
             cityCell.tap()
         } else {
-            _ = countryCell.buttons["CollapseButton"].waitForExistence(timeout: 5)
-            countryCell.buttons["CollapseButton"].tap()
+            _ = countryCell.buttons[AccessibilityIdentifier.collapseButton.rawValue].waitForExistence(timeout: 5)
+            countryCell.buttons[AccessibilityIdentifier.collapseButton.rawValue].tap()
             cityCell.tap()
         }
 
         // Wait for Disconnect button to appear
-        _ = app.buttons["DisconnectButton"].waitForExistence(timeout: 2)
+        _ = app.buttons[AccessibilityIdentifier.disconnectButton.rawValue].waitForExistence(timeout: 2)
 
         snapshot("MainSecured")
 
         // Re-open Select location controller (iPhone only)
         if case .phone = UIDevice.current.userInterfaceIdiom {
-            app.buttons["SelectLocationButton"].tap()
-            cityCell.buttons["CollapseButton"].tap()
+            app.buttons[AccessibilityIdentifier.selectLocationButton.rawValue].tap()
+            cityCell.buttons[AccessibilityIdentifier.collapseButton.rawValue].tap()
             snapshot("SelectLocation")
 
             // Tap the "Filter" button and expand each relay filter
             app.navigationBars.buttons["Filter"].tap()
-            app.otherElements["Ownership"].buttons["CollapseButton"].tap()
-            app.otherElements["Providers"].buttons["CollapseButton"].tap()
+            app.otherElements["Ownership"].buttons[AccessibilityIdentifier.collapseButton.rawValue].tap()
+            app.otherElements["Providers"].buttons[AccessibilityIdentifier.collapseButton.rawValue].tap()
             snapshot("RelayFilter")
 
             app.navigationBars.buttons["Cancel"].tap()
@@ -98,11 +101,11 @@ class MullvadVPNScreenshots: XCTestCase {
         }
 
         // Open Settings
-        app.buttons["SettingsButton"].tap()
+        app.buttons[AccessibilityIdentifier.settingsButton.rawValue].tap()
 
         // Tap on preferences cell
-        _ = app.tables.cells["PreferencesCell"].waitForExistence(timeout: 2)
-        app.tables.cells["PreferencesCell"].tap()
+        _ = app.tables.cells[AccessibilityIdentifier.preferencesCell.rawValue].waitForExistence(timeout: 2)
+        app.tables.cells[AccessibilityIdentifier.preferencesCell.rawValue].tap()
 
         app.tables.element
             .cells
@@ -120,25 +123,25 @@ class MullvadVPNScreenshots: XCTestCase {
         app.navigationBars.buttons.firstMatch.tap()
 
         // Open Account
-        app.buttons["AccountButton"].tap()
+        app.buttons[AccessibilityIdentifier.accountButton.rawValue].tap()
 
         // Wait for StoreKit to fetch subscriptions
-        _ = app.buttons["PurchaseButton"].waitForExistence(timeout: 2)
+        _ = app.buttons[AccessibilityIdentifier.purchaseButton.rawValue].waitForExistence(timeout: 2)
 
         wait(for: [
             expectation(
                 for: NSPredicate(format: "isEnabled = YES"),
-                evaluatedWith: app.buttons["PurchaseButton"]
+                evaluatedWith: app.buttons[AccessibilityIdentifier.purchaseButton.rawValue]
             ),
         ], timeout: 10)
         snapshot("Account")
 
         // Hit "Log out" button
-        _ = app.buttons["LogoutButton"].waitForExistence(timeout: 2)
-        app.buttons["LogoutButton"].tap()
+        _ = app.buttons[AccessibilityIdentifier.logoutButton.rawValue].waitForExistence(timeout: 2)
+        app.buttons[AccessibilityIdentifier.logoutButton.rawValue].tap()
         app.alerts.buttons.allElementsBoundByIndex.last?.tap()
 
         // Wait for Login view to appear after log out
-        _ = app.textFields["LoginTextField"].waitForExistence(timeout: 10)
+        _ = app.textFields[AccessibilityIdentifier.loginTextField.rawValue].waitForExistence(timeout: 10)
     }
 }

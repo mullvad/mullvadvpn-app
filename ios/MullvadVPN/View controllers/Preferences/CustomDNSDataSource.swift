@@ -64,28 +64,28 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
             [.blockAdvertising, .blockTracking, .blockMalware, .blockAdultContent, .blockGambling, .blockSocialMedia]
         }
 
-        var accessibilityIdentifier: String {
+        var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
             case .blockAdvertising:
-                return "blockAdvertising"
+                return .blockAdvertising
             case .blockTracking:
-                return "blockTracking"
+                return .blockTracking
             case .blockMalware:
-                return "blockMalware"
+                return .blockMalware
             case .blockGambling:
-                return "blockGambling"
+                return .blockGambling
             case .blockAdultContent:
-                return "blockAdultContent"
+                return .blockAdultContent
             case .blockSocialMedia:
-                return "blockSocialMedia"
+                return .blockSocialMedia
             case .useCustomDNS:
-                return "useCustomDNS"
+                return .useCustomDNS
             case .addDNSServer:
-                return "addDNSServer"
-            case let .dnsServer(uuid):
-                return "dnsServer(\(uuid.uuidString))"
+                return .addDNSServer
+            case .dnsServer:
+                return .dnsServer
             case .dnsServerInfo:
-                return "dnsServerInfo"
+                return .dnsServerInfo
             }
         }
 

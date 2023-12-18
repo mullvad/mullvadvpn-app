@@ -76,29 +76,22 @@ final class PreferencesDataSource: UITableViewDiffableDataSource<
             [.wireGuardObfuscationPort(0), wireGuardObfuscationPort(80), wireGuardObfuscationPort(5001)]
         }
 
-        var accessibilityIdentifier: String {
+        var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
             case .dnsSettings:
-                return "DNS settings"
-            case let .wireGuardPort(port):
-                if let port {
-                    return "wireGuardPort(\(port))"
-                } else {
-                    return "wireGuardPort"
-                }
+                return .dnsSettings
+            case .wireGuardPort:
+                return .wireGuardPort
             case .wireGuardCustomPort:
-                return "wireGuardCustomPort"
+                return .wireGuardCustomPort
             case .wireGuardObfuscationAutomatic:
-                return "Automatic"
+                return .wireGuardObfuscationAutomatic
             case .wireGuardObfuscationOn:
-                return "On (UDP-over-TCP)"
+                return .wireGuardObfuscationOn
             case .wireGuardObfuscationOff:
-                return "Off"
-            case let .wireGuardObfuscationPort(port):
-                if port == 0 {
-                    return "Automatic"
-                }
-                return "\(port)"
+                return .wireGuardObfuscationOff
+            case .wireGuardObfuscationPort:
+                return .wireGuardObfuscationAutomatic
             }
         }
 

@@ -14,10 +14,6 @@ protocol SetupAccountCompletedContentViewDelegate: AnyObject {
 }
 
 class SetupAccountCompletedContentView: UIView {
-    private enum Action: String {
-        case learnAboutPrivacy, startUsingTheApp
-    }
-
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
@@ -57,7 +53,7 @@ class SetupAccountCompletedContentView: UIView {
 
     private let privacyButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = Action.learnAboutPrivacy.rawValue
+        button.accessibilityIdentifier = .learnAboutPrivacyButton
         let localizedString = NSLocalizedString(
             "LEARN_ABOUT_PRIVACY_BUTTON",
             tableName: "CreatedAccountConfirmation",
@@ -71,7 +67,7 @@ class SetupAccountCompletedContentView: UIView {
 
     private let startButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = Action.startUsingTheApp.rawValue
+        button.accessibilityIdentifier = .startUsingTheAppButton
         button.setTitle(NSLocalizedString(
             "START_USING_THE_APP_BUTTON",
             tableName: "CreatedAccountConfirmation",
@@ -142,10 +138,10 @@ class SetupAccountCompletedContentView: UIView {
     }
 
     @objc private func tapped(button: AppButton) {
-        switch button.accessibilityIdentifier {
-        case Action.learnAboutPrivacy.rawValue:
+        switch AccessibilityIdentifier(rawValue: button.accessibilityIdentifier ?? "") {
+        case .learnAboutPrivacyButton:
             delegate?.didTapPrivacyButton(view: self, button: button)
-        case Action.startUsingTheApp.rawValue:
+        case .startUsingTheAppButton:
             delegate?.didTapStartingAppButton(view: self, button: button)
         default: return
         }

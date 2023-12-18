@@ -48,6 +48,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        if ProcessInfo().arguments.contains("DisableAnimations") {
+            UIView.setAnimationsEnabled(false)
+        }
+
         let containerURL = ApplicationConfiguration.containerURL
 
         configureLogging()
