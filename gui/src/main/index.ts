@@ -728,8 +728,6 @@ class ApplicationMain
       navigationHistory: this.navigationHistory,
     }));
 
-    IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
-
     IpcMainEventChannel.tunnel.handleConnect(this.connectTunnel);
     IpcMainEventChannel.tunnel.handleReconnect(this.reconnectTunnel);
     IpcMainEventChannel.tunnel.handleDisconnect(this.disconnectTunnel);
