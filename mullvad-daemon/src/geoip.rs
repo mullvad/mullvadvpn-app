@@ -8,11 +8,8 @@ use mullvad_api::{
 };
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
 use once_cell::sync::Lazy;
-use talpid_core::future_retry::{retry_future, ConstantInterval};
+use talpid_core::future_retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::ErrorExt;
-
-/// Retry interval for fetching location
-const RETRY_LOCATION_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 
 // Define the Mullvad connection checking api endpoint.
 //
@@ -43,6 +40,9 @@ static MULLVAD_CONNCHECK_HOST: Lazy<String> = Lazy::new(|| {
     host.to_string()
 });
 
+const LOCATION_RETRY_STRATEGY: Jittered<ExponentialBackoff> =
+    Jittered::jitter(ExponentialBackoff::new(Duration::from_secs(1), 4));
+
 /// Fetch the current `GeoIpLocation` with retrys
 pub async fn get_geo_location(
     rest_service: RequestServiceHandle,
@@ -56,7 +56,7 @@ pub async fn get_geo_location(
             Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
             _ => false,
         },
-        RETRY_LOCATION_STRATEGY,
+        LOCATION_RETRY_STRATEGY,
     )
     .await
     {
