@@ -45,9 +45,9 @@ pub enum AccessMethodEvent {
     Testing {
         api_endpoint: AllowedEndpoint,
         /// It is up to the daemon to actually allow traffic to/from
-        /// `api_endpoint` by updating the firewall AND tell the API runtime to
-        /// use the new endpoint.
-        update_finished_tx: mpsc::Sender<bool>,
+        /// `api_endpoint` by updating the firewall. This `Sender` allows the
+        /// daemon to communicate when that action is done.
+        update_finished_tx: mpsc::Sender<()>,
     },
 }
 
