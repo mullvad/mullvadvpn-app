@@ -188,7 +188,7 @@ function sign_win {
 # sign them, strip them of debug symbols and copy to `dist-assets/`.
 function build {
     local current_target=${1:-""}
-    local for_target_string=""
+    local for_target_string=" for local target $ENV_TARGET"
     local stripbin="strip"
     if [[ -n $current_target ]]; then
         for_target_string=" for $current_target"
