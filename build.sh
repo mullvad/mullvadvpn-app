@@ -75,9 +75,23 @@ if [[ "$UNIVERSAL" == "true" ]]; then
     if [[ -n ${TARGETS:-""} ]]; then
         log_error "'TARGETS' and '--universal' cannot be specified simultaneously."
         exit 1
+    else
+        log_info "Building universal macOS distribution"
     fi
 
-    TARGETS=(x86_64-apple-darwin aarch64-apple-darwin)
+    source env.sh
+    
+    # Universal macOS builds package targets for both aarch64-apple-darwin and x86_64-apple-darwin.
+    # We leave the target corresponding to the host machine empty to avoid rebuilding multiple times.
+    # When the --target flag is provided to cargo it always puts the build in the target/$ENV_TARGET
+    # folder even when it matches you local machine, as opposed to just the target folder.
+    # This causes the cached build not to get used when later running e.g.
+    # 'cargo run --bin mullvad --shell-completions'.
+    case $HOST in
+        x86_64-apple-darwin) TARGETS=("" aarch64-apple-darwin);;
+        aarch64-apple-darwin) TARGETS=("" x86_64-apple-darwin);;
+    esac
+
     NPM_PACK_ARGS+=(--universal)
 fi
 
@@ -188,7 +202,7 @@ function sign_win {
 # sign them, strip them of debug symbols and copy to `dist-assets/`.
 function build {
     local current_target=${1:-""}
-    local for_target_string=" for local target $ENV_TARGET"
+    local for_target_string=" for local target $HOST"
     local stripbin="strip"
     if [[ -n $current_target ]]; then
         for_target_string=" for $current_target"
@@ -301,22 +315,11 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
     fi
 fi
 
-# Compile for all defined targets, or the current architecture if unspecified.
-if [[ -n ${TARGETS:-""} ]]; then
-    for t in "${TARGETS[@]}"; do
-        source env.sh "$t"
-        build "$t"
-    done
-else
-    source env.sh ""
-    if [[ "$(uname -s)" == "Darwin" ]]; then
-        # Provide target for non-universal macOS builds to use the same output location as for
-        # universal builds
-        build "$ENV_TARGET"
-    else
-        build
-    fi
-fi
+EMPTY=()
+for t in "${TARGETS[@]:-"${EMPTY[@]}"}"; do
+    source env.sh "$t"
+    build "$t"
+done
 
 ################################################################################
 # Package app.
