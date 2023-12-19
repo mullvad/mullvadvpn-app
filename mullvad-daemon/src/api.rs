@@ -23,7 +23,7 @@ use talpid_types::net::{
 };
 
 pub enum Message {
-    Get(ResponseTx<AccessMethodSetting>),
+    Get(ResponseTx<ResolvedConnectionMode>),
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Vec<AccessMethodSetting>),
@@ -48,9 +48,12 @@ pub enum AccessMethodEvent {
 }
 
 // TODO(markus): Comment this struct
+#[derive(Clone)]
 pub struct ResolvedConnectionMode {
     pub connection_mode: ApiConnectionMode,
     pub endpoint: AllowedEndpoint,
+    /// This is the setting which was resolved into `connection_mode` and `endpoint`.
+    pub setting: AccessMethodSetting,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -84,7 +87,7 @@ impl AccessModeSelectorHandle {
         rx.await.map_err(Error::NotRunning)?
     }
 
-    pub async fn get_access_method(&self) -> Result<AccessMethodSetting> {
+    pub async fn get_current(&self) -> Result<ResolvedConnectionMode> {
         self.send_command(Message::Get).await.map_err(|err| {
             log::error!("Failed to get current access method!");
             err
@@ -163,7 +166,7 @@ pub struct AccessModeSelector {
     address_cache: AddressCache,
     /// All listeners of [`AccessMethodEvent`]s.
     listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
-    last_resolved_connection_mode: ResolvedConnectionMode,
+    current: ResolvedConnectionMode,
 }
 
 // TODO(markus): Document this! It was created to get an initial api endpoint in
@@ -209,7 +212,7 @@ impl AccessModeSelector {
             connection_modes,
             address_cache,
             listeners: vec![Box::new(listener)],
-            last_resolved_connection_mode: initial_connection_mode,
+            current: initial_connection_mode,
         };
 
         tokio::spawn(selector.into_future());
@@ -247,13 +250,8 @@ impl AccessModeSelector {
         Ok(())
     }
 
-    fn on_get_access_method(&mut self, tx: ResponseTx<AccessMethodSetting>) -> Result<()> {
-        let value = self.get_access_method();
-        self.reply(tx, value)
-    }
-
-    fn get_access_method(&mut self) -> AccessMethodSetting {
-        self.connection_modes.peek()
+    fn on_get_access_method(&mut self, tx: ResponseTx<ResolvedConnectionMode>) -> Result<()> {
+        self.reply(tx, self.current.clone())
     }
 
     fn on_set_access_method(
@@ -279,23 +277,23 @@ impl AccessModeSelector {
     async fn next_connection_mode(&mut self) -> ApiConnectionMode {
         let access_method = self.connection_modes.next().unwrap();
         let next = {
+            let resolved = self.resolve(&access_method).await;
+            self.current = resolved.clone();
             let ResolvedConnectionMode {
-                connection_mode,
+                setting: settings,
                 endpoint,
-            } = self.resolve(&access_method).await;
-            let event = AccessMethodEvent::Active {
-                settings: access_method,
-                endpoint,
-            };
+                ..
+            } = resolved.clone();
+            let event = AccessMethodEvent::Active { settings, endpoint };
             self.listeners
                 .retain(|listener| listener.send(event.clone()).is_ok());
-            connection_mode
+            resolved
         };
 
         // Save the new connection mode to cache!
         {
             let cache_dir = self.cache_dir.clone();
-            let new_connection_mode = next.clone();
+            let new_connection_mode = next.connection_mode.clone();
             tokio::spawn(async move {
                 if new_connection_mode.save(&cache_dir).await.is_err() {
                     log::warn!(
@@ -305,7 +303,7 @@ impl AccessModeSelector {
                 }
             });
         }
-        next
+        next.connection_mode
     }
     fn on_update_access_methods(
         &mut self,
@@ -345,6 +343,7 @@ impl AccessModeSelector {
         ResolvedConnectionMode {
             connection_mode,
             endpoint,
+            setting: access_method.clone(),
         }
     }
 }
@@ -445,11 +444,6 @@ impl ConnectionModesIterator {
         } else {
             Ok(Box::new(access_methods.into_iter().cycle()))
         }
-    }
-
-    /// Look at the currently active [`AccessMethod`]
-    pub fn peek(&self) -> AccessMethodSetting {
-        self.current.clone()
     }
 }
 

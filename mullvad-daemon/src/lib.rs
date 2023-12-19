@@ -2400,8 +2400,9 @@ where
         let handle = self.connection_modes_handler.clone();
         tokio::spawn(async move {
             let result = handle
-                .get_access_method()
+                .get_current()
                 .await
+                .map(|current| current.setting)
                 .map_err(Error::ApiConnectionModeError);
             Self::oneshot_send(tx, result, "get_current_api_access_method response");
         });
@@ -2419,12 +2420,13 @@ where
 
         match access_method_lookup {
             Ok(access_method) => {
+                let access_method_selector = self.connection_modes_handler.clone();
                 // Create a stream of the access method to test.
                 let api::ResolvedConnectionMode {
                     connection_mode,
                     endpoint,
-                } = self
-                    .connection_modes_handler
+                    ..
+                } = access_method_selector
                     .resolve(access_method.clone())
                     .await
                     // TODO(markus): Do not unwrap!
@@ -2456,8 +2458,17 @@ where
                         .await
                         .map_err(Error::RestError);
 
-                    // TODO(markus):
                     // Tell the daemon to reset the hole we just punched to whatever was in place before.
+
+                    // TODO(markus): Do not unwrap
+                    let api::ResolvedConnectionMode { endpoint, .. } =
+                        access_method_selector.get_current().await.unwrap();
+                    let event = api::AccessMethodEvent::Testing {
+                        endpoint,
+                        update_finished_tx: update_finished_tx.clone(),
+                    };
+                    let _ = sender.send(event);
+                    let _ = update_finished_rx.next().await;
 
                     log::info!(
                         "The result of testing {method:?} is {result}",
