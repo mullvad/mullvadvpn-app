@@ -1142,7 +1142,7 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
-            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
+            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -1242,11 +1242,10 @@ where
     }
 
     async fn handle_access_method_event(&mut self, event: AccessMethodEvent) {
-        let update_fw = |api_endpoint| async {
+        let update_fw = |api_endpoint| {
             let (result_tx, result_rx) = oneshot::channel();
             self.send_tunnel_command(TunnelCommand::AllowEndpoint(api_endpoint, result_tx));
-            //  Wait for the firewall policy to be updated.
-            let _ = result_rx.await;
+            result_rx
         };
         match event {
             AccessMethodEvent::Active {
@@ -1255,14 +1254,23 @@ where
             } => {
                 log::info!("HANDLING INTERNVAL DAEMON EVENT: Setting new active access method");
                 log::warn!("API endpoint: {endpoint}", endpoint = api_endpoint.endpoint);
-                update_fw(api_endpoint).await;
+                let _ = update_fw(api_endpoint).await;
                 self.event_listener.notify_new_access_method(settings);
             }
-            AccessMethodEvent::Testing { api_endpoint } => {
+            AccessMethodEvent::Testing {
+                api_endpoint,
+                mut update_finished_tx,
+            } => {
                 log::info!("HANDLING INTERNVAL DAEMON EVENT: Testing new active access method");
                 // Just update the firewall, but do not notify clients about the
                 // change since it will be reverted asap.
-                update_fw(api_endpoint).await;
+                let complextion_rx = update_fw(api_endpoint);
+                tokio::spawn(async move {
+                    //  Wait for the firewall policy to be updated.
+                    let _ = complextion_rx.await;
+                    // TODO(markus): Return the actual result instead?
+                    let _ = update_finished_tx.try_send(true);
+                });
             }
         }
     }
@@ -2402,26 +2410,65 @@ where
         });
     }
 
-    fn on_test_api_access_method(
+    // TODO(markus): See if this can be made sync again.
+    async fn on_test_api_access_method(
         &mut self,
         tx: ResponseTx<bool, Error>,
         access_method: mullvad_types::access_method::Id,
     ) {
-        let api_handle = self.api_handle.clone();
-        // TODO(markus): Check if this is sound
-        self.api_handle.availability.suspend();
-        let handle = self.connection_modes_handler.clone();
         let access_method_lookup = self
             .get_api_access_method(access_method)
             .map_err(Error::AccessMethodError);
 
         match access_method_lookup {
             Ok(access_method) => {
+                // Create a stream of the access method to test.
+                let (connection_mode, api_endpoint) = self
+                    .connection_modes_handler
+                    .resolve(access_method.clone())
+                    .await
+                    // TODO(markus): Do not unwrap!
+                    .unwrap();
+                let proxy_provider = connection_mode.into_repeat();
+                let api_handle = self.api_runtime.mullvad_rest_handle(proxy_provider).await;
+                let sender = self.tx.to_specialized_sender();
+
                 tokio::spawn(async move {
-                    let result =
-                        access_method::test_access_method(access_method, handle, api_handle)
-                            .await
-                            .map_err(Error::AccessMethodError);
+                    // Send an internal daemon event which will punch a hole in the firewall for the connection mode we are testing.
+                    let (update_finished_tx, mut update_finished_rx) = mpsc::channel(1);
+                    let event = api::AccessMethodEvent::Testing {
+                        api_endpoint,
+                        update_finished_tx: update_finished_tx.clone(),
+                    };
+
+                    // Wait on the daemon to finish.
+                    let _ = sender.send(event);
+                    let _ = update_finished_rx.next().await;
+
+                    let api_proxy = mullvad_api::ApiProxy::new(api_handle);
+                    // Perform test
+                    //
+                    // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
+                    // request because we are *only* concerned with if we get a reply from
+                    // the API, and not with the actual data that the endpoint returns.
+                    let result = api_proxy
+                        .api_addrs_available()
+                        .await
+                        .map_err(Error::RestError);
+
+                    // TODO(markus):
+                    // Tell the daemon to reset the hole we just punched to whatever was in place before.
+
+                    log::info!(
+                        "The result of testing {method:?} is {result}",
+                        method = access_method.access_method,
+                        result = if result.as_ref().is_ok_and(|is_true| *is_true) {
+                            "success".to_string()
+                        } else {
+                            "failed".to_string()
+                        }
+                    );
+
                     Self::oneshot_send(tx, result, "on_test_api_access_method response");
                 });
             }
@@ -2429,8 +2476,6 @@ where
                 Self::oneshot_send(tx, Err(err), "on_test_api_access_method response");
             }
         };
-        // TODO(markus): Check if this is sound
-        self.api_handle.availability.unsuspend();
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
