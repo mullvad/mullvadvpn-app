@@ -268,7 +268,7 @@ function build {
         local destination_dir="dist-assets"
     fi
 
-    for binary in ${BINARIES[*]}; do
+    for binary in "${BINARIES[@]}"; do
         local source="$cargo_output_dir/$binary"
         local destination="$destination_dir/$binary"
 
@@ -303,7 +303,7 @@ fi
 
 # Compile for all defined targets, or the current architecture if unspecified.
 if [[ -n ${TARGETS:-""} ]]; then
-    for t in ${TARGETS[*]}; do
+    for t in "${TARGETS[@]}"; do
         source env.sh "$t"
         build "$t"
     done
