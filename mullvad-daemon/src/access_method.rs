@@ -34,16 +34,6 @@ pub enum Error {
     Settings(#[error(source)] settings::Error),
 }
 
-/// A tiny datastructure used for signaling whether the daemon should force a
-/// rotation of the currently used [`AccessMethodSetting`] or not, and if so:
-/// how it should do it.
-pub enum Command {
-    /// There is no need to force a rotation of [`AccessMethodSetting`]
-    Nothing,
-    /// Select the [`AccessMethodSetting`] with a certain [`access_method::Id`]
-    Set(access_method::Id),
-}
-
 impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
@@ -151,7 +141,8 @@ where
         // this by explicitly checking for & disallow any update which would
         // cause the last enabled access method to become disabled.
         let current = self.get_current_access_method().await?;
-        let mut command = Command::Nothing;
+        // If the currently active access method is updated, we need to re-set it.
+        let mut refresh = None;
         let settings_update = |settings: &mut Settings| {
             if let Some(access_method) = settings
                 .api_access_methods
@@ -159,7 +150,7 @@ where
             {
                 *access_method = access_method_update;
                 if access_method.get_id() == current.get_id() {
-                    command = Command::Set(access_method.get_id())
+                    refresh = Some(access_method.get_id())
                 }
             }
         };
@@ -168,9 +159,11 @@ where
             .update(settings_update)
             .await
             .map(|did_change| self.notify_on_change(did_change))
-            .map_err(Error::Settings)?
-            .process_command(command)
-            .await
+            .map_err(Error::Settings)?;
+        if let Some(id) = refresh {
+            self.set_api_access_method(id).await?;
+        }
+        Ok(())
     }
 
     /// Return the [`AccessMethodSetting`] which is currently used to access the
@@ -181,7 +174,7 @@ where
 
     /// Change which [`AccessMethodSetting`] which will be used as the Mullvad
     /// API endpoint.
-    pub async fn force_api_endpoint_rotation(&self) -> Result<(), Error> {
+    async fn force_api_endpoint_rotation(&self) -> Result<(), Error> {
         self.api_handle
             .service()
             .next_api_endpoint()
@@ -215,13 +208,5 @@ where
             });
         };
         self
-    }
-
-    /// The semantics of the [`Command`] datastructure.
-    async fn process_command(&mut self, command: Command) -> Result<(), Error> {
-        match command {
-            Command::Nothing => Ok(()),
-            Command::Set(id) => self.set_api_access_method(id).await,
-        }
     }
 }
