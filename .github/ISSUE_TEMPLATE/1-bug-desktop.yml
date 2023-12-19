@@ -14,7 +14,8 @@ body:
       label: Is it a bug?
       description: >
         If you ran into a problem with the app and don't know for sure it is an actual bug,
-        please contact support instead of filing a bug report. Go to `Settings -> Support -> Report a problem`.
+        please contact support instead of filing a bug report. Go to
+        `Settings (cogwheel) -> Support -> Report a problem`.
         That way the support team gets redacted logs from your app and can help you out better.
         You can also just email them at support@mullvad.net.
       options:
