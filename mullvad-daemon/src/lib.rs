@@ -1332,25 +1332,22 @@ where
         match event {
             AccessMethodEvent::Active {
                 settings,
-                api_endpoint,
+                endpoint: api_endpoint,
             } => {
-                log::info!("HANDLING INTERNVAL DAEMON EVENT: Setting new active access method");
-                log::warn!("API endpoint: {endpoint}", endpoint = api_endpoint.endpoint);
                 let _ = update_fw(api_endpoint).await;
                 self.event_listener.notify_new_access_method(settings);
             }
             AccessMethodEvent::Testing {
-                api_endpoint,
+                endpoint: api_endpoint,
                 mut update_finished_tx,
             } => {
-                log::info!("HANDLING INTERNVAL DAEMON EVENT: Testing new active access method");
                 // Just update the firewall, but do not notify clients about the
                 // change since it will be reverted asap.
                 let complextion_rx = update_fw(api_endpoint);
                 tokio::spawn(async move {
                     //  Wait for the firewall policy to be updated.
                     let _ = complextion_rx.await;
-                    // TODO(markus): Return the actual result instead?
+                    // Let the emitter of this event know that the firewall has been updated.
                     let _ = update_finished_tx.try_send(());
                 });
             }
@@ -2459,7 +2456,10 @@ where
         match access_method_lookup {
             Ok(access_method) => {
                 // Create a stream of the access method to test.
-                let (connection_mode, api_endpoint) = self
+                let api::ResolvedConnectionMode {
+                    connection_mode,
+                    endpoint,
+                } = self
                     .connection_modes_handler
                     .resolve(access_method.clone())
                     .await
@@ -2473,7 +2473,7 @@ where
                     // Send an internal daemon event which will punch a hole in the firewall for the connection mode we are testing.
                     let (update_finished_tx, mut update_finished_rx) = mpsc::channel(1);
                     let event = api::AccessMethodEvent::Testing {
-                        api_endpoint,
+                        endpoint,
                         update_finished_tx: update_finished_tx.clone(),
                     };
 

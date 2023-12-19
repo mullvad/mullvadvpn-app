@@ -27,11 +27,7 @@ pub enum Message {
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Vec<AccessMethodSetting>),
-    Resolve(
-        // TODO(markus): Document this tuple!
-        ResponseTx<(ApiConnectionMode, AllowedEndpoint)>,
-        AccessMethodSetting,
-    ),
+    Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
 }
 
 // TODO(markus): Update this name (?)
@@ -40,15 +36,21 @@ pub enum AccessMethodEvent {
     /// Emitted when the active access method changes.
     Active {
         settings: AccessMethodSetting,
-        api_endpoint: AllowedEndpoint,
+        endpoint: AllowedEndpoint,
     },
     Testing {
-        api_endpoint: AllowedEndpoint,
+        endpoint: AllowedEndpoint,
         /// It is up to the daemon to actually allow traffic to/from
         /// `api_endpoint` by updating the firewall. This `Sender` allows the
         /// daemon to communicate when that action is done.
         update_finished_tx: mpsc::Sender<()>,
     },
+}
+
+// TODO(markus): Comment this struct
+pub struct ResolvedConnectionMode {
+    pub connection_mode: ApiConnectionMode,
+    pub endpoint: AllowedEndpoint,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -107,10 +109,7 @@ impl AccessModeSelectorHandle {
             })
     }
 
-    pub async fn resolve(
-        &self,
-        setting: AccessMethodSetting,
-    ) -> Result<(ApiConnectionMode, AllowedEndpoint)> {
+    pub async fn resolve(&self, setting: AccessMethodSetting) -> Result<ResolvedConnectionMode> {
         self.send_command(|tx| Message::Resolve(tx, setting))
             .await
             .map_err(|err| {
@@ -162,8 +161,9 @@ pub struct AccessModeSelector {
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
     address_cache: AddressCache,
-    /// Communication channel with the daemon
+    /// All listeners of [`AccessMethodEvent`]s.
     listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
+    last_resolved_connection_mode: ResolvedConnectionMode,
 }
 
 // TODO(markus): Document this! It was created to get an initial api endpoint in
@@ -195,13 +195,12 @@ impl AccessModeSelector {
             }
         };
 
-        let initial_api_endpoint = {
+        let initial_connection_mode = {
             // TODO(markus): Unwrap? :no-thanks:
             let next = connection_modes.next().unwrap();
-            let active_connection_mode = resolve(next.access_method.clone(), &relay_selector);
-            let fallback = address_cache.get_address().await;
-            allowed_endpoint(&active_connection_mode, fallback)
+            Self::resolve_internal(&next, &relay_selector, &address_cache).await
         };
+        let initial_api_endpoint = initial_connection_mode.endpoint.clone();
 
         let selector = AccessModeSelector {
             cmd_rx,
@@ -210,6 +209,7 @@ impl AccessModeSelector {
             connection_modes,
             address_cache,
             listeners: vec![Box::new(listener)],
+            last_resolved_connection_mode: initial_connection_mode,
         };
 
         tokio::spawn(selector.into_future());
@@ -279,14 +279,13 @@ impl AccessModeSelector {
     async fn next_connection_mode(&mut self) -> ApiConnectionMode {
         let access_method = self.connection_modes.next().unwrap();
         let next = {
-            let connection_mode =
-                resolve(access_method.access_method.clone(), &self.relay_selector);
+            let ResolvedConnectionMode {
+                connection_mode,
+                endpoint,
+            } = self.resolve(&access_method).await;
             let event = AccessMethodEvent::Active {
                 settings: access_method,
-                api_endpoint: allowed_endpoint(
-                    &connection_mode,
-                    self.address_cache.get_address().await,
-                ),
+                endpoint,
             };
             self.listeners
                 .retain(|listener| listener.send(event.clone()).is_ok());
@@ -308,7 +307,6 @@ impl AccessModeSelector {
         }
         next
     }
-
     fn on_update_access_methods(
         &mut self,
         tx: ResponseTx<()>,
@@ -324,13 +322,30 @@ impl AccessModeSelector {
 
     pub async fn on_resolve_access_method(
         &mut self,
-        tx: ResponseTx<(ApiConnectionMode, AllowedEndpoint)>,
+        tx: ResponseTx<ResolvedConnectionMode>,
         setting: AccessMethodSetting,
     ) -> Result<()> {
-        let connection_mode = resolve(setting.access_method, &self.relay_selector);
-        let api_endpoint =
-            allowed_endpoint(&connection_mode, self.address_cache.get_address().await);
-        self.reply(tx, (connection_mode, api_endpoint))
+        let reply = self.resolve(&setting).await;
+        self.reply(tx, reply)
+    }
+
+    async fn resolve(&mut self, access_method: &AccessMethodSetting) -> ResolvedConnectionMode {
+        Self::resolve_internal(access_method, &self.relay_selector, &self.address_cache).await
+    }
+
+    async fn resolve_internal(
+        access_method: &AccessMethodSetting,
+        relay_selector: &RelaySelector,
+        address_cache: &AddressCache,
+    ) -> ResolvedConnectionMode {
+        let connection_mode =
+            resolve_connection_mode(access_method.access_method.clone(), relay_selector);
+        let endpoint =
+            resolve_allowed_endpoint(&connection_mode, address_cache.get_address().await);
+        ResolvedConnectionMode {
+            connection_mode,
+            endpoint,
+        }
     }
 }
 
@@ -338,7 +353,10 @@ impl AccessModeSelector {
 /// [`ApiConnectionMode`]s require extra logic/data from
 /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
 /// can not be implemented.
-fn resolve(access_method: AccessMethod, relay_selector: &RelaySelector) -> ApiConnectionMode {
+fn resolve_connection_mode(
+    access_method: AccessMethod,
+    relay_selector: &RelaySelector,
+) -> ApiConnectionMode {
     match access_method {
         AccessMethod::BuiltIn(access_method) => match access_method {
             BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
@@ -449,7 +467,7 @@ impl Iterator for ConnectionModesIterator {
     }
 }
 
-pub(super) fn allowed_endpoint(
+pub fn resolve_allowed_endpoint(
     connection_mode: &ApiConnectionMode,
     fallback: SocketAddr,
 ) -> AllowedEndpoint {
