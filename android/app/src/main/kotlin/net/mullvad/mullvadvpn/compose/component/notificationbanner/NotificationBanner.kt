@@ -71,7 +71,7 @@ private fun PreviewNotificationBanner() {
                                 )
                         )
                     )
-                    .map { it.toNotificationData({}, {}, {}) }
+                    .map { it.toNotificationData(false, {}, {}, {}) }
 
             bannerDataList.forEach {
                 MullvadTopBar(
@@ -90,6 +90,7 @@ private fun PreviewNotificationBanner() {
 @Composable
 fun NotificationBanner(
     notification: InAppNotification?,
+    isPlayBuild: Boolean,
     onClickUpdateVersion: () -> Unit,
     onClickShowAccount: () -> Unit,
     onClickDismissNewDevice: () -> Unit
@@ -106,6 +107,7 @@ fun NotificationBanner(
         if (visibleNotification != null)
             Notification(
                 visibleNotification.toNotificationData(
+                    isPlayBuild = isPlayBuild,
                     onClickUpdateVersion,
                     onClickShowAccount,
                     onClickDismissNewDevice

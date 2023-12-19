@@ -96,7 +96,8 @@ class WelcomeViewModelTest {
                 serviceConnectionManager = mockServiceConnectionManager,
                 paymentUseCase = mockPaymentUseCase,
                 outOfTimeUseCase = mockOutOfTimeUseCase,
-                pollAccountExpiry = false
+                pollAccountExpiry = false,
+                isPlayBuild = false
             )
     }
 

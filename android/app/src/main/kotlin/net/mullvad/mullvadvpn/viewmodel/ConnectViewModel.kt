@@ -54,7 +54,8 @@ class ConnectViewModel(
     private val newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
     private val relayListUseCase: RelayListUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
-    private val paymentUseCase: PaymentUseCase
+    private val paymentUseCase: PaymentUseCase,
+    private val isPlayBuild: Boolean
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -128,7 +129,8 @@ class ConnectViewModel(
                             },
                         inAppNotification = notifications.firstOrNull(),
                         deviceName = deviceName,
-                        daysLeftUntilExpiry = accountExpiry.date()?.daysFromNow()
+                        daysLeftUntilExpiry = accountExpiry.date()?.daysFromNow(),
+                        isPlayBuild = isPlayBuild
                     )
                 }
             }

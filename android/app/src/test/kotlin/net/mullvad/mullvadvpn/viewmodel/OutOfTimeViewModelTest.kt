@@ -97,7 +97,8 @@ class OutOfTimeViewModelTest {
                 deviceRepository = mockDeviceRepository,
                 paymentUseCase = mockPaymentUseCase,
                 outOfTimeUseCase = mockOutOfTimeUseCase,
-                pollAccountExpiry = false
+                pollAccountExpiry = false,
+                isPlayBuild = false
             )
     }
 

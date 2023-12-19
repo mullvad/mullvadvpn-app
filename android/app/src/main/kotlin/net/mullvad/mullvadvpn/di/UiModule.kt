@@ -9,6 +9,7 @@ import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
@@ -132,11 +133,13 @@ val uiModule = module {
     single { ProblemReportRepository() }
 
     // View models
-    viewModel { AccountViewModel(get(), get(), get(), get()) }
+    viewModel { AccountViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel {
         ChangelogViewModel(get(), BuildConfig.VERSION_CODE, BuildConfig.ALWAYS_SHOW_CHANGELOG)
     }
-    viewModel { ConnectViewModel(get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel {
+        ConnectViewModel(get(), get(), get(), get(), get(), get(), get(), get(), IS_PLAY_BUILD)
+    }
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { MtuDialogViewModel(get()) }
@@ -146,14 +149,14 @@ val uiModule = module {
     viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get()) }
     viewModel { SelectLocationViewModel(get(), get(), get()) }
-    viewModel { SettingsViewModel(get(), get()) }
+    viewModel { SettingsViewModel(get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get()) }
-    viewModel { WelcomeViewModel(get(), get(), get(), get(), get()) }
+    viewModel { WelcomeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
-    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get()) }
+    viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
     viewModel { FilterViewModel(get()) }
 

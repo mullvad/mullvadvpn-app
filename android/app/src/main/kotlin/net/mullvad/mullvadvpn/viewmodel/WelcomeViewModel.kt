@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_POLL_INTERVAL
-import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
@@ -41,7 +40,8 @@ class WelcomeViewModel(
     private val serviceConnectionManager: ServiceConnectionManager,
     private val paymentUseCase: PaymentUseCase,
     private val outOfTimeUseCase: OutOfTimeUseCase,
-    private val pollAccountExpiry: Boolean = true
+    private val pollAccountExpiry: Boolean = true,
+    private val isPlayBuild: Boolean
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>(1, BufferOverflow.DROP_OLDEST)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -67,7 +67,7 @@ class WelcomeViewModel(
                         tunnelState = tunnelState,
                         accountNumber = deviceState.token(),
                         deviceName = deviceState.deviceName(),
-                        showSitePayment = IS_PLAY_BUILD.not(),
+                        showSitePayment = !isPlayBuild,
                         billingPaymentState = paymentAvailability?.toPaymentState(),
                     )
                 }

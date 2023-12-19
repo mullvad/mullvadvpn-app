@@ -150,7 +150,8 @@ class ConnectViewModelTest {
                 relayListUseCase = mockRelayListUseCase,
                 newDeviceNotificationUseCase = mockk(),
                 outOfTimeUseCase = outOfTimeUseCase,
-                paymentUseCase = mockPaymentUseCase
+                paymentUseCase = mockPaymentUseCase,
+                isPlayBuild = false
             )
     }
 
