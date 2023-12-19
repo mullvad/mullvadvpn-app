@@ -216,6 +216,7 @@ jobs:
             testDebugUnitTest -x :test:arch:testDebugUnitTest
             :app:testOssProdDebugUnitTest
             :service:testOssProdDebugUnitTest
+            :lib:billing:testDebugUnitTest
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: true
@@ -277,7 +278,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-type: [app, mockapi]
+        test-type: [app, mockapi, lib:billing]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
