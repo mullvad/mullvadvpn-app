@@ -79,8 +79,7 @@ where
                 if api_access_method.get_id()
                     == self.get_current_access_method().await?.get_id() =>
             {
-                // TODO(markus): I don't believe that this statement should be here.
-                self.connection_modes_handler.next().await?;
+                self.force_api_endpoint_rotation().await?;
             }
             _ => (),
         }
@@ -169,7 +168,11 @@ where
     /// Return the [`AccessMethodSetting`] which is currently used to access the
     /// Mullvad API.
     pub async fn get_current_access_method(&self) -> Result<AccessMethodSetting, Error> {
-        Ok(self.connection_modes_handler.get_access_method().await?)
+        self.connection_modes_handler
+            .get_current()
+            .await
+            .map(|current| current.setting)
+            .map_err(Error::ConnectionMode)
     }
 
     /// Change which [`AccessMethodSetting`] which will be used as the Mullvad
