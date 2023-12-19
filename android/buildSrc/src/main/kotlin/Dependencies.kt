@@ -5,7 +5,6 @@ object Dependencies {
     const val junitApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junit}"
     const val junitEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit}"
     const val junitParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junit}"
-    const val junitVintage = "org.junit.vintage:junit-vintage-engine:${Versions.junit}"
     const val konsist = "com.lemonappdev:konsist:${Versions.konsist}"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
     const val mockkWebserver = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebserver}"
