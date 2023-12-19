@@ -43,6 +43,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.component.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.compose.destinations.AccountDestination
+import net.mullvad.mullvadvpn.compose.destinations.DeviceRevokedDestination
 import net.mullvad.mullvadvpn.compose.destinations.OutOfTimeDestination
 import net.mullvad.mullvadvpn.compose.destinations.SelectLocationDestination
 import net.mullvad.mullvadvpn.compose.destinations.SettingsDestination
@@ -94,6 +95,12 @@ fun Connect(navigator: DestinationsNavigator) {
                 }
                 is ConnectViewModel.UiSideEffect.OutOfTime -> {
                     navigator.navigate(OutOfTimeDestination) {
+                        launchSingleTop = true
+                        popUpTo(NavGraphs.root) { inclusive = true }
+                    }
+                }
+                ConnectViewModel.UiSideEffect.RevokedDevice -> {
+                    navigator.navigate(DeviceRevokedDestination) {
                         launchSingleTop = true
                         popUpTo(NavGraphs.root) { inclusive = true }
                     }
