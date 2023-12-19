@@ -22,6 +22,16 @@ android {
         abortOnError = true
         warningsAsErrors = true
     }
+
+    packaging {
+        resources {
+            pickFirsts += setOf(
+                // Fixes packaging error caused by: jetified-junit-*
+                "META-INF/LICENSE.md",
+                "META-INF/LICENSE-notice.md"
+            )
+        }
+    }
 }
 
 androidComponents {
