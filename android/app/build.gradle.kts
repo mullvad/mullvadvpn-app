@@ -361,7 +361,6 @@ dependencies {
     testImplementation(Dependencies.junitApi)
     testRuntimeOnly(Dependencies.junitEngine)
     testImplementation(Dependencies.junitParams)
-    testRuntimeOnly(Dependencies.junitVintage)
 
     // UI test dependencies
     debugImplementation(Dependencies.AndroidX.fragmentTestning)
