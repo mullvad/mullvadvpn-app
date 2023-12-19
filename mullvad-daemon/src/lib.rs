@@ -1351,7 +1351,7 @@ where
                     //  Wait for the firewall policy to be updated.
                     let _ = complextion_rx.await;
                     // TODO(markus): Return the actual result instead?
-                    let _ = update_finished_tx.try_send(true);
+                    let _ = update_finished_tx.try_send(());
                 });
             }
         }
