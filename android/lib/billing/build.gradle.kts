@@ -1,6 +1,7 @@
 plugins {
     id(Dependencies.Plugin.androidLibraryId)
     id(Dependencies.Plugin.kotlinAndroidId)
+    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
 }
 
 android {
@@ -60,7 +61,7 @@ dependencies {
     testImplementation(Dependencies.KotlinX.coroutinesTest)
     testImplementation(Dependencies.MockK.core)
     testImplementation(Dependencies.junitApi)
-    testImplementation(Dependencies.junitEngine)
+    testRuntimeOnly(Dependencies.junitEngine)
     testImplementation(Dependencies.turbine)
 
     androidTestImplementation(project(Dependencies.Mullvad.commonTestLib))
