@@ -66,6 +66,8 @@ class VoucherDialogViewModel(
     }
 
     fun onVoucherInputChange(voucherString: String) {
+        // Remove any errors when the user starts typing again
+        vmState.update { VoucherDialogState.Default }
         if (VoucherRegexHelper.validate(voucherString)) {
             val trimmedVoucher = VoucherRegexHelper.trim(voucherString)
             voucherInput.value =
