@@ -38,7 +38,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = "PreferencesCell"
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .chevron
 
         case .version:
@@ -51,7 +51,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = Bundle.main.productVersion
-            cell.accessibilityIdentifier = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .none
 
         case .problemReport:
@@ -64,7 +64,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .chevron
 
         case .faq:
@@ -77,7 +77,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .externalLink
 
         case .apiAccess:
@@ -90,7 +90,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .chevron
         }
     }

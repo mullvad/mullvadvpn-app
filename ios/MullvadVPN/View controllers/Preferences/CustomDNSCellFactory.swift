@@ -44,7 +44,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
         guard let cell = cell as? SettingsSwitchCell else { return }
 
         cell.titleLabel.text = title
-        cell.accessibilityHint = nil
+        cell.accessibilityIdentifier = preference.accessibilityIdentifier
         cell.applySubCellStyling()
         cell.setOn(toggleSetting, animated: false)
         cell.action = { [weak self] isOn in
@@ -185,6 +185,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
 
             cell.textField.text = dnsServerEntry.address
             cell.isValidInput = dnsEntryIsValid(identifier: entryIdentifier, cell: cell)
+            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier) (\(entryIdentifier))"
 
             cell.onTextChange = { [weak self] cell in
                 cell.isValidInput = self?

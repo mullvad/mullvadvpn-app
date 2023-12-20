@@ -23,7 +23,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
 
     let infoButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.accessibilityIdentifier = "InfoButton"
+        button.accessibilityIdentifier = .infoButton
         button.tintColor = .white
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
         return button
@@ -31,7 +31,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
 
     let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.accessibilityIdentifier = "CollapseButton"
+        button.accessibilityIdentifier = .collapseButton
         button.tintColor = .white
         return button
     }()

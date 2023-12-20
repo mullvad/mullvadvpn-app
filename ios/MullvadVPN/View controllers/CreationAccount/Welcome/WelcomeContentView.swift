@@ -20,10 +20,6 @@ struct WelcomeViewModel {
 }
 
 final class WelcomeContentView: UIView {
-    private enum Action: String {
-        case purchase, redeemVoucher, showInfo
-    }
-
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
@@ -79,7 +75,7 @@ final class WelcomeContentView: UIView {
 
     private let infoButton: UIButton = {
         let button = IncreasedHitButton(type: .system)
-        button.accessibilityIdentifier = Action.showInfo.rawValue
+        button.accessibilityIdentifier = .infoButton
         button.tintColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
@@ -111,7 +107,7 @@ final class WelcomeContentView: UIView {
 
     private let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
-        button.accessibilityIdentifier = Action.purchase.rawValue
+        button.accessibilityIdentifier = .purchaseButton
         let localizedString = NSLocalizedString(
             "BUY_CREDIT_BUTTON",
             tableName: "Welcome",
@@ -124,7 +120,7 @@ final class WelcomeContentView: UIView {
 
     private let redeemVoucherButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = Action.redeemVoucher.rawValue
+        button.accessibilityIdentifier = .redeemVoucherButton
         button.setTitle(NSLocalizedString(
             "REDEEM_VOUCHER_BUTTON_TITLE",
             tableName: "Account",
@@ -252,12 +248,12 @@ final class WelcomeContentView: UIView {
     }
 
     @objc private func tapped(button: AppButton) {
-        switch button.accessibilityIdentifier {
-        case Action.purchase.rawValue:
+        switch AccessibilityIdentifier(rawValue: button.accessibilityIdentifier ?? "") {
+        case .purchaseButton:
             delegate?.didTapPurchaseButton(welcomeContentView: self, button: button)
-        case Action.redeemVoucher.rawValue:
+        case .redeemVoucherButton:
             delegate?.didTapRedeemVoucherButton(welcomeContentView: self, button: button)
-        case Action.showInfo.rawValue:
+        case .infoButton:
             delegate?.didTapInfoButton(welcomeContentView: self, button: button)
         default: return
         }
