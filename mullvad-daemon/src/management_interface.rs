@@ -1021,7 +1021,7 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         })
     }
 
-    fn notify_new_access_method(
+    fn notify_new_access_method_event(
         &self,
         new_access_method: mullvad_types::access_method::AccessMethodSetting,
     ) {

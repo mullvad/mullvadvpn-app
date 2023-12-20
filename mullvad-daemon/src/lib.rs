@@ -599,7 +599,7 @@ pub trait EventListener {
     fn notify_remove_device_event(&self, event: RemoveDeviceEvent);
 
     /// Notify that the api access method changed.
-    fn notify_new_access_method(&self, new_access_method: AccessMethodSetting);
+    fn notify_new_access_method_event(&self, new_access_method: AccessMethodSetting);
 }
 
 pub struct Daemon<L: EventListener> {
@@ -1253,7 +1253,7 @@ where
                 endpoint: api_endpoint,
             } => {
                 let _ = update_fw(api_endpoint).await;
-                self.event_listener.notify_new_access_method(settings);
+                self.event_listener.notify_new_access_method_event(settings);
             }
             AccessMethodEvent::Testing {
                 endpoint: api_endpoint,
