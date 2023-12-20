@@ -171,13 +171,13 @@ pub struct AccessModeSelector {
 
 // TODO(markus): Document this! It was created to get an initial api endpoint in
 // a more straight-forward way.
-pub(super) struct SpawnResult {
+pub(crate) struct SpawnResult {
     pub handle: AccessModeSelectorHandle,
     pub initial_api_endpoint: AllowedEndpoint,
 }
 
 impl AccessModeSelector {
-    pub async fn spawn(
+    pub(crate) async fn spawn(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
