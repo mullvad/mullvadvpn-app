@@ -142,7 +142,7 @@
 		58677712290976FB006F721F /* SettingsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58677711290976FB006F721F /* SettingsInteractor.swift */; };
 		5867771429097BCD006F721F /* PaymentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867771329097BCD006F721F /* PaymentState.swift */; };
 		5867771629097C5B006F721F /* ProductState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867771529097C5B006F721F /* ProductState.swift */; };
-		5868585524054096000B8131 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* AppButton.swift */; };
+		5868585524054096000B8131 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* CustomButton.swift */; };
 		58695AA02A4ADA9200328DB3 /* TunnelObfuscationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58695A9F2A4ADA9200328DB3 /* TunnelObfuscationTests.swift */; };
 		58695AA72A4B109F00328DB3 /* TunnelObfuscation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5840231F2A406BF5007B27AC /* TunnelObfuscation.framework */; };
 		586A0DCB2A20E359006C731C /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
@@ -507,6 +507,8 @@
 		7A3FD1B72AD54ABD0042BEA6 /* AnyTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB982A98F4ED00F578F2 /* AnyTransport.swift */; };
 		7A3FD1B82AD54AE60042BEA6 /* TimeServerProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9A2A98F58600F578F2 /* TimeServerProxy.swift */; };
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
+		7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869942B32E9C700640D27 /* LinkButton.swift */; };
+		7A5869972B32EA4500640D27 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869962B32EA4500640D27 /* AppButton.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -1350,7 +1352,7 @@
 		58677711290976FB006F721F /* SettingsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInteractor.swift; sourceTree = "<group>"; };
 		5867771329097BCD006F721F /* PaymentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentState.swift; sourceTree = "<group>"; };
 		5867771529097C5B006F721F /* ProductState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductState.swift; sourceTree = "<group>"; };
-		5868585424054096000B8131 /* AppButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
+		5868585424054096000B8131 /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		58695A9D2A4ADA9100328DB3 /* TunnelObfuscationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TunnelObfuscationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58695A9F2A4ADA9200328DB3 /* TunnelObfuscationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationTests.swift; sourceTree = "<group>"; };
 		586A95112901321B007BAF2B /* IPv6Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv6Endpoint.swift; sourceTree = "<group>"; };
@@ -1646,6 +1648,8 @@
 		7A3353962AAA0F8600F0A71C /* OperationBlockObserverSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationBlockObserverSupport.swift; sourceTree = "<group>"; };
 		7A3FD1B42AD4465A0042BEA6 /* AppMessageHandlerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandlerTests.swift; sourceTree = "<group>"; };
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
+		7A5869942B32E9C700640D27 /* LinkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkButton.swift; sourceTree = "<group>"; };
+		7A5869962B32EA4500640D27 /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
 		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
 		7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryTests.swift; sourceTree = "<group>"; };
 		7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
@@ -2302,8 +2306,9 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				5868585424054096000B8131 /* AppButton.swift */,
+				7A5869962B32EA4500640D27 /* AppButton.swift */,
 				7A9FA1412A2E3306000B728D /* CheckboxView.swift */,
+				5868585424054096000B8131 /* CustomButton.swift */,
 				58ACF64C26567A4F00ACE4B7 /* CustomSwitch.swift */,
 				58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */,
 				58293FB025124117005D0BB5 /* CustomTextField.swift */,
@@ -2311,6 +2316,7 @@
 				5892A45D265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift */,
 				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
+				7A5869942B32E9C700640D27 /* LinkButton.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
@@ -4616,6 +4622,7 @@
 				5846227126E229F20035F7C2 /* StoreSubscription.swift in Sources */,
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */,
+				7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */,
 				F09A297D2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift in Sources */,
 				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
 				587EB672271451E300123C75 /* PreferencesViewModel.swift in Sources */,
@@ -4636,6 +4643,7 @@
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
 				5878A27B2909649A0096FC88 /* CustomOverlayRenderer.swift in Sources */,
 				A91614D62B10B26B00F416EB /* TunnelControlViewModel.swift in Sources */,
+				7A5869972B32EA4500640D27 /* AppButton.swift in Sources */,
 				586C0D8F2B03D88100E7CDD7 /* ProxyProtocolConfigurationItemIdentifier.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
@@ -4744,7 +4752,7 @@
 				5827B0AE2B0F4CBE00CCBBA1 /* ProxyConfigurationViewControllerDelegate.swift in Sources */,
 				5827B0962B0DB2C100CCBBA1 /* ProxyConfigurationItemIdentifier.swift in Sources */,
 				586C0D8B2B03D84400E7CDD7 /* AddAccessMethodItemIdentifier.swift in Sources */,
-				5868585524054096000B8131 /* AppButton.swift in Sources */,
+				5868585524054096000B8131 /* CustomButton.swift in Sources */,
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
 				7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */,
 				5867771629097C5B006F721F /* ProductState.swift in Sources */,

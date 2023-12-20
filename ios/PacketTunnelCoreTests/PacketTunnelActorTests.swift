@@ -214,22 +214,20 @@ final class PacketTunnelActorTests: XCTestCase {
 
         let actor = PacketTunnelActor.mock(blockedStateErrorMapper: blockedStateMapper, settingsReader: settingsReader)
 
-        stateSink = await actor.$observedState
-            .receive(on: DispatchQueue.main)
-            .sink { newState in
-                switch newState {
-                case .initial:
-                    initialStateExpectation.fulfill()
-                case .error:
-                    errorStateExpectation.fulfill()
-                case .connecting:
-                    connectingStateExpectation.fulfill()
-                case .connected:
-                    connectedStateExpectation.fulfill()
-                default:
-                    break
-                }
+        stateSink = await actor.$observedState.receive(on: DispatchQueue.main).sink { newState in
+            switch newState {
+            case .initial:
+                initialStateExpectation.fulfill()
+            case .error:
+                errorStateExpectation.fulfill()
+            case .connecting:
+                connectingStateExpectation.fulfill()
+            case .connected:
+                connectedStateExpectation.fulfill()
+            default:
+                break
             }
+        }
 
         actor.start(options: launchOptions)
 

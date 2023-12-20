@@ -72,7 +72,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         addChild(contentController)
         contentController.didMove(toParent: self)
 
-        interactor.publisher.sink { newElements in
+        interactor.publisher.sink { _ in
             self.updateDataSource(animated: true)
         }
         .store(in: &cancellables)
@@ -104,7 +104,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
     private func configureDataSource() {
         dataSource = UITableViewDiffableDataSource(
             tableView: tableView,
-            cellProvider: { [weak self] tableView, indexPath, itemIdentifier in
+            cellProvider: { [weak self] _, indexPath, itemIdentifier in
                 self?.dequeueCell(at: indexPath, itemIdentifier: itemIdentifier)
             }
         )

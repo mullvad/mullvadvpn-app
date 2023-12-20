@@ -37,10 +37,4 @@ enum ApplicationConfiguration {
 
     /// Maximum number of devices per account.
     static let maxAllowedDevices = 5
-
-    // FIXME: Used for debugging purposes during the migration to same IP. Remove when the migration is over.
-    // swiftlint disable:force_cast
-    static let sameIPv4 = IPv4Address("10.127.255.254")!
-    static let sameIPv6 = IPv6Address("fc00:bbbb:bbbb:bb01:ffff:ffff:ffff:ffff")!
-    // swiftlint enable:force_cast
 }

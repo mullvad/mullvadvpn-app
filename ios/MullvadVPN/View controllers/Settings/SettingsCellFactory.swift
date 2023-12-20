@@ -25,6 +25,7 @@ struct SettingsCellFactory: CellFactoryProtocol {
         return cell
     }
 
+    // swiftlint:disable:next function_body_length
     func configureCell(_ cell: UITableViewCell, item: SettingsDataSource.Item, indexPath: IndexPath) {
         switch item {
         case .preferences:
