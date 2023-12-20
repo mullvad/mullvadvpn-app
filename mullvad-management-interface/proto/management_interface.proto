@@ -331,30 +331,44 @@ message CustomList {
 
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
-message AccessMethod {
-  message Direct {}
-  message Bridges {}
-  message Socks5Local {
+message Socks5Local {
     string remote_ip = 1;
     uint32 remote_port = 2;
     TransportProtocol remote_transport_protocol = 3;
     uint32 local_port = 4;
-  }
-  message SocksAuth {
+}
+message SocksAuth {
     string username = 1;
     string password = 2;
-  }
-  message Socks5Remote {
+}
+message Socks5Remote {
     string ip = 1;
     uint32 port = 2;
     SocksAuth authentication = 3;
-  }
-  message Shadowsocks {
+}
+message Shadowsocks {
     string ip = 1;
     uint32 port = 2;
     string password = 3;
     string cipher = 4;
+}
+
+message CustomProxy {
+  oneof proxy_method {
+    Socks5Local socks5local = 1;
+    Socks5Remote socks5remote = 2;
+    Shadowsocks shadowsocks = 3;
   }
+}
+
+message CustomProxySettings {
+    CustomProxy custom_proxy = 1;
+    bool active = 2;
+}
+
+message AccessMethod {
+  message Direct {}
+  message Bridges {}
   oneof access_method {
     Direct direct = 1;
     Bridges bridges = 2;
@@ -393,6 +407,7 @@ message Settings {
   CustomListSettings custom_lists = 11;
   ApiAccessMethodSettings api_access_methods = 12;
   repeated RelayOverride relay_overrides = 13;
+  CustomProxySettings custom_proxy = 14;
 }
 
 message RelayOverride {

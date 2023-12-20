@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+mod custom_proxy;
 mod access_method;
 mod account;
 mod custom_list;
