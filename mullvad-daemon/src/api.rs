@@ -33,7 +33,6 @@ pub enum Message {
 // TODO(markus): Create a builder for this
 // TODO(markus): Document. See `AppVersionInfo` for an example of good docs.
 /// Emitted when the active access method changes.
-#[derive(Clone)]
 pub struct NewAccessMethodEvent {
     pub settings: AccessMethodSetting,
     pub endpoint: AllowedEndpoint,
@@ -43,7 +42,7 @@ pub struct NewAccessMethodEvent {
     /// `api_endpoint` by updating the firewall. This `Sender` allows the
     /// daemon to communicate when that action is done.
     //TODO(markus): Can this be converted to a oneshot?
-    pub update_finished_tx: mpsc::Sender<()>,
+    pub update_finished_tx: oneshot::Sender<()>,
 }
 
 // TODO(markus): Comment this struct
@@ -163,8 +162,8 @@ pub struct AccessModeSelector {
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
     address_cache: AddressCache,
-    /// All listeners of [`AccessMethodEvent`]s.
-    listeners: Vec<Box<dyn Sender<NewAccessMethodEvent> + Send>>,
+    /// A listener of [`NewAccessMethodEvent`]s.
+    listener: Box<dyn Sender<NewAccessMethodEvent> + Send>,
     current: ResolvedConnectionMode,
 }
 
@@ -210,7 +209,7 @@ impl AccessModeSelector {
             relay_selector,
             connection_modes,
             address_cache,
-            listeners: vec![Box::new(listener)],
+            listener: Box::new(listener),
             current: initial_connection_mode,
         };
 
@@ -284,16 +283,15 @@ impl AccessModeSelector {
                 ..
             } = resolved.clone();
 
-            let (update_finished_tx, mut update_finished_rx) = mpsc::channel(1);
+            let (update_finished_tx, update_finished_rx) = oneshot::channel();
             let event = NewAccessMethodEvent {
                 settings,
                 endpoint,
                 update_finished_tx,
                 announce: true,
             };
-            self.listeners
-                .retain(|listener| listener.send(event.clone()).is_ok());
-            let _ = update_finished_rx.next().await;
+            let _ = self.listener.send(event);
+            let _ = update_finished_rx.await;
             resolved
         };
 

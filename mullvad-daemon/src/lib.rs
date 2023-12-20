@@ -1246,7 +1246,7 @@ where
             settings,
             endpoint,
             announce,
-            mut update_finished_tx,
+            update_finished_tx,
         } = event;
         let mut event_listener_handle = if announce {
             Some(self.event_listener.clone())
@@ -1264,7 +1264,7 @@ where
                 x.notify_new_access_method_event(settings);
             }
             // Let the emitter of this event know that the firewall has been updated.
-            let _ = update_finished_tx.try_send(());
+            let _ = update_finished_tx.send(());
         });
     }
 
@@ -2429,22 +2429,22 @@ where
                     .unwrap();
                 let proxy_provider = connection_mode.into_repeat();
                 let api_handle = self.api_runtime.mullvad_rest_handle(proxy_provider).await;
-                let sender = self.tx.to_specialized_sender();
+                let daemon_event_sender = self.tx.to_specialized_sender();
 
                 tokio::spawn(async move {
                     // Send an internal daemon event which will punch a hole in the firewall for the connection mode we are testing.
-                    let (update_finished_tx, mut update_finished_rx) = mpsc::channel(1);
+                    let (update_finished_tx, update_finished_rx) = oneshot::channel();
                     let event = api::NewAccessMethodEvent {
                         endpoint,
                         settings: setting,
                         // Do not emit this event to clients.
                         announce: false,
-                        update_finished_tx: update_finished_tx.clone(),
+                        update_finished_tx,
                     };
 
                     // Wait on the daemon to finish.
-                    let _ = sender.send(event);
-                    let _ = update_finished_rx.next().await;
+                    let _ = daemon_event_sender.send(event);
+                    let _ = update_finished_rx.await;
 
                     let api_proxy = mullvad_api::ApiProxy::new(api_handle);
                     // Perform test
@@ -2463,15 +2463,16 @@ where
                     let api::ResolvedConnectionMode {
                         endpoint, setting, ..
                     } = access_method_selector.get_current().await.unwrap();
+                    let (update_finished_tx, update_finished_rx) = oneshot::channel();
                     let event = api::NewAccessMethodEvent {
                         endpoint,
                         settings: setting,
                         // Do not emit this event to clients.
                         announce: false,
-                        update_finished_tx: update_finished_tx.clone(),
+                        update_finished_tx,
                     };
-                    let _ = sender.send(event);
-                    let _ = update_finished_rx.next().await;
+                    let _ = daemon_event_sender.send(event);
+                    let _ = update_finished_rx.await;
 
                     log::info!(
                         "The result of testing {method:?} is {result}",
