@@ -30,21 +30,20 @@ pub enum Message {
     Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
 }
 
-// TODO(markus): Update this name (?)
+// TODO(markus): Create a builder for this
+// TODO(markus): Document. See `AppVersionInfo` for an example of good docs.
+/// Emitted when the active access method changes.
 #[derive(Clone)]
-pub enum AccessMethodEvent {
-    /// Emitted when the active access method changes.
-    Active {
-        settings: AccessMethodSetting,
-        endpoint: AllowedEndpoint,
-    },
-    Testing {
-        endpoint: AllowedEndpoint,
-        /// It is up to the daemon to actually allow traffic to/from
-        /// `api_endpoint` by updating the firewall. This `Sender` allows the
-        /// daemon to communicate when that action is done.
-        update_finished_tx: mpsc::Sender<()>,
-    },
+pub struct NewAccessMethodEvent {
+    pub settings: AccessMethodSetting,
+    pub endpoint: AllowedEndpoint,
+    /// If the daemon should notify clients about the new access method.
+    pub announce: bool,
+    /// It is up to the daemon to actually allow traffic to/from
+    /// `api_endpoint` by updating the firewall. This `Sender` allows the
+    /// daemon to communicate when that action is done.
+    //TODO(markus): Can this be converted to a oneshot?
+    pub update_finished_tx: mpsc::Sender<()>,
 }
 
 // TODO(markus): Comment this struct
@@ -165,7 +164,7 @@ pub struct AccessModeSelector {
     connection_modes: ConnectionModesIterator,
     address_cache: AddressCache,
     /// All listeners of [`AccessMethodEvent`]s.
-    listeners: Vec<Box<dyn Sender<AccessMethodEvent> + Send>>,
+    listeners: Vec<Box<dyn Sender<NewAccessMethodEvent> + Send>>,
     current: ResolvedConnectionMode,
 }
 
@@ -181,7 +180,7 @@ impl AccessModeSelector {
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
-        listener: impl Sender<AccessMethodEvent> + Send + 'static,
+        listener: impl Sender<NewAccessMethodEvent> + Send + 'static,
         address_cache: AddressCache,
     ) -> SpawnResult {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
@@ -284,9 +283,17 @@ impl AccessModeSelector {
                 endpoint,
                 ..
             } = resolved.clone();
-            let event = AccessMethodEvent::Active { settings, endpoint };
+
+            let (update_finished_tx, mut update_finished_rx) = mpsc::channel(1);
+            let event = NewAccessMethodEvent {
+                settings,
+                endpoint,
+                update_finished_tx,
+                announce: true,
+            };
             self.listeners
                 .retain(|listener| listener.send(event.clone()).is_ok());
+            let _ = update_finished_rx.next().await;
             resolved
         };
 

@@ -28,7 +28,7 @@ pub mod version;
 mod version_check;
 
 use crate::{geoip::get_geo_location, target_state::PersistentTargetState};
-use api::AccessMethodEvent;
+use api::NewAccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -371,7 +371,7 @@ pub(crate) enum InternalDaemonEvent {
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
     DeviceEvent(AccountEvent),
     /// Sent when access methods are changed in any way (new active access method).
-    AccessMethodEvent(AccessMethodEvent),
+    AccessMethodEvent(NewAccessMethodEvent),
     /// Handles updates from versions without devices.
     DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// The split tunnel paths or state were updated.
@@ -409,8 +409,8 @@ impl From<AccountEvent> for InternalDaemonEvent {
     }
 }
 
-impl From<AccessMethodEvent> for InternalDaemonEvent {
-    fn from(event: AccessMethodEvent) -> Self {
+impl From<NewAccessMethodEvent> for InternalDaemonEvent {
+    fn from(event: NewAccessMethodEvent) -> Self {
         InternalDaemonEvent::AccessMethodEvent(event)
     }
 }
@@ -1241,35 +1241,31 @@ where
         }
     }
 
-    async fn handle_access_method_event(&mut self, event: AccessMethodEvent) {
-        let update_fw = |api_endpoint| {
-            let (result_tx, result_rx) = oneshot::channel();
-            self.send_tunnel_command(TunnelCommand::AllowEndpoint(api_endpoint, result_tx));
-            result_rx
+    async fn handle_access_method_event(&mut self, event: NewAccessMethodEvent) {
+        let NewAccessMethodEvent {
+            settings,
+            endpoint,
+            announce,
+            mut update_finished_tx,
+        } = event;
+        let mut event_listener_handle = if announce {
+            Some(self.event_listener.clone())
+        } else {
+            None
         };
-        match event {
-            AccessMethodEvent::Active {
-                settings,
-                endpoint: api_endpoint,
-            } => {
-                let _ = update_fw(api_endpoint).await;
-                self.event_listener.notify_new_access_method_event(settings);
+        let (completion_tx, completion_rx) = oneshot::channel();
+        // update the firewall.
+        self.send_tunnel_command(TunnelCommand::AllowEndpoint(endpoint, completion_tx));
+        tokio::spawn(async move {
+            // Wait for the firewall policy to be updated.
+            let _ = completion_rx.await;
+            // Notify clients about the change if necessary.
+            if let Some(x) = event_listener_handle.take() {
+                x.notify_new_access_method_event(settings);
             }
-            AccessMethodEvent::Testing {
-                endpoint: api_endpoint,
-                mut update_finished_tx,
-            } => {
-                // Just update the firewall, but do not notify clients about the
-                // change since it will be reverted asap.
-                let complextion_rx = update_fw(api_endpoint);
-                tokio::spawn(async move {
-                    //  Wait for the firewall policy to be updated.
-                    let _ = complextion_rx.await;
-                    // Let the emitter of this event know that the firewall has been updated.
-                    let _ = update_finished_tx.try_send(());
-                });
-            }
-        }
+            // Let the emitter of this event know that the firewall has been updated.
+            let _ = update_finished_tx.try_send(());
+        });
     }
 
     fn handle_device_migration_event(
@@ -2425,7 +2421,7 @@ where
                 let api::ResolvedConnectionMode {
                     connection_mode,
                     endpoint,
-                    ..
+                    setting,
                 } = access_method_selector
                     .resolve(access_method.clone())
                     .await
@@ -2438,8 +2434,11 @@ where
                 tokio::spawn(async move {
                     // Send an internal daemon event which will punch a hole in the firewall for the connection mode we are testing.
                     let (update_finished_tx, mut update_finished_rx) = mpsc::channel(1);
-                    let event = api::AccessMethodEvent::Testing {
+                    let event = api::NewAccessMethodEvent {
                         endpoint,
+                        settings: setting,
+                        // Do not emit this event to clients.
+                        announce: false,
                         update_finished_tx: update_finished_tx.clone(),
                     };
 
@@ -2461,10 +2460,14 @@ where
                     // Tell the daemon to reset the hole we just punched to whatever was in place before.
 
                     // TODO(markus): Do not unwrap
-                    let api::ResolvedConnectionMode { endpoint, .. } =
-                        access_method_selector.get_current().await.unwrap();
-                    let event = api::AccessMethodEvent::Testing {
+                    let api::ResolvedConnectionMode {
+                        endpoint, setting, ..
+                    } = access_method_selector.get_current().await.unwrap();
+                    let event = api::NewAccessMethodEvent {
                         endpoint,
+                        settings: setting,
+                        // Do not emit this event to clients.
+                        announce: false,
                         update_finished_tx: update_finished_tx.clone(),
                     };
                     let _ = sender.send(event);
