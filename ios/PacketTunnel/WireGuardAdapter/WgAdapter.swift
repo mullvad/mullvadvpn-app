@@ -49,10 +49,13 @@ struct WgAdapter: TunnelAdapterProtocol {
     }
 
     private func logIfDeviceHasSameIP(than addresses: [IPAddress]) {
+        let sameIPv4 = IPv4Address("10.127.255.254")
+        let sameIPv6 = IPv6Address("fc00:bbbb:bbbb:bb01:ffff:ffff:ffff:ffff")
+
         let hasIPv4SameAddress = addresses.compactMap { $0 as? IPv4Address }
-            .contains { $0 == ApplicationConfiguration.sameIPv4 }
+            .contains { $0 == sameIPv4 }
         let hasIPv6SameAddress = addresses.compactMap { $0 as? IPv6Address }
-            .contains { $0 == ApplicationConfiguration.sameIPv6 }
+            .contains { $0 == sameIPv6 }
 
         let isUsingSameIP = (hasIPv4SameAddress || hasIPv6SameAddress) ? "" : "NOT "
         logger.debug("Same IP is \(isUsingSameIP)being used")
