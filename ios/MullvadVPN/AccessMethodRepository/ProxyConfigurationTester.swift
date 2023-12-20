@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import MullvadSettings
 
 /// A concrete implementation of an access method proxy configuration.
 class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {

@@ -81,10 +81,7 @@ public final class TransportProvider: RESTTransportProvider {
     private func socks5() -> RESTTransport? {
         return URLSessionSocks5Transport(
             urlSession: urlSessionTransport.urlSession,
-            configuration: Socks5Configuration(proxyEndpoint: AnyIPEndpoint.ipv4(IPv4Endpoint(
-                ip: .loopback,
-                port: 8889
-            ))),
+            configuration: Socks5Configuration(address: .ipv4(.loopback), port: 8889),
             addressCache: addressCache
         )
     }
@@ -113,8 +110,8 @@ public final class TransportProvider: RESTTransportProvider {
         guard let bridgeAddress = closestRelay?.ipv4AddrIn, let bridgeConfiguration else { throw POSIXError(.ENOENT) }
 
         let newConfiguration = ShadowsocksConfiguration(
-            bridgeAddress: bridgeAddress,
-            bridgePort: bridgeConfiguration.port,
+            address: .ipv4(bridgeAddress),
+            port: bridgeConfiguration.port,
             password: bridgeConfiguration.password,
             cipher: bridgeConfiguration.cipher
         )

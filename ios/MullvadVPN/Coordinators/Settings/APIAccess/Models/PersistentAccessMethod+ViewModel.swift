@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 
 extension PersistentAccessMethod {
     /// Convert persistent model into view model.

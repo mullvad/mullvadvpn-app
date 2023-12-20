@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import MullvadSettings
 
 struct AddAccessMethodInteractor: AddAccessMethodInteractorProtocol {
     let subject: CurrentValueSubject<AccessMethodViewModel, Never>
