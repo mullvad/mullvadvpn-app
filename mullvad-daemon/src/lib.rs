@@ -180,6 +180,7 @@ pub enum Error {
     #[error(display = "Access method error")]
     AccessMethodError(#[error(source)] access_method::Error),
 
+    // TODO(markus): This error variant should probably be re-named.
     #[error(display = "API connection mode error")]
     ApiConnectionModeError(#[error(source)] api::Error),
 
@@ -696,17 +697,15 @@ where
         let connection_modes = settings.api_access_methods.collect_enabled();
         let connection_modes_address_cache = api_runtime.address_cache.clone();
 
-        let api::SpawnResult {
-            handle: connection_modes_handler,
-            initial_api_endpoint,
-        } = api::AccessModeSelector::spawn(
+        let connection_modes_handler = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
             connection_modes,
             internal_event_tx.to_specialized_sender(),
             connection_modes_address_cache.clone(),
         )
-        .await;
+        .await
+        .map_err(Error::ApiConnectionModeError)?;
 
         let api_handle = api_runtime
             .mullvad_rest_handle(Box::pin(connection_modes_handler.clone().into_stream()))
@@ -778,6 +777,11 @@ where
             let _ = param_gen_tx.unbounded_send(settings.tunnel_options.to_owned());
         });
 
+        let initial_api_endpoint = connection_modes_handler
+            .get_current()
+            .await
+            .map_err(Error::ApiConnectionModeError)?
+            .endpoint;
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
