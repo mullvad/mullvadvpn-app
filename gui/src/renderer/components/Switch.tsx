@@ -16,13 +16,13 @@ interface IProps {
 
 const SwitchContainer = styled.div<{ disabled: boolean }>((props) => ({
   position: 'relative',
-  width: '48px',
-  height: '30px',
+  width: '34px',
+  height: '22px',
   borderColor: props.disabled ? colors.white20 : colors.white80,
   borderWidth: '2px',
   borderStyle: 'solid',
-  borderRadius: '16px',
-  padding: '2px',
+  borderRadius: '11px',
+  padding: '1px',
 }));
 
 const Knob = styled.div<{ $isOn: boolean; disabled: boolean }>((props) => {
@@ -33,14 +33,14 @@ const Knob = styled.div<{ $isOn: boolean; disabled: boolean }>((props) => {
 
   return {
     position: 'absolute',
-    height: '22px',
-    borderRadius: '11px',
+    height: '16px',
+    borderRadius: '8px',
     transition: 'all 200ms linear',
-    width: '22px',
+    width: '16px',
     backgroundColor,
-    // When enabled the button should be placed all the way to the right (100%) minus padding (2px)
-    // minus it's own width (22px).
-    left: props.$isOn ? 'calc(100% - 2px - 22px)' : '2px',
+    // When enabled the button should be placed all the way to the right (100%) minus padding (1px)
+    // minus it's own width (16px).
+    left: props.$isOn ? 'calc(100% - 1px - 16px)' : '1px',
   };
 });
 
