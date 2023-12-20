@@ -1324,29 +1324,23 @@ where
     }
 
     async fn handle_access_method_event(&mut self, event: NewAccessMethodEvent) {
-        let NewAccessMethodEvent {
-            settings,
-            endpoint,
-            announce,
-            update_finished_tx,
-        } = event;
-        let mut event_listener_handle = if announce {
+        let mut maybe_event_listener = if event.announce {
             Some(self.event_listener.clone())
         } else {
             None
         };
         let (completion_tx, completion_rx) = oneshot::channel();
         // update the firewall.
-        self.send_tunnel_command(TunnelCommand::AllowEndpoint(endpoint, completion_tx));
+        self.send_tunnel_command(TunnelCommand::AllowEndpoint(event.endpoint, completion_tx));
         tokio::spawn(async move {
             // Wait for the firewall policy to be updated.
             let _ = completion_rx.await;
             // Notify clients about the change if necessary.
-            if let Some(x) = event_listener_handle.take() {
-                x.notify_new_access_method_event(settings);
+            if let Some(event_listener) = maybe_event_listener.take() {
+                event_listener.notify_new_access_method_event(event.settings);
             }
             // Let the emitter of this event know that the firewall has been updated.
-            let _ = update_finished_tx.send(());
+            let _ = event.update_finished_tx.send(());
         });
     }
 
