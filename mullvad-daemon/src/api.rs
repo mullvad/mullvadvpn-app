@@ -201,7 +201,7 @@ impl AccessModeSelector {
         let initial_connection_mode = {
             // TODO(markus): Unwrap? :no-thanks:
             let next = connection_modes.next().unwrap();
-            Self::resolve_internal(&next, &relay_selector, &address_cache).await
+            Self::resolve_internal(next, &relay_selector, &address_cache).await
         };
         let initial_api_endpoint = initial_connection_mode.endpoint.clone();
 
@@ -277,7 +277,7 @@ impl AccessModeSelector {
     async fn next_connection_mode(&mut self) -> ApiConnectionMode {
         let access_method = self.connection_modes.next().unwrap();
         let next = {
-            let resolved = self.resolve(&access_method).await;
+            let resolved = self.resolve(access_method).await;
             self.current = resolved.clone();
             let ResolvedConnectionMode {
                 setting: settings,
@@ -323,16 +323,16 @@ impl AccessModeSelector {
         tx: ResponseTx<ResolvedConnectionMode>,
         setting: AccessMethodSetting,
     ) -> Result<()> {
-        let reply = self.resolve(&setting).await;
+        let reply = self.resolve(setting).await;
         self.reply(tx, reply)
     }
 
-    async fn resolve(&mut self, access_method: &AccessMethodSetting) -> ResolvedConnectionMode {
+    async fn resolve(&mut self, access_method: AccessMethodSetting) -> ResolvedConnectionMode {
         Self::resolve_internal(access_method, &self.relay_selector, &self.address_cache).await
     }
 
     async fn resolve_internal(
-        access_method: &AccessMethodSetting,
+        access_method: AccessMethodSetting,
         relay_selector: &RelaySelector,
         address_cache: &AddressCache,
     ) -> ResolvedConnectionMode {
@@ -343,7 +343,7 @@ impl AccessModeSelector {
         ResolvedConnectionMode {
             connection_mode,
             endpoint,
-            setting: access_method.clone(),
+            setting: access_method,
         }
     }
 }
