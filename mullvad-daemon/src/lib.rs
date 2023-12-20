@@ -1242,23 +1242,28 @@ where
     }
 
     async fn handle_access_method_event(&mut self, event: NewAccessMethodEvent) {
+        let (completion_tx, completion_rx) = oneshot::channel();
+        // update the firewall.
+        self.send_tunnel_command(TunnelCommand::AllowEndpoint(event.endpoint, completion_tx));
+        // If the `NewAccessMethodEvent` should be announced to any client
+        // listening for updates of the currently active access method, we need
+        // to clone the handle to the broadcaster of such events. The
+        // announcement should be made after the firewall policy has been
+        // updated, since the new access method will be useless before then.
         let mut maybe_event_listener = if event.announce {
             Some(self.event_listener.clone())
         } else {
             None
         };
-        let (completion_tx, completion_rx) = oneshot::channel();
-        // update the firewall.
-        self.send_tunnel_command(TunnelCommand::AllowEndpoint(event.endpoint, completion_tx));
         tokio::spawn(async move {
             // Wait for the firewall policy to be updated.
             let _ = completion_rx.await;
-            // Notify clients about the change if necessary.
-            if let Some(event_listener) = maybe_event_listener.take() {
-                event_listener.notify_new_access_method_event(event.settings);
-            }
             // Let the emitter of this event know that the firewall has been updated.
             let _ = event.update_finished_tx.send(());
+            // Notify clients about the change if necessary.
+            if let Some(event_listener) = maybe_event_listener.take() {
+                event_listener.notify_new_access_method_event(event.setting);
+            }
         });
     }
 
@@ -2430,7 +2435,7 @@ where
                     let (update_finished_tx, update_finished_rx) = oneshot::channel();
                     let event = api::NewAccessMethodEvent {
                         endpoint,
-                        settings: setting,
+                        setting,
                         // Do not emit this event to clients.
                         announce: false,
                         update_finished_tx,
@@ -2460,7 +2465,7 @@ where
                     let (update_finished_tx, update_finished_rx) = oneshot::channel();
                     let event = api::NewAccessMethodEvent {
                         endpoint,
-                        settings: setting,
+                        setting,
                         // Do not emit this event to clients.
                         announce: false,
                         update_finished_tx,

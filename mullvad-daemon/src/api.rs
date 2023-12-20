@@ -31,26 +31,41 @@ pub enum Message {
 }
 
 // TODO(markus): Create a builder for this
-// TODO(markus): Document. See `AppVersionInfo` for an example of good docs.
-/// Emitted when the active access method changes.
+/// A [`NewAccessMethodEvent`] is emitted when the active access method changes.
+/// Which access method that should be active at any given time is decided by
+/// the [`AccessModeSelector`] spawned when the daemon starts.
+///
+/// This event is emitted in two scenarios:
+/// * When the
 pub struct NewAccessMethodEvent {
-    pub settings: AccessMethodSetting,
+    /// The new active [`AccessMethodSetting`].
+    pub setting: AccessMethodSetting,
+    /// The endpoint which represents how to connect to the Mullvad API and
+    /// which clients are allowed to initiate such a connection.
     pub endpoint: AllowedEndpoint,
     /// If the daemon should notify clients about the new access method.
     pub announce: bool,
     /// It is up to the daemon to actually allow traffic to/from
     /// `api_endpoint` by updating the firewall. This `Sender` allows the
     /// daemon to communicate when that action is done.
-    //TODO(markus): Can this be converted to a oneshot?
     pub update_finished_tx: oneshot::Sender<()>,
 }
 
-// TODO(markus): Comment this struct
+/// This struct represent a concrete API endpoint (in the form of an
+/// [`ApiConnectionMode`] and [`AllowedEndpoint`]) which has been derived from
+/// some [`AccessMethodSetting`] (most likely the currently active access
+/// method). These logically related values are sometimes useful to group
+/// together into one value, which is encoded by [`ResolvedConnectionMode`].
 #[derive(Clone)]
 pub struct ResolvedConnectionMode {
+    /// The connection strategy to be used by the `mullvad-api` crate when
+    /// initialzing API requests.
     pub connection_mode: ApiConnectionMode,
+    /// The actual endpoint of the Mullvad API and which clients should be
+    /// allowed to initialize a connection to this endpoint.
     pub endpoint: AllowedEndpoint,
-    /// This is the setting which was resolved into `connection_mode` and `endpoint`.
+    /// This is the [`AccessMethodSetting`] which resolved into
+    /// `connection_mode` and `endpoint`.
     pub setting: AccessMethodSetting,
 }
 
@@ -285,7 +300,7 @@ impl AccessModeSelector {
 
             let (update_finished_tx, update_finished_rx) = oneshot::channel();
             let event = NewAccessMethodEvent {
-                settings,
+                setting: settings,
                 endpoint,
                 update_finished_tx,
                 announce: true,
