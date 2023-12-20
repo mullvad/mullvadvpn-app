@@ -182,13 +182,6 @@ pub struct AccessModeSelector {
     current: ResolvedConnectionMode,
 }
 
-// TODO(markus): Document this! It was created to get an initial api endpoint in
-// a more straight-forward way.
-pub(crate) struct SpawnResult {
-    pub handle: AccessModeSelectorHandle,
-    pub initial_api_endpoint: AllowedEndpoint,
-}
-
 impl AccessModeSelector {
     pub(crate) async fn spawn(
         cache_dir: PathBuf,
@@ -196,7 +189,7 @@ impl AccessModeSelector {
         connection_modes: Vec<AccessMethodSetting>,
         listener: impl Sender<NewAccessMethodEvent> + Send + 'static,
         address_cache: AddressCache,
-    ) -> SpawnResult {
+    ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
         let mut connection_modes = match ConnectionModesIterator::new(connection_modes) {
@@ -212,11 +205,9 @@ impl AccessModeSelector {
         };
 
         let initial_connection_mode = {
-            // TODO(markus): Unwrap? :no-thanks:
-            let next = connection_modes.next().unwrap();
+            let next = connection_modes.next().ok_or(Error::NoAccessMethods)?;
             Self::resolve_internal(next, &relay_selector, &address_cache).await
         };
-        let initial_api_endpoint = initial_connection_mode.endpoint.clone();
 
         let selector = AccessModeSelector {
             cmd_rx,
@@ -230,10 +221,7 @@ impl AccessModeSelector {
 
         tokio::spawn(selector.into_future());
 
-        SpawnResult {
-            handle: AccessModeSelectorHandle { cmd_tx },
-            initial_api_endpoint,
-        }
+        Ok(AccessModeSelectorHandle { cmd_tx })
     }
 
     async fn into_future(mut self) {
