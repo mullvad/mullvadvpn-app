@@ -1,0 +1,10 @@
+---
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and issues not directly related to our VPN application
+    about: >
+      If your question is not related to our VPN application specifically,
+      please contact our support team at support@mullvad.net or visit our help center
+      at https://mullvad.net/help instead of filing an issue.
+      This includes questions/issues about our service, infrastructure, DNS and more.
+    url: https://mullvad.net/help
