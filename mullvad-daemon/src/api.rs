@@ -41,7 +41,7 @@ pub enum Message {
 /// * When a [`mullvad_api::rest::RequestService`] requests a new
 /// [`ApiConnectionMode`] from the running [`AccessModeSelector`].
 ///
-/// * When testing some [`AccessMethodSetting`] to see if can be used to
+/// * When testing some [`AccessMethodSetting`] to see if it can be used to
 /// successfully reach the Mullvad API. This will temporarily switch the
 /// currently active access method, but since this is just a test it should not
 /// produce any unwanted noise for clients.
