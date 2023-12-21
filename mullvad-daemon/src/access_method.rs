@@ -106,9 +106,6 @@ where
             .set_access_method(access_method)
             .await?;
         // Force a rotation of Access Methods.
-        //
-        // This is not a call to `process_command` due to the restrictions on
-        // recursively calling async functions.
         self.force_api_endpoint_rotation().await
     }
 
