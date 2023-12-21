@@ -30,13 +30,21 @@ pub enum Message {
     Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
 }
 
-// TODO(markus): Create a builder for this
 /// A [`NewAccessMethodEvent`] is emitted when the active access method changes.
 /// Which access method that should be active at any given time is decided by
 /// the [`AccessModeSelector`] spawned when the daemon starts.
 ///
-/// This event is emitted in two scenarios:
-/// * When the
+/// This event may eventually lead to a
+/// [`mullvad_management_interface::client::DaemonEvent::NewAccessMethod`] to be
+/// broadcasted to clients. The event is emitted in two scenarios:
+///
+/// * When a [`mullvad_api::rest::RequestService`] requests a new
+/// [`ApiConnectionMode`] from the running [`AccessModeSelector`].
+///
+/// * When testing some [`AccessMethodSetting`] to see if can be used to
+/// successfully reach the Mullvad API. This will temporarily switch the
+/// currently active access method, but since this is just a test it should not
+/// produce any unwanted noise for clients.
 pub struct NewAccessMethodEvent {
     /// The new active [`AccessMethodSetting`].
     pub setting: AccessMethodSetting,
@@ -49,6 +57,26 @@ pub struct NewAccessMethodEvent {
     /// `api_endpoint` by updating the firewall. This `Sender` allows the
     /// daemon to communicate when that action is done.
     pub update_finished_tx: oneshot::Sender<()>,
+}
+
+impl NewAccessMethodEvent {
+    /// Create a new [`NewAccessMethodEvent`] for the daemon to process. A
+    /// [`oneshot::Receiver`] can be used to await the daemon while it finishes
+    /// handling the new event.
+    pub fn new(
+        setting: AccessMethodSetting,
+        endpoint: AllowedEndpoint,
+        announce: bool,
+    ) -> (NewAccessMethodEvent, oneshot::Receiver<()>) {
+        let (update_finished_tx, update_finished_rx) = oneshot::channel();
+        let event = NewAccessMethodEvent {
+            setting,
+            endpoint,
+            update_finished_tx,
+            announce,
+        };
+        (event, update_finished_rx)
+    }
 }
 
 /// This struct represent a concrete API endpoint (in the form of an
@@ -94,9 +122,7 @@ pub struct AccessModeSelectorHandle {
 impl AccessModeSelectorHandle {
     async fn send_command<T>(&self, make_cmd: impl FnOnce(ResponseTx<T>) -> Message) -> Result<T> {
         let (tx, rx) = oneshot::channel();
-        self.cmd_tx
-            .unbounded_send(make_cmd(tx))
-            .map_err(Error::SendFailed)?;
+        self.cmd_tx.unbounded_send(make_cmd(tx))?;
         rx.await.map_err(Error::NotRunning)?
     }
 
@@ -144,9 +170,8 @@ impl AccessModeSelectorHandle {
     /// Convert this handle to a [`Stream`] of [`ApiConnectionMode`] from the
     /// associated [`AccessModeSelector`].
     ///
-    /// Practically converts the handle to a listener for when the currently
-    /// valid connection modes changes. Calling `next` on this stream will poll
-    /// for the next access method, which is produced by calling `next`.
+    /// Calling `next` on this stream will poll for the next access method,
+    /// which will be lazily produced (on-demand rather than speculatively).
     pub fn into_stream(self) -> impl Stream<Item = ApiConnectionMode> {
         futures::stream::unfold(self, |handle| async move {
             match handle.next().await {
@@ -271,30 +296,22 @@ impl AccessModeSelector {
     }
 
     async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
-        let next = self.next_connection_mode().await;
+        let next = self.next_connection_mode().await?;
         self.reply(tx, next)
     }
 
-    async fn next_connection_mode(&mut self) -> ApiConnectionMode {
-        let access_method = self.connection_modes.next().unwrap();
+    async fn next_connection_mode(&mut self) -> Result<ApiConnectionMode> {
+        let access_method = self.connection_modes.next().ok_or(Error::NoAccessMethods)?;
         let next = {
             let resolved = self.resolve(access_method).await;
-            self.current = resolved.clone();
-            let ResolvedConnectionMode {
-                setting: settings,
-                endpoint,
-                ..
-            } = resolved.clone();
-
-            let (update_finished_tx, update_finished_rx) = oneshot::channel();
-            let event = NewAccessMethodEvent {
-                setting: settings,
-                endpoint,
-                update_finished_tx,
-                announce: true,
-            };
+            let (event, update_finished_rx) = NewAccessMethodEvent::new(
+                resolved.setting.clone(),
+                resolved.endpoint.clone(),
+                true,
+            );
             let _ = self.listener.send(event);
             let _ = update_finished_rx.await;
+            self.current = resolved.clone();
             resolved
         };
 
@@ -311,7 +328,7 @@ impl AccessModeSelector {
                 }
             });
         }
-        next.connection_mode
+        Ok(next.connection_mode)
     }
     fn on_update_access_methods(
         &mut self,
