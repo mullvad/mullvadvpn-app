@@ -180,7 +180,6 @@ pub enum Error {
     #[error(display = "Access method error")]
     AccessMethodError(#[error(source)] access_method::Error),
 
-    // TODO(markus): This error variant should probably be re-named.
     #[error(display = "API connection mode error")]
     ApiConnectionModeError(#[error(source)] api::Error),
 
