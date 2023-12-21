@@ -2513,13 +2513,13 @@ where
                     let _ = daemon_event_sender.send(event);
                     let _ = update_finished_rx.await;
 
-                    log::info!(
-                        "The result of testing {method:?} is {result}",
-                        method = access_method.access_method,
+                    log::debug!(
+                        "API access method {method} {result}",
+                        method = access_method.name,
                         result = if result.as_ref().is_ok_and(|is_true| *is_true) {
-                            "success".to_string()
+                            "could successfully connect to the Mullvad API".to_string()
                         } else {
-                            "failed".to_string()
+                            "could not connect to the Mullvad API".to_string()
                         }
                     );
 
