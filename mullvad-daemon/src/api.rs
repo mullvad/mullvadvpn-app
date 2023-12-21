@@ -397,17 +397,13 @@ fn resolve_connection_mode(
             BuiltInAccessMethod::Bridge => relay_selector
                 .get_bridge_forced()
                 .and_then(|settings| match settings {
-                    ProxySettings::Shadowsocks(settings) => {
-                        let shadowsocks: access_method::Shadowsocks =
-                            access_method::Shadowsocks::new(
-                                settings.peer,
-                                settings.cipher,
-                                settings.password,
-                            );
-                        Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                            shadowsocks,
-                        )))
-                    }
+                    ProxySettings::Shadowsocks(settings) => Some(ApiConnectionMode::Proxied(
+                        ProxyConfig::Shadowsocks(access_method::Shadowsocks::new(
+                            settings.peer,
+                            settings.cipher,
+                            settings.password,
+                        )),
+                    )),
                     _ => {
                         log::error!("Received unexpected proxy settings type");
                         None
