@@ -18,10 +18,6 @@ pub struct StatusArgs {
     #[arg(long, short = 'v')]
     verbose: bool,
 
-    /// Print the current location and IP, based on GeoIP lookups
-    #[arg(long, short = 'l')]
-    location: bool,
-
     /// Enable debug output
     #[arg(long, short = 'd')]
     debug: bool,
@@ -29,22 +25,29 @@ pub struct StatusArgs {
 
 impl Status {
     pub async fn listen(mut rpc: MullvadProxyClient, args: StatusArgs) -> Result<()> {
+        let mut previous_tunnel_state = None;
+
         while let Some(event) = rpc.events_listen().await?.next().await {
             match event? {
                 DaemonEvent::TunnelState(new_state) => {
                     if args.debug {
                         println!("New tunnel state: {new_state:#?}");
                     } else {
-                        format::print_state(&new_state, args.verbose);
-                    }
-
-                    match new_state {
-                        TunnelState::Connected { .. } | TunnelState::Disconnected => {
-                            if args.location {
-                                print_location(&mut rpc).await?;
-                            }
+                        // When we enter the connected or disconnected state, am.i.mullvad.net will
+                        // be polled to get IP information. When it arrives, we will get another
+                        // tunnel state of the same enum type, but with the IP filled in. This
+                        // match statement checks for duplicate tunnel states and skips the second
+                        // print to avoid spamming the user.
+                        match (&previous_tunnel_state, &new_state) {
+                            (Some(TunnelState::Disconnected(_)), TunnelState::Disconnected(_))
+                            | (
+                                Some(TunnelState::Connected { .. }),
+                                TunnelState::Connected { .. },
+                            ) => continue,
+                            _ => {}
                         }
-                        _ => {}
+                        format::print_state(&new_state, args.verbose);
+                        previous_tunnel_state = Some(new_state);
                     }
                 }
                 DaemonEvent::Settings(settings) => {
@@ -89,40 +92,12 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
         println!("Tunnel state: {state:#?}");
     } else {
         format::print_state(&state, args.verbose);
-    }
-
-    if args.location {
-        print_location(&mut rpc).await?;
+        format::print_location(&state);
     }
 
     if cmd == Some(Status::Listen) {
         Status::listen(rpc, args).await?;
     }
-    Ok(())
-}
-
-async fn print_location(rpc: &mut MullvadProxyClient) -> Result<()> {
-    let location = match rpc.get_current_location().await {
-        Ok(location) => location,
-        Err(error) => match &error {
-            mullvad_management_interface::Error::NoLocationData => {
-                println!("Location data unavailable");
-                return Ok(());
-            }
-            _ => return Err(error.into()),
-        },
-    };
-    if let Some(ipv4) = location.ipv4 {
-        println!("IPv4: {ipv4}");
-    }
-    if let Some(ipv6) = location.ipv6 {
-        println!("IPv6: {ipv6}");
-    }
-
-    println!(
-        "Position: {:.5}°N, {:.5}°W",
-        location.latitude, location.longitude
-    );
     Ok(())
 }
 
@@ -137,6 +112,6 @@ fn print_account_loggedout(state: &TunnelState, device: &DeviceState) {
                 DeviceState::LoggedIn(_) => (),
             }
         }
-        TunnelState::Disconnected | TunnelState::Disconnecting(_) => (),
+        TunnelState::Disconnected(_) | TunnelState::Disconnecting(_) => (),
     }
 }

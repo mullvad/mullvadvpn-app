@@ -18,7 +18,7 @@ import net.mullvad.talpid.tunnel.ErrorStateCause
 private fun PreviewConnectionStatusText() {
     AppTheme {
         SpacedColumn {
-            ConnectionStatusText(TunnelState.Disconnected)
+            ConnectionStatusText(TunnelState.Disconnected())
             ConnectionStatusText(TunnelState.Connecting(null, null))
             ConnectionStatusText(
                 state = TunnelState.Error(ErrorState(ErrorStateCause.Ipv6Unavailable, true))

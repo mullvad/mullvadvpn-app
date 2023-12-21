@@ -181,6 +181,13 @@ impl From<AmIMullvad> for GeoIpLocation {
     }
 }
 
+pub struct LocationEventData {
+    /// Keep track of which request led to this event being triggered
+    pub request_id: usize,
+    /// New location information
+    pub location: GeoIpLocation,
+}
+
 #[cfg(test)]
 mod tests {
     use super::Coordinates;

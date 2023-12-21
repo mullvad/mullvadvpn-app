@@ -3,7 +3,6 @@ use mullvad_daemon::{device, DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
     account::{AccountData, AccountToken, PlayPurchase, VoucherSubmission},
     device::{Device, DeviceState},
-    location::GeoIpLocation,
     relay_constraints::{ObfuscationSettings, RelaySettings},
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
@@ -113,14 +112,6 @@ impl DaemonInterface {
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
             .map_err(Error::from)
-    }
-
-    pub fn get_current_location(&self) -> Result<Option<GeoIpLocation>> {
-        let (tx, rx) = oneshot::channel();
-
-        self.send_command(DaemonCommand::GetCurrentLocation(tx))?;
-
-        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn get_current_version(&self) -> Result<String> {

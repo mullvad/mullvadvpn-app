@@ -60,7 +60,7 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
                     subscribeToState(
                         Event.TunnelStateChange::class,
                         scope,
-                        TunnelState.Disconnected
+                        TunnelState.Disconnected()
                     ) {
                         tunnelState
                     }

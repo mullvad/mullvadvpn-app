@@ -105,7 +105,7 @@ class DeviceRevokedViewModelTest {
         // Arrange
         val mockedContainer =
             mockk<ServiceConnectionContainer>().also {
-                every { it.connectionProxy.state } returns TunnelState.Disconnected
+                every { it.connectionProxy.state } returns TunnelState.Disconnected()
                 every { it.connectionProxy.disconnect() } just Runs
                 every { mockedAccountRepository.logout() } just Runs
             }
