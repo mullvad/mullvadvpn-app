@@ -231,7 +231,7 @@ impl AccessModeSelector {
 
         let initial_connection_mode = {
             let next = connection_modes.next().ok_or(Error::NoAccessMethods)?;
-            Self::resolve_internal(next, &relay_selector, &address_cache).await
+            Self::resolve_inner(next, &relay_selector, &address_cache).await
         };
 
         let selector = AccessModeSelector {
@@ -363,10 +363,10 @@ impl AccessModeSelector {
     }
 
     async fn resolve(&mut self, access_method: AccessMethodSetting) -> ResolvedConnectionMode {
-        Self::resolve_internal(access_method, &self.relay_selector, &self.address_cache).await
+        Self::resolve_inner(access_method, &self.relay_selector, &self.address_cache).await
     }
 
-    async fn resolve_internal(
+    async fn resolve_inner(
         access_method: AccessMethodSetting,
         relay_selector: &RelaySelector,
         address_cache: &AddressCache,
