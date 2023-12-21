@@ -302,6 +302,10 @@ impl AccessModeSelector {
 
     async fn next_connection_mode(&mut self) -> Result<ApiConnectionMode> {
         let access_method = self.connection_modes.next().ok_or(Error::NoAccessMethods)?;
+        log::info!(
+            "A new API access method has been selected: {name}",
+            name = access_method.name
+        );
         let next = {
             let resolved = self.resolve(access_method).await;
             let (event, update_finished_rx) = NewAccessMethodEvent::new(

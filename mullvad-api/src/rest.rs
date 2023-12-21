@@ -193,7 +193,6 @@ impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestServic
                 if force_direct_connection {
                     log::debug!("Ignoring API connection mode");
                 } else if let Some(connection_mode) = self.proxy_config_provider.next().await {
-                    log::warn!("Getting next API connection mode ..");
                     self.connector_handle.set_connection_mode(connection_mode);
                 }
 
