@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import UIKit
 
 /// Type implementing the access method protocol picker.

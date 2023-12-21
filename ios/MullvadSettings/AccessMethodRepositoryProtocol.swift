@@ -9,10 +9,12 @@
 import Combine
 import Foundation
 
-protocol AccessMethodRepositoryProtocol {
+public protocol AccessMethodRepositoryDataSource {
     /// Publisher that propagates a snapshot of persistent store upon modifications.
-    var publisher: PassthroughSubject<[PersistentAccessMethod], Never> { get }
+    var publisher: AnyPublisher<[PersistentAccessMethod], Never> { get }
+}
 
+public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource {
     /// Add new access method.
     /// - Parameter method: persistent access method model.
     func add(_ method: PersistentAccessMethod)

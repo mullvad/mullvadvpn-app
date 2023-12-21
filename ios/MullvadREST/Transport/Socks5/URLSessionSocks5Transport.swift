@@ -45,7 +45,7 @@ public class URLSessionSocks5Transport: RESTTransport {
         let apiAddress = addressCache.getCurrentEndpoint()
 
         socksProxy = Socks5ForwardingProxy(
-            socksProxyEndpoint: configuration.proxyEndpoint.nwEndpoint,
+            socksProxyEndpoint: configuration.nwEndpoint,
             remoteServerEndpoint: apiAddress.socksEndpoint
         )
 

@@ -8,14 +8,25 @@
 
 import Foundation
 import MullvadTypes
+import Network
 
 /// Socks5 configuration.
 /// - See: ``URLSessionSocks5Transport``
 public struct Socks5Configuration {
-    /// The socks proxy endpoint.
-    public var proxyEndpoint: AnyIPEndpoint
+    public let address: AnyIPAddress
+    public let port: UInt16
 
-    public init(proxyEndpoint: AnyIPEndpoint) {
-        self.proxyEndpoint = proxyEndpoint
+    public init(address: AnyIPAddress, port: UInt16) {
+        self.address = address
+        self.port = port
+    }
+
+    var nwEndpoint: NWEndpoint {
+        switch self.address {
+        case let .ipv4(endpoint):
+            .hostPort(host: .ipv4(endpoint), port: NWEndpoint.Port(integerLiteral: port))
+        case let .ipv6(endpoint):
+            .hostPort(host: .ipv6(endpoint), port: NWEndpoint.Port(integerLiteral: port))
+        }
     }
 }
