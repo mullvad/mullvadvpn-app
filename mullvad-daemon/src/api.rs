@@ -308,13 +308,19 @@ impl AccessModeSelector {
         );
         let next = {
             let resolved = self.resolve(access_method).await;
-            let (event, update_finished_rx) = NewAccessMethodEvent::new(
+            // Note: If the daemon is busy waiting for a call to this function
+            // to complete while we wait for the daemon to fully handle this
+            // `NewAccessMethodEvent`, then we find ourselves in a deadlock.
+            // This can happen during daemon startup when spawning a new
+            // `MullvadRestHandle`, which will call and await `next` on a Stream
+            // created from this `AccessModeSelector` instance. As such, the
+            // completion channel is discarded in this instance.
+            let (event, _) = NewAccessMethodEvent::new(
                 resolved.setting.clone(),
                 resolved.endpoint.clone(),
                 true,
             );
             let _ = self.listener.send(event);
-            let _ = update_finished_rx.await;
             self.current = resolved.clone();
             resolved
         };
