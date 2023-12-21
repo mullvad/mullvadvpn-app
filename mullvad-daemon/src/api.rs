@@ -87,7 +87,7 @@ impl NewAccessMethodEvent {
 #[derive(Clone)]
 pub struct ResolvedConnectionMode {
     /// The connection strategy to be used by the `mullvad-api` crate when
-    /// initialzing API requests.
+    /// initializing API requests.
     pub connection_mode: ApiConnectionMode,
     /// The actual endpoint of the Mullvad API and which clients should be
     /// allowed to initialize a connection to this endpoint.
