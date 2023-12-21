@@ -954,7 +954,7 @@ where
                 self.handle_new_app_version_info(app_version_info);
             }
             DeviceEvent(event) => self.handle_device_event(event).await,
-            AccessMethodEvent(event) => self.handle_access_method_event(event).await,
+            AccessMethodEvent(event) => self.handle_access_method_event(event),
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
@@ -1244,7 +1244,7 @@ where
         }
     }
 
-    async fn handle_access_method_event(&mut self, event: NewAccessMethodEvent) {
+    fn handle_access_method_event(&mut self, event: NewAccessMethodEvent) {
         let (completion_tx, completion_rx) = oneshot::channel();
         // update the firewall.
         self.send_tunnel_command(TunnelCommand::AllowEndpoint(event.endpoint, completion_tx));
@@ -2406,7 +2406,6 @@ where
         });
     }
 
-    // TODO(markus): See if this can be made sync again.
     async fn on_test_api_access_method(
         &mut self,
         tx: ResponseTx<bool, Error>,
@@ -2419,38 +2418,37 @@ where
         match access_method_lookup {
             Ok(access_method) => {
                 let access_method_selector = self.connection_modes_handler.clone();
-                // Create a stream of the access method to test.
+
                 let api::ResolvedConnectionMode {
                     connection_mode,
                     endpoint,
                     setting,
-                } = access_method_selector
-                    .resolve(access_method.clone())
-                    .await
-                    // TODO(markus): Do not unwrap!
-                    .unwrap();
+                } = match access_method_selector.resolve(access_method.clone()).await {
+                    Ok(v) => v,
+                    Err(err) => {
+                        Self::oneshot_send(
+                            tx,
+                            Err(Error::ApiConnectionModeError(err)),
+                            "on_test_api_access_method response",
+                        );
+                        return;
+                    }
+                };
+
                 let proxy_provider = connection_mode.into_repeat();
-                let api_handle = self.api_runtime.mullvad_rest_handle(proxy_provider).await;
+                let rest_handle = self.api_runtime.mullvad_rest_handle(proxy_provider).await;
+                let api_proxy = mullvad_api::ApiProxy::new(rest_handle);
                 let daemon_event_sender = self.tx.to_specialized_sender();
 
                 tokio::spawn(async move {
                     // Send an internal daemon event which will punch a hole in the firewall for the connection mode we are testing.
-                    let (update_finished_tx, update_finished_rx) = oneshot::channel();
-                    let event = api::NewAccessMethodEvent {
-                        endpoint,
-                        setting,
-                        // Do not emit this event to clients.
-                        announce: false,
-                        update_finished_tx,
-                    };
+                    let (event, update_finished_rx) =
+                        api::NewAccessMethodEvent::new(setting, endpoint, false);
 
                     // Wait on the daemon to finish.
                     let _ = daemon_event_sender.send(event);
                     let _ = update_finished_rx.await;
 
-                    let api_proxy = mullvad_api::ApiProxy::new(api_handle);
-                    // Perform test
-                    //
                     // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
                     // request because we are *only* concerned with if we get a reply from
                     // the API, and not with the actual data that the endpoint returns.
@@ -2460,19 +2458,22 @@ where
                         .map_err(Error::RestError);
 
                     // Tell the daemon to reset the hole we just punched to whatever was in place before.
-
-                    // TODO(markus): Do not unwrap
                     let api::ResolvedConnectionMode {
                         endpoint, setting, ..
-                    } = access_method_selector.get_current().await.unwrap();
-                    let (update_finished_tx, update_finished_rx) = oneshot::channel();
-                    let event = api::NewAccessMethodEvent {
-                        endpoint,
-                        setting,
-                        // Do not emit this event to clients.
-                        announce: false,
-                        update_finished_tx,
+                    } = match access_method_selector.get_current().await {
+                        Ok(v) => v,
+                        Err(err) => {
+                            Self::oneshot_send(
+                                tx,
+                                Err(Error::ApiConnectionModeError(err)),
+                                "on_test_api_access_method response",
+                            );
+                            return;
+                        }
                     };
+                    let (event, update_finished_rx) =
+                        api::NewAccessMethodEvent::new(setting, endpoint, false);
+
                     let _ = daemon_event_sender.send(event);
                     let _ = update_finished_rx.await;
 
