@@ -34,8 +34,8 @@ public final class ShadowsocksTransport: RESTTransport {
         shadowsocksProxy = ShadowsocksProxy(
             forwardAddress: apiAddress.ip,
             forwardPort: apiAddress.port,
-            bridgeAddress: configuration.bridgeAddress,
-            bridgePort: configuration.bridgePort,
+            bridgeAddress: configuration.address,
+            bridgePort: configuration.port,
             password: configuration.password,
             cipher: configuration.cipher
         )
