@@ -263,11 +263,17 @@ mod data {
         }
     }
 
-    impl From<Id> for proto::Uuid {
-        fn from(value: Id) -> Self {
+    impl From<&Id> for proto::Uuid {
+        fn from(value: &Id) -> Self {
             proto::Uuid {
                 value: value.to_string(),
             }
+        }
+    }
+
+    impl From<Id> for proto::Uuid {
+        fn from(value: Id) -> Self {
+            proto::Uuid::from(&value)
         }
     }
 
