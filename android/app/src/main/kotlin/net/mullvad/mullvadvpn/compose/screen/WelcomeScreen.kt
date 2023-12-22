@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -193,7 +192,7 @@ fun WelcomeScreen(
                 .copy(alpha = AlphaTopBar),
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
     ) {
         Column(
             modifier =
@@ -204,7 +203,6 @@ fun WelcomeScreen(
                         state = scrollState,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaScrollbar)
                     )
-                    .background(color = MaterialTheme.colorScheme.primary)
         ) {
             // Welcome info area
             WelcomeInfo(snackbarHostState, uiState, navigateToDeviceInfoDialog)
@@ -352,12 +350,7 @@ private fun PaymentPanel(
     onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
     onPaymentInfoClick: () -> Unit
 ) {
-    Column(
-        modifier =
-            Modifier.fillMaxWidth()
-                .padding(top = Dimens.mediumPadding)
-                .background(color = MaterialTheme.colorScheme.background)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth().padding(top = Dimens.mediumPadding)) {
         Spacer(modifier = Modifier.padding(top = Dimens.screenVerticalMargin))
         billingPaymentState?.let {
             PlayPayment(
