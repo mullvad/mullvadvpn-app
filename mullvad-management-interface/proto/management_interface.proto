@@ -83,7 +83,6 @@ service ManagementService {
   rpc TestApiAccessMethod(UUID) returns (google.protobuf.BoolValue) {}
 
   // Custom proxy
-  rpc RemoveCustomBridge(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc SetCustomBridge(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc UpdateCustomBridge(CustomProxySettings) returns (google.protobuf.Empty) {}
   rpc GetCustomBridge(google.protobuf.Empty) returns (CustomProxySettings) {}

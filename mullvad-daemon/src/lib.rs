@@ -302,8 +302,6 @@ pub enum DaemonCommand {
     /// TODO
     UpdateCustomProxy(ResponseTx<(), Error>, CustomProxySettings),
     /// TODO
-    RemoveCustomProxy(ResponseTx<(), Error>),
-    /// TODO
     SetCustomProxy(ResponseTx<(), Error>),
     /// TODO
     GetCustomProxy(ResponseTx<CustomProxySettings, Error>),
@@ -1231,7 +1229,6 @@ where
             UpdateCustomProxy(tx, custom_proxy) => {
                 self.on_update_custom_proxy(tx, custom_proxy).await
             }
-            RemoveCustomProxy(tx) => self.on_remove_custom_proxy(tx).await,
             SetCustomProxy(tx) => self.on_select_custom_proxy(tx).await,
             GetCustomProxy(tx) => self.on_get_custom_proxy(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
@@ -2481,25 +2478,6 @@ where
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "update_custom_proxy response");
-            }
-        }
-    }
-
-    async fn on_remove_custom_proxy(&mut self, tx: ResponseTx<(), Error>) {
-        match self
-            .settings
-            .update(|settings| {
-                settings.custom_proxy = CustomProxySettings { custom_proxy: None };
-            })
-            .await
-            .map_err(Error::SettingsError)
-        {
-            Ok(_) => {
-                Self::oneshot_send(tx, Ok(()), "remove_custom_proxy response");
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "remove_custom_proxy response");
             }
         }
     }
