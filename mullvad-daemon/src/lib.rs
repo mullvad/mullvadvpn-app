@@ -1336,7 +1336,31 @@ where
         }
     }
 
-    fn handle_access_method_event(&mut self, event: NewAccessMethodEvent) {}
+    fn handle_access_method_event(
+        &mut self,
+        event: NewAccessMethodEvent,
+        endpoint_active_tx: oneshot::Sender<()>,
+    ) {
+        // Update the firewall to exempt a new API endpoint.
+        let (completion_tx, completion_rx) = oneshot::channel();
+        self.send_tunnel_command(TunnelCommand::AllowEndpoint(event.endpoint, completion_tx));
+        // If the `NewAccessMethodEvent` should be announced to any client
+        // listening for updates of the currently active access method, we need
+        // to clone the handle to the broadcaster of such events. The
+        // announcement should be made after the firewall policy has been
+        // updated, since the new access method will be useless before then.
+        let event_listener = self.event_listener.clone();
+        tokio::spawn(async move {
+            // Wait for the firewall policy to be updated.
+            let _ = completion_rx.await;
+            // Let the emitter of this event know that the firewall has been updated.
+            let _ = endpoint_active_tx.send(());
+            // Notify clients about the change if necessary.
+            if event.announce {
+                event_listener.notify_new_access_method_event(event.setting);
+            }
+        });
+    }
 
     fn handle_device_migration_event(
         &mut self,
