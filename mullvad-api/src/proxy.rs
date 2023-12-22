@@ -1,6 +1,5 @@
 use futures::Stream;
 use hyper::client::connect::Connected;
-use mullvad_types::access_method;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt, io,
@@ -8,6 +7,7 @@ use std::{
     pin::Pin,
     task::{self, Poll},
 };
+use talpid_types::net::proxy;
 use talpid_types::{
     net::{AllowedClients, Endpoint, TransportProtocol},
     ErrorExt,
@@ -38,8 +38,8 @@ impl fmt::Display for ApiConnectionMode {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ProxyConfig {
-    Shadowsocks(access_method::Shadowsocks),
-    Socks(access_method::Socks5),
+    Shadowsocks(proxy::Shadowsocks),
+    Socks(proxy::Socks5),
 }
 
 impl ProxyConfig {
@@ -50,8 +50,8 @@ impl ProxyConfig {
                 Endpoint::from_socket_address(shadowsocks.peer, TransportProtocol::Tcp)
             }
             ProxyConfig::Socks(socks) => match socks {
-                access_method::Socks5::Local(local) => local.remote_endpoint,
-                access_method::Socks5::Remote(remote) => {
+                proxy::Socks5::Local(local) => local.remote_endpoint,
+                proxy::Socks5::Remote(remote) => {
                     Endpoint::from_socket_address(remote.peer, TransportProtocol::Tcp)
                 }
             },
@@ -65,8 +65,8 @@ impl fmt::Display for ProxyConfig {
         match self {
             ProxyConfig::Shadowsocks(_) => write!(f, "Shadowsocks {}", endpoint),
             ProxyConfig::Socks(socks) => match socks {
-                access_method::Socks5::Remote(_) => write!(f, "Socks5 {}", endpoint),
-                access_method::Socks5::Local(local) => {
+                proxy::Socks5::Remote(_) => write!(f, "Socks5 {}", endpoint),
+                proxy::Socks5::Local(local) => {
                     write!(f, "Socks5 {} via localhost:{}", endpoint, local.local_port)
                 }
             },
@@ -145,7 +145,7 @@ impl ApiConnectionMode {
 
     #[cfg(unix)]
     pub fn allowed_clients(&self) -> AllowedClients {
-        use access_method::Socks5;
+        use proxy::Socks5;
         match self {
             ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => AllowedClients::All,
             ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => AllowedClients::Root,
@@ -154,7 +154,7 @@ impl ApiConnectionMode {
 
     #[cfg(windows)]
     pub fn allowed_clients(&self) -> AllowedClients {
-        use access_method::Socks5;
+        use proxy::Socks5;
         match self {
             ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => {
                 AllowedClients::all()
