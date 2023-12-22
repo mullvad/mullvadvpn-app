@@ -1,9 +1,9 @@
 use crate::{
-    api::{self, AccessModeSelectorHandle},
+    api,
     settings::{self, MadeChanges},
     Daemon, EventListener,
 };
-use mullvad_api::rest::{self, MullvadRestHandle};
+use mullvad_api::rest;
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,
@@ -224,102 +224,4 @@ where
         };
         self
     }
-
-    /// The semantics of the [`Command`] datastructure.
-    async fn process_command(&mut self, command: Command) -> Result<(), Error> {
-        match command {
-            Command::Nothing => Ok(()),
-            Command::Rotate => self.force_api_endpoint_rotation().await,
-            Command::Set(id) => self.set_api_access_method(id).await,
-        }
-    }
-}
-
-/// Try to reach the Mullvad API using a specific access method, returning
-/// an [`Error`] in the case where the test fails to reach the API.
-///
-/// Ephemerally sets a new access method (associated with `access_method`)
-/// to be used for subsequent API calls, before performing an API call and
-/// switching back to the previously active access method. The previous
-/// access method is *always* reset.
-pub async fn test_access_method(
-    new_access_method: AccessMethodSetting,
-    access_mode_selector: AccessModeSelectorHandle,
-    rest_handle: MullvadRestHandle,
-) -> Result<bool, Error> {
-    // Setup test
-    let previous_access_method = access_mode_selector
-        .get_access_method()
-        .await
-        .map_err(Error::ConnectionMode)?;
-
-    let method_under_test = new_access_method.clone();
-    access_mode_selector
-        .set_access_method(new_access_method)
-        .await
-        .map_err(Error::ConnectionMode)?;
-
-    // We need to perform a rotation of API endpoint after a set action
-    let rotation_handle = rest_handle.clone();
-    rotation_handle
-        .service()
-        .next_api_endpoint()
-        .await
-        .map_err(|err| {
-            log::error!("Failed to rotate API endpoint: {err}");
-            Error::Rest(err)
-        })?;
-
-    // Set up the reset
-    //
-    // In case the API call fails, the next API endpoint will
-    // automatically be selected, which means that we need to set up
-    // with the previous API endpoint beforehand.
-    access_mode_selector
-        .set_access_method(previous_access_method)
-        .await
-        .map_err(|err| {
-            log::error!(
-                "Could not reset to previous access
-            method after API reachability test was carried out. This should only
-            happen if the previous access method was removed in the meantime."
-            );
-            Error::ConnectionMode(err)
-        })?;
-
-    // Perform test
-    //
-    // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
-    // request because we are *only* concerned with if we get a reply from
-    // the API, and not with the actual data that the endpoint returns.
-    let result = mullvad_api::ApiProxy::new(rest_handle)
-        .api_addrs_available()
-        .await
-        .map_err(Error::Rest)?;
-
-    // We need to perform a rotation of API endpoint after a set action
-    // Note that this will be done automatically if the API call fails,
-    // so it only has to be done if the call succeeded ..
-    if result {
-        rotation_handle
-            .service()
-            .next_api_endpoint()
-            .await
-            .map_err(|err| {
-                log::error!("Failed to rotate API endpoint: {err}");
-                Error::Rest(err)
-            })?;
-    }
-
-    log::info!(
-        "The result of testing {method:?} is {result}",
-        method = method_under_test.access_method,
-        result = if result {
-            "success".to_string()
-        } else {
-            "failed".to_string()
-        }
-    );
-
-    Ok(result)
 }
