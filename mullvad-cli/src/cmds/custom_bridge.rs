@@ -1,12 +1,11 @@
 use anyhow::Result;
-use clap::{Subcommand, Args};
-use std::net::SocketAddr;
+use clap::Subcommand;
 
+use super::proxies::{EditParams, ShadowsocksAdd, Socks5LocalAdd, Socks5RemoteAdd};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::relay_constraints::BridgeSettings;
-use talpid_types::net::openvpn;
-
-use super::proxies::{ShadowsocksAdd, Socks5LocalAdd, Socks5RemoteAdd, SelectItem, EditParams};
+use talpid_types::net::proxy::{
+    CustomProxy, CustomProxySettings, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
+};
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum CustomCommands {
@@ -15,7 +14,7 @@ pub enum CustomCommands {
     /// TODO
     Remove,
     /// TODO
-    Select,
+    Set,
     /// TODO
     #[clap(subcommand)]
     Add(AddCustomCommands),
@@ -38,7 +37,7 @@ pub enum AddCustomCommands {
 pub enum AddSocks5Commands {
     // TODO: Update with new security requirements
     /// Configure a local SOCKS5 proxy
-        // TODO: Fix comment
+    // TODO: Fix comment
     #[cfg_attr(
         target_os = "linux",
         clap(
@@ -47,7 +46,7 @@ pub enum AddSocks5Commands {
         to bypass firewall restrictions"
         )
     )]
-        // TODO: Fix comment
+    // TODO: Fix comment
     #[cfg_attr(
         target_os = "windows",
         clap(
@@ -55,7 +54,7 @@ pub enum AddSocks5Commands {
         split tunneling in order to bypass firewall restrictions"
         )
     )]
-        // TODO: Fix comment
+    // TODO: Fix comment
     #[cfg_attr(
         target_os = "macos",
         clap(
@@ -75,34 +74,83 @@ pub enum AddSocks5Commands {
     },
 }
 
-pub async fn custom_bridge(subcmd: CustomCommands) -> Result<()> {
-    match subcmd {
-        CustomCommands::Get => custom_proxy_get(),
-        CustomCommands::Select => custom_proxy_select(),
-        CustomCommands::Remove => custom_bridge_remove(),
-        CustomCommands::Edit(edit) => custom_proxy_edit(edit),
-        CustomCommands::Add(add_custom_commands) => custom_proxy_add(add_custom_commands).await,
+impl CustomCommands {
+    pub async fn handle(self) -> Result<()> {
+        match self {
+            CustomCommands::Get => Self::custom_proxy_get().await,
+            CustomCommands::Set => Self::custom_proxy_set().await,
+            CustomCommands::Remove => Self::custom_bridge_remove().await,
+            CustomCommands::Edit(edit) => Self::custom_proxy_edit(edit).await,
+            CustomCommands::Add(add_custom_commands) => {
+                Self::custom_proxy_add(add_custom_commands).await
+            }
+        }
     }
-}
 
-async fn custom_proxy_edit(edit: EditCustomCommands) -> Result<()> {
-    todo!()
-}
+    async fn custom_proxy_edit(edit: EditParams) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let mut custom_bridge = rpc.get_custom_bridge().await?;
+        custom_bridge.custom_proxy =
+            custom_bridge
+                .custom_proxy
+                .map(|custom_bridge| match custom_bridge {
+                    CustomProxy::Shadowsocks(ss) => {
+                        CustomProxy::Shadowsocks(edit.merge_shadowsocks(ss))
+                    }
+                    CustomProxy::Socks5(socks) => match socks {
+                        Socks5::Local(local) => {
+                            CustomProxy::Socks5(Socks5::Local(edit.merge_socks_local(local)))
+                        }
+                        Socks5::Remote(remote) => {
+                            CustomProxy::Socks5(Socks5::Remote(edit.merge_socks_remote(remote)))
+                        }
+                    },
+                });
 
-async fn custom_bridge_remove() -> Result<()> {
-    todo!()
-}
+        rpc.update_custom_bridge(custom_bridge)
+            .await
+            .map_err(anyhow::Error::from)
+    }
 
-async fn custom_proxy_select() -> Result<()> {
-    todo!()
-}
+    async fn custom_bridge_remove() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.remove_custom_bridge()
+            .await
+            .map_err(anyhow::Error::from)
+    }
 
-async fn custom_proxy_get() -> Result<()> {
-    todo!()
-}
+    async fn custom_proxy_set() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        rpc.set_custom_bridge().await.map_err(anyhow::Error::from)
+    }
 
-async fn custom_proxy_add(add_commands: AddCustomCommands) -> Result<()> {
-    todo!()
+    async fn custom_proxy_get() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let current_proxy_settings = rpc.get_custom_bridge().await?;
+        println!("{:?}", current_proxy_settings);
+        Ok(())
+    }
+
+    async fn custom_proxy_add(add_commands: AddCustomCommands) -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let custom_bridge = CustomProxySettings {
+            active: true,
+            custom_proxy: Some(match add_commands {
+                AddCustomCommands::Socks5(AddSocks5Commands::Local { add }) => {
+                    CustomProxy::Socks5(Socks5::Local(Socks5Local::from(add)))
+                }
+                AddCustomCommands::Socks5(AddSocks5Commands::Remote { add }) => {
+                    CustomProxy::Socks5(Socks5::Remote(Socks5Remote::from(add)))
+                }
+                AddCustomCommands::Shadowsocks { add } => {
+                    CustomProxy::Shadowsocks(Shadowsocks::from(add))
+                }
+            }),
+        };
+        rpc.update_custom_bridge(custom_bridge)
+            .await
+            .map_err(anyhow::Error::from)
+    }
 }
 
 //async fn custom_bridge_add(subcmd: AddCustomCommands) -> Result<()> {
