@@ -18,7 +18,7 @@ use std::{
     path::Path,
     sync::OnceLock,
 };
-use talpid_types::{net::AllowedEndpoint, ErrorExt};
+use talpid_types::ErrorExt;
 
 pub mod availability;
 use availability::{ApiAvailability, ApiAvailabilityHandle};
@@ -216,19 +216,6 @@ pub enum Error {
     ApiCheckError(#[error(source)] availability::Error),
 }
 
-/// Closure that receives the next API (real or proxy) endpoint to use for `api.mullvad.net`.
-/// It should return a future that determines whether to reject the new endpoint or not.
-pub trait ApiEndpointUpdateCallback: Fn(AllowedEndpoint) -> Self::AcceptedNewEndpoint {
-    type AcceptedNewEndpoint: Future<Output = bool> + Send;
-}
-
-impl<U, T: Future<Output = bool> + Send> ApiEndpointUpdateCallback for U
-where
-    U: Fn(AllowedEndpoint) -> T,
-{
-    type AcceptedNewEndpoint = T;
-}
-
 impl Runtime {
     /// Create a new `Runtime`.
     pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
@@ -305,7 +292,6 @@ impl Runtime {
         &self,
         sni_hostname: Option<String>,
         proxy_provider: T,
-        new_address_callback: impl ApiEndpointUpdateCallback + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> rest::RequestServiceHandle {
         rest::RequestService::spawn(
@@ -313,7 +299,6 @@ impl Runtime {
             self.api_availability.handle(),
             self.address_cache.clone(),
             proxy_provider,
-            new_address_callback,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         )
@@ -326,13 +311,11 @@ impl Runtime {
     >(
         &self,
         proxy_provider: T,
-        new_address_callback: impl ApiEndpointUpdateCallback + Send + Sync + 'static,
     ) -> rest::MullvadRestHandle {
         let service = self
             .new_request_service(
                 Some(API.host.clone()),
                 proxy_provider,
-                new_address_callback,
                 #[cfg(target_os = "android")]
                 self.socket_bypass_tx.clone(),
             )
@@ -353,7 +336,6 @@ impl Runtime {
         self.new_request_service(
             None,
             ApiConnectionMode::Direct.into_repeat(),
-            |_| async { true },
             #[cfg(target_os = "android")]
             None,
         )

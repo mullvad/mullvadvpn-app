@@ -22,10 +22,7 @@ use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
 use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
-use talpid_types::net::{
-    proxy::{self, CustomProxy},
-    AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol,
-};
+use talpid_types::net::{AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol};
 
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
@@ -434,44 +431,26 @@ impl AccessModeSelector {
 }
 
 /// Ad-hoc version of [`std::convert::From::from`], but since some
-/// [`ApiConnectionMode`]s require extra logic/data from
-/// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
-/// can not be implemented.
+/// [`ApiConnectionMode`]s require extra logic/data from [`RelaySelector`] to be
+/// instantiated the standard [`std::convert::From`] trait can not be
+/// implemented.
 fn resolve_connection_mode(
     access_method: AccessMethod,
     relay_selector: &RelaySelector,
 ) -> ApiConnectionMode {
     match access_method {
-        AccessMethod::BuiltIn(access_method) => match access_method {
-            BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
-            BuiltInAccessMethod::Bridge => relay_selector
-                .get_bridge_forced()
-                .and_then(|settings| match settings {
-                    CustomProxy::Shadowsocks(settings) => Some(ApiConnectionMode::Proxied(
-                        ProxyConfig::Shadowsocks(proxy::Shadowsocks::new(
-                            settings.endpoint,
-                            settings.cipher,
-                            settings.password,
-                        )),
-                    )),
-                    _ => {
-                        log::error!("Received unexpected proxy settings type");
-                        None
-                    }
-                })
-                .unwrap_or(ApiConnectionMode::Direct),
-        },
-        AccessMethod::Custom(access_method) => match access_method {
-            CustomProxy::Shadowsocks(shadowsocks) => {
-                ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks))
-            }
-            CustomProxy::Socks5Local(socks) => {
-                ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(socks))
-            }
-            CustomProxy::Socks5Remote(socks) => {
-                ApiConnectionMode::Proxied(ProxyConfig::Socks5Remote(socks))
-            }
-        },
+        AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
+        AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => relay_selector
+            .get_bridge_forced()
+            .map(ProxyConfig::from)
+            .map(ApiConnectionMode::Proxied)
+            .unwrap_or_else(|| {
+                log::error!(
+                    "Received unexpected proxy settings type. Defaulting to direct API connection"
+                );
+                ApiConnectionMode::Direct
+            }),
+        AccessMethod::Custom(config) => ApiConnectionMode::Proxied(ProxyConfig::from(config)),
     }
 }
 

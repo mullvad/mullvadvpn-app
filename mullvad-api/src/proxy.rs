@@ -8,7 +8,7 @@ use std::{
     task::{self, Poll},
 };
 use talpid_types::{
-    net::{proxy, AllowedClients, Endpoint, TransportProtocol},
+    net::{proxy, Endpoint, TransportProtocol},
     ErrorExt,
 };
 use tokio::{
@@ -66,6 +66,16 @@ impl fmt::Display for ProxyConfig {
             ProxyConfig::Socks5Local(local) => {
                 write!(f, "Socks5 {} via localhost:{}", endpoint, local.local_port)
             }
+        }
+    }
+}
+
+impl From<proxy::CustomProxy> for ProxyConfig {
+    fn from(value: proxy::CustomProxy) -> Self {
+        match value {
+            proxy::CustomProxy::Shadowsocks(shadowsocks) => ProxyConfig::Shadowsocks(shadowsocks),
+            proxy::CustomProxy::Socks5Local(socks) => ProxyConfig::Socks5Local(socks),
+            proxy::CustomProxy::Socks5Remote(socks) => ProxyConfig::Socks5Remote(socks),
         }
     }
 }
@@ -136,32 +146,6 @@ impl ApiConnectionMode {
         match self {
             ApiConnectionMode::Direct => None,
             ApiConnectionMode::Proxied(proxy_config) => Some(proxy_config.get_endpoint()),
-        }
-    }
-
-    #[cfg(unix)]
-    pub fn allowed_clients(&self) -> AllowedClients {
-        match self {
-            ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(_)) => AllowedClients::All,
-            ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => AllowedClients::Root,
-        }
-    }
-
-    #[cfg(windows)]
-    pub fn allowed_clients(&self) -> AllowedClients {
-        match self {
-            ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(_)) => AllowedClients::all(),
-            ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => {
-                let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
-                vec![
-                    daemon_exe
-                        .parent()
-                        .expect("missing executable parent directory")
-                        .join("mullvad-problem-report.exe"),
-                    daemon_exe,
-                ]
-                .into()
-            }
         }
     }
 
