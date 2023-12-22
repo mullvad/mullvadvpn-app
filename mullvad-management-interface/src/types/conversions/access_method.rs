@@ -46,8 +46,10 @@ mod data {
 
     use crate::types::{proto, FromProtobufTypeError};
     use mullvad_types::access_method::{
-        AccessMethod, AccessMethodSetting, BuiltInAccessMethod, CustomAccessMethod, Id,
-        Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth,
+        AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id,
+    };
+    use talpid_types::net::proxy::{
+        CustomProxy, Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth,
     };
 
     impl TryFrom<proto::AccessMethodSetting> for AccessMethodSetting {
@@ -219,10 +221,10 @@ mod data {
         }
     }
 
-    impl From<CustomAccessMethod> for proto::AccessMethod {
-        fn from(value: CustomAccessMethod) -> Self {
+    impl From<CustomProxy> for proto::AccessMethod {
+        fn from(value: CustomProxy) -> Self {
             let access_method = match value {
-                CustomAccessMethod::Shadowsocks(ss) => {
+                CustomProxy::Shadowsocks(ss) => {
                     proto::access_method::AccessMethod::Shadowsocks(proto::Shadowsocks {
                         ip: ss.peer.ip().to_string(),
                         port: ss.peer.port() as u32,
@@ -230,7 +232,7 @@ mod data {
                         cipher: ss.cipher,
                     })
                 }
-                CustomAccessMethod::Socks5(Socks5::Local(Socks5Local {
+                CustomProxy::Socks5(Socks5::Local(Socks5Local {
                     remote_endpoint,
                     local_port,
                 })) => proto::access_method::AccessMethod::Socks5local(proto::Socks5Local {
@@ -241,7 +243,7 @@ mod data {
                     )),
                     local_port: local_port as u32,
                 }),
-                CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote {
+                CustomProxy::Socks5(Socks5::Remote(Socks5Remote {
                     peer,
                     authentication,
                 })) => proto::access_method::AccessMethod::Socks5remote(proto::Socks5Remote {
@@ -272,24 +274,6 @@ mod data {
             Self::from_string(value.value).ok_or(FromProtobufTypeError::InvalidArgument(
                 "Could not parse UUID message from protobuf",
             ))
-        }
-    }
-
-    impl From<SocksAuth> for proto::SocksAuth {
-        fn from(value: SocksAuth) -> Self {
-            proto::SocksAuth {
-                username: value.username,
-                password: value.password,
-            }
-        }
-    }
-
-    impl From<proto::SocksAuth> for SocksAuth {
-        fn from(value: proto::SocksAuth) -> Self {
-            Self {
-                username: value.username,
-                password: value.password,
-            }
         }
     }
 

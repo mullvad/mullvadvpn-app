@@ -236,8 +236,8 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
     type Error = ProxyConfigError;
 
     fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
-        use mullvad_types::access_method;
         use std::net::Ipv4Addr;
+        use talpid_types::net::proxy;
         Ok(match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
@@ -253,18 +253,13 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     })
                 }
                 ProxyConfig::Socks(config) => match config {
-                    access_method::Socks5::Local(config) => {
-                        InnerConnectionMode::Socks5(SocksConfig {
-                            peer: SocketAddr::new(
-                                IpAddr::from(Ipv4Addr::LOCALHOST),
-                                config.local_port,
-                            ),
-                            authentication: SocksAuth::None,
-                        })
-                    }
-                    access_method::Socks5::Remote(config) => {
+                    proxy::Socks5::Local(config) => InnerConnectionMode::Socks5(SocksConfig {
+                        peer: SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.local_port),
+                        authentication: SocksAuth::None,
+                    }),
+                    proxy::Socks5::Remote(config) => {
                         let authentication = match config.authentication {
-                            Some(access_method::SocksAuth { username, password }) => {
+                            Some(proxy::SocksAuth { username, password }) => {
                                 SocksAuth::Password { username, password }
                             }
                             None => SocksAuth::None,
