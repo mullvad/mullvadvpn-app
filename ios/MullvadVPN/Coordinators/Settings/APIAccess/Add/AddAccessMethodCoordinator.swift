@@ -7,6 +7,7 @@
 //
 
 import Combine
+import MullvadSettings
 import Routing
 import UIKit
 

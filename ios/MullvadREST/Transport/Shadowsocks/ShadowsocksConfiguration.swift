@@ -7,17 +7,18 @@
 //
 
 import Foundation
+import MullvadTypes
 import Network
 
 public struct ShadowsocksConfiguration: Codable {
-    public let bridgeAddress: IPv4Address
-    public let bridgePort: UInt16
+    public let address: AnyIPAddress
+    public let port: UInt16
     public let password: String
     public let cipher: String
 
-    public init(bridgeAddress: IPv4Address, bridgePort: UInt16, password: String, cipher: String) {
-        self.bridgeAddress = bridgeAddress
-        self.bridgePort = bridgePort
+    public init(address: AnyIPAddress, port: UInt16, password: String, cipher: String) {
+        self.address = address
+        self.port = port
         self.password = password
         self.cipher = cipher
     }

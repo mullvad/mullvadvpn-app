@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 
 extension PersistentProxyConfiguration {
     /// View model for socks configuration.

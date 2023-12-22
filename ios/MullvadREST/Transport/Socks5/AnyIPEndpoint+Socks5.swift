@@ -20,14 +20,4 @@ extension AnyIPEndpoint {
             .ipv6(endpoint)
         }
     }
-
-    /// Convert `AnyIPEndpoint` to `NWEndpoint`.
-    var nwEndpoint: NWEndpoint {
-        switch self {
-        case let .ipv4(endpoint):
-            .hostPort(host: .ipv4(endpoint.ip), port: NWEndpoint.Port(integerLiteral: endpoint.port))
-        case let .ipv6(endpoint):
-            .hostPort(host: .ipv6(endpoint.ip), port: NWEndpoint.Port(integerLiteral: endpoint.port))
-        }
-    }
 }

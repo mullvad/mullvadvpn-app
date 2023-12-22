@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 import MullvadTypes
 import Network
 

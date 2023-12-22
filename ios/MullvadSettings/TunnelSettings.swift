@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadREST
 
 /// Alias to the latest version of the `TunnelSettings`.
 public typealias LatestTunnelSettings = TunnelSettingsV3

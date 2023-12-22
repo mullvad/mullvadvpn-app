@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 
 /// Type implementing access method proxy configuration testing.
 protocol ProxyConfigurationTesterProtocol {

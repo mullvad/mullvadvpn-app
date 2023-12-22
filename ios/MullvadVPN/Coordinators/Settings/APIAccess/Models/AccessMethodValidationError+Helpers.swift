@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 
 extension AccessMethodValidationError {
     /// Checks if any of the fields associated with the given access method have validation errors.
