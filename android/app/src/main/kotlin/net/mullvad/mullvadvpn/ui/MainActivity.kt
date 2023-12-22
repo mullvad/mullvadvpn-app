@@ -10,6 +10,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.WindowCompat
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
@@ -20,6 +22,7 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.android.ext.android.getKoin
@@ -60,12 +63,24 @@ class MainActivity : ComponentActivity() {
         setContent { AppTheme { MullvadApp() } }
     }
 
-    fun initializeStateHandlerAndServiceConnection() {
+    private fun initializeStateHandlerAndServiceConnection() {
         checkForNotificationPermission()
         serviceConnectionManager.bind(
             vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
         )
+    }
+
+    suspend fun startServiceSuspend() {
+        checkForNotificationPermission()
+        serviceConnectionManager.bind(
+            vpnPermissionRequestHandler = ::requestVpnPermission,
+            apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
+        )
+        // Ensure we wait until the service is ready
+        serviceConnectionManager.connectionState
+            .filterIsInstance<ServiceConnectionState.ConnectedReady>()
+            .first()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
