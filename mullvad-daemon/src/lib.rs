@@ -28,6 +28,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
+use api::NewAccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -370,6 +371,8 @@ pub(crate) enum InternalDaemonEvent {
     NewAppVersionInfo(AppVersionInfo),
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
     DeviceEvent(AccountEvent),
+    /// Sent when access methods are changed in any way (new active access method).
+    AccessMethodEvent(NewAccessMethodEvent),
     /// Handles updates from versions without devices.
     DeviceMigrationEvent(Result<PrivateAccountAndDevice, device::Error>),
     /// A geographical location has has been received from am.i.mullvad.net
@@ -406,6 +409,12 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
 impl From<AccountEvent> for InternalDaemonEvent {
     fn from(event: AccountEvent) -> Self {
         InternalDaemonEvent::DeviceEvent(event)
+    }
+}
+
+impl From<NewAccessMethodEvent> for InternalDaemonEvent {
+    fn from(event: NewAccessMethodEvent) -> Self {
+        InternalDaemonEvent::AccessMethodEvent(event)
     }
 }
 
@@ -591,6 +600,9 @@ pub trait EventListener {
 
     /// Notify that a device was revoked using `RemoveDevice`.
     fn notify_remove_device_event(&self, event: RemoveDeviceEvent);
+
+    /// Notify that the api access method changed.
+    fn notify_new_access_method_event(&self, new_access_method: AccessMethodSetting);
 }
 
 pub struct Daemon<L: EventListener> {
@@ -693,6 +705,8 @@ where
             cache_dir.clone(),
             relay_selector.clone(),
             connection_modes,
+            internal_event_tx.to_specialized_sender(),
+        )
         );
 
         let api_handle = api_runtime
@@ -963,6 +977,7 @@ where
                 self.handle_new_app_version_info(app_version_info);
             }
             DeviceEvent(event) => self.handle_device_event(event).await,
+            AccessMethodEvent(event) => self.handle_access_method_event(event),
             DeviceMigrationEvent(event) => self.handle_device_migration_event(event),
             LocationEvent(location_data) => self.handle_location_event(location_data),
             #[cfg(windows)]
@@ -1317,6 +1332,8 @@ where
                 .notify_device_event(DeviceEvent::from(event));
         }
     }
+
+    fn handle_access_method_event(&mut self, event: NewAccessMethodEvent) {}
 
     fn handle_device_migration_event(
         &mut self,
