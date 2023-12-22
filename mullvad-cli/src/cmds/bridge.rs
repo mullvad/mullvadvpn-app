@@ -11,7 +11,7 @@ use mullvad_types::{
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
-use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs};
+use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs, custom_bridge::CustomCommands};
 
 #[derive(Subcommand, Debug)]
 pub enum Bridge {
@@ -73,7 +73,7 @@ pub enum SetCommands {
 
     /// Configure a SOCKS5 proxy
     #[clap(subcommand)]
-    Custom(SetCustomCommands),
+    Custom(CustomCommands),
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -188,7 +188,7 @@ impl Bridge {
                 };
                 Self::update_bridge_settings(&mut rpc, None, Some(providers), None).await
             }
-            SetCommands::Custom(subcmd) => Self::set_custom(subcmd).await,
+            SetCommands::Custom(subcmd) => CustomCommands::handle(subcmd).await,
         }
     }
 
