@@ -2487,7 +2487,6 @@ where
             .update(|settings| {
                 settings.custom_proxy = CustomProxySettings {
                     custom_proxy: None,
-                    active: false,
                 };
             })
             .await
