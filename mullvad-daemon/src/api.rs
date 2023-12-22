@@ -45,6 +45,31 @@ pub enum Error {
     NotRunning(#[error(source)] oneshot::Canceled),
 }
 
+impl std::fmt::Display for Message {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Message::Get(_) => f.write_str("Get"),
+            Message::Set(_, _) => f.write_str("Set"),
+            Message::Next(_) => f.write_str("Next"),
+            Message::Update(_, _) => f.write_str("Update"),
+        }
+    }
+}
+
+impl Error {
+    /// Check if this error implies that the currenly running
+    /// [`AccessModeSelector`] can not continue to operate properly.
+    ///
+    /// To recover from this kind of error, the daemon will probably have to
+    /// intervene.
+    fn is_critical_error(&self) -> bool {
+        matches!(
+            self,
+            Error::SendFailed(..) | Error::OneshotSendFailed | Error::NotRunning(..)
+        )
+    }
+}
+
 type ResponseTx<T> = oneshot::Sender<Result<T>>;
 type Result<T> = std::result::Result<T, Error>;
 
@@ -66,7 +91,7 @@ impl AccessModeSelectorHandle {
 
     pub async fn get_access_method(&self) -> Result<AccessMethodSetting> {
         self.send_command(Message::Get).await.map_err(|err| {
-            log::error!("Failed to get current access method!");
+            log::debug!("Failed to get current access method!");
             err
         })
     }
@@ -75,7 +100,7 @@ impl AccessModeSelectorHandle {
         self.send_command(|tx| Message::Set(tx, value))
             .await
             .map_err(|err| {
-                log::error!("Failed to set new access method!");
+                log::debug!("Failed to set new access method!");
                 err
             })
     }
@@ -84,14 +109,14 @@ impl AccessModeSelectorHandle {
         self.send_command(|tx| Message::Update(tx, values))
             .await
             .map_err(|err| {
-                log::error!("Failed to update new access methods!");
+                log::debug!("Failed to switch to a new set of access methods");
                 err
             })
     }
 
     pub async fn next(&self) -> Result<ApiConnectionMode> {
         self.send_command(Message::Next).await.map_err(|err| {
-            log::error!("Failed to update new access methods!");
+            log::debug!("Failed while getting the next access method");
             err
         })
     }
@@ -163,6 +188,7 @@ impl AccessModeSelector {
 
     async fn into_future(mut self) {
         while let Some(cmd) = self.cmd_rx.next().await {
+            log::trace!("Processing {cmd} command");
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
                 Message::Set(tx, value) => self.on_set_access_method(tx, value),
@@ -171,12 +197,12 @@ impl AccessModeSelector {
             };
             match execution {
                 Ok(_) => (),
-                Err(err) => {
-                    log::trace!(
-                        "AccessModeSelector is going down due to {error}",
-                        error = err
-                    );
+                Err(error) if error.is_critical_error() => {
+                    log::error!("AccessModeSelector failed due to an internal error and won't be able to recover without a restart. {error}");
                     break;
+                }
+                Err(error) => {
+                    log::debug!("AccessModeSelector failed processing command due to {error}");
                 }
             }
         }
