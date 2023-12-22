@@ -7,6 +7,7 @@ use jnix::{
 };
 use mullvad_daemon::EventListener;
 use mullvad_types::{
+    access_method::AccessMethodSetting,
     device::{DeviceEvent, RemoveDeviceEvent},
     relay_list::RelayList,
     settings::Settings,
@@ -71,6 +72,11 @@ impl EventListener for JniEventListener {
     fn notify_remove_device_event(&self, event: RemoveDeviceEvent) {
         let _ = self.0.send(Event::RemoveDevice(event));
     }
+
+    // TODO: Implement this function when API access methods is implemented in
+    // the Android app.
+    #[allow(dead_code, unused_variables)]
+    fn notify_new_access_method_event(&self, access_method: AccessMethodSetting) {}
 }
 
 struct JniEventHandler<'env> {
