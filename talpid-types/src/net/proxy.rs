@@ -38,6 +38,10 @@ pub struct CustomProxySettings {
     pub custom_proxy: Option<CustomProxy>,
 }
 
+// TODO(Jonathan): These end up being duplicates of a lot of types in
+// `talpid-types/src/net/openvpn.rs`. However they are not trivially deduplicable since both these
+// types and those types exist in settings (access methods and bridge settings respectively)
+// and deduplicating them would require a settings migration.
 /// User customized proxy used for obfuscation.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
@@ -83,9 +87,13 @@ pub struct SocksAuth {
     pub password: String,
 }
 
-impl From<Socks5Remote> for Socks5 {
-    fn from(value: Socks5Remote) -> Self {
-        Socks5::Remote(value)
+impl Shadowsocks {
+    pub fn new<I: Into<SocketAddr>>(peer: I, cipher: String, password: String) -> Self {
+        Shadowsocks {
+            peer: peer.into(),
+            password,
+            cipher,
+        }
     }
 }
 
@@ -95,13 +103,9 @@ impl From<Socks5Local> for Socks5 {
     }
 }
 
-impl Shadowsocks {
-    pub fn new<I: Into<SocketAddr>>(peer: I, cipher: String, password: String) -> Self {
-        Shadowsocks {
-            peer: peer.into(),
-            password,
-            cipher,
-        }
+impl From<Socks5Remote> for Socks5 {
+    fn from(value: Socks5Remote) -> Self {
+        Socks5::Remote(value)
     }
 }
 

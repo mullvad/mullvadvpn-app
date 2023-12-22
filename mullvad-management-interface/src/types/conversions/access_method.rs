@@ -223,38 +223,32 @@ mod data {
         fn from(value: CustomAccessMethod) -> Self {
             let access_method = match value {
                 CustomAccessMethod::Shadowsocks(ss) => {
-                    proto::access_method::AccessMethod::Shadowsocks(
-                        proto::Shadowsocks {
-                            ip: ss.peer.ip().to_string(),
-                            port: ss.peer.port() as u32,
-                            password: ss.password,
-                            cipher: ss.cipher,
-                        },
-                    )
+                    proto::access_method::AccessMethod::Shadowsocks(proto::Shadowsocks {
+                        ip: ss.peer.ip().to_string(),
+                        port: ss.peer.port() as u32,
+                        password: ss.password,
+                        cipher: ss.cipher,
+                    })
                 }
                 CustomAccessMethod::Socks5(Socks5::Local(Socks5Local {
                     remote_endpoint,
                     local_port,
-                })) => proto::access_method::AccessMethod::Socks5local(
-                    proto::Socks5Local {
-                        remote_ip: remote_endpoint.address.ip().to_string(),
-                        remote_port: remote_endpoint.address.port() as u32,
-                        remote_transport_protocol: i32::from(proto::TransportProtocol::from(
-                            remote_endpoint.protocol,
-                        )),
-                        local_port: local_port as u32,
-                    },
-                ),
+                })) => proto::access_method::AccessMethod::Socks5local(proto::Socks5Local {
+                    remote_ip: remote_endpoint.address.ip().to_string(),
+                    remote_port: remote_endpoint.address.port() as u32,
+                    remote_transport_protocol: i32::from(proto::TransportProtocol::from(
+                        remote_endpoint.protocol,
+                    )),
+                    local_port: local_port as u32,
+                }),
                 CustomAccessMethod::Socks5(Socks5::Remote(Socks5Remote {
                     peer,
                     authentication,
-                })) => proto::access_method::AccessMethod::Socks5remote(
-                    proto::Socks5Remote {
-                        ip: peer.ip().to_string(),
-                        port: peer.port() as u32,
-                        authentication: authentication.map(proto::SocksAuth::from),
-                    },
-                ),
+                })) => proto::access_method::AccessMethod::Socks5remote(proto::Socks5Remote {
+                    ip: peer.ip().to_string(),
+                    port: peer.port() as u32,
+                    authentication: authentication.map(proto::SocksAuth::from),
+                }),
             };
 
             proto::AccessMethod {

@@ -725,7 +725,7 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::UpdateCustomProxy(
             tx,
-            custom_proxy.into_inner().try_into()?
+            custom_proxy.into_inner().try_into()?,
         ))?;
         self.wait_for_result(rx)
             .await?
