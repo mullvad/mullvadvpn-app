@@ -307,7 +307,6 @@ impl Runtime {
         &self,
         sni_hostname: Option<String>,
         proxy_provider: T,
-        new_address_callback: impl ApiEndpointUpdateCallback + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> rest::RequestServiceHandle {
         rest::RequestService::spawn(
@@ -315,7 +314,6 @@ impl Runtime {
             self.api_availability.handle(),
             self.address_cache.clone(),
             proxy_provider,
-            new_address_callback,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         )
@@ -328,13 +326,11 @@ impl Runtime {
     >(
         &self,
         proxy_provider: T,
-        new_address_callback: impl ApiEndpointUpdateCallback + Send + Sync + 'static,
     ) -> rest::MullvadRestHandle {
         let service = self
             .new_request_service(
                 Some(API.host.clone()),
                 proxy_provider,
-                new_address_callback,
                 #[cfg(target_os = "android")]
                 self.socket_bypass_tx.clone(),
             )
@@ -355,7 +351,6 @@ impl Runtime {
         self.new_request_service(
             None,
             ApiConnectionMode::Direct.into_repeat(),
-            |_| async { true },
             #[cfg(target_os = "android")]
             None,
         )

@@ -665,8 +665,6 @@ where
         let api_availability = api_runtime.availability_handle();
         api_availability.suspend();
 
-        let endpoint_updater = api::ApiEndpointUpdaterHandle::new();
-
         let migration_data = migrations::migrate_all(&cache_dir, &settings_dir)
             .await
             .unwrap_or_else(|error| {
@@ -708,10 +706,7 @@ where
         );
 
         let api_handle = api_runtime
-            .mullvad_rest_handle(
-                Box::pin(connection_modes_handler.clone().into_stream()),
-                endpoint_updater.callback(),
-            )
+            .mullvad_rest_handle(Box::pin(connection_modes_handler.clone().into_stream()))
             .await;
 
         let migration_complete = if let Some(migration_data) = migration_data {
@@ -815,9 +810,6 @@ where
         )
         .await
         .map_err(Error::TunnelError)?;
-
-        endpoint_updater
-            .set_tunnel_command_tx(Arc::downgrade(tunnel_state_machine_handle.command_tx()));
 
         api::forward_offline_state(api_availability.clone(), offline_state_rx);
 

@@ -165,7 +165,6 @@ async fn remove_device() -> Result<(), Error> {
                     ApiConnectionMode::try_from_cache(&cache_path)
                         .await
                         .into_repeat(),
-                    |_| async { true },
                 )
                 .await,
         );
