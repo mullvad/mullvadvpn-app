@@ -81,7 +81,7 @@ where
     ) -> Result<(), Error> {
         // Make sure that we are not trying to remove a built-in API access
         // method
-        let command = match self.settings.api_access_methods.find(&access_method) {
+        let command = match self.settings.api_access_methods.find_by_id(&access_method) {
             Some(api_access_method) => {
                 if api_access_method.is_builtin() {
                     Err(Error::RemoveBuiltIn)
@@ -131,7 +131,7 @@ where
     ) -> Result<AccessMethodSetting, Error> {
         self.settings
             .api_access_methods
-            .find(&access_method)
+            .find_by_id(&access_method)
             .ok_or(Error::NoSuchMethod(access_method))
             .cloned()
     }
@@ -147,21 +147,36 @@ where
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), Error> {
-        // We have to be a bit careful. If we are about to disable the last
-        // remaining enabled access method, we would cause an inconsistent state
-        // in the daemon's settings. Therefore, we have to safeguard against
-        // this by explicitly checking for & disallow any update which would
-        // cause the last enabled access method to become disabled.
+        // If the currently active access method is updated, we need to re-set
+        // it after updating the settings.
         let current = self.get_current_access_method().await?;
         let mut command = Command::Nothing;
         let settings_update = |settings: &mut Settings| {
-            if let Some(access_method) = settings
-                .api_access_methods
-                .find_mut(&access_method_update.get_id())
+            let access_methods = &mut settings.api_access_methods;
+            if let Some(access_method) =
+                access_methods.find_by_id_mut(&access_method_update.get_id())
             {
                 *access_method = access_method_update;
                 if access_method.get_id() == current.get_id() {
                     command = Command::Set(access_method.get_id())
+                }
+                // We have to be a bit careful. If we are about to disable the last
+                // remaining enabled access method, we would cause an inconsistent state
+                // in the daemon's settings. Therefore, we have to safeguard against
+                // this by explicitly checking for any update which would cause the last
+                // enabled access method to become disabled. In that case, we should
+                // re-enable the `Direct` access method.
+                if access_methods.collect_enabled().is_empty() {
+                    if let Some(direct) = access_methods.get_direct() {
+                        direct.enabled = true;
+                    } else {
+                        // If the `Direct` access method does not exist within the
+                        // settings for some reason, the settings are in an
+                        // inconsistent state. We don't have much choice but to
+                        // reset these settings to their default value.
+                        log::warn!("The built-in access methods can not be found. This might be due to a corrupt settings file");
+                        *access_methods = access_method::Settings::default();
+                    }
                 }
             }
         };

@@ -21,22 +21,34 @@ impl Settings {
         self.retain(|method| method.get_id() != *api_access_method)
     }
 
-    /// Search for a particular [`AccessMethod`] in `api_access_methods`.
-    pub fn find(&self, element: &Id) -> Option<&AccessMethodSetting> {
+    /// Search for any [`AccessMethod`] in `api_access_methods` which matches `predicate`.
+    pub fn find<P>(&self, predicate: P) -> Option<&AccessMethodSetting>
+    where
+        P: Fn(&AccessMethodSetting) -> bool,
+    {
         self.access_method_settings
             .iter()
-            .find(|api_access_method| *element == api_access_method.get_id())
+            .find(|api_access_method| predicate(api_access_method))
+    }
+
+    /// Search for any [`AccessMethod`] in `api_access_methods`.
+    pub fn find_mut<P>(&mut self, predicate: P) -> Option<&mut AccessMethodSetting>
+    where
+        P: Fn(&AccessMethodSetting) -> bool,
+    {
+        self.access_method_settings
+            .iter_mut()
+            .find(|api_access_method| predicate(api_access_method))
     }
 
     /// Search for a particular [`AccessMethod`] in `api_access_methods`.
-    ///
-    /// If the [`AccessMethod`] is found to be part of `api_access_methods`, a
-    /// mutable reference to that inner element is returned. Otherwise, `None`
-    /// is returned.
-    pub fn find_mut(&mut self, element: &Id) -> Option<&mut AccessMethodSetting> {
-        self.access_method_settings
-            .iter_mut()
-            .find(|api_access_method| *element == api_access_method.get_id())
+    pub fn find_by_id(&self, element: &Id) -> Option<&AccessMethodSetting> {
+        self.find(|api_access_method| *element == api_access_method.get_id())
+    }
+
+    /// Search for a particular [`AccessMethod`] in `api_access_methods`.
+    pub fn find_by_id_mut(&mut self, element: &Id) -> Option<&mut AccessMethodSetting> {
+        self.find_mut(|api_access_method| *element == api_access_method.get_id())
     }
 
     /// Equivalent to [`Vec::retain`].
@@ -50,6 +62,13 @@ impl Settings {
     /// Clone the content of `api_access_methods`.
     pub fn cloned(&self) -> Vec<AccessMethodSetting> {
         self.access_method_settings.clone()
+    }
+
+    /// Get a reference to the `Direct` access method instance of this [`Settings`].
+    pub fn get_direct(&mut self) -> Option<&mut AccessMethodSetting> {
+        self.find_mut(|access_method| {
+            access_method.access_method == BuiltInAccessMethod::Direct.into()
+        })
     }
 
     pub fn direct() -> AccessMethodSetting {
