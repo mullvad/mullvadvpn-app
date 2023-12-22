@@ -134,7 +134,6 @@ impl CustomCommands {
     async fn custom_proxy_add(add_commands: AddCustomCommands) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let custom_bridge = CustomProxySettings {
-            active: true,
             custom_proxy: Some(match add_commands {
                 AddCustomCommands::Socks5(AddSocks5Commands::Local { add }) => {
                     CustomProxy::Socks5(Socks5::Local(Socks5Local::from(add)))

@@ -11,7 +11,6 @@ mod settings {
                 custom_proxy: settings
                     .custom_proxy
                     .map(|custom_proxy| custom_proxy.into()),
-                active: settings.active,
             }
         }
     }
@@ -24,7 +23,6 @@ mod settings {
                 custom_proxy: settings
                     .custom_proxy
                     .and_then(|custom_proxy| proxy::CustomProxy::try_from(custom_proxy).ok()),
-                active: settings.active,
             })
         }
     }
