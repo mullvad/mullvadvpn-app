@@ -51,7 +51,9 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .cloned()
                 .map(proto::RelayOverride::from)
                 .collect(),
-            custom_proxy: Some(proto::CustomProxySettings::from(settings.custom_proxy.clone())),
+            custom_proxy: Some(proto::CustomProxySettings::from(
+                settings.custom_proxy.clone(),
+            )),
         }
     }
 }
@@ -202,7 +204,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 api_access_methods_settings,
             )?,
             custom_proxy: talpid_types::net::proxy::CustomProxySettings::try_from(
-                custom_proxy_settings
+                custom_proxy_settings,
             )?,
         })
     }

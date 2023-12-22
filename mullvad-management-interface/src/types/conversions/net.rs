@@ -208,7 +208,9 @@ mod proxy {
     use std::net::Ipv4Addr;
 
     use crate::types::{proto, FromProtobufTypeError};
-    use talpid_types::net::proxy::{CustomProxy, Socks5Local, Socks5Remote, Shadowsocks, SocksAuth, Socks5};
+    use talpid_types::net::proxy::{
+        CustomProxy, Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth,
+    };
 
     impl TryFrom<proto::CustomProxy> for CustomProxy {
         type Error = FromProtobufTypeError;
@@ -217,15 +219,17 @@ mod proxy {
             Ok(match value.proxy_method {
                 Some(proto::custom_proxy::ProxyMethod::Socks5local(local)) => {
                     CustomProxy::Socks5(Socks5::Local(Socks5Local::try_from(local)?))
-                },
+                }
                 Some(proto::custom_proxy::ProxyMethod::Socks5remote(remote)) => {
                     CustomProxy::Socks5(Socks5::Remote(Socks5Remote::try_from(remote)?))
-                },
+                }
                 Some(proto::custom_proxy::ProxyMethod::Shadowsocks(shadowsocks)) => {
                     CustomProxy::Shadowsocks(Shadowsocks::try_from(shadowsocks)?)
-                },
+                }
                 None => {
-                    return Err(FromProtobufTypeError::InvalidArgument("CustomProxy missing proxy_method field"));
+                    return Err(FromProtobufTypeError::InvalidArgument(
+                        "CustomProxy missing proxy_method field",
+                    ));
                 }
             })
         }
@@ -242,9 +246,9 @@ mod proxy {
                 )
             })?;
             Ok(Socks5Local::new_with_transport_protocol(
-                    (remote_ip, value.remote_port as u16),
-                    value.local_port as u16,
-                    try_transport_protocol_from_i32(value.remote_transport_protocol)?,
+                (remote_ip, value.remote_port as u16),
+                value.local_port as u16,
+                try_transport_protocol_from_i32(value.remote_transport_protocol)?,
             ))
         }
     }
@@ -296,38 +300,32 @@ mod proxy {
         fn from(value: CustomProxy) -> Self {
             let proxy_method = match value {
                 CustomProxy::Shadowsocks(ss) => {
-                    proto::custom_proxy::ProxyMethod::Shadowsocks(
-                        proto::Shadowsocks {
-                            ip: ss.peer.ip().to_string(),
-                            port: ss.peer.port() as u32,
-                            password: ss.password,
-                            cipher: ss.cipher,
-                        },
-                    )
+                    proto::custom_proxy::ProxyMethod::Shadowsocks(proto::Shadowsocks {
+                        ip: ss.peer.ip().to_string(),
+                        port: ss.peer.port() as u32,
+                        password: ss.password,
+                        cipher: ss.cipher,
+                    })
                 }
                 CustomProxy::Socks5(Socks5::Local(Socks5Local {
                     remote_endpoint,
                     local_port,
-                })) => proto::custom_proxy::ProxyMethod::Socks5local(
-                    proto::Socks5Local {
-                        remote_ip: remote_endpoint.address.ip().to_string(),
-                        remote_port: remote_endpoint.address.port() as u32,
-                        remote_transport_protocol: i32::from(proto::TransportProtocol::from(
-                            remote_endpoint.protocol,
-                        )),
-                        local_port: local_port as u32,
-                    },
-                ),
+                })) => proto::custom_proxy::ProxyMethod::Socks5local(proto::Socks5Local {
+                    remote_ip: remote_endpoint.address.ip().to_string(),
+                    remote_port: remote_endpoint.address.port() as u32,
+                    remote_transport_protocol: i32::from(proto::TransportProtocol::from(
+                        remote_endpoint.protocol,
+                    )),
+                    local_port: local_port as u32,
+                }),
                 CustomProxy::Socks5(Socks5::Remote(Socks5Remote {
                     peer,
                     authentication,
-                })) => proto::custom_proxy::ProxyMethod::Socks5remote(
-                    proto::Socks5Remote {
-                        ip: peer.ip().to_string(),
-                        port: peer.port() as u32,
-                        authentication: authentication.map(proto::SocksAuth::from),
-                    },
-                ),
+                })) => proto::custom_proxy::ProxyMethod::Socks5remote(proto::Socks5Remote {
+                    ip: peer.ip().to_string(),
+                    port: peer.port() as u32,
+                    authentication: authentication.map(proto::SocksAuth::from),
+                }),
             };
 
             proto::CustomProxy {

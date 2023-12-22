@@ -13,7 +13,7 @@ use jnix::IntoJava;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(target_os = "windows")]
 use std::{collections::HashSet, path::PathBuf};
-use talpid_types::net::{openvpn, GenericTunnelOptions, proxy::CustomProxySettings};
+use talpid_types::net::{openvpn, proxy::CustomProxySettings, GenericTunnelOptions};
 
 mod dns;
 

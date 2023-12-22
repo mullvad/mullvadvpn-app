@@ -4,16 +4,16 @@ use std::ops::Deref;
 
 pub mod account;
 pub mod api_access;
-pub mod custom_bridge;
-pub mod proxies;
 pub mod auto_connect;
 pub mod beta_program;
 pub mod bridge;
+pub mod custom_bridge;
 pub mod custom_list;
 pub mod dns;
 pub mod lan;
 pub mod lockdown;
 pub mod obfuscation;
+pub mod proxies;
 pub mod relay;
 pub mod relay_constraints;
 pub mod reset;
