@@ -733,16 +733,6 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn remove_custom_bridge(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("remove_custom_bridge");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::RemoveCustomProxy(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
     // Split tunneling
     //
 

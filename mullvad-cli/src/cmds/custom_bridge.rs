@@ -114,7 +114,8 @@ impl CustomCommands {
 
     async fn custom_bridge_remove() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.remove_custom_bridge()
+        let custom_bridge = CustomProxySettings { custom_proxy: None };
+        rpc.update_custom_bridge(custom_bridge)
             .await
             .map_err(anyhow::Error::from)
     }

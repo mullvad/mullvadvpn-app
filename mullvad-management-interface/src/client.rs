@@ -244,14 +244,6 @@ impl MullvadProxyClient {
             })
     }
 
-    pub async fn remove_custom_bridge(&mut self) -> Result<()> {
-        self.0
-            .remove_custom_bridge(())
-            .await
-            .map_err(Error::Rpc)
-            .map(tonic::Response::into_inner)
-    }
-
     pub async fn update_relay_locations(&mut self) -> Result<()> {
         self.0
             .update_relay_locations(())
