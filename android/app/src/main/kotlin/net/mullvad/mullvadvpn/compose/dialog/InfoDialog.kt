@@ -45,7 +45,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 fun InfoDialog(message: String, additionalInfo: String? = null, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = {
+        icon = {
             Icon(
                 modifier = Modifier.fillMaxWidth().height(Dimens.dialogIconHeight),
                 painter = painterResource(id = R.drawable.icon_info),

@@ -80,7 +80,6 @@ fun WireguardCustomPortDialog(
         title = {
             Text(
                 text = stringResource(id = R.string.custom_port_dialog_title),
-                style = MaterialTheme.typography.headlineSmall
             )
         },
         confirmButton = {
