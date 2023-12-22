@@ -4,6 +4,7 @@ use futures::{
     StreamExt,
 };
 use mullvad_api::{rest::Error as RestError, StatusCode};
+use mullvad_management_interface::types::CustomProxySettings;
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
@@ -734,6 +735,55 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx)
             .await?
             .map(types::ApiAddresses::from)
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    // Custom Proxy
+    //
+    async fn set_custom_bridge(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("set_custom_bridge");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomProxy(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn get_custom_bridge(&self, _: Request<()>) -> ServiceResult<CustomProxySettings> {
+        log::debug!("get_custom_bridge");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetCustomProxy(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(CustomProxySettings::from)
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn update_custom_bridge(
+        &self,
+        custom_proxy: Request<CustomProxySettings>,
+    ) -> ServiceResult<()> {
+        log::debug!("update_custom_bridge");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::UpdateCustomProxy(
+            tx,
+            custom_proxy.into_inner().try_into()?
+        ))?;
+        self.wait_for_result(rx)
+            .await?
+            .map(Response::new)
+            .map_err(map_daemon_error)
+    }
+
+    async fn remove_custom_bridge(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("remove_custom_bridge");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RemoveCustomProxy(tx))?;
+        self.wait_for_result(rx)
+            .await?
             .map(Response::new)
             .map_err(map_daemon_error)
     }

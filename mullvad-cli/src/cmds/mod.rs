@@ -4,6 +4,8 @@ use std::ops::Deref;
 
 pub mod account;
 pub mod api_access;
+pub mod custom_bridge;
+pub mod proxies;
 pub mod auto_connect;
 pub mod beta_program;
 pub mod bridge;

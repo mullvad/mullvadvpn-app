@@ -80,7 +80,7 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    net::{proxy::{CustomProxy, CustomProxySettings}, TunnelEndpoint, TunnelType},
+    net::{openvpn::ProxySettings, proxy::CustomProxySettings, TunnelEndpoint, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
@@ -297,11 +297,11 @@ pub enum DaemonCommand {
     /// Get the currently used API access method
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
     /// TODO
-    UpdateCustomProxy(ResponseTx<(), Error>, CustomProxy),
+    UpdateCustomProxy(ResponseTx<(), Error>, CustomProxySettings),
     /// TODO
     RemoveCustomProxy(ResponseTx<(), Error>),
     /// TODO
-    SelectCustomProxy(ResponseTx<(), Error>),
+    SetCustomProxy(ResponseTx<(), Error>),
     /// TODO
     GetCustomProxy(ResponseTx<CustomProxySettings, Error>),
     /// Get the addresses of all known API endpoints
@@ -1149,7 +1149,7 @@ where
                 self.on_update_custom_proxy(tx, custom_proxy).await
             }
             RemoveCustomProxy(tx) => self.on_remove_custom_proxy(tx).await,
-            SelectCustomProxy(tx) => self.on_select_custom_proxy(tx).await,
+            SetCustomProxy(tx) => self.on_select_custom_proxy(tx).await,
             GetCustomProxy(tx) => self.on_get_custom_proxy(tx).await,
             GetApiAddresses(tx) => self.on_get_api_addresses(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
@@ -2352,20 +2352,56 @@ where
         Self::oneshot_send(tx, result, "set_api_access_method response");
     }
 
+    async fn on_update_api_access_method(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        method: AccessMethodSetting,
+    ) {
+        let result = self
+            .update_access_method(method)
+            .await
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "update_api_access_method response");
+    }
+
+    fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {
+        let result = self
+            .get_current_access_method()
+            .map_err(Error::AccessMethodError);
+        Self::oneshot_send(tx, result, "get_current_api_access_method response");
+    }
+
+    async fn on_get_api_addresses(&mut self, tx: ResponseTx<Vec<std::net::SocketAddr>, Error>) {
+        let api_proxy = mullvad_api::ApiProxy::new(self.api_handle.clone());
+        let result = api_proxy.get_api_addrs().await.map_err(Error::RestError);
+
+        Self::oneshot_send(tx, result, "on_get_api_adressess response");
+    }
+
     async fn on_update_custom_proxy(
         &mut self,
         tx: ResponseTx<(), Error>,
-        custom_proxy: CustomProxy,
+        new_custom_proxy_settings: CustomProxySettings,
     ) {
         match self
             .settings
             .update(|settings| {
-                settings.custom_proxy.custom_proxy = Some(custom_proxy);
+                settings.custom_proxy.custom_proxy = new_custom_proxy_settings.custom_proxy;
+                if let Some(new_custom_proxy) = &settings.custom_proxy.custom_proxy {
+                    settings.bridge_settings = BridgeSettings::Custom(ProxySettings::from(
+                        new_custom_proxy.clone(),
+                        #[cfg(target_os = "linux")]
+                        Some(mullvad_types::TUNNEL_FWMARK),
+                    ));
+                }
             })
             .await
             .map_err(Error::SettingsError)
         {
-            Ok(_) => {
+            Ok(settings_changed) => {
+                if settings_changed && self.settings.custom_proxy.custom_proxy.is_some() {
+                    self.reconnect_tunnel();
+                }
                 Self::oneshot_send(tx, Ok(()), "update_custom_proxy response");
             }
             Err(e) => {
@@ -2410,14 +2446,21 @@ where
         match self
             .settings
             .update(|settings| {
-                if settings.custom_proxy.custom_proxy.is_some() {
-                    settings.custom_proxy.active = true;
+                if let Some(new_custom_proxy) = &settings.custom_proxy.custom_proxy {
+                    settings.bridge_settings = BridgeSettings::Custom(ProxySettings::from(
+                            new_custom_proxy.clone(),
+                            #[cfg(target_os = "linux")]
+                            Some(mullvad_types::TUNNEL_FWMARK),
+                    ));
                 }
             })
             .await
             .map_err(Error::SettingsError)
         {
-            Ok(_) => {
+            Ok(settings_changed) => {
+                if settings_changed && self.settings.custom_proxy.custom_proxy.is_some() {
+                    self.reconnect_tunnel();
+                }
                 Self::oneshot_send(tx, Ok(()), "select_custom_proxy response");
             }
             Err(e) => {
@@ -2433,32 +2476,6 @@ where
             Ok(self.settings.custom_proxy.clone()),
             "get_custom_proxy response",
         );
-    }
-
-    async fn on_update_api_access_method(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        method: AccessMethodSetting,
-    ) {
-        let result = self
-            .update_access_method(method)
-            .await
-            .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "update_api_access_method response");
-    }
-
-    fn on_get_current_api_access_method(&mut self, tx: ResponseTx<AccessMethodSetting, Error>) {
-        let result = self
-            .get_current_access_method()
-            .map_err(Error::AccessMethodError);
-        Self::oneshot_send(tx, result, "get_current_api_access_method response");
-    }
-
-    async fn on_get_api_addresses(&mut self, tx: ResponseTx<Vec<std::net::SocketAddr>, Error>) {
-        let api_proxy = mullvad_api::ApiProxy::new(self.api_handle.clone());
-        let result = api_proxy.get_api_addrs().await.map_err(Error::RestError);
-
-        Self::oneshot_send(tx, result, "on_get_api_adressess response");
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

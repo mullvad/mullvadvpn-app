@@ -83,6 +83,12 @@ service ManagementService {
   rpc UpdateApiAccessMethod(AccessMethodSetting) returns (google.protobuf.Empty) {}
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
 
+  // Custom proxy
+  rpc RemoveCustomBridge(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc SetCustomBridge(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc UpdateCustomBridge(CustomProxySettings) returns (google.protobuf.Empty) {}
+  rpc GetCustomBridge(google.protobuf.Empty) returns (CustomProxySettings) {}
+
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
