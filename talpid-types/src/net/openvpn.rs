@@ -5,6 +5,8 @@ use crate::net::{
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 
+use super::proxy::{CustomProxy, Socks5};
+
 /// Information needed by `OpenVpnMonitor` to establish a tunnel connection.
 /// See [`crate::net::TunnelParameters`].
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
@@ -70,6 +72,31 @@ impl ProxySettings {
                 endpoint: settings.get_endpoint(),
                 proxy_type: ProxyType::Shadowsocks,
             },
+        }
+    }
+}
+
+impl ProxySettings {
+    pub fn from(value: CustomProxy, #[cfg(target_os = "linux")] fwmark: Option<u32>) -> Self {
+        match value {
+            CustomProxy::Shadowsocks(ss) => Self::Shadowsocks(ShadowsocksProxySettings {
+                peer: ss.peer,
+                password: ss.password,
+                cipher: ss.cipher,
+                #[cfg(target_os = "linux")]
+                fwmark,
+            }),
+            CustomProxy::Socks5(Socks5::Local(local)) => Self::Local(LocalProxySettings {
+                port: local.local_port,
+                peer: local.remote_endpoint.address,
+            }),
+            CustomProxy::Socks5(Socks5::Remote(remote)) => Self::Remote(RemoteProxySettings {
+                address: remote.peer,
+                auth: remote.authentication.map(|auth| ProxyAuth {
+                    username: auth.username,
+                    password: auth.password,
+                }),
+            }),
         }
     }
 }
