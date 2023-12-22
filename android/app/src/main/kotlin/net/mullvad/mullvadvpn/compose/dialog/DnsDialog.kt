@@ -20,6 +20,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.button.NegativeButton
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.textfield.DnsTextField
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -186,7 +187,7 @@ fun DnsDialog(
                 )
 
                 if (!state.isNewEntry) {
-                    PrimaryButton(
+                    NegativeButton(
                         modifier = Modifier.fillMaxWidth(),
                         onClick = onRemoveDnsClick,
                         text = stringResource(id = R.string.remove_button)
