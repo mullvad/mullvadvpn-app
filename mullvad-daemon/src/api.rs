@@ -270,17 +270,15 @@ impl AccessModeSelector {
     ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let mut connection_modes = match ConnectionModesIterator::new(connection_modes) {
-            Ok(provider) => provider,
-            Err(Error::NoAccessMethods) | Err(_) => {
+        let mut connection_modes =
+            ConnectionModesIterator::new(connection_modes).unwrap_or_else(|_| {
                 // No settings seem to have been found. Default to using the the
                 // direct access method.
                 let default = mullvad_types::access_method::Settings::direct();
                 ConnectionModesIterator::new(vec![default]).expect(
                     "Failed to create the data structure responsible for managing access methods",
                 )
-            }
-        };
+            });
 
         let initial_connection_mode = {
             let next = connection_modes.next().ok_or(Error::NoAccessMethods)?;
@@ -382,18 +380,17 @@ impl AccessModeSelector {
         };
 
         // Save the new connection mode to cache!
-        {
-            let cache_dir = self.cache_dir.clone();
-            let new_connection_mode = next.connection_mode.clone();
-            tokio::spawn(async move {
-                if new_connection_mode.save(&cache_dir).await.is_err() {
-                    log::warn!(
-                        "Failed to save {connection_mode} to cache",
-                        connection_mode = new_connection_mode
-                    )
-                }
-            });
-        }
+        let cache_dir = self.cache_dir.clone();
+        let new_connection_mode = next.connection_mode.clone();
+        tokio::spawn(async move {
+            if new_connection_mode.save(&cache_dir).await.is_err() {
+                log::warn!(
+                    "Failed to save {connection_mode} to cache",
+                    connection_mode = new_connection_mode
+                )
+            }
+        });
+
         Ok(next.connection_mode)
     }
     fn on_update_access_methods(
