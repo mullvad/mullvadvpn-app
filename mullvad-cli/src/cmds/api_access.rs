@@ -1,7 +1,8 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, CustomAccessMethod};
+use mullvad_types::access_method::{AccessMethod, AccessMethodSetting};
 use std::net::IpAddr;
+use talpid_types::net::proxy::CustomProxy;
 
 use clap::{Args, Subcommand};
 use talpid_types::net::{openvpn::SHADOWSOCKS_CIPHERS, TransportProtocol};
@@ -99,9 +100,7 @@ impl ApiAccess {
 
     /// Edit the data of an API access method.
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
-        use mullvad_types::access_method::{
-            Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth,
-        };
+        use talpid_types::net::proxy::{Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth};
         let mut rpc = MullvadProxyClient::new().await?;
         let mut api_access_method = Self::get_access_method(&mut rpc, &cmd.item).await?;
 
@@ -109,14 +108,14 @@ impl ApiAccess {
         let access_method = match api_access_method.as_custom() {
             None => return Err(anyhow!("Can not edit built-in access method")),
             Some(x) => match x.clone() {
-                CustomAccessMethod::Shadowsocks(shadowsocks) => {
+                CustomProxy::Shadowsocks(shadowsocks) => {
                     let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip());
                     let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
                     let password = cmd.params.password.unwrap_or(shadowsocks.password);
                     let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
                     AccessMethod::from(Shadowsocks::new((ip, port), cipher, password))
                 }
-                CustomAccessMethod::Socks5(socks) => match socks {
+                CustomProxy::Socks5(socks) => match socks {
                     Socks5::Local(local) => {
                         let remote_ip = cmd.params.ip.unwrap_or(local.remote_endpoint.address.ip());
                         let remote_port = cmd
@@ -414,6 +413,7 @@ pub struct EditParams {
 mod conversions {
     use super::{AddCustomCommands, AddSocks5Commands, SocksAuthentication};
     use mullvad_types::access_method as daemon_types;
+    use talpid_types::net::proxy as talpid_types;
 
     impl From<AddCustomCommands> for daemon_types::AccessMethod {
         fn from(value: AddCustomCommands) -> Self {
@@ -428,7 +428,7 @@ mod conversions {
                         transport_protocol,
                     } => {
                         println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}/{transport_protocol}");
-                        daemon_types::Socks5Local::new_with_transport_protocol(
+                        talpid_types::Socks5Local::new_with_transport_protocol(
                             (remote_ip, remote_port),
                             local_port,
                             transport_protocol,
@@ -441,20 +441,19 @@ mod conversions {
                         authentication,
                         name: _,
                         disabled: _,
-                    } => daemon_types::AccessMethod::from(daemon_types::Socks5::Remote(
+                    } => daemon_types::AccessMethod::from(talpid_types::Socks5::Remote(
                         match authentication {
                             Some(SocksAuthentication { username, password }) => {
                                 println!("Adding SOCKS5-proxy: {username}:{password}@{remote_ip}:{remote_port}");
-                                let auth =
-                                    mullvad_types::access_method::SocksAuth { username, password };
-                                daemon_types::Socks5Remote::new_with_authentication(
+                                let auth = talpid_types::SocksAuth { username, password };
+                                talpid_types::Socks5Remote::new_with_authentication(
                                     (remote_ip, remote_port),
                                     auth,
                                 )
                             }
                             None => {
                                 println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
-                                daemon_types::Socks5Remote::new((remote_ip, remote_port))
+                                talpid_types::Socks5Remote::new((remote_ip, remote_port))
                             }
                         },
                     )),
@@ -470,7 +469,7 @@ mod conversions {
                     println!(
                 "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
                     );
-                    daemon_types::AccessMethod::from(daemon_types::Shadowsocks::new(
+                    daemon_types::AccessMethod::from(talpid_types::Shadowsocks::new(
                         (remote_ip, remote_port),
                         cipher,
                         password,
@@ -483,9 +482,8 @@ mod conversions {
 
 /// Pretty printing of [`ApiAccessMethod`]s
 mod pp {
-    use mullvad_types::access_method::{
-        AccessMethod, AccessMethodSetting, CustomAccessMethod, Socks5, SocksAuth,
-    };
+    use mullvad_types::access_method::{AccessMethod, AccessMethodSetting};
+    use talpid_types::net::proxy::{CustomProxy, Socks5, SocksAuth};
 
     pub struct ApiAccessMethodFormatter<'a> {
         api_access_method: &'a AccessMethodSetting,
@@ -536,7 +534,7 @@ mod pp {
                     Ok(())
                 }
                 AccessMethod::Custom(method) => match &method {
-                    CustomAccessMethod::Shadowsocks(shadowsocks) => {
+                    CustomProxy::Shadowsocks(shadowsocks) => {
                         write!(f, "{}", self.api_access_method.get_name())?;
                         if self.settings.write_enabled {
                             write_status(f, self.api_access_method.enabled())?;
@@ -547,7 +545,7 @@ mod pp {
                         print_option!("Password", shadowsocks.password);
                         Ok(())
                     }
-                    CustomAccessMethod::Socks5(socks) => match socks {
+                    CustomProxy::Socks5(socks) => match socks {
                         Socks5::Remote(remote) => {
                             write!(f, "{}", self.api_access_method.get_name())?;
                             if self.settings.write_enabled {
