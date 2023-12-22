@@ -265,17 +265,15 @@ impl AccessModeSelector {
     ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let mut connection_modes = match ConnectionModesIterator::new(connection_modes) {
-            Ok(provider) => provider,
-            Err(Error::NoAccessMethods) | Err(_) => {
+        let mut connection_modes =
+            ConnectionModesIterator::new(connection_modes).unwrap_or_else(|_| {
                 // No settings seem to have been found. Default to using the the
                 // direct access method.
                 let default = mullvad_types::access_method::Settings::direct();
                 ConnectionModesIterator::new(vec![default]).expect(
                     "Failed to create the data structure responsible for managing access methods",
                 )
-            }
-        };
+            });
 
         let initial_connection_mode = {
             let next = connection_modes.next().ok_or(Error::NoAccessMethods)?;
