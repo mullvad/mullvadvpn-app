@@ -4,7 +4,8 @@
 //! [`ApiConnectionMode`], which in turn is used by `mullvad-api` for
 //! establishing connections when performing API requests.
 #[cfg(target_os = "android")]
-use crate::{DaemonCommand, DaemonEventSender};
+use crate::DaemonCommand;
+use crate::DaemonEventSender;
 use futures::{
     channel::{mpsc, oneshot},
     stream::unfold,
@@ -31,6 +32,81 @@ pub enum Message {
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Vec<AccessMethodSetting>),
+
+/// A [`NewAccessMethodEvent`] is emitted when the active access method changes.
+/// Which access method that should be active at any given time is decided by
+/// the [`AccessModeSelector`] spawned when the daemon starts.
+///
+/// This event may eventually lead to a
+/// [`mullvad_management_interface::client::DaemonEvent::NewAccessMethod`] to be
+/// broadcasted to clients. The event is emitted in two scenarios:
+///
+/// * When a [`mullvad_api::rest::RequestService`] requests a new
+/// [`ApiConnectionMode`] from the running [`AccessModeSelector`].
+///
+/// * When testing some [`AccessMethodSetting`] to see if it can be used to
+/// successfully reach the Mullvad API. This will temporarily switch the
+/// currently active access method, but since this is just a test it should not
+/// produce any unwanted noise for clients.
+pub struct NewAccessMethodEvent {
+    /// The new active [`AccessMethodSetting`].
+    pub setting: AccessMethodSetting,
+    /// The endpoint which represents how to connect to the Mullvad API and
+    /// which clients are allowed to initiate such a connection.
+    pub endpoint: AllowedEndpoint,
+    /// If the daemon should notify clients about the new access method.
+    ///
+    /// Defaults to `true`.
+    pub announce: bool,
+    /// It is up to the daemon to actually allow traffic to/from
+    /// `api_endpoint` by updating the firewall. This `Sender` allows the
+    /// daemon to communicate when that action is done.
+    pub update_finished_tx: Option<oneshot::Sender<()>>,
+}
+
+impl NewAccessMethodEvent {
+    /// Create a new [`NewAccessMethodEvent`] for the daemon to process. A
+    /// [`oneshot::Receiver`] can be used to await the daemon while it finishes
+    /// handling the new event.
+    pub fn new(setting: AccessMethodSetting, endpoint: AllowedEndpoint) -> NewAccessMethodEvent {
+        NewAccessMethodEvent {
+            setting,
+            endpoint,
+            announce: true,
+            update_finished_tx: None,
+        }
+    }
+
+    /// Whether the daemon should notify clients about the new access method or
+    /// not.
+    ///
+    /// * If `announce` is set to `true` the daemon will broadcast this event to
+    /// clients.
+    /// * If `announce` is set to `false` the daemon will *not* broadcast this
+    /// event.
+    pub fn announce(mut self, announce: bool) -> Self {
+        self.announce = announce;
+        self
+    }
+
+    /// Send an internal daemon event which will punch a hole in the firewall
+    /// for the connection mode we are testing.
+    ///
+    /// Returns the channel on which the daemon will send a message over when it
+    /// is done applying the firewall changes.
+    pub fn send(
+        self,
+        daemon_event_sender: &DaemonEventSender<NewAccessMethodEvent>,
+    ) -> oneshot::Receiver<()> {
+        let (update_finished_tx, update_finished_rx) = oneshot::channel();
+        let _ = daemon_event_sender.send(NewAccessMethodEvent {
+            update_finished_tx: Some(update_finished_tx),
+            ..self
+        });
+        // Wait for the daemon to finish processing `event`.
+        update_finished_rx
+    }
+}
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -155,6 +231,9 @@ pub struct AccessModeSelector {
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
+    address_cache: AddressCache,
+    access_method_event_sender: DaemonEventSender<NewAccessMethodEvent>,
+    current: ResolvedConnectionMode,
 }
 
 impl AccessModeSelector {
@@ -162,7 +241,9 @@ impl AccessModeSelector {
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
-    ) -> AccessModeSelectorHandle {
+        access_method_event_sender: DaemonEventSender<NewAccessMethodEvent>,
+        address_cache: AddressCache,
+    ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
         let connection_modes = match ConnectionModesIterator::new(connection_modes) {
@@ -181,6 +262,9 @@ impl AccessModeSelector {
             cache_dir,
             relay_selector,
             connection_modes,
+            address_cache,
+            access_method_event_sender,
+            current: initial_connection_mode,
         };
         tokio::spawn(selector.into_future());
         AccessModeSelectorHandle { cmd_tx }
