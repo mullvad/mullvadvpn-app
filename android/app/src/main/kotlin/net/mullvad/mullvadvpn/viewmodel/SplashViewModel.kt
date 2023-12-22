@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
+import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.ipc.Event
 import net.mullvad.mullvadvpn.lib.ipc.MessageHandler
 import net.mullvad.mullvadvpn.lib.ipc.events
@@ -73,7 +74,7 @@ class SplashViewModel(
         val accountExpiry = select {
             expiry.onAwait { it }
             // If we don't get a response within 1 second, assume the account expiry is Missing
-            onTimeout(1000) { AccountExpiry.Missing }
+            onTimeout(ACCOUNT_EXPIRY_TIMEOUT_MS) { AccountExpiry.Missing }
         }
 
         return when (accountExpiry) {
