@@ -369,7 +369,6 @@ message CustomProxy {
 
 message CustomProxySettings {
     CustomProxy custom_proxy = 1;
-    bool active = 2;
 }
 
 message AccessMethod {

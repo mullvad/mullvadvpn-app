@@ -36,7 +36,6 @@ pub struct ProxyEndpoint {
 #[serde(rename_all = "snake_case")]
 pub struct CustomProxySettings {
     pub custom_proxy: Option<CustomProxy>,
-    pub active: bool,
 }
 
 /// User customized proxy used for obfuscation.
