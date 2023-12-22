@@ -10,7 +10,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.WindowCompat
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
+import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.isNotificationPermissionGranted
@@ -20,6 +25,7 @@ import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.repository.DeviceRepository
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
 import org.koin.android.ext.android.getKoin
@@ -66,6 +72,25 @@ class MainActivity : ComponentActivity() {
             vpnPermissionRequestHandler = ::requestVpnPermission,
             apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
         )
+    }
+
+    suspend fun startServiceSuspend(timeOutMs: Long = Long.MAX_VALUE) : Boolean {
+        return try {
+            checkForNotificationPermission()
+            withTimeout(timeOutMs) {
+                serviceConnectionManager.bind(
+                    vpnPermissionRequestHandler = ::requestVpnPermission,
+                    apiEndpointConfiguration = intent?.getApiEndpointConfigurationExtras()
+                )
+                // Ensure we wait until the service is ready
+                serviceConnectionManager.connectionState
+                    .filterIsInstance<ServiceConnectionState.ConnectedReady>()
+                    .first()
+            }
+            true
+        } catch (e : CancellationException) {
+            false
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
