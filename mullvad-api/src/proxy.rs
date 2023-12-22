@@ -9,7 +9,7 @@ use std::{
     task::{self, Poll},
 };
 use talpid_types::{
-    net::{AllowedClients, Endpoint, TransportProtocol},
+    net::{Endpoint, TransportProtocol},
     ErrorExt,
 };
 use tokio::{
@@ -140,36 +140,6 @@ impl ApiConnectionMode {
         match self {
             ApiConnectionMode::Direct => None,
             ApiConnectionMode::Proxied(proxy_config) => Some(proxy_config.get_endpoint()),
-        }
-    }
-
-    #[cfg(unix)]
-    pub fn allowed_clients(&self) -> AllowedClients {
-        use access_method::Socks5;
-        match self {
-            ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => AllowedClients::All,
-            ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => AllowedClients::Root,
-        }
-    }
-
-    #[cfg(windows)]
-    pub fn allowed_clients(&self) -> AllowedClients {
-        use access_method::Socks5;
-        match self {
-            ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => {
-                AllowedClients::all()
-            }
-            ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => {
-                let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
-                vec![
-                    daemon_exe
-                        .parent()
-                        .expect("missing executable parent directory")
-                        .join("mullvad-problem-report.exe"),
-                    daemon_exe,
-                ]
-                .into()
-            }
         }
     }
 

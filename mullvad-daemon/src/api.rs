@@ -14,18 +14,14 @@ use futures::{
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
-    ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
-use std::{
-    path::PathBuf,
-    sync::{Arc, Mutex, Weak},
-};
-#[cfg(target_os = "android")]
+use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
-use talpid_core::tunnel_state_machine::TunnelCommand;
-use talpid_types::net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint};
+use talpid_types::net::{
+    openvpn::ProxySettings, AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol,
+};
 
 pub enum Message {
     Get(ResponseTx<AccessMethodSetting>),
@@ -159,9 +155,7 @@ pub struct AccessModeSelectorHandle {
 impl AccessModeSelectorHandle {
     async fn send_command<T>(&self, make_cmd: impl FnOnce(ResponseTx<T>) -> Message) -> Result<T> {
         let (tx, rx) = oneshot::channel();
-        self.cmd_tx
-            .unbounded_send(make_cmd(tx))
-            .map_err(Error::SendFailed)?;
+        self.cmd_tx.unbounded_send(make_cmd(tx))?;
         rx.await.map_err(Error::NotRunning)?
     }
 
@@ -315,6 +309,8 @@ impl AccessModeSelector {
         self.reply(tx, ())
     }
 
+    /// Set the next access method to be returned by the [`Stream`] produced by
+    /// calling `into_stream`.
     fn set_access_method(&mut self, value: AccessMethodSetting) {
         self.connection_modes.set_access_method(value);
     }
@@ -362,45 +358,72 @@ impl AccessModeSelector {
         self.connection_modes.update_access_methods(values)
     }
 
-    /// Ad-hoc version of [`std::convert::From::from`], but since some
-    /// [`ApiConnectionMode`]s require extra logic/data from
-    /// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
-    /// can not be implemented.
-    fn from(&mut self, access_method: AccessMethod) -> ApiConnectionMode {
-        match access_method {
-            AccessMethod::BuiltIn(access_method) => match access_method {
-                BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
-                BuiltInAccessMethod::Bridge => self
-                    .relay_selector
-                    .get_bridge_forced()
-                    .and_then(|settings| match settings {
-                        ProxySettings::Shadowsocks(ss_settings) => {
-                            let ss_settings: access_method::Shadowsocks =
-                                access_method::Shadowsocks::new(
-                                    ss_settings.peer,
-                                    ss_settings.cipher,
-                                    ss_settings.password,
-                                );
-                            Some(ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(
-                                ss_settings,
-                            )))
-                        }
-                        _ => {
-                            log::error!("Received unexpected proxy settings type");
-                            None
-                        }
-                    })
-                    .unwrap_or(ApiConnectionMode::Direct),
-            },
-            AccessMethod::Custom(access_method) => match access_method {
-                access_method::CustomAccessMethod::Shadowsocks(shadowsocks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config))
-                }
-                access_method::CustomAccessMethod::Socks5(socks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config))
-                }
-            },
+    pub async fn on_resolve_access_method(
+        &mut self,
+        tx: ResponseTx<ResolvedConnectionMode>,
+        setting: AccessMethodSetting,
+    ) -> Result<()> {
+        let reply = self.resolve(setting).await;
+        self.reply(tx, reply)
+    }
+
+    async fn resolve(&mut self, access_method: AccessMethodSetting) -> ResolvedConnectionMode {
+        Self::resolve_inner(access_method, &self.relay_selector, &self.address_cache).await
+    }
+
+    async fn resolve_inner(
+        access_method: AccessMethodSetting,
+        relay_selector: &RelaySelector,
+        address_cache: &AddressCache,
+    ) -> ResolvedConnectionMode {
+        let connection_mode =
+            resolve_connection_mode(access_method.access_method.clone(), relay_selector);
+        let endpoint =
+            resolve_allowed_endpoint(&connection_mode, address_cache.get_address().await);
+        ResolvedConnectionMode {
+            connection_mode,
+            endpoint,
+            setting: access_method,
         }
+    }
+}
+
+/// Ad-hoc version of [`std::convert::From::from`], but since some
+/// [`ApiConnectionMode`]s require extra logic/data from
+/// [`ApiConnectionModeProvider`] the standard [`std::convert::From`] trait
+/// can not be implemented.
+fn resolve_connection_mode(
+    access_method: AccessMethod,
+    relay_selector: &RelaySelector,
+) -> ApiConnectionMode {
+    match access_method {
+        AccessMethod::BuiltIn(access_method) => match access_method {
+            BuiltInAccessMethod::Direct => ApiConnectionMode::Direct,
+            BuiltInAccessMethod::Bridge => relay_selector
+                .get_bridge_forced()
+                .and_then(|settings| match settings {
+                    ProxySettings::Shadowsocks(settings) => Some(ApiConnectionMode::Proxied(
+                        ProxyConfig::Shadowsocks(access_method::Shadowsocks::new(
+                            settings.peer,
+                            settings.cipher,
+                            settings.password,
+                        )),
+                    )),
+                    _ => {
+                        log::error!("Received unexpected proxy settings type");
+                        None
+                    }
+                })
+                .unwrap_or(ApiConnectionMode::Direct),
+        },
+        AccessMethod::Custom(access_method) => match access_method {
+            access_method::CustomAccessMethod::Shadowsocks(shadowsocks) => {
+                ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks))
+            }
+            access_method::CustomAccessMethod::Socks5(socks) => {
+                ApiConnectionMode::Proxied(ProxyConfig::Socks(socks))
+            }
+        },
     }
 }
 
@@ -434,6 +457,7 @@ impl ConnectionModesIterator {
     pub fn set_access_method(&mut self, next: AccessMethodSetting) {
         self.next = Some(next);
     }
+
     /// Update the collection of [`AccessMethod`] which this iterator will
     /// return.
     pub fn update_access_methods(
@@ -478,71 +502,44 @@ impl Iterator for ConnectionModesIterator {
     }
 }
 
-/// Notifies the tunnel state machine that the API (real or proxied) endpoint has
-/// changed. [ApiEndpointUpdaterHandle::callback()] creates a callback that may
-/// be passed to the `mullvad-api` runtime.
-pub(super) struct ApiEndpointUpdaterHandle {
-    tunnel_cmd_tx: Arc<Mutex<Option<Weak<mpsc::UnboundedSender<TunnelCommand>>>>>,
-}
-
-impl ApiEndpointUpdaterHandle {
-    pub fn new() -> Self {
-        Self {
-            tunnel_cmd_tx: Arc::new(Mutex::new(None)),
-        }
-    }
-
-    pub fn set_tunnel_command_tx(&self, tunnel_cmd_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) {
-        *self.tunnel_cmd_tx.lock().unwrap() = Some(tunnel_cmd_tx);
-    }
-
-    pub fn callback(&self) -> impl ApiEndpointUpdateCallback {
-        let tunnel_tx = self.tunnel_cmd_tx.clone();
-        move |allowed_endpoint: AllowedEndpoint| {
-            let inner_tx = tunnel_tx.clone();
-            async move {
-                let tunnel_tx = if let Some(tunnel_tx) = { inner_tx.lock().unwrap().as_ref() }
-                    .and_then(|tx: &Weak<mpsc::UnboundedSender<TunnelCommand>>| tx.upgrade())
-                {
-                    tunnel_tx
-                } else {
-                    log::error!("Rejecting allowed endpoint: Tunnel state machine is not running");
-                    return false;
-                };
-                let (result_tx, result_rx) = oneshot::channel();
-                let _ = tunnel_tx.unbounded_send(TunnelCommand::AllowEndpoint(
-                    allowed_endpoint.clone(),
-                    result_tx,
-                ));
-                // Wait for the firewall policy to be updated.
-                let _ = result_rx.await;
-                log::debug!(
-                    "API endpoint: {endpoint}",
-                    endpoint = allowed_endpoint.endpoint
-                );
-                true
-            }
-        }
-    }
-}
-
-pub(super) fn get_allowed_endpoint(endpoint: Endpoint) -> AllowedEndpoint {
-    #[cfg(unix)]
-    let clients = talpid_types::net::AllowedClients::Root;
-    #[cfg(windows)]
-    let clients = {
-        let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
-        vec![
-            daemon_exe
-                .parent()
-                .expect("missing executable parent directory")
-                .join("mullvad-problem-report.exe"),
-            daemon_exe,
-        ]
-        .into()
+pub fn resolve_allowed_endpoint(
+    connection_mode: &ApiConnectionMode,
+    fallback: SocketAddr,
+) -> AllowedEndpoint {
+    let endpoint = match connection_mode.get_endpoint() {
+        Some(endpoint) => endpoint,
+        None => Endpoint::from_socket_address(fallback, TransportProtocol::Tcp),
     };
-
+    let clients = allowed_clients(connection_mode);
     AllowedEndpoint { endpoint, clients }
+}
+
+#[cfg(unix)]
+pub fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
+    use access_method::Socks5;
+    match connection_mode {
+        ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => AllowedClients::All,
+        ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => AllowedClients::Root,
+    }
+}
+
+#[cfg(windows)]
+pub fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
+    use access_method::Socks5;
+    match connection_mode {
+        ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => AllowedClients::all(),
+        ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => {
+            let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
+            vec![
+                daemon_exe
+                    .parent()
+                    .expect("missing executable parent directory")
+                    .join("mullvad-problem-report.exe"),
+                daemon_exe,
+            ]
+            .into()
+        }
+    }
 }
 
 pub(crate) fn forward_offline_state(
