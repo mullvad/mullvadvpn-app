@@ -16,6 +16,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,13 +36,14 @@ import androidx.constraintlayout.compose.Dimension
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.NavGraphs
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.destinations.LoginDestination
-import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -48,40 +51,49 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerUiSideEffect
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
+import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewState
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 private fun PreviewPrivacyDisclaimerScreen() {
-    AppTheme { PrivacyDisclaimerScreen({}, {}) }
+    AppTheme { PrivacyDisclaimerScreen(PrivacyDisclaimerViewState(false), {}, {}) }
 }
 
-@Destination(style = DefaultTransition::class)
+@Destination
 @Composable
 fun PrivacyDisclaimer(
     navigator: DestinationsNavigator,
 ) {
     val viewModel: PrivacyDisclaimerViewModel = koinViewModel()
+    val uiState = viewModel.uiState.collectAsState()
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         viewModel.uiSideEffect.collect {
             when (it) {
                 PrivacyDisclaimerUiSideEffect.NavigateToLogin -> {
-                    (context as MainActivity).initializeStateHandlerAndServiceConnection()
                     navigator.navigate(LoginDestination(null)) {
                         launchSingleTop = true
                         popUpTo(NavGraphs.root) { inclusive = true }
                     }
                 }
+                PrivacyDisclaimerUiSideEffect.StartService -> {
+                    scope.launch {
+                        (context as MainActivity).startServiceSuspend()
+                        viewModel.onServiceStarted()
+                    }
+                }
             }
         }
     }
-    PrivacyDisclaimerScreen({}, viewModel::setPrivacyDisclosureAccepted)
+    PrivacyDisclaimerScreen(uiState.value, {}, viewModel::setPrivacyDisclosureAccepted)
 }
 
 @Composable
 fun PrivacyDisclaimerScreen(
+    uiState: PrivacyDisclaimerViewState,
     onPrivacyPolicyLinkClicked: () -> Unit,
     onAcceptClicked: () -> Unit,
 ) {
@@ -170,12 +182,17 @@ fun PrivacyDisclaimerScreen(
                         bottom.linkTo(parent.bottom, margin = sideMargin)
                         width = Dimension.fillToConstraints
                         height = Dimension.preferredWrapContent
-                    }
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                PrimaryButton(
-                    text = stringResource(id = R.string.agree_and_continue),
-                    onClick = onAcceptClicked::invoke
-                )
+                if (uiState.isStartingService) {
+                    MullvadCircularProgressIndicatorMedium()
+                } else {
+                    PrimaryButton(
+                        text = stringResource(id = R.string.agree_and_continue),
+                        onClick = onAcceptClicked::invoke
+                    )
+                }
             }
         }
     }
