@@ -11,7 +11,9 @@ use mullvad_types::{
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
-use super::{relay::resolve_location_constraint, relay_constraints::LocationArgs, custom_bridge::CustomCommands};
+use super::{
+    custom_bridge::CustomCommands, relay::resolve_location_constraint, relay_constraints::LocationArgs,
+};
 
 #[derive(Subcommand, Debug)]
 pub enum Bridge {

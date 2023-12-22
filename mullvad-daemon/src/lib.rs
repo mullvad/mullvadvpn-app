@@ -2489,9 +2489,7 @@ where
         match self
             .settings
             .update(|settings| {
-                settings.custom_proxy = CustomProxySettings {
-                    custom_proxy: None,
-                };
+                settings.custom_proxy = CustomProxySettings { custom_proxy: None };
             })
             .await
             .map_err(Error::SettingsError)
@@ -2521,9 +2519,9 @@ where
             .update(|settings| {
                 if let Some(new_custom_proxy) = &settings.custom_proxy.custom_proxy {
                     settings.bridge_settings = BridgeSettings::Custom(ProxySettings::from(
-                            new_custom_proxy.clone(),
-                            #[cfg(target_os = "linux")]
-                            Some(mullvad_types::TUNNEL_FWMARK),
+                        new_custom_proxy.clone(),
+                        #[cfg(target_os = "linux")]
+                        Some(mullvad_types::TUNNEL_FWMARK),
                     ));
                 }
             })
