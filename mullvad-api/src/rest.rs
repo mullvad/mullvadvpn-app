@@ -24,10 +24,7 @@ use std::{
     sync::{Arc, Weak},
     time::Duration,
 };
-use talpid_types::{
-    net::{AllowedEndpoint, Endpoint, TransportProtocol},
-    ErrorExt,
-};
+use talpid_types::ErrorExt;
 
 #[cfg(feature = "api-override")]
 use crate::API;
@@ -123,36 +120,24 @@ impl Error {
     }
 }
 
-use super::ApiEndpointUpdateCallback;
-
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<
-    T: Stream<Item = ApiConnectionMode>,
-    F: ApiEndpointUpdateCallback + Send,
-> {
+pub(crate) struct RequestService<T: Stream<Item = ApiConnectionMode>> {
     command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
     connector_handle: HttpsConnectorWithSniHandle,
     client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     proxy_config_provider: T,
-    new_address_callback: F,
-    address_cache: AddressCache,
     api_availability: ApiAvailabilityHandle,
 }
 
-impl<
-        T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static,
-        F: ApiEndpointUpdateCallback + Send + Sync + 'static,
-    > RequestService<T, F>
-{
+impl<T: Stream<Item = ApiConnectionMode> + Unpin + Send + 'static> RequestService<T> {
     /// Constructs a new request service.
     pub async fn spawn(
         sni_hostname: Option<String>,
         api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
         mut proxy_config_provider: T,
-        new_address_callback: F,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
@@ -184,8 +169,6 @@ impl<
             connector_handle,
             client,
             proxy_config_provider,
-            new_address_callback,
-            address_cache,
             api_availability,
         };
         let handle = RequestServiceHandle { tx: command_tx };
@@ -203,26 +186,14 @@ impl<
             }
             RequestCommand::NextApiConfig(completion_tx) => {
                 #[cfg(feature = "api-override")]
-                if API.force_direct_connection {
-                    log::debug!("Ignoring API connection mode");
-                    let _ = completion_tx.send(Ok(()));
-                    return;
-                }
+                let force_direct_connection = API.force_direct_connection;
+                #[cfg(not(feature = "api-override"))]
+                let force_direct_connection = false;
 
-                if let Some(new_config) = self.proxy_config_provider.next().await {
-                    let endpoint = match new_config.get_endpoint() {
-                        Some(endpoint) => endpoint,
-                        None => Endpoint::from_socket_address(
-                            self.address_cache.get_address().await,
-                            TransportProtocol::Tcp,
-                        ),
-                    };
-                    let clients = new_config.allowed_clients();
-                    let allowed_endpoint = AllowedEndpoint { endpoint, clients };
-                    // Switch to new connection mode unless rejected by address change callback
-                    if (self.new_address_callback)(allowed_endpoint).await {
-                        self.connector_handle.set_connection_mode(new_config);
-                    }
+                if force_direct_connection {
+                    log::debug!("Ignoring API connection mode");
+                } else if let Some(connection_mode) = self.proxy_config_provider.next().await {
+                    self.connector_handle.set_connection_mode(connection_mode);
                 }
 
                 let _ = completion_tx.send(Ok(()));
