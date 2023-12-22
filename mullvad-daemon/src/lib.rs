@@ -696,14 +696,17 @@ where
         });
 
         let connection_modes = settings.api_access_methods.collect_enabled();
+        let connection_modes_address_cache = api_runtime.address_cache.clone();
 
         let connection_modes_handler = api::AccessModeSelector::spawn(
             cache_dir.clone(),
             relay_selector.clone(),
             connection_modes,
             internal_event_tx.to_specialized_sender(),
+            connection_modes_address_cache.clone(),
         )
-        );
+        .await
+        .map_err(Error::ApiConnectionModeError)?;
 
         let api_handle = api_runtime
             .mullvad_rest_handle(Box::pin(connection_modes_handler.clone().into_stream()))
@@ -758,11 +761,6 @@ where
             vec![]
         };
 
-        let initial_api_endpoint =
-            api::get_allowed_endpoint(talpid_types::net::Endpoint::from_socket_address(
-                api_runtime.address_cache.get_address().await,
-                talpid_types::net::TransportProtocol::Tcp,
-            ));
         let parameters_generator = tunnel::ParametersGenerator::new(
             account_manager.clone(),
             relay_selector.clone(),
@@ -780,6 +778,11 @@ where
             let _ = param_gen_tx.unbounded_send(settings.tunnel_options.to_owned());
         });
 
+        let initial_api_endpoint = connection_modes_handler
+            .get_current()
+            .await
+            .map_err(Error::ApiConnectionModeError)?
+            .endpoint;
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -2407,8 +2410,9 @@ where
         let handle = self.connection_modes_handler.clone();
         tokio::spawn(async move {
             let result = handle
-                .get_access_method()
+                .get_current()
                 .await
+                .map(|current| current.setting)
                 .map_err(Error::ApiConnectionModeError);
             Self::oneshot_send(tx, result, "get_current_api_access_method response");
         });

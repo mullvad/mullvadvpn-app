@@ -7,12 +7,12 @@
 use crate::{DaemonCommand, DaemonEventSender};
 use futures::{
     channel::{mpsc, oneshot},
-    stream::unfold,
     Stream, StreamExt,
 };
 use mullvad_api::{
     availability::ApiAvailabilityHandle,
     proxy::{ApiConnectionMode, ProxyConfig},
+    AddressCache,
 };
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
@@ -23,10 +23,12 @@ use talpid_types::net::{
 };
 
 pub enum Message {
-    Get(ResponseTx<AccessMethodSetting>),
+    Get(ResponseTx<ResolvedConnectionMode>),
     Set(ResponseTx<()>, AccessMethodSetting),
     Next(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Vec<AccessMethodSetting>),
+    Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
+}
 
 /// A [`NewAccessMethodEvent`] is emitted when the active access method changes.
 /// Which access method that should be active at any given time is decided by
@@ -76,6 +78,23 @@ impl NewAccessMethodEvent {
         (event, update_finished_rx)
     }
 }
+
+/// This struct represent a concrete API endpoint (in the form of an
+/// [`ApiConnectionMode`] and [`AllowedEndpoint`]) which has been derived from
+/// some [`AccessMethodSetting`] (most likely the currently active access
+/// method). These logically related values are sometimes useful to group
+/// together into one value, which is encoded by [`ResolvedConnectionMode`].
+#[derive(Clone)]
+pub struct ResolvedConnectionMode {
+    /// The connection strategy to be used by the `mullvad-api` crate when
+    /// initializing API requests.
+    pub connection_mode: ApiConnectionMode,
+    /// The actual endpoint of the Mullvad API and which clients should be
+    /// allowed to initialize a connection to this endpoint.
+    pub endpoint: AllowedEndpoint,
+    /// This is the [`AccessMethodSetting`] which resolved into
+    /// `connection_mode` and `endpoint`.
+    pub setting: AccessMethodSetting,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -97,6 +116,7 @@ impl std::fmt::Display for Message {
             Message::Set(_, _) => f.write_fmt(format_args!("Set")),
             Message::Next(_) => f.write_fmt(format_args!("Next")),
             Message::Update(_, _) => f.write_fmt(format_args!("Update")),
+            Message::Resolve(_, _) => f.write_fmt(format_args!("Resolve")),
         }
     }
 }
@@ -132,7 +152,7 @@ impl AccessModeSelectorHandle {
         rx.await.map_err(Error::NotRunning)?
     }
 
-    pub async fn get_access_method(&self) -> Result<AccessMethodSetting> {
+    pub async fn get_current(&self) -> Result<ResolvedConnectionMode> {
         self.send_command(Message::Get).await.map_err(|err| {
             log::debug!("Failed to get current access method!");
             err
@@ -157,6 +177,15 @@ impl AccessModeSelectorHandle {
             })
     }
 
+    pub async fn resolve(&self, setting: AccessMethodSetting) -> Result<ResolvedConnectionMode> {
+        self.send_command(|tx| Message::Resolve(tx, setting))
+            .await
+            .map_err(|err| {
+                log::error!("Failed to update new access methods!");
+                err
+            })
+    }
+
     pub async fn next(&self) -> Result<ApiConnectionMode> {
         self.send_command(Message::Next).await.map_err(|err| {
             log::debug!("Failed while getting the next access method");
@@ -167,10 +196,10 @@ impl AccessModeSelectorHandle {
     /// Convert this handle to a [`Stream`] of [`ApiConnectionMode`] from the
     /// associated [`AccessModeSelector`].
     ///
-    /// Practically converts the handle to a listener for when the
-    /// currently valid connection modes changes.
+    /// Calling `next` on this stream will poll for the next access method,
+    /// which will be lazily produced (on-demand rather than speculatively).
     pub fn into_stream(self) -> impl Stream<Item = ApiConnectionMode> {
-        unfold(self, |handle| async move {
+        futures::stream::unfold(self, |handle| async move {
             match handle.next().await {
                 Ok(connection_mode) => Some((connection_mode, handle)),
                 // End this stream in case of failure in `next`. `next` should
@@ -198,20 +227,23 @@ pub struct AccessModeSelector {
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
     relay_selector: RelaySelector,
     connection_modes: ConnectionModesIterator,
+    address_cache: AddressCache,
     /// A listener of [`NewAccessMethodEvent`]s.
     listener: Box<dyn Sender<NewAccessMethodEvent> + Send>,
+    current: ResolvedConnectionMode,
 }
 
 impl AccessModeSelector {
-    pub fn spawn(
+    pub(crate) async fn spawn(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
         connection_modes: Vec<AccessMethodSetting>,
         listener: impl Sender<NewAccessMethodEvent> + Send + 'static,
-    ) -> AccessModeSelectorHandle {
+        address_cache: AddressCache,
+    ) -> Result<AccessModeSelectorHandle> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
-        let connection_modes = match ConnectionModesIterator::new(connection_modes) {
+        let mut connection_modes = match ConnectionModesIterator::new(connection_modes) {
             Ok(provider) => provider,
             Err(Error::NoAccessMethods) | Err(_) => {
                 // No settings seem to have been found. Default to using the the
@@ -222,15 +254,25 @@ impl AccessModeSelector {
                 )
             }
         };
+
+        let initial_connection_mode = {
+            let next = connection_modes.next().ok_or(Error::NoAccessMethods)?;
+            Self::resolve_inner(next, &relay_selector, &address_cache).await
+        };
+
         let selector = AccessModeSelector {
             cmd_rx,
             cache_dir,
             relay_selector,
             connection_modes,
+            address_cache,
             listener: Box::new(listener),
+            current: initial_connection_mode,
         };
+
         tokio::spawn(selector.into_future());
-        AccessModeSelectorHandle { cmd_tx }
+
+        Ok(AccessModeSelectorHandle { cmd_tx })
     }
 
     async fn into_future(mut self) {
@@ -239,8 +281,9 @@ impl AccessModeSelector {
             let execution = match cmd {
                 Message::Get(tx) => self.on_get_access_method(tx),
                 Message::Set(tx, value) => self.on_set_access_method(tx, value),
-                Message::Next(tx) => self.on_next_connection_mode(tx),
+                Message::Next(tx) => self.on_next_connection_mode(tx).await,
                 Message::Update(tx, values) => self.on_update_access_methods(tx, values),
+                Message::Resolve(tx, setting) => self.on_resolve_access_method(tx, setting).await,
             };
             match execution {
                 Ok(_) => (),
@@ -260,13 +303,8 @@ impl AccessModeSelector {
         Ok(())
     }
 
-    fn on_get_access_method(&mut self, tx: ResponseTx<AccessMethodSetting>) -> Result<()> {
-        let value = self.get_access_method();
-        self.reply(tx, value)
-    }
-
-    fn get_access_method(&mut self) -> AccessMethodSetting {
-        self.connection_modes.peek()
+    fn on_get_access_method(&mut self, tx: ResponseTx<ResolvedConnectionMode>) -> Result<()> {
+        self.reply(tx, self.current.clone())
     }
 
     fn on_set_access_method(
@@ -284,36 +322,51 @@ impl AccessModeSelector {
         self.connection_modes.set_access_method(value);
     }
 
-    fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
-        let next = self.next_connection_mode();
+    async fn on_next_connection_mode(&mut self, tx: ResponseTx<ApiConnectionMode>) -> Result<()> {
+        let next = self.next_connection_mode().await?;
+        self.reply(tx, next)
+    }
+
+    async fn next_connection_mode(&mut self) -> Result<ApiConnectionMode> {
+        let access_method = self.connection_modes.next().ok_or(Error::NoAccessMethods)?;
+        log::info!(
+            "A new API access method has been selected: {name}",
+            name = access_method.name
+        );
+        let next = {
+            let resolved = self.resolve(access_method).await;
+            // Note: If the daemon is busy waiting for a call to this function
+            // to complete while we wait for the daemon to fully handle this
+            // `NewAccessMethodEvent`, then we find ourselves in a deadlock.
+            // This can happen during daemon startup when spawning a new
+            // `MullvadRestHandle`, which will call and await `next` on a Stream
+            // created from this `AccessModeSelector` instance. As such, the
+            // completion channel is discarded in this instance.
+            let (event, _) = NewAccessMethodEvent::new(
+                resolved.setting.clone(),
+                resolved.endpoint.clone(),
+                true,
+            );
+            let _ = self.listener.send(event);
+            self.current = resolved.clone();
+            resolved
+        };
+
         // Save the new connection mode to cache!
         {
             let cache_dir = self.cache_dir.clone();
-            let next = next.clone();
+            let new_connection_mode = next.connection_mode.clone();
             tokio::spawn(async move {
-                if next.save(&cache_dir).await.is_err() {
+                if new_connection_mode.save(&cache_dir).await.is_err() {
                     log::warn!(
                         "Failed to save {connection_mode} to cache",
-                        connection_mode = next
+                        connection_mode = new_connection_mode
                     )
                 }
             });
         }
-        self.reply(tx, next)
+        Ok(next.connection_mode)
     }
-
-    fn next_connection_mode(&mut self) -> ApiConnectionMode {
-        let access_method = self
-            .connection_modes
-            .next()
-            .map(|access_method_setting| access_method_setting.access_method)
-            .unwrap_or(AccessMethod::from(BuiltInAccessMethod::Direct));
-
-        let connection_mode = self.from(access_method);
-        log::info!("New API connection mode selected: {connection_mode}");
-        connection_mode
-    }
-
     fn on_update_access_methods(
         &mut self,
         tx: ResponseTx<()>,
@@ -449,11 +502,6 @@ impl ConnectionModesIterator {
         } else {
             Ok(Box::new(access_methods.into_iter().cycle()))
         }
-    }
-
-    /// Look at the currently active [`AccessMethod`]
-    pub fn peek(&self) -> AccessMethodSetting {
-        self.current.clone()
     }
 }
 
