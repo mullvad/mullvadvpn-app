@@ -1227,7 +1227,7 @@ where
             UpdateApiAccessMethod(tx, method) => self.on_update_api_access_method(tx, method).await,
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
-            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
+            TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2442,35 +2442,96 @@ where
         });
     }
 
-    fn on_test_api_access_method(
+    async fn on_test_api_access_method(
         &mut self,
         tx: ResponseTx<bool, Error>,
         access_method: mullvad_types::access_method::Id,
     ) {
-        // NOTE: Preferably we would block all new API calls until the test is
-        // done and the previous access method is reset. Otherwise we run the
-        // risk of errounously triggering a rotation of the currently in-use
-        // access method.
-        let api_handle = self.api_handle.clone();
-        let handle = self.connection_modes_handler.clone();
-        let access_method_lookup = self
-            .get_api_access_method(access_method)
-            .map_err(Error::AccessMethodError);
+        use futures::{future, TryFutureExt};
+        let access_method_selector = self.connection_modes_handler.clone();
+        let access_method_lookup = future::ready(
+            self.get_api_access_method(access_method)
+                .map_err(Error::AccessMethodError),
+        )
+        .and_then(|access_method| {
+            access_method_selector
+                .resolve(access_method)
+                .map_err(Error::ApiConnectionModeError)
+        });
 
-        match access_method_lookup {
-            Ok(access_method) => {
+        let reply =
+            |response| Self::oneshot_send(tx, response, "on_test_api_access_method response");
+
+        match access_method_lookup.await {
+            Ok(test_subject) => {
+                let proxy_provider = test_subject.connection_mode.clone().into_repeat();
+                let rest_handle = self.api_runtime.mullvad_rest_handle(proxy_provider).await;
+                let api_proxy = mullvad_api::ApiProxy::new(rest_handle);
+                let daemon_event_sender = self.tx.to_specialized_sender();
+                let access_method_selector = self.connection_modes_handler.clone();
+
                 tokio::spawn(async move {
-                    let result =
-                        access_method::test_access_method(access_method, handle, api_handle)
-                            .await
-                            .map_err(Error::AccessMethodError);
-                    Self::oneshot_send(tx, result, "on_test_api_access_method response");
+                    let result = Self::test_api_access_method_inner(
+                        test_subject.clone(),
+                        access_method_selector,
+                        api_proxy,
+                        daemon_event_sender,
+                    )
+                    .await;
+
+                    log::debug!(
+                        "API access method {method} {result}",
+                        method = test_subject.setting.name,
+                        result = if result.as_ref().is_ok_and(|is_true| *is_true) {
+                            "could successfully connect to the Mullvad API".to_string()
+                        } else {
+                            "could not connect to the Mullvad API".to_string()
+                        }
+                    );
+
+                    reply(result);
                 });
             }
-            Err(err) => {
-                Self::oneshot_send(tx, Err(err), "on_test_api_access_method response");
-            }
-        }
+            Err(err) => reply(Err(err)),
+        };
+    }
+
+    async fn test_api_access_method_inner(
+        test_subject: api::ResolvedConnectionMode,
+        access_method_selector: api::AccessModeSelectorHandle,
+        api_proxy: mullvad_api::ApiProxy,
+        daemon_event_sender: DaemonEventSender<NewAccessMethodEvent>,
+    ) -> Result<bool, Error> {
+        // Send an internal daemon event which will punch a hole in the firewall
+        // for the connection mode we are testing.
+        let (event, update_finished_rx) =
+            api::NewAccessMethodEvent::new(test_subject.setting, test_subject.endpoint, false);
+        let _ = daemon_event_sender.send(event);
+        // Wait for the daemon to finish processing `event`.
+        let _ = update_finished_rx.await;
+
+        // Send a HEAD request to some Mullvad API endpoint. We issue a HEAD
+        // request because we are *only* concerned with if we get a reply from
+        // the API, and not with the actual data that the endpoint returns.
+        let result = api_proxy
+            .api_addrs_available()
+            .await
+            .map_err(Error::RestError);
+
+        // Tell the daemon to reset the hole we just punched to whatever was in
+        // place before.
+        let api::ResolvedConnectionMode {
+            endpoint, setting, ..
+        } = access_method_selector
+            .get_current()
+            .await
+            .map_err(Error::ApiConnectionModeError)?;
+
+        let (event, update_finished_rx) = api::NewAccessMethodEvent::new(setting, endpoint, false);
+        let _ = daemon_event_sender.send(event);
+        // Wait for the daemon to finish processing `event`.
+        let _ = update_finished_rx.await;
+        result
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {
