@@ -131,6 +131,15 @@ impl ConnectedState {
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
         let endpoint = self.tunnel_parameters.get_next_hop_endpoint();
+
+        #[cfg(target_os = "windows")]
+        let clients = AllowedClients::from(
+            TunnelMonitor::get_relay_client(&shared_values.resource_dir, params)
+                .into_iter()
+                .collect::<Vec<_>>(),
+        );
+
+        #[cfg(not(target_os = "windows"))]
         let clients = if self
             .tunnel_parameters
             .get_openvpn_local_proxy_settings()
