@@ -1,7 +1,5 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use once_cell::sync::Lazy;
-#[cfg(windows)]
-use std::path::PathBuf;
 use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
