@@ -21,7 +21,7 @@ use std::{
 use talpid_routing::RouteManager;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 use talpid_types::{
-    net::{AllowedTunnelTraffic, TunnelParameters, AllowedClients, AllowedEndpoint},
+    net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters},
     tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
 };
@@ -143,7 +143,11 @@ impl ConnectingState {
         let endpoint = params.get_next_hop_endpoint();
 
         #[cfg(target_os = "windows")]
-        let clients = AllowedClients::from(TunnelMonitor::get_relay_client(&shared_values.resource_dir, params));
+        let clients = AllowedClients::from(
+            TunnelMonitor::get_relay_client(&shared_values.resource_dir, params)
+                .into_iter()
+                .collect::<Vec<_>>(),
+        );
 
         #[cfg(not(target_os = "windows"))]
         let clients = if params.get_openvpn_local_proxy_settings().is_some() {
