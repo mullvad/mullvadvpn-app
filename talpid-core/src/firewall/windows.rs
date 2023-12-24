@@ -108,7 +108,6 @@ impl Firewall {
                     &tunnel,
                     &WinFwAllowedEndpointContainer::from(allowed_endpoint).as_endpoint(),
                     &allowed_tunnel_traffic,
-                    &relay_client,
                 )
             }
             FirewallPolicy::Connected {
@@ -156,6 +155,7 @@ impl Firewall {
 
         let relay_client_wstr = endpoint
             .clients
+            .last()
             .as_ref()
             .map(|client| WideCString::from_os_str_truncate(client));
         let relay_client_wstr_ptr: *const u16 = if let Some(ref wstr) = relay_client_wstr {
@@ -272,6 +272,7 @@ impl Firewall {
         };
 
         let relay_client_wstr = endpoint.clients
+            .last()
             .as_ref()
             .map(|client| WideCString::from_os_str_truncate(client));
         let relay_client_wstr_ptr: *const u16 = if let Some(ref wstr) = relay_client_wstr {

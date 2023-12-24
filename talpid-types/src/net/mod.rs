@@ -350,9 +350,9 @@ impl std::ops::Deref for AllowedClients {
 }
 
 #[cfg(windows)]
-impl From<Option<PathBuf>> for AllowedClients {
-    fn from(value: Option<PathBuf>) -> Self {
-        Self(value.iter().collect::<Vec<_>>().into())
+impl From<Vec<PathBuf>> for AllowedClients {
+    fn from(value: Vec<PathBuf>) -> Self {
+        Self(value.into())
     }
 }
 
