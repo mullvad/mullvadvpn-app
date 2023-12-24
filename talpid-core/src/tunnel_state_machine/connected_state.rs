@@ -134,7 +134,7 @@ impl ConnectedState {
 
         #[cfg(target_os = "windows")]
         let clients = AllowedClients::from(
-            TunnelMonitor::get_relay_client(&shared_values.resource_dir, self.tunnel_parameters)
+            TunnelMonitor::get_relay_client(&shared_values.resource_dir, &self.tunnel_parameters)
                 .into_iter()
                 .collect::<Vec<_>>(),
         );
