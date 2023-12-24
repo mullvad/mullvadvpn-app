@@ -6,7 +6,7 @@ use std::{
     fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint};
+use talpid_types::net::{AllowedEndpoint, AllowedTunnelTraffic};
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -116,7 +116,7 @@ pub enum FirewallPolicy {
     /// Allow traffic only to server
     Connecting {
         /// The peer endpoint that should be allowed.
-        peer_endpoint: Endpoint,
+        peer_endpoint: AllowedEndpoint,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: Option<crate::tunnel::TunnelMetadata>,
         /// Flag setting if communication with LAN networks should be possible.
@@ -125,31 +125,19 @@ pub enum FirewallPolicy {
         allowed_endpoint: AllowedEndpoint,
         /// Networks for which to permit in-tunnel traffic.
         allowed_tunnel_traffic: AllowedTunnelTraffic,
-        /// TODO
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        allow_all_traffic_to_peer: bool,
-        /// A process that is allowed to send packets to the relay.
-        #[cfg(windows)]
-        relay_client: Option<PathBuf>,
     },
 
     /// Allow traffic only to server and over tunnel interface
     Connected {
         /// The peer endpoint that should be allowed.
-        peer_endpoint: Endpoint,
+        peer_endpoint: AllowedEndpoint,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: crate::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
-        /// TODO
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        allow_all_traffic_to_peer: bool,
         /// Servers that are allowed to respond to DNS requests.
         #[cfg(not(target_os = "android"))]
         dns_servers: Vec<IpAddr>,
-        /// A process that is allowed to send packets to the relay.
-        #[cfg(windows)]
-        relay_client: Option<PathBuf>,
     },
 
     /// Block all network traffic in and out from the computer.

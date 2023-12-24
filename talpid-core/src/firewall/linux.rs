@@ -530,12 +530,10 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
-                allow_all_traffic_to_peer,
             } => {
                 self.add_allow_tunnel_endpoint_rules(
                     peer_endpoint,
                     fwmark,
-                    *allow_all_traffic_to_peer,
                 );
                 self.add_allow_endpoint_rules(allowed_endpoint);
 
@@ -568,12 +566,10 @@ impl<'a> PolicyBatch<'a> {
                 tunnel,
                 allow_lan,
                 dns_servers,
-                allow_all_traffic_to_peer,
             } => {
                 self.add_allow_tunnel_endpoint_rules(
                     peer_endpoint,
                     fwmark,
-                    *allow_all_traffic_to_peer,
                 );
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Tcp)?;
@@ -620,13 +616,12 @@ impl<'a> PolicyBatch<'a> {
 
     fn add_allow_tunnel_endpoint_rules(
         &mut self,
-        endpoint: &Endpoint,
+        endpoint: &AllowedEndpoint,
         fwmark: u32,
-        allow_all_traffic_to_peer: bool,
     ) {
         let mut prerouting_rule = Rule::new(&self.prerouting_chain);
         // Mark incoming traffic from endpoint with fwmark
-        check_endpoint(&mut prerouting_rule, End::Src, endpoint);
+        check_endpoint(&mut prerouting_rule, End::Src, &endpoint.endpoint);
         prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
         prerouting_rule.add_expr(&nft_expr!(meta mark set));
 
@@ -637,7 +632,7 @@ impl<'a> PolicyBatch<'a> {
         self.batch.add(&prerouting_rule, nftnl::MsgType::Add);
 
         let mut in_rule = Rule::new(&self.in_chain);
-        check_endpoint(&mut in_rule, End::Src, endpoint);
+        check_endpoint(&mut in_rule, End::Src, &endpoint.endpoint);
 
         // Allow all incoming traffic from established connections to the endpoint
         let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
@@ -653,7 +648,7 @@ impl<'a> PolicyBatch<'a> {
 
         // Allow any traffic to the endpoint which is marked with fwmark
         let mut out_rule = Rule::new(&self.out_chain);
-        check_endpoint(&mut out_rule, End::Dst, endpoint);
+        check_endpoint(&mut out_rule, End::Dst, &endpoint.endpoint);
         out_rule.add_expr(&nft_expr!(meta mark));
         out_rule.add_expr(&nft_expr!(cmp == fwmark));
         add_verdict(&mut out_rule, &Verdict::Accept);
@@ -662,9 +657,9 @@ impl<'a> PolicyBatch<'a> {
 
         // Used for local custom bridge, allows some local socks5 proxy to send traffic to the
         // endpoint
-        if allow_all_traffic_to_peer {
+        if endpoint.clients.allow_all() {
             let mut rule = Rule::new(&self.mangle_chain);
-            check_endpoint(&mut rule, End::Dst, endpoint);
+            check_endpoint(&mut rule, End::Dst, &endpoint.endpoint);
             rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
             rule.add_expr(&nft_expr!(ct mark set));
             rule.add_expr(&nft_expr!(immediate data fwmark));
