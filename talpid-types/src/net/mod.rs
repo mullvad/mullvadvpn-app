@@ -97,7 +97,7 @@ impl TunnelParameters {
     }
 
     pub fn get_openvpn_local_proxy_settings(&self) -> Option<&LocalProxySettings> {
-        match &self {
+        match self {
             TunnelParameters::OpenVpn(params) => {
                 params
                     .proxy
