@@ -103,6 +103,7 @@ impl TunnelMonitor {
     }
 
     /// Returns a path to an executable that communicates with relay servers.
+    /// Returns `None` if the executable is unknown.
     #[cfg(windows)]
     pub fn get_relay_client(
         resource_dir: &path::Path,
