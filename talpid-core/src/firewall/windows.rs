@@ -1,11 +1,11 @@
 use crate::tunnel::TunnelMetadata;
 
-use std::{ffi::CStr, io, net::IpAddr, path::PathBuf, ptr};
+use std::{ffi::CStr, io, net::IpAddr, ptr};
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_types::{
-    net::{AllowedEndpoint, AllowedTunnelTraffic, Endpoint},
+    net::{AllowedEndpoint, AllowedTunnelTraffic},
     tunnel::FirewallPolicyError,
 };
 use widestring::WideCString;
