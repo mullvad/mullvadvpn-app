@@ -1,10 +1,24 @@
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
 pub enum Os {
     Linux,
     Macos,
     Windows,
+}
+
+impl FromStr for Os {
+    type Err = Box<dyn std::error::Error>;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "linux" => Ok(Os::Linux),
+            "macos" => Ok(Os::Macos),
+            "windows" => Ok(Os::Windows),
+            other => Err(format!("unknown os {other}").into()),
+        }
+    }
 }
 
 impl std::fmt::Display for Os {
@@ -16,12 +30,3 @@ impl std::fmt::Display for Os {
         }
     }
 }
-
-#[cfg(target_os = "linux")]
-pub const CURRENT_OS: Os = Os::Linux;
-
-#[cfg(target_os = "windows")]
-pub const CURRENT_OS: Os = Os::Windows;
-
-#[cfg(target_os = "macos")]
-pub const CURRENT_OS: Os = Os::Macos;

@@ -273,6 +273,7 @@ async fn main() -> Result<()> {
                     host_bridge_name: crate::vm::network::macos::find_vm_bridge()?,
                     #[cfg(not(target_os = "macos"))]
                     host_bridge_name: crate::vm::network::linux::BRIDGE_NAME.to_owned(),
+                    os: test_rpc::meta::Os::from(vm_config.os_type),
                 },
                 &*instance,
                 &test_filters,
