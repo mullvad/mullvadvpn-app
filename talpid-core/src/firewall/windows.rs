@@ -153,16 +153,17 @@ impl Firewall {
             protocol: WinFwProt::from(endpoint.endpoint.protocol),
         };
 
-        let relay_client_wstr = endpoint
+        let relay_client_wstrs: Vec<_> = endpoint
             .clients
-            .last()
-            .as_ref()
-            .map(|client| WideCString::from_os_str_truncate(client));
-        let relay_client_wstr_ptr: *const u16 = if let Some(ref wstr) = relay_client_wstr {
-            wstr.as_ptr()
-        } else {
-            ptr::null()
-        };
+            .iter()
+            .map(|client| WideCString::from_os_str_truncate(client)).collect();
+        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs.iter().map(|wstr| wstr.as_ptr()).collect();
+        let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
+        //let relay_client_wstr_ptr: *const u16 = if let Some(ref wstr) = relay_client_wstr {
+        //    wstr.as_ptr()
+        //} else {
+        //    ptr::null()
+        //};
 
         let interface_wstr = tunnel_metadata
             .as_ref()
@@ -223,7 +224,8 @@ impl Firewall {
             WinFw_ApplyPolicyConnecting(
                 winfw_settings,
                 &winfw_relay,
-                relay_client_wstr_ptr,
+                relay_client_wstr_ptrs.as_ptr(),
+                relay_client_wstr_ptrs_len,
                 interface_wstr_ptr,
                 allowed_endpoint,
                 &allowed_tunnel_traffic,
@@ -271,15 +273,16 @@ impl Firewall {
             None => ptr::null(),
         };
 
-        let relay_client_wstr = endpoint.clients
-            .last()
-            .as_ref()
-            .map(|client| WideCString::from_os_str_truncate(client));
-        let relay_client_wstr_ptr: *const u16 = if let Some(ref wstr) = relay_client_wstr {
-            wstr.as_ptr()
-        } else {
-            ptr::null()
-        };
+        let relay_client_wstrs: Vec<_> = endpoint.clients
+            .iter()
+            .map(|client| WideCString::from_os_str_truncate(client)).collect();
+        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs.iter().map(|wstr| wstr.as_ptr()).collect();
+        let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
+        //let relay_client_wstr_ptrs: *const u16 = if let Some(ref wstr) = relay_client_wstr {
+        //    wstr.as_ptr()
+        //} else {
+        //    ptr::null()
+        //};
 
         let dns_servers: Vec<WideCString> =
             dns_servers.iter().cloned().map(widestring_ip).collect();
@@ -289,7 +292,8 @@ impl Firewall {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
                 &winfw_relay,
-                relay_client_wstr_ptr,
+                relay_client_wstr_ptrs.as_ptr(),
+                relay_client_wstr_ptrs_len,
                 tunnel_alias.as_ptr(),
                 v4_gateway.as_ptr(),
                 v6_gateway_ptr,
@@ -610,7 +614,8 @@ mod winfw {
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
             relay: &WinFwEndpoint,
-            relayClient: *const libc::wchar_t,
+            relayClient: *const *const libc::wchar_t,
+            relayClientLen: usize,
             tunnelIfaceAlias: *const libc::wchar_t,
             allowedEndpoint: *const WinFwAllowedEndpoint<'_>,
             allowedTunnelTraffic: &WinFwAllowedTunnelTraffic,
@@ -620,7 +625,8 @@ mod winfw {
         pub fn WinFw_ApplyPolicyConnected(
             settings: &WinFwSettings,
             relay: &WinFwEndpoint,
-            relayClient: *const libc::wchar_t,
+            relayClient: *const *const libc::wchar_t,
+            relayClientLen: usize,
             tunnelIfaceAlias: *const libc::wchar_t,
             v4Gateway: *const libc::wchar_t,
             v6Gateway: *const libc::wchar_t,

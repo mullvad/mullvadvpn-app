@@ -164,7 +164,8 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
-	const wchar_t *relayClient,
+	const wchar_t **relayClient,
+	size_t relayClientLen,
 	const wchar_t *tunnelInterfaceAlias,
 	const WinFwAllowedEndpoint *allowedEndpoint,
 	const WinFwAllowedTunnelTraffic *allowedTunnelTraffic
@@ -194,7 +195,8 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
-	const wchar_t *relayClient,
+	const wchar_t **relayClient,
+	size_t relayClientLen,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4Gateway,
 	const wchar_t *v6Gateway,
