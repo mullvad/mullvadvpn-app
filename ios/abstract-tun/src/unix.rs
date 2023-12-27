@@ -7,8 +7,6 @@ use std::{
 };
 use tun::{platform, Configuration, Device};
 
-use crate::TunnelTransport;
-
 pub struct TunWriteHandle {
     dev: Arc<TunHandle>,
 }
@@ -46,16 +44,6 @@ impl TunWriteHandle {
 impl TunReadHandle {
     pub fn read(&self, buffer: &mut [u8]) -> io::Result<usize> {
         self.dev.read(buffer)
-    }
-}
-
-impl TunnelTransport for TunWriteHandle {
-    fn send_v4_packet(&self, buffer: &[u8]) -> io::Result<()> {
-        self.send_packet(buffer, libc::AF_INET.try_into().unwrap())
-    }
-
-    fn send_v6_packet(&self, buffer: &[u8]) -> io::Result<()> {
-        self.send_packet(buffer, libc::AF_INET6.try_into().unwrap())
     }
 }
 
@@ -151,12 +139,5 @@ impl UdpTransport {
 
     pub fn receive_packet(&self, buffer: &mut [u8]) -> io::Result<usize> {
         self.socket.recv(buffer)
-    }
-}
-
-impl crate::UdpTransport for UdpTransport {
-    fn send_packet(&self, addr: std::net::SocketAddr, buffer: &[u8]) -> io::Result<()> {
-        let _ = self.socket.send_to(buffer, addr)?;
-        Ok(())
     }
 }

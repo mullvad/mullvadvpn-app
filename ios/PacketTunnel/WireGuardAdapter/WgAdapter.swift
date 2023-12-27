@@ -100,7 +100,7 @@ extension WgAdapter: TunnelDeviceInfoProtocol {
     }
 }
 
-private extension TunnelAdapterConfiguration {
+extension TunnelAdapterConfiguration {
     var asWgConfig: TunnelConfiguration {
         var interfaceConfig = InterfaceConfiguration(privateKey: privateKey)
         interfaceConfig.addresses = interfaceAddresses

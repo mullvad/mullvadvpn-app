@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01E9856A2B3C438E007FC700 /* AbstractTun.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E985662B3C438E007FC700 /* AbstractTun.swift */; };
+		01E9856B2B3C438E007FC700 /* PacketTunnelProvider+UDPSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E985672B3C438E007FC700 /* PacketTunnelProvider+UDPSession.swift */; };
+		01E9856C2B3C438E007FC700 /* AbstractTunData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01E985682B3C438E007FC700 /* AbstractTunData.swift */; };
+		01E9856F2B3C7F3A007FC700 /* abstract_tun.h in Headers */ = {isa = PBXBuildFile; fileRef = 01E9856E2B3C7F3A007FC700 /* abstract_tun.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
 		063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063687B928EB234F00BE7161 /* PacketTunnelTransport.swift */; };
@@ -1153,6 +1157,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		01E985662B3C438E007FC700 /* AbstractTun.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AbstractTun.swift; sourceTree = "<group>"; };
+		01E985672B3C438E007FC700 /* PacketTunnelProvider+UDPSession.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "PacketTunnelProvider+UDPSession.swift"; sourceTree = "<group>"; };
+		01E985682B3C438E007FC700 /* AbstractTunData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AbstractTunData.swift; sourceTree = "<group>"; };
+		01E985692B3C438E007FC700 /* ObjCBridgingHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjCBridgingHeader.h; sourceTree = "<group>"; };
+		01E9856E2B3C7F3A007FC700 /* abstract_tun.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = abstract_tun.h; path = "abstract-tun/include/abstract_tun.h"; sourceTree = "<group>"; };
+		01E985702B3C7F52007FC700 /* abstract_tun.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = abstract_tun.h; path = "abstract-tun/include/abstract_tun.h"; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libshadowsocks_proxy.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libshadowsocks_proxy.a; path = ../target/debug/libshadowsocks_proxy.a; sourceTree = "<group>"; };
 		062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTDefaults.swift; sourceTree = "<group>"; };
 		063687AF28EB083800BE7161 /* ProxyURLRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyURLRequest.swift; sourceTree = "<group>"; };
@@ -2622,6 +2632,10 @@
 		588395612A9DF497008B63F6 /* WireGuardAdapter */ = {
 			isa = PBXGroup;
 			children = (
+				01E985662B3C438E007FC700 /* AbstractTun.swift */,
+				01E985682B3C438E007FC700 /* AbstractTunData.swift */,
+				01E985692B3C438E007FC700 /* ObjCBridgingHeader.h */,
+				01E985672B3C438E007FC700 /* PacketTunnelProvider+UDPSession.swift */,
 				5883955F2A9DEEA1008B63F6 /* WgAdapter.swift */,
 				58E9C3832A4EF15300CFDEAC /* WireGuardAdapter+Async.swift */,
 				58E07298288031D5008902F8 /* WireGuardAdapterError+Localization.swift */,
@@ -2881,6 +2895,8 @@
 		58CE5E57224146200008646E = {
 			isa = PBXGroup;
 			children = (
+				01E9856E2B3C7F3A007FC700 /* abstract_tun.h */,
+				01E985702B3C7F52007FC700 /* abstract_tun.h */,
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
 				582CFEE1269448160072883A /* Localizations */,
@@ -3447,6 +3463,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		01E9856D2B3C7EB4007FC700 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				01E9856F2B3C7F3A007FC700 /* abstract_tun.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		06799AB728F98E1D00ACD94E /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -3746,6 +3770,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58CE5E82224146470008646E /* Build configuration list for PBXNativeTarget "PacketTunnel" */;
 			buildPhases = (
+				01E985652B3C4007007FC700 /* Build abstract-tun */,
+				01E9856D2B3C7EB4007FC700 /* Headers */,
 				580E3F222A9861990061809D /* Run SwiftLint */,
 				58CE5E75224146470008646E /* Sources */,
 				58CE5E76224146470008646E /* Frameworks */,
@@ -4151,6 +4177,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		01E985652B3C4007007FC700 /* Build abstract-tun */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build abstract-tun";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "CARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/build-rust-library.sh abstract-tun\n\n";
+		};
 		580E3F212A9860F20061809D /* Run SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -4929,6 +4974,7 @@
 				58915D682A25FA080066445B /* DeviceCheckRemoteService.swift in Sources */,
 				58E9C3842A4EF15300CFDEAC /* WireGuardAdapter+Async.swift in Sources */,
 				5864AF7D2A9F4DC9008BC928 /* SettingsReader.swift in Sources */,
+				01E9856A2B3C438E007FC700 /* AbstractTun.swift in Sources */,
 				588395602A9DEEA1008B63F6 /* WgAdapter.swift in Sources */,
 				58E0729F28814ACC008902F8 /* WireGuardLogLevel+Logging.swift in Sources */,
 				58FF23A32AB09BEE003A2AF2 /* DeviceChecker.swift in Sources */,
@@ -4936,6 +4982,7 @@
 				580D6B922AB360BE00B2D6E0 /* DeviceCheck+BlockedStateReason.swift in Sources */,
 				583D86482A2678DC0060D63B /* DeviceStateAccessor.swift in Sources */,
 				58F3F36A2AA08E3C00D3B0A4 /* PacketTunnelProvider.swift in Sources */,
+				01E9856C2B3C438E007FC700 /* AbstractTunData.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
 				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
 				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
@@ -4945,6 +4992,7 @@
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				582403822A827E1500163DE8 /* RelaySelectorWrapper.swift in Sources */,
 				58FDF2D92A0BA11A00C2B061 /* DeviceCheckOperation.swift in Sources */,
+				01E9856B2B3C438E007FC700 /* PacketTunnelProvider+UDPSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5878,6 +5926,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "MullvadVPN/Supporting Files/MullvadVPN.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5885,7 +5937,10 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = net.mullvad.MullvadVPN;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Mullvad VPN Development";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -5899,6 +5954,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "MullvadVPN/Supporting Files/MullvadVPN.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "MullvadVPN/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -5906,7 +5965,10 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER)";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = net.mullvad.MullvadVPN;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Mullvad VPN Development";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -5917,15 +5979,25 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/abstract-tun/include/";
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/debug";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = net.mullvad.MullvadVPN.PacketTunnel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Packet Tunnel Development";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/PacketTunnel/WireGuardAdapter/ObjCBridgingHeader.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -5937,15 +6009,25 @@
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = PacketTunnel/PacketTunnel.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = CKG9MXH72F;
 				ENABLE_BITCODE = NO;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/abstract-tun/include/";
 				INFOPLIST_FILE = PacketTunnel/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				"LIBRARY_SEARCH_PATHS[arch=*]" = "$(PROJECT_DIR)/../target/aarch64-apple-ios/release";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APPLICATION_IDENTIFIER).PacketTunnel";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = net.mullvad.MullvadVPN.PacketTunnel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "Packet Tunnel Development";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/PacketTunnel/WireGuardAdapter/ObjCBridgingHeader.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
