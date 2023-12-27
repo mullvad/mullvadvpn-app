@@ -1,5 +1,5 @@
 use crate::summary::{self, maybe_log_test_result};
-use crate::tests::TestContext;
+use crate::tests::{config::TEST_CONFIG, TestContext};
 use crate::{
     logging::{panic_as_string, TestOutput},
     mullvad_daemon, tests,
@@ -26,7 +26,7 @@ pub async fn run(
     mut summary_logger: Option<summary::SummaryLogger>,
 ) -> Result<()> {
     log::trace!("Setting test constants");
-    tests::config::TEST_CONFIG.init(config);
+    TEST_CONFIG.init(config);
 
     let pty_path = instance.get_pty();
 
@@ -47,7 +47,9 @@ pub async fn run(
     let mullvad_client =
         mullvad_daemon::new_rpc_client(connection_handle, mullvad_daemon_transport);
 
-    let mut tests: Vec<_> = inventory::iter::<tests::TestMetadata>().collect();
+    let mut tests: Vec<_> = inventory::iter::<tests::TestMetadata>()
+        .filter(|test| test.should_run_on_os(TEST_CONFIG.os))
+        .collect();
     tests.sort_by_key(|test| test.priority.unwrap_or(0));
 
     if !test_filters.is_empty() {

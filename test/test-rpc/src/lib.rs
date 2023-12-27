@@ -111,9 +111,6 @@ mod service {
 
         async fn get_mullvad_app_logs() -> logging::LogOutput;
 
-        /// Return the OS of the guest.
-        async fn get_os() -> meta::Os;
-
         /// Return status of the system service.
         async fn mullvad_daemon_get_status() -> mullvad_daemon::ServiceStatus;
 

@@ -1,7 +1,7 @@
 use super::helpers::{
     self, connect_and_wait, disconnect_and_wait, set_bridge_settings, set_relay_settings,
 };
-use super::{Error, TestContext};
+use super::{config::TEST_CONFIG, Error, TestContext};
 
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use mullvad_management_interface::{types, ManagementServiceClient};
@@ -502,7 +502,7 @@ async fn check_tunnel_psk(
     mullvad_client: &ManagementServiceClient,
     should_have_psk: bool,
 ) {
-    match rpc.get_os().await.expect("failed to get OS") {
+    match TEST_CONFIG.os {
         Os::Linux => {
             let name = helpers::get_tunnel_interface(mullvad_client.clone())
                 .await

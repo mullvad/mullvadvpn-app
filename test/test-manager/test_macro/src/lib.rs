@@ -37,6 +37,9 @@ use syn::{AttributeArgs, Lit, Meta, NestedMeta};
 /// filters are provided by the user.
 /// `always_run` defaults to false.
 ///
+/// * `target_os` - The test should only run on the specified OS. This can currently be
+/// set to `linux`, `windows`, or `macos`.
+///
 /// # Examples
 ///
 /// ## Create a standard test.
@@ -102,12 +105,14 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> MacroParameters
     let mut cleanup = true;
     let mut always_run = false;
     let mut must_succeed = false;
+    let mut target_os = None;
+
     for attribute in attributes {
         if let NestedMeta::Meta(Meta::NameValue(nv)) = attribute {
             if nv.path.is_ident("priority") {
                 match &nv.lit {
                     Lit::Int(lit_int) => {
-                        priority = Some(lit_int.clone());
+                        priority = Some(lit_int.base10_parse().unwrap());
                     }
                     _ => panic!("'priority' should have an integer value"),
                 }
@@ -132,6 +137,13 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> MacroParameters
                     }
                     _ => panic!("'cleanup' should have a bool value"),
                 }
+            } else if nv.path.is_ident("target_os") {
+                match &nv.lit {
+                    Lit::Str(lit_str) => {
+                        target_os = Some(lit_str.value());
+                    }
+                    _ => panic!("'target_os' should have a string value"),
+                }
             }
         }
     }
@@ -141,13 +153,22 @@ fn get_test_macro_parameters(attributes: &syn::AttributeArgs) -> MacroParameters
         cleanup,
         always_run,
         must_succeed,
+        target_os,
     }
 }
 
 fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
     let test_function_priority = match test_function.macro_parameters.priority {
-        Some(priority) => quote! {Some(#priority)},
-        None => quote! {None},
+        Some(priority) => quote! { Some(#priority) },
+        None => quote! { None },
+    };
+    let target_os = match test_function.macro_parameters.target_os {
+        Some(target_os) => {
+            quote! {
+                Some(::std::str::FromStr::from_str(#target_os).expect("invalid target os"))
+            }
+        }
+        None => quote! { None },
     };
     let should_cleanup = test_function.macro_parameters.cleanup;
     let always_run = test_function.macro_parameters.always_run;
@@ -191,6 +212,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         inventory::submit!(crate::tests::test_metadata::TestMetadata {
             name: stringify!(#func_name),
             command: stringify!(#func_name),
+            target_os: #target_os,
             mullvad_client_version: #function_mullvad_version,
             func: Box::new(#wrapper_closure),
             priority: #test_function_priority,
@@ -208,10 +230,11 @@ struct TestFunction {
 }
 
 struct MacroParameters {
-    priority: Option<syn::LitInt>,
+    priority: Option<i32>,
     cleanup: bool,
     always_run: bool,
     must_succeed: bool,
+    target_os: Option<String>,
 }
 
 enum MullvadClient {
