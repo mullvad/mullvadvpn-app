@@ -10,21 +10,12 @@ publish.workspace = true
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
 log = "0.4"
-anyhow = "1"
 tokio = { version = "1", features = [ "rt", "sync", "io-util", "net", "time", "fs", "macros" ] }
-futures = "0.3"
-rand = "0.8"
-nom = "7"
 async-trait = "0.1"
-priority-queue = "1.3.0"
-smoltcp = { version = "0.8.2", default-features = false, features = ["std", "log", "medium-ip", "proto-ipv4", "proto-ipv6", "socket-udp", "socket-tcp"] }
-bytes = "1"
 x25519-dalek = { version = "2", features = [ "reusable_secrets", "static_secrets" ] }
 boringtun = { git = "https://github.com/mullvad/boringtun", rev = "44fffd131212d08febb3799bfc9f951fd3893c4c", default-features = false }
 libc ="*"
-oslog = "0.2"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 env_logger = "0.10"
@@ -41,3 +32,4 @@ cbindgen = { version = "0.24.3", default-features = false }
 
 [lib]
 crate-type = [ "rlib", "staticlib" ]
+bench = false

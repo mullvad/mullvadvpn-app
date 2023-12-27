@@ -7,8 +7,6 @@
 		<string>packet-tunnel-provider</string>
 	</array>
 	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>$(SECURITY_GROUP_IDENTIFIER)</string>
-	</array>
+	<array/>
 </dict>
 </plist>
