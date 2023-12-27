@@ -231,7 +231,8 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
-	const wchar_t *relayClient,
+	const wchar_t **relayClients,
+	size_t relayClientsLen,
 	const wchar_t *tunnelInterfaceAlias,
 	const WinFwAllowedEndpoint *allowedEndpoint,
 	const WinFwAllowedTunnelTraffic *allowedTunnelTraffic
@@ -259,10 +260,16 @@ WinFw_ApplyPolicyConnecting(
 			THROW_ERROR("Invalid argument: allowedTunnelTraffic");
 		}
 
+		auto relayClientWstrings = std::vector<std::wstring>();
+		relayClientWstrings.reserve(relayClientsLen);
+		for(int i = 0; i < relayClientsLen; i++) {
+			relayClientWstrings.push_back(relayClients[i]);
+		}
+
 		return g_fwContext->applyPolicyConnecting(
 			*settings,
 			*relay,
-			relayClient != nullptr ? std::make_optional(relayClient) : std::nullopt,
+			relayClientWstrings,
 			tunnelInterfaceAlias != nullptr ? std::make_optional(tunnelInterfaceAlias) : std::nullopt,
 			MakeOptional(allowedEndpoint),
 			*allowedTunnelTraffic
@@ -293,7 +300,8 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
-	const wchar_t *relayClient,
+	const wchar_t **relayClients,
+	size_t relayClientsLen,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4Gateway,
 	const wchar_t *v6Gateway,
@@ -397,10 +405,16 @@ WinFw_ApplyPolicyConnected(
 			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, ss.str().c_str(), g_logSinkContext);
 		}
 
+		auto relayClientWstrings = std::vector<std::wstring>();
+		relayClientWstrings.reserve(relayClientsLen);
+		for(int i = 0; i < relayClientsLen; i++) {
+			relayClientWstrings.push_back(relayClients[i]);
+		}
+
 		return g_fwContext->applyPolicyConnected(
 			*settings,
 			*relay,
-			relayClient != nullptr ? std::make_optional(relayClient) : std::nullopt,
+			relayClientWstrings,
 			tunnelInterfaceAlias,
 			tunnelDnsServers,
 			nonTunnelDnsServers
