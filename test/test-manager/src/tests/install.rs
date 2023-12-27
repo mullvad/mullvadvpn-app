@@ -360,7 +360,7 @@ async fn replace_openvpn_cert(rpc: &ServiceClient) -> Result<(), Error> {
     const SOURCE_CERT_FILENAME: &str = "openvpn.ca.crt";
     const DEST_CERT_FILENAME: &str = "ca.crt";
 
-    let dest_dir = match rpc.get_os().await.expect("failed to get OS") {
+    let dest_dir = match TEST_CONFIG.os {
         Os::Windows => "C:\\Program Files\\Mullvad VPN\\resources",
         Os::Linux => "/opt/Mullvad VPN/resources",
         Os::Macos => "/Applications/Mullvad VPN.app/Contents/Resources",

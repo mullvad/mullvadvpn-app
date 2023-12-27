@@ -9,7 +9,6 @@ use std::{
 use tarpc::context;
 use tarpc::server::Channel;
 use test_rpc::{
-    meta,
     mullvad_daemon::{ServiceStatus, SOCKET_PATH},
     package::Package,
     transport::GrpcForwarder,
@@ -94,10 +93,6 @@ impl Service for TestServer {
         log::debug!("Finished exec: {:?}", result.code);
 
         Ok(result)
-    }
-
-    async fn get_os(self, _: context::Context) -> meta::Os {
-        meta::CURRENT_OS
     }
 
     async fn mullvad_daemon_get_status(
