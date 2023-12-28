@@ -259,6 +259,7 @@ function useDns(setting: keyof IDnsOptions['defaultOptions']) {
 
 function DnsBlockers() {
   const dns = useSelector((state) => state.settings.dns);
+  const customDnsFeatureName = messages.pgettext('vpn-settings-view', 'Use custom DNS server');
 
   const title = (
     <>
@@ -275,7 +276,18 @@ function DnsBlockers() {
         <ModalMessage>
           {messages.pgettext(
             'vpn-settings-view',
-            'This might cause issues on certain websites, services, and programs.',
+            'This might cause issues on certain websites, services, and apps.',
+          )}
+        </ModalMessage>
+        <ModalMessage>
+          {formatHtml(
+            sprintf(
+              messages.pgettext(
+                'vpn-settings-view',
+                'Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>',
+              ),
+              { customDnsFeatureName },
+            ),
           )}
         </ModalMessage>
       </InfoButton>

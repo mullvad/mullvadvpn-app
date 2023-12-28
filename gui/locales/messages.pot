@@ -1409,6 +1409,10 @@ msgid "Attention: enabling this will always require a Mullvad VPN connection in 
 msgstr ""
 
 msgctxt "vpn-settings-view"
+msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr ""
+
+msgctxt "vpn-settings-view"
 msgid "Auto-connect"
 msgstr ""
 
@@ -1531,7 +1535,7 @@ msgid "This feature allows access to other devices on the local network, such as
 msgstr ""
 
 msgctxt "vpn-settings-view"
-msgid "This might cause issues on certain websites, services, and programs."
+msgid "This might cause issues on certain websites, services, and apps."
 msgstr ""
 
 #. Label for settings that enables tracker blocking.
@@ -1806,9 +1810,6 @@ msgid "The local DNS server will not work unless you enable \"Local Network Shar
 msgstr ""
 
 msgid "This address has already been entered."
-msgstr ""
-
-msgid "This might cause issues on certain websites, services, and apps."
 msgstr ""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
