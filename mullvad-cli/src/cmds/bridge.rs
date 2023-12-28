@@ -14,7 +14,8 @@ use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 use crate::cmds::proxies::pp::CustomProxyFormatter;
 
 use super::{
-    custom_bridge::CustomCommands, relay::resolve_location_constraint, relay_constraints::LocationArgs,
+    custom_bridge::CustomCommands, relay::resolve_location_constraint,
+    relay_constraints::LocationArgs,
 };
 
 #[derive(Subcommand, Debug)]
