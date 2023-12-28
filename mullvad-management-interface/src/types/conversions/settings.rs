@@ -203,7 +203,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             api_access_methods: mullvad_types::access_method::Settings::try_from(
                 api_access_methods_settings,
             )?,
-            custom_proxy: talpid_types::net::proxy::CustomProxySettings::try_from(
+            custom_proxy: talpid_types::net::proxy::CustomBridgeSettings::try_from(
                 custom_proxy_settings,
             )?,
         })

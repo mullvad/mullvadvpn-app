@@ -19,7 +19,7 @@ use mullvad_types::{
 #[cfg(target_os = "windows")]
 use std::path::Path;
 use std::str::FromStr;
-use talpid_types::net::proxy::CustomProxySettings;
+use talpid_types::net::proxy::CustomBridgeSettings;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use tonic::{Code, Status};
@@ -217,7 +217,7 @@ impl MullvadProxyClient {
         Ok(result.into_inner())
     }
 
-    pub async fn update_custom_bridge(&mut self, custom_proxy: CustomProxySettings) -> Result<()> {
+    pub async fn update_custom_bridge(&mut self, custom_proxy: CustomBridgeSettings) -> Result<()> {
         self.0
             .update_custom_bridge(types::CustomProxySettings::from(custom_proxy))
             .await
@@ -233,14 +233,15 @@ impl MullvadProxyClient {
             .map(tonic::Response::into_inner)
     }
 
-    pub async fn get_custom_bridge(&mut self) -> Result<CustomProxySettings> {
+    pub async fn get_custom_bridge(&mut self) -> Result<CustomBridgeSettings> {
         self.0
             .get_custom_bridge(())
             .await
             .map_err(Error::Rpc)
             .map(tonic::Response::into_inner)
             .and_then(|custom_proxy_settings| {
-                CustomProxySettings::try_from(custom_proxy_settings).map_err(Error::InvalidResponse)
+                CustomBridgeSettings::try_from(custom_proxy_settings)
+                    .map_err(Error::InvalidResponse)
             })
     }
 

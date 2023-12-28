@@ -13,7 +13,7 @@ use jnix::IntoJava;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(target_os = "windows")]
 use std::{collections::HashSet, path::PathBuf};
-use talpid_types::net::{openvpn, proxy::CustomProxySettings, GenericTunnelOptions};
+use talpid_types::net::{openvpn, proxy::CustomBridgeSettings, GenericTunnelOptions};
 
 mod dns;
 
@@ -82,7 +82,7 @@ pub struct Settings {
     pub api_access_methods: access_method::Settings,
     /// A potential custom bridge.
     #[cfg_attr(target_os = "android", jnix(skip))]
-    pub custom_proxy: CustomProxySettings,
+    pub custom_proxy: CustomBridgeSettings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -139,7 +139,7 @@ impl Default for Settings {
             bridge_state: BridgeState::Auto,
             custom_lists: CustomListsSettings::default(),
             api_access_methods: access_method::Settings::default(),
-            custom_proxy: CustomProxySettings::default(),
+            custom_proxy: CustomBridgeSettings::default(),
             allow_lan: false,
             block_when_disconnected: false,
             auto_connect: false,

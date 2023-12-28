@@ -299,12 +299,12 @@ pub enum DaemonCommand {
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
     /// Test an API access method
     TestApiAccessMethod(ResponseTx<bool, Error>, mullvad_types::access_method::Id),
-    /// TODO
-    UpdateCustomProxy(ResponseTx<(), Error>, CustomProxySettings),
-    /// TODO
-    SetCustomProxy(ResponseTx<(), Error>),
-    /// TODO
-    GetCustomProxy(ResponseTx<CustomProxySettings, Error>),
+    /// Used to add, edit and delete the custom bridge configuration
+    UpdateCustomBridge(ResponseTx<(), Error>, CustomBridgeSettings),
+    /// Set the current custom bridge configuration to be used as a bridge
+    SetCustomBridge(ResponseTx<(), Error>),
+    /// Get the current custom bridge configuration
+    GetCustomBridge(ResponseTx<CustomBridgeSettings, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1226,11 +1226,11 @@ where
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
-            UpdateCustomProxy(tx, custom_proxy) => {
+            UpdateCustomBridge(tx, custom_proxy) => {
                 self.on_update_custom_proxy(tx, custom_proxy).await
             }
-            SetCustomProxy(tx) => self.on_select_custom_proxy(tx).await,
-            GetCustomProxy(tx) => self.on_get_custom_proxy(tx).await,
+            SetCustomBridge(tx) => self.on_select_custom_proxy(tx).await,
+            GetCustomBridge(tx) => self.on_get_custom_proxy(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2448,13 +2448,13 @@ where
     async fn on_update_custom_proxy(
         &mut self,
         tx: ResponseTx<(), Error>,
-        new_custom_proxy_settings: CustomProxySettings,
+        new_custom_proxy_settings: CustomBridgeSettings,
     ) {
         match self
             .settings
             .update(|settings| {
-                settings.custom_proxy.custom_proxy = new_custom_proxy_settings.custom_proxy;
-                if let Some(new_custom_proxy) = &settings.custom_proxy.custom_proxy {
+                settings.custom_proxy.custom_bridge = new_custom_proxy_settings.custom_bridge;
+                if let Some(new_custom_proxy) = &settings.custom_proxy.custom_bridge {
                     settings.bridge_settings = BridgeSettings::Custom(ProxySettings::from(
                         new_custom_proxy.clone(),
                         #[cfg(target_os = "linux")]
@@ -2466,7 +2466,7 @@ where
             .map_err(Error::SettingsError)
         {
             Ok(settings_changed) => {
-                if settings_changed && self.settings.custom_proxy.custom_proxy.is_some() {
+                if settings_changed && self.settings.custom_proxy.custom_bridge.is_some() {
                     self.reconnect_tunnel();
                 }
                 Self::oneshot_send(tx, Ok(()), "update_custom_proxy response");
@@ -2479,7 +2479,7 @@ where
     }
 
     async fn on_select_custom_proxy(&mut self, tx: ResponseTx<(), Error>) {
-        if self.settings.custom_proxy.custom_proxy.is_none() {
+        if self.settings.custom_proxy.custom_bridge.is_none() {
             log::info!("Tried to select custom proxy but no custom proxy is saved");
             Self::oneshot_send(
                 tx,
@@ -2491,7 +2491,7 @@ where
         match self
             .settings
             .update(|settings| {
-                if let Some(new_custom_proxy) = &settings.custom_proxy.custom_proxy {
+                if let Some(new_custom_proxy) = &settings.custom_proxy.custom_bridge {
                     settings.bridge_settings = BridgeSettings::Custom(ProxySettings::from(
                         new_custom_proxy.clone(),
                         #[cfg(target_os = "linux")]
@@ -2503,7 +2503,7 @@ where
             .map_err(Error::SettingsError)
         {
             Ok(settings_changed) => {
-                if settings_changed && self.settings.custom_proxy.custom_proxy.is_some() {
+                if settings_changed && self.settings.custom_proxy.custom_bridge.is_some() {
                     self.reconnect_tunnel();
                 }
                 Self::oneshot_send(tx, Ok(()), "select_custom_proxy response");
@@ -2515,7 +2515,7 @@ where
         }
     }
 
-    async fn on_get_custom_proxy(&mut self, tx: ResponseTx<CustomProxySettings, Error>) {
+    async fn on_get_custom_proxy(&mut self, tx: ResponseTx<CustomBridgeSettings, Error>) {
         Self::oneshot_send(
             tx,
             Ok(self.settings.custom_proxy.clone()),
