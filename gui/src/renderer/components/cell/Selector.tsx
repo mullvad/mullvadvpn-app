@@ -5,7 +5,6 @@ import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
 import { useStyledRef } from '../../lib/utilityHooks';
 import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
-import { normalText } from '../common-styles';
 import InfoButton from '../InfoButton';
 import * as Cell from '.';
 
@@ -126,10 +125,6 @@ const StyledCellIcon = styled(Cell.Icon)<{ $visible: boolean }>((props) => ({
   marginRight: '8px',
 }));
 
-const StyledLabel = styled(Cell.Label)(normalText, {
-  fontWeight: 400,
-});
-
 interface SelectorCellProps<T> {
   value: T;
   isSelected: boolean;
@@ -161,7 +156,7 @@ function SelectorCell<T>(props: SelectorCellProps<T>) {
         width={18}
         tintColor={colors.white}
       />
-      <StyledLabel>{props.children}</StyledLabel>
+      <Cell.ValueLabel>{props.children}</Cell.ValueLabel>
     </Cell.CellButton>
   );
 }
@@ -291,7 +286,7 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
             width={18}
             tintColor={colors.white}
           />
-          <StyledLabel>{messages.gettext('Custom')}</StyledLabel>
+          <Cell.ValueLabel>{messages.gettext('Custom')}</Cell.ValueLabel>
           <AriaInput>
             <Cell.AutoSizingTextInput
               ref={inputRef}
