@@ -121,7 +121,7 @@ impl Firewall {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                let mut rules = vec![self.get_allow_relay_rule(*peer_endpoint)?];
+                let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -151,7 +151,7 @@ impl Firewall {
                     rules.append(&mut self.get_allow_dns_rules_when_connected(tunnel, *server)?);
                 }
 
-                rules.push(self.get_allow_relay_rule(*peer_endpoint)?);
+                rules.push(self.get_allow_relay_rule(peer_endpoint)?);
 
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
@@ -275,7 +275,7 @@ impl Firewall {
 
     fn get_allow_relay_rule(
         &self,
-        relay_endpoint: net::AllowedEndpoint,
+        relay_endpoint: &net::AllowedEndpoint,
     ) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.endpoint.protocol);
 
