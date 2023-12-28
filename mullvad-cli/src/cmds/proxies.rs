@@ -96,31 +96,31 @@ pub struct SocksAuthentication {
 }
 
 #[derive(Args, Debug, Clone)]
-pub struct EditParams {
+pub struct ProxyEditParams {
     /// Username for authentication [Socks5 (Remote proxy)]
     #[arg(long)]
-    username: Option<String>,
+    pub username: Option<String>,
     /// Password for authentication [Socks5 (Remote proxy), Shadowsocks]
     #[arg(long)]
-    password: Option<String>,
+    pub password: Option<String>,
     /// Cipher to use [Shadowsocks]
     #[arg(value_parser = SHADOWSOCKS_CIPHERS, long)]
-    cipher: Option<String>,
+    pub cipher: Option<String>,
     /// The IP of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
     #[arg(long)]
-    ip: Option<IpAddr>,
+    pub ip: Option<IpAddr>,
     /// The port of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
     #[arg(long)]
-    port: Option<u16>,
+    pub port: Option<u16>,
     /// The port that the server on localhost is listening on [Socks5 (Local proxy)]
     #[arg(long)]
-    local_port: Option<u16>,
+    pub local_port: Option<u16>,
     /// The transport protocol used by the remote proxy [Socks5 (Local proxy)]
     #[arg(long)]
-    transport_protocol: Option<TransportProtocol>,
+    pub transport_protocol: Option<TransportProtocol>,
 }
 
-impl EditParams {
+impl ProxyEditParams {
     pub fn merge_socks_local(self, local: Socks5Local) -> Socks5Local {
         let remote_ip = self.ip.unwrap_or(local.remote_endpoint.address.ip());
         let remote_port = self.port.unwrap_or(local.remote_endpoint.address.port());
