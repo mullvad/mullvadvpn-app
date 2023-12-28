@@ -106,18 +106,24 @@ impl Account {
 
         match state {
             DeviceState::LoggedIn(device) => {
-                println!("Mullvad account: {}", device.account_token);
-                println!("Device name    : {}", device.device.pretty_name());
-                if verbose {
-                    println!("Device id      : {}", device.device.id);
-                    println!("Device pubkey  : {}", device.device.pubkey);
-                    println!("Device created : {}", device.device.created,);
-                }
-                let expiry = rpc.get_account_data(device.account_token).await?;
+                println!("{:<20}{}", "Mullvad account:", device.account_token);
+
+                let data = rpc.get_account_data(device.account_token).await?;
                 println!(
-                    "Expires at     : {}",
-                    expiry.expiry.with_timezone(&chrono::Local),
+                    "{:<20}{}",
+                    "Expires at:",
+                    data.expiry.with_timezone(&chrono::Local)
                 );
+                if verbose {
+                    println!("{:<20}{}", "Account id:", data.id);
+                }
+
+                println!("{:<20}{}", "Device name:", device.device.pretty_name());
+                if verbose {
+                    println!("{:<20}{}", "Device id:", device.device.id);
+                    println!("{:<20}{}", "Device pubkey:", device.device.pubkey);
+                    println!("{:<20}{}", "Device created:", device.device.created,);
+                }
             }
             DeviceState::LoggedOut => {
                 println!("{NOT_LOGGED_IN_MESSAGE}");
