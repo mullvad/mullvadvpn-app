@@ -8,8 +8,10 @@ use mullvad_types::{
     },
     relay_list::RelayEndpointData,
 };
-use std::net::{IpAddr, SocketAddr};
+use std::net::IpAddr;
 use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
+
+use crate::cmds::proxies::pp::CustomProxyFormatter;
 
 use super::{
     custom_bridge::CustomCommands, relay::resolve_location_constraint, relay_constraints::LocationArgs,
@@ -18,7 +20,11 @@ use super::{
 #[derive(Subcommand, Debug)]
 pub enum Bridge {
     /// Get current bridge settings
-    Get,
+    Get {
+        /// Display the saved custom bridge configuration
+        #[clap(long)]
+        custom: bool,
+    },
     /// Set bridge state and settings, such as provider
     #[clap(subcommand)]
     Set(SetCommands),
@@ -148,7 +154,13 @@ pub enum SetCustomCommands {
 impl Bridge {
     pub async fn handle(self) -> Result<()> {
         match self {
-            Bridge::Get => Self::get().await,
+            Bridge::Get { custom } => {
+                if custom {
+                    Self::get_custom().await
+                } else {
+                    Self::get().await
+                }
+            }
             Bridge::List => Self::list().await,
             Bridge::Set(subcmd) => Self::set(subcmd).await,
         }
@@ -194,79 +206,6 @@ impl Bridge {
         }
     }
 
-    async fn set_custom(subcmd: SetCustomCommands) -> Result<()> {
-        match subcmd {
-            SetCustomCommands::Local {
-                local_port,
-                remote_ip,
-                remote_port,
-            } => {
-                let local_proxy = openvpn::LocalProxySettings {
-                    port: local_port,
-                    peer: SocketAddr::new(remote_ip, remote_port),
-                };
-                let packed_proxy = openvpn::ProxySettings::Local(local_proxy);
-                if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                    panic!("{}", error);
-                }
-
-                let mut rpc = MullvadProxyClient::new().await?;
-                rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
-                    .await?;
-            }
-            SetCustomCommands::Remote {
-                remote_ip,
-                remote_port,
-                username,
-                password,
-            } => {
-                let auth = match (username, password) {
-                    (Some(username), Some(password)) => {
-                        Some(openvpn::ProxyAuth { username, password })
-                    }
-                    _ => None,
-                };
-                let proxy = openvpn::RemoteProxySettings {
-                    address: SocketAddr::new(remote_ip, remote_port),
-                    auth,
-                };
-                let packed_proxy = openvpn::ProxySettings::Remote(proxy);
-                if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                    panic!("{}", error);
-                }
-
-                let mut rpc = MullvadProxyClient::new().await?;
-                rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
-                    .await?;
-            }
-            SetCustomCommands::Shadowsocks {
-                remote_ip,
-                remote_port,
-                password,
-                cipher,
-            } => {
-                let proxy = openvpn::ShadowsocksProxySettings {
-                    peer: SocketAddr::new(remote_ip, remote_port),
-                    password,
-                    cipher,
-                    #[cfg(target_os = "linux")]
-                    fwmark: None,
-                };
-                let packed_proxy = openvpn::ProxySettings::Shadowsocks(proxy);
-                if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                    panic!("{}", error);
-                }
-
-                let mut rpc = MullvadProxyClient::new().await?;
-                rpc.set_bridge_settings(BridgeSettings::Custom(packed_proxy))
-                    .await?;
-            }
-        }
-
-        println!("Updated bridge settings");
-        Ok(())
-    }
-
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
@@ -291,6 +230,23 @@ impl Bridge {
                 )
             }
         };
+        Ok(())
+    }
+
+    async fn get_custom() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let current_custom_bridge_settings = rpc.get_custom_bridge().await?;
+        match current_custom_bridge_settings.custom_bridge {
+            Some(custom_bridge) => {
+                let formatter = CustomProxyFormatter {
+                    custom_proxy: &custom_bridge,
+                };
+                println!("Saved custom bridge settings:\n{}", formatter);
+            }
+            None => {
+                println!("Saved custom bridge settings: None");
+            }
+        }
         Ok(())
     }
 

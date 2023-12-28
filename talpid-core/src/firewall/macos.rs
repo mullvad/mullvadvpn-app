@@ -121,8 +121,7 @@ impl Firewall {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                let mut rules =
-                    vec![self.get_allow_relay_rule(*peer_endpoint)?];
+                let mut rules = vec![self.get_allow_relay_rule(*peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate

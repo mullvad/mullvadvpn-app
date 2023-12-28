@@ -5,22 +5,22 @@ mod settings {
     use crate::types::{proto, FromProtobufTypeError};
     use talpid_types::net::proxy;
 
-    impl From<proxy::CustomProxySettings> for proto::CustomProxySettings {
-        fn from(settings: proxy::CustomProxySettings) -> Self {
+    impl From<proxy::CustomBridgeSettings> for proto::CustomProxySettings {
+        fn from(settings: proxy::CustomBridgeSettings) -> Self {
             Self {
                 custom_proxy: settings
-                    .custom_proxy
+                    .custom_bridge
                     .map(|custom_proxy| custom_proxy.into()),
             }
         }
     }
 
-    impl TryFrom<proto::CustomProxySettings> for proxy::CustomProxySettings {
+    impl TryFrom<proto::CustomProxySettings> for proxy::CustomBridgeSettings {
         type Error = FromProtobufTypeError;
 
         fn try_from(settings: proto::CustomProxySettings) -> Result<Self, Self::Error> {
             Ok(Self {
-                custom_proxy: settings
+                custom_bridge: settings
                     .custom_proxy
                     .and_then(|custom_proxy| proxy::CustomProxy::try_from(custom_proxy).ok()),
             })

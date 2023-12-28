@@ -157,3 +157,51 @@ impl EditParams {
         Shadowsocks::new((ip, port), cipher, password)
     }
 }
+
+pub mod pp {
+    use crate::print_option;
+    use talpid_types::net::proxy::{CustomProxy, Socks5, SocksAuth};
+
+    pub struct CustomProxyFormatter<'a> {
+        pub custom_proxy: &'a CustomProxy,
+    }
+
+    impl<'a> std::fmt::Display for CustomProxyFormatter<'a> {
+        fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self.custom_proxy {
+                CustomProxy::Shadowsocks(shadowsocks) => {
+                    print_option!("Protocol", format!("Shadowsocks [{}]", shadowsocks.cipher));
+                    print_option!("Peer", shadowsocks.peer);
+                    print_option!("Password", shadowsocks.password);
+                    Ok(())
+                }
+                CustomProxy::Socks5(socks) => match socks {
+                    Socks5::Remote(remote) => {
+                        print_option!("Protocol", "Socks5");
+                        print_option!("Peer", remote.peer);
+                        match &remote.authentication {
+                            Some(SocksAuth { username, password }) => {
+                                print_option!("Username", username);
+                                print_option!("Password", password);
+                            }
+                            None => (),
+                        }
+                        Ok(())
+                    }
+                    Socks5::Local(local) => {
+                        print_option!("Protocol", "Socks5 (local)");
+                        print_option!(
+                            "Peer",
+                            format!(
+                                "{}/{}",
+                                local.remote_endpoint.address, local.remote_endpoint.protocol
+                            )
+                        );
+                        print_option!("Local port", local.local_port);
+                        Ok(())
+                    }
+                },
+            }
+        }
+    }
+}

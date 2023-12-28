@@ -699,7 +699,7 @@ impl ManagementService for ManagementServiceImpl {
     async fn set_custom_bridge(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("set_custom_bridge");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomProxy(tx))?;
+        self.send_command_to_daemon(DaemonCommand::SetCustomBridge(tx))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)
@@ -709,7 +709,7 @@ impl ManagementService for ManagementServiceImpl {
     async fn get_custom_bridge(&self, _: Request<()>) -> ServiceResult<CustomProxySettings> {
         log::debug!("get_custom_bridge");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetCustomProxy(tx))?;
+        self.send_command_to_daemon(DaemonCommand::GetCustomBridge(tx))?;
         self.wait_for_result(rx)
             .await?
             .map(CustomProxySettings::from)
@@ -723,7 +723,7 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("update_custom_bridge");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::UpdateCustomProxy(
+        self.send_command_to_daemon(DaemonCommand::UpdateCustomBridge(
             tx,
             custom_proxy.into_inner().try_into()?,
         ))?;

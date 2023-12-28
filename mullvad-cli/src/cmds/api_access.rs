@@ -482,8 +482,8 @@ mod conversions {
 
 /// Pretty printing of [`ApiAccessMethod`]s
 mod pp {
+    use crate::cmds::proxies::pp::CustomProxyFormatter;
     use mullvad_types::access_method::{AccessMethod, AccessMethodSetting};
-    use talpid_types::net::proxy::{CustomProxy, Socks5, SocksAuth};
 
     pub struct ApiAccessMethodFormatter<'a> {
         api_access_method: &'a AccessMethodSetting,
@@ -515,8 +515,6 @@ mod pp {
 
     impl<'a> std::fmt::Display for ApiAccessMethodFormatter<'a> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            use crate::print_option;
-
             let write_status = |f: &mut std::fmt::Formatter<'_>, enabled: bool| {
                 if enabled {
                     write!(f, " *")
@@ -533,55 +531,18 @@ mod pp {
                     }
                     Ok(())
                 }
-                AccessMethod::Custom(method) => match &method {
-                    CustomProxy::Shadowsocks(shadowsocks) => {
-                        write!(f, "{}", self.api_access_method.get_name())?;
-                        if self.settings.write_enabled {
-                            write_status(f, self.api_access_method.enabled())?;
-                        }
-                        writeln!(f)?;
-                        print_option!("Protocol", format!("Shadowsocks [{}]", shadowsocks.cipher));
-                        print_option!("Peer", shadowsocks.peer);
-                        print_option!("Password", shadowsocks.password);
-                        Ok(())
+                AccessMethod::Custom(method) => {
+                    write!(f, "{}", self.api_access_method.get_name())?;
+                    if self.settings.write_enabled {
+                        write_status(f, self.api_access_method.enabled())?;
                     }
-                    CustomProxy::Socks5(socks) => match socks {
-                        Socks5::Remote(remote) => {
-                            write!(f, "{}", self.api_access_method.get_name())?;
-                            if self.settings.write_enabled {
-                                write_status(f, self.api_access_method.enabled())?;
-                            }
-                            writeln!(f)?;
-                            print_option!("Protocol", "Socks5");
-                            print_option!("Peer", remote.peer);
-                            match &remote.authentication {
-                                Some(SocksAuth { username, password }) => {
-                                    print_option!("Username", username);
-                                    print_option!("Password", password);
-                                }
-                                None => (),
-                            }
-                            Ok(())
-                        }
-                        Socks5::Local(local) => {
-                            write!(f, "{}", self.api_access_method.get_name())?;
-                            if self.settings.write_enabled {
-                                write_status(f, self.api_access_method.enabled())?;
-                            }
-                            writeln!(f)?;
-                            print_option!("Protocol", "Socks5 (local)");
-                            print_option!(
-                                "Peer",
-                                format!(
-                                    "{}/{}",
-                                    local.remote_endpoint.address, local.remote_endpoint.protocol
-                                )
-                            );
-                            print_option!("Local port", local.local_port);
-                            Ok(())
-                        }
-                    },
-                },
+                    writeln!(f)?;
+                    let formatter = CustomProxyFormatter {
+                        custom_proxy: &method,
+                    };
+                    write!(f, "{}", formatter)?;
+                    Ok(())
+                }
             }
         }
     }
