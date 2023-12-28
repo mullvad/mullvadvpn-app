@@ -15,7 +15,7 @@ tokio = { version = "1", features = [ "rt", "sync", "io-util", "net", "time", "f
 async-trait = "0.1"
 x25519-dalek = { version = "2", features = [ "reusable_secrets", "static_secrets" ] }
 # boringtun = { git = "https://github.com/mullvad/boringtun", rev = "44fffd131212d08febb3799bfc9f951fd3893c4c", default-features = false }
-boringtun = { path = "../../../boringtun/boringtun", default-features = false }
+boringtun = { path = "../../../src/boringtun/boringtun", default-features = false }
 libc ="0.2"
 
 # nix = { version = "0.25", default-features = false, features = [

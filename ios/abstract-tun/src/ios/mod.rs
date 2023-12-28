@@ -113,7 +113,6 @@ pub struct IOOutput {
     pub tun_v6_output: *mut libc::c_void,
 }
 
-
 #[no_mangle]
 pub extern "C" fn abstract_tun_handle_host_traffic(
     tun: *mut IOSTun,
@@ -187,4 +186,21 @@ pub extern "C" fn test_mallocsing() -> IOOutput {
     }
 
     output_buffer.to_output()
+}
+
+#[no_mangle]
+pub extern "C" fn test_if_it_actually_works() -> u32 {
+    let mut vec = vec![0u8; 1024];
+
+    for i in &mut vec {
+        *i = i.wrapping_mul(*i);
+    }
+    let mut sum = 0u32;
+
+    for i in &vec {
+        sum += *i as u32;
+    }
+    sum += 42;
+
+    return sum;
 }
