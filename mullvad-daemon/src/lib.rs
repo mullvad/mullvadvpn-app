@@ -81,7 +81,9 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    net::{openvpn::ProxySettings, proxy::CustomProxySettings, IpVersion, TunnelEndpoint, TunnelType},
+    net::{
+        openvpn::ProxySettings, proxy::CustomProxySettings, IpVersion, TunnelEndpoint, TunnelType,
+    },
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
