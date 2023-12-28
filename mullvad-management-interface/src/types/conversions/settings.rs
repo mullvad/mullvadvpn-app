@@ -51,7 +51,7 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .cloned()
                 .map(proto::RelayOverride::from)
                 .collect(),
-            custom_proxy: Some(proto::CustomBridgeSettings::from(
+            custom_bridge: Some(proto::CustomBridgeSettings::from(
                 settings.custom_bridge.clone(),
             )),
         }
@@ -158,11 +158,11 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 .ok_or(FromProtobufTypeError::InvalidArgument(
                     "missing api access methods settings",
                 ))?;
-        let custom_proxy_settings =
+        let custom_bridge_settings =
             settings
-                .custom_proxy
+                .custom_bridge
                 .ok_or(FromProtobufTypeError::InvalidArgument(
-                    "missing custom_proxy settings",
+                    "missing custom_bridge settings",
                 ))?;
         #[cfg(windows)]
         let split_tunnel = settings
@@ -204,7 +204,7 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
                 api_access_methods_settings,
             )?,
             custom_bridge: talpid_types::net::proxy::CustomBridgeSettings::try_from(
-                custom_proxy_settings,
+                custom_bridge_settings,
             )?,
         })
     }

@@ -369,9 +369,7 @@ message CustomProxy {
   }
 }
 
-message CustomBridgeSettings {
-  CustomProxy custom_bridge = 1;
-}
+message CustomBridgeSettings { CustomProxy custom_bridge = 1; }
 
 message AccessMethod {
   message Direct {}
@@ -414,7 +412,7 @@ message Settings {
   CustomListSettings custom_lists = 11;
   ApiAccessMethodSettings api_access_methods = 12;
   repeated RelayOverride relay_overrides = 13;
-  CustomBridgeSettings custom_proxy = 14;
+  CustomBridgeSettings custom_bridge = 14;
 }
 
 message RelayOverride {
