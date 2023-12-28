@@ -52,7 +52,11 @@ const StyledAddListCellButton = styled(StyledCellButton)({
 const StyledSideButtonIcon = styled(Cell.Icon)({
   padding: '3px',
 
-  [`${StyledCellButton}:hover &&, ${StyledAddListCellButton}:hover &&`]: {
+  [`${StyledCellButton}:disabled &&, ${StyledAddListCellButton}:disabled &&`]: {
+    backgroundColor: colors.white40,
+  },
+
+  [`${StyledCellButton}:not(:disabled):hover &&, ${StyledAddListCellButton}:not(:disabled):hover &&`]: {
     backgroundColor: colors.white,
   },
 });
@@ -117,6 +121,7 @@ interface AddListFormProps {
 
 function AddListForm(props: AddListFormProps) {
   const [name, setName] = useState('');
+  const nameValid = name.trim() !== '';
   const [error, setError, unsetError] = useBoolean();
   const containerRef = useStyledRef<HTMLDivElement>();
   const inputRef = useStyledRef<HTMLInputElement>();
@@ -128,16 +133,18 @@ function AddListForm(props: AddListFormProps) {
   }, []);
 
   const createList = useCallback(async () => {
-    try {
-      const result = await props.onCreateList(name);
-      if (result) {
-        setError();
+    if (nameValid) {
+      try {
+        const result = await props.onCreateList(name);
+        if (result) {
+          setError();
+        }
+      } catch (e) {
+        const error = e as Error;
+        log.error('Failed to create list:', error.message);
       }
-    } catch (e) {
-      const error = e as Error;
-      log.error('Failed to create list:', error.message);
     }
-  }, [name, props.onCreateList]);
+  }, [name, props.onCreateList, nameValid]);
 
   const onBlur = useCallback(
     (event: React.FocusEvent<HTMLInputElement>) => {
@@ -180,6 +187,7 @@ function AddListForm(props: AddListFormProps) {
         <StyledAddListCellButton
           $backgroundColor={colors.blue}
           $backgroundColorHover={colors.blue80}
+          disabled={!nameValid}
           onClick={createList}>
           <StyledSideButtonIcon source="icon-check" tintColor={colors.white60} width={18} />
         </StyledAddListCellButton>
