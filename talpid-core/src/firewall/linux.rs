@@ -531,10 +531,7 @@ impl<'a> PolicyBatch<'a> {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                self.add_allow_tunnel_endpoint_rules(
-                    peer_endpoint,
-                    fwmark,
-                );
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
                 self.add_allow_endpoint_rules(allowed_endpoint);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -567,10 +564,7 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 dns_servers,
             } => {
-                self.add_allow_tunnel_endpoint_rules(
-                    peer_endpoint,
-                    fwmark,
-                );
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Tcp)?;
 
@@ -614,11 +608,7 @@ impl<'a> PolicyBatch<'a> {
         Ok(())
     }
 
-    fn add_allow_tunnel_endpoint_rules(
-        &mut self,
-        endpoint: &AllowedEndpoint,
-        fwmark: u32,
-    ) {
+    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &AllowedEndpoint, fwmark: u32) {
         let mut prerouting_rule = Rule::new(&self.prerouting_chain);
         // Mark incoming traffic from endpoint with fwmark
         check_endpoint(&mut prerouting_rule, End::Src, &endpoint.endpoint);

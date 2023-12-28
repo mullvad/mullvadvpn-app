@@ -30,12 +30,11 @@ pub struct ProxyEndpoint {
     pub proxy_type: ProxyType,
 }
 
-/// Custom proxy settings, describes both the saved config for the custom proxy and whether it is
-/// currently in use.
+/// Custom bridge settings, describes the optionally saved custom bridge.
 #[derive(Default, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
-pub struct CustomProxySettings {
-    pub custom_proxy: Option<CustomProxy>,
+pub struct CustomBridgeSettings {
+    pub custom_bridge: Option<CustomProxy>,
 }
 
 // TODO(Jonathan): These end up being duplicates of a lot of types in

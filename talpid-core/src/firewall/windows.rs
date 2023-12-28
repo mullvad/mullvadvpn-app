@@ -156,8 +156,12 @@ impl Firewall {
         let relay_client_wstrs: Vec<_> = endpoint
             .clients
             .iter()
-            .map(|client| WideCString::from_os_str_truncate(client)).collect();
-        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs.iter().map(|wstr| wstr.as_ptr()).collect();
+            .map(|client| WideCString::from_os_str_truncate(client))
+            .collect();
+        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
+            .iter()
+            .map(|wstr| wstr.as_ptr())
+            .collect();
         let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
         //let relay_client_wstr_ptr: *const u16 = if let Some(ref wstr) = relay_client_wstr {
         //    wstr.as_ptr()
@@ -273,10 +277,15 @@ impl Firewall {
             None => ptr::null(),
         };
 
-        let relay_client_wstrs: Vec<_> = endpoint.clients
+        let relay_client_wstrs: Vec<_> = endpoint
+            .clients
             .iter()
-            .map(|client| WideCString::from_os_str_truncate(client)).collect();
-        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs.iter().map(|wstr| wstr.as_ptr()).collect();
+            .map(|client| WideCString::from_os_str_truncate(client))
+            .collect();
+        let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
+            .iter()
+            .map(|wstr| wstr.as_ptr())
+            .collect();
         let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
         //let relay_client_wstr_ptrs: *const u16 = if let Some(ref wstr) = relay_client_wstr {
         //    wstr.as_ptr()
