@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.test.e2e
 
 import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
-import junit.framework.Assert.assertNotNull
 import net.mullvad.mullvadvpn.test.common.constant.LOGIN_FAILURE_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
@@ -43,19 +42,5 @@ class LoginTest : EndToEndTest() {
 
         // Then
         app.ensureLoggedIn()
-    }
-
-    @Test
-    fun testLogout() {
-        // Given
-        app.launchAndEnsureLoggedIn(validTestAccountToken)
-
-        // When
-        app.clickSettingsCog()
-        app.clickListItemByText("Account")
-        app.clickActionButtonByText("Log out")
-
-        // Then
-        assertNotNull(device.findObjectWithTimeout(By.text("Login")))
     }
 }
