@@ -1445,12 +1445,8 @@ where
     ) {
         let account = self.account_manager.account_service.clone();
         tokio::spawn(async move {
-            let result = account.check_expiry(account_token).await;
-            Self::oneshot_send(
-                tx,
-                result.map(|expiry| AccountData { expiry }),
-                "account data",
-            );
+            let result = account.get_data(account_token).await;
+            Self::oneshot_send(tx, result, "account data");
         });
     }
 

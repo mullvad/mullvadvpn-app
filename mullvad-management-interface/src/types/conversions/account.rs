@@ -37,6 +37,7 @@ impl TryFrom<types::VoucherSubmission> for VoucherSubmission {
 impl From<AccountData> for types::AccountData {
     fn from(data: AccountData) -> Self {
         types::AccountData {
+            id: data.id,
             expiry: Some(types::Timestamp {
                 seconds: data.expiry.timestamp(),
                 nanos: 0,
@@ -56,6 +57,7 @@ impl TryFrom<types::AccountData> for AccountData {
             chrono::NaiveDateTime::from_timestamp_opt(expiry.seconds, expiry.nanos as u32).unwrap();
 
         Ok(AccountData {
+            id: data.id,
             expiry: chrono::Utc.from_utc_datetime(&ndt),
         })
     }
