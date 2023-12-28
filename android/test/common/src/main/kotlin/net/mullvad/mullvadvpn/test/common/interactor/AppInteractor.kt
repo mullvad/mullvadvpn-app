@@ -49,12 +49,28 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
         ensureLoggedIn()
     }
 
+    fun launchAndCreateAccount() {
+        launch()
+        device.clickAgreeOnPrivacyDisclaimer()
+        device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
+        attemptCreateAccount()
+        ensureAccountCreated()
+    }
+
     fun attemptLogin(accountToken: String) {
         val loginObject =
             device.findObjectWithTimeout(By.clazz("android.widget.EditText")).apply {
                 text = accountToken
             }
         loginObject.parent.findObject(By.clazz(Button::class.java)).click()
+    }
+
+    private fun attemptCreateAccount() {
+        device.findObjectWithTimeout(By.text("Create account")).click()
+    }
+
+    private fun ensureAccountCreated() {
+        device.findObjectWithTimeout(By.text("Congrats!"), LOGIN_TIMEOUT)
     }
 
     fun ensureLoggedIn() {
