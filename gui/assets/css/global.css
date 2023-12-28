@@ -30,3 +30,13 @@ body {
   width: 100%;
   display: flex;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 1ms !important;
+  }
+
+  .map-zoomable-group {
+    transition-duration: 0ms !important;
+  }
+}

@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Respect OS prefer-reduced-motion setting
+
 ### Fixed
 #### Linux
 - Out IP missing forever when am.i.mullvad.net returns error
