@@ -1087,11 +1087,6 @@ msgctxt "settings-view"
 msgid "App version"
 msgstr ""
 
-#. Navigation button to the 'Split tunneling' view
-msgctxt "settings-view"
-msgid "Split tunneling"
-msgstr ""
-
 msgctxt "settings-view"
 msgid "Support"
 msgstr ""
