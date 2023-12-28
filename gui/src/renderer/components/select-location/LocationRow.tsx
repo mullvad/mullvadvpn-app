@@ -105,6 +105,10 @@ const StyledHoverIconButton = styled.button<IButtonColorProps & { $isLast?: bool
     height: measurements.rowMinHeight,
     appearance: 'none',
 
+    '&&:last-child': {
+      paddingRight: '25px',
+    },
+
     '&&:not(:disabled):hover': {
       backgroundColor: props.$backgroundColor,
     },
