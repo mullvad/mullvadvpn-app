@@ -163,11 +163,6 @@ impl Firewall {
             .map(|wstr| wstr.as_ptr())
             .collect();
         let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
-        //let relay_client_wstr_ptr: *const u16 = if let Some(ref wstr) = relay_client_wstr {
-        //    wstr.as_ptr()
-        //} else {
-        //    ptr::null()
-        //};
 
         let interface_wstr = tunnel_metadata
             .as_ref()
@@ -178,7 +173,7 @@ impl Firewall {
             ptr::null()
         };
 
-        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1` and `endpoint2` must not be dropped
+        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1`, `endpoint2`, `relay_client_wstrs` must not be dropped
         // until `WinFw_ApplyPolicyConnecting` has returned.
         let mut endpoint1_ip = WideCString::new();
         let mut endpoint2_ip = WideCString::new();
@@ -246,6 +241,7 @@ impl Firewall {
         drop(endpoint1);
         #[allow(clippy::drop_non_drop)]
         drop(endpoint2);
+        drop(relay_client_wstrs);
         res
     }
 
@@ -287,11 +283,6 @@ impl Firewall {
             .map(|wstr| wstr.as_ptr())
             .collect();
         let relay_client_wstr_ptrs_len = relay_client_wstr_ptrs.len();
-        //let relay_client_wstr_ptrs: *const u16 = if let Some(ref wstr) = relay_client_wstr {
-        //    wstr.as_ptr()
-        //} else {
-        //    ptr::null()
-        //};
 
         let dns_servers: Vec<WideCString> =
             dns_servers.iter().cloned().map(widestring_ip).collect();

@@ -260,7 +260,7 @@ WinFw_ApplyPolicyConnecting(
 			THROW_ERROR("Invalid argument: allowedTunnelTraffic");
 		}
 
-		auto relayClientWstrings = std::vector<std::wstring>();
+		std::vector<std::wstring> relayClientWstrings;
 		relayClientWstrings.reserve(relayClientsLen);
 		for(int i = 0; i < relayClientsLen; i++) {
 			relayClientWstrings.push_back(relayClients[i]);
@@ -405,7 +405,7 @@ WinFw_ApplyPolicyConnected(
 			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, ss.str().c_str(), g_logSinkContext);
 		}
 
-		auto relayClientWstrings = std::vector<std::wstring>();
+		std::vector<std::wstring> relayClientWstrings;
 		relayClientWstrings.reserve(relayClientsLen);
 		for(int i = 0; i < relayClientsLen; i++) {
 			relayClientWstrings.push_back(relayClients[i]);
