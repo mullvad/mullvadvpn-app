@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { colors } from '../../config.json';
+import { colors, strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
@@ -131,12 +131,7 @@ function SplitTunnelingButton() {
 
   return (
     <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>
-        {
-          // TRANSLATORS: Navigation button to the 'Split tunneling' view
-          messages.pgettext('settings-view', 'Split tunneling')
-        }
-      </Cell.Label>
+      <Cell.Label>{strings.splitTunneling}</Cell.Label>
     </Cell.CellNavigationButton>
   );
 }
