@@ -232,6 +232,7 @@ function SvgMap(props: IProps) {
       projectionConfig={projectionConfig}>
       <ZoomableGroup
         center={zoomCenter}
+        className="map-zoomable-group"
         zoom={zoomLevel}
         onTransitionEnd={removeOldViewportBboxes}
         style={zoomableGroupStyle}
