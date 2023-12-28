@@ -84,8 +84,8 @@ service ManagementService {
 
   // Custom proxy
   rpc SetCustomBridge(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc UpdateCustomBridge(CustomProxySettings) returns (google.protobuf.Empty) {}
-  rpc GetCustomBridge(google.protobuf.Empty) returns (CustomProxySettings) {}
+  rpc UpdateCustomBridge(CustomBridgeSettings) returns (google.protobuf.Empty) {}
+  rpc GetCustomBridge(google.protobuf.Empty) returns (CustomBridgeSettings) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
@@ -366,8 +366,8 @@ message CustomProxy {
   }
 }
 
-message CustomProxySettings {
-    CustomProxy custom_proxy = 1;
+message CustomBridgeSettings {
+    CustomProxy custom_bridge = 1;
 }
 
 message AccessMethod {
@@ -411,7 +411,7 @@ message Settings {
   CustomListSettings custom_lists = 11;
   ApiAccessMethodSettings api_access_methods = 12;
   repeated RelayOverride relay_overrides = 13;
-  CustomProxySettings custom_proxy = 14;
+  CustomBridgeSettings custom_proxy = 14;
 }
 
 message RelayOverride {
