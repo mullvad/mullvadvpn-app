@@ -340,25 +340,25 @@ message CustomList {
 message CustomListSettings { repeated CustomList custom_lists = 1; }
 
 message Socks5Local {
-    string remote_ip = 1;
-    uint32 remote_port = 2;
-    TransportProtocol remote_transport_protocol = 3;
-    uint32 local_port = 4;
+  string remote_ip = 1;
+  uint32 remote_port = 2;
+  TransportProtocol remote_transport_protocol = 3;
+  uint32 local_port = 4;
 }
 message SocksAuth {
-    string username = 1;
-    string password = 2;
+  string username = 1;
+  string password = 2;
 }
 message Socks5Remote {
-    string ip = 1;
-    uint32 port = 2;
-    SocksAuth authentication = 3;
+  string ip = 1;
+  uint32 port = 2;
+  SocksAuth authentication = 3;
 }
 message Shadowsocks {
-    string ip = 1;
-    uint32 port = 2;
-    string password = 3;
-    string cipher = 4;
+  string ip = 1;
+  uint32 port = 2;
+  string password = 3;
+  string cipher = 4;
 }
 
 message CustomProxy {
@@ -370,7 +370,7 @@ message CustomProxy {
 }
 
 message CustomBridgeSettings {
-    CustomProxy custom_bridge = 1;
+  CustomProxy custom_bridge = 1;
 }
 
 message AccessMethod {
