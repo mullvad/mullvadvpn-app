@@ -1,7 +1,7 @@
 use anyhow::{bail, Result};
 use clap::Subcommand;
 
-use super::proxies::{EditParams, ShadowsocksAdd, Socks5LocalAdd, Socks5RemoteAdd};
+use super::proxies::{ProxyEditParams, ShadowsocksAdd, Socks5LocalAdd, Socks5RemoteAdd};
 use mullvad_management_interface::MullvadProxyClient;
 use talpid_types::net::proxy::{
     CustomBridgeSettings, CustomProxy, Shadowsocks, Socks5, Socks5Local, Socks5Remote,
@@ -18,7 +18,7 @@ pub enum CustomCommands {
     #[clap(subcommand)]
     Add(AddCustomCommands),
     /// Edit an already existing custom bridge configuration.
-    Edit(EditParams),
+    Edit(ProxyEditParams),
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -62,7 +62,7 @@ impl CustomCommands {
         }
     }
 
-    async fn custom_bridge_edit(edit: EditParams) -> Result<()> {
+    async fn custom_bridge_edit(edit: ProxyEditParams) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let mut custom_bridge = rpc.get_custom_bridge().await?;
         let Some(old_custom_bridge) = custom_bridge.custom_bridge else {

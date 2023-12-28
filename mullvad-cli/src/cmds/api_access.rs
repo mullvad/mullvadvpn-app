@@ -1,11 +1,11 @@
 use anyhow::{anyhow, Result};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting};
-use std::net::IpAddr;
 use talpid_types::net::proxy::CustomProxy;
 
 use clap::{Args, Subcommand};
-use talpid_types::net::{openvpn::SHADOWSOCKS_CIPHERS, TransportProtocol};
+
+use super::proxies::{ShadowsocksAdd, Socks5LocalAdd, Socks5RemoteAdd, ProxyEditParams};
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum ApiAccess {
@@ -150,7 +150,7 @@ impl ApiAccess {
             },
         };
 
-        if let Some(name) = cmd.params.name {
+        if let Some(name) = cmd.name {
             api_access_method.name = name;
         };
         api_access_method.access_method = access_method;
@@ -258,19 +258,12 @@ pub enum AddCustomCommands {
     Shadowsocks {
         /// An easy to remember name for this custom proxy
         name: String,
-        /// The IP of the remote Shadowsocks-proxy
-        remote_ip: IpAddr,
-        /// Port on which the remote Shadowsocks-proxy listens for traffic
-        remote_port: u16,
-        /// Password for authentication
-        password: String,
-        /// Cipher to use
-        #[arg(long, value_parser = SHADOWSOCKS_CIPHERS)]
-        cipher: String,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
         #[arg(default_value_t = false, short, long)]
         disabled: bool,
+        #[clap(flatten)]
+        add: ShadowsocksAdd,
     },
 }
 
@@ -280,51 +273,24 @@ pub enum AddSocks5Commands {
     Remote {
         /// An easy to remember name for this custom proxy
         name: String,
-        /// IP of the remote SOCKS5-proxy
-        remote_ip: IpAddr,
-        /// Port on which the remote SOCKS5-proxy listens for traffic
-        remote_port: u16,
-        #[clap(flatten)]
-        authentication: Option<SocksAuthentication>,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
         #[arg(default_value_t = false, short, long)]
         disabled: bool,
+        #[clap(flatten)]
+        add: Socks5RemoteAdd,
     },
     /// Configure a local SOCKS5 proxy
     Local {
         /// An easy to remember name for this custom proxy
         name: String,
-        /// The port that the server on localhost is listening on
-        local_port: u16,
-        /// The IP of the remote peer
-        remote_ip: IpAddr,
-        /// The port of the remote peer
-        remote_port: u16,
-        /// The Mullvad App can not know which transport protocol that the
-        /// remote peer accepts, but it needs to know this in order to correctly
-        /// exempt the connection traffic in the firewall.
-        ///
-        /// By default, the transport protocol is assumed to be `TCP`, but it
-        /// can optionally be set to `UDP` as well.
-        #[arg(long, default_value_t = TransportProtocol::Tcp)]
-        transport_protocol: TransportProtocol,
         /// Disable the use of this custom access method. It has to be manually
         /// enabled at a later stage to be used when accessing the Mullvad API.
         #[arg(default_value_t = false, short, long)]
         disabled: bool,
+        #[clap(flatten)]
+        add: Socks5LocalAdd,
     },
-}
-
-#[derive(Args, Debug, Clone)]
-#[group(requires_all = ["username", "password"])] // https://github.com/clap-rs/clap/issues/5092
-pub struct SocksAuthentication {
-    /// Username for authentication against a remote SOCKS5 proxy
-    #[arg(short, long, required = false)]
-    username: String,
-    /// Password for authentication against a remote SOCKS5 proxy
-    #[arg(short, long, required = false)]
-    password: String,
 }
 
 impl AddCustomCommands {
@@ -373,9 +339,12 @@ pub struct EditCustomCommands {
     /// Which API access method to edit
     #[clap(flatten)]
     item: SelectItem,
+    /// Name of the API access method in the Mullvad client [All]
+    #[arg(long)]
+    name: Option<String>,
     /// Editing parameters
     #[clap(flatten)]
-    params: EditParams,
+    params: ProxyEditParams,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -383,27 +352,29 @@ pub struct EditParams {
     /// Name of the API access method in the Mullvad client [All]
     #[arg(long)]
     name: Option<String>,
-    /// Username for authentication [Socks5 (Remote proxy)]
-    #[arg(long)]
-    username: Option<String>,
-    /// Password for authentication [Socks5 (Remote proxy), Shadowsocks]
-    #[arg(long)]
-    password: Option<String>,
-    /// Cipher to use [Shadowsocks]
-    #[arg(value_parser = SHADOWSOCKS_CIPHERS, long)]
-    cipher: Option<String>,
-    /// The IP of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
-    #[arg(long)]
-    ip: Option<IpAddr>,
-    /// The port of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
-    #[arg(long)]
-    port: Option<u16>,
-    /// The port that the server on localhost is listening on [Socks5 (Local proxy)]
-    #[arg(long)]
-    local_port: Option<u16>,
-    /// The transport protocol used by the remote proxy [Socks5 (Local proxy)]
-    #[arg(long)]
-    transport_protocol: Option<TransportProtocol>,
+    #[clap(flatten)]
+    edit_params: ProxyEditParams,
+    ///// Username for authentication [Socks5 (Remote proxy)]
+    //#[arg(long)]
+    //username: Option<String>,
+    ///// Password for authentication [Socks5 (Remote proxy), Shadowsocks]
+    //#[arg(long)]
+    //password: Option<String>,
+    ///// Cipher to use [Shadowsocks]
+    //#[arg(value_parser = SHADOWSOCKS_CIPHERS, long)]
+    //cipher: Option<String>,
+    ///// The IP of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
+    //#[arg(long)]
+    //ip: Option<IpAddr>,
+    ///// The port of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
+    //#[arg(long)]
+    //port: Option<u16>,
+    ///// The port that the server on localhost is listening on [Socks5 (Local proxy)]
+    //#[arg(long)]
+    //local_port: Option<u16>,
+    ///// The transport protocol used by the remote proxy [Socks5 (Local proxy)]
+    //#[arg(long)]
+    //transport_protocol: Option<TransportProtocol>,
 }
 
 /// Implement conversions from CLI types to Daemon types.
@@ -411,7 +382,9 @@ pub struct EditParams {
 /// Since these are not supposed to be used outside of the CLI,
 /// we define them in a hidden-away module.
 mod conversions {
-    use super::{AddCustomCommands, AddSocks5Commands, SocksAuthentication};
+    use crate::cmds::proxies::SocksAuthentication;
+
+    use super::{AddCustomCommands, AddSocks5Commands};
     use mullvad_types::access_method as daemon_types;
     use talpid_types::net::proxy as talpid_types;
 
@@ -420,13 +393,16 @@ mod conversions {
             match value {
                 AddCustomCommands::Socks5(socks) => match socks {
                     AddSocks5Commands::Local {
-                        local_port,
-                        remote_ip,
-                        remote_port,
                         name: _,
                         disabled: _,
-                        transport_protocol,
+                        add,
                     } => {
+                        let (local_port, remote_ip, remote_port, transport_protocol) = (
+                            add.local_port,
+                            add.remote_ip,
+                            add.remote_port,
+                            add.transport_protocol,
+                        );
                         println!("Adding SOCKS5-proxy: localhost:{local_port} => {remote_ip}:{remote_port}/{transport_protocol}");
                         talpid_types::Socks5Local::new_with_transport_protocol(
                             (remote_ip, remote_port),
@@ -436,36 +412,36 @@ mod conversions {
                         .into()
                     }
                     AddSocks5Commands::Remote {
-                        remote_ip,
-                        remote_port,
-                        authentication,
+                        add,
                         name: _,
                         disabled: _,
-                    } => daemon_types::AccessMethod::from(talpid_types::Socks5::Remote(
-                        match authentication {
-                            Some(SocksAuthentication { username, password }) => {
-                                println!("Adding SOCKS5-proxy: {username}:{password}@{remote_ip}:{remote_port}");
-                                let auth = talpid_types::SocksAuth { username, password };
-                                talpid_types::Socks5Remote::new_with_authentication(
-                                    (remote_ip, remote_port),
-                                    auth,
-                                )
-                            }
-                            None => {
-                                println!("Adding SOCKS5-proxy: {remote_ip}:{remote_port}");
-                                talpid_types::Socks5Remote::new((remote_ip, remote_port))
-                            }
-                        },
-                    )),
+                    } => daemon_types::AccessMethod::from(talpid_types::Socks5::Remote(match add
+                        .authentication
+                    {
+                        Some(SocksAuthentication { username, password }) => {
+                            println!(
+                                "Adding SOCKS5-proxy: {username}:{password}@{}:{}",
+                                add.remote_ip, add.remote_port
+                            );
+                            let auth = talpid_types::SocksAuth { username, password };
+                            talpid_types::Socks5Remote::new_with_authentication(
+                                (add.remote_ip, add.remote_port),
+                                auth,
+                            )
+                        }
+                        None => {
+                            println!("Adding SOCKS5-proxy: {}:{}", add.remote_ip, add.remote_port);
+                            talpid_types::Socks5Remote::new((add.remote_ip, add.remote_port))
+                        }
+                    })),
                 },
                 AddCustomCommands::Shadowsocks {
-                    remote_ip,
-                    remote_port,
-                    password,
-                    cipher,
+                    add,
                     name: _,
                     disabled: _,
                 } => {
+                    let (password, cipher, remote_ip, remote_port) =
+                        (add.password, add.cipher, add.remote_ip, add.remote_port);
                     println!(
                 "Adding Shadowsocks-proxy: {password} @ {remote_ip}:{remote_port} using {cipher}"
                     );
