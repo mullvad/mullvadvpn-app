@@ -165,12 +165,12 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   // Expand/collapse should only be available if the expanded property is provided in the source
   const expanded = 'expanded' in props.source ? props.source.expanded : undefined;
   const toggleCollapse = useCallback(() => {
-    if (expanded !== undefined) {
+    if (expanded !== undefined && hasChildren) {
       userInvokedExpand.current = true;
       const callback = expanded ? props.onCollapse : props.onExpand;
       callback(props.source.location);
     }
-  }, [props.onExpand, props.onCollapse, props.source.location, expanded]);
+  }, [props.onExpand, props.onCollapse, props.source.location, expanded, hasChildren]);
 
   const handleClick = useCallback(() => {
     if (!props.source.selected) {
@@ -275,10 +275,12 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
           </>
         ) : null}
 
-        {hasChildren ? (
+        {hasChildren ||
+        ('customList' in props.source.location && !('country' in props.source.location)) ? (
           <StyledLocationRowIcon
             as={ChevronButton}
             onClick={toggleCollapse}
+            disabled={!hasChildren}
             up={expanded ?? false}
             aria-label={sprintf(
               expanded === true
