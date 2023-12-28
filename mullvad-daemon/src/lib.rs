@@ -82,7 +82,7 @@ use talpid_types::android::AndroidContext;
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
     net::{
-        openvpn::ProxySettings, proxy::CustomProxySettings, IpVersion, TunnelEndpoint, TunnelType,
+        openvpn::ProxySettings, proxy::CustomBridgeSettings, IpVersion, TunnelEndpoint, TunnelType,
     },
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
@@ -1228,11 +1228,11 @@ where
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
-            UpdateCustomBridge(tx, custom_proxy) => {
-                self.on_update_custom_proxy(tx, custom_proxy).await
+            UpdateCustomBridge(tx, custom_bridge) => {
+                self.on_update_custom_bridge(tx, custom_bridge).await
             }
-            SetCustomBridge(tx) => self.on_select_custom_proxy(tx).await,
-            GetCustomBridge(tx) => self.on_get_custom_proxy(tx).await,
+            SetCustomBridge(tx) => self.on_select_custom_bridge(tx).await,
+            GetCustomBridge(tx) => self.on_get_custom_bridge(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2447,18 +2447,18 @@ where
         }
     }
 
-    async fn on_update_custom_proxy(
+    async fn on_update_custom_bridge(
         &mut self,
         tx: ResponseTx<(), Error>,
-        new_custom_proxy_settings: CustomBridgeSettings,
+        new_custom_bridge_settings: CustomBridgeSettings,
     ) {
         match self
             .settings
             .update(|settings| {
-                settings.custom_proxy.custom_bridge = new_custom_proxy_settings.custom_bridge;
-                if let Some(new_custom_proxy) = &settings.custom_proxy.custom_bridge {
+                settings.custom_bridge.custom_bridge = new_custom_bridge_settings.custom_bridge;
+                if let Some(new_custom_bridge) = &settings.custom_bridge.custom_bridge {
                     settings.bridge_settings = BridgeSettings::Custom(ProxySettings::from(
-                        new_custom_proxy.clone(),
+                        new_custom_bridge.clone(),
                         #[cfg(target_os = "linux")]
                         Some(mullvad_types::TUNNEL_FWMARK),
                     ));
@@ -2468,34 +2468,34 @@ where
             .map_err(Error::SettingsError)
         {
             Ok(settings_changed) => {
-                if settings_changed && self.settings.custom_proxy.custom_bridge.is_some() {
+                if settings_changed && self.settings.custom_bridge.custom_bridge.is_some() {
                     self.reconnect_tunnel();
                 }
-                Self::oneshot_send(tx, Ok(()), "update_custom_proxy response");
+                Self::oneshot_send(tx, Ok(()), "update_custom_bridge response");
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "update_custom_proxy response");
+                Self::oneshot_send(tx, Err(e), "update_custom_bridge response");
             }
         }
     }
 
-    async fn on_select_custom_proxy(&mut self, tx: ResponseTx<(), Error>) {
-        if self.settings.custom_proxy.custom_bridge.is_none() {
-            log::info!("Tried to select custom proxy but no custom proxy is saved");
+    async fn on_select_custom_bridge(&mut self, tx: ResponseTx<(), Error>) {
+        if self.settings.custom_bridge.custom_bridge.is_none() {
+            log::info!("Tried to select custom bridge but no custom bridge is saved");
             Self::oneshot_send(
                 tx,
                 Err(Error::NoCustomProxySaved),
-                "select_custom_proxy response",
+                "select_custom_bridge response",
             );
             return;
         }
         match self
             .settings
             .update(|settings| {
-                if let Some(new_custom_proxy) = &settings.custom_proxy.custom_bridge {
+                if let Some(new_custom_bridge) = &settings.custom_bridge.custom_bridge {
                     settings.bridge_settings = BridgeSettings::Custom(ProxySettings::from(
-                        new_custom_proxy.clone(),
+                        new_custom_bridge.clone(),
                         #[cfg(target_os = "linux")]
                         Some(mullvad_types::TUNNEL_FWMARK),
                     ));
@@ -2505,23 +2505,23 @@ where
             .map_err(Error::SettingsError)
         {
             Ok(settings_changed) => {
-                if settings_changed && self.settings.custom_proxy.custom_bridge.is_some() {
+                if settings_changed && self.settings.custom_bridge.custom_bridge.is_some() {
                     self.reconnect_tunnel();
                 }
-                Self::oneshot_send(tx, Ok(()), "select_custom_proxy response");
+                Self::oneshot_send(tx, Ok(()), "select_custom_bridge response");
             }
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "select_custom_proxy response");
+                Self::oneshot_send(tx, Err(e), "select_custom_bridge response");
             }
         }
     }
 
-    async fn on_get_custom_proxy(&mut self, tx: ResponseTx<CustomBridgeSettings, Error>) {
+    async fn on_get_custom_bridge(&mut self, tx: ResponseTx<CustomBridgeSettings, Error>) {
         Self::oneshot_send(
             tx,
-            Ok(self.settings.custom_proxy.clone()),
-            "get_custom_proxy response",
+            Ok(self.settings.custom_bridge.clone()),
+            "get_custom_bridge response",
         );
     }
 

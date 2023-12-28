@@ -16,7 +16,7 @@ use mullvad_api::{
     ApiEndpointUpdateCallback,
 };
 use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::{self, AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
+use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
 use std::{
     path::PathBuf,
     sync::{Arc, Mutex, Weak},

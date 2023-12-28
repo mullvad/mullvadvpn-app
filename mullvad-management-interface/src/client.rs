@@ -219,7 +219,7 @@ impl MullvadProxyClient {
 
     pub async fn update_custom_bridge(&mut self, custom_proxy: CustomBridgeSettings) -> Result<()> {
         self.0
-            .update_custom_bridge(types::CustomProxySettings::from(custom_proxy))
+            .update_custom_bridge(types::CustomBridgeSettings::from(custom_proxy))
             .await
             .map_err(Error::Rpc)
             .map(tonic::Response::into_inner)
