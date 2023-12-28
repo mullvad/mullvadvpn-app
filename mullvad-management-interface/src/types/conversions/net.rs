@@ -248,12 +248,10 @@ mod proxy {
             })?;
             let port = port as u16;
 
-            Ok(Socks5Remote::from(
-                match authentication.map(SocksAuth::from) {
-                    Some(auth) => Socks5Remote::new_with_authentication((ip, port), auth),
-                    None => Socks5Remote::new((ip, port)),
-                },
-            ))
+            Ok(match authentication.map(SocksAuth::from) {
+                Some(auth) => Socks5Remote::new_with_authentication((ip, port), auth),
+                None => Socks5Remote::new((ip, port)),
+            })
         }
     }
 

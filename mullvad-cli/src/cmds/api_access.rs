@@ -514,7 +514,7 @@ mod pp {
                     }
                     writeln!(f)?;
                     let formatter = CustomProxyFormatter {
-                        custom_proxy: &method,
+                        custom_proxy: method,
                     };
                     write!(f, "{}", formatter)?;
                     Ok(())
