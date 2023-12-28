@@ -5,7 +5,7 @@ use talpid_types::net::proxy::CustomProxy;
 
 use clap::{Args, Subcommand};
 
-use super::proxies::{ShadowsocksAdd, Socks5LocalAdd, Socks5RemoteAdd, ProxyEditParams};
+use super::proxies::{ProxyEditParams, ShadowsocksAdd, Socks5LocalAdd, Socks5RemoteAdd};
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum ApiAccess {
