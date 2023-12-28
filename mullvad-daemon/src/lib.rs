@@ -81,7 +81,7 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    net::{IpVersion, TunnelEndpoint, TunnelType},
+    net::{proxy::{CustomProxy, CustomProxySettings}, IpVersion, TunnelEndpoint, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
     ErrorExt,
 };
@@ -182,6 +182,8 @@ pub enum Error {
 
     #[error(display = "API connection mode error")]
     ApiConnectionModeError(#[error(source)] api::Error),
+    #[error(display = "No custom bridge has been specified")]
+    NoCustomProxySaved,
 
     #[cfg(target_os = "macos")]
     #[error(display = "Failed to set exclusion group")]
@@ -297,6 +299,14 @@ pub enum DaemonCommand {
     GetCurrentAccessMethod(ResponseTx<AccessMethodSetting, Error>),
     /// Test an API access method
     TestApiAccessMethod(ResponseTx<bool, Error>, mullvad_types::access_method::Id),
+    /// TODO
+    UpdateCustomProxy(ResponseTx<(), Error>, CustomProxy),
+    /// TODO
+    RemoveCustomProxy(ResponseTx<(), Error>),
+    /// TODO
+    SelectCustomProxy(ResponseTx<(), Error>),
+    /// TODO
+    GetCustomProxy(ResponseTx<CustomProxySettings, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1218,6 +1228,12 @@ where
             GetCurrentAccessMethod(tx) => self.on_get_current_api_access_method(tx),
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             TestApiAccessMethod(tx, method) => self.on_test_api_access_method(tx, method),
+            UpdateCustomProxy(tx, custom_proxy) => {
+                self.on_update_custom_proxy(tx, custom_proxy).await
+            }
+            RemoveCustomProxy(tx) => self.on_remove_custom_proxy(tx).await,
+            SelectCustomProxy(tx) => self.on_select_custom_proxy(tx).await,
+            GetCustomProxy(tx) => self.on_get_custom_proxy(tx).await,
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2376,6 +2392,89 @@ where
             .await
             .map_err(Error::AccessMethodError);
         Self::oneshot_send(tx, result, "set_api_access_method response");
+    }
+
+    async fn on_update_custom_proxy(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        custom_proxy: CustomProxy,
+    ) {
+        match self
+            .settings
+            .update(|settings| {
+                settings.custom_proxy.custom_proxy = Some(custom_proxy);
+            })
+            .await
+            .map_err(Error::SettingsError)
+        {
+            Ok(_) => {
+                Self::oneshot_send(tx, Ok(()), "update_custom_proxy response");
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "update_custom_proxy response");
+            }
+        }
+    }
+
+    async fn on_remove_custom_proxy(&mut self, tx: ResponseTx<(), Error>) {
+        match self
+            .settings
+            .update(|settings| {
+                settings.custom_proxy = CustomProxySettings {
+                    custom_proxy: None,
+                    active: false,
+                };
+            })
+            .await
+            .map_err(Error::SettingsError)
+        {
+            Ok(_) => {
+                Self::oneshot_send(tx, Ok(()), "remove_custom_proxy response");
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "remove_custom_proxy response");
+            }
+        }
+    }
+
+    async fn on_select_custom_proxy(&mut self, tx: ResponseTx<(), Error>) {
+        if self.settings.custom_proxy.custom_proxy.is_none() {
+            log::info!("Tried to select custom proxy but no custom proxy is saved");
+            Self::oneshot_send(
+                tx,
+                Err(Error::NoCustomProxySaved),
+                "select_custom_proxy response",
+            );
+            return;
+        }
+        match self
+            .settings
+            .update(|settings| {
+                if settings.custom_proxy.custom_proxy.is_some() {
+                    settings.custom_proxy.active = true;
+                }
+            })
+            .await
+            .map_err(Error::SettingsError)
+        {
+            Ok(_) => {
+                Self::oneshot_send(tx, Ok(()), "select_custom_proxy response");
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "select_custom_proxy response");
+            }
+        }
+    }
+
+    async fn on_get_custom_proxy(&mut self, tx: ResponseTx<CustomProxySettings, Error>) {
+        Self::oneshot_send(
+            tx,
+            Ok(self.settings.custom_proxy.clone()),
+            "get_custom_proxy response",
+        );
     }
 
     async fn on_update_api_access_method(

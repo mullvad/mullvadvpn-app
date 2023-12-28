@@ -140,10 +140,10 @@ mod data {
         }
     }
 
-    impl TryFrom<proto::access_method::Socks5Local> for AccessMethod {
+    impl TryFrom<proto::Socks5Local> for AccessMethod {
         type Error = FromProtobufTypeError;
 
-        fn try_from(value: proto::access_method::Socks5Local) -> Result<Self, Self::Error> {
+        fn try_from(value: proto::Socks5Local) -> Result<Self, Self::Error> {
             use crate::types::conversions::net::try_transport_protocol_from_i32;
             let remote_ip = value.remote_ip.parse::<Ipv4Addr>().map_err(|_| {
                 FromProtobufTypeError::InvalidArgument(
@@ -160,11 +160,11 @@ mod data {
         }
     }
 
-    impl TryFrom<proto::access_method::Socks5Remote> for AccessMethod {
+    impl TryFrom<proto::Socks5Remote> for AccessMethod {
         type Error = FromProtobufTypeError;
 
-        fn try_from(value: proto::access_method::Socks5Remote) -> Result<Self, Self::Error> {
-            let proto::access_method::Socks5Remote {
+        fn try_from(value: proto::Socks5Remote) -> Result<Self, Self::Error> {
+            let proto::Socks5Remote {
                 ip,
                 port,
                 authentication,
@@ -185,10 +185,10 @@ mod data {
         }
     }
 
-    impl TryFrom<proto::access_method::Shadowsocks> for AccessMethod {
+    impl TryFrom<proto::Shadowsocks> for AccessMethod {
         type Error = FromProtobufTypeError;
 
-        fn try_from(value: proto::access_method::Shadowsocks) -> Result<Self, Self::Error> {
+        fn try_from(value: proto::Shadowsocks) -> Result<Self, Self::Error> {
             let ip = value.ip.parse::<Ipv4Addr>().map_err(|_| {
                 FromProtobufTypeError::InvalidArgument(
                     "Could not parse Socks5 (remote) message from protobuf",
@@ -224,7 +224,7 @@ mod data {
             let access_method = match value {
                 CustomAccessMethod::Shadowsocks(ss) => {
                     proto::access_method::AccessMethod::Shadowsocks(
-                        proto::access_method::Shadowsocks {
+                        proto::Shadowsocks {
                             ip: ss.peer.ip().to_string(),
                             port: ss.peer.port() as u32,
                             password: ss.password,
@@ -236,7 +236,7 @@ mod data {
                     remote_endpoint,
                     local_port,
                 })) => proto::access_method::AccessMethod::Socks5local(
-                    proto::access_method::Socks5Local {
+                    proto::Socks5Local {
                         remote_ip: remote_endpoint.address.ip().to_string(),
                         remote_port: remote_endpoint.address.port() as u32,
                         remote_transport_protocol: i32::from(proto::TransportProtocol::from(
@@ -249,10 +249,10 @@ mod data {
                     peer,
                     authentication,
                 })) => proto::access_method::AccessMethod::Socks5remote(
-                    proto::access_method::Socks5Remote {
+                    proto::Socks5Remote {
                         ip: peer.ip().to_string(),
                         port: peer.port() as u32,
-                        authentication: authentication.map(proto::access_method::SocksAuth::from),
+                        authentication: authentication.map(proto::SocksAuth::from),
                     },
                 ),
             };
@@ -281,17 +281,17 @@ mod data {
         }
     }
 
-    impl From<SocksAuth> for proto::access_method::SocksAuth {
+    impl From<SocksAuth> for proto::SocksAuth {
         fn from(value: SocksAuth) -> Self {
-            proto::access_method::SocksAuth {
+            proto::SocksAuth {
                 username: value.username,
                 password: value.password,
             }
         }
     }
 
-    impl From<proto::access_method::SocksAuth> for SocksAuth {
-        fn from(value: proto::access_method::SocksAuth) -> Self {
+    impl From<proto::SocksAuth> for SocksAuth {
+        fn from(value: proto::SocksAuth) -> Self {
             Self {
                 username: value.username,
                 password: value.password,
