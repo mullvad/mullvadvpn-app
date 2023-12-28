@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add account UUID to verbose 'mullvad account get -v' output.
+
 ### Fixed
 #### Linux
 - Out IP missing forever when am.i.mullvad.net returns error
