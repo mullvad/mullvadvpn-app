@@ -842,15 +842,13 @@ mod event_server {
 
             let mut routes = HashSet::new();
             #[cfg(not(target_os = "linux"))]
-            if let Some(proxy_settings) = &self.proxy {
-                if let talpid_types::net::openvpn::ProxySettings::Local(proxy_settings) =
-                    proxy_settings
-                {
-                    let network = proxy_settings.peer.ip().into();
-                    let node = talpid_routing::NetNode::DefaultNode;
-                    let route = talpid_routing::RequiredRoute::new(network, node);
-                    routes.insert(route);
-                }
+            if let Some(talpid_types::net::openvpn::ProxySettings::Local(proxy_settings)) =
+                &self.proxy
+            {
+                let network = proxy_settings.peer.ip().into();
+                let node = talpid_routing::NetNode::DefaultNode;
+                let route = talpid_routing::RequiredRoute::new(network, node);
+                routes.insert(route);
             }
             let route_handle = self.route_manager_handle.clone();
 
