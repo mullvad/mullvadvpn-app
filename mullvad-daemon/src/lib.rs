@@ -1232,7 +1232,7 @@ where
                 self.on_update_custom_bridge(tx, custom_bridge).await
             }
             SetCustomBridge(tx) => self.on_select_custom_bridge(tx).await,
-            GetCustomBridge(tx) => self.on_get_custom_bridge(tx).await,
+            GetCustomBridge(tx) => self.on_get_custom_bridge(tx),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2517,7 +2517,7 @@ where
         }
     }
 
-    async fn on_get_custom_bridge(&mut self, tx: ResponseTx<CustomBridgeSettings, Error>) {
+    fn on_get_custom_bridge(&mut self, tx: ResponseTx<CustomBridgeSettings, Error>) {
         Self::oneshot_send(
             tx,
             Ok(self.settings.custom_bridge.clone()),
