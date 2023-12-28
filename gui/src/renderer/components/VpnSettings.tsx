@@ -275,7 +275,15 @@ function DnsBlockers() {
         <ModalMessage>
           {messages.pgettext(
             'vpn-settings-view',
-            'This might cause issues on certain websites, services, and programs.',
+            'This might cause issues on certain websites, services, and apps.',
+          )}
+        </ModalMessage>
+        <ModalMessage>
+          {formatHtml(
+            messages.pgettext(
+              'vpn-settings-view',
+              'Attention: this setting cannot be used in combination with <b>Use custom DNS.</b>',
+            ),
           )}
         </ModalMessage>
       </InfoButton>
