@@ -220,8 +220,8 @@ function AllowLan() {
                 <li>172.16.0.0/12</li>
                 <li>192.168.0.0/16</li>
                 <li>169.254.0.0/16</li>
-                <li>0xfe80::/10</li>
-                <li>0xfc00::/7</li>
+                <li>fe80::/10</li>
+                <li>fc00::/7</li>
               </LanIpRanges>
             </ModalMessage>
           </InfoButton>
