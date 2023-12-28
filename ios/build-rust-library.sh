@@ -40,8 +40,8 @@ for arch in $ARCHS; do
 
       # Intel iOS simulator
       export CFLAGS_x86_64_apple_ios="-target x86_64-apple-ios"
-      $HOME/.cargo/bin/cargo build -p $FFI_TARGET --lib $RELFLAG --target x86_64-apple-ios
-      $HOME/.cargo/bin/cargo build -p $FFI_TARGET --lib --target x86_64-apple-ios
+      $HOME/.cargo/bin/cargo build -v -p $FFI_TARGET --lib $RELFLAG --target x86_64-apple-ios
+      $HOME/.cargo/bin/cargo build -v -p $FFI_TARGET --lib --target x86_64-apple-ios
       ;;
 
     arm64)

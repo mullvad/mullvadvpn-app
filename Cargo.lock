@@ -14,7 +14,7 @@ dependencies = [
  "libc",
  "log",
  "nix 0.26.4",
- "oslog",
+ "nix 0.27.1",
  "tokio",
  "tun",
  "x25519-dalek",
@@ -354,7 +354,6 @@ dependencies = [
 [[package]]
 name = "boringtun"
 version = "0.5.2"
-source = "git+https://github.com/mullvad/boringtun?rev=44fffd131212d08febb3799bfc9f951fd3893c4c#44fffd131212d08febb3799bfc9f951fd3893c4c"
 dependencies = [
  "aead",
  "base64 0.13.1",
