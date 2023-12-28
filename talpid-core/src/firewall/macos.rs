@@ -288,7 +288,7 @@ impl Firewall {
             .tcp_flags(Self::get_tcp_flags())
             .quick(true);
 
-        if !relay_endpoint.clients.allows_all() {
+        if !relay_endpoint.clients.allow_all() {
             builder.user(Uid::from(super::ROOT_UID));
         }
 
