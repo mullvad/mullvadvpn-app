@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { buttonText, tinyText } from '../common-styles';
+import { buttonText, normalText, tinyText } from '../common-styles';
 import ImageView, { IImageViewProps } from '../ImageView';
 import { CellButton } from './CellButton';
 import { CellDisabledContext } from './Container';
@@ -47,6 +47,10 @@ export function InputLabel(props: React.LabelHTMLAttributes<HTMLLabelElement>) {
   const disabled = useContext(CellDisabledContext);
   return <StyledLabel as="label" disabled={disabled} {...props} />;
 }
+
+export const ValueLabel = styled(Label)(normalText, {
+  fontWeight: 400,
+});
 
 export function SubText(props: React.HTMLAttributes<HTMLDivElement>) {
   const disabled = useContext(CellDisabledContext);
