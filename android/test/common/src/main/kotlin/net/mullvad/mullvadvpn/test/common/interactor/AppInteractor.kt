@@ -73,6 +73,10 @@ class AppInteractor(private val device: UiDevice, private val targetContext: Con
         device.findObjectWithTimeout(By.res(SETTINGS_COG_ID)).click()
     }
 
+    fun clickAccountCog() {
+        device.findObjectWithTimeout(By.res("top_bar_account_button")).click()
+    }
+
     fun clickListItemByText(text: String) {
         device.findObjectWithTimeout(By.text(text)).click()
     }
