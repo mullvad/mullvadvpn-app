@@ -64,7 +64,8 @@ impl CustomCommands {
 
     async fn custom_bridge_edit(edit: ProxyEditParams) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let mut custom_bridge = rpc.get_custom_bridge().await?;
+        let settings = rpc.get_settings().await?;
+        let mut custom_bridge = settings.custom_bridge;
         let Some(old_custom_bridge) = custom_bridge.custom_bridge else {
             bail!("Can not edit as there is no currently saved custom bridge");
         };

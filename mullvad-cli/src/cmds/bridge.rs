@@ -236,7 +236,8 @@ impl Bridge {
 
     async fn get_custom() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let current_custom_bridge_settings = rpc.get_custom_bridge().await?;
+        let settings = rpc.get_settings().await?;
+        let current_custom_bridge_settings = settings.custom_bridge;
         match current_custom_bridge_settings.custom_bridge {
             Some(custom_bridge) => {
                 let formatter = CustomProxyFormatter {
