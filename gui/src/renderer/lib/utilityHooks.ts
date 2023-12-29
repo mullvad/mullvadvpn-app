@@ -67,5 +67,5 @@ export function useNormalRelaySettings() {
 
 export function useNormalBridgeSettings() {
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
-  return 'normal' in bridgeSettings ? bridgeSettings.normal : undefined;
+  return bridgeSettings.normal;
 }

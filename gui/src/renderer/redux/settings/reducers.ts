@@ -1,6 +1,7 @@
 import { IWindowsApplication } from '../../../shared/application-types';
 import {
   BridgeState,
+  BridgeType,
   CustomLists,
   IDnsOptions,
   IpVersion,
@@ -51,13 +52,11 @@ export type RelaySettingsRedux =
       };
     };
 
-export type BridgeSettingsRedux =
-  | {
-      normal: NormalBridgeSettingsRedux;
-    }
-  | {
-      custom: ProxySettings;
-    };
+export type BridgeSettingsRedux = {
+  type: BridgeType;
+  normal: NormalBridgeSettingsRedux;
+  custom?: ProxySettings;
+};
 
 export interface IRelayLocationRelayRedux {
   hostname: string;
@@ -140,9 +139,11 @@ const initialState: ISettingsReduxState = {
   allowLan: false,
   enableIpv6: true,
   bridgeSettings: {
+    type: 'normal',
     normal: {
       location: 'any',
     },
+    custom: undefined,
   },
   bridgeState: 'auto',
   blockWhenDisconnected: false,

@@ -7,11 +7,13 @@ export default class BridgeSettingsBuilder {
   public build(): BridgeSettings {
     if (this.payload.location) {
       return {
+        type: 'normal',
         normal: {
           location: this.payload.location,
           providers: this.payload.providers ?? [],
           ownership: this.payload.ownership ?? Ownership.any,
         },
+        custom: undefined,
       };
     } else {
       throw new Error('Unsupported configuration');
