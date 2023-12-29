@@ -29,11 +29,13 @@ export function getDefaultSettings(): ISettings {
       },
     },
     bridgeSettings: {
+      type: 'normal',
       normal: {
         location: 'any',
         providers: [],
         ownership: Ownership.any,
       },
+      custom: undefined,
     },
     bridgeState: 'auto',
     tunnelOptions: {

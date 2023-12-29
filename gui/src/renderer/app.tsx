@@ -624,17 +624,13 @@ export default class AppRenderer {
   private setBridgeSettings(bridgeSettings: BridgeSettings) {
     const actions = this.reduxActions;
 
-    if ('normal' in bridgeSettings) {
-      actions.settings.updateBridgeSettings({
-        normal: {
-          location: liftConstraint(bridgeSettings.normal.location),
-        },
-      });
-    } else if ('custom' in bridgeSettings) {
-      actions.settings.updateBridgeSettings({
-        custom: bridgeSettings.custom,
-      });
-    }
+    actions.settings.updateBridgeSettings({
+      type: bridgeSettings.type,
+      normal: {
+        location: liftConstraint(bridgeSettings.normal.location),
+      },
+      custom: bridgeSettings.custom,
+    });
   }
 
   private onDaemonConnected() {
