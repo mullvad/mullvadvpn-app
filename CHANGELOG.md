@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+#### Android
+- Add support for all screen orientations.
+
 ### Fixed
 #### Linux
 - Out IP missing forever when am.i.mullvad.net returns error
@@ -31,9 +35,7 @@ Line wrap the file at 100 chars.                                              Th
   be printed (if available). `mullvad status listen` no longer prints location info.
 
 #### Android
-- Migrated to Compose Navigation
-- Allow for full rotation
-- Improve animations between screens
+- Migrate to Compose Navigation which also improves screen transition animations.
 
 
 ## [android/2023.10] - 2023-12-14
