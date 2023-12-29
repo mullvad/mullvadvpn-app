@@ -1,11 +1,11 @@
 use std::{future::Future, time::Duration};
 
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use futures::future::{abortable, AbortHandle};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
-    account::{AccountToken, VoucherSubmission},
+    account::{AccountData, AccountToken, VoucherSubmission},
     device::{Device, DeviceId},
     wireguard::WireguardData,
 };
@@ -284,23 +284,23 @@ impl AccountService {
         )
     }
 
-    pub async fn check_expiry(&self, token: AccountToken) -> Result<DateTime<Utc>, rest::Error> {
+    pub async fn get_data(&self, token: AccountToken) -> Result<AccountData, rest::Error> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         let result = retry_future(
-            move || proxy.get_expiry(token.clone()),
+            move || proxy.get_data(token.clone()),
             move |result| should_retry(result, &api_handle),
             RETRY_ACTION_STRATEGY,
         )
         .await;
-        if handle_expiry_result_inner(&result, &self.api_availability) {
+        if handle_account_data_result(&result, &self.api_availability) {
             self.initial_check_abort_handle.abort();
         }
         result
     }
 
-    pub async fn check_expiry_2(&self, token: AccountToken) -> Result<DateTime<Utc>, Error> {
-        self.check_expiry(token).await.map_err(map_rest_error)
+    pub async fn get_data_2(&self, token: AccountToken) -> Result<AccountData, Error> {
+        self.get_data(token).await.map_err(map_rest_error)
     }
 
     pub async fn submit_voucher(
@@ -385,9 +385,9 @@ pub fn spawn_account_service(
         };
 
         let future_generator = move || {
-            let expiry_fut = api_availability.when_online(accounts_proxy.get_expiry(token.clone()));
+            let expiry_fut = api_availability.when_online(accounts_proxy.get_data(token.clone()));
             let api_availability_copy = api_availability.clone();
-            async move { handle_expiry_result_inner(&expiry_fut.await, &api_availability_copy) }
+            async move { handle_account_data_result(&expiry_fut.await, &api_availability_copy) }
         };
         let should_retry = move |state_was_updated: &bool| -> bool { !*state_was_updated };
         retry_future(future_generator, should_retry, RETRY_BACKOFF_STRATEGY).await;
@@ -401,16 +401,16 @@ pub fn spawn_account_service(
     }
 }
 
-fn handle_expiry_result_inner(
-    result: &Result<chrono::DateTime<chrono::Utc>, rest::Error>,
+fn handle_account_data_result(
+    result: &Result<AccountData, rest::Error>,
     api_availability: &ApiAvailabilityHandle,
 ) -> bool {
     match result {
-        Ok(_expiry) if *_expiry >= chrono::Utc::now() => {
+        Ok(_data) if _data.expiry >= chrono::Utc::now() => {
             api_availability.resume_background();
             true
         }
-        Ok(_expiry) => {
+        Ok(_data) => {
             api_availability.pause_background();
             true
         }
