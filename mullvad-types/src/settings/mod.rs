@@ -2,8 +2,8 @@ use crate::{
     access_method,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint,
-        LocationConstraint, ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
+        BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint, LocationConstraint,
+        ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
         RelaySettingsFormatter, SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
@@ -13,7 +13,7 @@ use jnix::IntoJava;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(target_os = "windows")]
 use std::{collections::HashSet, path::PathBuf};
-use talpid_types::net::{openvpn, proxy::CustomBridgeSettings, GenericTunnelOptions};
+use talpid_types::net::{openvpn, GenericTunnelOptions};
 
 mod dns;
 
@@ -80,9 +80,6 @@ pub struct Settings {
     /// API access methods.
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub api_access_methods: access_method::Settings,
-    /// A potential custom bridge.
-    #[cfg_attr(target_os = "android", jnix(skip))]
-    pub custom_bridge: CustomBridgeSettings,
     /// If the daemon should allow communication with private (LAN) networks.
     pub allow_lan: bool,
     /// Extra level of kill switch. When this setting is on, the disconnected state will block
@@ -131,7 +128,7 @@ impl Default for Settings {
                 },
                 ..Default::default()
             }),
-            bridge_settings: BridgeSettings::Normal(BridgeConstraints::default()),
+            bridge_settings: BridgeSettings::default(),
             obfuscation_settings: ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Off,
                 ..Default::default()
@@ -139,7 +136,6 @@ impl Default for Settings {
             bridge_state: BridgeState::Auto,
             custom_lists: CustomListsSettings::default(),
             api_access_methods: access_method::Settings::default(),
-            custom_bridge: CustomBridgeSettings::default(),
             allow_lan: false,
             block_when_disconnected: false,
             auto_connect: false,

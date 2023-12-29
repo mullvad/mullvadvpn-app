@@ -3,8 +3,8 @@ mod shadowsocks;
 
 use self::shadowsocks::ShadowsocksProxyMonitor;
 use async_trait::async_trait;
-use std::{fmt, io, path::PathBuf};
-use talpid_types::net::openvpn;
+use std::{fmt, io};
+use talpid_types::net::proxy::CustomProxy;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -39,33 +39,25 @@ pub trait ProxyMonitorCloseHandle: Send {
     fn close(self: Box<Self>) -> Result<()>;
 }
 
-/// Variables that define the environment to help
-/// proxy implementations find their way around.
-/// TODO: Move struct to wider scope and use more generic name.
-pub struct ProxyResourceData {
-    pub resource_dir: PathBuf,
-    pub log_dir: Option<PathBuf>,
-}
-
 pub async fn start_proxy(
-    settings: &openvpn::ProxySettings,
-    resource_data: &ProxyResourceData,
+    settings: &CustomProxy,
+    #[cfg(target_os = "linux")] fwmark: u32,
 ) -> Result<Box<dyn ProxyMonitor>> {
     match settings {
-        openvpn::ProxySettings::Local(local_settings) => {
+        CustomProxy::Socks5Local(local_settings) => {
             // These are generic proxy settings with the proxy client not managed by us.
             Ok(Box::new(noop::NoopProxyMonitor::start(
-                local_settings.port,
+                local_settings.local_port,
             )?))
         }
-        openvpn::ProxySettings::Remote(remote_settings) => {
+        CustomProxy::Socks5Remote(remote_settings) => {
             // These are generic proxy settings with the proxy client not managed by us.
             Ok(Box::new(noop::NoopProxyMonitor::start(
-                remote_settings.address.port(),
+                remote_settings.endpoint.port(),
             )?))
         }
-        openvpn::ProxySettings::Shadowsocks(ss_settings) => Ok(Box::new(
-            ShadowsocksProxyMonitor::start(ss_settings, resource_data).await?,
+        CustomProxy::Shadowsocks(ss_settings) => Ok(Box::new(
+            ShadowsocksProxyMonitor::start(ss_settings, fwmark).await?,
         )),
     }
 }

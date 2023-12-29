@@ -3,7 +3,6 @@ use std::str::FromStr;
 mod access_method;
 mod account;
 mod custom_list;
-mod custom_proxy;
 mod custom_tunnel;
 mod device;
 mod location;

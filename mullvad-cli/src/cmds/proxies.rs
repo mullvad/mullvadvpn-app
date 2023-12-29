@@ -1,7 +1,6 @@
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{
-    openvpn::SHADOWSOCKS_CIPHERS,
-    proxy::{Shadowsocks, Socks5Local, Socks5Remote, SocksAuth},
+    proxy::{Shadowsocks, Socks5Local, Socks5Remote, SocksAuth, SHADOWSOCKS_CIPHERS},
     Endpoint, TransportProtocol,
 };
 
@@ -52,8 +51,8 @@ pub struct Socks5RemoteAdd {
 impl From<Socks5RemoteAdd> for Socks5Remote {
     fn from(add: Socks5RemoteAdd) -> Self {
         Self {
-            peer: SocketAddr::new(add.remote_ip, add.remote_port),
-            authentication: add.authentication.map(|auth| SocksAuth {
+            endpoint: SocketAddr::new(add.remote_ip, add.remote_port),
+            auth: add.authentication.map(|auth| SocksAuth {
                 username: auth.username,
                 password: auth.password,
             }),
@@ -77,7 +76,7 @@ pub struct ShadowsocksAdd {
 impl From<ShadowsocksAdd> for Shadowsocks {
     fn from(add: ShadowsocksAdd) -> Self {
         Self {
-            peer: SocketAddr::new(add.remote_ip, add.remote_port),
+            endpoint: SocketAddr::new(add.remote_ip, add.remote_port),
             password: add.password,
             cipher: add.cipher,
         }
@@ -121,7 +120,7 @@ pub struct ProxyEditParams {
 }
 
 impl ProxyEditParams {
-    pub fn merge_socks_local(self, local: Socks5Local) -> Socks5Local {
+    pub fn merge_socks_local(self, local: &Socks5Local) -> Socks5Local {
         let remote_ip = self.ip.unwrap_or(local.remote_endpoint.address.ip());
         let remote_port = self.port.unwrap_or(local.remote_endpoint.address.port());
         let local_port = self.local_port.unwrap_or(local.local_port);
@@ -135,32 +134,32 @@ impl ProxyEditParams {
         )
     }
 
-    pub fn merge_socks_remote(self, remote: Socks5Remote) -> Socks5Remote {
-        let ip = self.ip.unwrap_or(remote.peer.ip());
-        let port = self.port.unwrap_or(remote.peer.port());
-        match remote.authentication {
+    pub fn merge_socks_remote(self, remote: &Socks5Remote) -> Socks5Remote {
+        let ip = self.ip.unwrap_or(remote.endpoint.ip());
+        let port = self.port.unwrap_or(remote.endpoint.port());
+        match &remote.auth {
             None => Socks5Remote::new((ip, port)),
             Some(SocksAuth { username, password }) => {
-                let username = self.username.unwrap_or(username);
-                let password = self.password.unwrap_or(password);
+                let username = self.username.unwrap_or(username.to_owned());
+                let password = self.password.unwrap_or(password.to_owned());
                 let auth = SocksAuth { username, password };
                 Socks5Remote::new_with_authentication((ip, port), auth)
             }
         }
     }
 
-    pub fn merge_shadowsocks(self, shadowsocks: Shadowsocks) -> Shadowsocks {
-        let ip = self.ip.unwrap_or(shadowsocks.peer.ip());
-        let port = self.port.unwrap_or(shadowsocks.peer.port());
-        let password = self.password.unwrap_or(shadowsocks.password);
-        let cipher = self.cipher.unwrap_or(shadowsocks.cipher);
+    pub fn merge_shadowsocks(self, shadowsocks: &Shadowsocks) -> Shadowsocks {
+        let ip = self.ip.unwrap_or(shadowsocks.endpoint.ip());
+        let port = self.port.unwrap_or(shadowsocks.endpoint.port());
+        let password = self.password.unwrap_or(shadowsocks.password.to_owned());
+        let cipher = self.cipher.unwrap_or(shadowsocks.cipher.to_owned());
         Shadowsocks::new((ip, port), cipher, password)
     }
 }
 
 pub mod pp {
     use crate::print_option;
-    use talpid_types::net::proxy::{CustomProxy, Socks5, SocksAuth};
+    use talpid_types::net::proxy::{CustomProxy, SocksAuth};
 
     pub struct CustomProxyFormatter<'a> {
         pub custom_proxy: &'a CustomProxy,
@@ -171,36 +170,34 @@ pub mod pp {
             match self.custom_proxy {
                 CustomProxy::Shadowsocks(shadowsocks) => {
                     print_option!("Protocol", format!("Shadowsocks [{}]", shadowsocks.cipher));
-                    print_option!("Peer", shadowsocks.peer);
+                    print_option!("Peer", shadowsocks.endpoint);
                     print_option!("Password", shadowsocks.password);
                     Ok(())
                 }
-                CustomProxy::Socks5(socks) => match socks {
-                    Socks5::Remote(remote) => {
-                        print_option!("Protocol", "Socks5");
-                        print_option!("Peer", remote.peer);
-                        match &remote.authentication {
-                            Some(SocksAuth { username, password }) => {
-                                print_option!("Username", username);
-                                print_option!("Password", password);
-                            }
-                            None => (),
+                CustomProxy::Socks5Remote(remote) => {
+                    print_option!("Protocol", "Socks5");
+                    print_option!("Peer", remote.endpoint);
+                    match &remote.auth {
+                        Some(SocksAuth { username, password }) => {
+                            print_option!("Username", username);
+                            print_option!("Password", password);
                         }
-                        Ok(())
+                        None => (),
                     }
-                    Socks5::Local(local) => {
-                        print_option!("Protocol", "Socks5 (local)");
-                        print_option!(
-                            "Peer",
-                            format!(
-                                "{}/{}",
-                                local.remote_endpoint.address, local.remote_endpoint.protocol
-                            )
-                        );
-                        print_option!("Local port", local.local_port);
-                        Ok(())
-                    }
-                },
+                    Ok(())
+                }
+                CustomProxy::Socks5Local(local) => {
+                    print_option!("Protocol", "Socks5 (local)");
+                    print_option!(
+                        "Peer",
+                        format!(
+                            "{}/{}",
+                            local.remote_endpoint.address, local.remote_endpoint.protocol
+                        )
+                    );
+                    print_option!("Local port", local.local_port);
+                    Ok(())
+                }
             }
         }
     }

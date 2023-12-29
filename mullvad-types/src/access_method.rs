@@ -1,9 +1,9 @@
 use std::str::FromStr;
 
 use serde::{Deserialize, Serialize};
-use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5, Socks5Local, Socks5Remote};
+use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remote};
 
-/// Daemon settings for API access methods.
+/// Dttings for API access methods.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
     pub access_method_settings: Vec<AccessMethodSetting>,
@@ -216,26 +216,20 @@ impl From<CustomProxy> for AccessMethod {
     }
 }
 
-impl From<Shadowsocks> for AccessMethod {
-    fn from(value: Shadowsocks) -> Self {
-        CustomProxy::Shadowsocks(value).into()
-    }
-}
-
-impl From<Socks5> for AccessMethod {
-    fn from(value: Socks5) -> Self {
-        AccessMethod::from(CustomProxy::Socks5(value))
-    }
-}
-
 impl From<Socks5Remote> for AccessMethod {
     fn from(value: Socks5Remote) -> Self {
-        Socks5::Remote(value).into()
+        CustomProxy::Socks5Remote(value).into()
     }
 }
 
 impl From<Socks5Local> for AccessMethod {
     fn from(value: Socks5Local) -> Self {
-        Socks5::Local(value).into()
+        CustomProxy::Socks5Local(value).into()
+    }
+}
+
+impl From<Shadowsocks> for AccessMethod {
+    fn from(value: Shadowsocks) -> Self {
+        CustomProxy::Shadowsocks(value).into()
     }
 }

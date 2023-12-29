@@ -3,7 +3,7 @@
 #![deny(missing_docs)]
 #![deny(rust_2018_idioms)]
 
-use crate::proxy::{ProxyMonitor, ProxyResourceData};
+use crate::proxy::ProxyMonitor;
 #[cfg(windows)]
 use once_cell::sync::Lazy;
 use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
@@ -21,7 +21,10 @@ use std::{
 #[cfg(target_os = "linux")]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::TunnelEvent;
-use talpid_types::{net::openvpn, ErrorExt};
+use talpid_types::{
+    net::{openvpn, proxy::CustomProxy},
+    ErrorExt,
+};
 use tokio::task;
 
 #[cfg(windows)]
@@ -242,19 +245,12 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let user_pass_file_path = user_pass_file.to_path_buf();
         let proxy_auth_file_path = proxy_auth_file.as_ref().map(|file| file.to_path_buf());
 
-        let log_dir = log_path.as_ref().map(|log_path| {
-            log_path
-                .parent()
-                .expect("log_path has no parent")
-                .to_path_buf()
-        });
-
-        let proxy_resources = proxy::ProxyResourceData {
-            resource_dir: resource_dir.to_path_buf(),
-            log_dir,
-        };
-
-        let proxy_monitor = Self::start_proxy(&params.proxy, &proxy_resources).await?;
+        let proxy_monitor = Self::start_proxy(
+            &params.proxy,
+            #[cfg(target_os = "linux")]
+            params.fwmark,
+        )
+        .await?;
 
         #[cfg(windows)]
         let wintun = Self::new_wintun_context(params, resource_dir)?;
@@ -528,9 +524,9 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
     }
 
     fn create_proxy_auth_file(
-        proxy_settings: &Option<openvpn::ProxySettings>,
+        proxy_settings: &Option<CustomProxy>,
     ) -> std::result::Result<Option<mktemp::TempFile>, io::Error> {
-        if let Some(openvpn::ProxySettings::Remote(ref remote_proxy)) = proxy_settings {
+        if let Some(CustomProxy::Socks5Remote(ref remote_proxy)) = proxy_settings {
             if let Some(ref proxy_auth) = remote_proxy.auth {
                 return Ok(Some(Self::create_credentials_file(
                     &proxy_auth.username,
@@ -543,13 +539,17 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
     /// Starts a proxy service, as applicable.
     async fn start_proxy(
-        proxy_settings: &Option<openvpn::ProxySettings>,
-        proxy_resources: &ProxyResourceData,
+        proxy_settings: &Option<CustomProxy>,
+        #[cfg(target_os = "linux")] fwmark: u32,
     ) -> Result<Option<Box<dyn ProxyMonitor>>> {
         if let Some(ref settings) = proxy_settings {
-            let proxy_monitor = proxy::start_proxy(settings, proxy_resources)
-                .await
-                .map_err(Error::ProxyError)?;
+            let proxy_monitor = proxy::start_proxy(
+                settings,
+                #[cfg(target_os = "linux")]
+                fwmark,
+            )
+            .await
+            .map_err(Error::ProxyError)?;
             return Ok(Some(proxy_monitor));
         }
         Ok(None)
@@ -756,6 +756,7 @@ mod event_server {
         task::{Context, Poll},
     };
     use talpid_tunnel::TunnelMetadata;
+    use talpid_types::net::proxy::CustomProxy;
     #[cfg(any(target_os = "linux", windows))]
     use talpid_types::ErrorExt;
     #[cfg(target_os = "macos")]
@@ -800,7 +801,7 @@ mod event_server {
         pub user_pass_file_path: super::PathBuf,
         pub proxy_auth_file_path: Option<super::PathBuf>,
         pub abort_server_tx: triggered::Trigger,
-        pub proxy: Option<talpid_types::net::openvpn::ProxySettings>,
+        pub proxy: Option<CustomProxy>,
         pub route_manager_handle: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "linux")]
         pub ipv6_enabled: bool,

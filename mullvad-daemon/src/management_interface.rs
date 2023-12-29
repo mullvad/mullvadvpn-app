@@ -4,7 +4,6 @@ use futures::{
     StreamExt,
 };
 use mullvad_api::{rest::Error as RestError, StatusCode};
-use mullvad_management_interface::types::CustomBridgeSettings;
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
@@ -203,7 +202,7 @@ impl ManagementService for ManagementServiceImpl {
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, settings))?;
-        self.wait_for_result(rx).await??;
+        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
         Ok(Response::new(()))
     }
 
@@ -688,34 +687,6 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         let api_access_method = mullvad_types::access_method::Id::try_from(request.into_inner())?;
         self.send_command_to_daemon(DaemonCommand::TestApiAccessMethod(tx, api_access_method))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
-    // Custom Proxy
-    //
-    async fn set_custom_bridge(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("set_custom_bridge");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomBridge(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
-    async fn update_custom_bridge(
-        &self,
-        custom_proxy: Request<CustomBridgeSettings>,
-    ) -> ServiceResult<()> {
-        log::debug!("update_custom_bridge");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::UpdateCustomBridge(
-            tx,
-            custom_proxy.into_inner().try_into()?,
-        ))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)

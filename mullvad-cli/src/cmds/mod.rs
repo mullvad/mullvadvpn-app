@@ -6,7 +6,6 @@ pub mod api_access;
 pub mod auto_connect;
 pub mod beta_program;
 pub mod bridge;
-pub mod custom_bridge;
 pub mod custom_list;
 pub mod debug;
 pub mod dns;
