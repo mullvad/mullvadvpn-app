@@ -122,7 +122,6 @@ fun RedeemVoucherDialog(
             if (uiState.voucherViewModelState !is VoucherDialogState.Success)
                 Text(
                     text = stringResource(id = R.string.enter_voucher_code),
-                    style = MaterialTheme.typography.titleMedium
                 )
         },
         confirmButton = {

@@ -74,7 +74,6 @@ fun MtuDialog(
             Text(
                 text = stringResource(id = R.string.wireguard_mtu),
                 color = MaterialTheme.colorScheme.onBackground,
-                style = MaterialTheme.typography.headlineSmall
             )
         },
         text = {
