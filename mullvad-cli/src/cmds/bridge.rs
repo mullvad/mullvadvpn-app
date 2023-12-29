@@ -90,6 +90,8 @@ pub enum CustomCommands {
     Edit(ProxyEditParams),
     /// Use an existing custom bridge configuration.
     Use,
+    /// Stop using the custom bridge configuration.
+    Disable,
 }
 
 #[derive(Subcommand, Debug, Clone)]
@@ -288,6 +290,7 @@ impl Bridge {
             }
             CustomCommands::Edit(edit) => Self::custom_bridge_edit(edit).await,
             CustomCommands::Use => Self::custom_bridge_use().await,
+            CustomCommands::Disable => Self::custom_bridge_disable().await,
         }
     }
 
@@ -320,6 +323,13 @@ impl Bridge {
         settings.bridge_settings.bridge_type = BridgeType::Custom;
         rpc.set_bridge_settings(settings.bridge_settings).await?;
 
+        Ok(())
+    }
+
+    async fn custom_bridge_disable() -> Result<()> {
+        let mut rpc = MullvadProxyClient::new().await?;
+        let mut settings = rpc.get_settings().await?;
+        settings.bridge_settings.bridge_type = BridgeType::Normal;
         Ok(())
     }
 
