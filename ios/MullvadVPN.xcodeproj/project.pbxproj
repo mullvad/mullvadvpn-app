@@ -4198,7 +4198,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# CARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/abstract-tun/build.sh $buildvariant\n\n";
+			shellScript = "CARGO_TARGET_DIR=${PROJECT_DIR}/../target bash ${PROJECT_DIR}/abstract-tun/build.sh $buildvariant\n\n";
 		};
 		580E3F212A9860F20061809D /* Run SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
