@@ -832,6 +832,7 @@ struct Port {
 }
 
 #[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
 pub enum BridgeType {
     /// Let the relay selection algorithm decide on bridges, based on the relay list
     /// and normal bridge constraints.

@@ -51,6 +51,7 @@ mod v3;
 mod v4;
 mod v5;
 mod v6;
+mod v7;
 
 const SETTINGS_FILE: &str = "settings.json";
 
@@ -148,6 +149,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
 
     let migration_data = v5::migrate(&mut settings)?;
     v6::migrate(&mut settings)?;
+    v7::migrate(&mut settings)?;
 
     if settings == old_settings {
         // Nothing changed
