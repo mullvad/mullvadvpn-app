@@ -10,10 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
@@ -111,9 +113,10 @@ fun LocationInfo(
             color = colorExpanded,
             style = MaterialTheme.typography.labelMedium,
             modifier =
-                Modifier.alpha(
-                    if (isExpanded && outAddress.isNotEmpty()) AlphaVisible else AlphaInvisible
-                )
+                Modifier.testTag(LOCATION_INFO_CONNECTION_OUT_TEST_TAG)
+                    .alpha(
+                        if (isExpanded && outAddress.isNotEmpty()) AlphaVisible else AlphaInvisible
+                    )
         )
     }
 }
