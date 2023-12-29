@@ -85,7 +85,6 @@ service ManagementService {
   // Custom proxy
   rpc SetCustomBridge(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc UpdateCustomBridge(CustomBridgeSettings) returns (google.protobuf.Empty) {}
-  rpc GetCustomBridge(google.protobuf.Empty) returns (CustomBridgeSettings) {}
 
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}

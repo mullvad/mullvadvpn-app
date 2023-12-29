@@ -305,8 +305,6 @@ pub enum DaemonCommand {
     UpdateCustomBridge(ResponseTx<(), Error>, CustomBridgeSettings),
     /// Set the current custom bridge configuration to be used as a bridge
     SetCustomBridge(ResponseTx<(), Error>),
-    /// Get the current custom bridge configuration
-    GetCustomBridge(ResponseTx<CustomBridgeSettings, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -1232,7 +1230,6 @@ where
                 self.on_update_custom_bridge(tx, custom_bridge).await
             }
             SetCustomBridge(tx) => self.on_select_custom_bridge(tx).await,
-            GetCustomBridge(tx) => self.on_get_custom_bridge(tx),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -2519,14 +2516,6 @@ where
                 Self::oneshot_send(tx, Err(e), "select_custom_bridge response");
             }
         }
-    }
-
-    fn on_get_custom_bridge(&mut self, tx: ResponseTx<CustomBridgeSettings, Error>) {
-        Self::oneshot_send(
-            tx,
-            Ok(self.settings.custom_bridge.clone()),
-            "get_custom_bridge response",
-        );
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

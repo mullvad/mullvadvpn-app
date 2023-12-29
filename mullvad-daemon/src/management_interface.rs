@@ -706,17 +706,6 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn get_custom_bridge(&self, _: Request<()>) -> ServiceResult<CustomBridgeSettings> {
-        log::debug!("get_custom_bridge");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetCustomBridge(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(CustomBridgeSettings::from)
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
     async fn update_custom_bridge(
         &self,
         custom_proxy: Request<CustomBridgeSettings>,
