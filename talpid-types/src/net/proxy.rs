@@ -30,13 +30,6 @@ pub struct ProxyEndpoint {
     pub proxy_type: ProxyType,
 }
 
-/// Custom bridge settings, describes the optionally saved custom bridge.
-#[derive(Default, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
-#[serde(rename_all = "snake_case")]
-pub struct CustomBridgeSettings {
-    pub custom_bridge: Option<CustomProxy>,
-}
-
 // TODO(Jonathan): These end up being duplicates of a lot of types in
 // `talpid-types/src/net/openvpn.rs`. However they are not trivially deduplicable since both these
 // types and those types exist in settings (access methods and bridge settings respectively)
@@ -46,19 +39,32 @@ pub struct CustomBridgeSettings {
 #[serde(rename_all = "snake_case")]
 pub enum CustomProxy {
     Shadowsocks(Shadowsocks),
-    Socks5(Socks5),
+    Socks5Local(Socks5Local),
+    Socks5Remote(Socks5Remote),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
-#[serde(rename_all = "snake_case")]
-pub enum Socks5 {
-    Local(Socks5Local),
-    Remote(Socks5Remote),
+impl CustomProxy {
+    pub fn get_remote_endpoint(&self) -> ProxyEndpoint {
+        match self {
+            CustomProxy::Socks5Local(settings) => ProxyEndpoint {
+                endpoint: settings.remote_endpoint,
+                proxy_type: ProxyType::Custom,
+            },
+            CustomProxy::Socks5Remote(settings) => ProxyEndpoint {
+                endpoint: Endpoint::from_socket_address(settings.endpoint, TransportProtocol::Tcp),
+                proxy_type: ProxyType::Custom,
+            },
+            CustomProxy::Shadowsocks(settings) => ProxyEndpoint {
+                endpoint: Endpoint::from_socket_address(settings.endpoint, TransportProtocol::Tcp),
+                proxy_type: ProxyType::Shadowsocks,
+            },
+        }
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Shadowsocks {
-    pub peer: SocketAddr,
+    pub endpoint: SocketAddr,
     pub password: String,
     /// One of [`shadowsocks_ciphers`].
     /// Gets validated at a later stage. Is assumed to be valid.
@@ -76,8 +82,8 @@ pub struct Socks5Local {
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Socks5Remote {
-    pub peer: SocketAddr,
-    pub authentication: Option<SocksAuth>,
+    pub endpoint: SocketAddr,
+    pub auth: Option<SocksAuth>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -87,39 +93,28 @@ pub struct SocksAuth {
 }
 
 impl Shadowsocks {
-    pub fn new<I: Into<SocketAddr>>(peer: I, cipher: String, password: String) -> Self {
+    pub fn new<I: Into<SocketAddr>>(endpoint: I, cipher: String, password: String) -> Self {
         Shadowsocks {
-            peer: peer.into(),
+            endpoint: endpoint.into(),
             password,
             cipher,
         }
     }
 }
 
-impl From<Socks5Local> for Socks5 {
-    fn from(value: Socks5Local) -> Self {
-        Socks5::Local(value)
-    }
-}
-
-impl From<Socks5Remote> for Socks5 {
-    fn from(value: Socks5Remote) -> Self {
-        Socks5::Remote(value)
-    }
-}
-
 impl Socks5Local {
-    pub fn new<I: Into<SocketAddr>>(remote_peer: I, local_port: u16) -> Self {
+    pub fn new<I: Into<SocketAddr>>(remote_endpoint: I, local_port: u16) -> Self {
         let transport_protocol = TransportProtocol::Tcp;
-        Self::new_with_transport_protocol(remote_peer, local_port, transport_protocol)
+        Self::new_with_transport_protocol(remote_endpoint, local_port, transport_protocol)
     }
 
     pub fn new_with_transport_protocol<I: Into<SocketAddr>>(
-        remote_peer: I,
+        remote_endpoint: I,
         local_port: u16,
         transport_protocol: TransportProtocol,
     ) -> Self {
-        let remote_endpoint = Endpoint::from_socket_address(remote_peer.into(), transport_protocol);
+        let remote_endpoint =
+            Endpoint::from_socket_address(remote_endpoint.into(), transport_protocol);
         Self {
             remote_endpoint,
             local_port,
@@ -128,20 +123,46 @@ impl Socks5Local {
 }
 
 impl Socks5Remote {
-    pub fn new<I: Into<SocketAddr>>(peer: I) -> Self {
+    pub fn new<I: Into<SocketAddr>>(endpoint: I) -> Self {
         Self {
-            peer: peer.into(),
-            authentication: None,
+            endpoint: endpoint.into(),
+            auth: None,
         }
     }
 
     pub fn new_with_authentication<I: Into<SocketAddr>>(
-        peer: I,
+        endpoint: I,
         authentication: SocksAuth,
     ) -> Self {
         Self {
-            peer: peer.into(),
-            authentication: Some(authentication),
+            endpoint: endpoint.into(),
+            auth: Some(authentication),
         }
     }
 }
+
+/// List of ciphers usable by a Shadowsocks proxy.
+/// Cf. [`ShadowsocksProxySettings::cipher`].
+pub const SHADOWSOCKS_CIPHERS: [&str; 19] = [
+    // Stream ciphers.
+    "aes-128-cfb",
+    "aes-128-cfb1",
+    "aes-128-cfb8",
+    "aes-128-cfb128",
+    "aes-256-cfb",
+    "aes-256-cfb1",
+    "aes-256-cfb8",
+    "aes-256-cfb128",
+    "rc4",
+    "rc4-md5",
+    "chacha20",
+    "salsa20",
+    "chacha20-ietf",
+    // AEAD ciphers.
+    "aes-128-gcm",
+    "aes-256-gcm",
+    "chacha20-ietf-poly1305",
+    "xchacha20-ietf-poly1305",
+    "aes-128-pmac-siv",
+    "aes-256-pmac-siv",
+];

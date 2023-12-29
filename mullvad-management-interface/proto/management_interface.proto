@@ -82,10 +82,6 @@ service ManagementService {
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
   rpc TestApiAccessMethod(UUID) returns (google.protobuf.BoolValue) {}
 
-  // Custom proxy
-  rpc SetCustomBridge(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-  rpc UpdateCustomBridge(CustomBridgeSettings) returns (google.protobuf.Empty) {}
-
   // Split tunneling (Linux)
   rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
@@ -264,36 +260,19 @@ enum Ownership {
 }
 
 message BridgeSettings {
+  enum BridgeType {
+    NORMAL = 0;
+    CUSTOM = 1;
+  }
   message BridgeConstraints {
     LocationConstraint location = 1;
     repeated string providers = 2;
     Ownership ownership = 3;
   }
 
-  message LocalProxySettings {
-    uint32 port = 1;
-    string peer = 2;
-  }
-  message RemoteProxySettings {
-    string address = 1;
-    RemoteProxyAuth auth = 2;
-  }
-  message RemoteProxyAuth {
-    string username = 1;
-    string password = 2;
-  }
-  message ShadowsocksProxySettings {
-    string peer = 1;
-    string password = 2;
-    string cipher = 3;
-  }
-
-  oneof type {
-    BridgeConstraints normal = 1;
-    LocalProxySettings local = 2;
-    RemoteProxySettings remote = 3;
-    ShadowsocksProxySettings shadowsocks = 4;
-  }
+  BridgeType bridge_type = 1;
+  BridgeConstraints normal = 2;
+  CustomProxy custom = 3;
 }
 
 message LocationConstraint {
@@ -351,7 +330,7 @@ message SocksAuth {
 message Socks5Remote {
   string ip = 1;
   uint32 port = 2;
-  SocksAuth authentication = 3;
+  SocksAuth auth = 3;
 }
 message Shadowsocks {
   string ip = 1;
@@ -367,8 +346,6 @@ message CustomProxy {
     Shadowsocks shadowsocks = 3;
   }
 }
-
-message CustomBridgeSettings { CustomProxy custom_bridge = 1; }
 
 message AccessMethod {
   message Direct {}
@@ -411,7 +388,6 @@ message Settings {
   CustomListSettings custom_lists = 11;
   ApiAccessMethodSettings api_access_methods = 12;
   repeated RelayOverride relay_overrides = 13;
-  CustomBridgeSettings custom_bridge = 14;
 }
 
 message RelayOverride {

@@ -244,7 +244,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                 ProxyConfig::Shadowsocks(config) => {
                     InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
                         params: ParsedShadowsocksConfig {
-                            peer: config.peer,
+                            peer: config.endpoint,
                             password: config.password,
                             cipher: CipherKind::from_str(&config.cipher)
                                 .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
@@ -252,24 +252,22 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                         proxy_context: SsContext::new_shared(ServerType::Local),
                     })
                 }
-                ProxyConfig::Socks(config) => match config {
-                    proxy::Socks5::Local(config) => InnerConnectionMode::Socks5(SocksConfig {
-                        peer: SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.local_port),
-                        authentication: SocksAuth::None,
-                    }),
-                    proxy::Socks5::Remote(config) => {
-                        let authentication = match config.authentication {
-                            Some(proxy::SocksAuth { username, password }) => {
-                                SocksAuth::Password { username, password }
-                            }
-                            None => SocksAuth::None,
-                        };
-                        InnerConnectionMode::Socks5(SocksConfig {
-                            peer: config.peer,
-                            authentication,
-                        })
-                    }
-                },
+                ProxyConfig::Socks5Local(config) => InnerConnectionMode::Socks5(SocksConfig {
+                    peer: SocketAddr::new(IpAddr::from(Ipv4Addr::LOCALHOST), config.local_port),
+                    authentication: SocksAuth::None,
+                }),
+                ProxyConfig::Socks5Remote(config) => {
+                    let authentication = match config.auth {
+                        Some(proxy::SocksAuth { username, password }) => {
+                            SocksAuth::Password { username, password }
+                        }
+                        None => SocksAuth::None,
+                    };
+                    InnerConnectionMode::Socks5(SocksConfig {
+                        peer: config.endpoint,
+                        authentication,
+                    })
+                }
             },
         })
     }

@@ -49,7 +49,7 @@ mod data {
         AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id,
     };
     use talpid_types::net::proxy::{
-        CustomProxy, Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth,
+        CustomProxy, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth,
     };
 
     impl TryFrom<proto::AccessMethodSetting> for AccessMethodSetting {
@@ -166,11 +166,7 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::Socks5Remote) -> Result<Self, Self::Error> {
-            let proto::Socks5Remote {
-                ip,
-                port,
-                authentication,
-            } = value;
+            let proto::Socks5Remote { ip, port, auth } = value;
             let ip = ip.parse::<Ipv4Addr>().map_err(|_| {
                 FromProtobufTypeError::InvalidArgument(
                     "Could not parse Socks5 (remote) message from protobuf",
@@ -178,12 +174,10 @@ mod data {
             })?;
             let port = port as u16;
 
-            Ok(AccessMethod::from(
-                match authentication.map(SocksAuth::from) {
-                    Some(auth) => Socks5Remote::new_with_authentication((ip, port), auth),
-                    None => Socks5Remote::new((ip, port)),
-                },
-            ))
+            Ok(AccessMethod::from(match auth.map(SocksAuth::from) {
+                Some(auth) => Socks5Remote::new_with_authentication((ip, port), auth),
+                None => Socks5Remote::new((ip, port)),
+            }))
         }
     }
 
@@ -226,31 +220,30 @@ mod data {
             let access_method = match value {
                 CustomProxy::Shadowsocks(ss) => {
                     proto::access_method::AccessMethod::Shadowsocks(proto::Shadowsocks {
-                        ip: ss.peer.ip().to_string(),
-                        port: ss.peer.port() as u32,
+                        ip: ss.endpoint.ip().to_string(),
+                        port: u32::from(ss.endpoint.port()),
                         password: ss.password,
                         cipher: ss.cipher,
                     })
                 }
-                CustomProxy::Socks5(Socks5::Local(Socks5Local {
+                CustomProxy::Socks5Local(Socks5Local {
                     remote_endpoint,
                     local_port,
-                })) => proto::access_method::AccessMethod::Socks5local(proto::Socks5Local {
+                }) => proto::access_method::AccessMethod::Socks5local(proto::Socks5Local {
                     remote_ip: remote_endpoint.address.ip().to_string(),
                     remote_port: remote_endpoint.address.port() as u32,
                     remote_transport_protocol: i32::from(proto::TransportProtocol::from(
                         remote_endpoint.protocol,
                     )),
-                    local_port: local_port as u32,
+                    local_port: u32::from(local_port),
                 }),
-                CustomProxy::Socks5(Socks5::Remote(Socks5Remote {
-                    peer,
-                    authentication,
-                })) => proto::access_method::AccessMethod::Socks5remote(proto::Socks5Remote {
-                    ip: peer.ip().to_string(),
-                    port: peer.port() as u32,
-                    authentication: authentication.map(proto::SocksAuth::from),
-                }),
+                CustomProxy::Socks5Remote(Socks5Remote { endpoint, auth }) => {
+                    proto::access_method::AccessMethod::Socks5remote(proto::Socks5Remote {
+                        ip: endpoint.ip().to_string(),
+                        port: u32::from(endpoint.port()),
+                        auth: auth.map(proto::SocksAuth::from),
+                    })
+                }
             };
 
             proto::AccessMethod {

@@ -100,7 +100,7 @@ impl ApiAccess {
 
     /// Edit the data of an API access method.
     async fn edit(cmd: EditCustomCommands) -> Result<()> {
-        use talpid_types::net::proxy::{Shadowsocks, Socks5, Socks5Local, Socks5Remote, SocksAuth};
+        use talpid_types::net::proxy::{Shadowsocks, Socks5Local, Socks5Remote, SocksAuth};
         let mut rpc = MullvadProxyClient::new().await?;
         let mut api_access_method = Self::get_access_method(&mut rpc, &cmd.item).await?;
 
@@ -109,44 +109,42 @@ impl ApiAccess {
             None => return Err(anyhow!("Can not edit built-in access method")),
             Some(x) => match x.clone() {
                 CustomProxy::Shadowsocks(shadowsocks) => {
-                    let ip = cmd.params.ip.unwrap_or(shadowsocks.peer.ip());
-                    let port = cmd.params.port.unwrap_or(shadowsocks.peer.port());
+                    let ip = cmd.params.ip.unwrap_or(shadowsocks.endpoint.ip());
+                    let port = cmd.params.port.unwrap_or(shadowsocks.endpoint.port());
                     let password = cmd.params.password.unwrap_or(shadowsocks.password);
                     let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
                     AccessMethod::from(Shadowsocks::new((ip, port), cipher, password))
                 }
-                CustomProxy::Socks5(socks) => match socks {
-                    Socks5::Local(local) => {
-                        let remote_ip = cmd.params.ip.unwrap_or(local.remote_endpoint.address.ip());
-                        let remote_port = cmd
-                            .params
-                            .port
-                            .unwrap_or(local.remote_endpoint.address.port());
-                        let local_port = cmd.params.local_port.unwrap_or(local.local_port);
-                        let remote_peer_transport_protocol = cmd
-                            .params
-                            .transport_protocol
-                            .unwrap_or(local.remote_endpoint.protocol);
-                        AccessMethod::from(Socks5Local::new_with_transport_protocol(
-                            (remote_ip, remote_port),
-                            local_port,
-                            remote_peer_transport_protocol,
-                        ))
-                    }
-                    Socks5::Remote(remote) => {
-                        let ip = cmd.params.ip.unwrap_or(remote.peer.ip());
-                        let port = cmd.params.port.unwrap_or(remote.peer.port());
-                        AccessMethod::from(match remote.authentication {
-                            None => Socks5Remote::new((ip, port)),
-                            Some(SocksAuth { username, password }) => {
-                                let username = cmd.params.username.unwrap_or(username);
-                                let password = cmd.params.password.unwrap_or(password);
-                                let auth = SocksAuth { username, password };
-                                Socks5Remote::new_with_authentication((ip, port), auth)
-                            }
-                        })
-                    }
-                },
+                CustomProxy::Socks5Local(local) => {
+                    let remote_ip = cmd.params.ip.unwrap_or(local.remote_endpoint.address.ip());
+                    let remote_port = cmd
+                        .params
+                        .port
+                        .unwrap_or(local.remote_endpoint.address.port());
+                    let local_port = cmd.params.local_port.unwrap_or(local.local_port);
+                    let remote_peer_transport_protocol = cmd
+                        .params
+                        .transport_protocol
+                        .unwrap_or(local.remote_endpoint.protocol);
+                    AccessMethod::from(Socks5Local::new_with_transport_protocol(
+                        (remote_ip, remote_port),
+                        local_port,
+                        remote_peer_transport_protocol,
+                    ))
+                }
+                CustomProxy::Socks5Remote(remote) => {
+                    let ip = cmd.params.ip.unwrap_or(remote.endpoint.ip());
+                    let port = cmd.params.port.unwrap_or(remote.endpoint.port());
+                    AccessMethod::from(match remote.auth {
+                        None => Socks5Remote::new((ip, port)),
+                        Some(SocksAuth { username, password }) => {
+                            let username = cmd.params.username.unwrap_or(username);
+                            let password = cmd.params.password.unwrap_or(password);
+                            let auth = SocksAuth { username, password };
+                            Socks5Remote::new_with_authentication((ip, port), auth)
+                        }
+                    })
+                }
             },
         };
 
@@ -394,9 +392,7 @@ mod conversions {
                         add,
                         name: _,
                         disabled: _,
-                    } => daemon_types::AccessMethod::from(talpid_types::Socks5::Remote(match add
-                        .authentication
-                    {
+                    } => daemon_types::AccessMethod::from(match add.authentication {
                         Some(SocksAuthentication { username, password }) => {
                             println!(
                                 "Adding SOCKS5-proxy: {username}:{password}@{}:{}",
@@ -412,7 +408,7 @@ mod conversions {
                             println!("Adding SOCKS5-proxy: {}:{}", add.remote_ip, add.remote_port);
                             talpid_types::Socks5Remote::new((add.remote_ip, add.remote_port))
                         }
-                    })),
+                    }),
                 },
                 AddCustomCommands::Shadowsocks {
                     add,

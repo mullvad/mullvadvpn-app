@@ -39,7 +39,8 @@ impl fmt::Display for ApiConnectionMode {
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ProxyConfig {
     Shadowsocks(proxy::Shadowsocks),
-    Socks(proxy::Socks5),
+    Socks5Local(proxy::Socks5Local),
+    Socks5Remote(proxy::Socks5Remote),
 }
 
 impl ProxyConfig {
@@ -47,14 +48,12 @@ impl ProxyConfig {
     fn get_endpoint(&self) -> Endpoint {
         match self {
             ProxyConfig::Shadowsocks(shadowsocks) => {
-                Endpoint::from_socket_address(shadowsocks.peer, TransportProtocol::Tcp)
+                Endpoint::from_socket_address(shadowsocks.endpoint, TransportProtocol::Tcp)
             }
-            ProxyConfig::Socks(socks) => match socks {
-                proxy::Socks5::Local(local) => local.remote_endpoint,
-                proxy::Socks5::Remote(remote) => {
-                    Endpoint::from_socket_address(remote.peer, TransportProtocol::Tcp)
-                }
-            },
+            ProxyConfig::Socks5Local(local) => local.remote_endpoint,
+            ProxyConfig::Socks5Remote(remote) => {
+                Endpoint::from_socket_address(remote.endpoint, TransportProtocol::Tcp)
+            }
         }
     }
 }
@@ -64,12 +63,10 @@ impl fmt::Display for ProxyConfig {
         let endpoint = self.get_endpoint();
         match self {
             ProxyConfig::Shadowsocks(_) => write!(f, "Shadowsocks {}", endpoint),
-            ProxyConfig::Socks(socks) => match socks {
-                proxy::Socks5::Remote(_) => write!(f, "Socks5 {}", endpoint),
-                proxy::Socks5::Local(local) => {
-                    write!(f, "Socks5 {} via localhost:{}", endpoint, local.local_port)
-                }
-            },
+            ProxyConfig::Socks5Remote(_) => write!(f, "Socks5 {}", endpoint),
+            ProxyConfig::Socks5Local(local) => {
+                write!(f, "Socks5 {} via localhost:{}", endpoint, local.local_port)
+            }
         }
     }
 }
@@ -145,9 +142,8 @@ impl ApiConnectionMode {
 
     #[cfg(unix)]
     pub fn allowed_clients(&self) -> AllowedClients {
-        use proxy::Socks5;
         match self {
-            ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => AllowedClients::All,
+            ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(_)) => AllowedClients::All,
             ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => AllowedClients::Root,
         }
     }
@@ -156,9 +152,7 @@ impl ApiConnectionMode {
     pub fn allowed_clients(&self) -> AllowedClients {
         use proxy::Socks5;
         match self {
-            ApiConnectionMode::Proxied(ProxyConfig::Socks(Socks5::Local(_))) => {
-                AllowedClients::all()
-            }
+            ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(_)) => AllowedClients::all(),
             ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => {
                 let daemon_exe = std::env::current_exe().expect("failed to obtain executable path");
                 vec![

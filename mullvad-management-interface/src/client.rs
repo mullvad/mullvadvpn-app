@@ -19,7 +19,6 @@ use mullvad_types::{
 #[cfg(target_os = "windows")]
 use std::path::Path;
 use std::str::FromStr;
-use talpid_types::net::proxy::CustomBridgeSettings;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use tonic::{Code, Status};
@@ -215,22 +214,6 @@ impl MullvadProxyClient {
             .await
             .map_err(Error::Rpc)?;
         Ok(result.into_inner())
-    }
-
-    pub async fn update_custom_bridge(&mut self, custom_proxy: CustomBridgeSettings) -> Result<()> {
-        self.0
-            .update_custom_bridge(types::CustomBridgeSettings::from(custom_proxy))
-            .await
-            .map_err(Error::Rpc)
-            .map(tonic::Response::into_inner)
-    }
-
-    pub async fn set_custom_bridge(&mut self) -> Result<()> {
-        self.0
-            .set_custom_bridge(())
-            .await
-            .map_err(Error::Rpc)
-            .map(tonic::Response::into_inner)
     }
 
     pub async fn update_relay_locations(&mut self) -> Result<()> {

@@ -24,7 +24,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_core::mpsc::Sender;
 use talpid_core::tunnel_state_machine::TunnelCommand;
-use talpid_types::net::{openvpn::ProxySettings, AllowedEndpoint, Endpoint};
+use talpid_types::net::{AllowedEndpoint, Endpoint};
 
 pub enum Message {
     Get(ResponseTx<AccessMethodSetting>),
@@ -265,9 +265,9 @@ impl AccessModeSelector {
                     .relay_selector
                     .get_bridge_forced()
                     .and_then(|settings| match settings {
-                        ProxySettings::Shadowsocks(ss_settings) => {
+                        proxy::CustomProxy::Shadowsocks(ss_settings) => {
                             let ss_settings: proxy::Shadowsocks = proxy::Shadowsocks::new(
-                                ss_settings.peer,
+                                ss_settings.endpoint,
                                 ss_settings.cipher,
                                 ss_settings.password,
                             );
@@ -286,8 +286,11 @@ impl AccessModeSelector {
                 proxy::CustomProxy::Shadowsocks(shadowsocks_config) => {
                     ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(shadowsocks_config))
                 }
-                proxy::CustomProxy::Socks5(socks_config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::Socks(socks_config))
+                proxy::CustomProxy::Socks5Local(socks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(socks_config))
+                }
+                proxy::CustomProxy::Socks5Remote(socks_config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::Socks5Remote(socks_config))
                 }
             },
         }
