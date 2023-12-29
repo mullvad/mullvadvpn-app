@@ -79,7 +79,7 @@ fn migrate_formats_inner(
     } else if let Ok(token) = try_format_v1(account_bytes) {
         Ok(token)
     } else {
-        Err(Error::ParseHistoryError)
+        Err(Error::ParseHistory)
     }
 }
 
@@ -110,7 +110,7 @@ fn try_format_v2(bytes: &[u8]) -> Result<Option<(AccountToken, serde_json::Value
         pub wireguard: serde_json::Value,
     }
     Ok(serde_json::from_slice::<'_, Vec<AccountEntry>>(bytes)
-        .map_err(|_error| Error::ParseHistoryError)?
+        .map_err(|_error| Error::ParseHistory)?
         .into_iter()
         .next()
         .map(|entry| (entry.account, entry.wireguard)))
@@ -122,7 +122,7 @@ fn try_format_v1(bytes: &[u8]) -> Result<Option<AccountToken>> {
         accounts: Vec<AccountToken>,
     }
     Ok(serde_json::from_slice::<'_, OldFormat>(bytes)
-        .map_err(|_error| Error::ParseHistoryError)?
+        .map_err(|_error| Error::ParseHistory)?
         .accounts
         .into_iter()
         .next())

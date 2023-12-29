@@ -685,7 +685,7 @@ impl MullvadRestHandle {
                 }
                 match api_proxy.clone().get_api_addrs().await {
                     Ok(new_addrs) => {
-                        if let Some(addr) = new_addrs.get(0) {
+                        if let Some(addr) = new_addrs.first() {
                             log::debug!(
                                 "Fetched new API address {:?}. Fetching again in {} hours",
                                 addr,

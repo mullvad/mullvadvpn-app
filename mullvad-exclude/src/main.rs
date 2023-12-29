@@ -39,7 +39,7 @@ enum Error {
     Exec(#[error(source)] nix::Error),
 
     #[error(display = "An argument contains interior nul bytes")]
-    ArgumentNulError(#[error(source)] NulError),
+    ArgumentNul(#[error(source)] NulError),
 
     #[error(display = "Failed to find net_cls controller")]
     FindNetClsController(#[error(source)] io::Error),
@@ -76,13 +76,13 @@ fn main() {
 fn run() -> Result<Infallible, Error> {
     let mut args_iter = env::args_os().skip(1);
     let program = args_iter.next().ok_or(Error::InvalidArguments)?;
-    let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNulError)?;
+    let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNul)?;
 
     let args: Vec<CString> = env::args_os()
         .skip(1)
         .map(|arg| CString::new(arg.as_bytes()))
         .collect::<Result<Vec<CString>, NulError>>()
-        .map_err(Error::ArgumentNulError)?;
+        .map_err(Error::ArgumentNul)?;
 
     let cgroup_dir = find_net_cls_mount()
         .map_err(Error::FindNetClsController)?

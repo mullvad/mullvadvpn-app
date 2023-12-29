@@ -26,7 +26,7 @@ mod sys {
 #[cfg(target_os = "windows")]
 mod sys {
     pub use std::os::windows::io::{AsRawSocket, RawSocket};
-    pub use windows_sys::Win32::Networking::WinSock::{IPPROTO_IP, IPPROTO_TCP, IP_USER_MTU};
+    pub use windows_sys::Win32::Networking::WinSock::{IPPROTO_IP, IP_USER_MTU};
 }
 use sys::*;
 

@@ -85,7 +85,7 @@ pub fn get_best_default_route(family: AddressFamily) -> Result<Option<InterfaceA
     annotated.sort_by(|lhs, rhs| lhs.effective_metric.cmp(&rhs.effective_metric));
 
     annotated
-        .get(0)
+        .first()
         .map(|annotated| {
             Ok(InterfaceAndGateway {
                 iface: annotated.route.InterfaceLuid,

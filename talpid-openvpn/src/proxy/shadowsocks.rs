@@ -93,7 +93,7 @@ impl ShadowsocksProxyMonitor {
 
     fn get_listener_addr(srv: &local::Server) -> io::Result<SocketAddr> {
         let no_addr_err = || io::Error::new(io::ErrorKind::Other, "Missing listener address");
-        let socks_server = srv.socks_servers().get(0).ok_or_else(no_addr_err)?;
+        let socks_server = srv.socks_servers().first().ok_or_else(no_addr_err)?;
         socks_server
             .tcp_server()
             .ok_or_else(no_addr_err)?

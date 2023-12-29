@@ -85,11 +85,11 @@ pub enum Error {
     WriteHistory(#[error(source)] io::Error),
 
     #[error(display = "Failed to parse account history")]
-    ParseHistoryError,
+    ParseHistory,
 
     #[cfg(windows)]
     #[error(display = "Failed to restore Windows update backup")]
-    WinMigrationError(#[error(source)] windows::Error),
+    WinMigration(#[error(source)] windows::Error),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -119,7 +119,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
-        .map_err(Error::WinMigrationError)?;
+        .map_err(Error::WinMigration)?;
 
     let path = settings_dir.join(SETTINGS_FILE);
 

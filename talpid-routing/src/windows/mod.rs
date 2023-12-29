@@ -7,7 +7,7 @@ use futures::{
     },
     StreamExt,
 };
-pub use get_best_default_route::{get_best_default_route, route_has_gateway, InterfaceAndGateway};
+pub use get_best_default_route::{get_best_default_route, InterfaceAndGateway};
 use net::AddressFamily;
 pub use route_manager::{Callback, CallbackHandle, Route, RouteManagerInternal};
 use std::{collections::HashSet, io, net::IpAddr};
