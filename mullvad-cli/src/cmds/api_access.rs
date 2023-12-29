@@ -354,27 +354,6 @@ pub struct EditParams {
     name: Option<String>,
     #[clap(flatten)]
     edit_params: ProxyEditParams,
-    ///// Username for authentication [Socks5 (Remote proxy)]
-    //#[arg(long)]
-    //username: Option<String>,
-    ///// Password for authentication [Socks5 (Remote proxy), Shadowsocks]
-    //#[arg(long)]
-    //password: Option<String>,
-    ///// Cipher to use [Shadowsocks]
-    //#[arg(value_parser = SHADOWSOCKS_CIPHERS, long)]
-    //cipher: Option<String>,
-    ///// The IP of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
-    //#[arg(long)]
-    //ip: Option<IpAddr>,
-    ///// The port of the remote proxy server [Socks5 (Local & Remote proxy), Shadowsocks]
-    //#[arg(long)]
-    //port: Option<u16>,
-    ///// The port that the server on localhost is listening on [Socks5 (Local proxy)]
-    //#[arg(long)]
-    //local_port: Option<u16>,
-    ///// The transport protocol used by the remote proxy [Socks5 (Local proxy)]
-    //#[arg(long)]
-    //transport_protocol: Option<TransportProtocol>,
 }
 
 /// Implement conversions from CLI types to Daemon types.

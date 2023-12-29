@@ -233,18 +233,6 @@ impl MullvadProxyClient {
             .map(tonic::Response::into_inner)
     }
 
-    pub async fn get_custom_bridge(&mut self) -> Result<CustomBridgeSettings> {
-        self.0
-            .get_custom_bridge(())
-            .await
-            .map_err(Error::Rpc)
-            .map(tonic::Response::into_inner)
-            .and_then(|custom_proxy_settings| {
-                CustomBridgeSettings::try_from(custom_proxy_settings)
-                    .map_err(Error::InvalidResponse)
-            })
-    }
-
     pub async fn update_relay_locations(&mut self) -> Result<()> {
         self.0
             .update_relay_locations(())
