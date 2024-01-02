@@ -83,7 +83,7 @@ pub enum SetCommands {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum CustomCommands {
-    /// Update and enable the custom bridge configuration.
+    /// Create or update and enable the custom bridge configuration.
     #[clap(subcommand)]
     Set(AddCustomCommands),
     /// Edit an existing custom bridge configuration.
