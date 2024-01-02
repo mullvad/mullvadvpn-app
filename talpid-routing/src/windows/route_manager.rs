@@ -589,7 +589,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
     // Select the interface with the best (lowest) metric.
     //
     matches
-        .get(0)
+        .first()
         .map(|interface| interface.Luid)
         .ok_or_else(|| {
             log::error!("Unable to find network adapter with specified gateway");

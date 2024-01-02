@@ -22,13 +22,13 @@ pub enum Error {
     NoSuchMethod(access_method::Id),
     /// Access method could not be rotate
     #[error(display = "Access method could not be rotated")]
-    RotationError,
+    RotationFailed,
     /// Some error occured in the daemon's state of handling
     /// [`AccessMethodSetting`]s & [`ApiConnectionMode`]s.
     #[error(display = "Error occured when handling connection settings & details")]
     ConnectionMode(#[error(source)] api::Error),
     #[error(display = "API endpoint rotation failed")]
-    RestError(#[error(source)] rest::Error),
+    Rest(#[error(source)] rest::Error),
     /// Access methods settings error
     #[error(display = "Settings error")]
     Settings(#[error(source)] settings::Error),
@@ -190,7 +190,7 @@ where
             .await
             .map_err(|error| {
                 log::error!("Failed to rotate API endpoint: {}", error);
-                Error::RotationError
+                Error::RotationFailed
             })
     }
 
@@ -261,7 +261,7 @@ pub async fn test_access_method(
         .await
         .map_err(|err| {
             log::error!("Failed to rotate API endpoint: {err}");
-            Error::RestError(err)
+            Error::Rest(err)
         })?;
 
     // Set up the reset
@@ -289,7 +289,7 @@ pub async fn test_access_method(
     let result = mullvad_api::ApiProxy::new(rest_handle)
         .api_addrs_available()
         .await
-        .map_err(Error::RestError)?;
+        .map_err(Error::Rest)?;
 
     // We need to perform a rotation of API endpoint after a set action
     // Note that this will be done automatically if the API call fails,
@@ -301,7 +301,7 @@ pub async fn test_access_method(
             .await
             .map_err(|err| {
                 log::error!("Failed to rotate API endpoint: {err}");
-                Error::RestError(err)
+                Error::Rest(err)
             })?;
     }
 
