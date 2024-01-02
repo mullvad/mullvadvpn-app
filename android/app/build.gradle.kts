@@ -367,7 +367,6 @@ dependencies {
     // Fixes: https://github.com/android/android-test/issues/1589
     debugImplementation(Dependencies.AndroidX.testMonitor)
     debugImplementation(Dependencies.Compose.testManifest)
-    androidTestImplementation(Dependencies.Compose.junit)
     androidTestImplementation(Dependencies.Koin.test)
     androidTestImplementation(Dependencies.Kotlin.test)
     androidTestImplementation(Dependencies.MockK.android)
