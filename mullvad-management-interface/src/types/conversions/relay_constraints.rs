@@ -201,10 +201,7 @@ impl From<mullvad_types::relay_constraints::BridgeSettings> for proto::BridgeSet
             ownership: i32::from(convert_ownership_constraint(&settings.normal.ownership)),
         };
 
-        let custom = match settings.custom {
-            Some(custom) => Some(proto::CustomProxy::from(custom)),
-            None => None,
-        };
+        let custom = settings.custom.map(proto::CustomProxy::from);
 
         proto::BridgeSettings {
             bridge_type: i32::from(mode),
