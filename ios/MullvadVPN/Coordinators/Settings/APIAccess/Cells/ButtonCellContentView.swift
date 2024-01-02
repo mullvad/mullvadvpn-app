@@ -12,6 +12,9 @@ import UIKit
 class ButtonCellContentView: UIView, UIContentView {
     private let button = AppButton()
 
+    /// Default cell corner radius in inset grouped table view
+    private let tableViewCellCornerRadius: CGFloat = 10
+
     var configuration: UIContentConfiguration {
         get {
             actualConfiguration
@@ -60,6 +63,7 @@ class ButtonCellContentView: UIView, UIContentView {
 
     private func configureButton() {
         button.setTitle(actualConfiguration.text, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17)
         button.isEnabled = actualConfiguration.isEnabled
         button.style = actualConfiguration.style
         button.overrideContentEdgeInsets = true

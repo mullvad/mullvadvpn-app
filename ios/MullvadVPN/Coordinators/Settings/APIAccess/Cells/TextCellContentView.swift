@@ -156,6 +156,15 @@ extension TextCellContentView: UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
+        guard
+            let currentString = textField.text,
+            let stringRange = Range(range, in: currentString) else { return false }
+        let updatedText = currentString.replacingCharacters(in: stringRange, with: string)
+
+        if let maxLength = actualConfiguration.maxLength, maxLength < updatedText.count {
+            return false
+        }
+
         switch actualConfiguration.inputFilter {
         case .allowAll:
             return true

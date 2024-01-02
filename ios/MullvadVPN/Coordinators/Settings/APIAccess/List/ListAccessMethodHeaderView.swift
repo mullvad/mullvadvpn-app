@@ -27,6 +27,7 @@ class ListAccessMethodHeaderView: UIView, UITextViewDelegate {
         textView.textContainerInset = .zero
         textView.attributedText = makeAttributedString()
         textView.linkTextAttributes = defaultLinkAttributes
+        textView.textContainer.lineFragmentPadding = 0
         textView.delegate = self
 
         directionalLayoutMargins = UIMetrics.contentHeadingLayoutMargins
@@ -39,12 +40,12 @@ class ListAccessMethodHeaderView: UIView, UITextViewDelegate {
     }
 
     private let defaultTextAttributes: [NSAttributedString.Key: Any] = [
-        .font: UIFont.systemFont(ofSize: 17),
+        .font: UIFont.systemFont(ofSize: 13),
         .foregroundColor: UIColor.ContentHeading.textColor,
     ]
 
     private let defaultLinkAttributes: [NSAttributedString.Key: Any] = [
-        .font: UIFont.systemFont(ofSize: 17),
+        .font: UIFont.systemFont(ofSize: 13),
         .foregroundColor: UIColor.ContentHeading.linkColor,
     ]
 

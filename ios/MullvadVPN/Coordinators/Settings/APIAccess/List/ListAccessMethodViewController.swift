@@ -19,14 +19,16 @@ struct ListAccessMethodItemIdentifier: Hashable {
 
 /// View controller presenting a list of API access methods.
 class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
+    typealias ListAccessMethodDataSource = UITableViewDiffableDataSource<
+        ListAccessMethodSectionIdentifier,
+        ListAccessMethodItemIdentifier
+    >
+
     private let headerView = ListAccessMethodHeaderView()
     private let interactor: ListAccessMethodInteractorProtocol
     private var cancellables = Set<AnyCancellable>()
 
-    private var dataSource: UITableViewDiffableDataSource<
-        ListAccessMethodSectionIdentifier,
-        ListAccessMethodItemIdentifier
-    >?
+    private var dataSource: ListAccessMethodDataSource?
     private var fetchedItems: [ListAccessMethodItem] = []
     private let contentController = UITableViewController(style: .plain)
     private var tableView: UITableView {
@@ -58,8 +60,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         tableView.delegate = self
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 60
+        tableView.separatorInset = .zero
 
         tableView.registerReusableViews(from: CellReuseIdentifier.self)
 
@@ -81,6 +82,35 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         configureDataSource()
     }
 
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let container = UIView()
+
+        let button = AppButton(style: .tableInsetGroupedDefault)
+        button.setTitle(
+            NSLocalizedString(
+                "LIST_ACCESS_METHODS_ADD_BUTTON",
+                tableName: "APIAccess",
+                value: "Add",
+                comment: ""
+            ),
+            for: .normal
+        )
+        button.addAction(UIAction { [weak self] _ in
+            self?.sendAddNew()
+        }, for: .touchUpInside)
+
+        let fontSize = button.titleLabel?.font.pointSize ?? 0
+        button.titleLabel?.font = UIFont.systemFont(ofSize: fontSize, weight: .regular)
+
+        container.addConstrainedSubviews([button]) {
+            button.pinEdgesToSuperview(.init([.top(40), .trailing(16), .bottom(0), .leading(16)]))
+        }
+
+        container.directionalLayoutMargins = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
+
+        return container
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = fetchedItems[indexPath.row]
         sendEdit(item: item)
@@ -93,16 +123,10 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
             value: "API access",
             comment: ""
         )
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            systemItem: .add,
-            primaryAction: UIAction(handler: { [weak self] _ in
-                self?.sendAddNew()
-            })
-        )
     }
 
     private func configureDataSource() {
-        dataSource = UITableViewDiffableDataSource(
+        dataSource = ListAccessMethodDataSource(
             tableView: tableView,
             cellProvider: { [weak self] _, indexPath, itemIdentifier in
                 self?.dequeueCell(at: indexPath, itemIdentifier: itemIdentifier)

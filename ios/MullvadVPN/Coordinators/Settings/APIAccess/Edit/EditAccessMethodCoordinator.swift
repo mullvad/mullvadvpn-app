@@ -11,14 +11,19 @@ import MullvadSettings
 import Routing
 import UIKit
 
-class EditAccessMethodCoordinator: Coordinator {
+class EditAccessMethodCoordinator: Coordinator, Presenting {
     let navigationController: UINavigationController
-    let subject: CurrentValueSubject<AccessMethodViewModel, Never> = .init(AccessMethodViewModel())
-    let accessMethodRepo: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    let accessMethodRepository: AccessMethodRepositoryProtocol
     let methodIdentifier: UUID
+    var methodSettingsSubject: CurrentValueSubject<AccessMethodViewModel, Never> = .init(AccessMethodViewModel())
+    var editAccessMethodSubject: CurrentValueSubject<AccessMethodViewModel, Never> = .init(AccessMethodViewModel())
 
     var onFinish: ((EditAccessMethodCoordinator) -> Void)?
+
+    var presentationContext: UIViewController {
+        navigationController
+    }
 
     init(
         navigationController: UINavigationController,
@@ -27,22 +32,25 @@ class EditAccessMethodCoordinator: Coordinator {
         methodIdentifier: UUID
     ) {
         self.navigationController = navigationController
-        self.accessMethodRepo = accessMethodRepo
+        self.accessMethodRepository = accessMethodRepo
         self.proxyConfigurationTester = proxyConfigurationTester
         self.methodIdentifier = methodIdentifier
     }
 
     func start() {
-        guard let persistentMethod = accessMethodRepo.fetch(by: methodIdentifier) else { return }
-
-        subject.value = persistentMethod.toViewModel()
+        editAccessMethodSubject = getViewModelSubjectFromStore()
 
         let interactor = EditAccessMethodInteractor(
-            subject: subject,
-            repo: accessMethodRepo,
+            subject: editAccessMethodSubject,
+            repository: accessMethodRepository,
             proxyConfigurationTester: proxyConfigurationTester
         )
-        let controller = EditAccessMethodViewController(subject: subject, interactor: interactor)
+
+        let controller = EditAccessMethodViewController(
+            subject: editAccessMethodSubject,
+            interactor: interactor,
+            alertPresenter: AlertPresenter(context: self)
+        )
         controller.delegate = self
 
         navigationController.pushViewController(controller, animated: true)
@@ -50,17 +58,42 @@ class EditAccessMethodCoordinator: Coordinator {
 }
 
 extension EditAccessMethodCoordinator: EditAccessMethodViewControllerDelegate {
-    func controllerDidSaveAccessMethod(_ controller: EditAccessMethodViewController) {
-        onFinish?(self)
-    }
+    func controllerShouldShowMethodSettings(_ controller: EditAccessMethodViewController) {
+        methodSettingsSubject = getViewModelSubjectFromStore()
 
-    func controllerShouldShowProxyConfiguration(_ controller: EditAccessMethodViewController) {
         let interactor = EditAccessMethodInteractor(
-            subject: subject,
-            repo: accessMethodRepo,
+            subject: methodSettingsSubject,
+            repository: accessMethodRepository,
             proxyConfigurationTester: proxyConfigurationTester
         )
-        let controller = ProxyConfigurationViewController(subject: subject, interactor: interactor)
+
+        let controller = MethodSettingsViewController(
+            subject: methodSettingsSubject,
+            interactor: interactor,
+            alertPresenter: AlertPresenter(context: self)
+        )
+
+        controller.navigationItem.prompt = NSLocalizedString(
+            "METHOD_SETTINGS_NAVIGATION_ADD_PROMPT",
+            tableName: "APIAccess",
+            value: "The app will test the method before saving.",
+            comment: ""
+        )
+
+        controller.navigationItem.title = NSLocalizedString(
+            "METHOD_SETTINGS_NAVIGATION_ADD_TITLE",
+            tableName: "APIAccess",
+            value: "Method settings",
+            comment: ""
+        )
+
+        controller.saveBarButton.title = NSLocalizedString(
+            "METHOD_SETTINGS_NAVIGATION_ADD_BUTTON",
+            tableName: "APIAccess",
+            value: "Save",
+            comment: ""
+        )
+
         controller.delegate = self
 
         navigationController.pushViewController(controller, animated: true)
@@ -69,22 +102,32 @@ extension EditAccessMethodCoordinator: EditAccessMethodViewControllerDelegate {
     func controllerDidDeleteAccessMethod(_ controller: EditAccessMethodViewController) {
         onFinish?(self)
     }
+
+    private func getViewModelSubjectFromStore() -> CurrentValueSubject<AccessMethodViewModel, Never> {
+        let persistentMethod = accessMethodRepository.fetch(by: methodIdentifier)
+        return CurrentValueSubject<AccessMethodViewModel, Never>(persistentMethod?.toViewModel() ?? .init())
+    }
 }
 
-extension EditAccessMethodCoordinator: ProxyConfigurationViewControllerDelegate {
-    func controllerShouldShowProtocolPicker(_ controller: ProxyConfigurationViewController) {
+extension EditAccessMethodCoordinator: MethodSettingsViewControllerDelegate {
+    func accessMethodDidSave(_ accessMethod: PersistentAccessMethod) {
+        editAccessMethodSubject.value = accessMethod.toViewModel()
+        navigationController.popViewController(animated: true)
+    }
+
+    func controllerShouldShowProtocolPicker(_ controller: MethodSettingsViewController) {
         let picker = AccessMethodProtocolPicker(navigationController: navigationController)
 
-        picker.present(currentValue: subject.value.method) { [weak self] newMethod in
-            self?.subject.value.method = newMethod
+        picker.present(currentValue: methodSettingsSubject.value.method) { [weak self] newMethod in
+            self?.methodSettingsSubject.value.method = newMethod
         }
     }
 
-    func controllerShouldShowShadowsocksCipherPicker(_ controller: ProxyConfigurationViewController) {
+    func controllerShouldShowShadowsocksCipherPicker(_ controller: MethodSettingsViewController) {
         let picker = ShadowsocksCipherPicker(navigationController: navigationController)
 
-        picker.present(currentValue: subject.value.shadowsocks.cipher) { [weak self] selectedCipher in
-            self?.subject.value.shadowsocks.cipher = selectedCipher
+        picker.present(currentValue: methodSettingsSubject.value.shadowsocks.cipher) { [weak self] selectedCipher in
+            self?.methodSettingsSubject.value.shadowsocks.cipher = selectedCipher
         }
     }
 }
