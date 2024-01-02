@@ -156,7 +156,7 @@ impl Firewall {
         let relay_client_wstrs: Vec<_> = endpoint
             .clients
             .iter()
-            .map(|client| WideCString::from_os_str_truncate(client))
+            .map(WideCString::from_os_str_truncate)
             .collect();
         let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
             .iter()
@@ -276,7 +276,7 @@ impl Firewall {
         let relay_client_wstrs: Vec<_> = endpoint
             .clients
             .iter()
-            .map(|client| WideCString::from_os_str_truncate(client))
+            .map(WideCString::from_os_str_truncate)
             .collect();
         let relay_client_wstr_ptrs: Vec<*const u16> = relay_client_wstrs
             .iter()

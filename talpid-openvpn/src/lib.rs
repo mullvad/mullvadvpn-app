@@ -757,9 +757,6 @@ mod event_server {
     };
     use talpid_tunnel::TunnelMetadata;
     use talpid_types::net::proxy::CustomProxy;
-    #[cfg(any(target_os = "linux", windows))]
-    use talpid_types::ErrorExt;
-    #[cfg(target_os = "macos")]
     use talpid_types::ErrorExt;
     use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
@@ -843,9 +840,7 @@ mod event_server {
 
             let mut routes = HashSet::new();
             #[cfg(not(target_os = "linux"))]
-            if let Some(talpid_types::net::proxy::CustomProxy::Socks5Local(proxy_settings)) =
-                &self.proxy
-            {
+            if let Some(CustomProxy::Socks5Local(proxy_settings)) = &self.proxy {
                 let network = proxy_settings.remote_endpoint.address.ip().into();
                 let node = talpid_routing::NetNode::DefaultNode;
                 let route = talpid_routing::RequiredRoute::new(network, node);
