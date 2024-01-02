@@ -7,7 +7,7 @@
 //
 
 import Combine
-import Foundation
+import MullvadSettings
 
 /// Types describing API access list interactor.
 protocol ListAccessMethodInteractorProtocol {
@@ -17,5 +17,6 @@ protocol ListAccessMethodInteractorProtocol {
     /// Fetch all items.
     func fetch() -> [ListAccessMethodItem]
 
+    /// Publisher that produces a list of method items upon persisrtent store modifications.
     var publisher: any Publisher<[ListAccessMethodItem], Never> { get }
 }

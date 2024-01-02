@@ -1,15 +1,15 @@
 //
-//  AccessMethodActionSheetContentConfiguration.swift
+//  MethodTestingStatusCellContentConfiguration.swift
 //  MullvadVPN
 //
-//  Created by pronebird on 28/11/2023.
+//  Created by pronebird on 27/11/2023.
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
 import UIKit
 
-/// Sheet content view configuration.
-struct AccessMethodActionSheetContentConfiguration: Equatable {
+/// Content configuration for presenting the access method testing progress.
+struct MethodTestingStatusCellContentConfiguration: UIContentConfiguration, Equatable {
     /// The status of access method testing.
     enum Status: Equatable {
         /// API Is reachable.
@@ -27,9 +27,20 @@ struct AccessMethodActionSheetContentConfiguration: Equatable {
 
     /// Detail text displayed below the status when set.
     var detailText: String?
+
+    /// Layout margins.
+    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
+
+    func makeContentView() -> UIView & UIContentView {
+        return MethodTestingStatusCellContentView(configuration: self)
+    }
+
+    func updated(for state: UIConfigurationState) -> Self {
+        return self
+    }
 }
 
-extension AccessMethodActionSheetContentConfiguration.Status {
+extension MethodTestingStatusCellContentConfiguration.Status {
     /// The text label descirbing the status of testing and suitable for user presentation.
     var text: String {
         switch self {

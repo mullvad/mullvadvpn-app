@@ -6,11 +6,10 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
-import MullvadTypes
+import MullvadSettings
 
 /// The type implementing the interface for persisting changes to the underlying access method view model in the editing context.
-protocol EditAccessMethodInteractorProtocol: ProxyConfigurationInteractorProtocol {
+protocol EditAccessMethodInteractorProtocol: ProxyConfigurationInteractorProtocol, AccessMethodRepositoryDataSource {
     /// Save changes to persistent store.
     ///
     /// - Calling this method when the underlying view model fails validation does nothing.

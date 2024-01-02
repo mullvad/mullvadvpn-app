@@ -11,7 +11,7 @@ import UIKit
 extension UIBackgroundConfiguration {
     /// Type of cell selection used in Mullvad UI.
     enum CellSelectionType {
-        /// Dimmed blue .
+        /// Dimmed blue.
         case dimmed
         /// Bright green.
         case green
@@ -39,17 +39,13 @@ extension UIBackgroundConfiguration {
     ///   - state: a cell state.
     ///   - selectionType: a desired selecton type.
     /// - Returns: new background configuration.
-    func adapted(for state: UICellConfigurationState, selectionType: CellSelectionType) -> UIBackgroundConfiguration {
+    func adapted(
+        for state: UICellConfigurationState,
+        selectionType: CellSelectionType
+    ) -> UIBackgroundConfiguration {
         var config = self
         config.backgroundColor = state.mullvadCellBackgroundColor(selectionType: selectionType)
         return config
-    }
-
-    /// Apply an error outline around the cell indicating an error.
-    mutating func applyValidationErrorStyle() {
-        cornerRadius = 10
-        strokeWidth = 1
-        strokeColor = UIColor.Cell.validationErrorBorderColor
     }
 }
 
@@ -63,6 +59,8 @@ extension UICellConfigurationState {
         case .dimmed:
             if isSelected || isHighlighted {
                 UIColor.Cell.selectedAltBackgroundColor
+            } else if isDisabled {
+                UIColor.Cell.disabledBackgroundColor
             } else {
                 UIColor.Cell.backgroundColor
             }
@@ -70,6 +68,8 @@ extension UICellConfigurationState {
         case .green:
             if isSelected || isHighlighted {
                 UIColor.Cell.selectedBackgroundColor
+            } else if isDisabled {
+                UIColor.Cell.disabledBackgroundColor
             } else {
                 UIColor.Cell.backgroundColor
             }

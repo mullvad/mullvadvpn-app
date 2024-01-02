@@ -41,9 +41,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
 
         // This init cannot fail as long as the security group identifier is valid
-        let sharedUserDefaults = UserDefaults(suiteName: ApplicationConfiguration.securityGroupIdentifier)!
         let transportStrategy = TransportStrategy(
-            sharedUserDefaults,
+            UserDefaults(suiteName: ApplicationConfiguration.securityGroupIdentifier)!,
             datasource: AccessMethodRepository(),
             shadowsocksLoader: ShadowsocksLoader(
                 shadowsocksCache: shadowsocksCache,
@@ -77,7 +76,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         let devicesProxy = proxyFactory.createDevicesProxy()
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
-        let obfuscator = ProtocolObfuscator<UDPOverTCPObfuscator>()
 
         actor = PacketTunnelActor(
             timings: PacketTunnelActorTimings(),
@@ -87,7 +85,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: RelaySelectorWrapper(relayCache: relayCache),
             settingsReader: SettingsReader(),
-            protocolObfuscator: obfuscator
+            protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
         )
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
