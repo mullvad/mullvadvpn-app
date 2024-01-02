@@ -49,7 +49,7 @@ pub enum Error {
     PingTimeout,
 
     #[error(display = "geoip lookup failed")]
-    GeoipError(test_rpc::Error),
+    GeoipLookup(test_rpc::Error),
 
     #[error(display = "Found running daemon unexpectedly")]
     DaemonRunning,
@@ -58,7 +58,7 @@ pub enum Error {
     DaemonNotRunning,
 
     #[error(display = "The daemon returned an error: {}", _0)]
-    DaemonError(String),
+    Daemon(String),
 
     #[error(display = "Failed to parse gRPC response")]
     InvalidGrpcResponse(#[error(source)] types::FromProtobufTypeError),
