@@ -91,7 +91,7 @@ pub async fn test_upgrade_app(ctx: TestContext, rpc: ServiceClient) -> Result<()
         }
     })
     .await
-    .map_err(|_error| Error::DaemonError(String::from("Failed to enter blocking error state")))?;
+    .map_err(|_error| Error::Daemon(String::from("Failed to enter blocking error state")))?;
 
     //
     // Begin monitoring outgoing traffic and pinging
