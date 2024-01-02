@@ -3,7 +3,7 @@
 FFI_TARGET=abstract-tun
 
 RELFLAG=
-if [[ "$CONFIGURATION" -eq "Release" ]]; then
+if [[ "$CONFIGURATION" == "Release" ]]; then
   RELFLAG=--release
 fi
 
@@ -47,7 +47,7 @@ set -euvx
 
      arm64)
        if [ $IS_SIMULATOR -eq 0 ]; then
-         # Hardware iOS targets
+           # Hardware iOS targets
            run_build aarch64-apple-ios
        else
            run_build aarch64-apple-ios-sim
