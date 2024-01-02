@@ -345,8 +345,8 @@ export interface IDnsOptions {
   };
 }
 
-export type ProxySettings = |
-  { local: ILocalProxySettings }
+export type ProxySettings =
+  | { local: ILocalProxySettings }
   | { remote: IRemoteProxySettings }
   | { shadowsocks: IShadowsocksProxySettings };
 
@@ -463,7 +463,7 @@ export interface BridgeSettings {
   type: BridgeType;
   normal: IBridgeConstraints;
   custom?: ProxySettings;
-};
+}
 
 export interface ISocketAddress {
   host: string;
