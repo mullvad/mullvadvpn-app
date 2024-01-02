@@ -8,7 +8,7 @@ use talpid_openvpn;
 use talpid_routing::RouteManagerHandle;
 pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]
-use talpid_types::net::openvpn as openvpn_types;
+use talpid_types::net::proxy;
 use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
 
 /// A module for all WireGuard related tunnel management.
@@ -112,11 +112,9 @@ impl TunnelMonitor {
         let resource_dir = resource_dir.to_path_buf();
         match params {
             TunnelParameters::OpenVpn(params) => match &params.proxy {
-                Some(openvpn_types::ProxySettings::Shadowsocks(_)) => {
-                    Some(std::env::current_exe().unwrap())
-                }
-                Some(openvpn_types::ProxySettings::Local(_)) => None,
-                Some(openvpn_types::ProxySettings::Remote(_)) | None => {
+                Some(proxy::CustomProxy::Shadowsocks(_)) => Some(std::env::current_exe().unwrap()),
+                Some(proxy::CustomProxy::Socks5Local(_)) => None,
+                Some(proxy::CustomProxy::Socks5Remote(_)) | None => {
                     Some(resource_dir.join("openvpn.exe"))
                 }
             },
