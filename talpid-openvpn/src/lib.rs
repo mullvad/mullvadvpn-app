@@ -843,10 +843,10 @@ mod event_server {
 
             let mut routes = HashSet::new();
             #[cfg(not(target_os = "linux"))]
-            if let Some(talpid_types::net::openvpn::ProxySettings::Local(proxy_settings)) =
+            if let Some(talpid_types::net::proxy::CustomProxy::Socks5Local(proxy_settings)) =
                 &self.proxy
             {
-                let network = proxy_settings.peer.ip().into();
+                let network = proxy_settings.remote_endpoint.address.ip().into();
                 let node = talpid_routing::NetNode::DefaultNode;
                 let route = talpid_routing::RequiredRoute::new(network, node);
                 routes.insert(route);

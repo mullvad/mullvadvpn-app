@@ -57,7 +57,12 @@ pub async fn start_proxy(
             )?))
         }
         CustomProxy::Shadowsocks(ss_settings) => Ok(Box::new(
-            ShadowsocksProxyMonitor::start(ss_settings, fwmark).await?,
+            ShadowsocksProxyMonitor::start(
+                ss_settings,
+                #[cfg(target_os = "linux")]
+                fwmark,
+            )
+            .await?,
         )),
     }
 }
