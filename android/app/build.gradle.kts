@@ -352,7 +352,7 @@ dependencies {
     leakCanaryImplementation(Dependencies.leakCanary)
 
     // Needed for createComposeExtension() and createAndroidComposeExtension()
-    debugImplementation("androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}")
+    debugImplementation(Dependencies.Compose.uiTestManifest)
     testImplementation(project(Dependencies.Mullvad.commonTestLib))
     testImplementation(Dependencies.Kotlin.test)
     testImplementation(Dependencies.KotlinX.coroutinesTest)
