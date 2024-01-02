@@ -4,35 +4,32 @@ import android.Manifest
 import android.content.Context
 import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
-import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.UiDevice
+import de.mannodermaus.junit5.extensions.GrantPermissionExtension
 import net.mullvad.mullvadvpn.test.common.interactor.AppInteractor
 import net.mullvad.mullvadvpn.test.common.rule.CaptureScreenshotOnFailedTestRule
 import net.mullvad.mullvadvpn.test.e2e.constant.INVALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.test.e2e.constant.LOG_TAG
 import net.mullvad.mullvadvpn.test.e2e.constant.VALID_TEST_ACCOUNT_TOKEN_ARGUMENT_KEY
 import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
-import org.junit.Before
-import org.junit.Rule
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.extension.RegisterExtension
 
-@RunWith(AndroidJUnit4::class)
 abstract class EndToEndTest {
 
-    @Rule @JvmField val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
+    @RegisterExtension @JvmField val rule = CaptureScreenshotOnFailedTestRule(LOG_TAG)
 
-    @Rule
-    @JvmField
-    val permissionRule: GrantPermissionRule =
+    private val permissions =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            GrantPermissionRule.grant(Manifest.permission.READ_MEDIA_IMAGES)
+            arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
         } else {
-            GrantPermissionRule.grant(
+            arrayOf(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             )
         }
+
+    @JvmField @RegisterExtension val extension = GrantPermissionExtension.grant(*permissions)
 
     lateinit var device: UiDevice
     lateinit var targetContext: Context
@@ -40,7 +37,7 @@ abstract class EndToEndTest {
     lateinit var validTestAccountToken: String
     lateinit var invalidTestAccountToken: String
 
-    @Before
+    @BeforeEach
     fun setup() {
         device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         targetContext = InstrumentationRegistry.getInstrumentation().targetContext
