@@ -150,7 +150,6 @@ impl ApiConnectionMode {
 
     #[cfg(windows)]
     pub fn allowed_clients(&self) -> AllowedClients {
-        use proxy::Socks5;
         match self {
             ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(_)) => AllowedClients::all(),
             ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => {

@@ -871,9 +871,7 @@ pub enum ResolvedBridgeSettings<'a> {
 }
 
 impl BridgeSettings {
-    pub fn resolve(
-        &self,
-    ) -> Result<ResolvedBridgeSettings<'_>, MissingCustomBridgeSettings> {
+    pub fn resolve(&self) -> Result<ResolvedBridgeSettings<'_>, MissingCustomBridgeSettings> {
         match (self.bridge_type, &self.custom) {
             (BridgeType::Normal, _) => Ok(ResolvedBridgeSettings::Normal(&self.normal)),
             (BridgeType::Custom, Some(custom)) => Ok(ResolvedBridgeSettings::Custom(custom)),
