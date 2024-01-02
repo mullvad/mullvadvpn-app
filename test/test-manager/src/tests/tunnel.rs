@@ -6,8 +6,8 @@ use super::{Error, TestContext};
 use crate::network_monitor::{start_packet_monitor, MonitorOptions};
 use mullvad_management_interface::{types, ManagementServiceClient};
 use mullvad_types::relay_constraints::{
-    BridgeConstraints, BridgeSettings, BridgeState, Constraint, ObfuscationSettings,
-    OpenVpnConstraints, RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
+    BridgeSettings, BridgeState, Constraint, ObfuscationSettings, OpenVpnConstraints,
+    RelayConstraints, RelaySettings, SelectedObfuscation, TransportPort,
     Udp2TcpObfuscationSettings, WireguardConstraints,
 };
 use mullvad_types::wireguard;
@@ -209,12 +209,9 @@ pub async fn test_bridge(
         .await
         .expect("failed to enable bridge mode");
 
-    set_bridge_settings(
-        &mut mullvad_client,
-        BridgeSettings::Normal(BridgeConstraints::default()),
-    )
-    .await
-    .expect("failed to update bridge settings");
+    set_bridge_settings(&mut mullvad_client, BridgeSettings::default())
+        .await
+        .expect("failed to update bridge settings");
 
     set_relay_settings(
         &mut mullvad_client,
