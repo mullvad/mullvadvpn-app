@@ -51,10 +51,8 @@ dependencies {
     implementation(project(Dependencies.Mullvad.endpointLib))
     implementation(project(Dependencies.Mullvad.ipcLib))
     implementation(project(Dependencies.Mullvad.modelLib))
-    implementation(project(Dependencies.Mullvad.resourceLib))
     implementation(project(Dependencies.Mullvad.talpidLib))
 
-    implementation(Dependencies.AndroidX.appcompat)
     implementation(Dependencies.jodaTime)
     implementation(Dependencies.Koin.core)
     implementation(Dependencies.Koin.android)
