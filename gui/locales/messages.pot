@@ -99,6 +99,9 @@ msgstr ""
 msgid "Default"
 msgstr ""
 
+msgid "Delete list"
+msgstr ""
+
 msgid "Disable"
 msgstr ""
 
@@ -1033,6 +1036,10 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Custom lists"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Do you want to delete the list <b>%(list)s</b>?"
 msgstr ""
 
 msgctxt "select-location-view"

@@ -18,7 +18,7 @@ import { useSelector } from '../../redux/store';
 import * as AppButton from '../AppButton';
 import * as Cell from '../cell';
 import { normalText, tinyText } from '../common-styles';
-import { ModalAlert, ModalMessage } from '../Modal';
+import { ModalAlert, ModalAlertType, ModalMessage } from '../Modal';
 import SimpleInput from '../SimpleInput';
 
 const StyledModalMessage = styled(ModalMessage)({
@@ -198,6 +198,48 @@ export function EditListDialog(props: EditListProps) {
           {messages.pgettext('select-location-view', 'Name is already taken.')}
         </StyledInputErrorText>
       )}
+    </ModalAlert>
+  );
+}
+
+interface DeleteConfirmDialogProps {
+  list: ICustomList;
+  isOpen: boolean;
+  hide: () => void;
+  confirm: () => void;
+}
+
+// Dialog for changing the name of a custom list.
+export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
+  const confirm = useCallback(() => {
+    props.confirm();
+    props.hide();
+  }, []);
+
+  return (
+    <ModalAlert
+      type={ModalAlertType.warning}
+      isOpen={props.isOpen}
+      buttons={[
+        <AppButton.RedButton key="save" onClick={confirm}>
+          {messages.gettext('Delete list')}
+        </AppButton.RedButton>,
+        <AppButton.BlueButton key="cancel" onClick={props.hide}>
+          {messages.gettext('Cancel')}
+        </AppButton.BlueButton>,
+      ]}
+      close={props.hide}>
+      <ModalMessage>
+        {formatHtml(
+          sprintf(
+            messages.pgettext(
+              'select-location-view',
+              'Do you want to delete the list <b>%(list)s</b>?',
+            ),
+            { list: props.list.name },
+          ),
+        )}
+      </ModalMessage>
     </ModalAlert>
   );
 }
