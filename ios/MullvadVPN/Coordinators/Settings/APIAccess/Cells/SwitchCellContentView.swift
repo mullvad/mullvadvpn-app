@@ -37,7 +37,7 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
     init(configuration: SwitchCellContentConfiguration) {
         actualConfiguration = configuration
 
-        super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 44))
+        super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 0))
 
         configureSubviews()
         addSubviews()
@@ -75,13 +75,14 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
 
     private func configureSwitch() {
         switchContainer.control.isOn = actualConfiguration.isOn
+        switchContainer.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
     }
 
     private func addSubviews() {
         addConstrainedSubviews([textLabel, switchContainer]) {
             textLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
             switchContainer.centerYAnchor.constraint(equalTo: centerYAnchor)
-            switchContainer.pinEdgeToSuperviewMargin(.trailing(0))
+            switchContainer.pinEdgeToSuperview(.trailing(UIMetrics.SettingsCell.apiAccessSwitchCellTrailingMargin))
             switchContainer.leadingAnchor.constraint(
                 greaterThanOrEqualToSystemSpacingAfter: textLabel.trailingAnchor,
                 multiplier: 1

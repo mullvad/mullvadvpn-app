@@ -32,7 +32,7 @@ struct TextCellContentConfiguration: UIContentConfiguration, Equatable {
     var textFieldProperties = TextFieldProperties()
 
     /// The content view layout margins.
-    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.insetLayoutMargins
+    var directionalLayoutMargins: NSDirectionalEdgeInsets = UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
 
     func makeContentView() -> UIView & UIContentView {
         return TextCellContentView(configuration: self)

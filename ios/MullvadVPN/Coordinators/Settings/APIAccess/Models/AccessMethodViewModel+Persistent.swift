@@ -65,28 +65,42 @@ extension AccessMethodViewModel.Socks {
         let context: AccessMethodFieldValidationError.Context = .socks
         var fieldErrors: [AccessMethodFieldValidationError] = []
 
-        switch CommonValidators.parseIPAddress(from: server, context: context) {
-        case let .success(serverAddress):
-            draftConfiguration.server = serverAddress
-        case let .failure(error):
-            fieldErrors.append(error)
+        if server.isEmpty {
+            fieldErrors.append(AccessMethodFieldValidationError(kind: .emptyValue, field: .server, context: context))
+        } else {
+            switch CommonValidators.parseIPAddress(from: server, context: context) {
+            case let .success(serverAddress):
+                draftConfiguration.server = serverAddress
+            case let .failure(error):
+                fieldErrors.append(error)
+            }
         }
 
-        switch CommonValidators.parsePort(from: port, context: context) {
-        case let .success(port):
-            draftConfiguration.port = port
-        case let .failure(error):
-            fieldErrors.append(error)
+        if port.isEmpty {
+            fieldErrors.append(AccessMethodFieldValidationError(kind: .emptyValue, field: .port, context: context))
+        } else {
+            switch CommonValidators.parsePort(from: port, context: context) {
+            case let .success(port):
+                draftConfiguration.port = port
+            case let .failure(error):
+                fieldErrors.append(error)
+            }
         }
 
         if authenticate {
             if username.isEmpty {
-                fieldErrors.append(AccessMethodFieldValidationError(
-                    kind: .emptyValue,
-                    field: .username,
-                    context: context
-                ))
-            } else {
+                fieldErrors.append(
+                    AccessMethodFieldValidationError(kind: .emptyValue, field: .username, context: context)
+                )
+            }
+
+            if password.isEmpty {
+                fieldErrors.append(
+                    AccessMethodFieldValidationError(kind: .emptyValue, field: .password, context: context)
+                )
+            }
+
+            if !(username.isEmpty && password.isEmpty) {
                 draftConfiguration.authentication = .usernamePassword(username: username, password: password)
             }
         }
@@ -115,22 +129,35 @@ extension AccessMethodViewModel.Shadowsocks {
         let context: AccessMethodFieldValidationError.Context = .shadowsocks
         var fieldErrors: [AccessMethodFieldValidationError] = []
 
-        switch CommonValidators.parseIPAddress(from: server, context: context) {
-        case let .success(serverAddress):
-            draftConfiguration.server = serverAddress
-        case let .failure(error):
-            fieldErrors.append(error)
+        if server.isEmpty {
+            fieldErrors.append(AccessMethodFieldValidationError(kind: .emptyValue, field: .server, context: context))
+        } else {
+            switch CommonValidators.parseIPAddress(from: server, context: context) {
+            case let .success(serverAddress):
+                draftConfiguration.server = serverAddress
+            case let .failure(error):
+                fieldErrors.append(error)
+            }
         }
 
-        switch CommonValidators.parsePort(from: port, context: context) {
-        case let .success(port):
-            draftConfiguration.port = port
-        case let .failure(error):
-            fieldErrors.append(error)
+        if port.isEmpty {
+            fieldErrors.append(AccessMethodFieldValidationError(kind: .emptyValue, field: .port, context: context))
+        } else {
+            switch CommonValidators.parsePort(from: port, context: context) {
+            case let .success(port):
+                draftConfiguration.port = port
+            case let .failure(error):
+                fieldErrors.append(error)
+            }
+        }
+
+        if password.isEmpty {
+            fieldErrors.append(AccessMethodFieldValidationError(kind: .emptyValue, field: .password, context: context))
+        } else {
+            draftConfiguration.password = password
         }
 
         draftConfiguration.cipher = cipher
-        draftConfiguration.password = password
 
         if fieldErrors.isEmpty {
             return .shadowsocks(draftConfiguration)

@@ -26,7 +26,7 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
 struct AccessMethodFieldValidationError: LocalizedError, Equatable {
     /// Validated field.
     enum Field: String, CustomStringConvertible, Equatable {
-        case server, port, username
+        case server, port, username, password
 
         var description: String {
             rawValue

@@ -71,11 +71,11 @@ class AppButton: CustomButton {
             case .translucentDangerSplitRight:
                 UIImage(resource: .translucentDangerSplitRightButton).imageFlippedForRightToLeftLayoutDirection()
             case .tableInsetGroupedDefault:
-                DynamicAssets.shared.tableInsetGroupedDefaultBackground
+                UIImage(resource: .defaultButton)
             case .tableInsetGroupedSuccess:
-                DynamicAssets.shared.tableInsetGroupedSuccessBackground
+                UIImage(resource: .successButton)
             case .tableInsetGroupedDanger:
-                DynamicAssets.shared.tableInsetGroupedDangerBackground
+                UIImage(resource: .dangerButton)
             }
         }
     }
@@ -166,40 +166,6 @@ class AppButton: CustomButton {
             } else {
                 contentEdgeInsets = defaultContentInsets
             }
-        }
-    }
-}
-
-private extension AppButton {
-    class DynamicAssets {
-        static let shared = DynamicAssets()
-
-        private init() {}
-
-        /// Default cell corner radius in inset grouped table view
-        private let tableViewCellCornerRadius: CGFloat = 10
-
-        lazy var tableInsetGroupedDefaultBackground: UIImage = {
-            roundedRectImage(fillColor: .primaryColor)
-        }()
-
-        lazy var tableInsetGroupedSuccessBackground: UIImage = {
-            roundedRectImage(fillColor: .successColor)
-        }()
-
-        lazy var tableInsetGroupedDangerBackground: UIImage = {
-            roundedRectImage(fillColor: .dangerColor)
-        }()
-
-        private func roundedRectImage(fillColor: UIColor) -> UIImage {
-            let cornerRadius = tableViewCellCornerRadius
-            let bounds = CGRect(x: 0, y: 0, width: 44, height: 44)
-            let image = UIGraphicsImageRenderer(bounds: bounds).image { _ in
-                fillColor.setFill()
-                UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).fill()
-            }
-            let caps = UIEdgeInsets(top: cornerRadius, left: cornerRadius, bottom: cornerRadius, right: cornerRadius)
-            return image.resizableImage(withCapInsets: caps)
         }
     }
 }

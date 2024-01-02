@@ -1,5 +1,5 @@
 //
-//  ProxyConfigurationSectionIdentifier.swift
+//  MethodSettingsSectionIdentifier.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 21/11/2023.
@@ -8,24 +8,22 @@
 
 import Foundation
 
-enum ProxyConfigurationSectionIdentifier: Hashable {
+enum MethodSettingsSectionIdentifier: Hashable {
+    case name
     case `protocol`
     case proxyConfiguration
+    case testingStatus
+    case cancelTest
 
     var sectionName: String? {
         switch self {
-        case .protocol:
-            NSLocalizedString(
-                "PROTOCOL_SECTION_TITLE",
-                tableName: "APIAccess",
-                value: "Protocol",
-                comment: ""
-            )
+        case .name, .protocol, .testingStatus, .cancelTest:
+            nil
         case .proxyConfiguration:
             NSLocalizedString(
                 "HOST_CONFIG_SECTION_TITLE",
                 tableName: "APIAccess",
-                value: "Host configuration",
+                value: "Server details",
                 comment: ""
             )
         }

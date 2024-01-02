@@ -54,7 +54,7 @@ struct ShadowsocksSectionHandler {
     func configurePassword(_ cell: UITableViewCell, itemIdentifier: ShadowsocksItemIdentifier) {
         var contentConfiguration = TextCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
-        contentConfiguration.setPlaceholder(type: .optional)
+        contentConfiguration.setPlaceholder(type: .required)
         contentConfiguration.inputText = subject.value.shadowsocks.password
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.shadowsocks.password)
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()

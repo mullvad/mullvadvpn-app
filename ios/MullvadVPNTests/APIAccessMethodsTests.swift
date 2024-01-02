@@ -46,7 +46,7 @@ final class APIAccessMethodsTests: XCTestCase {
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
 
-        AccessMethodRepository.shared.add(methodToStore)
+        AccessMethodRepository.shared.save(methodToStore)
         let storedMethod = AccessMethodRepository.shared.fetch(by: uuid)
 
         XCTAssertEqual(methodToStore.id, storedMethod?.id)
@@ -56,7 +56,7 @@ final class APIAccessMethodsTests: XCTestCase {
         let uuid = UUID()
         let methodToStore = shadowsocksAccessMethod(with: uuid)
 
-        AccessMethodRepository.shared.add(methodToStore)
+        AccessMethodRepository.shared.save(methodToStore)
         let storedMethod = AccessMethodRepository.shared.fetch(by: uuid)
 
         XCTAssertEqual(methodToStore.id, storedMethod?.id)
@@ -65,8 +65,8 @@ final class APIAccessMethodsTests: XCTestCase {
     func testAddingDuplicateAccessMethodDoesNothing() throws {
         let methodToStore = socks5AccessMethod(with: UUID())
 
-        AccessMethodRepository.shared.add(methodToStore)
-        AccessMethodRepository.shared.add(methodToStore)
+        AccessMethodRepository.shared.save(methodToStore)
+        AccessMethodRepository.shared.save(methodToStore)
         let storedMethods = AccessMethodRepository.shared.fetchAll()
 
         // Account for .direct and .bridges that are always added by default.
@@ -77,12 +77,12 @@ final class APIAccessMethodsTests: XCTestCase {
         let uuid = UUID()
         var methodToStore = socks5AccessMethod(with: uuid)
 
-        AccessMethodRepository.shared.add(methodToStore)
+        AccessMethodRepository.shared.save(methodToStore)
 
         let newName = "Renamed method"
         methodToStore.name = newName
 
-        AccessMethodRepository.shared.update(methodToStore)
+        AccessMethodRepository.shared.save(methodToStore)
 
         let storedMethod = AccessMethodRepository.shared.fetch(by: uuid)
 
@@ -93,7 +93,7 @@ final class APIAccessMethodsTests: XCTestCase {
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
 
-        AccessMethodRepository.shared.add(methodToStore)
+        AccessMethodRepository.shared.save(methodToStore)
         AccessMethodRepository.shared.delete(id: uuid)
 
         let storedMethod = AccessMethodRepository.shared.fetch(by: uuid)

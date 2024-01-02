@@ -52,7 +52,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
         self.dataSource = dataSource
         self.selectedItemID = selectedItemID
 
-        super.init(style: .insetGrouped)
+        super.init(style: .plain)
     }
 
     required init?(coder: NSCoder) {
@@ -63,7 +63,14 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
+
+        tableView.separatorInset = .zero
+        tableView.separatorColor = .secondaryColor
         tableView.registerReusableViews(from: CellIdentifier.self)
+
+        // Add extra inset to mimic built-in margin of a grouped table view. Without this the
+        // transition between a plain and a grouped table view looks jarring.
+        tableView.contentInset.top = UIMetrics.SettingsCell.apiAccessPickerListContentInsetTop
     }
 
     override func viewIsAppearing(_ animated: Bool) {
@@ -80,7 +87,7 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let item = dataSource.item(at: indexPath)
-        var configuration = UIListContentConfiguration.mullvadCell(tableStyle: tableView.style)
+        var configuration = UIListContentConfiguration.mullvadCell(tableStyle: .insetGrouped)
         configuration.text = item.text
 
         let cell = tableView.dequeueReusableView(withIdentifier: CellIdentifier.default, for: indexPath)
@@ -99,6 +106,10 @@ class ListItemPickerViewController<DataSource: ListItemDataSourceProtocol>: UITa
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return dataSource.itemCount
+    }
+
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UIMetrics.SettingsCell.apiAccessCellHeight
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

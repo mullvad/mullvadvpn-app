@@ -58,7 +58,7 @@ struct AccessMethodViewModel: Identifiable {
 
     /// The selected access method kind.
     /// Determines which subview model is used when presenting proxy configuration in UI.
-    var method: AccessMethodKind = .socks5
+    var method: AccessMethodKind = .shadowsocks
 
     /// The flag indicating whether configuration is enabled.
     var isEnabled = true
