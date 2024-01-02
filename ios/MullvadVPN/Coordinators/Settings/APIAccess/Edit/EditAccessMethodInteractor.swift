@@ -15,10 +15,18 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     let repo: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
 
+    var directAccess: PersistentAccessMethod {
+        repo.directAccess
+    }
+
+    public var publisher: AnyPublisher<[PersistentAccessMethod], Never> {
+        repo.publisher.eraseToAnyPublisher()
+    }
+
     func saveAccessMethod() {
         guard let persistentMethod = try? subject.value.intoPersistentAccessMethod() else { return }
 
-        repo.update(persistentMethod)
+        repo.save(persistentMethod)
     }
 
     func deleteAccessMethod() {

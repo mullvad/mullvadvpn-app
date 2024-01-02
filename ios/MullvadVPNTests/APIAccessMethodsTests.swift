@@ -48,7 +48,7 @@ final class APIAccessMethodsTests: XCTestCase {
 
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
-        repository.add(methodToStore)
+        repository.save(methodToStore)
 
         let storedMethod = repository.fetch(by: uuid)
 
@@ -60,7 +60,7 @@ final class APIAccessMethodsTests: XCTestCase {
 
         let uuid = UUID()
         let methodToStore = shadowsocksAccessMethod(with: uuid)
-        repository.add(methodToStore)
+        repository.save(methodToStore)
 
         let storedMethod = repository.fetch(by: uuid)
 
@@ -72,8 +72,8 @@ final class APIAccessMethodsTests: XCTestCase {
 
         let methodToStore = socks5AccessMethod(with: UUID())
 
-        repository.add(methodToStore)
-        repository.add(methodToStore)
+        repository.save(methodToStore)
+        repository.save(methodToStore)
 
         let storedMethods = repository.fetchAll()
 
@@ -86,12 +86,12 @@ final class APIAccessMethodsTests: XCTestCase {
 
         let uuid = UUID()
         var methodToStore = socks5AccessMethod(with: uuid)
-        repository.add(methodToStore)
+        repository.save(methodToStore)
 
         let newName = "Renamed method"
         methodToStore.name = newName
 
-        repository.update(methodToStore)
+        repository.save(methodToStore)
 
         let storedMethod = repository.fetch(by: uuid)
 
@@ -103,7 +103,7 @@ final class APIAccessMethodsTests: XCTestCase {
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
 
-        repository.add(methodToStore)
+        repository.save(methodToStore)
         repository.delete(id: uuid)
 
         let storedMethod = repository.fetch(by: uuid)

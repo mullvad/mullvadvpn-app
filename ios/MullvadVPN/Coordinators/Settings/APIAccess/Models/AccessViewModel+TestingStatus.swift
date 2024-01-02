@@ -9,7 +9,7 @@
 import Foundation
 
 extension AccessMethodViewModel.TestingStatus {
-    var sheetStatus: AccessMethodActionSheetContentConfiguration.Status {
+    var viewStatus: MethodTestingStatusCellContentConfiguration.Status {
         switch self {
         case .initial:
             // The sheet is invisible in this state, the return value is not important.

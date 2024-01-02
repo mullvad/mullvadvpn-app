@@ -75,7 +75,7 @@ struct SocksSectionHandler {
     private func configurePassword(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         var contentConfiguration = TextCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
-        contentConfiguration.setPlaceholder(type: .optional)
+        contentConfiguration.setPlaceholder(type: .required)
         contentConfiguration.inputText = subject.value.socks.password
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.socks.password)
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()

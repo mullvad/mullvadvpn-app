@@ -66,11 +66,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let relayCache = RelayCache(cacheDirectory: containerURL)
         relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
 
-        addressCacheTracker = AddressCacheTracker(
-            application: application,
-            apiProxy: apiProxy,
-            store: addressCache
-        )
+        addressCacheTracker = AddressCacheTracker(application: application, apiProxy: apiProxy, store: addressCache)
 
         tunnelStore = TunnelStore(application: application)
         tunnelManager = createTunnelManager(application: application)
