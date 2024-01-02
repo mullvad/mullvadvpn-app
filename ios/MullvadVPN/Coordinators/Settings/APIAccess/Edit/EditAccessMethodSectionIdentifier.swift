@@ -9,41 +9,34 @@
 import Foundation
 
 enum EditAccessMethodSectionIdentifier: Hashable {
-    case name
+    case enableMethod
+    case methodSettings
     case testMethod
-    case useIfAvailable
-    case proxyConfiguration
+    case cancelTest
+    case testingStatus
     case deleteMethod
 
     /// The section footer text.
     var sectionFooter: String? {
         switch self {
-        case .name, .deleteMethod:
-            nil
+        case .enableMethod:
+            NSLocalizedString(
+                "ENABLE_METHOD_FOOTER",
+                tableName: "APIAccess",
+                value: "When enabled, the app can try to communicate with a Mullvad API server using this method.",
+                comment: ""
+            )
 
         case .testMethod:
             NSLocalizedString(
                 "TEST_METHOD_FOOTER",
                 tableName: "APIAccess",
-                value: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt",
+                value: "Performs a connection test to a Mullvad API server via this access method.",
                 comment: ""
             )
 
-        case .useIfAvailable:
-            NSLocalizedString(
-                "USE_IF_AVAILABLE_FOOTER",
-                tableName: "APIAccess",
-                value: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt",
-                comment: ""
-            )
-
-        case .proxyConfiguration:
-            NSLocalizedString(
-                "PROXY_CONFIGURATION_FOOTER",
-                tableName: "APIAccess",
-                value: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt",
-                comment: ""
-            )
+        case .methodSettings, .cancelTest, .testingStatus, .deleteMethod:
+            nil
         }
     }
 }

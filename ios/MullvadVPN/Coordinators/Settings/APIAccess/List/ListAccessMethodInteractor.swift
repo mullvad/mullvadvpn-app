@@ -7,7 +7,6 @@
 //
 
 import Combine
-import Foundation
 import MullvadSettings
 
 /// A concrete implementation of an API access list interactor.
@@ -42,7 +41,14 @@ extension PersistentAccessMethod {
         return ListAccessMethodItem(
             id: id,
             name: itemName,
-            detail: itemDetail
+            detail: isEnabled
+                ? itemDetail
+                : NSLocalizedString(
+                    "LIST_ACCESS_METHODS_DISABLED",
+                    tableName: "APIAccess",
+                    value: "Disabled",
+                    comment: ""
+                )
         )
     }
 }

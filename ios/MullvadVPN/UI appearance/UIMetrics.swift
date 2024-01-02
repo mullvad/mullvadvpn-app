@@ -56,7 +56,7 @@ enum UIMetrics {
     }
 
     enum SettingsRedeemVoucher {
-        static let cornerRadius = 8.0
+        static let cornerRadius: CGFloat = 8
         static let preferredContentSize = CGSize(width: 280, height: 260)
         static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16)
         static let successfulRedeemMargins = NSDirectionalEdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
@@ -67,7 +67,7 @@ enum UIMetrics {
     }
 
     enum Button {
-        static let barButtonSize: CGFloat = 44.0
+        static let barButtonSize: CGFloat = 44
     }
 
     enum SettingsCell {
@@ -80,6 +80,12 @@ enum UIMetrics {
 
         /// Cell layout margins used in table views that use inset style.
         static let insetLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
+
+        static let apiAccessLayoutMargins = NSDirectionalEdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16)
+        static let apiAccessInsetLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+        static let apiAccessCellHeight: CGFloat = 44
+        static let apiAccessSwitchCellTrailingMargin: CGFloat = apiAccessInsetLayoutMargins.trailing - 4
+        static let apiAccessPickerListContentInsetTop: CGFloat = 16
     }
 
     enum InAppBannerNotification {

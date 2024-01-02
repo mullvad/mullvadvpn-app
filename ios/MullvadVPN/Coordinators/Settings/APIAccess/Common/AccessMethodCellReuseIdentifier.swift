@@ -22,6 +22,9 @@ enum AccessMethodCellReuseIdentifier: String, CaseIterable, CellIdentifierProtoc
     /// Cells that contain a button.
     case button
 
+    /// Cells that contain a number of validation errors.
+    case validationError
+
     /// Cells that contain the status of API method testing.
     case testingStatus
 

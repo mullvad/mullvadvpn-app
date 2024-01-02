@@ -7,7 +7,6 @@
 //
 
 import Combine
-import Foundation
 
 public protocol AccessMethodRepositoryDataSource {
     /// Publisher that propagates a snapshot of persistent store upon modifications.
@@ -19,11 +18,7 @@ public protocol AccessMethodRepositoryDataSource {
 public protocol AccessMethodRepositoryProtocol: AccessMethodRepositoryDataSource {
     /// Add new access method.
     /// - Parameter method: persistent access method model.
-    func add(_ method: PersistentAccessMethod)
-
-    /// Persist modified access method locating existing entry by id.
-    /// - Parameter method: persistent access method model.
-    func update(_ method: PersistentAccessMethod)
+    func save(_ method: PersistentAccessMethod)
 
     /// Delete access method by id.
     /// - Parameter id: an access method id.
