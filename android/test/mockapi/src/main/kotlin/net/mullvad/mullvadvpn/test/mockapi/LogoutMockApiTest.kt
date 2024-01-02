@@ -1,17 +1,14 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
-import androidx.test.runner.AndroidJUnit4
 import androidx.test.uiautomator.By
-import junit.framework.TestCase.assertNotNull
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
-import org.junit.Test
-import org.junit.runner.RunWith
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 
-@RunWith(AndroidJUnit4::class)
 class LogoutMockApiTest : MockApiTest() {
 
     @Test
@@ -35,6 +32,6 @@ class LogoutMockApiTest : MockApiTest() {
         app.clickActionButtonByText("Log out")
 
         // Assert
-        assertNotNull(device.findObjectWithTimeout(By.text("Login")))
+        Assertions.assertNotNull(device.findObjectWithTimeout(By.text("Login")))
     }
 }
