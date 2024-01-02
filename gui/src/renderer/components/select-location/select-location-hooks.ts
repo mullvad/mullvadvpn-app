@@ -103,11 +103,14 @@ export function useOnSelectBridgeLocation() {
     }
   }, []);
 
-  const onSelectRelay = useCallback((location: RelayLocation) => {
-    const bridgeUpdate = new BridgeSettingsBuilder().location.fromRaw(location).build();
-    bridgeUpdate.custom = bridgeSettings.custom;
-    return setLocation(bridgeUpdate);
-  }, [bridgeSettings]);
+  const onSelectRelay = useCallback(
+    (location: RelayLocation) => {
+      const bridgeUpdate = new BridgeSettingsBuilder().location.fromRaw(location).build();
+      bridgeUpdate.custom = bridgeSettings.custom;
+      return setLocation(bridgeUpdate);
+    },
+    [bridgeSettings],
+  );
 
   const onSelectSpecial = useCallback((location: SpecialBridgeLocationType) => {
     switch (location) {

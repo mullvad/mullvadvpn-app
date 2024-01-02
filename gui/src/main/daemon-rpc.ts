@@ -351,7 +351,7 @@ export class DaemonRpc {
     grpcBridgeSettings.setNormal(normalSettings);
 
     if (bridgeSettings.custom) {
-      let customProxy = new grpcTypes.CustomProxy();
+      const customProxy = new grpcTypes.CustomProxy();
 
       const customSettings = bridgeSettings.custom;
 
@@ -1210,7 +1210,7 @@ function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): Br
           localPort: localSettings.localPort,
           remoteIp: localSettings.remoteIp,
           remotePort: localSettings.remotePort,
-        }
+        },
       };
     }
     const remoteSettings = bridgeSettingsObject.custom.socks5remote;
@@ -1220,7 +1220,7 @@ function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): Br
           ip: remoteSettings.ip,
           port: remoteSettings.port,
           auth: remoteSettings.auth && { ...remoteSettings.auth },
-        }
+        },
       };
     }
     const shadowsocksSettings = bridgeSettingsObject.custom.shadowsocks;
@@ -1231,7 +1231,7 @@ function convertFromBridgeSettings(bridgeSettings: grpcTypes.BridgeSettings): Br
           port: shadowsocksSettings.port,
           password: shadowsocksSettings.password,
           cipher: shadowsocksSettings.cipher,
-        }
+        },
       };
     }
   }
