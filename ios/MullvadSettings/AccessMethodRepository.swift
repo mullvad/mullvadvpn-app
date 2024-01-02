@@ -36,38 +36,34 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol {
     public static let shared = AccessMethodRepository()
 
     private init() {
-        add(passthroughSubject.value)
-    }
-
-    public func add(_ method: PersistentAccessMethod) {
-        add([method])
-    }
-
-    public func add(_ methods: [PersistentAccessMethod]) {
         var storedMethods = fetchAll()
 
-        methods.forEach { method in
-            guard !storedMethods.contains(where: { $0.id == method.id }) else { return }
+        passthroughSubject.value.forEach { method in
+            if !storedMethods.contains(where: { $0.id == method.id }) {
+                storedMethods.append(method)
+            }
+        }
+
+        do {
+            try writeApiAccessMethods(storedMethods)
+        } catch {
+            print("Could not update access methods: \(storedMethods) \nError: \(error)")
+        }
+    }
+
+    public func save(_ method: PersistentAccessMethod) {
+        var storedMethods = fetchAll()
+
+        if let index = storedMethods.firstIndex(where: { $0.id == method.id }) {
+            storedMethods[index] = method
+        } else {
             storedMethods.append(method)
         }
 
         do {
             try writeApiAccessMethods(storedMethods)
         } catch {
-            print("Could not add access method(s): \(methods) \nError: \(error)")
-        }
-    }
-
-    public func update(_ method: PersistentAccessMethod) {
-        var methods = fetchAll()
-
-        guard let index = methods.firstIndex(where: { $0.id == method.id }) else { return }
-        methods[index] = method
-
-        do {
-            try writeApiAccessMethods(methods)
-        } catch {
-            print("Could not update access method: \(method) \nError: \(error)")
+            print("Could not update access methods: \(storedMethods) \nError: \(error)")
         }
     }
 

@@ -22,9 +22,7 @@ enum AccessMethodKind: Equatable, Hashable, CaseIterable {
 
     /// Communication over socks v5 proxy.
     case socks5
-}
 
-extension AccessMethodKind {
     /// Returns `true` if the method is permanent and cannot be deleted.
     var isPermanent: Bool {
         switch self {
@@ -39,25 +37,7 @@ extension AccessMethodKind {
     static var allUserDefinedKinds: [AccessMethodKind] {
         allCases.filter { !$0.isPermanent }
     }
-}
 
-extension PersistentAccessMethod {
-    /// A kind of access method.
-    var kind: AccessMethodKind {
-        switch proxyConfiguration {
-        case .direct:
-            .direct
-        case .bridges:
-            .bridges
-        case .shadowsocks:
-            .shadowsocks
-        case .socks5:
-            .socks5
-        }
-    }
-}
-
-extension AccessMethodKind {
     /// Returns localized description describing the access method.
     var localizedDescription: String {
         switch self {
@@ -80,6 +60,22 @@ extension AccessMethodKind {
             false
         case .shadowsocks, .socks5:
             true
+        }
+    }
+}
+
+extension PersistentAccessMethod {
+    /// A kind of access method.
+    var kind: AccessMethodKind {
+        switch proxyConfiguration {
+        case .direct:
+            .direct
+        case .bridges:
+            .bridges
+        case .shadowsocks:
+            .shadowsocks
+        case .socks5:
+            .socks5
         }
     }
 }

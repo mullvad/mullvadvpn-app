@@ -26,7 +26,7 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
 struct AccessMethodFieldValidationError: LocalizedError, Equatable {
     /// Validated field.
     enum Field: String, CustomStringConvertible, Equatable {
-        case server, port, username
+        case server, port, username, password
 
         var description: String {
             rawValue
@@ -48,10 +48,7 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
         case emptyValue
 
         /// Failure to parse IP address.
-        case parseIPAddress
-
-        /// Failure to parse port value.
-        case parsePort
+        case invalidIPAddress
 
         /// Invalid port number, i.e zero.
         case invalidPort
@@ -67,17 +64,13 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
     let context: Context
 
     var errorDescription: String? {
-        var s = "The \(context) \(field) "
         switch kind {
         case .emptyValue:
-            s += "cannot be empty."
-        case .parseIPAddress:
-            s += "cannot be parsed as IP address."
-        case .parsePort:
-            s += "cannot be parsed as a port number."
+            "\(field) cannot be empty."
+        case .invalidIPAddress:
+            "Please enter a valid IPv4 or IPv6 address."
         case .invalidPort:
-            s += "contains invalid port number."
+            "Please enter a valid port."
         }
-        return s
     }
 }
