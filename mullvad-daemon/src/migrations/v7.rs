@@ -258,21 +258,34 @@ mod test {
 
     pub const V7_SETTINGS: &str = r#"
 {
+
   "relay_settings": {
     "normal": {
       "location": {
         "only": {
           "location": {
-            "country": "se"
+            "hostname": [
+              "ch",
+              "zrh",
+              "ch-zrh-ovpn-001"
+            ]
           }
         }
       },
+      "providers": "any",
+      "ownership": "any",
       "tunnel_protocol": "any",
       "wireguard_constraints": {
         "port": "any",
         "ip_version": "any",
-        "use_multihop": true,
-        "entry_location": "any"
+        "use_multihop": false,
+        "entry_location": {
+          "only": {
+            "location": {
+              "country": "se"
+            }
+          }
+        }
       },
       "openvpn_constraints": {
         "port": {
@@ -406,21 +419,34 @@ mod test {
 
     pub const V8_SETTINGS: &str = r#"
 {
+
   "relay_settings": {
     "normal": {
       "location": {
         "only": {
           "location": {
-            "country": "se"
+            "hostname": [
+              "ch",
+              "zrh",
+              "ch-zrh-ovpn-001"
+            ]
           }
         }
       },
+      "providers": "any",
+      "ownership": "any",
       "tunnel_protocol": "any",
       "wireguard_constraints": {
         "port": "any",
         "ip_version": "any",
-        "use_multihop": true,
-        "entry_location": "any"
+        "use_multihop": false,
+        "entry_location": {
+          "only": {
+            "location": {
+              "country": "se"
+            }
+          }
+        }
       },
       "openvpn_constraints": {
         "port": {
@@ -701,6 +727,53 @@ mod test {
 
     #[test]
     fn test_bridge_settings_normal() {
+        let mut pre: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "bridge_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "location": {
+            "country": "se"
+          }
+        }
+      },
+      "providers": "any",
+      "ownership": "any"
+    }
+  }
+}"#,
+        )
+        .unwrap();
+
+        let post: serde_json::Value = serde_json::from_str(
+            r#"
+{
+  "bridge_settings": {
+    "bridge_type": "normal",
+    "normal": {
+      "location": {
+        "only": {
+          "location": {
+            "country": "se"
+          }
+        }
+      },
+      "providers": "any",
+      "ownership": "any"
+    },
+    "custom": null
+  }
+}"#,
+        )
+        .unwrap();
+        migrate_bridge_settings(&mut pre).unwrap();
+        assert_eq!(pre, post);
+    }
+
+    #[test]
+    fn test_bridge_settings_specific_location() {
         let mut pre: serde_json::Value = serde_json::from_str(
             r#"
 {
