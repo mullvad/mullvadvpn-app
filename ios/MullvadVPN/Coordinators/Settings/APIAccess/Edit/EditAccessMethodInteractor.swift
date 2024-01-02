@@ -12,17 +12,29 @@ import MullvadSettings
 
 struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
     let subject: CurrentValueSubject<AccessMethodViewModel, Never>
-    let repo: AccessMethodRepositoryProtocol
+    let repository: AccessMethodRepositoryProtocol
     let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+
+    var directAccess: PersistentAccessMethod {
+        repository.directAccess
+    }
+
+    var publisher: AnyPublisher<[PersistentAccessMethod], Never> {
+        repository.publisher.eraseToAnyPublisher()
+    }
 
     func saveAccessMethod() {
         guard let persistentMethod = try? subject.value.intoPersistentAccessMethod() else { return }
 
-        repo.update(persistentMethod)
+        repository.save(persistentMethod)
     }
 
     func deleteAccessMethod() {
-        repo.delete(id: subject.value.id)
+        repository.delete(id: subject.value.id)
+    }
+
+    func fetchAll() -> [MullvadSettings.PersistentAccessMethod] {
+        return repository.fetchAll()
     }
 
     func startProxyConfigurationTest(_ completion: ((Bool) -> Void)?) {

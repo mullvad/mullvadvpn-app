@@ -9,23 +9,21 @@
 import Foundation
 
 enum EditAccessMethodItemIdentifier: Hashable {
-    case name
-    case useIfAvailable
-    case proxyConfiguration
+    case enableMethod
+    case methodSettings
     case testMethod
     case testingStatus
+    case cancelTest
     case deleteMethod
 
     /// Cell identifier for the item identifier.
     var cellIdentifier: AccessMethodCellReuseIdentifier {
         switch self {
-        case .name:
-            .textInput
-        case .useIfAvailable:
+        case .enableMethod:
             .toggle
-        case .proxyConfiguration:
+        case .methodSettings:
             .textWithDisclosure
-        case .testMethod, .deleteMethod:
+        case .testMethod, .cancelTest, .deleteMethod:
             .button
         case .testingStatus:
             .testingStatus
@@ -35,9 +33,9 @@ enum EditAccessMethodItemIdentifier: Hashable {
     /// Returns `true` if the cell background should be made transparent.
     var isClearBackground: Bool {
         switch self {
-        case .testMethod, .testingStatus, .deleteMethod:
+        case .testMethod, .cancelTest, .testingStatus, .deleteMethod:
             return true
-        case .name, .useIfAvailable, .proxyConfiguration:
+        case .enableMethod, .methodSettings:
             return false
         }
     }
@@ -45,9 +43,9 @@ enum EditAccessMethodItemIdentifier: Hashable {
     /// Whether cell representing the item should be selectable.
     var isSelectable: Bool {
         switch self {
-        case .name, .useIfAvailable, .testMethod, .testingStatus, .deleteMethod:
+        case .enableMethod, .testMethod, .cancelTest, .testingStatus, .deleteMethod:
             false
-        case .proxyConfiguration:
+        case .methodSettings:
             true
         }
     }
@@ -55,14 +53,14 @@ enum EditAccessMethodItemIdentifier: Hashable {
     /// The text label for the corresponding cell.
     var text: String? {
         switch self {
-        case .name:
-            NSLocalizedString("NAME", tableName: "APIAccess", value: "Name", comment: "")
-        case .useIfAvailable:
-            NSLocalizedString("USE_IF_AVAILABLE", tableName: "APIAccess", value: "Use if available", comment: "")
-        case .proxyConfiguration:
-            NSLocalizedString("PROXY_CONFIGURATION", tableName: "APIAccess", value: "Proxy configuration", comment: "")
+        case .enableMethod:
+            NSLocalizedString("ENABLE_METHOD", tableName: "APIAccess", value: "Enable method", comment: "")
+        case .methodSettings:
+            NSLocalizedString("METHOD_SETTINGS", tableName: "APIAccess", value: "Method settings", comment: "")
         case .testMethod:
             NSLocalizedString("TEST_METHOD", tableName: "APIAccess", value: "Test method", comment: "")
+        case .cancelTest:
+            NSLocalizedString("CANCEL_TEST", tableName: "APIAccess", value: "Cancel", comment: "")
         case .testingStatus:
             nil
         case .deleteMethod:

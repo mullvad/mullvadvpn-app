@@ -48,6 +48,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: - Application lifecycle
 
+    // swiftlint:disable:funcion_body_length
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -68,11 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let relayCache = RelayCache(cacheDirectory: containerURL)
         relayCacheTracker = RelayCacheTracker(relayCache: relayCache, application: application, apiProxy: apiProxy)
 
-        addressCacheTracker = AddressCacheTracker(
-            application: application,
-            apiProxy: apiProxy,
-            store: addressCache
-        )
+        addressCacheTracker = AddressCacheTracker(application: application, apiProxy: apiProxy, store: addressCache)
 
         tunnelStore = TunnelStore(application: application)
         tunnelManager = createTunnelManager(application: application)

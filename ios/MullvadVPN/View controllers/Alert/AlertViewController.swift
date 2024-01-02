@@ -24,6 +24,7 @@ enum AlertActionStyle {
 
 enum AlertIcon {
     case alert
+    case warning
     case info
     case spinner
 
@@ -31,6 +32,8 @@ enum AlertIcon {
         switch self {
         case .alert:
             return UIImage(named: "IconAlert")?.withTintColor(.dangerColor)
+        case .warning:
+            return UIImage(named: "IconAlert")?.withTintColor(.white)
         case .info:
             return UIImage(named: "IconInfo")?.withTintColor(.white)
         default:

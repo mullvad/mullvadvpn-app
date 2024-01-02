@@ -10,39 +10,58 @@ import UIKit
 
 extension UIListContentConfiguration {
     /// Returns cell configured with default text attribute used in Mullvad UI.
-    static func mullvadCell(tableStyle: UITableView.Style) -> UIListContentConfiguration {
+    static func mullvadCell(tableStyle: UITableView.Style, isEnabled: Bool = true) -> UIListContentConfiguration {
         var configuration = cell()
-        configuration.textProperties.font = UIFont.systemFont(ofSize: 17)
-        configuration.textProperties.color = UIColor.Cell.titleTextColor
-        configuration.directionalLayoutMargins = tableStyle.directionalLayoutMarginsForCell
+        configuration.textProperties.font = .systemFont(ofSize: 17)
+        configuration.textProperties.color = .Cell.titleTextColor.withAlphaComponent(isEnabled ? 1 : 0.8)
+        configuration.axesPreservingSuperviewLayoutMargins = .vertical
+
+        applyMargins(to: &configuration, tableStyle: tableStyle)
+
         return configuration
     }
 
     /// Returns value cell configured with default text attribute used in Mullvad UI.
-    static func mullvadValueCell(tableStyle: UITableView.Style) -> UIListContentConfiguration {
+    static func mullvadValueCell(tableStyle: UITableView.Style, isEnabled: Bool = true) -> UIListContentConfiguration {
         var configuration = valueCell()
-        configuration.textProperties.font = UIFont.systemFont(ofSize: 17)
-        configuration.textProperties.color = UIColor.Cell.titleTextColor
-        configuration.secondaryTextProperties.color = UIColor.Cell.detailTextColor
-        configuration.secondaryTextProperties.font = UIFont.systemFont(ofSize: 17)
-        configuration.directionalLayoutMargins = tableStyle.directionalLayoutMarginsForCell
+        configuration.textProperties.font = .systemFont(ofSize: 17)
+        configuration.textProperties.color = .Cell.titleTextColor.withAlphaComponent(isEnabled ? 1 : 0.8)
+        configuration.secondaryTextProperties.color = .Cell.detailTextColor.withAlphaComponent(0.8)
+        configuration.secondaryTextProperties.font = .systemFont(ofSize: 17)
+
+        applyMargins(to: &configuration, tableStyle: tableStyle)
+
         return configuration
     }
 
     /// Returns grouped header configured with default text attribute used in Mullvad UI.
-    static func mullvadGroupedHeader() -> UIListContentConfiguration {
+    static func mullvadGroupedHeader(tableStyle: UITableView.Style) -> UIListContentConfiguration {
         var configuration = groupedHeader()
-        configuration.textProperties.color = UIColor.TableSection.headerTextColor
-        configuration.textProperties.font = UIFont.systemFont(ofSize: 17)
+        configuration.textProperties.color = .TableSection.headerTextColor
+        configuration.textProperties.font = .systemFont(ofSize: 13)
+
+        applyMargins(to: &configuration, tableStyle: tableStyle)
+
         return configuration
     }
 
     /// Returns grouped footer configured with default text attribute used in Mullvad UI.
-    static func mullvadGroupedFooter() -> UIListContentConfiguration {
+    static func mullvadGroupedFooter(tableStyle: UITableView.Style) -> UIListContentConfiguration {
         var configuration = groupedFooter()
-        configuration.textProperties.color = UIColor.TableSection.footerTextColor
-        configuration.textProperties.font = UIFont.systemFont(ofSize: 14)
+        configuration.textProperties.color = .TableSection.footerTextColor
+        configuration.textProperties.font = .systemFont(ofSize: 13)
+
+        applyMargins(to: &configuration, tableStyle: tableStyle)
+
         return configuration
+    }
+
+    private static func applyMargins(
+        to configuration: inout UIListContentConfiguration,
+        tableStyle: UITableView.Style
+    ) {
+        configuration.axesPreservingSuperviewLayoutMargins = .vertical
+        configuration.directionalLayoutMargins = tableStyle.directionalLayoutMarginsForCell
     }
 }
 
@@ -50,11 +69,11 @@ extension UITableView.Style {
     var directionalLayoutMarginsForCell: NSDirectionalEdgeInsets {
         switch self {
         case .plain, .grouped:
-            UIMetrics.SettingsCell.layoutMargins
+            UIMetrics.SettingsCell.apiAccessLayoutMargins
         case .insetGrouped:
-            UIMetrics.SettingsCell.insetLayoutMargins
+            UIMetrics.SettingsCell.apiAccessInsetLayoutMargins
         @unknown default:
-            UIMetrics.SettingsCell.layoutMargins
+            UIMetrics.SettingsCell.apiAccessLayoutMargins
         }
     }
 }
