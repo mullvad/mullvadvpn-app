@@ -10,6 +10,7 @@ import { useBoolean, useStyledRef } from '../../lib/utilityHooks';
 import Accordion from '../Accordion';
 import * as Cell from '../cell';
 import { measurements } from '../common-styles';
+import { BackAction } from '../KeyboardNavigation';
 import SimpleInput from '../SimpleInput';
 import { StyledLocationRowIcon } from './LocationRow';
 import { useRelayListContext } from './RelayListContext';
@@ -169,35 +170,37 @@ function AddListForm(props: AddListFormProps) {
   }, [props.visible]);
 
   return (
-    <Accordion expanded={props.visible} onTransitionEnd={onTransitionEnd}>
-      <StyledCellContainer ref={containerRef}>
-        <StyledInputContainer>
-          <StyledInput
-            ref={inputRef}
-            value={name}
-            onChangeValue={onChange}
-            onSubmitValue={createList}
-            onBlur={onBlur}
-            maxLength={30}
-            $error={error}
-            autoFocus
-          />
-        </StyledInputContainer>
+    <BackAction disabled={!props.visible} action={props.cancel}>
+      <Accordion expanded={props.visible} onTransitionEnd={onTransitionEnd}>
+        <StyledCellContainer ref={containerRef}>
+          <StyledInputContainer>
+            <StyledInput
+              ref={inputRef}
+              value={name}
+              onChangeValue={onChange}
+              onSubmitValue={createList}
+              onBlur={onBlur}
+              maxLength={30}
+              $error={error}
+              autoFocus
+            />
+          </StyledInputContainer>
 
-        <StyledAddListCellButton
-          $backgroundColor={colors.blue}
-          $backgroundColorHover={colors.blue80}
-          disabled={!nameValid}
-          onClick={createList}>
-          <StyledSideButtonIcon source="icon-check" tintColor={colors.white60} width={18} />
-        </StyledAddListCellButton>
-      </StyledCellContainer>
-      <Cell.CellFooter>
-        <Cell.CellFooterText>
-          {messages.pgettext('select-location-view', 'List names must be unique.')}
-        </Cell.CellFooterText>
-      </Cell.CellFooter>
-    </Accordion>
+          <StyledAddListCellButton
+            $backgroundColor={colors.blue}
+            $backgroundColorHover={colors.blue80}
+            disabled={!nameValid}
+            onClick={createList}>
+            <StyledSideButtonIcon source="icon-check" tintColor={colors.white60} width={18} />
+          </StyledAddListCellButton>
+        </StyledCellContainer>
+        <Cell.CellFooter>
+          <Cell.CellFooterText>
+            {messages.pgettext('select-location-view', 'List names must be unique.')}
+          </Cell.CellFooterText>
+        </Cell.CellFooter>
+      </Accordion>
+    </BackAction>
   );
 }
 
