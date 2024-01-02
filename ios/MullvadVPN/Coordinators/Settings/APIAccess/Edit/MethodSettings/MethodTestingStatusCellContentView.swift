@@ -1,5 +1,5 @@
 //
-//  AccessMethodActionSheetContentView.swift
+//  MethodTestingStatusContentCell.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 16/11/2023.
@@ -8,16 +8,11 @@
 
 import UIKit
 
-/// The sheet content view implementing a layout with an activity indicator or status indicator and primary text label, with detail label below.
-class AccessMethodActionSheetContentView: UIView {
-    var configuration = AccessMethodActionSheetContentConfiguration() {
-        didSet {
-            updateView()
-        }
-    }
-
+/// Content view presenting the access method testing progress.
+class MethodTestingStatusCellContentView: UIView, UIContentView {
     private let progressView = SpinnerActivityIndicatorView(style: .custom)
     private let progressContainer = UIView()
+    private let containerView = UIView()
 
     private let statusIndicator: UIView = {
         let view = UIView()
@@ -58,20 +53,40 @@ class AccessMethodActionSheetContentView: UIView {
         return stackView
     }()
 
-    private let containerView = UIView()
+    var configuration: UIContentConfiguration {
+        get {
+            actualConfiguration
+        }
+        set {
+            guard let newConfiguration = newValue as? MethodTestingStatusCellContentConfiguration else { return }
 
-    init() {
+            let previousConfiguration = actualConfiguration
+            actualConfiguration = newConfiguration
+
+            configureSubviews(previousConfiguration: previousConfiguration)
+        }
+    }
+
+    private var actualConfiguration: MethodTestingStatusCellContentConfiguration
+
+    func supports(_ configuration: UIContentConfiguration) -> Bool {
+        configuration is MethodTestingStatusCellContentConfiguration
+    }
+
+    init(configuration: MethodTestingStatusCellContentConfiguration) {
+        actualConfiguration = configuration
+
         super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 44))
 
-        setupView()
-        updateView()
+        addSubviews()
+        configureSubviews()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setupView() {
+    private func addSubviews() {
         NSLayoutConstraint.activate([
             progressView.widthAnchor.constraint(equalToConstant: 30),
             progressView.heightAnchor.constraint(equalToConstant: 30),
@@ -80,7 +95,7 @@ class AccessMethodActionSheetContentView: UIView {
             progressContainer.heightAnchor.constraint(equalToConstant: 20),
 
             statusIndicator.widthAnchor.constraint(equalToConstant: 20),
-            statusIndicator.heightAnchor.constraint(equalToConstant: 20),
+            statusIndicator.heightAnchor.constraint(equalToConstant: 20).withPriority(.defaultHigh),
         ])
 
         containerView.addConstrainedSubviews([horizontalStackView]) {
@@ -94,17 +109,16 @@ class AccessMethodActionSheetContentView: UIView {
         }
 
         addConstrainedSubviews([verticalStackView]) {
-            verticalStackView.pinEdgesToSuperview()
+            verticalStackView.pinEdgesToSuperviewMargins()
         }
     }
 
-    private func updateView() {
-        textLabel.text = configuration.status.text
-        detailLabel.text = configuration.detailText
-        statusIndicator.backgroundColor = configuration.status.statusColor
+    private func configureSubviews(previousConfiguration: MethodTestingStatusCellContentConfiguration? = nil) {
+        configureLayoutMargins()
 
-        // Hide detail label when empty to prevent extra margin between subviews in the stack.
-        detailLabel.isHidden = configuration.detailText?.isEmpty ?? true
+        textLabel.text = actualConfiguration.status.text
+        detailLabel.text = actualConfiguration.detailText
+        statusIndicator.backgroundColor = actualConfiguration.status.statusColor
 
         // Remove the first view in the horizontal stack which is either a status indicator or progress.
         horizontalStackView.arrangedSubviews.first.map { view in
@@ -113,7 +127,7 @@ class AccessMethodActionSheetContentView: UIView {
         }
 
         // Reconfigure the horizontal stack by adding the status indicator or progress first.
-        switch configuration.status {
+        switch actualConfiguration.status {
         case .reachable, .unreachable:
             horizontalStackView.insertArrangedSubview(statusIndicator, at: 0)
 
@@ -126,5 +140,9 @@ class AccessMethodActionSheetContentView: UIView {
         if textLabel.superview == nil {
             horizontalStackView.addArrangedSubview(textLabel)
         }
+    }
+
+    private func configureLayoutMargins() {
+        directionalLayoutMargins = actualConfiguration.directionalLayoutMargins
     }
 }

@@ -11,6 +11,8 @@ import UIKit
 
 /// Type responsible for handling cells in socks table view section.
 struct SocksSectionHandler {
+    private let authenticationInputMaxLength = 255
+
     let tableStyle: UITableView.Style
     let subject: CurrentValueSubject<AccessMethodViewModel, Never>
 
@@ -64,6 +66,7 @@ struct SocksSectionHandler {
     private func configureUsername(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         var contentConfiguration = TextCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
+        contentConfiguration.maxLength = authenticationInputMaxLength
         contentConfiguration.setPlaceholder(type: .required)
         contentConfiguration.inputText = subject.value.socks.username
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()
@@ -75,7 +78,8 @@ struct SocksSectionHandler {
     private func configurePassword(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         var contentConfiguration = TextCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
-        contentConfiguration.setPlaceholder(type: .optional)
+        contentConfiguration.maxLength = authenticationInputMaxLength
+        contentConfiguration.setPlaceholder(type: .required)
         contentConfiguration.inputText = subject.value.socks.password
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.socks.password)
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()

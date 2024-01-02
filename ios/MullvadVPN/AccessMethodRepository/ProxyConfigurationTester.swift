@@ -33,6 +33,7 @@ class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
     }
 
     func cancel() {
+        cancellable?.cancel()
         cancellable = nil
     }
 }
