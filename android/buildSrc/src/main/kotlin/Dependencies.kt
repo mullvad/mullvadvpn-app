@@ -65,6 +65,8 @@ object Dependencies {
             "androidx.compose.ui:ui-tooling-preview:${Versions.Compose.base}"
         const val uiToolingAndroidPreview =
             "androidx.compose.ui:ui-tooling-preview-android:${Versions.Compose.base}"
+        const val uiTestManifest =
+            "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
     }
 
     object Koin {
