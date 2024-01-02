@@ -18,6 +18,7 @@ object Versions {
         const val minSdkVersion = 26
         const val targetSdkVersion = 34
         const val volley = "1.2.1"
+        const val junit = "1.4.0"
     }
 
     object AndroidX {
@@ -41,7 +42,6 @@ object Versions {
         const val foundation = base
         const val material3 = "1.1.1"
         const val uiController = "0.30.1"
-        const val junit = "1.4.0"
     }
 
     object Plugin {

@@ -4,6 +4,7 @@ import java.util.Properties
 plugins {
     id(Dependencies.Plugin.androidTestId)
     id(Dependencies.Plugin.kotlinAndroidId)
+    id(Dependencies.Plugin.junit5) version Versions.Plugin.junit5
 }
 
 android {
@@ -14,6 +15,8 @@ android {
         minSdk = Versions.Android.minSdkVersion
         testApplicationId = "net.mullvad.mullvadvpn.test.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["runnerBuilder"] =
+            "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
 
         missingDimensionStrategy(FlavorDimensions.BILLING, Flavors.OSS)
@@ -65,11 +68,12 @@ android {
 
     packaging {
         resources {
-            pickFirsts += setOf(
-                // Fixes packaging error caused by: jetified-junit-*
-                "META-INF/LICENSE.md",
-                "META-INF/LICENSE-notice.md"
-            )
+            pickFirsts +=
+                setOf(
+                    // Fixes packaging error caused by: jetified-junit-*
+                    "META-INF/LICENSE.md",
+                    "META-INF/LICENSE-notice.md"
+                )
         }
     }
 }
@@ -94,6 +98,11 @@ dependencies {
     implementation(Dependencies.AndroidX.testUiAutomator)
     implementation(Dependencies.androidVolley)
     implementation(Dependencies.Kotlin.stdlib)
+
+    implementation(Dependencies.junitAndroidTestExtensions)
+    implementation(Dependencies.junitApi)
+    implementation(Dependencies.junitAndroidTestCore)
+    implementation(Dependencies.junitAndroidTestRunner)
 
     androidTestUtil(Dependencies.AndroidX.testOrchestrator)
 }
