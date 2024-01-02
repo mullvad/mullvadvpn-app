@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
-
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
