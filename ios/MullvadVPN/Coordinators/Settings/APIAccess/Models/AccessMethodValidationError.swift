@@ -15,7 +15,12 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         if fieldErrors.count > 1 {
-            "Multiple validation errors occurred."
+            NSLocalizedString(
+                "VALIDATION_ERRORS_MULTIPLE",
+                tableName: "APIAccess",
+                value: "Multiple validation errors occurred.",
+                comment: ""
+            )
         } else {
             fieldErrors.first?.localizedDescription
         }
@@ -26,7 +31,7 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
 struct AccessMethodFieldValidationError: LocalizedError, Equatable {
     /// Validated field.
     enum Field: String, CustomStringConvertible, Equatable {
-        case server, port, username
+        case name, server, port, username, password
 
         var description: String {
             rawValue
@@ -48,10 +53,7 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
         case emptyValue
 
         /// Failure to parse IP address.
-        case parseIPAddress
-
-        /// Failure to parse port value.
-        case parsePort
+        case invalidIPAddress
 
         /// Invalid port number, i.e zero.
         case invalidPort
@@ -67,17 +69,28 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
     let context: Context
 
     var errorDescription: String? {
-        var s = "The \(context) \(field) "
         switch kind {
         case .emptyValue:
-            s += "cannot be empty."
-        case .parseIPAddress:
-            s += "cannot be parsed as IP address."
-        case .parsePort:
-            s += "cannot be parsed as a port number."
+            NSLocalizedString(
+                "VALIDATION_ERRORS_EMPTY_FIELD",
+                tableName: "APIAccess",
+                value: "\(field) cannot be empty.",
+                comment: ""
+            )
+        case .invalidIPAddress:
+            NSLocalizedString(
+                "VALIDATION_ERRORS_INVALD ADDRESS",
+                tableName: "APIAccess",
+                value: "Please enter a valid IPv4 or IPv6 address.",
+                comment: ""
+            )
         case .invalidPort:
-            s += "contains invalid port number."
+            NSLocalizedString(
+                "VALIDATION_ERRORS_INVALID_PORT",
+                tableName: "APIAccess",
+                value: "Please enter a valid port.",
+                comment: ""
+            )
         }
-        return s
     }
 }

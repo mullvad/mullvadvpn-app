@@ -29,7 +29,7 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
 
     func start(animated: Bool) {
         let listController = ListAccessMethodViewController(
-            interactor: ListAccessMethodInteractor(repo: accessMethodRepository)
+            interactor: ListAccessMethodInteractor(repository: accessMethodRepository)
         )
         listController.delegate = self
         navigationController.pushViewController(listController, animated: animated)
@@ -72,21 +72,45 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
     }
 
     private func about() {
-        // swiftlint:disable line_length
-        let aboutMarkdown = """
-        **What is Lorem Ipsum?**
-        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
-        """
-        // swiftlint:enable line_length
-
-        let aboutController = AboutViewController(markdown: aboutMarkdown)
-        let aboutNavController = UINavigationController(rootViewController: aboutController)
-
-        aboutController.navigationItem.title = NSLocalizedString(
-            "ABOUT_API_ACCESS_NAV_TITLE",
-            value: "About API access",
+        let header = NSLocalizedString(
+            "ABOUT_API_ACCESS_HEADER",
+            value: "API access",
             comment: ""
         )
+        let preamble = NSLocalizedString(
+            "ABOUT_API_ACCESS_PREAMBLE",
+            value: "Manage default and setup custom methods to access the Mullvad API.",
+            comment: ""
+        )
+        let body = [
+            NSLocalizedString(
+                "ABOUT_API_ACCESS_BODY_1",
+                value: """
+                The app needs to communicate with a Mullvad API server to log you in, fetch server lists, \
+                and other critical operations.
+                """,
+                comment: ""
+            ),
+            NSLocalizedString(
+                "ABOUT_API_ACCESS_BODY_2",
+                value: """
+                On some networks, where various types of censorship are being used, the API servers might \
+                not be directly reachable.
+                """,
+                comment: ""
+            ),
+            NSLocalizedString(
+                "ABOUT_API_ACCESS_BODY_3",
+                value: """
+                This feature allows you to circumvent that censorship by adding custom ways to access the \
+                API via proxies and similar methods.
+                """,
+                comment: ""
+            ),
+        ]
+
+        let aboutController = AboutViewController(header: header, preamble: preamble, body: body)
+        let aboutNavController = UINavigationController(rootViewController: aboutController)
 
         aboutController.navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .done,

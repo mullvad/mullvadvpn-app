@@ -58,7 +58,6 @@
 		581DA2762A1E2FD10046ED47 /* WgKeyRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */; };
 		581DFAEA2B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DFAE92B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift */; };
 		581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DFAEB2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift */; };
-		581DFAEE2B178DEA005D6D1C /* AccessMethodValidationError+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581DFAED2B178DEA005D6D1C /* AccessMethodValidationError+Helpers.swift */; };
 		581F23AD2A8CF92100788AB6 /* DefaultPathObserverFake.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581F23AC2A8CF92100788AB6 /* DefaultPathObserverFake.swift */; };
 		581F23AF2A8CF94D00788AB6 /* PingerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581F23AE2A8CF94D00788AB6 /* PingerMock.swift */; };
 		5820676426E771DB00655B05 /* TunnelManagerErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820676326E771DB00655B05 /* TunnelManagerErrors.swift */; };
@@ -69,18 +68,13 @@
 		582403822A827E1500163DE8 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582403812A827E1500163DE8 /* RelaySelectorWrapper.swift */; };
 		5826B6CB2ABD83E200B1CA13 /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
 		5827B0902B0CAA0500CCBBA1 /* EditAccessMethodCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B08F2B0CAA0500CCBBA1 /* EditAccessMethodCoordinator.swift */; };
-		5827B0922B0CAB2800CCBBA1 /* ProxyConfigurationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0912B0CAB2800CCBBA1 /* ProxyConfigurationViewController.swift */; };
-		5827B0942B0CACC700CCBBA1 /* ProxyConfigurationSectionIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0932B0CACC700CCBBA1 /* ProxyConfigurationSectionIdentifier.swift */; };
-		5827B0962B0DB2C100CCBBA1 /* ProxyConfigurationItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0952B0DB2C100CCBBA1 /* ProxyConfigurationItemIdentifier.swift */; };
-		5827B09B2B0DEEF800CCBBA1 /* AccessMethodActionSheetPresentationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B09A2B0DEEF800CCBBA1 /* AccessMethodActionSheetPresentationDelegate.swift */; };
-		5827B09D2B0DEF1000CCBBA1 /* AccessMethodActionSheetDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B09C2B0DEF1000CCBBA1 /* AccessMethodActionSheetDelegate.swift */; };
-		5827B09F2B0E05E600CCBBA1 /* AddAccessMethodInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B09E2B0E05E600CCBBA1 /* AddAccessMethodInteractor.swift */; };
+		5827B0922B0CAB2800CCBBA1 /* MethodSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0912B0CAB2800CCBBA1 /* MethodSettingsViewController.swift */; };
+		5827B0962B0DB2C100CCBBA1 /* MethodSettingsItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0952B0DB2C100CCBBA1 /* MethodSettingsItemIdentifier.swift */; };
 		5827B0A42B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0A32B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift */; };
 		5827B0A62B0F39E900CCBBA1 /* EditAccessMethodInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0A52B0F39E900CCBBA1 /* EditAccessMethodInteractor.swift */; };
 		5827B0A82B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0A72B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift */; };
 		5827B0AA2B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0A92B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift */; };
-		5827B0AC2B0F4CA500CCBBA1 /* AddAccessMethodViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0AB2B0F4CA500CCBBA1 /* AddAccessMethodViewControllerDelegate.swift */; };
-		5827B0AE2B0F4CBE00CCBBA1 /* ProxyConfigurationViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0AD2B0F4CBE00CCBBA1 /* ProxyConfigurationViewControllerDelegate.swift */; };
+		5827B0AE2B0F4CBE00CCBBA1 /* MethodSettingsViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0AD2B0F4CBE00CCBBA1 /* MethodSettingsViewControllerDelegate.swift */; };
 		5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0AF2B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift */; };
 		5827B0B92B14A1C700CCBBA1 /* MethodTestingStatusCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0B82B14A1C700CCBBA1 /* MethodTestingStatusCellContentConfiguration.swift */; };
 		5827B0BB2B14A28300CCBBA1 /* MethodTestingStatusCellContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0BA2B14A28300CCBBA1 /* MethodTestingStatusCellContentView.swift */; };
@@ -149,7 +143,6 @@
 		586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB122488ED2100095626 /* AlertPresenter.swift */; };
 		586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226426E0D9630035F7C2 /* ProductsRequestOperation.swift */; };
 		586A950F29012BEE007BAF2B /* AddressCacheTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheTracker.swift */; };
-		586C0D762B03934000E7CDD7 /* AddAccessMethodInteractorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D752B03934000E7CDD7 /* AddAccessMethodInteractorProtocol.swift */; };
 		586C0D782B039CC000E7CDD7 /* AccessMethodProtocolPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D772B039CC000E7CDD7 /* AccessMethodProtocolPicker.swift */; };
 		586C0D7A2B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D792B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift */; };
 		586C0D7C2B03BDD100E7CDD7 /* AccessMethodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D7B2B03BDD100E7CDD7 /* AccessMethodViewModel.swift */; };
@@ -158,16 +151,11 @@
 		586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D842B03D31E00E7CDD7 /* SocksSectionHandler.swift */; };
 		586C0D872B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D862B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift */; };
 		586C0D892B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D882B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift */; };
-		586C0D8B2B03D84400E7CDD7 /* AddAccessMethodItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D8A2B03D84400E7CDD7 /* AddAccessMethodItemIdentifier.swift */; };
-		586C0D8D2B03D86F00E7CDD7 /* AddAccessMethodSectionIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D8C2B03D86F00E7CDD7 /* AddAccessMethodSectionIdentifier.swift */; };
 		586C0D8F2B03D88100E7CDD7 /* ProxyProtocolConfigurationItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D8E2B03D88100E7CDD7 /* ProxyProtocolConfigurationItemIdentifier.swift */; };
 		586C0D912B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D902B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift */; };
 		586C0D932B03D90700E7CDD7 /* ShadowsocksItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D922B03D90700E7CDD7 /* ShadowsocksItemIdentifier.swift */; };
 		586C0D952B03D92100E7CDD7 /* SocksItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D942B03D92100E7CDD7 /* SocksItemIdentifier.swift */; };
 		586C0D992B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D982B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift */; };
-		586C0D9B2B051E6900E7CDD7 /* AccessMethodActionSheetContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D9A2B051E6900E7CDD7 /* AccessMethodActionSheetContainerView.swift */; };
-		586C0D9D2B05F62B00E7CDD7 /* AccessMethodActionSheetContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D9C2B05F62B00E7CDD7 /* AccessMethodActionSheetContentView.swift */; };
-		586C0DA22B062B2900E7CDD7 /* AccessMethodActionSheetPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0DA12B062B2900E7CDD7 /* AccessMethodActionSheetPresentation.swift */; };
 		586C14582AC463BB00245C01 /* CommandChannelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C14572AC463BB00245C01 /* CommandChannelTests.swift */; };
 		586C145A2AC4735F00245C01 /* PacketTunnelActor+Public.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C14592AC4735F00245C01 /* PacketTunnelActor+Public.swift */; };
 		586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */; };
@@ -415,16 +403,11 @@
 		58EE2E3B272FF814003BFF93 /* SettingsDataSourceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */; };
 		58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */; };
 		58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF581025D69DB400AEBA94 /* StatusImageView.swift */; };
-		58EF874F2B16174A00C098B2 /* AccessMethodActionSheetPresentationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF874E2B16174A00C098B2 /* AccessMethodActionSheetPresentationConfiguration.swift */; };
-		58EF87512B16176300C098B2 /* AccessMethodActionSheetContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF87502B16176300C098B2 /* AccessMethodActionSheetContentConfiguration.swift */; };
-		58EF87532B161D7C00C098B2 /* AccessMethodActionSheetConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF87522B161D7C00C098B2 /* AccessMethodActionSheetConfiguration.swift */; };
-		58EF87552B16282D00C098B2 /* AccessMethodActionSheetPresentationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF87542B16282D00C098B2 /* AccessMethodActionSheetPresentationView.swift */; };
 		58EF87572B16330B00C098B2 /* ProxyConfigurationTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF87562B16330B00C098B2 /* ProxyConfigurationTester.swift */; };
 		58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF875C2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift */; };
 		58EFC76A2AFAC3B800E9F4CB /* ListAccessMethodHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EFC7692AFAC3B800E9F4CB /* ListAccessMethodHeaderView.swift */; };
 		58EFC76E2AFB3BDA00E9F4CB /* ListAccessMethodCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EFC76D2AFB3BDA00E9F4CB /* ListAccessMethodCoordinator.swift */; };
 		58EFC7712AFB45E500E9F4CB /* SettingsChildCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EFC7702AFB45E500E9F4CB /* SettingsChildCoordinator.swift */; };
-		58EFC7732AFB471500E9F4CB /* AddAccessMethodViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EFC7722AFB471500E9F4CB /* AddAccessMethodViewController.swift */; };
 		58EFC7752AFB4CEF00E9F4CB /* AboutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EFC7742AFB4CEF00E9F4CB /* AboutViewController.swift */; };
 		58F0974E2A20C31100DA2DAD /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58F0974D2A20C31100DA2DAD /* WireGuardKitTypes */; };
 		58F0974F2A20C31100DA2DAD /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 58F0974D2A20C31100DA2DAD /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -505,6 +488,16 @@
 		7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A42DEC82A05164100B209BE /* SettingsInputCell.swift */; };
 		7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869942B32E9C700640D27 /* LinkButton.swift */; };
 		7A5869972B32EA4500640D27 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869962B32EA4500640D27 /* AppButton.swift */; };
+		7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */; };
+		7A58699F2B50057100640D27 /* AccessMethodKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A58699D2B50057100640D27 /* AccessMethodKind.swift */; };
+		7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869A12B502EA700640D27 /* MethodSettingsSectionIdentifier.swift */; };
+		7A5869A62B51405900640D27 /* MethodSettingsValidationErrorContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869A52B51405900640D27 /* MethodSettingsValidationErrorContentConfiguration.swift */; };
+		7A5869A82B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869A72B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift */; };
+		7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C42B5A899C00640D27 /* MethodSettingsCellConfiguration.swift */; };
+		7A5869C72B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */; };
+		7A6000F62B60092F001CF0D9 /* AccessMethodViewModelEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */; };
+		7A6000F72B61061F001CF0D9 /* ShadowsocksSectionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D822B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift */; };
+		7A6000F82B6109B8001CF0D9 /* ShadowsocksItemIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D922B03D90700E7CDD7 /* ShadowsocksItemIdentifier.swift */; };
 		7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */; };
 		7A6F2FA52AFA3CB2006D0856 /* AccountExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */; };
 		7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
@@ -772,7 +765,6 @@
 		F0C6FA852A6A733700F521F0 /* InAppPurchaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */; };
 		F0D7FF8F2B31DF5900E0FDE5 /* AccessMethodRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5827B0A02B0E064E00CCBBA1 /* AccessMethodRepository.swift */; };
 		F0D7FF902B31E00B00E0FDE5 /* AccessMethodKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */; };
-		F0D7FF922B31E05D00E0FDE5 /* AccessMethodKind+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D7FF912B31E05D00E0FDE5 /* AccessMethodKind+Extension.swift */; };
 		F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D8825A2B04F53600D3EF9A /* OutgoingConnectionData.swift */; };
 		F0D8825C2B04F70E00D3EF9A /* OutgoingConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0D8825A2B04F53600D3EF9A /* OutgoingConnectionData.swift */; };
 		F0DA87472A9CB9A2006044F1 /* AccountExpiryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */; };
@@ -1258,7 +1250,6 @@
 		581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WgKeyRotation.swift; sourceTree = "<group>"; };
 		581DFAE92B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistentProxyConfiguration+ViewModel.swift"; sourceTree = "<group>"; };
 		581DFAEB2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessMethodViewModel+NavigationItem.swift"; sourceTree = "<group>"; };
-		581DFAED2B178DEA005D6D1C /* AccessMethodValidationError+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessMethodValidationError+Helpers.swift"; sourceTree = "<group>"; };
 		581F23AC2A8CF92100788AB6 /* DefaultPathObserverFake.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultPathObserverFake.swift; sourceTree = "<group>"; };
 		581F23AE2A8CF94D00788AB6 /* PingerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingerMock.swift; sourceTree = "<group>"; };
 		5820675A26E6576800655B05 /* RelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCache.swift; sourceTree = "<group>"; };
@@ -1275,19 +1266,14 @@
 		5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorProtocol.swift; sourceTree = "<group>"; };
 		582403812A827E1500163DE8 /* RelaySelectorWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapper.swift; sourceTree = "<group>"; };
 		5827B08F2B0CAA0500CCBBA1 /* EditAccessMethodCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccessMethodCoordinator.swift; sourceTree = "<group>"; };
-		5827B0912B0CAB2800CCBBA1 /* ProxyConfigurationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigurationViewController.swift; sourceTree = "<group>"; };
-		5827B0932B0CACC700CCBBA1 /* ProxyConfigurationSectionIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ProxyConfigurationSectionIdentifier.swift; path = ../ProxyConfigurationSectionIdentifier.swift; sourceTree = "<group>"; };
-		5827B0952B0DB2C100CCBBA1 /* ProxyConfigurationItemIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigurationItemIdentifier.swift; sourceTree = "<group>"; };
-		5827B09A2B0DEEF800CCBBA1 /* AccessMethodActionSheetPresentationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetPresentationDelegate.swift; sourceTree = "<group>"; };
-		5827B09C2B0DEF1000CCBBA1 /* AccessMethodActionSheetDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetDelegate.swift; sourceTree = "<group>"; };
-		5827B09E2B0E05E600CCBBA1 /* AddAccessMethodInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccessMethodInteractor.swift; sourceTree = "<group>"; };
+		5827B0912B0CAB2800CCBBA1 /* MethodSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsViewController.swift; sourceTree = "<group>"; };
+		5827B0952B0DB2C100CCBBA1 /* MethodSettingsItemIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsItemIdentifier.swift; sourceTree = "<group>"; };
 		5827B0A02B0E064E00CCBBA1 /* AccessMethodRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodRepository.swift; sourceTree = "<group>"; };
 		5827B0A32B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccessMethodInteractorProtocol.swift; sourceTree = "<group>"; };
 		5827B0A52B0F39E900CCBBA1 /* EditAccessMethodInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccessMethodInteractor.swift; sourceTree = "<group>"; };
 		5827B0A72B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigurationInteractorProtocol.swift; sourceTree = "<group>"; };
 		5827B0A92B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditAccessMethodViewControllerDelegate.swift; sourceTree = "<group>"; };
-		5827B0AB2B0F4CA500CCBBA1 /* AddAccessMethodViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccessMethodViewControllerDelegate.swift; sourceTree = "<group>"; };
-		5827B0AD2B0F4CBE00CCBBA1 /* ProxyConfigurationViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigurationViewControllerDelegate.swift; sourceTree = "<group>"; };
+		5827B0AD2B0F4CBE00CCBBA1 /* MethodSettingsViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsViewControllerDelegate.swift; sourceTree = "<group>"; };
 		5827B0AF2B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodViewControllerDelegate.swift; sourceTree = "<group>"; };
 		5827B0B82B14A1C700CCBBA1 /* MethodTestingStatusCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodTestingStatusCellContentConfiguration.swift; sourceTree = "<group>"; };
 		5827B0BA2B14A28300CCBBA1 /* MethodTestingStatusCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodTestingStatusCellContentView.swift; sourceTree = "<group>"; };
@@ -1370,7 +1356,6 @@
 		58695A9F2A4ADA9200328DB3 /* TunnelObfuscationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationTests.swift; sourceTree = "<group>"; };
 		586A95112901321B007BAF2B /* IPv6Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv6Endpoint.swift; sourceTree = "<group>"; };
 		586A951329013235007BAF2B /* AnyIPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPEndpoint.swift; sourceTree = "<group>"; };
-		586C0D752B03934000E7CDD7 /* AddAccessMethodInteractorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccessMethodInteractorProtocol.swift; sourceTree = "<group>"; };
 		586C0D772B039CC000E7CDD7 /* AccessMethodProtocolPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodProtocolPicker.swift; sourceTree = "<group>"; };
 		586C0D792B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksCipherPicker.swift; sourceTree = "<group>"; };
 		586C0D7B2B03BDD100E7CDD7 /* AccessMethodViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodViewModel.swift; sourceTree = "<group>"; };
@@ -1379,17 +1364,12 @@
 		586C0D842B03D31E00E7CDD7 /* SocksSectionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocksSectionHandler.swift; sourceTree = "<group>"; };
 		586C0D862B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodCellReuseIdentifier.swift; sourceTree = "<group>"; };
 		586C0D882B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TextCellContentConfiguration+Extensions.swift"; sourceTree = "<group>"; };
-		586C0D8A2B03D84400E7CDD7 /* AddAccessMethodItemIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccessMethodItemIdentifier.swift; sourceTree = "<group>"; };
-		586C0D8C2B03D86F00E7CDD7 /* AddAccessMethodSectionIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccessMethodSectionIdentifier.swift; sourceTree = "<group>"; };
 		586C0D8E2B03D88100E7CDD7 /* ProxyProtocolConfigurationItemIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyProtocolConfigurationItemIdentifier.swift; sourceTree = "<group>"; };
 		586C0D902B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodHeaderFooterReuseIdentifier.swift; sourceTree = "<group>"; };
 		586C0D922B03D90700E7CDD7 /* ShadowsocksItemIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksItemIdentifier.swift; sourceTree = "<group>"; };
 		586C0D942B03D92100E7CDD7 /* SocksItemIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocksItemIdentifier.swift; sourceTree = "<group>"; };
 		586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentAccessMethod.swift; sourceTree = "<group>"; };
 		586C0D982B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessMethodViewModel+Persistent.swift"; sourceTree = "<group>"; };
-		586C0D9A2B051E6900E7CDD7 /* AccessMethodActionSheetContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetContainerView.swift; sourceTree = "<group>"; };
-		586C0D9C2B05F62B00E7CDD7 /* AccessMethodActionSheetContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetContentView.swift; sourceTree = "<group>"; };
-		586C0DA12B062B2900E7CDD7 /* AccessMethodActionSheetPresentation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetPresentation.swift; sourceTree = "<group>"; };
 		586C14572AC463BB00245C01 /* CommandChannelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandChannelTests.swift; sourceTree = "<group>"; };
 		586C14592AC4735F00245C01 /* PacketTunnelActor+Public.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PacketTunnelActor+Public.swift"; sourceTree = "<group>"; };
 		586E54FA27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTunnelProviderMessageOperation.swift; sourceTree = "<group>"; };
@@ -1588,17 +1568,12 @@
 		58EE2E39272FF814003BFF93 /* SettingsDataSourceDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsDataSourceDelegate.swift; sourceTree = "<group>"; };
 		58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportSubmissionOverlayView.swift; sourceTree = "<group>"; };
 		58EF581025D69DB400AEBA94 /* StatusImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusImageView.swift; sourceTree = "<group>"; };
-		58EF874E2B16174A00C098B2 /* AccessMethodActionSheetPresentationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetPresentationConfiguration.swift; sourceTree = "<group>"; };
-		58EF87502B16176300C098B2 /* AccessMethodActionSheetContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetContentConfiguration.swift; sourceTree = "<group>"; };
-		58EF87522B161D7C00C098B2 /* AccessMethodActionSheetConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetConfiguration.swift; sourceTree = "<group>"; };
-		58EF87542B16282D00C098B2 /* AccessMethodActionSheetPresentationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodActionSheetPresentationView.swift; sourceTree = "<group>"; };
 		58EF87562B16330B00C098B2 /* ProxyConfigurationTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigurationTester.swift; sourceTree = "<group>"; };
 		58EF875A2B16385400C098B2 /* AccessMethodRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodRepositoryProtocol.swift; sourceTree = "<group>"; };
 		58EF875C2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxyConfigurationTesterProtocol.swift; sourceTree = "<group>"; };
 		58EFC7692AFAC3B800E9F4CB /* ListAccessMethodHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodHeaderView.swift; sourceTree = "<group>"; };
 		58EFC76D2AFB3BDA00E9F4CB /* ListAccessMethodCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessMethodCoordinator.swift; sourceTree = "<group>"; };
 		58EFC7702AFB45E500E9F4CB /* SettingsChildCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsChildCoordinator.swift; sourceTree = "<group>"; };
-		58EFC7722AFB471500E9F4CB /* AddAccessMethodViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccessMethodViewController.swift; sourceTree = "<group>"; };
 		58EFC7742AFB4CEF00E9F4CB /* AboutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewController.swift; sourceTree = "<group>"; };
 		58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Result+Extensions.swift"; sourceTree = "<group>"; };
 		58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerActivityIndicatorView.swift; sourceTree = "<group>"; };
@@ -1643,7 +1618,6 @@
 		58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodValidationError.swift; sourceTree = "<group>"; };
 		7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNScreenshots.xctestplan; sourceTree = "<group>"; };
 		7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+FuzzyMatch.swift"; sourceTree = "<group>"; };
-		7A0B31152B2B4BE7004B12E0 /* AccessbilityIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessbilityIdentifier.swift; sourceTree = "<group>"; };
 		7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessbilityIdentifier.swift; sourceTree = "<group>"; };
 		7A0C0F622A979C4A0058EFCE /* Coordinator+Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Coordinator+Router.swift"; sourceTree = "<group>"; };
 		7A12D0752B062D5C00E9602D /* URLSessionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionProtocol.swift; sourceTree = "<group>"; };
@@ -1665,6 +1639,14 @@
 		7A42DEC82A05164100B209BE /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		7A5869942B32E9C700640D27 /* LinkButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkButton.swift; sourceTree = "<group>"; };
 		7A5869962B32EA4500640D27 /* AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppButton.swift; sourceTree = "<group>"; };
+		7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+Disable.swift"; sourceTree = "<group>"; };
+		7A58699D2B50057100640D27 /* AccessMethodKind.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessMethodKind.swift; sourceTree = "<group>"; };
+		7A5869A12B502EA700640D27 /* MethodSettingsSectionIdentifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MethodSettingsSectionIdentifier.swift; sourceTree = "<group>"; };
+		7A5869A52B51405900640D27 /* MethodSettingsValidationErrorContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsValidationErrorContentConfiguration.swift; sourceTree = "<group>"; };
+		7A5869A72B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsValidationErrorContentView.swift; sourceTree = "<group>"; };
+		7A5869C42B5A899C00640D27 /* MethodSettingsCellConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsCellConfiguration.swift; sourceTree = "<group>"; };
+		7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsDataSourceConfiguration.swift; sourceTree = "<group>"; };
+		7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodViewModelEditing.swift; sourceTree = "<group>"; };
 		7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorTimings.swift; sourceTree = "<group>"; };
 		7A6F2FA42AFA3CB2006D0856 /* AccountExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryTests.swift; sourceTree = "<group>"; };
 		7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
@@ -1822,7 +1804,6 @@
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
 		F0C6A8422AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewConfiguration.swift; sourceTree = "<group>"; };
 		F0C6FA842A6A733700F521F0 /* InAppPurchaseInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseInteractor.swift; sourceTree = "<group>"; };
-		F0D7FF912B31E05D00E0FDE5 /* AccessMethodKind+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessMethodKind+Extension.swift"; sourceTree = "<group>"; };
 		F0D8825A2B04F53600D3EF9A /* OutgoingConnectionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionData.swift; sourceTree = "<group>"; };
 		F0DA87462A9CB9A2006044F1 /* AccountExpiryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryRow.swift; sourceTree = "<group>"; };
 		F0DA87482A9CBA9F006044F1 /* AccountDeviceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeviceRow.swift; sourceTree = "<group>"; };
@@ -2060,7 +2041,6 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
-				7A0B31152B2B4BE7004B12E0 /* AccessbilityIdentifier.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
@@ -2090,29 +2070,6 @@
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
 			);
 			path = MullvadTypes;
-			sourceTree = "<group>";
-		};
-		581DFAEF2B187606005D6D1C /* Presentation */ = {
-			isa = PBXGroup;
-			children = (
-				586C0DA12B062B2900E7CDD7 /* AccessMethodActionSheetPresentation.swift */,
-				58EF874E2B16174A00C098B2 /* AccessMethodActionSheetPresentationConfiguration.swift */,
-				5827B09A2B0DEEF800CCBBA1 /* AccessMethodActionSheetPresentationDelegate.swift */,
-				58EF87542B16282D00C098B2 /* AccessMethodActionSheetPresentationView.swift */,
-			);
-			path = Presentation;
-			sourceTree = "<group>";
-		};
-		581DFAF02B187620005D6D1C /* Content view */ = {
-			isa = PBXGroup;
-			children = (
-				58EF87522B161D7C00C098B2 /* AccessMethodActionSheetConfiguration.swift */,
-				586C0D9A2B051E6900E7CDD7 /* AccessMethodActionSheetContainerView.swift */,
-				58EF87502B16176300C098B2 /* AccessMethodActionSheetContentConfiguration.swift */,
-				586C0D9C2B05F62B00E7CDD7 /* AccessMethodActionSheetContentView.swift */,
-				5827B09C2B0DEF1000CCBBA1 /* AccessMethodActionSheetDelegate.swift */,
-			);
-			path = "Content view";
 			sourceTree = "<group>";
 		};
 		5823FA5726CE4A4100283BF8 /* TunnelManager */ = {
@@ -2161,6 +2118,7 @@
 			children = (
 				586C0D862B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift */,
 				586C0D902B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift */,
+				7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */,
 				586C0D8E2B03D88100E7CDD7 /* ProxyProtocolConfigurationItemIdentifier.swift */,
 				586C0D922B03D90700E7CDD7 /* ShadowsocksItemIdentifier.swift */,
 				586C0D822B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift */,
@@ -2170,15 +2128,21 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
-		5827B0992B0DC0CA00CCBBA1 /* ProxyConfiguration */ = {
+		5827B0992B0DC0CA00CCBBA1 /* MethodSettings */ = {
 			isa = PBXGroup;
 			children = (
-				5827B0952B0DB2C100CCBBA1 /* ProxyConfigurationItemIdentifier.swift */,
-				5827B0932B0CACC700CCBBA1 /* ProxyConfigurationSectionIdentifier.swift */,
-				5827B0912B0CAB2800CCBBA1 /* ProxyConfigurationViewController.swift */,
-				5827B0AD2B0F4CBE00CCBBA1 /* ProxyConfigurationViewControllerDelegate.swift */,
+				7A5869C42B5A899C00640D27 /* MethodSettingsCellConfiguration.swift */,
+				7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */,
+				5827B0952B0DB2C100CCBBA1 /* MethodSettingsItemIdentifier.swift */,
+				7A5869A12B502EA700640D27 /* MethodSettingsSectionIdentifier.swift */,
+				7A5869A52B51405900640D27 /* MethodSettingsValidationErrorContentConfiguration.swift */,
+				7A5869A72B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift */,
+				5827B0912B0CAB2800CCBBA1 /* MethodSettingsViewController.swift */,
+				5827B0AD2B0F4CBE00CCBBA1 /* MethodSettingsViewControllerDelegate.swift */,
+				5827B0B82B14A1C700CCBBA1 /* MethodTestingStatusCellContentConfiguration.swift */,
+				5827B0BA2B14A28300CCBBA1 /* MethodTestingStatusCellContentView.swift */,
 			);
-			path = ProxyConfiguration;
+			path = MethodSettings;
 			sourceTree = "<group>";
 		};
 		5827B0A22B0E068800CCBBA1 /* AccessMethodRepository */ = {
@@ -2409,6 +2373,7 @@
 				7A0C0F622A979C4A0058EFCE /* Coordinator+Router.swift */,
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
 				58DFF7CF2B02560400F864E0 /* NSAttributedString+Markdown.swift */,
+				5827B0C42B14D3E800CCBBA1 /* NSDiffableDataSourceSnapshot+Reconfigure.swift */,
 				587D9675288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift */,
 				5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */,
 				06FAE67828F83CA50033DD93 /* RESTCreateApplePaymentResponse+Localization.swift */,
@@ -2425,9 +2390,9 @@
 				7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */,
 				58CEB2FA2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift */,
 				58CEB2FC2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift */,
+				7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */,
 				7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */,
 				5878F4FF29CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift */,
-				5827B0C42B14D3E800CCBBA1 /* NSDiffableDataSourceSnapshot+Reconfigure.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2611,9 +2576,8 @@
 		586C0D7D2B03BDE500E7CDD7 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				F0D7FF912B31E05D00E0FDE5 /* AccessMethodKind+Extension.swift */,
+				7A58699D2B50057100640D27 /* AccessMethodKind.swift */,
 				58FF9FF32B07C61B00E4C97D /* AccessMethodValidationError.swift */,
-				581DFAED2B178DEA005D6D1C /* AccessMethodValidationError+Helpers.swift */,
 				586C0D7B2B03BDD100E7CDD7 /* AccessMethodViewModel.swift */,
 				581DFAEB2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift */,
 				586C0D982B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift */,
@@ -2632,8 +2596,6 @@
 				58FF9FE92B07653800E4C97D /* ButtonCellContentView.swift */,
 				58CEB3092AFD584700E6E088 /* CustomCellDisclosureHandling.swift */,
 				58CEB30B2AFD586600E6E088 /* DynamicBackgroundConfiguration.swift */,
-				5827B0B82B14A1C700CCBBA1 /* MethodTestingStatusCellContentConfiguration.swift */,
-				5827B0BA2B14A28300CCBBA1 /* MethodTestingStatusCellContentView.swift */,
 				58CEB3012AFD365600E6E088 /* SwitchCellContentConfiguration.swift */,
 				58CEB3032AFD36CE00E6E088 /* SwitchCellContentView.swift */,
 				58CEB2F42AFD0BB500E6E088 /* TextCellContentConfiguration.swift */,
@@ -2641,15 +2603,6 @@
 				58CEB2F22AFD0BA100E6E088 /* TextCellContentView.swift */,
 			);
 			path = Cells;
-			sourceTree = "<group>";
-		};
-		586C0DA02B05FAF200E7CDD7 /* Sheet */ = {
-			isa = PBXGroup;
-			children = (
-				581DFAF02B187620005D6D1C /* Content view */,
-				581DFAEF2B187606005D6D1C /* Presentation */,
-			);
-			path = Sheet;
 			sourceTree = "<group>";
 		};
 		587B75422669034500DEF7E9 /* Notification Providers */ = {
@@ -3036,7 +2989,6 @@
 				586C0D7D2B03BDE500E7CDD7 /* Models */,
 				5827B0972B0DBF3400CCBBA1 /* Pickers */,
 				5827B0BE2B14B37D00CCBBA1 /* Publisher+PreviousValue.swift */,
-				586C0DA02B05FAF200E7CDD7 /* Sheet */,
 			);
 			path = APIAccess;
 			sourceTree = "<group>";
@@ -3059,12 +3011,6 @@
 			isa = PBXGroup;
 			children = (
 				58CEB2E82AFBBA4A00E6E088 /* AddAccessMethodCoordinator.swift */,
-				5827B09E2B0E05E600CCBBA1 /* AddAccessMethodInteractor.swift */,
-				586C0D752B03934000E7CDD7 /* AddAccessMethodInteractorProtocol.swift */,
-				586C0D8A2B03D84400E7CDD7 /* AddAccessMethodItemIdentifier.swift */,
-				586C0D8C2B03D86F00E7CDD7 /* AddAccessMethodSectionIdentifier.swift */,
-				58EFC7722AFB471500E9F4CB /* AddAccessMethodViewController.swift */,
-				5827B0AB2B0F4CA500CCBBA1 /* AddAccessMethodViewControllerDelegate.swift */,
 			);
 			path = Add;
 			sourceTree = "<group>";
@@ -3253,7 +3199,7 @@
 				58FF9FE12B075BA600E4C97D /* EditAccessMethodSectionIdentifier.swift */,
 				58FF9FDF2B075ABC00E4C97D /* EditAccessMethodViewController.swift */,
 				5827B0A92B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift */,
-				5827B0992B0DC0CA00CCBBA1 /* ProxyConfiguration */,
+				5827B0992B0DC0CA00CCBBA1 /* MethodSettings */,
 				5827B0A72B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift */,
 			);
 			path = Edit;
@@ -4534,6 +4480,7 @@
 				A9A5FA0A2ACB05160083449F /* StorePaymentEvent.swift in Sources */,
 				A9A5FA0B2ACB05160083449F /* StorePaymentManager.swift in Sources */,
 				A9A5FA0C2ACB05160083449F /* StorePaymentManagerDelegate.swift in Sources */,
+				7A6000F72B61061F001CF0D9 /* ShadowsocksSectionHandler.swift in Sources */,
 				A9A5FA0D2ACB05160083449F /* StorePaymentManagerError.swift in Sources */,
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
 				A9A5FA0F2ACB05160083449F /* StoreSubscription.swift in Sources */,
@@ -4582,6 +4529,7 @@
 				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
 				A9A5FA312ACB05160083449F /* MockFileCache.swift in Sources */,
 				A9A5FA322ACB05160083449F /* RelayCacheTests.swift in Sources */,
+				7A6000F82B6109B8001CF0D9 /* ShadowsocksItemIdentifier.swift in Sources */,
 				A9A5FA332ACB05160083449F /* RelaySelectorTests.swift in Sources */,
 				58DFF7D32B02570000F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				A9A5FA342ACB05160083449F /* StringTests.swift in Sources */,
@@ -4719,7 +4667,6 @@
 				587B75412668FD7800DEF7E9 /* AccountExpirySystemNotificationProvider.swift in Sources */,
 				587988C728A2A01F00E3DF54 /* AccountDataThrottling.swift in Sources */,
 				F04FBE612A8379EE009278D7 /* AppPreferences.swift in Sources */,
-				586C0DA22B062B2900E7CDD7 /* AccessMethodActionSheetPresentation.swift in Sources */,
 				58DFF7D82B02774C00F864E0 /* ListItemPickerViewController.swift in Sources */,
 				5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */,
 				7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */,
@@ -4728,6 +4675,7 @@
 				7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */,
 				58FF9FE22B075BA600E4C97D /* EditAccessMethodSectionIdentifier.swift in Sources */,
 				F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */,
+				7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */,
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,
 				587D96742886D87C00CD8F1C /* DeviceManagementContentView.swift in Sources */,
 				7A11DD0B2A9495D400098CD8 /* AppRoutes.swift in Sources */,
@@ -4748,7 +4696,7 @@
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
 				7A9CCCB32A96302800DD6A34 /* WelcomeCoordinator.swift in Sources */,
 				587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */,
-				5827B0922B0CAB2800CCBBA1 /* ProxyConfigurationViewController.swift in Sources */,
+				5827B0922B0CAB2800CCBBA1 /* MethodSettingsViewController.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */,
 				7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */,
@@ -4781,11 +4729,9 @@
 				588D7ED62AF3903F005DF40A /* ListAccessMethodViewController.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
-				586C0D8D2B03D86F00E7CDD7 /* AddAccessMethodSectionIdentifier.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* PreferencesViewController.swift in Sources */,
 				7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */,
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
-				5827B0942B0CACC700CCBBA1 /* ProxyConfigurationSectionIdentifier.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
 				7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */,
 				0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */,
@@ -4800,14 +4746,12 @@
 				581DFAEC2B1770C1005D6D1C /* AccessMethodViewModel+NavigationItem.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				F0DA874B2A9CBACB006044F1 /* AccountNumberRow.swift in Sources */,
+				7A5869C72B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
-				5827B09D2B0DEF1000CCBBA1 /* AccessMethodActionSheetDelegate.swift in Sources */,
 				F0E8E4C52A60499100ED26A3 /* AccountDeletionViewController.swift in Sources */,
 				7A9CCCC12A96302800DD6A34 /* AccountCoordinator.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
-				F0D7FF922B31E05D00E0FDE5 /* AccessMethodKind+Extension.swift in Sources */,
-				58EF87532B161D7C00C098B2 /* AccessMethodActionSheetConfiguration.swift in Sources */,
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
 				F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
@@ -4838,9 +4782,7 @@
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				5864859929A0D028006C5743 /* FormsheetPresentationController.swift in Sources */,
 				58CEB3022AFD365600E6E088 /* SwitchCellContentConfiguration.swift in Sources */,
-				586C0D9D2B05F62B00E7CDD7 /* AccessMethodActionSheetContentView.swift in Sources */,
 				7A9CCCB52A96302800DD6A34 /* AddCreditSucceededCoordinator.swift in Sources */,
-				58EF87552B16282D00C098B2 /* AccessMethodActionSheetPresentationView.swift in Sources */,
 				7A0C0F632A979C4A0058EFCE /* Coordinator+Router.swift in Sources */,
 				7A6F2FAB2AFD3097006D0856 /* CustomDNSCellFactory.swift in Sources */,
 				58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */,
@@ -4853,6 +4795,7 @@
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
 				58CC40EF24A601900019D96E /* ObserverList.swift in Sources */,
+				7A58699F2B50057100640D27 /* AccessMethodKind.swift in Sources */,
 				7A33538F2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift in Sources */,
 				7A1A26432A2612AE00B978AA /* PaymentAlertPresenter.swift in Sources */,
 				7A9CCCBB2A96302800DD6A34 /* InAppPurchaseCoordinator.swift in Sources */,
@@ -4860,17 +4803,16 @@
 				5871FBA0254C26C00051A0A4 /* NSRegularExpression+IPAddress.swift in Sources */,
 				F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */,
 				F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */,
+				7A6000F62B60092F001CF0D9 /* AccessMethodViewModelEditing.swift in Sources */,
 				5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */,
 				58EF87572B16330B00C098B2 /* ProxyConfigurationTester.swift in Sources */,
 				5827B0A62B0F39E900CCBBA1 /* EditAccessMethodInteractor.swift in Sources */,
-				5827B0AE2B0F4CBE00CCBBA1 /* ProxyConfigurationViewControllerDelegate.swift in Sources */,
-				5827B0962B0DB2C100CCBBA1 /* ProxyConfigurationItemIdentifier.swift in Sources */,
-				586C0D8B2B03D84400E7CDD7 /* AddAccessMethodItemIdentifier.swift in Sources */,
+				5827B0AE2B0F4CBE00CCBBA1 /* MethodSettingsViewControllerDelegate.swift in Sources */,
+				5827B0962B0DB2C100CCBBA1 /* MethodSettingsItemIdentifier.swift in Sources */,
 				5868585524054096000B8131 /* CustomButton.swift in Sources */,
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
 				7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */,
 				5867771629097C5B006F721F /* ProductState.swift in Sources */,
-				586C0D762B03934000E7CDD7 /* AddAccessMethodInteractorProtocol.swift in Sources */,
 				58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */,
 				58CEB3042AFD36CE00E6E088 /* SwitchCellContentView.swift in Sources */,
 				F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */,
@@ -4890,7 +4832,6 @@
 				58CEB2F32AFD0BA100E6E088 /* TextCellContentView.swift in Sources */,
 				586C0D7C2B03BDD100E7CDD7 /* AccessMethodViewModel.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
-				58EF874F2B16174A00C098B2 /* AccessMethodActionSheetPresentationConfiguration.swift in Sources */,
 				7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
 				7A1A26452A29CEF700B978AA /* RelayFilterViewController.swift in Sources */,
@@ -4901,6 +4842,7 @@
 				5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */,
 				7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */,
 				F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */,
+				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,
 				58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Split.swift in Sources */,
@@ -4914,7 +4856,6 @@
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
 				583FE01029C0F532006E85F9 /* CustomSplitViewController.swift in Sources */,
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,
-				5827B0AC2B0F4CA500CCBBA1 /* AddAccessMethodViewControllerDelegate.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
@@ -4930,9 +4871,7 @@
 				5827B0A82B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift in Sources */,
 				586C0D7A2B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift in Sources */,
 				58EFC76A2AFAC3B800E9F4CB /* ListAccessMethodHeaderView.swift in Sources */,
-				58EFC7732AFB471500E9F4CB /* AddAccessMethodViewController.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
-				5827B09F2B0E05E600CCBBA1 /* AddAccessMethodInteractor.swift in Sources */,
 				58FF9FEC2B07A7CB00E4C97D /* NSDirectionalEdgeInsets+Helpers.swift in Sources */,
 				586C0D832B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
@@ -4949,12 +4888,10 @@
 				58EE2E3A272FF814003BFF93 /* SettingsDataSource.swift in Sources */,
 				58FF9FEA2B07653800E4C97D /* ButtonCellContentView.swift in Sources */,
 				F0E8E4C12A602CCB00ED26A3 /* AccountDeletionContentView.swift in Sources */,
-				58EF87512B16176300C098B2 /* AccessMethodActionSheetContentConfiguration.swift in Sources */,
 				58B26E1E2943514300D5980C /* InAppNotificationDescriptor.swift in Sources */,
 				58421032282E42B000F24E46 /* UpdateDeviceDataOperation.swift in Sources */,
 				586C0D992B04E20200E7CDD7 /* AccessMethodViewModel+Persistent.swift in Sources */,
 				5878A27D2909657C0096FC88 /* RevokedDeviceInteractor.swift in Sources */,
-				5827B09B2B0DEEF800CCBBA1 /* AccessMethodActionSheetPresentationDelegate.swift in Sources */,
 				F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */,
 				586C0D782B039CC000E7CDD7 /* AccessMethodProtocolPicker.swift in Sources */,
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
@@ -4977,7 +4914,6 @@
 				7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				F028A56C2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift in Sources */,
-				581DFAEE2B178DEA005D6D1C /* AccessMethodValidationError+Helpers.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
@@ -5006,12 +4942,15 @@
 				5827B0BF2B14B37D00CCBBA1 /* Publisher+PreviousValue.swift in Sources */,
 				7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */,
 				5827B0AA2B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift in Sources */,
+				7A5869A82B5140C200640D27 /* MethodSettingsValidationErrorContentView.swift in Sources */,
+				7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */,
 				586C0D812B03CA8400E7CDD7 /* CurrentValueSubject+UIActionBindings.swift in Sources */,
 				581DFAEA2B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* TunnelControlView.swift in Sources */,
 				F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */,
 				58CEB2FB2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift in Sources */,
+				7A5869A62B51405900640D27 /* MethodSettingsValidationErrorContentConfiguration.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				7A21DACF2A30AA3700A787A9 /* UITextField+Appearance.swift in Sources */,
 				585B1FF02AB09F97008AD470 /* VPNConnectionProtocol.swift in Sources */,
@@ -5023,7 +4962,6 @@
 				5827B0C52B14D3E800CCBBA1 /* NSDiffableDataSourceSnapshot+Reconfigure.swift in Sources */,
 				58A8EE5E2976DB00009C0F8D /* StorePaymentManagerError+Display.swift in Sources */,
 				58A8EE5A2976BFBB009C0F8D /* SKError+Localized.swift in Sources */,
-				586C0D9B2B051E6900E7CDD7 /* AccessMethodActionSheetContainerView.swift in Sources */,
 				58EFC76E2AFB3BDA00E9F4CB /* ListAccessMethodCoordinator.swift in Sources */,
 				5827B0B92B14A1C700CCBBA1 /* MethodTestingStatusCellContentConfiguration.swift in Sources */,
 				7A42DEC92A05164100B209BE /* SettingsInputCell.swift in Sources */,
