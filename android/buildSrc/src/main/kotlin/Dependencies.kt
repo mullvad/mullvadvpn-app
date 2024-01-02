@@ -5,6 +5,12 @@ object Dependencies {
     const val junitApi = "org.junit.jupiter:junit-jupiter-api:${Versions.junit}"
     const val junitEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.junit}"
     const val junitParams = "org.junit.jupiter:junit-jupiter-params:${Versions.junit}"
+    const val junitAndroidTestExtensions =
+        "de.mannodermaus.junit5:android-test-core:${Versions.Android.junit}"
+    const val junitAndroidTestCore =
+        "de.mannodermaus.junit5:android-test-extensions:${Versions.Android.junit}"
+    const val junitAndroidTestRunner =
+        "de.mannodermaus.junit5:android-test-runner:${Versions.Android.junit}"
     const val konsist = "com.lemonappdev:konsist:${Versions.konsist}"
     const val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
     const val mockkWebserver = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebserver}"
@@ -47,7 +53,7 @@ object Dependencies {
             "androidx.constraintlayout:constraintlayout-compose:${Versions.Compose.constrainLayout}"
         const val foundation =
             "androidx.compose.foundation:foundation:${Versions.Compose.foundation}"
-        const val junit5 = "de.mannodermaus.junit5:android-test-compose:${Versions.Compose.junit}"
+        const val junit5 = "de.mannodermaus.junit5:android-test-compose:${Versions.Android.junit}"
         const val material3 = "androidx.compose.material3:material3:${Versions.Compose.material3}"
         const val testManifest = "androidx.compose.ui:ui-test-manifest:${Versions.Compose.base}"
         const val uiController =
