@@ -19,7 +19,7 @@ import ChevronButton from '../ChevronButton';
 import { measurements, normalText } from '../common-styles';
 import ImageView from '../ImageView';
 import RelayStatusIndicator from '../RelayStatusIndicator';
-import { AddToListDialog, EditListDialog } from './CustomListDialogs';
+import { AddToListDialog, DeleteConfirmDialog, EditListDialog } from './CustomListDialogs';
 import {
   CitySpecification,
   CountrySpecification,
@@ -162,6 +162,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   const { updateCustomList, deleteCustomList } = useAppContext();
   const [addToListDialogVisible, showAddToListDialog, hideAddToListDialog] = useBoolean();
   const [editDialogVisible, showEditDialog, hideEditDialog] = useBoolean();
+  const [deleteDialogVisible, showDeleteDialog, hideDeleteDialog] = useBoolean();
   const background = getButtonColor(props.source.selected, props.level, props.source.disabled);
 
   const customLists = useSelector((state) => state.settings.customLists);
@@ -218,7 +219,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
   }, [customLists, props.source.location]);
 
   // Remove an entire custom list.
-  const onRemoveCustomList = useCallback(async () => {
+  const confirmRemoveCustomList = useCallback(async () => {
     if (props.source.location.customList) {
       try {
         await deleteCustomList(props.source.location.customList);
@@ -273,7 +274,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
             <StyledHoverIconButton onClick={showEditDialog} {...background}>
               <StyledHoverIcon source="icon-edit" />
             </StyledHoverIconButton>
-            <StyledHoverIconButton onClick={onRemoveCustomList} $isLast {...background}>
+            <StyledHoverIconButton onClick={showDeleteDialog} $isLast {...background}>
               <StyledHoverIcon source="icon-close" />
             </StyledHoverIconButton>
           </>
@@ -317,6 +318,15 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
 
       {'list' in props.source && (
         <EditListDialog list={props.source.list} isOpen={editDialogVisible} hide={hideEditDialog} />
+      )}
+
+      {'list' in props.source && (
+        <DeleteConfirmDialog
+          list={props.source.list}
+          isOpen={deleteDialogVisible}
+          hide={hideDeleteDialog}
+          confirm={confirmRemoveCustomList}
+        />
       )}
     </>
   );
