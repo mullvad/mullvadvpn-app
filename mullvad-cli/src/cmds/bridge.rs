@@ -329,7 +329,10 @@ impl Bridge {
     async fn custom_bridge_disable() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let mut settings = rpc.get_settings().await?;
+
         settings.bridge_settings.bridge_type = BridgeType::Normal;
+
+        rpc.set_bridge_settings(settings.bridge_settings).await?;
         Ok(())
     }
 
