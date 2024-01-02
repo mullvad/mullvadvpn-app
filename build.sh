@@ -315,8 +315,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
     fi
 fi
 
-EMPTY=()
-for t in "${TARGETS[@]:-"${EMPTY[@]}"}"; do
+for t in "${TARGETS[@]:-""}"; do
     source env.sh "$t"
     build "$t"
 done
