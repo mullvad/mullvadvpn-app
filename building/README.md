@@ -29,8 +29,11 @@ Build and publish the container image. Tag it with the github hash of the curren
 This also adds the container GPG signatures to the sigstore and commits that to git.
 The single sigstore addition (signed) commit can be pushed directly to the main branch without PR.
 ```
+# Builds a new container image, pushes it to the registry, signs it and commits the signatures in git
 ./build-and-publish-container-image.sh (linux|android)
-git push # Pushes the new sigstore entry
+
+# Pushes the new sigstore entry
+GIT_SSH_COMMAND="ssh -i /path/to/deploy-key" git push
 ```
 
 When satisfied with how the new image works, the `building/{linux,android}-container-image.txt`
