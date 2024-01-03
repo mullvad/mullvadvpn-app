@@ -4,7 +4,7 @@ use futures::channel::oneshot;
 use std::path;
 #[cfg(not(target_os = "android"))]
 use talpid_openvpn;
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
 pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]
@@ -91,7 +91,6 @@ impl TunnelMonitor {
                 args.resource_dir,
                 args.on_event,
                 args.tunnel_close_rx,
-                #[cfg(target_os = "linux")]
                 args.route_manager,
             )),
             #[cfg(target_os = "android")]
@@ -104,20 +103,23 @@ impl TunnelMonitor {
     }
 
     /// Returns a path to an executable that communicates with relay servers.
+    /// Returns `None` if the executable is unknown.
     #[cfg(windows)]
-    pub fn get_relay_client(resource_dir: &path::Path, params: &TunnelParameters) -> path::PathBuf {
+    pub fn get_relay_client(
+        resource_dir: &path::Path,
+        params: &TunnelParameters,
+    ) -> Option<path::PathBuf> {
+        use talpid_types::net::proxy::CustomProxy;
+
         let resource_dir = resource_dir.to_path_buf();
-        let process_string = match params {
-            TunnelParameters::OpenVpn(params) => {
-                if let Some(openvpn_types::ProxySettings::Shadowsocks(..)) = &params.proxy {
-                    return std::env::current_exe().unwrap();
-                } else {
-                    "openvpn.exe"
-                }
-            }
-            _ => return std::env::current_exe().unwrap(),
-        };
-        resource_dir.join(process_string)
+        match params {
+            TunnelParameters::OpenVpn(params) => match &params.proxy {
+                Some(CustomProxy::Shadowsocks(_)) => Some(std::env::current_exe().unwrap()),
+                Some(CustomProxy::Socks5Local(_)) => None,
+                Some(CustomProxy::Socks5Remote(_)) | None => Some(resource_dir.join("openvpn.exe")),
+            },
+            _ => Some(std::env::current_exe().unwrap()),
+        }
     }
 
     fn start_wireguard_tunnel<L>(
@@ -211,7 +213,7 @@ impl TunnelMonitor {
         resource_dir: &path::Path,
         on_event: L,
         tunnel_close_rx: oneshot::Receiver<()>,
-        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
+        route_manager: RouteManagerHandle,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -224,7 +226,6 @@ impl TunnelMonitor {
             config,
             log,
             resource_dir,
-            #[cfg(target_os = "linux")]
             route_manager,
         )
         .await?;

@@ -567,6 +567,7 @@ impl<'a> PolicyBatch<'a> {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint, fwmark);
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, dns_servers, TransportProtocol::Tcp)?;
+
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 self.add_drop_dns_rule();
@@ -607,10 +608,10 @@ impl<'a> PolicyBatch<'a> {
         Ok(())
     }
 
-    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint, fwmark: u32) {
+    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &AllowedEndpoint, fwmark: u32) {
         let mut prerouting_rule = Rule::new(&self.prerouting_chain);
         // Mark incoming traffic from endpoint with fwmark
-        check_endpoint(&mut prerouting_rule, End::Src, endpoint);
+        check_endpoint(&mut prerouting_rule, End::Src, &endpoint.endpoint);
         prerouting_rule.add_expr(&nft_expr!(immediate data fwmark));
         prerouting_rule.add_expr(&nft_expr!(meta mark set));
 
@@ -621,7 +622,7 @@ impl<'a> PolicyBatch<'a> {
         self.batch.add(&prerouting_rule, nftnl::MsgType::Add);
 
         let mut in_rule = Rule::new(&self.in_chain);
-        check_endpoint(&mut in_rule, End::Src, endpoint);
+        check_endpoint(&mut in_rule, End::Src, &endpoint.endpoint);
 
         // Allow all incoming traffic from established connections to the endpoint
         let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
@@ -637,12 +638,24 @@ impl<'a> PolicyBatch<'a> {
 
         // Allow any traffic to the endpoint which is marked with fwmark
         let mut out_rule = Rule::new(&self.out_chain);
-        check_endpoint(&mut out_rule, End::Dst, endpoint);
+        check_endpoint(&mut out_rule, End::Dst, &endpoint.endpoint);
         out_rule.add_expr(&nft_expr!(meta mark));
         out_rule.add_expr(&nft_expr!(cmp == fwmark));
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);
+
+        // Used for local custom bridge, allows some local socks5 proxy to send traffic to the
+        // endpoint
+        if endpoint.clients.allow_all() {
+            let mut rule = Rule::new(&self.mangle_chain);
+            check_endpoint(&mut rule, End::Dst, &endpoint.endpoint);
+            rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
+            rule.add_expr(&nft_expr!(ct mark set));
+            rule.add_expr(&nft_expr!(immediate data fwmark));
+            rule.add_expr(&nft_expr!(meta mark set));
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
     }
 
     /// Adds firewall rules allow traffic to flow to the API. Allows the app to reach the API in

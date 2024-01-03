@@ -10,6 +10,8 @@ use std::{
     str::FromStr,
 };
 
+use self::proxy::{CustomProxy, Socks5Local};
+
 pub mod obfuscation;
 pub mod openvpn;
 pub mod proxy;
@@ -31,7 +33,10 @@ impl TunnelParameters {
                 tunnel_type: TunnelType::OpenVpn,
                 quantum_resistant: false,
                 endpoint: params.config.endpoint,
-                proxy: params.proxy.as_ref().map(|proxy| proxy.get_endpoint()),
+                proxy: params
+                    .proxy
+                    .as_ref()
+                    .map(|proxy| proxy.get_remote_endpoint()),
                 obfuscation: None,
                 entry_endpoint: None,
                 tunnel_interface: None,
@@ -60,7 +65,7 @@ impl TunnelParameters {
             TunnelParameters::OpenVpn(params) => params
                 .proxy
                 .as_ref()
-                .map(|proxy| proxy.get_endpoint().endpoint)
+                .map(|proxy| proxy.get_remote_endpoint().endpoint)
                 .unwrap_or(params.config.endpoint),
             TunnelParameters::Wireguard(params) => params
                 .obfuscation
@@ -91,6 +96,21 @@ impl TunnelParameters {
         match &self {
             TunnelParameters::OpenVpn(params) => &params.generic_options,
             TunnelParameters::Wireguard(params) => &params.generic_options,
+        }
+    }
+
+    pub fn get_openvpn_local_proxy_settings(&self) -> Option<&Socks5Local> {
+        match &self {
+            TunnelParameters::OpenVpn(params) => {
+                params
+                    .proxy
+                    .as_ref()
+                    .and_then(|proxy_settings| match proxy_settings {
+                        CustomProxy::Socks5Local(local_settings) => Some(local_settings),
+                        _ => None,
+                    })
+            }
+            _ => None,
         }
     }
 }

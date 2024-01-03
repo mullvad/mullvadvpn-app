@@ -3,7 +3,7 @@
 #![deny(missing_docs)]
 #![deny(rust_2018_idioms)]
 
-use crate::proxy::{ProxyMonitor, ProxyResourceData};
+use crate::proxy::ProxyMonitor;
 #[cfg(windows)]
 use once_cell::sync::Lazy;
 use process::openvpn::{OpenVpnCommand, OpenVpnProcHandle};
@@ -21,7 +21,10 @@ use std::{
 #[cfg(target_os = "linux")]
 use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::TunnelEvent;
-use talpid_types::{net::openvpn, ErrorExt};
+use talpid_types::{
+    net::{openvpn, proxy::CustomProxy},
+    ErrorExt,
+};
 use tokio::task;
 
 #[cfg(windows)]
@@ -226,7 +229,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
-        #[cfg(target_os = "linux")] route_manager: talpid_routing::RouteManagerHandle,
+        route_manager: talpid_routing::RouteManagerHandle,
     ) -> Result<Self>
     where
         L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
@@ -242,19 +245,12 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let user_pass_file_path = user_pass_file.to_path_buf();
         let proxy_auth_file_path = proxy_auth_file.as_ref().map(|file| file.to_path_buf());
 
-        let log_dir = log_path.as_ref().map(|log_path| {
-            log_path
-                .parent()
-                .expect("log_path has no parent")
-                .to_path_buf()
-        });
-
-        let proxy_resources = proxy::ProxyResourceData {
-            resource_dir: resource_dir.to_path_buf(),
-            log_dir,
-        };
-
-        let proxy_monitor = Self::start_proxy(&params.proxy, &proxy_resources).await?;
+        let proxy_monitor = Self::start_proxy(
+            &params.proxy,
+            #[cfg(target_os = "linux")]
+            params.fwmark,
+        )
+        .await?;
 
         #[cfg(windows)]
         let wintun = Self::new_wintun_context(params, resource_dir)?;
@@ -295,7 +291,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 user_pass_file_path: user_pass_file_path.clone(),
                 proxy_auth_file_path: proxy_auth_file_path.clone(),
                 abort_server_tx: event_server_abort_tx,
-                #[cfg(target_os = "linux")]
+                proxy: params.proxy.clone(),
                 route_manager_handle: route_manager,
                 #[cfg(target_os = "linux")]
                 ipv6_enabled,
@@ -528,9 +524,9 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
     }
 
     fn create_proxy_auth_file(
-        proxy_settings: &Option<openvpn::ProxySettings>,
+        proxy_settings: &Option<CustomProxy>,
     ) -> std::result::Result<Option<mktemp::TempFile>, io::Error> {
-        if let Some(openvpn::ProxySettings::Remote(ref remote_proxy)) = proxy_settings {
+        if let Some(CustomProxy::Socks5Remote(ref remote_proxy)) = proxy_settings {
             if let Some(ref proxy_auth) = remote_proxy.auth {
                 return Ok(Some(Self::create_credentials_file(
                     &proxy_auth.username,
@@ -543,13 +539,17 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
     /// Starts a proxy service, as applicable.
     async fn start_proxy(
-        proxy_settings: &Option<openvpn::ProxySettings>,
-        proxy_resources: &ProxyResourceData,
+        proxy_settings: &Option<CustomProxy>,
+        #[cfg(target_os = "linux")] fwmark: u32,
     ) -> Result<Option<Box<dyn ProxyMonitor>>> {
         if let Some(ref settings) = proxy_settings {
-            let proxy_monitor = proxy::start_proxy(settings, proxy_resources)
-                .await
-                .map_err(Error::ProxyError)?;
+            let proxy_monitor = proxy::start_proxy(
+                settings,
+                #[cfg(target_os = "linux")]
+                fwmark,
+            )
+            .await
+            .map_err(Error::ProxyError)?;
             return Ok(Some(proxy_monitor));
         }
         Ok(None)
@@ -751,12 +751,12 @@ mod event_server {
     use futures::stream::TryStreamExt;
     use parity_tokio_ipc::Endpoint as IpcEndpoint;
     use std::{
-        collections::HashMap,
+        collections::{HashMap, HashSet},
         pin::Pin,
         task::{Context, Poll},
     };
     use talpid_tunnel::TunnelMetadata;
-    #[cfg(any(target_os = "linux", windows))]
+    use talpid_types::net::proxy::CustomProxy;
     use talpid_types::ErrorExt;
     use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
@@ -798,7 +798,7 @@ mod event_server {
         pub user_pass_file_path: super::PathBuf,
         pub proxy_auth_file_path: Option<super::PathBuf>,
         pub abort_server_tx: triggered::Trigger,
-        #[cfg(target_os = "linux")]
+        pub proxy: Option<CustomProxy>,
         pub route_manager_handle: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "linux")]
         pub ipv6_enabled: bool,
@@ -838,28 +838,33 @@ mod event_server {
                 let _ = tokio::fs::remove_file(file_path).await;
             }
 
+            let mut routes = HashSet::new();
+            #[cfg(not(target_os = "linux"))]
+            if let Some(CustomProxy::Socks5Local(proxy_settings)) = &self.proxy {
+                let network = proxy_settings.remote_endpoint.address.ip().into();
+                let node = talpid_routing::NetNode::DefaultNode;
+                let route = talpid_routing::RequiredRoute::new(network, node);
+                routes.insert(route);
+            }
+            let route_handle = self.route_manager_handle.clone();
+
             #[cfg(target_os = "linux")]
             {
-                let route_handle = self.route_manager_handle.clone();
                 let ipv6_enabled = self.ipv6_enabled;
 
-                let routes = super::extract_routes(&env)
+                if let Err(error) = route_handle.create_routing_rules(ipv6_enabled).await {
+                    log::error!("{}", error.display_chain());
+                    return Err(tonic::Status::failed_precondition("Failed to add routes"));
+                }
+
+                let extracted_routes = super::extract_routes(&env)
                     .map_err(|err| {
                         log::error!("{}", err.display_chain_with_msg("Failed to obtain routes"));
                         tonic::Status::failed_precondition("Failed to obtain routes")
                     })?
                     .into_iter()
-                    .filter(|route| route.prefix.is_ipv4() || ipv6_enabled)
-                    .collect();
-
-                if let Err(error) = route_handle.add_routes(routes).await {
-                    log::error!("{}", error.display_chain());
-                    return Err(tonic::Status::failed_precondition("Failed to add routes"));
-                }
-                if let Err(error) = route_handle.create_routing_rules(ipv6_enabled).await {
-                    log::error!("{}", error.display_chain());
-                    return Err(tonic::Status::failed_precondition("Failed to add routes"));
-                }
+                    .filter(|route| route.prefix.is_ipv4() || ipv6_enabled);
+                routes.extend(extracted_routes);
             }
 
             let metadata = Self::get_tunnel_metadata(&env)?;
@@ -881,6 +886,11 @@ mod event_server {
                         );
                         tonic::Status::unavailable("wait_for_addresses failed")
                     })?;
+            }
+
+            if let Err(error) = route_handle.add_routes(routes).await {
+                log::error!("{}", error.display_chain());
+                return Err(tonic::Status::failed_precondition("Failed to add routes"));
             }
 
             (self.on_event)(talpid_tunnel::TunnelEvent::Up(metadata)).await;

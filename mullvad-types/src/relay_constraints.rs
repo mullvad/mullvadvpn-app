@@ -16,7 +16,7 @@ use std::{
     net::{Ipv4Addr, Ipv6Addr},
     str::FromStr,
 };
-use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
+use talpid_types::net::{proxy::CustomProxy, IpVersion, TransportProtocol, TunnelType};
 
 pub trait Match<T> {
     fn matches(&self, other: &T) -> bool;
@@ -831,14 +831,53 @@ struct Port {
     value: i32,
 }
 
+#[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum BridgeType {
+    /// Let the relay selection algorithm decide on bridges, based on the relay list
+    /// and normal bridge constraints.
+    #[default]
+    Normal,
+    /// Use custom bridge configuration.
+    Custom,
+}
+
+impl fmt::Display for BridgeType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            BridgeType::Normal => f.write_str("normal"),
+            BridgeType::Custom => f.write_str("custom"),
+        }
+    }
+}
+
+#[derive(err_derive::Error, Debug)]
+#[error(display = "Missing custom bridge settings")]
+pub struct MissingCustomBridgeSettings(());
+
 /// Specifies a specific endpoint or [`BridgeConstraints`] to use when `mullvad-daemon` selects a
 /// bridge server.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
-pub enum BridgeSettings {
-    /// Let the relay selection algorithm decide on bridges, based on the relay list.
-    Normal(BridgeConstraints),
-    Custom(ProxySettings),
+pub struct BridgeSettings {
+    pub bridge_type: BridgeType,
+    pub normal: BridgeConstraints,
+    pub custom: Option<CustomProxy>,
+}
+
+pub enum ResolvedBridgeSettings<'a> {
+    Normal(&'a BridgeConstraints),
+    Custom(&'a CustomProxy),
+}
+
+impl BridgeSettings {
+    pub fn resolve(&self) -> Result<ResolvedBridgeSettings<'_>, MissingCustomBridgeSettings> {
+        match (self.bridge_type, &self.custom) {
+            (BridgeType::Normal, _) => Ok(ResolvedBridgeSettings::Normal(&self.normal)),
+            (BridgeType::Custom, Some(custom)) => Ok(ResolvedBridgeSettings::Custom(custom)),
+            (BridgeType::Custom, None) => Err(MissingCustomBridgeSettings(())),
+        }
+    }
 }
 
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]

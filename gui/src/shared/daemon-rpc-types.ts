@@ -345,15 +345,20 @@ export interface IDnsOptions {
   };
 }
 
-export type ProxySettings = ILocalProxySettings | IRemoteProxySettings | IShadowsocksProxySettings;
+export type ProxySettings =
+  | { local: ILocalProxySettings }
+  | { remote: IRemoteProxySettings }
+  | { shadowsocks: IShadowsocksProxySettings };
 
 export interface ILocalProxySettings {
-  port: number;
-  peer: string;
+  localPort: number;
+  remoteIp: string;
+  remotePort: number;
 }
 
 export interface IRemoteProxySettings {
-  address: string;
+  ip: string;
+  port: number;
   auth?: IRemoteProxyAuth;
 }
 
@@ -363,7 +368,8 @@ export interface IRemoteProxyAuth {
 }
 
 export interface IShadowsocksProxySettings {
-  peer: string;
+  ip: string;
+  port: number;
   password: string;
   cipher: string;
 }
@@ -451,7 +457,13 @@ export interface IBridgeConstraints {
   ownership: Ownership;
 }
 
-export type BridgeSettings = { normal: IBridgeConstraints } | { custom: ProxySettings };
+export type BridgeType = 'normal' | 'custom';
+
+export interface BridgeSettings {
+  type: BridgeType;
+  normal: IBridgeConstraints;
+  custom?: ProxySettings;
+}
 
 export interface ISocketAddress {
   host: string;

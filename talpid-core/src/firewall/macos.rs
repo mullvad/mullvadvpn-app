@@ -121,7 +121,7 @@ impl Firewall {
                 allowed_endpoint,
                 allowed_tunnel_traffic,
             } => {
-                let mut rules = vec![self.get_allow_relay_rule(*peer_endpoint)?];
+                let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -151,7 +151,7 @@ impl Firewall {
                     rules.append(&mut self.get_allow_dns_rules_when_connected(tunnel, *server)?);
                 }
 
-                rules.push(self.get_allow_relay_rule(*peer_endpoint)?);
+                rules.push(self.get_allow_relay_rule(peer_endpoint)?);
 
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
@@ -273,18 +273,26 @@ impl Firewall {
         Ok(rules)
     }
 
-    fn get_allow_relay_rule(&self, relay_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
-        let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
+    fn get_allow_relay_rule(
+        &self,
+        relay_endpoint: &net::AllowedEndpoint,
+    ) -> Result<pfctl::FilterRule> {
+        let pfctl_proto = as_pfctl_proto(relay_endpoint.endpoint.protocol);
 
-        self.create_rule_builder(FilterRuleAction::Pass)
+        let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
+        builder
             .direction(pfctl::Direction::Out)
-            .to(relay_endpoint.address)
+            .to(relay_endpoint.endpoint.address)
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
-            .user(Uid::from(super::ROOT_UID))
-            .quick(true)
-            .build()
+            .quick(true);
+
+        if !relay_endpoint.clients.allow_all() {
+            builder.user(Uid::from(super::ROOT_UID));
+        }
+
+        builder.build()
     }
 
     /// Produces a rule that allows traffic to flow to the API. Allows the app (or other apps if configured)

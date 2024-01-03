@@ -202,7 +202,7 @@ impl ManagementService for ManagementServiceImpl {
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, settings))?;
-        self.wait_for_result(rx).await??;
+        self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
         Ok(Response::new(()))
     }
 

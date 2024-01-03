@@ -2,8 +2,8 @@ use crate::{
     access_method,
     custom_list::CustomListsSettings,
     relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint,
-        LocationConstraint, ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
+        BridgeSettings, BridgeState, Constraint, GeographicLocationConstraint, LocationConstraint,
+        ObfuscationSettings, RelayConstraints, RelayOverride, RelaySettings,
         RelaySettingsFormatter, SelectedObfuscation, WireguardConstraints,
     },
     wireguard,
@@ -32,6 +32,7 @@ pub enum SettingsVersion {
     V5 = 5,
     V6 = 6,
     V7 = 7,
+    V8 = 8,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -46,6 +47,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V5 as u32 => Ok(SettingsVersion::V5),
             v if v == SettingsVersion::V6 as u32 => Ok(SettingsVersion::V6),
             v if v == SettingsVersion::V7 as u32 => Ok(SettingsVersion::V7),
+            v if v == SettingsVersion::V8 as u32 => Ok(SettingsVersion::V8),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),
@@ -128,7 +130,7 @@ impl Default for Settings {
                 },
                 ..Default::default()
             }),
-            bridge_settings: BridgeSettings::Normal(BridgeConstraints::default()),
+            bridge_settings: BridgeSettings::default(),
             obfuscation_settings: ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Off,
                 ..Default::default()

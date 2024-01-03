@@ -14,7 +14,7 @@ use futures::{
 };
 use std::net::IpAddr;
 use talpid_types::{
-    net::TunnelParameters,
+    net::{AllowedClients, AllowedEndpoint, TunnelParameters},
     tunnel::{ErrorStateCause, FirewallPolicyError},
     BoxedError, ErrorExt,
 };
@@ -130,17 +130,34 @@ impl ConnectedState {
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
+        let endpoint = self.tunnel_parameters.get_next_hop_endpoint();
+
+        #[cfg(target_os = "windows")]
+        let clients = AllowedClients::from(
+            TunnelMonitor::get_relay_client(&shared_values.resource_dir, &self.tunnel_parameters)
+                .into_iter()
+                .collect::<Vec<_>>(),
+        );
+
+        #[cfg(not(target_os = "windows"))]
+        let clients = if self
+            .tunnel_parameters
+            .get_openvpn_local_proxy_settings()
+            .is_some()
+        {
+            AllowedClients::All
+        } else {
+            AllowedClients::Root
+        };
+
+        let peer_endpoint = AllowedEndpoint { endpoint, clients };
+
         FirewallPolicy::Connected {
-            peer_endpoint: self.tunnel_parameters.get_next_hop_endpoint(),
+            peer_endpoint,
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
             #[cfg(not(target_os = "android"))]
             dns_servers: self.get_dns_servers(shared_values),
-            #[cfg(windows)]
-            relay_client: TunnelMonitor::get_relay_client(
-                &shared_values.resource_dir,
-                &self.tunnel_parameters,
-            ),
         }
     }
 

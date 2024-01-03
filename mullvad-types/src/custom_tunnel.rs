@@ -6,7 +6,7 @@ use std::{
     fmt, io,
     net::{IpAddr, SocketAddr, ToSocketAddrs},
 };
-use talpid_types::net::{openvpn, wireguard, Endpoint, TunnelParameters};
+use talpid_types::net::{openvpn, proxy::CustomProxy, wireguard, Endpoint, TunnelParameters};
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -42,7 +42,7 @@ impl CustomTunnelEndpoint {
     pub fn to_tunnel_parameters(
         &self,
         tunnel_options: TunnelOptions,
-        proxy: Option<openvpn::ProxySettings>,
+        proxy: Option<CustomProxy>,
     ) -> Result<TunnelParameters, Error> {
         let ip = resolve_to_ip(&self.host)?;
         let mut config = self.config.clone();

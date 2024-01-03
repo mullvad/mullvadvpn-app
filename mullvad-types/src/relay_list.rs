@@ -4,7 +4,7 @@ use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
 use talpid_types::net::{
-    openvpn::{ProxySettings, ShadowsocksProxySettings},
+    proxy::{CustomProxy, Shadowsocks},
     wireguard, TransportProtocol,
 };
 
@@ -207,17 +207,11 @@ pub struct ShadowsocksEndpointData {
 }
 
 impl ShadowsocksEndpointData {
-    pub fn to_proxy_settings(
-        &self,
-        addr: IpAddr,
-        #[cfg(target_os = "linux")] fwmark: u32,
-    ) -> ProxySettings {
-        ProxySettings::Shadowsocks(ShadowsocksProxySettings {
-            peer: SocketAddr::new(addr, self.port),
+    pub fn to_proxy_settings(&self, addr: IpAddr) -> CustomProxy {
+        CustomProxy::Shadowsocks(Shadowsocks {
+            endpoint: SocketAddr::new(addr, self.port),
             password: self.password.clone(),
             cipher: self.cipher.clone(),
-            #[cfg(target_os = "linux")]
-            fwmark: Some(fwmark),
         })
     }
 }

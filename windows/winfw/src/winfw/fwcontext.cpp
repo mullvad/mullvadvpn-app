@@ -81,7 +81,7 @@ void AppendRelayRules
 (
 	FwContext::Ruleset &ruleset,
 	const WinFwEndpoint &relay,
-	const std::wstring &relayClient
+	const std::vector<std::wstring> &relayClients
 )
 {
 	auto sublayer =
@@ -95,7 +95,7 @@ void AppendRelayRules
 		wfp::IpAddress(relay.ip),
 		relay.port,
 		relay.protocol,
-		relayClient,
+		relayClients,
 		sublayer
 	));
 }
@@ -185,7 +185,7 @@ bool FwContext::applyPolicyConnecting
 (
 	const WinFwSettings &settings,
 	const WinFwEndpoint &relay,
-	const std::wstring &relayClient,
+	const std::vector<std::wstring> &relayClients,
 	const std::optional<std::wstring> &tunnelInterfaceAlias,
 	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint,
 	const WinFwAllowedTunnelTraffic &allowedTunnelTraffic
@@ -195,7 +195,7 @@ bool FwContext::applyPolicyConnecting
 
 	AppendNetBlockedRules(ruleset);
 	AppendSettingsRules(ruleset, settings);
-	AppendRelayRules(ruleset, relay, relayClient);
+	AppendRelayRules(ruleset, relay, relayClients);
 
 	if (allowedEndpoint.has_value())
 	{
@@ -280,7 +280,7 @@ bool FwContext::applyPolicyConnected
 (
 	const WinFwSettings &settings,
 	const WinFwEndpoint &relay,
-	const std::wstring &relayClient,
+	const std::vector<std::wstring> &relayClient,
 	const std::wstring &tunnelInterfaceAlias,
 	const std::vector<wfp::IpAddress> &tunnelDnsServers,
 	const std::vector<wfp::IpAddress> &nonTunnelDnsServers

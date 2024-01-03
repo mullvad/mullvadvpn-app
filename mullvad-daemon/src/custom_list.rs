@@ -2,7 +2,7 @@ use crate::{new_selector_config, Daemon, Error, EventListener};
 use mullvad_types::{
     custom_list::{CustomList, Id},
     relay_constraints::{
-        BridgeSettings, BridgeState, Constraint, LocationConstraint, RelaySettings,
+        BridgeState, Constraint, LocationConstraint, RelaySettings, ResolvedBridgeSettings,
     },
 };
 use talpid_types::net::TunnelType;
@@ -157,8 +157,8 @@ where
 
                     TunnelType::OpenVpn => {
                         if !matches!(self.settings.bridge_state, BridgeState::Off) {
-                            if let BridgeSettings::Normal(bridge_settings) =
-                                &self.settings.bridge_settings
+                            if let Ok(ResolvedBridgeSettings::Normal(bridge_settings)) =
+                                self.settings.bridge_settings.resolve()
                             {
                                 if let Constraint::Only(LocationConstraint::CustomList {
                                     list_id,
