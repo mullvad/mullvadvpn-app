@@ -24,6 +24,12 @@ class DataArray {
         UInt64(arr.count)
     }
     
+    func extend(with other: DataArray) {
+        for d in other.arr {
+            arr.append(d)
+        }
+    }
+    
     static func fromRawPtrUnretained(_ ptr: UnsafeMutableRawPointer) -> DataArray {
         let arr = Unmanaged<DataArray>.fromOpaque(ptr).takeUnretainedValue()
         return arr
@@ -76,6 +82,13 @@ func dataArrayGet(ptr: UnsafeMutableRawPointer, idx: UInt64) -> SwiftData {
     let dataPtr = (data as NSData).bytes.assumingMemoryBound(to: UInt8.self)
     let mutatingDataPtr = UnsafeMutablePointer(mutating: dataPtr)
     return SwiftData(ptr: mutatingDataPtr, len: UInt(data.count))
+}
+
+@_cdecl("swift_data_array_extend")
+func dataArrayGet(ptr: UnsafeMutableRawPointer, other: UnsafeMutableRawPointer) {
+    let dataArray = DataArray.fromRawPtrUnretained(ptr)
+    let other = DataArray.fromRawPtrUnretained(other)
+    dataArray.extend(with: other)
 }
 
 extension IOOutput {

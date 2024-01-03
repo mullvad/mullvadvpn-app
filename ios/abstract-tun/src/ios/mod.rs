@@ -1,12 +1,14 @@
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::Once,
+    time::Duration,
 };
 
 use crate::{Config, IoBuffer, PeerConfig, WgInstance};
 
 pub mod data;
 use data::SwiftDataArray;
+use tokio::time;
 mod udp_session;
 
 const INIT_LOGGING: Once = Once::new();
@@ -203,4 +205,45 @@ pub extern "C" fn test_if_it_actually_works() -> u32 {
     sum += 42;
 
     return sum;
+}
+
+extern "C" {
+    fn swift_log_crash() -> u32;
+}
+
+#[no_mangle]
+pub extern "C" fn test_udp_sesh(packet_tunnel: *const libc::c_void) {
+    let rt = tokio::runtime::Runtime::new().expect("Failed to initialize the runtime");
+    let sockaddr: std::net::SocketAddr = "192.168.1.106:9090"
+        .parse()
+        .expect("failed to parse sockaddr");
+
+    let (mut sesh, writer, mut reader) =
+        udp_session::ExcludedUdpSession::new(sockaddr, packet_tunnel, 64);
+
+    let responder = writer.clone();
+
+    rt.spawn(async move {
+        let _ = sesh.run().await;
+    });
+
+    rt.spawn(async move {
+        while let Ok(data) = reader.recv().await {
+            unsafe { swift_log_crash() };
+            responder.send(data).await;
+        }
+    });
+
+    rt.spawn(async move {
+        let mut interval = time::interval(Duration::from_millis(500));
+        let contents = b"ping\n";
+        loop {
+            interval.tick().await;
+            let mut data = SwiftDataArray::new();
+            data.append(contents);
+            let _ = writer.send(data).await;
+        }
+    });
+
+    std::mem::forget(rt);
 }

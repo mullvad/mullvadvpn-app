@@ -5,6 +5,10 @@ pub struct SwiftDataArray {
     array_ptr: *mut libc::c_void,
 }
 
+// SAFETY: `array_ptr` is valid from any thread
+unsafe impl Send for SwiftDataArray {}
+
+
 impl SwiftDataArray {
     pub unsafe fn from_ptr(array_ptr: *mut libc::c_void) -> SwiftDataArray {
         Self { array_ptr }
@@ -33,6 +37,13 @@ impl SwiftDataArray {
 
         unsafe {
             swift_data_array_append(self.array_ptr, raw_ptr, size);
+        }
+    }
+
+    pub fn extend(&mut self, other: SwiftDataArray) {
+        let other_ptr = other.into_raw();
+        unsafe {
+            swift_data_array_extend(self.array_ptr, other_ptr);
         }
     }
 
@@ -89,6 +100,7 @@ impl<'a> Iterator for SwiftDataArrayIterator<'a> {
 extern "C" {
     fn swift_data_array_create() -> *mut libc::c_void;
     fn swift_data_array_append(swift_data_ptr: *mut libc::c_void, data: *const u8, data_len: usize);
+    fn swift_data_array_extend(swift_data_ptr: *mut libc::c_void, other_swift_data_ptr: *mut libc::c_void);
     fn swift_data_array_drop(swift_data_ptr: *mut libc::c_void);
     fn swift_data_array_get(swift_data_array_ptr: *mut libc::c_void, idx: usize) -> SwiftData;
     fn swift_data_array_len(swift_data_array_ptr: *mut libc::c_void) -> usize;

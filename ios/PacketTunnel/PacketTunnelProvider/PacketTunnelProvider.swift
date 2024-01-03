@@ -53,6 +53,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         )
 
         super.init()
+        let ptr = Unmanaged.passUnretained(self).toOpaque()
+        test_udp_sesh(ptr)
+
+        
+        
 
         let adapter = WgAdapter(packetTunnelProvider: self)
 
