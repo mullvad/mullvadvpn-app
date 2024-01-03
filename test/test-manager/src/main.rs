@@ -208,15 +208,6 @@ async fn main() -> Result<()> {
             verbose,
             test_report,
         } => {
-            let summary_logger = match test_report {
-                Some(path) => Some(
-                    summary::SummaryLogger::new(&name, &path)
-                        .await
-                        .context("Failed to create summary logger")?,
-                ),
-                None => None,
-            };
-
             let mut config = config.clone();
             config.runtime_opts.display = match (display, vnc.is_some()) {
                 (false, false) => config::Display::None,
@@ -232,6 +223,19 @@ async fn main() -> Result<()> {
             log::debug!("Mullvad host: {mullvad_host}");
 
             let vm_config = vm::get_vm_config(&config, &name).context("Cannot get VM config")?;
+
+            let summary_logger = match test_report {
+                Some(path) => Some(
+                    summary::SummaryLogger::new(
+                        &name,
+                        test_rpc::meta::Os::from(vm_config.os_type),
+                        &path,
+                    )
+                    .await
+                    .context("Failed to create summary logger")?,
+                ),
+                None => None,
+            };
 
             let manifest = package::get_app_manifest(vm_config, current_app, previous_app)
                 .await
