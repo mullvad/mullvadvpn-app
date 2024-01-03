@@ -1,4 +1,5 @@
 use std::{collections::BTreeMap, io, path::Path};
+use test_rpc::meta::Os;
 use tokio::{
     fs,
     io::{AsyncBufReadExt, AsyncWriteExt},
@@ -15,6 +16,10 @@ pub enum Error {
     Read(#[error(source)] io::Error),
     #[error(display = "Failed to parse log file")]
     Parse,
+    #[error(display = "Failed to serialize value")]
+    Serialize(#[error(source)] serde_json::Error),
+    #[error(display = "Failed to deserialize value")]
+    Deserialize(#[error(source)] serde_json::Error),
 }
 
 #[derive(Clone, Copy)]
@@ -60,7 +65,7 @@ pub struct SummaryLogger {
 impl SummaryLogger {
     /// Create a new logger and log to `path`. If `path` does not exist, it will be created. If it
     /// already exists, it is truncated and overwritten.
-    pub async fn new(name: &str, path: &Path) -> Result<SummaryLogger, Error> {
+    pub async fn new(name: &str, os: Os, path: &Path) -> Result<SummaryLogger, Error> {
         let mut file = fs::OpenOptions::new()
             .create(true)
             .write(true)
@@ -69,8 +74,11 @@ impl SummaryLogger {
             .await
             .map_err(|err| Error::Open(err, path.to_path_buf()))?;
 
-        // The first row is the summary name
         file.write_all(name.as_bytes())
+            .await
+            .map_err(Error::Write)?;
+        file.write_u8(b'\n').await.map_err(Error::Write)?;
+        file.write_all(&serde_json::to_vec(&os).map_err(Error::Serialize)?)
             .await
             .map_err(Error::Write)?;
         file.write_u8(b'\n').await.map_err(Error::Write)?;
@@ -113,15 +121,18 @@ pub async fn maybe_log_test_result(
 
 /// Parsed summary results
 pub struct Summary {
-    /// Summary name
-    name: String,
+    /// Name of the configuration
+    config_name: String,
     /// Pairs of test names mapped to test results
     results: BTreeMap<String, TestResult>,
 }
 
 impl Summary {
     /// Read test summary from `path`.
-    pub async fn parse_log<P: AsRef<Path>>(path: P) -> Result<Summary, Error> {
+    pub async fn parse_log<P: AsRef<Path>>(
+        all_tests: &[&crate::tests::TestMetadata],
+        path: P,
+    ) -> Result<Summary, Error> {
         let file = fs::OpenOptions::new()
             .read(true)
             .open(&path)
@@ -130,11 +141,17 @@ impl Summary {
 
         let mut lines = tokio::io::BufReader::new(file).lines();
 
-        let name = lines
+        let config_name = lines
             .next_line()
             .await
             .map_err(Error::Read)?
             .ok_or(Error::Parse)?;
+        let os = lines
+            .next_line()
+            .await
+            .map_err(Error::Read)?
+            .ok_or(Error::Parse)?;
+        let os: Os = serde_json::from_str(&os).map_err(Error::Deserialize)?;
 
         let mut results = BTreeMap::new();
 
@@ -147,7 +164,19 @@ impl Summary {
             results.insert(test_name.to_owned(), test_result);
         }
 
-        Ok(Summary { name, results })
+        for test in all_tests {
+            // Add missing tests that should not be skipped
+            if test.should_run_on_os(os) {
+                results
+                    .entry(test.name.to_owned())
+                    .or_insert(TestResult::Fail);
+            }
+        }
+
+        Ok(Summary {
+            config_name,
+            results,
+        })
     }
 
     // Return all tests which passed.
@@ -165,17 +194,17 @@ impl Summary {
 /// exist. If some log file which is expected to exist, but for any reason fails to
 /// be parsed, we should not abort the entire summarization.
 pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
-    let mut summaries = Vec::new();
-    let mut failed_to_parse = Vec::new();
+    // Collect test details
+    let tests: Vec<_> = inventory::iter::<crate::tests::TestMetadata>().collect();
+
+    let mut summaries = vec![];
+    let mut failed_to_parse = vec![];
     for sumfile in summary_files {
-        match Summary::parse_log(sumfile).await {
+        match Summary::parse_log(&tests, sumfile).await {
             Ok(summary) => summaries.push(summary),
             Err(_) => failed_to_parse.push(sumfile),
         }
     }
-
-    // Collect test details
-    let tests: Vec<_> = inventory::iter::<crate::tests::TestMetadata>().collect();
 
     // Print a table
     println!("<table>");
@@ -185,7 +214,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     println!("<td style='text-align: center;'>Test ⬇️ / Platform ➡️ </td>");
 
     for summary in &summaries {
-        let total_tests = tests.len();
+        let total_tests = summary.results.len();
         let total_passed = summary.passed().len();
         let counter_text = if total_passed == total_tests {
             String::from(TestResult::PASS_STR)
@@ -194,7 +223,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
         };
         println!(
             "<td style='text-align: center;'>{} {}</td>",
-            summary.name, counter_text
+            summary.config_name, counter_text
         );
     }
 
@@ -203,7 +232,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     println!("{}", {
         let oses_passed: Vec<_> = summaries
             .iter()
-            .filter(|summary| summary.passed().len() == tests.len())
+            .filter(|summary| summary.passed().len() == summary.results.len())
             .collect();
         if oses_passed.len() == summaries.len() {
             "🎉 All Platforms passed 🎉".to_string()
@@ -211,7 +240,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
             let failed: usize = summaries
                 .iter()
                 .map(|summary| {
-                    if summary.passed().len() == tests.len() {
+                    if summary.passed().len() == summary.results.len() {
                         0
                     } else {
                         1
@@ -245,10 +274,8 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
                 .get(test.name)
                 .unwrap_or(&TestResult::Unknown);
             match result {
-                TestResult::Fail | TestResult::Unknown => {
-                    failed_platforms.push(summary.name.clone())
-                }
-                TestResult::Pass => (),
+                TestResult::Fail => failed_platforms.push(summary.config_name.clone()),
+                TestResult::Pass | TestResult::Unknown => (),
             }
             println!("<td style='text-align: center;'>{}</td>", result);
         }
@@ -267,7 +294,7 @@ pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
         );
         println!("</td>");
 
-        // List the test name again (Useful for the summary accross the different platforms)
+        // List the test name again (Useful for the summary across the different platforms)
         println!("<td>{}</td>", test.name);
 
         // End row
