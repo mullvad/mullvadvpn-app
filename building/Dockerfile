@@ -28,8 +28,8 @@ LABEL org.opencontainers.image.licenses=GPL-3.0
 
 ENV CARGO_TARGET_DIR=/cargo-target/target
 
-ARG GOLANG_VERSION=1.18.5 \
-    GOLANG_HASH=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
+ARG GOLANG_VERSION=1.21.3 \
+    GOLANG_HASH=1241381b2843fae5a9707eec1f8fb2ef94d827990582c7c7c32f5bdfbfd420c8
 
 # The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
 ARG MOLD_COMMIT_REF=c4722fe5aed96295837d9150b20ef8698c7a28db
@@ -64,11 +64,6 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | \
 ENV PATH=/root/.cargo/bin:$PATH
 ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
     PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu
-
-# Enable Cargo's sparse protocol. Allows fetching the index much faster.
-# Is targeted for being the default in Rust 1.70. If that happens, this can be removed.
-# https://blog.rust-lang.org/2023/03/09/Rust-1.68.0.html#cargos-sparse-protocol
-ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
 # === protobuf (for compiling .proto files) ===
 
