@@ -285,10 +285,13 @@ impl Firewall {
             .to(relay_endpoint.endpoint.address)
             .proto(pfctl_proto)
             .keep_state(pfctl::StatePolicy::Keep)
-            .tcp_flags(Self::get_tcp_flags())
             .quick(true);
 
         if !relay_endpoint.clients.allow_all() {
+            // Normally, we only want to permit new connections, but this makes using local proxies
+            // overly cumbersome, since they're blocked if started before the PF rules are added.
+            builder.tcp_flags(Self::get_tcp_flags());
+
             builder.user(Uid::from(super::ROOT_UID));
         }
 
