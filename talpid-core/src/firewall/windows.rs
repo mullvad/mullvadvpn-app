@@ -290,7 +290,7 @@ impl Firewall {
             dns_servers.iter().cloned().map(widestring_ip).collect();
         let dns_servers: Vec<*const u16> = dns_servers.iter().map(|ip| ip.as_ptr()).collect();
 
-        unsafe {
+        let result = unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
                 &winfw_relay,
@@ -304,11 +304,12 @@ impl Firewall {
             )
             .into_result()
             .map_err(Error::ApplyingConnectedPolicy)
-        }
+        };
 
         // SAFETY: `relay_client_wstrs` holds memory pointed to by pointers used in C++ and must
         // not be dropped until after `WinFw_ApplyPolicyConnected` has returned.
         drop(relay_client_wstrs);
+        result
     }
 
     fn set_blocked_state(
