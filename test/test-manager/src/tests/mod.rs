@@ -4,6 +4,7 @@ mod dns;
 mod helpers;
 mod install;
 mod settings;
+mod software;
 mod test_metadata;
 mod tunnel;
 mod tunnel_state;
