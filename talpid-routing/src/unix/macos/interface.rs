@@ -133,10 +133,7 @@ impl PrimaryInterfaceMonitor {
                 log::debug!("Found primary interface for {family}");
                 vec![iface]
             })
-            .unwrap_or_else(|| {
-                log::debug!("No primary interface for {family}. Checking service order");
-                self.network_services(family)
-            });
+            .unwrap_or_else(|| self.network_services(family));
 
         let (iface, index) = ifaces
             .into_iter()
@@ -225,11 +222,7 @@ impl PrimaryInterfaceMonitor {
                 let ip_dict = self
                     .store
                     .get(CFString::new(&key))
-                    .and_then(|v| v.downcast_into::<CFDictionary>())
-                    .or_else(|| {
-                        log::debug!("No {family} dict for {service_id_s}");
-                        None
-                    })?;
+                    .and_then(|v| v.downcast_into::<CFDictionary>())?;
                 let name = ip_dict
                     .find(unsafe { kSCPropInterfaceName }.to_void())
                     .map(|s| unsafe { CFType::wrap_under_get_rule(*s) })
