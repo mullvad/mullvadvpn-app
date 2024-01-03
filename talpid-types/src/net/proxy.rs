@@ -30,10 +30,6 @@ pub struct ProxyEndpoint {
     pub proxy_type: ProxyType,
 }
 
-// TODO(Jonathan): These end up being duplicates of a lot of types in
-// `talpid-types/src/net/openvpn.rs`. However they are not trivially deduplicable since both these
-// types and those types exist in settings (access methods and bridge settings respectively)
-// and deduplicating them would require a settings migration.
 /// User customized proxy used for obfuscation.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]

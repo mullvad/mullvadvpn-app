@@ -36,7 +36,7 @@ impl From<Socks5LocalAdd> for Socks5Local {
     }
 }
 
-// TODO: Write comment about why remote does not allow you to set the transport protocol
+// We do not support setting the protocol as anything other than tcp for remote socks5 servers
 #[derive(Args, Debug, Clone)]
 pub struct Socks5RemoteAdd {
     /// The IP of the remote proxy server
@@ -138,7 +138,17 @@ impl ProxyEditParams {
         let ip = self.ip.unwrap_or(remote.endpoint.ip());
         let port = self.port.unwrap_or(remote.endpoint.port());
         match &remote.auth {
-            None => Socks5Remote::new((ip, port)),
+            None => match (self.username, self.password) {
+                (Some(username), Some(password)) => {
+                    let auth = SocksAuth { username, password };
+                    Socks5Remote::new_with_authentication((ip, port), auth)
+                }
+                (None, None) => Socks5Remote::new((ip, port)),
+                _ => {
+                    println!("Remote SOCKS5 proxy does not have a username and password set already, so you must provide both or neither when you edit.");
+                    Socks5Remote::new((ip, port))
+                }
+            },
             Some(SocksAuth { username, password }) => {
                 let username = self.username.unwrap_or(username.to_owned());
                 let password = self.password.unwrap_or(password.to_owned());

@@ -4,7 +4,6 @@
 #include <winfw/winfw.h>
 #include <libwfp/ipaddress.h>
 #include <string>
-#include <optional>
 
 namespace rules::multi
 {

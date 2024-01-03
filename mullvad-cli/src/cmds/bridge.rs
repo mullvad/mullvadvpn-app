@@ -181,8 +181,6 @@ impl Bridge {
             settings.bridge_settings.bridge_type
         );
 
-        // TODO: check if output is sane
-
         println!("Normal constraints");
         println!(
             "{:<4}{}",

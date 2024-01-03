@@ -153,6 +153,9 @@ impl Firewall {
             protocol: WinFwProt::from(endpoint.endpoint.protocol),
         };
 
+        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1`, `endpoint2`, `relay_client_wstrs` must not be dropped
+        // until `WinFw_ApplyPolicyConnecting` has returned.
+
         let relay_client_wstrs: Vec<_> = endpoint
             .clients
             .iter()
@@ -173,8 +176,6 @@ impl Firewall {
             ptr::null()
         };
 
-        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1`, `endpoint2`, `relay_client_wstrs` must not be dropped
-        // until `WinFw_ApplyPolicyConnecting` has returned.
         let mut endpoint1_ip = WideCString::new();
         let mut endpoint2_ip = WideCString::new();
         let (endpoint1, endpoint2) = match allowed_tunnel_traffic {
@@ -273,6 +274,7 @@ impl Firewall {
             None => ptr::null(),
         };
 
+        // SAFETY: `relay_client_wstrs` must not be dropped until `WinFw_ApplyPolicyConnected` has returned.
         let relay_client_wstrs: Vec<_> = endpoint
             .clients
             .iter()
@@ -303,6 +305,10 @@ impl Firewall {
             .into_result()
             .map_err(Error::ApplyingConnectedPolicy)
         }
+
+        // SAFETY: `relay_client_wstrs` holds memory pointed to by pointers used in C++ and must
+        // not be dropped until after `WinFw_ApplyPolicyConnected` has returned.
+        drop(relay_client_wstrs);
     }
 
     fn set_blocked_state(
