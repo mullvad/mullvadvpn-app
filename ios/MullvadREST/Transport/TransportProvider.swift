@@ -78,14 +78,6 @@ public final class TransportProvider: RESTTransportProvider {
         }
     }
 
-    private func socks5() -> RESTTransport? {
-        return URLSessionSocks5Transport(
-            urlSession: urlSessionTransport.urlSession,
-            configuration: Socks5Configuration(address: .ipv4(.loopback), port: 8889),
-            addressCache: addressCache
-        )
-    }
-
     /// Returns the last used shadowsocks configuration, otherwise a new randomized configuration.
     private func shadowsocksConfiguration() throws -> ShadowsocksConfiguration {
         // If a previous shadowsocks configuration was in cache, return it directly.
@@ -94,12 +86,12 @@ public final class TransportProvider: RESTTransportProvider {
         } catch {
             // There is no previous configuration either if this is the first time this code ran
             // Or because the previous shadowsocks configuration was invalid, therefore generate a new one.
-            return try makeNewShadowsocksConfiguration()
+            return try makeBridgeConfiguration()
         }
     }
 
     /// Returns a randomly selected shadowsocks configuration.
-    private func makeNewShadowsocksConfiguration() throws -> ShadowsocksConfiguration {
+    private func makeBridgeConfiguration() throws -> ShadowsocksConfiguration {
         let cachedRelays = try relayCache.read()
         let bridgeConfiguration = RelaySelector.shadowsocksTCPBridge(from: cachedRelays.relays)
         let closestRelay = RelaySelector.closestShadowsocksRelayConstrained(
@@ -149,15 +141,23 @@ public final class TransportProvider: RESTTransportProvider {
     ///
     /// - Returns: A `RESTTransport` object to make a connection
     private func makeTransportInner() -> RESTTransport? {
-        if currentTransport == nil {
-            switch transportStrategy.connectionTransport() {
-            case .useShadowsocks:
-                currentTransport = shadowsocks()
-            case .useURLSession:
-                currentTransport = urlSessionTransport
-            case .useSocks5:
-                currentTransport = socks5()
-            }
+        switch transportStrategy.connectionTransport() {
+        case .direct:
+            currentTransport = urlSessionTransport
+        case .bridge:
+            currentTransport = shadowsocks()
+        case let .shadowsocks(configuration):
+            currentTransport = ShadowsocksTransport(
+                urlSession: urlSessionTransport.urlSession,
+                configuration: configuration,
+                addressCache: addressCache
+            )
+        case let .socks5(configuration):
+            currentTransport = URLSessionSocks5Transport(
+                urlSession: urlSessionTransport.urlSession,
+                configuration: configuration,
+                addressCache: addressCache
+            )
         }
         return currentTransport
     }

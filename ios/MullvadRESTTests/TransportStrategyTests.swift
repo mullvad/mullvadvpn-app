@@ -7,6 +7,7 @@
 //
 
 @testable import MullvadREST
+import MullvadSettings
 @testable import MullvadTypes
 import XCTest
 
@@ -29,35 +30,147 @@ final class TransportStrategyTests: XCTestCase {
         try super.tearDownWithError()
     }
 
-    func testEveryThirdConnectionAttemptsIsDirect() {
-        loopStrategyTest(with: TransportStrategy(userDefaults), in: 0 ... 12)
+    func testContinuesToUseDirectWhenNoOneIsEnabled() {
+        let transportStrategy = TransportStrategy(
+            userDefaults,
+            datasource: AccessMethodRepositoryStub(accessMethods: [
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
+                    name: "",
+                    isEnabled: false,
+                    proxyConfiguration: .direct
+                ),
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!,
+                    name: "",
+                    isEnabled: false,
+                    proxyConfiguration: .bridges
+                ),
+            ])
+        )
+
+        for _ in 0 ... 4 {
+            transportStrategy.didFail()
+            XCTAssertEqual(transportStrategy.connectionTransport(), .direct)
+        }
     }
 
-    func testOverflowingConnectionAttempts() {
-        userDefaults.set(Int.max, forKey: TransportStrategy.connectionAttemptsSharedCacheKey)
-        let strategy = TransportStrategy(userDefaults)
+    func testContinuesToUseBridgeWhenJustOneIsEnabled() {
+        let transportStrategy = TransportStrategy(
+            userDefaults,
+            datasource: AccessMethodRepositoryStub(accessMethods: [
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
+                    name: "",
+                    isEnabled: false,
+                    proxyConfiguration: .direct
+                ),
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!,
+                    name: "",
+                    isEnabled: true,
+                    proxyConfiguration: .bridges
+                ),
+            ])
+        )
 
-        // (Int.max - 1) is a multiple of 3, so skip the first iteration
-        loopStrategyTest(with: strategy, in: 1 ... 12)
+        for _ in 0 ... 10 {
+            transportStrategy.didFail()
+            XCTAssertEqual(transportStrategy.connectionTransport(), .bridge)
+        }
     }
 
-    func testConnectionAttemptsAreRecordedAfterFailure() {
-        var strategy = TransportStrategy(userDefaults)
+    func testContinuesToUseDirectWhenItReachesEnd() {
+        let transportStrategy = TransportStrategy(
+            userDefaults,
+            datasource: AccessMethodRepositoryStub(accessMethods: [
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
+                    name: "",
+                    isEnabled: true,
+                    proxyConfiguration: .direct
+                ),
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!,
+                    name: "",
+                    isEnabled: false,
+                    proxyConfiguration: .bridges
+                ),
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95090")!,
+                    name: "",
+                    isEnabled: true,
+                    proxyConfiguration: .shadowsocks(PersistentProxyConfiguration.ShadowsocksConfiguration(
+                        server: .ipv4(.loopback),
+                        port: 8083,
+                        password: "",
+                        cipher: .default
+                    ))
+                ),
+            ])
+        )
 
-        strategy.didFail()
-
-        let recordedValue = userDefaults.integer(forKey: TransportStrategy.connectionAttemptsSharedCacheKey)
-        XCTAssertEqual(1, recordedValue)
+        for _ in 0 ... 3 {
+            transportStrategy.didFail()
+        }
+        XCTAssertEqual(transportStrategy.connectionTransport(), .direct)
     }
 
-    private func loopStrategyTest(with strategy: TransportStrategy, in range: ClosedRange<Int>) {
-        var strategy = strategy
+    func testContinuesToUseNextWhenItIsNotReachable() {
+        let transportStrategy = TransportStrategy(
+            userDefaults,
+            datasource: AccessMethodRepositoryStub(accessMethods: [
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!,
+                    name: "",
+                    isEnabled: true,
+                    proxyConfiguration: .direct
+                ),
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!,
+                    name: "",
+                    isEnabled: false,
+                    proxyConfiguration: .bridges
+                ),
+                PersistentAccessMethod(
+                    id: UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95090")!,
+                    name: "",
+                    isEnabled: true,
+                    proxyConfiguration: .shadowsocks(PersistentProxyConfiguration.ShadowsocksConfiguration(
+                        server: .ipv4(.loopback),
+                        port: 8083,
+                        password: "",
+                        cipher: .default
+                    ))
+                ),
+            ])
+        )
+        XCTAssertEqual(transportStrategy.connectionTransport(), .direct)
+        transportStrategy.didFail()
+        XCTAssertEqual(
+            transportStrategy.connectionTransport(),
+            .shadowsocks(configuration: ShadowsocksConfiguration(
+                address: .ipv4(.loopback),
+                port: 8083,
+                password: "",
+                cipher: ShadowsocksCipherOptions.default.rawValue.description
+            ))
+        )
+    }
+}
 
-        for index in range {
-            let expectedResult: TransportStrategy.Transport
-            expectedResult = index.isMultiple(of: 3) ? .useURLSession : .useShadowsocks
-            XCTAssertEqual(strategy.connectionTransport(), expectedResult)
-            strategy.didFail()
+extension TransportStrategy.Transport: Equatable {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
+        case(.direct, .direct), (.bridge, .bridge):
+            return true
+        case let (.shadowsocks(config1), .shadowsocks(config2)):
+            return config1.address.rawValue == config2.address.rawValue && config1.port == config2.port && config1
+                .cipher == config2.cipher && config1.password == config2.password
+        case let (.socks5(config1), .socks5(config2)):
+            return config1.address.rawValue == config2.address.rawValue && config1.port == config2.port
+        default:
+            return false
         }
     }
 }
