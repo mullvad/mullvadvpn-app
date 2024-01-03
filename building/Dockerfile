@@ -28,8 +28,8 @@ LABEL org.opencontainers.image.licenses=GPL-3.0
 
 ENV CARGO_TARGET_DIR=/cargo-target/target
 
-ARG GOLANG_VERSION=1.18.5 \
-    GOLANG_HASH=9e5de37f9c49942c601b191ac5fba404b868bfc21d446d6960acc12283d6e5f2
+ARG GOLANG_VERSION=1.21.3 \
+    GOLANG_HASH=1241381b2843fae5a9707eec1f8fb2ef94d827990582c7c7c32f5bdfbfd420c8
 
 # The pinned commit has this solved: https://github.com/rui314/mold/issues/1003.
 ARG MOLD_COMMIT_REF=c4722fe5aed96295837d9150b20ef8698c7a28db
