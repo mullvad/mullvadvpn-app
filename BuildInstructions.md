@@ -23,7 +23,7 @@ on your platform please submit an issue or a pull request.
 
     Install the `msi` hosted here: https://github.com/volta-cli/volta
 
-- (Not Windows) Install Go (ideally version `1.18`) by following the [official
+- (Not Windows) Install Go (ideally version `1.21`) by following the [official
   instructions](https://golang.org/doc/install).  Newer versions may work
   too.
 
