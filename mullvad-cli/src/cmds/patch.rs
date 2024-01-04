@@ -9,9 +9,9 @@ use std::{
 /// Maximum size of a settings patch. Bigger files/streams cause the read to fail.
 const MAX_PATCH_BYTES: usize = 10 * 1024;
 
-/// If source is specified, read from the provided file and send it as a settings patch to the
-/// daemon. Otherwise, read the patch from standard input.
-pub async fn handle(source: String) -> Result<()> {
+/// If source is specified, read from the provided file and send it as a settings patch to the daemon.
+/// Otherwise, read the patch from standard input.
+pub async fn import(source: String) -> Result<()> {
     let json_blob = tokio::task::spawn_blocking(|| get_blob(source))
         .await
         .unwrap()?;
