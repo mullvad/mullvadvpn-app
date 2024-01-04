@@ -46,7 +46,7 @@ class AccountScreenTest {
                             deviceName = DUMMY_DEVICE_NAME,
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
-                            showSitePayment = true,
+                            showSitePayment = false
                         ),
                     uiSideEffect =
                         MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
@@ -67,10 +67,10 @@ class AccountScreenTest {
                 AccountScreen(
                     uiState =
                         AccountUiState(
+                            showSitePayment = true,
                             deviceName = DUMMY_DEVICE_NAME,
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
-                            showSitePayment = true,
                         ),
                     uiSideEffect =
                         MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
@@ -86,19 +86,57 @@ class AccountScreenTest {
         }
 
     @Test
-    fun testShowFetchProductsErrorDialog() =
-        // Arrange
+    fun testRedeemVoucherClick() =
         composeExtension.use {
+            // Arrange
+            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 AccountScreen(
-                    uiState = AccountUiState.default(),
+                    uiState =
+                        AccountUiState(
+                            deviceName = DUMMY_DEVICE_NAME,
+                            accountNumber = DUMMY_ACCOUNT_NUMBER,
+                            accountExpiry = null,
+                            showSitePayment = false
+                        ),
                     uiSideEffect =
                         MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                    onRedeemVoucherClick = mockedClickHandler
                 )
             }
 
+            // Act
+            onNodeWithText("Redeem voucher").performClick()
+
             // Assert
-            onNodeWithText("Google Play unavailable").assertExists()
+            verify { mockedClickHandler.invoke() }
+        }
+
+    @Test
+    fun testLogoutClick() =
+        composeExtension.use {
+            // Arrange
+            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+            setContentWithTheme {
+                AccountScreen(
+                    uiState =
+                        AccountUiState(
+                            deviceName = DUMMY_DEVICE_NAME,
+                            accountNumber = DUMMY_ACCOUNT_NUMBER,
+                            accountExpiry = null,
+                            showSitePayment = false
+                        ),
+                    uiSideEffect =
+                        MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                    onLogoutClick = mockedClickHandler
+                )
+            }
+
+            // Act
+            onNodeWithText("Log out").performClick()
+
+            // Assert
+            verify { mockedClickHandler.invoke() }
         }
 
     @Test
@@ -109,10 +147,7 @@ class AccountScreenTest {
                 AccountScreen(
                     uiState =
                         AccountUiState.default()
-                            .copy(
-                                billingPaymentState = PaymentState.Error.Billing,
-                                showSitePayment = true,
-                            ),
+                            .copy(billingPaymentState = PaymentState.Error.Billing),
                     uiSideEffect =
                         MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
                 )
@@ -135,8 +170,7 @@ class AccountScreenTest {
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
-                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                                showSitePayment = true,
+                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                             ),
                     uiSideEffect =
                         MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
@@ -160,8 +194,7 @@ class AccountScreenTest {
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
-                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                                showSitePayment = true,
+                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                             ),
                     uiSideEffect =
                         MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
@@ -179,17 +212,18 @@ class AccountScreenTest {
             val mockPaymentProduct: PaymentProduct = mockk()
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns PaymentStatus.PENDING
+            val mockNavigateToVerificationPending: () -> Unit = mockk(relaxed = true)
             setContentWithTheme {
                 AccountScreen(
                     uiState =
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
-                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                                showSitePayment = true,
+                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                             ),
                     uiSideEffect =
                         MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
+                    navigateToVerificationPendingDialog = mockNavigateToVerificationPending
                 )
             }
 
@@ -197,11 +231,7 @@ class AccountScreenTest {
             onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
 
             // Assert
-
-            onNodeWithText(
-                    "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
-                )
-                .assertExists()
+            verify(exactly = 1) { mockNavigateToVerificationPending.invoke() }
         }
 
     @Test
@@ -217,8 +247,7 @@ class AccountScreenTest {
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
-                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                                showSitePayment = true,
+                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                             ),
                     uiSideEffect =
                         MutableSharedFlow<AccountViewModel.UiSideEffect>().asSharedFlow(),
@@ -244,8 +273,7 @@ class AccountScreenTest {
                         AccountUiState.default()
                             .copy(
                                 billingPaymentState =
-                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                                showSitePayment = true,
+                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                             ),
                     onPurchaseBillingProductClick = clickHandler,
                     uiSideEffect =

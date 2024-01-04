@@ -236,6 +236,7 @@ class OutOfTimeScreenTest {
                             billingPaymentState =
                                 PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
                         ),
+                    navigateToVerificationPendingDialog = mockNavigateToVerificationPending
                 )
             }
 
@@ -258,10 +259,10 @@ class OutOfTimeScreenTest {
                 OutOfTimeScreen(
                     uiState =
                         OutOfTimeUiState(
-                            showSitePayment = true,
                             billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                        ),
+                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                            showSitePayment = true,
+                        )
                 )
             }
 
@@ -282,9 +283,9 @@ class OutOfTimeScreenTest {
                 OutOfTimeScreen(
                     uiState =
                         OutOfTimeUiState(
-                            showSitePayment = true,
                             billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                            showSitePayment = true,
                         ),
                     onSitePaymentClick = {},
                     onRedeemVoucherClick = {},
