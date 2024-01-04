@@ -39,7 +39,10 @@ impl Status {
                         // match statement checks for duplicate tunnel states and skips the second
                         // print to avoid spamming the user.
                         match (&previous_tunnel_state, &new_state) {
-                            (Some(TunnelState::Disconnected(_)), TunnelState::Disconnected(_))
+                            (
+                                Some(TunnelState::Disconnected { .. }),
+                                TunnelState::Disconnected { .. },
+                            )
                             | (
                                 Some(TunnelState::Connected { .. }),
                                 TunnelState::Connected { .. },
@@ -91,7 +94,7 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     let state = rpc.get_tunnel_state().await?;
     let device = rpc.get_device().await?;
 
-    print_account_loggedout(&state, &device);
+    print_account_logged_out(&state, &device);
 
     if args.debug {
         println!("Tunnel state: {state:#?}");
@@ -106,7 +109,7 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     Ok(())
 }
 
-fn print_account_loggedout(state: &TunnelState, device: &DeviceState) {
+fn print_account_logged_out(state: &TunnelState, device: &DeviceState) {
     match state {
         TunnelState::Connecting { .. } | TunnelState::Connected { .. } | TunnelState::Error(_) => {
             match device {
@@ -117,6 +120,6 @@ fn print_account_loggedout(state: &TunnelState, device: &DeviceState) {
                 DeviceState::LoggedIn(_) => (),
             }
         }
-        TunnelState::Disconnected(_) | TunnelState::Disconnecting(_) => (),
+        TunnelState::Disconnected { .. } | TunnelState::Disconnecting(_) => (),
     }
 }

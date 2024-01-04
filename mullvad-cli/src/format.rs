@@ -37,8 +37,15 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
                 format_relay_connection(endpoint, location.as_ref(), verbose)
             );
         }
-        Disconnected(_) => {
-            println!("Disconnected");
+        Disconnected {
+            location: _,
+            locked_down,
+        } => {
+            if *locked_down {
+                println!("Disconnected (Internet access is blocked due to lockdown mode)");
+            } else {
+                println!("Disconnected");
+            }
         }
         Disconnecting(_) => println!("Disconnecting..."),
     }
@@ -46,7 +53,10 @@ pub fn print_state(state: &TunnelState, verbose: bool) {
 
 pub fn print_location(state: &TunnelState) {
     let location = match state {
-        TunnelState::Disconnected(location) => location,
+        TunnelState::Disconnected {
+            location,
+            locked_down: _,
+        } => location,
         TunnelState::Connected { location, .. } => location,
         _ => return,
     };
