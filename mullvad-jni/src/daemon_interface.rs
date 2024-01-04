@@ -31,7 +31,7 @@ pub enum Error {
     UpdateSettings,
 
     #[error(display = "Daemon returned an error")]
-    OtherError(#[error(source)] mullvad_daemon::Error),
+    Other(#[error(source)] mullvad_daemon::Error),
 }
 
 impl From<mullvad_daemon::Error> for Error {
@@ -44,7 +44,7 @@ impl From<mullvad_daemon::Error> for Error {
             mullvad_daemon::Error::ListDevicesError(device::Error::OtherRestError(error)) => {
                 Error::Api(error)
             }
-            error => Error::OtherError(error),
+            error => Error::Other(error),
         }
     }
 }

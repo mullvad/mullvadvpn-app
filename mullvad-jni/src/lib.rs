@@ -107,7 +107,7 @@ impl From<Result<(), daemon_interface::Error>> for LoginResult {
         match result {
             Ok(()) => LoginResult::Ok,
             Err(error) => match error {
-                daemon_interface::Error::OtherError(mullvad_daemon::Error::LoginError(error)) => {
+                daemon_interface::Error::Other(mullvad_daemon::Error::LoginError(error)) => {
                     match error {
                         device::Error::InvalidAccount => LoginResult::InvalidAccount,
                         device::Error::MaxDevicesReached => LoginResult::MaxDevicesReached,
@@ -136,7 +136,7 @@ impl From<Result<(), daemon_interface::Error>> for RemoveDeviceResult {
         match result {
             Ok(()) => RemoveDeviceResult::Ok,
             Err(error) => match error {
-                daemon_interface::Error::OtherError(mullvad_daemon::Error::LoginError(error)) => {
+                daemon_interface::Error::Other(mullvad_daemon::Error::LoginError(error)) => {
                     match error {
                         device::Error::InvalidAccount => RemoveDeviceResult::RpcError,
                         device::Error::InvalidDevice => RemoveDeviceResult::NotFound,
@@ -179,10 +179,10 @@ impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmiss
 impl From<daemon_interface::Error> for VoucherSubmissionError {
     fn from(error: daemon_interface::Error) -> Self {
         match error {
-            daemon_interface::Error::OtherError(mullvad_daemon::Error::VoucherSubmission(
+            daemon_interface::Error::Other(mullvad_daemon::Error::VoucherSubmission(
                 device::Error::InvalidVoucher,
             )) => VoucherSubmissionError::InvalidVoucher,
-            daemon_interface::Error::OtherError(mullvad_daemon::Error::VoucherSubmission(
+            daemon_interface::Error::Other(mullvad_daemon::Error::VoucherSubmission(
                 device::Error::UsedVoucher,
             )) => VoucherSubmissionError::VoucherAlreadyUsed,
             _ => VoucherSubmissionError::OtherError,
