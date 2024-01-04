@@ -1984,6 +1984,10 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr ""
 
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in the encrypted VPN traffic. It does this by padding all packets to the same size, and by inserting extra noise traffic into the stream. This makes it significantly harder for an observer on the network to identify what services you are talking to."
+msgstr ""
+
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
@@ -2055,6 +2059,15 @@ msgstr ""
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
 msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
+msgstr ""
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "This feature isn't available on all servers. You might need to change location after enabling."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "This feature cause significant performance and network overhead. We do not recommend enabling it unless you know you need it. We also do not recommend enabling %(daita)s on a metered internet connection."
 msgstr ""
 
 #. Warning text in a dialog that is displayed after a setting is toggled.
