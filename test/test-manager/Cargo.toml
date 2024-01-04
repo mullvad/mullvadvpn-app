@@ -3,6 +3,9 @@ name = "test-manager"
 version = "0.1.0"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [dependencies]
 anyhow = { version = "1", features = ["backtrace"] }
 futures = { workspace = true }
