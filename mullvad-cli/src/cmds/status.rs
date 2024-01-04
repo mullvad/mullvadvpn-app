@@ -46,7 +46,7 @@ impl Status {
                             ) => continue,
                             _ => {}
                         }
-                        format::print_state(&new_state, args.verbose);
+                        format::print_state(&new_state, args.verbose).await;
                         previous_tunnel_state = Some(new_state);
                     }
                 }
@@ -96,7 +96,7 @@ pub async fn handle(cmd: Option<Status>, args: StatusArgs) -> Result<()> {
     if args.debug {
         println!("Tunnel state: {state:#?}");
     } else {
-        format::print_state(&state, args.verbose);
+        format::print_state(&state, args.verbose).await;
         format::print_location(&state);
     }
 
