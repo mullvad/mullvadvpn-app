@@ -34,8 +34,8 @@ enum Event {
     Settings(Settings),
     Tunnel(TunnelState),
     AppVersionInfo(AppVersionInfo),
-    DeviceEvent(DeviceEvent),
-    RemoveDeviceEvent(RemoveDeviceEvent),
+    Device(DeviceEvent),
+    RemoveDevice(RemoveDeviceEvent),
 }
 
 #[derive(Clone, Debug)]
@@ -65,11 +65,11 @@ impl EventListener for JniEventListener {
     }
 
     fn notify_device_event(&self, event: DeviceEvent) {
-        let _ = self.0.send(Event::DeviceEvent(event));
+        let _ = self.0.send(Event::Device(event));
     }
 
     fn notify_remove_device_event(&self, event: RemoveDeviceEvent) {
-        let _ = self.0.send(Event::RemoveDeviceEvent(event));
+        let _ = self.0.send(Event::RemoveDevice(event));
     }
 }
 
@@ -190,15 +190,13 @@ impl<'env> JniEventHandler<'env> {
         while let Ok(event) = self.events.recv() {
             match event {
                 Event::RelayList(relay_list) => self.handle_relay_list_event(relay_list),
-                Event::Settings(settings) => self.handle_settings(settings),
+                Event::Settings(settings) => self.handle_settings_event(settings),
                 Event::Tunnel(tunnel_event) => self.handle_tunnel_event(tunnel_event),
                 Event::AppVersionInfo(app_version_info) => {
                     self.handle_app_version_info_event(app_version_info)
                 }
-                Event::DeviceEvent(device_event) => self.handle_device_event(device_event),
-                Event::RemoveDeviceEvent(device_event) => {
-                    self.handle_remove_device_event(device_event)
-                }
+                Event::Device(device_event) => self.handle_device_event(device_event),
+                Event::RemoveDevice(device_event) => self.handle_remove_device_event(device_event),
             }
         }
     }
@@ -258,7 +256,7 @@ impl<'env> JniEventHandler<'env> {
         }
     }
 
-    fn handle_settings(&self, settings: Settings) {
+    fn handle_settings_event(&self, settings: Settings) {
         let java_settings = settings.into_java(&self.env);
 
         let result = self.env.call_method_unchecked(

@@ -8,6 +8,9 @@ license.workspace = true
 edition.workspace = true
 publish.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 chrono = { workspace = true, features = ["clock", "serde"] }
 err-derive = { workspace = true }

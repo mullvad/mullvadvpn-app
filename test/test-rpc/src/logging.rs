@@ -1,5 +1,6 @@
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -19,8 +20,8 @@ pub enum Output {
     Other(String),
 }
 
-impl std::fmt::Display for Output {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+impl fmt::Display for Output {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Output::Error(s) => f.write_fmt(format_args!("{}", s.as_str().red())),
             Output::Warning(s) => f.write_fmt(format_args!("{}", s.as_str().yellow())),

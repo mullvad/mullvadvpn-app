@@ -31,8 +31,6 @@
 //! most cases, it is important to keep in mind that this is just a helper tool and manual steps are
 //! likely to be needed from time to time.
 
-#![deny(rust_2018_idioms)]
-
 mod android;
 mod gettext;
 mod normalize;

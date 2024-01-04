@@ -29,11 +29,11 @@ pub static LOGGER: Lazy<StdOutBuffer> = Lazy::new(|| {
 pub struct StdOutBuffer(pub Mutex<Receiver<Output>>, pub Sender<Output>);
 
 impl log::Log for StdOutBuffer {
-    fn enabled(&self, metadata: &Metadata) -> bool {
+    fn enabled(&self, metadata: &Metadata<'_>) -> bool {
         metadata.level() <= Level::Info
     }
 
-    fn log(&self, record: &Record) {
+    fn log(&self, record: &Record<'_>) {
         if self.enabled(record.metadata()) {
             match record.metadata().level() {
                 Level::Error => {

@@ -1,5 +1,3 @@
-#![deny(rust_2018_idioms)]
-
 use mullvad_daemon::{
     logging,
     management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},

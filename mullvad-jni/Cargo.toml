@@ -8,6 +8,9 @@ license.workspace = true
 edition.workspace = true
 publish.workspace = true
 
+[lints]
+workspace = true
+
 [features]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]

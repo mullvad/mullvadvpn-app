@@ -107,7 +107,7 @@ impl ConnectionHandle {
     }
 
     /// Returns a future that is notified when `reset_connected_state` is called.
-    pub fn notified_reset(&self) -> Notified {
+    pub fn notified_reset(&self) -> Notified<'_> {
         self.reset_notify.notified()
     }
 

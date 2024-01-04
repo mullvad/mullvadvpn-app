@@ -1,5 +1,3 @@
-#![deny(rust_2018_idioms)]
-
 use mullvad_api::proxy::ApiConnectionMode;
 use once_cell::sync::Lazy;
 use regex::Regex;

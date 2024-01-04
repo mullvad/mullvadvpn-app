@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 description = "Supports IPC between test-runner and test-manager"
 
+[lints]
+workspace = true
+
 [dependencies]
 futures = { workspace = true }
 tokio = { workspace = true }
