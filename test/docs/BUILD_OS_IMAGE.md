@@ -34,9 +34,10 @@ To better illustrate the remaining steps of the installation process, we assume 
 
 #### sudo
 
-The user should be able to execute `sudo` without a password.
+The user should be able to execute `sudo` without a password. On Debian/Ubuntu, the user should be added to the group `sudo`.
+On Fedora, the group is typically called `wheel`, which is used in the example below.
 
-One way of accomplishing this is to add the `test` user to the `wheel` group
+Add the `test` user to the `wheel` group
 ```bash
 gpasswd -a test wheel
 ```
