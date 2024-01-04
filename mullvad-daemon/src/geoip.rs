@@ -127,7 +127,6 @@ async fn send_location_request(
         if use_ipv6 {
             let uri_v6 = format!("https://ipv6.{}/json", *MULLVAD_CONNCHECK_HOST);
             let location = send_location_request_internal(&uri_v6, v6_sender).await;
-            log::warn!("{location:?}");
             Some(location.map(GeoIpLocation::from))
         } else {
             None
