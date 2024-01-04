@@ -122,6 +122,31 @@ class VoucherDialogViewModelTest {
         }
     }
 
+    @Test
+    fun testResetStateAfterChangingInput() = runTest {
+        val voucher = DUMMY_INVALID_VOUCHER
+        val dummyStringResource = DUMMY_STRING_RESOURCE
+
+        // Arrange
+        every { mockServiceConnectionManager.voucherRedeemer() } returns mockVoucherRedeemer
+        every { mockResources.getString(any()) } returns dummyStringResource
+        every { mockVoucherSubmission.timeAdded } returns 0
+        coEvery { mockVoucherRedeemer.submit(voucher) } returns
+            VoucherSubmissionResult.Error(VoucherSubmissionError.OtherError)
+
+        // Act, Assert
+        viewModel.uiState.test {
+            assertEquals(viewModel.uiState.value, awaitItem())
+            serviceConnectionState.value =
+                ServiceConnectionState.ConnectedReady(mockServiceConnectionContainer)
+            viewModel.onRedeem(voucher)
+            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Verifying }
+            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Error }
+            viewModel.onVoucherInputChange(DUMMY_VALID_VOUCHER)
+            assertTrue { awaitItem().voucherViewModelState is VoucherDialogState.Default }
+        }
+    }
+
     companion object {
         private const val DUMMY_VALID_VOUCHER = "dummy_valid_voucher"
         private const val DUMMY_INVALID_VOUCHER = "dummy_invalid_voucher"
