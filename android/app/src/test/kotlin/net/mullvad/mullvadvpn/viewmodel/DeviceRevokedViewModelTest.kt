@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
+import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
@@ -26,9 +27,11 @@ import net.mullvad.talpid.util.EventNotifier
 import net.mullvad.talpid.util.callbackFlowFromSubscription
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class DeviceRevokedViewModelTest {
+    @get:Rule val testCoroutineRule = TestCoroutineRule()
 
     @MockK private lateinit var mockedAccountRepository: AccountRepository
 

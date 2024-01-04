@@ -1,14 +1,19 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.DeviceRevokedUiState
 import net.mullvad.mullvadvpn.repository.AccountRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -42,12 +47,21 @@ class DeviceRevokedViewModel(
                 initialValue = DeviceRevokedUiState.UNKNOWN
             )
 
+    private val _uiSideEffect = Channel<DeviceRevokedSideEffect>(1, BufferOverflow.DROP_OLDEST)
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
+
     fun onGoToLoginClicked() {
         serviceConnectionManager.connectionProxy()?.let { proxy ->
             if (proxy.state.isSecured()) {
                 proxy.disconnect()
             }
-            accountRepository.logout()
         }
+        accountRepository.logout()
+
+        viewModelScope.launch { _uiSideEffect.send(DeviceRevokedSideEffect.NavigateToLogin) }
     }
+}
+
+sealed interface DeviceRevokedSideEffect {
+    data object NavigateToLogin : DeviceRevokedSideEffect
 }

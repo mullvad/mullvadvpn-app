@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.model.DeviceState
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.repository.AccountRepository
@@ -137,9 +138,15 @@ class ConnectViewModel(
 
     init {
         viewModelScope.launch {
-            // This once we get isOutOfTime true we will navigate to OutOfTime view.
+            // When we get isOutOfTime true we will navigate to OutOfTime view.
             outOfTimeUseCase.isOutOfTime().first { it == true }
             _uiSideEffect.send(UiSideEffect.OutOfTime)
+        }
+
+        viewModelScope.launch {
+            // When we get a revoked DeviceState we navigate to the RevokedDevice screen.
+            deviceRepository.deviceState.filterIsInstance<DeviceState.Revoked>().first()
+            _uiSideEffect.send(UiSideEffect.RevokedDevice)
         }
 
         viewModelScope.launch {
@@ -194,6 +201,8 @@ class ConnectViewModel(
         data class OpenAccountManagementPageInBrowser(val token: String) : UiSideEffect
 
         data object OutOfTime : UiSideEffect
+
+        data object RevokedDevice : UiSideEffect
     }
 
     companion object {
