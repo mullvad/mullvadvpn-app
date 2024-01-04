@@ -122,11 +122,13 @@ if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
     am instrument -r -w \
     -e targetInstrumentation $TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner \
     -e clearPackageData true \
+    -e runnerBuilder de.mannodermaus.junit5.AndroidJUnit5Builder \
     ${OPTIONAL_TEST_ARGUMENTS:-""} \
     androidx.test.orchestrator/androidx.test.orchestrator.AndroidTestOrchestrator"
 else
     INSTRUMENTATION_COMMAND="\
     am instrument -w \
+    -e runnerBuilder de.mannodermaus.junit5.AndroidJUnit5Builder \
     $TEST_PACKAGE/androidx.test.runner.AndroidJUnitRunner"
 fi
 adb shell "$INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
