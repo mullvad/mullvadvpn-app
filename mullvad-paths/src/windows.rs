@@ -67,7 +67,8 @@ fn get_wide_str<S: AsRef<OsStr>>(string: S) -> Vec<u16> {
 
 /// Recursively creates directories, if set_security_permissions is true it will set
 /// file permissions corresponding to Authenticated Users - Read Only and Administrators - Full
-/// Access. Only directories that do not already exist and the leaf directory will have their permissions set.
+/// Access. Only directories that do not already exist and the leaf directory will have their
+/// permissions set.
 pub fn create_dir_recursive(path: &Path, set_security_permissions: bool) -> Result<()> {
     if set_security_permissions {
         create_dir_with_permissions_recursive(path)
@@ -114,7 +115,8 @@ fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
         // Create parent directory
         Some(parent) => create_dir_with_permissions_recursive(parent)?,
         None => {
-            // Reached the top of the tree but when creating directories only got NotFound for some reason
+            // Reached the top of the tree but when creating directories only got NotFound for some
+            // reason
             return Err(Error::CreateDirFailed(
                 path.display().to_string(),
                 io::Error::new(
@@ -129,13 +131,15 @@ fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
     set_security_permissions(path)
 }
 
-/// Recursively creates directories for the given path with permissions that give full access to admins and read only access to authenticated users.
-/// If any of the directories already exist this will not return an error, instead it will apply the permissions and if successful return Ok(()).
+/// Recursively creates directories for the given path with permissions that give full access to
+/// admins and read only access to authenticated users. If any of the directories already exist this
+/// will not return an error, instead it will apply the permissions and if successful return Ok(()).
 pub fn create_privileged_directory(path: &Path) -> Result<()> {
     create_dir_with_permissions_recursive(path)
 }
 
-/// Sets security permissions for path such that admin has full ownership and access while authenticated users only have read access.
+/// Sets security permissions for path such that admin has full ownership and access while
+/// authenticated users only have read access.
 fn set_security_permissions(path: &Path) -> Result<()> {
     let wide_path = get_wide_str(path);
     let security_information = Security::DACL_SECURITY_INFORMATION

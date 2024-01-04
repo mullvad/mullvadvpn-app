@@ -153,8 +153,8 @@ impl Firewall {
             protocol: WinFwProt::from(endpoint.endpoint.protocol),
         };
 
-        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1`, `endpoint2`, `relay_client_wstrs` must not be dropped
-        // until `WinFw_ApplyPolicyConnecting` has returned.
+        // SAFETY: `endpoint1_ip`, `endpoint2_ip`, `endpoint1`, `endpoint2`, `relay_client_wstrs`
+        // must not be dropped until `WinFw_ApplyPolicyConnecting` has returned.
 
         let relay_client_wstrs: Vec<_> = endpoint
             .clients
@@ -274,7 +274,8 @@ impl Firewall {
             None => ptr::null(),
         };
 
-        // SAFETY: `relay_client_wstrs` must not be dropped until `WinFw_ApplyPolicyConnected` has returned.
+        // SAFETY: `relay_client_wstrs` must not be dropped until `WinFw_ApplyPolicyConnected` has
+        // returned.
         let relay_client_wstrs: Vec<_> = endpoint
             .clients
             .iter()

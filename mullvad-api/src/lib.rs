@@ -9,7 +9,6 @@ use mullvad_types::{
     version::AppVersion,
 };
 use proxy::ApiConnectionMode;
-use std::sync::OnceLock;
 use std::{
     cell::Cell,
     collections::BTreeMap,
@@ -17,6 +16,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     ops::Deref,
     path::Path,
+    sync::OnceLock,
 };
 use talpid_types::{net::AllowedEndpoint, ErrorExt};
 

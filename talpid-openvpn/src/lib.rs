@@ -755,8 +755,7 @@ mod event_server {
         task::{Context, Poll},
     };
     use talpid_tunnel::TunnelMetadata;
-    use talpid_types::net::proxy::CustomProxy;
-    use talpid_types::ErrorExt;
+    use talpid_types::{net::proxy::CustomProxy, ErrorExt};
     use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
         self,

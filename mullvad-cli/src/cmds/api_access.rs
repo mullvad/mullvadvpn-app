@@ -26,9 +26,11 @@ pub enum ApiAccess {
     Enable(SelectItem),
     /// Disable an API access method
     Disable(SelectItem),
-    /// Try to use a specific API access method (If the API is unreachable, reverts back to the previous access method)
+    /// Try to use a specific API access method (If the API is unreachable, reverts back to the
+    /// previous access method)
     ///
-    /// Selecting "Direct" will connect to the Mullvad API without going through any proxy. This connection use https and is therefore encrypted.
+    /// Selecting "Direct" will connect to the Mullvad API without going through any proxy. This
+    /// connection use https and is therefore encrypted.
     ///
     /// Selecting "Mullvad Bridges" respects your current bridge settings
     Use(SelectItem),

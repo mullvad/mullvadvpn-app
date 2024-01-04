@@ -294,8 +294,8 @@ impl Firewall {
         builder.build()
     }
 
-    /// Produces a rule that allows traffic to flow to the API. Allows the app (or other apps if configured)
-    /// to reach the API in blocked states.
+    /// Produces a rule that allows traffic to flow to the API. Allows the app (or other apps if
+    /// configured) to reach the API in blocked states.
     fn get_allowed_endpoint_rule(
         &self,
         allowed_endpoint: &AllowedEndpoint,

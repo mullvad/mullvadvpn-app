@@ -6,10 +6,10 @@ use futures::{
     stream::{FusedStream, StreamExt},
 };
 use ipnetwork::IpNetwork;
-use std::sync::Weak;
 use std::{
     collections::{BTreeMap, HashSet},
     pin::Pin,
+    sync::Weak,
     time::Duration,
 };
 use talpid_types::ErrorExt;

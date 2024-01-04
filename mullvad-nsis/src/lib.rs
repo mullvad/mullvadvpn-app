@@ -20,8 +20,8 @@ pub enum Status {
 /// Max path size allowed
 const MAX_PATH_SIZE: isize = 32_767;
 
-/// SAFETY: path needs to be a windows path encoded as a string of u16 that terminates in 0 (two nul-bytes).
-/// The string is also not allowed to be greater than `MAX_PATH_SIZE`.
+/// SAFETY: path needs to be a windows path encoded as a string of u16 that terminates in 0 (two
+/// nul-bytes). The string is also not allowed to be greater than `MAX_PATH_SIZE`.
 #[no_mangle]
 pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status {
     catch_and_log_unwind(|| {

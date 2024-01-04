@@ -49,7 +49,8 @@ pub struct VoucherSubmission {
     pub new_expiry: DateTime<Utc>,
 }
 
-/// `PlayPurchase` is provided to google in order to verify that a google play purchase was acknowledged.
+/// `PlayPurchase` is provided to google in order to verify that a google play purchase was
+/// acknowledged.
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[cfg_attr(target_os = "android", derive(FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
