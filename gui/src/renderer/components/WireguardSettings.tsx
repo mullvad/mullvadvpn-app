@@ -580,24 +580,27 @@ function DaitaSettings() {
         <Cell.Container>
           <AriaLabel>
             <Cell.InputLabel>
-              DAITA
+              {strings.daita}
               <YellowLabel>{messages.gettext('BETA')}</YellowLabel>
             </Cell.InputLabel>
           </AriaLabel>
           <InfoButton>
             <ModalMessage>
-              {
-                // TODO: These texts need to be polished
+              {sprintf(
                 messages.pgettext(
                   'wireguard-settings-view',
-                  'Enabling DAITA (Defence against AI Traffic Analysis) hides patterns in the VPN tunnel by generating dummy traffic and using a fixed packet size.',
-                )
-              }
+                  '%(daita)s (%(daitaFull)s) hides patterns in the encrypted VPN traffic. It does this by padding all packets to the same size, and by inserting extra noise traffic into the stream. This makes it significantly harder for an observer on the network to identify what services you are talking to.',
+                ),
+                { daita: strings.daita, daitaFull: strings.daitaFull },
+              )}
             </ModalMessage>
             <ModalMessage>
-              {messages.pgettext(
-                'wireguard-settings-view',
-                'DAITA may cause significant overhead. We do not recommend enabling DAITA on a metered internet connection.',
+              {sprintf(
+                messages.pgettext(
+                  'wireguard-settings-view',
+                  'This feature cause significant performance and network overhead. We do not recommend enabling it unless you know you need it. We also do not recommend enabling %(daita)s on a metered internet connection.',
+                ),
+                { daita: strings.daita },
               )}
             </ModalMessage>
           </InfoButton>
