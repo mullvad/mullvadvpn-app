@@ -41,6 +41,8 @@
   "strings": {
     "wireguard": "WireGuard",
     "openvpn": "OpenVPN",
-    "splitTunneling": "Split tunneling"
+    "splitTunneling": "Split tunneling",
+    "daita": "DAITA",
+    "daitaFull": "Defence Against AI-guided Traffic Analysis"
   }
 }
