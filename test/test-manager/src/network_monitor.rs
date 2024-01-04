@@ -31,7 +31,7 @@ pub struct ParsedPacket {
 impl PacketCodec for Codec {
     type Item = Option<ParsedPacket>;
 
-    fn decode(&mut self, packet: pcap::Packet) -> Self::Item {
+    fn decode(&mut self, packet: pcap::Packet<'_>) -> Self::Item {
         if self.no_frame {
             // skip utun header specifying an address family
             #[cfg(target_os = "macos")]

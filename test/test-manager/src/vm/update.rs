@@ -59,7 +59,7 @@ pub fn packages(config: &VmConfig, guest_ip: std::net::IpAddr) -> Result<Update>
 
 // Pretty-printing for an `Update` action.
 impl fmt::Display for Update {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Update::Nothing => write!(formatter, "Nothing was updated"),
             Update::Logs(output) => output
