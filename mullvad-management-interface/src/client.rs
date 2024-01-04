@@ -678,6 +678,11 @@ impl MullvadProxyClient {
         self.0.apply_json_settings(blob).await.map_err(Error::Rpc)?;
         Ok(())
     }
+
+    pub async fn export_json_settings(&mut self) -> Result<String> {
+        let blob = self.0.export_json_settings(()).await.map_err(Error::Rpc)?;
+        Ok(blob.into_inner())
+    }
 }
 
 fn map_device_error(status: Status) -> Error {

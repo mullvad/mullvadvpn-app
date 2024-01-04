@@ -33,6 +33,9 @@ pub enum Error {
     /// Failed to serialize settings
     #[error(display = "Failed to serialize current settings")]
     SerializeSettings(#[error(source)] serde_json::Error),
+    /// Failed to serialize field
+    #[error(display = "Failed to serialize value")]
+    SerializeValue(#[error(source)] serde_json::Error),
     /// Recursion limit reached
     #[error(display = "Maximum JSON object depth reached")]
     RecursionLimit,
@@ -54,7 +57,9 @@ impl From<Error> for mullvad_management_interface::Status {
             | Error::DeserializePatched(_)
             | Error::RecursionLimit => Status::invalid_argument(error.to_string()),
             Error::Settings(error) => Status::from(error),
-            Error::SerializeSettings(error) => Status::internal(error.to_string()),
+            Error::SerializeSettings(error) | Error::SerializeValue(error) => {
+                Status::internal(error.to_string())
+            }
         }
     }
 }
@@ -124,6 +129,40 @@ const PERMITTED_SUBKEYS: &PermittedKey = &PermittedKey::object(&[(
 /// Prohibit stack overflow via excessive recursion. It might be possible to forgo this when
 /// tail-call optimization can be enforced?
 const RECURSE_LIMIT: usize = 15;
+
+/// Export a patch containing all currently supported settings.
+pub fn export_settings(settings: &Settings) -> Result<String, Error> {
+    let patch = export_settings_inner(settings)?;
+    serde_json::to_string_pretty(&patch).map_err(Error::SerializeValue)
+}
+
+fn export_settings_inner(settings: &Settings) -> Result<serde_json::Value, Error> {
+    let mut out = serde_json::Map::new();
+    let mut overrides = vec![];
+
+    for relay_override in &settings.relay_overrides {
+        let mut relay_override =
+            serde_json::to_value(relay_override).map_err(Error::SerializeValue)?;
+        if let Some(relay_overrides) = relay_override.as_object_mut() {
+            // prune empty override entries
+            relay_overrides.retain(|_k, v| !v.is_null());
+            let has_overrides = relay_overrides.iter().any(|(key, _)| key != "hostname");
+            if !has_overrides {
+                continue;
+            }
+        }
+        overrides.push(relay_override);
+    }
+
+    if !overrides.is_empty() {
+        out.insert(
+            "relay_overrides".to_owned(),
+            serde_json::Value::Array(overrides),
+        );
+    }
+
+    Ok(serde_json::Value::Object(out))
+}
 
 /// Update the settings with the supplied patch. Only settings specified in `PERMITTED_SUBKEYS` can
 /// be updated. All other changes are rejected

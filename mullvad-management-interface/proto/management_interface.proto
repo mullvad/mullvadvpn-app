@@ -102,6 +102,8 @@ service ManagementService {
   // Apply a JSON blob to the settings
   // See ../../docs/settings-patch-format.md for a description of the format
   rpc ApplyJsonSettings(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  // Return a JSON blob containing all overridable settings, if there are any
+  rpc ExportJsonSettings(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 }
 
 message UUID { string value = 1; }
