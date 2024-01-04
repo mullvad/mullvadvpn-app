@@ -528,7 +528,7 @@ mod test {
         );
 
         assert!(
-            settings.block_when_disconnected == false,
+            !settings.block_when_disconnected,
             "The daemon should not block the internet if settings are missing"
         );
     }
