@@ -34,9 +34,10 @@ To better illustrate the remaining steps of the installation process, we assume 
 
 #### sudo
 
-The user should be able to execute `sudo` without a password.
+The user should be able to execute `sudo` without a password. On Debian/Ubuntu, the user should be added to the group `sudo`.
+On Fedora, the group is typically called `wheel`, which is used in the example below.
 
-One way of accomplishing this is to add the `test` user to the `wheel` group
+Add the `test` user to the `wheel` group
 ```bash
 gpasswd -a test wheel
 ```
@@ -207,91 +208,3 @@ Now you should [add your new VM to the test-manager config](./test-manager/READM
 # macOS 🚧
 
 _Instructions for building an OS image based on macOS are still under construction._
-
-# Legacy methods
-
-The following instructions are either completely deprecated or needed very seldom. We keep these for future reference.
-
-# Linux
-
-## Test runner dependencies
-
-`xvfb` and `wireguard-tools` must be installed on the guest system.
-You will also need some additional libraries, but these are most likely already installed if `gnome` is installed.
-
-### Debian/Ubuntu
-
-```bash
-apt install wireguard-tools xvfb libnss3 libgbm1 libasound2 libatk1.0-0 libatk-bridge2.0-0 libcups2 libgtk-3-0
-```
-
-### Fedora
-
-```bash
-dnf install wireguard-tools xorg-x11-server-Xvfb nss mesa-libgbm atk alsa-lib-devel at-spi2-atk gtk3
-```
-
-## Creating a test runner image (Legacy method)
-
-The [build-runner-image.sh](./scripts/build-runner-image.sh) script produces a
-virtual disk containing the test runner binaries, which must be mounted when
-starting the guest OS. They are used `build-runner-image.sh` assumes that an environment
-variable `$TARGET` is set to one of the following values:
-`x86_64-unknown-linux-gnu`, `x86_64-pc-windows-gnu` depending on which platform
-you want to build a testrunner-image for.
-
-## Bootstrapping test runner (Legacy method)
-
-The testing image needs to be mounted to `/opt/testing`, and the test runner needs to be started on
-boot.
-
-* In the guest, create a mount point for the runner: `mkdir -p /opt/testing`.
-
-* Add an entry to `/etc/fstab`:
-
-    ```
-    # Mount testing image
-    /dev/sdb /opt/testing ext4 defaults 0 1
-    ```
-
-* Create a systemd service that starts the test runner, `/etc/systemd/system/testrunner.service`:
-
-    ```
-    [Unit]
-    Description=Mullvad Test Runner
-
-    [Service]
-    ExecStart=/opt/testing/test-runner /dev/ttyS0 serve
-
-    [Install]
-    WantedBy=multi-user.target
-    ```
-
-* Enable the service: `systemctl enable testrunner.service`.
-
-### Note about SELinux (Fedora)
-
-SELinux prevents services from executing files that do not have the `bin_t` attribute set. Building
-the test runner image strips extended file attributes, and `e2tools` does not yet support setting
-these. As a workaround, we currently need to reapply these on each boot.
-
-First, set `bin_t` for all files in `/opt/testing`:
-
-```
-semanage fcontext -a -t bin_t "/opt/testing/.*"
-```
-
-Secondly, update the systemd unit file to run `restorecon` before the `test-runner`, using the
-`ExecStartPre` option:
-
-```
-[Unit]
-Description=Mullvad Test Runner
-
-[Service]
-ExecStartPre=restorecon -v "/opt/testing/*"
-ExecStart=/opt/testing/test-runner /dev/ttyS0 serve
-
-[Install]
-WantedBy=multi-user.target
-```
