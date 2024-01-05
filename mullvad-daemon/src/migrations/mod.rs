@@ -25,8 +25,8 @@
 //! # Creating a migration
 //!
 //! 1. Copy `vX.rs.template` to `vX.rs` where `X` is the latest settings version right now.
-//! 1. Add the new version (`Y = X+1`) to `SettingsVersion` and bump `CURRENT_SETTINGS_VERSION`
-//!    to `Y`.
+//! 1. Add the new version (`Y = X+1`) to `SettingsVersion` and bump `CURRENT_SETTINGS_VERSION` to
+//!    `Y`.
 //! 1. Write a comment in the new module about how the format changed, what it needs to migrate.
 //! 1. Implement the migration and add adequate tests.
 //! 1. Add to the changelog: "Settings format updated to `vY`"

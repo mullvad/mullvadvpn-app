@@ -440,8 +440,8 @@ impl OpenVpnProcHandle {
         })
     }
 
-    /// Begins to kill the process, causing `wait()` to return. This function does not wait for the operation
-    /// to complete.
+    /// Begins to kill the process, causing `wait()` to return. This function does not wait for the
+    /// operation to complete.
     pub fn kill(&mut self, timeout: std::time::Duration) {
         if let Some(tx) = self.stop_tx.take() {
             let _ = tx.send(timeout);

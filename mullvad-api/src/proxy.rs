@@ -7,9 +7,8 @@ use std::{
     pin::Pin,
     task::{self, Poll},
 };
-use talpid_types::net::proxy;
 use talpid_types::{
-    net::{AllowedClients, Endpoint, TransportProtocol},
+    net::{proxy, AllowedClients, Endpoint, TransportProtocol},
     ErrorExt,
 };
 use tokio::{

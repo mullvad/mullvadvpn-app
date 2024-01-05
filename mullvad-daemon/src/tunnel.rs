@@ -217,7 +217,8 @@ impl InnerParametersGenerator {
                     private_key: data.device.wg_data.private_key,
                     addresses: vec![IpAddr::from(tunnel_ipv4), IpAddr::from(tunnel_ipv6)],
                 };
-                // FIXME: Used for debugging purposes during the migration to same IP. Remove when the migration is over.
+                // FIXME: Used for debugging purposes during the migration to same IP. Remove when
+                // the migration is over.
                 if tunnel_ipv4 == *SAME_IP_V4 || tunnel_ipv6 == *SAME_IP_V6 {
                     log::debug!("Same IP is being used");
                 } else {

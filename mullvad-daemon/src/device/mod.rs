@@ -1347,8 +1347,7 @@ impl TunnelStateChangeHandler {
 
 #[cfg(test)]
 mod test {
-    use super::TunnelStateChangeHandler;
-    use super::{Error, WG_DEVICE_CHECK_THRESHOLD};
+    use super::{Error, TunnelStateChangeHandler, WG_DEVICE_CHECK_THRESHOLD};
     use mullvad_relay_selector::RelaySelector;
     use std::sync::{
         atomic::{AtomicBool, Ordering},

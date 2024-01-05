@@ -3,8 +3,11 @@
 use libc::siginfo_t;
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
 
-use std::ffi::{c_int, c_void};
-use std::{convert::TryFrom, sync::Once};
+use std::{
+    convert::TryFrom,
+    ffi::{c_int, c_void},
+    sync::Once,
+};
 
 static INIT_ONCE: Once = Once::new();
 

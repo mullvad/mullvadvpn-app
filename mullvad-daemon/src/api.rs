@@ -49,9 +49,9 @@ impl std::fmt::Display for Message {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Message::Get(_) => f.write_str("Get"),
-            Message::Set(_, _) => f.write_str("Set"),
+            Message::Set(..) => f.write_str("Set"),
             Message::Next(_) => f.write_str("Next"),
-            Message::Update(_, _) => f.write_str("Update"),
+            Message::Update(..) => f.write_str("Update"),
         }
     }
 }

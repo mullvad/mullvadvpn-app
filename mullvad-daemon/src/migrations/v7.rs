@@ -80,7 +80,6 @@ pub struct ShadowsocksProxySettings {
 /// - shadowsocks.peer to shadowsocks.endpoint
 /// - socks5_remote.authentication to socks5_remote.auth
 /// - socks5_remote.peer to socks5_remote.endpoint
-///
 pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
     if !version_matches(settings) {
         return Ok(());
@@ -254,7 +253,6 @@ mod test {
     use crate::migrations::v7::{migrate_api_access_settings, migrate_bridge_settings};
 
     use super::{migrate, version_matches};
-    use serde_json;
 
     pub const V7_SETTINGS: &str = r#"
 {
