@@ -43,7 +43,7 @@ jobs:
         env:
           RUSTFLAGS: --deny warnings
         run: |
-          time cargo clippy --locked -- -W clippy::unused_async
+          time cargo clippy --locked
 
   clippy-check-test-windows:
     name: Clippy linting of test workspace (Windows)
@@ -70,4 +70,4 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           # Exclude checking test-manager on Windows, since it is not a supported compilation target.
-          time cargo clippy --workspace --exclude test-manager --locked -- -W clippy::unused_async
+          time cargo clippy --workspace --exclude test-manager --locked
